@@ -1,0 +1,185 @@
+// Twin Frame RAW graphics mode for Atari
+// Adapted from XL-Paint, DLIs were removed to speed-up display
+// Compile with MADS
+
+procs   = $8E10
+data	= $BE10
+
+palette	= $7000
+buf0	= $7010
+buf1	= $A010
+
+vdslst	= $0200
+sdlstl	= $0230
+
+color0	= $02c4
+color1	= $02c5
+color2	= $02c6
+color3	= $02c7
+color4	= $02c8
+
+gprior	= $d01b
+wsync	= $d40a
+nmien	= $d40e
+
+initPMG5 = $8f22
+updtPMG5 = $8f28
+
+/*-------------------------------------------------------------------------------------------------*/
+	
+	org data
+
+	;.align	$100
+	
+dlist0:	dta d'pp',$30+$80
+		dta $4e,a(buf0)
+		:101 dta $e
+		dta $4e,0,h(buf0+$1000)
+		:88 dta $e
+		dta $e
+		dta $41,a(dlist0)
+
+	;.align	$100	
+		
+dlist1:	dta d'pp',$30+$80
+		dta $4e,a(buf1)
+		:101 dta $e
+		dta $4e,0,h(buf1+$1000)
+		:88 dta $e
+		dta $e
+		dta $41,a(dlist1)	
+	
+; Palette switcher
+palS:	dta $0
+
+; GFX config backup
+nmienT  .ds 1
+dlistT  .ds 2
+vbiT	.ds 2
+palT	.ds 4
+
+; Temporary variables
+cnt		.ds 1
+
+; Registries backup
+regA	.ds 1
+regX	.ds 1
+regY	.ds 1
+
+/*-------------------------------------------------------------------------------------------------*/
+
+	org procs
+	
+.proc StartRAW	
+	; Backup GFX settings
+	mva nmien   nmienT
+	mwa sdlstl  dlistT
+	mwa vdslst  vbiT
+	mva color4  palT+0
+	mva color0  palT+1
+	mva color1  palT+2
+	mva color2  palT+3
+
+	; Setup interrupts
+	sei
+	mva	#$c0	nmien
+	mwa	#dlist0	sdlstl
+	mwa	#vbi	vdslst
+	cli
+
+	; Update 5th sprite
+	jsr initPMG5
+	rts		
+.endp
+
+/*-------------------------------------------------------------------------------------------------*/
+
+.proc StopRAW
+	; Restore GFX settings
+	mva palT+0	color4
+	mva palT+1	color0
+	mva palT+2	color1
+	mva palT+3	color2	
+	sei
+	mva	nmienT	nmien
+	mwa dlistT	sdlstl
+	mwa vbiT	vdslst 
+	cli
+		
+	rts
+.endp
+	
+/*-------------------------------------------------------------------------------------------------*/
+
+vbi:
+	; Backup registers
+	sta regA
+	stx regX
+	sty regY
+	
+	; Reset counter
+	;mva #99 cnt
+	
+	; Switch palette
+	lda palS
+	eor #$1
+	sta palS
+	bne pal1
+
+pal0:	
+	; Assign palette 1
+	;sta wsync
+	mva palette+4	color4
+	mva palette+5	color0
+	mva palette+6	color1
+	mva palette+7	color2		
+
+	; Assign palette 0
+	;sta wsync
+	;mva palette+0	color4
+	;mva palette+1	color0
+	;mva palette+2	color1
+	;mva palette+3	color2
+	
+	; Iterate
+	;dec cnt
+	;bpl pal0	
+
+	; Switch Display List
+	mwa	#dlist1		sdlstl
+	jmp done
+
+pal1:	
+	; Assign palette 0
+	;sta wsync
+	mva palette+0	color4
+	mva palette+1	color0
+	mva palette+2	color1
+	mva palette+3	color2
+	
+	; Assign palette 1
+	;sta wsync
+	;mva palette+4	color4
+	;mva palette+5	color0
+	;mva palette+6	color1
+	;mva palette+7	color2		
+
+	; Iterate
+	;dec cnt
+	;bpl pal1	
+
+	; Switch Display List
+	mwa	#dlist0		sdlstl
+	jmp done
+	
+done:
+	; Load palette toggle and flicker 5th sprite
+	lda palS
+	jsr updtPMG5
+	
+return:	
+	; Restore Registers
+	lda regA
+	ldx regX
+	ldy regY
+	rti
