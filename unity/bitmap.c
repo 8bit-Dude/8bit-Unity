@@ -1,5 +1,5 @@
 
-#include "api.h"
+#include "unity.h"
 
 #define BYTE2(a,b) ((a<<4) | b)
 #define BYTE4(a,b,c,d) ((a<<6) | (b<<4) | (c<<2) | d)
@@ -24,9 +24,28 @@ unsigned char fgCol, bgCol;
 #ifdef __APPLE2__
 	// Buffer for HGR loading
 	char DHRLoad[1024];
+
+	// Bitmasks for color assignement
+	unsigned char DHRBytes[16][4] = {
+		{0x00,0x00,0x00,0x00},
+		{0x08,0x11,0x22,0x44},
+		{0x11,0x22,0x44,0x08},
+		{0x19,0x33,0x66,0x4C},
+		{0x22,0x44,0x08,0x11},
+		{0x2A,0x55,0x2A,0x55},
+		{0x33,0x66,0x4C,0x19},
+		{0x3B,0x77,0x6E,0x5D},
+		{0x44,0x08,0x11,0x22},
+		{0x4C,0x19,0x33,0x66},
+		{0x55,0x2A,0x55,0x2A},
+		{0x5D,0x3B,0x77,0x6E},
+		{0x66,0x4C,0x19,0x33},
+		{0x6E,0x5D,0x3B,0x77},
+		{0x77,0x6E,0x5D,0x3B},
+		{0x7F,0x7F,0x7F,0x7F}};	
 	
 	// HGR base array: provides base address for 192 page1 hires scanlines
-	unsigned HB[192]={
+	unsigned int DHRBases[192] = {
 		0x2000, 0x2400, 0x2800, 0x2C00, 0x3000, 0x3400, 0x3800, 0x3C00,
 		0x2080, 0x2480, 0x2880, 0x2C80, 0x3080, 0x3480, 0x3880, 0x3C80,
 		0x2100, 0x2500, 0x2900, 0x2D00, 0x3100, 0x3500, 0x3900, 0x3D00,
@@ -53,17 +72,79 @@ unsigned char fgCol, bgCol;
 		0x23D0, 0x27D0, 0x2BD0, 0x2FD0, 0x33D0, 0x37D0, 0x3BD0, 0x3FD0};
 
 	// Addresses for AUX bank copying
-	unsigned *src  = (unsigned *)0x3c;
-	unsigned *dest = (unsigned *)0x42;	
+	unsigned *dhrsrc  = (unsigned *)0x3c;
+	unsigned *dhrdst = (unsigned *)0x42;	
+	unsigned char *dhrmain = (char *)49236;
+	unsigned char *dhraux = (char *)49237;	
+	unsigned char *dhrptr, dhrpattern;
+	
 	void MainToAux(unsigned src0, unsigned src1, unsigned dest0)
 	{
 		// move a block of data from main to auxiliary memory
-		src[0] = src0;
-		src[1] = src1;
-		dest[0] = dest0;
+		dhrsrc[0] = src0;
+		dhrsrc[1] = src1;
+		dhrdst[0] = dest0;
 		asm("sec");
 		asm("jsr $c311");
 	}
+	
+	void SetDHRPointer(unsigned int x, unsigned int y)
+	{
+		// Compute 7 pixels block address
+		unsigned int xoff;
+		dhrpattern = (x%7);
+		if (dhrpattern > 3) {
+			xoff = ((x/7) * 2) + 1;
+		} else {
+			xoff = (x/7) * 2;
+		}
+		dhrptr = (unsigned char *) (DHRBases[y] + xoff);
+	}
+	
+	void SetDHRColor(unsigned char color)
+	{
+		// Use bitmasks to assign the relevant pixel
+		switch(dhrpattern) {
+			case 0: *dhraux = 0; // select auxilliary memory 
+					*dhrptr &= 0x70;
+					*dhrptr |= (DHRBytes[color][0] & 0x0f);
+					*dhrmain = 0; // reset to main memory 
+					break;
+			case 1: *dhraux = 0; // select auxilliary memory 
+					*dhrptr &= 0x0f;
+					*dhrptr |= (DHRBytes[color][0] & 0x70);
+					*dhrmain = 0; // reset to main memory 
+					*dhrptr &= 0x7e;
+					*dhrptr |= (DHRBytes[color][1] & 0x01);
+					break;
+			case 2: *dhrptr &= 0x61;
+					*dhrptr |= (DHRBytes[color][1] & 0x1e);
+					break;
+			case 3: *dhrptr &= 0x1f;
+					*dhrptr |= (DHRBytes[color][1] & 0x60);
+					*dhraux = 0; // select auxilliary memory 
+					*dhrptr++;      // advance offset in frame 
+					*dhrptr &= 0x7c;
+					*dhrptr |= (DHRBytes[color][2] & 0x03);
+					*dhrmain = 0; // reset to main memory 
+					break;
+			case 4: *dhraux = 0; // select auxilliary memory 
+					*dhrptr &= 0x43;
+					*dhrptr |= (DHRBytes[color][2] & 0x3c);
+					*dhrmain = 0; // reset to main memory 
+					break;
+			case 5: *dhraux = 0; // select auxilliary memory 
+					*dhrptr &= 0x3f;
+					*dhrptr |= (DHRBytes[color][2] & 0x40);
+					*dhrmain = 0; // reset to main memory 
+					*dhrptr &= 0x78;
+					*dhrptr |= (DHRBytes[color][3] & 0x07);
+					break;
+			case 6: *dhrptr &= 0x07;
+					*dhrptr |= (DHRBytes[color][3] & 0x78);
+					break;
+		}
+	}	
 #endif
 
 void EnterBitmapMode()
@@ -85,18 +166,17 @@ void EnterBitmapMode()
 	POKE(0xD011, PEEK(0xD011) | 32);		// 53265: set bitmap mode
 	POKE(0xD016, PEEK(0xD016) | 16);		// 53270: set multicolor mode
 #elif defined __ATARI__
-    // Switch ON graphic mode and antic
-	__asm__("jsr %w", STARTBMP);
-	POKE(559, 32+16+8+4+2); // DMA Screen + Enable P/M + DMA Players + DMA Missiles + Single resolution  (shadow for 54272)
+	__asm__("jsr %w", STARTBMP);			// Switch ON graphic mode and antic
+	POKE(559, 32+16+8+4+2); // ANTIC: DMA Screen + Enable P/M + DMA Players + DMA Missiles + Single resolution
 #elif defined __APPLE2__
 	// Switch ON Double Hi-Res Mode
-    asm("sta $c050"); /* GRAPHICS                 */
-    //asm("sta $c054"); /* PAGE ONE                 */
-    asm("sta $c052"); /* GRAPHICS ONLY, NOT MIXED */
-    asm("sta $c057"); /* HI-RES                   */
-    asm("sta $c05e"); /* TURN ON DOUBLE RES       */
-    asm("sta $c00d"); /* 80 COLUMN MODE	          */
-    //asm("sta $c001"); /* TURN ON 80 STORE  */
+    asm("sta $c050"); // TURN ON GRAPHICS         
+    asm("sta $c057"); // TURN ON HI-RES           
+    asm("sta $c052"); // TURN ON FULLSCREEN       
+    asm("sta $c05e"); // TURN ON DOUBLE HI-RES    
+    asm("sta $c00d"); // TURN ON 80 COLUMN MODE	  
+	//asm("sta $c054"); // PAGE ONE                 
+	//asm("sta $c055"); // PAGE TWO                 
 #endif
 }
 
@@ -114,11 +194,8 @@ void ExitBitmapMode()
 	POKE(559, 0);
 #elif defined __APPLE2__
     // Switch OFF Double Hi-Res Mode
-    asm("sta $c000"); /* TURN OFF 80 STORE        */
     asm("sta $c051"); /* TEXT - HIDE GRAPHICS */
     asm("sta $c05f"); /* TURN OFF DOUBLE RES  */
-    //asm("sta $c054"); /* PAGE ONE             */
-    //asm("sta $c00d"); /* 80 COLUMN MODE	      */
 #endif
 }
 
@@ -228,7 +305,7 @@ unsigned char GetColor(unsigned int x, unsigned int y)
 #elif defined __ATARI__
 	unsigned int offset;
 	unsigned char shift;
-	offset = y*40+x/8;
+	offset = 40*((y*192)/200)+x/8;
 	shift = 6 - 2*((x/2)%4);
 
 	// Dual buffer (colour/shade)
@@ -245,8 +322,10 @@ void SetColor(unsigned int x, unsigned int y, unsigned char color)
 	// Set pixel
 	POKE(BITMAPRAM + 40*(y&248)+(y&7)+(x&504), 0);
 #elif defined __APPLE2__
-	// Call Assembly Function
-	//DHRSetColor(x,y,color);
+	asm("sta $c001"); // TURN ON 80 STORE
+	SetDHRPointer(x,y);
+	SetDHRColor(color);	
+	asm("sta $c000"); // TURN OFF 80 STORE	
 #endif
 }
 
@@ -256,9 +335,10 @@ void PrintLogo(unsigned char col, unsigned char row, unsigned char index)
 	unsigned char i;
 #if defined __CBM__
 	// Define logos
-	unsigned char logos[3][8] = { {0,0,0,16,68, 64, 72, 16}, 	// C64: (0,1,0,0) (1,0,1,0) (1,0,0,0) (1,0,2,0) (0,1,0,0)
-								  {0,0,0,16,68,168,136,204},	// ATR: (0,1,0,0) (1,0,1,0) (2,2,2,0) (2,0,2,0) (3,0,3,0)
-								  {0,0,0, 4,16,168,168,252} };	// APP: (0,0,1,0) (0,1,0,0) (2,2,2,0) (2,2,2,0) (3,3,3,0)
+	unsigned char logos[4][8] = { {0,0,0, 16, 68, 64, 72, 16}, 		// C64: (0,1,0,0) (1,0,1,0) (1,0,0,0) (1,0,2,0) (0,1,0,0)
+								  {0,0,0, 16, 68,168,136,204},		// ATR: (0,1,0,0) (1,0,1,0) (2,2,2,0) (2,0,2,0) (3,0,3,0)
+								  {0,0,0,  4, 16,168,168,252},		// APP: (0,0,1,0) (0,1,0,0) (2,2,2,0) (2,2,2,0) (3,3,3,0)
+								  {0,0,0,212,215,255,215,255} };	// FLP: (3,1,1,0) (3,1,1,3) (3,3,3,3) (3,1,1,3) (3,3,3,3)
 	
 	// Get memory addresses
 	addr1 = BITMAPRAM + 40*((row*8)&248)+((col*8)&504);
@@ -278,12 +358,14 @@ void PrintLogo(unsigned char col, unsigned char row, unsigned char index)
 	}
 #elif defined __ATARI__
 	// Define logos
-	unsigned char logos1[3][8] = { {0,0,0,48,204,192,204, 48}, 	// C64: (0,3,0,0) (3,0,3,0) (3,0,0,0) (3,0,3,0) (0,3,0,0)	LUMINANCE
-								   {0,0,0,48,204,252,204,204},	// ATR: (0,3,0,0) (3,0,3,0) (3,3,3,0) (3,0,3,0) (3,0,3,0)
-								   {0,0,0,12, 48,252,252,252} };// APP: (0,0,3,0) (0,3,0,0) (3,3,3,0) (3,3,3,0) (3,3,3,0)
-	unsigned char logos2[3][8] = { {0,0,0,32,136,128,132, 32}, 	// C64: (0,2,0,0) (2,0,2,0) (2,0,0,0) (2,0,1,0) (0,2,0,0)	CHROMA
-								   {0,0,0,48,204, 84, 68,136},	// ATR: (0,3,0,0) (3,0,3,0) (1,1,1,0) (1,0,1,0) (2,0,2,0)
-								   {0,0,0,12, 48, 84, 84,168} };// APP: (0,0,3,0) (0,3,0,0) (1,1,1,0) (1,1,1,0) (2,2,2,0)
+	unsigned char logos1[4][8] = { {0,0,0, 48,204,192,204, 48}, 	// C64: (0,3,0,0) (3,0,3,0) (3,0,0,0) (3,0,3,0) (0,3,0,0)	LUMINANCE
+								   {0,0,0, 48,204,252,204,204},		// ATR: (0,3,0,0) (3,0,3,0) (3,3,3,0) (3,0,3,0) (3,0,3,0)
+								   {0,0,0, 12, 48,252,252,252},  	// APP: (0,0,3,0) (0,3,0,0) (3,3,3,0) (3,3,3,0) (3,3,3,0)
+								   {0,0,0,252,255,255,255,255} };	// FLP: (3,3,3,0) (3,3,3,3) (3,3,3,3) (3,3,3,3) (3,3,3,3)
+	unsigned char logos2[4][8] = { {0,0,0, 32,136,128,132, 32}, 	// C64: (0,2,0,0) (2,0,2,0) (2,0,0,0) (2,0,1,0) (0,2,0,0)	CHROMA
+								   {0,0,0, 48,204, 84, 68,136},		// ATR: (0,3,0,0) (3,0,3,0) (1,1,1,0) (1,0,1,0) (2,0,2,0)
+								   {0,0,0, 12, 48, 84, 84,168},  	// APP: (0,0,3,0) (0,3,0,0) (1,1,1,0) (1,1,1,0) (2,2,2,0)
+								   {0,0,0,128,130,170,130,170} };	// FLP: (2,0,0,0) (2,0,0,2) (2,2,2,2) (2,0,0,2) (2,2,2,2)
 
 	// Get memory addresses
 	addr1 = BITMAPRAM1+row*320+col;
@@ -299,28 +381,29 @@ void PrintLogo(unsigned char col, unsigned char row, unsigned char index)
 
 void PrintChr(unsigned char col, unsigned char row, const char *matrix)
 {
-	unsigned int addr1, addr2;
-	unsigned char i;
-
 #if defined __CBM__
 	// Set Character inside 4*8 cell
-	addr1 = BITMAPRAM + 40*((row*8)&248)+((col*8)&504);
+	unsigned char i;
+	unsigned int addr;
+	addr = BITMAPRAM + 40*((row*8)&248)+((col*8)&504);
 	if (matrix == &charBlank[0]) {
-		memset((char*)addr1, pow2, 8);
+		memset((char*)addr, pow2, 8);
 	} else {
-		POKE(addr1, pow2);
+		POKE(addr, pow2);
 		for (i=0; i<3; ++i) {
-			POKE(addr1+2*i+1, BYTE4((((matrix[i]>>7)&1) ? 1 : 2), (((matrix[i]>>6)&1) ? 1 : 2), (((matrix[i]>>5)&1) ? 1 : 2), 2));
-			POKE(addr1+2*i+2, BYTE4((((matrix[i]>>3)&1) ? 1 : 2), (((matrix[i]>>2)&1) ? 1 : 2), (((matrix[i]>>1)&1) ? 1 : 2), 2));
+			POKE(addr+2*i+1, BYTE4((((matrix[i]>>7)&1) ? 1 : 2), (((matrix[i]>>6)&1) ? 1 : 2), (((matrix[i]>>5)&1) ? 1 : 2), 2));
+			POKE(addr+2*i+2, BYTE4((((matrix[i]>>3)&1) ? 1 : 2), (((matrix[i]>>2)&1) ? 1 : 2), (((matrix[i]>>1)&1) ? 1 : 2), 2));
 		}
-		POKE(addr1+7, pow2);
+		POKE(addr+7, pow2);
 	}
 	
 	// Set Color
-	addr2 = SCREENRAM + row*40+col;
-	POKE(addr2, fgCol << 4 | bgCol);
+	addr = SCREENRAM + row*40+col;
+	POKE(addr, fgCol << 4 | bgCol);
 #elif defined __ATARI__	
 	// Set Character across double buffer
+	unsigned char i;
+	unsigned int addr1,addr2;
 	unsigned char fgCol1,fgCol2;
 	unsigned char bgCol1,bgCol2;
 	fgCol1 = fgCol%4;
@@ -346,30 +429,37 @@ void PrintChr(unsigned char col, unsigned char row, const char *matrix)
 		POKE((char*)addr1+7*40, BYTE4(bgCol1,bgCol1,bgCol1,bgCol1));
 		POKE((char*)addr2+7*40, BYTE4(bgCol2,bgCol2,bgCol2,bgCol2));
 	}
-#elif defined __APPLE2__	
-	unsigned x1 = col;
-	unsigned y1 = 8*row;
-	unsigned destoffset; 
-	unsigned char buff[4];
-
+#elif defined __APPLE2__
+	unsigned int x,y;
+	unsigned char i,j,n;
+	if (col%2) { n=4; } else { n=3; }
+	x = (col*35)/10;
+	y = (row*8);
 	
-	//asm("sta $c054"); /* PAGE ONE                 */
-	//asm("sta $c055"); /* PAGE TWO                 */
-
-/*		
-    // rasters are split between auxiliary memory and main memory
-	while (y1 < y2) {
-		// assign auxiliary memory
-		src[0] = (unsigned) &buff[0];
-		src[1] = (unsigned) &buff[0];
-		dest[0] = destoffset = (HB[y1] + x1);
-		asm("sec");
-		asm("jsr $c311");
-		
-		// assign main memory
-		memcpy((char *)destoffset,&buff[0],1);
-		y1++;
-	} */
+	asm("sta $c001"); // TURN ON 80 STORE
+	SetDHRPointer(x, y);	
+	for (j=0; j<n; j++) {
+		dhrpattern = ((x+j)%7);
+		SetDHRColor(bgCol);
+	}
+	for (i=0; i<3; ++i) {
+		SetDHRPointer(x, y+i*2+1);
+		for (j=0; j<n; j++) {
+			dhrpattern = ((x+j)%7);
+			SetDHRColor(((matrix[i]>>(7-j))&1) ? fgCol : bgCol);
+		}
+		SetDHRPointer(x, y+i*2+2);
+		for (j=0; j<n; j++) {
+			dhrpattern = ((x+j)%7);
+			SetDHRColor(((matrix[i]>>(3-j))&1) ? fgCol : bgCol);
+		}
+	}
+	SetDHRPointer(x, y+7);
+	for (j=0; j<n; j++) {
+		dhrpattern = ((x+j)%7);
+		SetDHRColor(bgCol);
+	}
+	asm("sta $c000"); // TURN OFF 80 STORE	
 #endif
 }
 
@@ -383,9 +473,9 @@ void PrintStr(unsigned char col, unsigned char row, const char *buffer)
 #if defined __CBM__
 		else if (buffer[i] > 192) { chr = &charLetter[(buffer[i]-193)*3]; }		// Upper case (C64)
 		else if (buffer[i] > 64)  { chr = &charLetter[(buffer[i]-65)*3]; }		// Lower case (C64)
-#elif defined __ATARI__
-		else if (buffer[i] > 96)  { chr = &charLetter[(buffer[i]-97)*3]; }	// Lower case (Atari)
-		else if (buffer[i] > 64)  { chr = &charLetter[(buffer[i]-65)*3]; }	// Upper case (Atari)
+#else
+		else if (buffer[i] > 96)  { chr = &charLetter[(buffer[i]-97)*3]; }	// Lower case (Apple/Atari)
+		else if (buffer[i] > 64)  { chr = &charLetter[(buffer[i]-65)*3]; }	// Upper case (Apple/Atari)
 #endif
 		else if (buffer[i] == 63) { chr = &charQuestion[0]; }
 		else if (buffer[i] == 58) { chr = &charColon[0]; }
@@ -437,12 +527,10 @@ void PrintInput(unsigned char col, unsigned char row, char *buffer, unsigned cha
 char KeyStr(char *buffer, unsigned char len, unsigned char key)
 {
 	// Letter key
-#if defined __CBM__	
-	if (key == 32 | key == 33 | (key > 38 & key < 42) | (key > 43 & key < 59) | key == 63 | (key > 64 & key < 91)) {
-#elif defined __ATARI__
-	if (key == 32 | key == 33 | (key > 38 & key < 42) | (key > 43 & key < 59) | key == 63 | (key > 96 & key < 123)) {
-#elif defined __APPLE2__
-	if (key == 32 | key == 33 | (key > 38 & key < 42) | (key > 43 & key < 59) | key == 63 | (key > 96 & key < 123)) {
+#if defined __ATARI__	
+	if (key == 32 | key == 33 | (key > 38 & key < 42) | (key > 43 & key < 59) | key == 63 | (key > 96 & key < 123)) {	// Atari
+#else
+	if (key == 32 | key == 33 | (key > 38 & key < 42) | (key > 43 & key < 59) | key == 63 | (key > 64 & key < 91)) {	// Apple/C64
 #endif
 		if (strlen(buffer) < len) { 
 			buffer[strlen(buffer)+1] = 0; 

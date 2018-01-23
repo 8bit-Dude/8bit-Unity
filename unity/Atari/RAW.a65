@@ -9,6 +9,7 @@ palette	= $7000
 buf0	= $7010
 buf1	= $A010
 
+atract  = $004d
 vdslst	= $0200
 sdlstl	= $0230
 
@@ -22,8 +23,8 @@ gprior	= $d01b
 wsync	= $d40a
 nmien	= $d40e
 
-initPMG5 = $8f22
-updtPMG5 = $8f28
+initPMG5 = $8ef7
+updtPMG5 = $8efd
 
 /*-------------------------------------------------------------------------------------------------*/
 	
@@ -55,11 +56,7 @@ palS:	dta $0
 ; GFX config backup
 nmienT  .ds 1
 dlistT  .ds 2
-vbiT	.ds 2
-palT	.ds 4
-
-; Temporary variables
-cnt		.ds 1
+dliT	.ds 2
 
 ; Registries backup
 regA	.ds 1
@@ -74,20 +71,16 @@ regY	.ds 1
 	; Backup GFX settings
 	mva nmien   nmienT
 	mwa sdlstl  dlistT
-	mwa vdslst  vbiT
-	mva color4  palT+0
-	mva color0  palT+1
-	mva color1  palT+2
-	mva color2  palT+3
+	mwa vdslst  dliT
 
-	; Setup interrupts
+	; Setup DLIST and DLI
 	sei
 	mva	#$c0	nmien
 	mwa	#dlist0	sdlstl
-	mwa	#vbi	vdslst
+	mwa	#dli	vdslst
 	cli
 
-	; Update 5th sprite
+	; Init 5th sprite
 	jsr initPMG5
 	rts		
 .endp
@@ -95,30 +88,29 @@ regY	.ds 1
 /*-------------------------------------------------------------------------------------------------*/
 
 .proc StopRAW
-	; Restore GFX settings
-	mva palT+0	color4
-	mva palT+1	color0
-	mva palT+2	color1
-	mva palT+3	color2	
+	; Kill DLI
 	sei
 	mva	nmienT	nmien
 	mwa dlistT	sdlstl
-	mwa vbiT	vdslst 
+	mwa dliT	vdslst 
 	cli
+	
+	; Black-out palette
+	;mva #0 color4
+	;mva #0 color0
+	;mva #0	color1
+	;mva #0	color2	
 		
 	rts
 .endp
 	
 /*-------------------------------------------------------------------------------------------------*/
 
-vbi:
+dli:
 	; Backup registers
 	sta regA
 	stx regX
 	sty regY
-	
-	; Reset counter
-	;mva #99 cnt
 	
 	; Switch palette
 	lda palS
@@ -128,22 +120,10 @@ vbi:
 
 pal0:	
 	; Assign palette 1
-	;sta wsync
 	mva palette+4	color4
 	mva palette+5	color0
 	mva palette+6	color1
-	mva palette+7	color2		
-
-	; Assign palette 0
-	;sta wsync
-	;mva palette+0	color4
-	;mva palette+1	color0
-	;mva palette+2	color1
-	;mva palette+3	color2
-	
-	; Iterate
-	;dec cnt
-	;bpl pal0	
+	mva palette+7	color2
 
 	; Switch Display List
 	mwa	#dlist1		sdlstl
@@ -151,33 +131,23 @@ pal0:
 
 pal1:	
 	; Assign palette 0
-	;sta wsync
 	mva palette+0	color4
 	mva palette+1	color0
 	mva palette+2	color1
 	mva palette+3	color2
-	
-	; Assign palette 1
-	;sta wsync
-	;mva palette+4	color4
-	;mva palette+5	color0
-	;mva palette+6	color1
-	;mva palette+7	color2		
-
-	; Iterate
-	;dec cnt
-	;bpl pal1	
 
 	; Switch Display List
 	mwa	#dlist0		sdlstl
 	jmp done
 	
 done:
-	; Load palette toggle and flicker 5th sprite
+	; Flicker 5th sprite? (check paletter toggle)
 	lda palS
 	jsr updtPMG5
-	
-return:	
+
+	; Reset atract (screen saver timer)
+	sta atract
+
 	; Restore Registers
 	lda regA
 	ldx regX

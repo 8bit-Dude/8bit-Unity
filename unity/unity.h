@@ -6,8 +6,9 @@
 	Last modified: 2018/01/18
 	
 	Credits: 
-		* Oliver Schmidt for programming the IP65 network interface
+		* Oliver Schmidt for his IP65 network interface
 		* Christian Groessler for helping optimize the memory maps on Commodore and Atari
+		* Bill Buckels for his Apple II Double Hi-Res bitmap code
 */
 
 // CC65 includes
@@ -21,7 +22,6 @@
 
 // Debugging flags
 #define DEBUG_FPS
-//#define DEBUG_NAV
 
 // Platform IDs
 #if defined __CBM__
@@ -51,13 +51,13 @@
 #elif defined __ATARI__
 	// Atari Memory locations
 	#define SPRITELEN  13 		// Byte length of 1 sprite;
-	#define PMG5	   (0x8f0b) // 5th sprite flicker routine
+	#define PMG5	   (0x8ee0) // 5th sprite flicker routine
 	#define PMGRAM     (0x9800) // Player missile memory
 	#define SPRITERAM1 (0x9700)	// Sprite data
 	#define SPRITERAM2 (0x98A0)	// 5th sprite data
 	
 	#define STARTBMP   (0x8E10) // Start Bitmap routine
-	#define STOPBMP    (0x8E65) // Stop Bitmap routine
+	#define STOPBMP    (0x8E4D) // Stop Bitmap routine
 	#define PALETTERAM (0x7000) // Palette data
 	#define PALETTETOG (0xBFA4) // Palette toggle (RGB/BW)
 	#define BITMAPRAM1 (0x7010) // Colour data
@@ -112,6 +112,28 @@
 	#define WHITE   	15
 #endif	
 
+// Keyboard definitions
+	#define KEY_SP		' '
+#if defined __APPLE2__
+	#define KEY_C		'C'
+	#define KEY_F		'F'
+	#define KEY_G		'G'
+	#define KEY_H		'H'
+	#define KEY_L		'L'
+	#define KEY_M		'M'
+	#define KEY_O		'O'
+	#define KEY_Q		'Q'	
+#else
+	#define KEY_C		'c'	
+	#define KEY_F		'f'
+	#define KEY_G		'g'
+	#define KEY_H		'h'
+	#define KEY_L		'l'
+	#define KEY_M		'm'
+	#define KEY_O		'o'
+	#define KEY_Q		'q'	
+#endif
+
 // Bitmap functions (see bitmap.c)
 void EnterBitmapMode(void);
 void ExitBitmapMode(void);
@@ -163,35 +185,20 @@ extern unsigned char bg, bgChat, fgCol, bgCol;
 #define JOY_RIGHT 3
 #define JOY_FIRE  4
 
-// Joystick functions
+// Joystick 1&2 functions
 #if defined __CBM__
-	// Joystick 1&2 support
-	#define getJoy(i) (PEEK(56320+i))
-		
-	// Joystick 3&4 support (see C64/JOY34.s)
-	void initJoy34();
-	void updateJoy34();
-	unsigned char getJoy3();
-	unsigned char getJoy4();
+	#define getJoy(i) (PEEK(56321-(i)))		
 #elif defined __ATARI__
-	// Joystick 1&2 support
 	#define getJoy(i) (PEEK(0x0278+i)+(PEEK(0x0284+i)<<4))
-	
-	// Joystick 3&4 support (not implemented)	
-	void initJoy34() {}
-	void updateJoy34() {}
-	unsigned char getJoy3() {}
-	unsigned char getJoy4() {}
 #elif defined __APPLE2__
-	// Joystick 1&2 support
-	#define getJoy(i) (0)
-	
-	// Joystick 3&4 support (not implemented)	
-	void initJoy34() {}
-	void updateJoy34() {}
-	unsigned char getJoy3() {}
-	unsigned char getJoy4() {}
+	#define getJoy(i) (255)
 #endif
+
+// Joystick 3&4 function (see joystick.c and C64/JOY34.s)	
+void initJoy34(void);
+void updateJoy34(void);
+unsigned char getJoy3(void);
+unsigned char getJoy4(void);
 
 // Math functions (see math.s)
 unsigned char atan2(unsigned char y, unsigned char x);
@@ -265,5 +272,31 @@ void SetSprite(unsigned char index, unsigned int frame, unsigned int x, unsigned
 	#define COLLIDING(collisions,i) (0) 
 #endif
 
+// Special functions (for code optimization)
+#if defined __APPLE2__
+extern unsigned char *dhrmain, *dhraux, *dhrptr;
+void SetDHRPointer(unsigned int x, unsigned int y);
+#endif
 
-
+// Workaround for missing Apple clock
+#if defined __APPLE2__
+#define CLK_MSC 17
+unsigned int cnts, timer;
+clock_t clk;
+clock_t clock()
+{	/*
+	if (timer_read() > timer+CLK_MSC) {
+		cnts = (timer_read()-timer)/CLK_MSC;
+		timer += cnts*CLK_MSC;
+		clk += cnts;
+	} else if (timer_read() < timer) {
+		timer = 0;
+	}	*/
+	clk += 3;
+	return clk;
+}
+unsigned sleep (unsigned wait) 
+{
+	return 0;
+}
+#endif

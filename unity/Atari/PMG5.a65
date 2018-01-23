@@ -3,7 +3,7 @@
 // Date created: 2017/12/21
 // Compile with MADS
 
-	org $8f0b
+	org $8ee0
 
 PM5BAS  = $9b00
 M1POS 	= $d004
@@ -14,8 +14,8 @@ M4POS 	= $d007
 ; 5th sprite flicker
 PMGX	.ds 4
 PMGY	.ds 4
-PMGF	.ds 8
-PM5MAX	.ds 1
+PMGFram	.ds 8
+PMGMask	.ds 1
 PM5IND	.ds 1
 PM5AIN	.ds 2
 PM5AOU	.ds 2
@@ -31,7 +31,7 @@ initPM5:
 updtPM5:	
 	; Check that sprites are enabled!
 	sta GFXTOG
-	lda PM5MAX
+	lda PMGMask
 	bne sprbranch0
 	rts
 
@@ -48,21 +48,35 @@ strloop0:
 	dey				
 	bne strloop0	; Loop through till y is 0
 	
+sprbranch1:
 	; Should we increment sprite index? (depends on GFX mode toggle)
 	ldx PM5IND
 	lda GFXTOG
-	beq sprbranch2
+	beq sprbranch3
 	
-	; Increment 5th sprite index (reset when index == MAX)
-	inx
-	cpx PM5MAX
-	bcc sprbranch1
+	; Increment 5th sprite index (reset when index becomes 4)
+	inx	
+	cpx #4
+	bcc sprbranch2
 	ldx #0
-sprbranch1:
+sprbranch2:
 	stx PM5IND
 	
-sprbranch2:
+	; Verify sprite is allocated in mask
+	lda #$0000001
+	cpx #0
+	beq bittest
+bitshift:
+	asl
+	dex
+	bne bitshift	; Loop through till x is 0 
+bittest:
+	and PMGMask
+	beq sprbranch1
+	
+sprbranch3:
 	; Set x pos. of new 5th sprite
+	ldx PM5IND
 	lda PMGX,x  ; Xpos of sprite to A
 	sta M4POS
 	cpx #0
@@ -81,20 +95,20 @@ sprbranch2:
 	cpx #2
 	beq off2
 off3:
-	mva PMGF+7 PM5AIN+1
-	mva PMGF+6 PM5AIN+0
+	mva PMGFram+7 PM5AIN+1
+	mva PMGFram+6 PM5AIN+0
 	jmp add0
 off2:	
-	mva PMGF+5 PM5AIN+1
-	mva PMGF+4 PM5AIN+0
+	mva PMGFram+5 PM5AIN+1
+	mva PMGFram+4 PM5AIN+0
 	jmp add0
 off1:	
-	mva PMGF+3 PM5AIN+1
-	mva PMGF+2 PM5AIN+0
+	mva PMGFram+3 PM5AIN+1
+	mva PMGFram+2 PM5AIN+0
 	jmp add0
 off0:	
-	mva PMGF+1 PM5AIN+1
-	mva PMGF+0 PM5AIN+0
+	mva PMGFram+1 PM5AIN+1
+	mva PMGFram+0 PM5AIN+0
 		
 	; Add base of IN address ($98A0)
 add0:
@@ -135,7 +149,7 @@ add0:
 		
 	; Set pixels of 5th sprite
 	ldy #12	 ; Sprite length
-sprloop1:	
+sprloop1:
 	; Transfer values IN/OUT
 	lda ($0),y	
 	sta ($2),y	

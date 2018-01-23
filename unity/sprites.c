@@ -1,13 +1,13 @@
 
-#include "api.h"
+#include "unity.h"
 
 // Atari specific definitions
 #if defined __ATARI__
 	// 5th sprite flicker data (PMG5.a65)
 	#define PMGX 	PMG5+0x00
 	#define PMGY 	PMG5+0x04
-	#define PMGF 	PMG5+0x08
-	#define PM5MAX 	PMG5+0x10
+	#define PMGFram	PMG5+0x08
+	#define PMGMask	PMG5+0x10
 
 	// 1-4th sprite data
 	unsigned int PMGbase[4] = {PMGRAM+1024, PMGRAM+1280, PMGRAM+1536, PMGRAM+1792};
@@ -74,7 +74,7 @@ void InitSprites(unsigned char *colors)
     }
     bzero(PMGaddr[4],0x100);  // Clear Missile memory
 	POKE(711, colors[4]);	  // Set Missile color  (shadow for 53273)
-	POKE(PM5MAX, 0);  // Set max number of rolling sprites (PMG.a65)
+	POKE(PMGMask, 0);  		  // Set rolling sprites mask (PMG.a65)
 #elif defined __APPLE2__	
 	// Load sprite sheets
 	LoadSprite(0, "SPRITES0.DHR");
@@ -85,9 +85,9 @@ void InitSprites(unsigned char *colors)
 }
 
 #if defined __APPLE2__
-// Extern variables // (see cc65lib-bitmap.h)
-extern unsigned *src, *dest;
-extern unsigned HB[192];
+// Extern variables (see bitmap.c)
+extern unsigned DHRBases[192];
+extern unsigned *dhrsrc, *dhrdst;
 unsigned char *PixelData;
 unsigned x1, y1, y2, destoffset, auxoffset, mainoffset;  
 unsigned char bgB[4] = {0,0,0,0}, bgX[4], bgY[4], bgDAT[4][SPRITE_WIDTH*SPRITE_HEIGHT];  
@@ -110,7 +110,7 @@ void SetSprite(unsigned char index, unsigned int frame, unsigned int x, unsigned
 #elif defined __ATARI__
 	// Convert to Atari coordinates
 	x = 45+(x*160)/320;
-	y = 23+(y*194)/200;
+	y = 22+(y*192)/200;
 	
 	// Set X coordinate
 	POKE(53248+index, x);
@@ -123,7 +123,7 @@ void SetSprite(unsigned char index, unsigned int frame, unsigned int x, unsigned
 	// Pass information to 5th sprite handler (PMG.a65)
 	POKE(PMGX+index, x);
 	POKE(PMGY+index, y);
-	POKEW(PMGF+index*2, frame*SPRITELEN);
+	POKEW(PMGFram+index*2, frame*SPRITELEN);
 #elif defined __APPLE2__
 	// Convert to Apple coordinates
 	x = (80*x)/320;
@@ -138,9 +138,9 @@ void SetSprite(unsigned char index, unsigned int frame, unsigned int x, unsigned
 		/* rasters are split between auxiliary memory and main memory */
 		while (y1 < y2) {
 			/* restore auxiliary memory */
-			src[0] = (unsigned) &bgDAT[index][auxoffset];
-			src[1] = (unsigned) &bgDAT[index][mainoffset-1];
-			dest[0] = destoffset = (HB[y1] + x1);					
+			dhrsrc[0] = (unsigned) &bgDAT[index][auxoffset];
+			dhrsrc[1] = (unsigned) &bgDAT[index][mainoffset-1];
+			dhrdst[0] = destoffset = (DHRBases[y1] + x1);					
 			asm("sec");
 			asm("jsr $c311");
 			
@@ -158,16 +158,16 @@ void SetSprite(unsigned char index, unsigned int frame, unsigned int x, unsigned
     /* rasters are split between auxiliary memory and main memory */
 	while (y1 < y2) {
 		/* backup auxiliary & main memory */
-		src[0] = (HB[y1] + x1);
-		src[1] = (src[0] + PACKET_BOUND);
-		dest[0] = (unsigned) &bgDAT[index][auxoffset];		
+		dhrsrc[0] = (DHRBases[y1] + x1);
+		dhrsrc[1] = (dhrsrc[0] + PACKET_BOUND);
+		dhrdst[0] = (unsigned) &bgDAT[index][auxoffset];		
 		asm("clc");
 		asm("jsr $c311");
 		
 		/* assign auxiliary memory */
-		src[0] = (unsigned) &PixelData[auxoffset];
-		src[1] = (unsigned) &PixelData[mainoffset-1];
-		dest[0] = destoffset = (HB[y1] + x1);
+		dhrsrc[0] = (unsigned) &PixelData[auxoffset];
+		dhrsrc[1] = (unsigned) &PixelData[mainoffset-1];
+		dhrdst[0] = destoffset = (DHRBases[y1] + x1);
 		asm("sec");
 		asm("jsr $c311");
 		
@@ -194,15 +194,15 @@ void EnableSprite(signed char index)
 		// Set sprite bits
 		POKE(53269, PEEK(53269) |  (1 << index));
 #elif defined __ATARI__
-		POKE(PM5MAX, index+1);  // Set max number of rolling sprites (PMG.a65)
+		// Set rolling sprite mask
+		POKE(PMGMask, PEEK(PMGMask) | (1 << index));
 #endif
 	// Switch all sprites off
 	} else {
 #if defined __CBM__
-		// Set sprite bits		
-		POKE(53269, 0);
+		POKE(53269, 0);		// Set sprite bits		
 #elif defined __ATARI__	
-		POKE(PM5MAX, 0);  // Set max number of rolling sprites (PMG.a65)
+		POKE(PMGMask,0);    // Set rolling sprite mask
 		bzero(PMGRAM+768,0x500);   // Clear all PMG memory
 #endif
 	}
@@ -214,6 +214,8 @@ void DisableSprite(signed char index)
 #if defined __CBM__
 	POKE(53269, PEEK(53269) & ~(1 << index));
 #elif defined __ATARI__
+	// Set rolling sprite mask
+	POKE(PMGMask, PEEK(PMGMask) & ~(1 << index));
 	bzero(PMGaddr[index],0x100);   // Clear Player memory
 #endif
 }
