@@ -51,7 +51,7 @@
 #elif defined __ATARI__
 	// Atari Memory locations
 	#define SPRITELEN  13 		// Byte length of 1 sprite;
-	#define PMG5	   (0x8ee0) // 5th sprite flicker routine
+	#define PMG5	   (0x8ef0) // 5th sprite flicker routine
 	#define PMGRAM     (0x9800) // Player missile memory
 	#define SPRITERAM1 (0x9700)	// Sprite data
 	#define SPRITERAM2 (0x98A0)	// 5th sprite data
@@ -72,10 +72,11 @@
 	// C64 Colors
 	#define BLACK  		COLOR_BLACK
 	#define BLUE   		COLOR_BLUE
-	#define DARKGRAY   	COLOR_GRAY2	
-	#define GRAY   		COLOR_GRAY3	
+	#define DRKGRAY   	COLOR_GRAY1	
+	#define MEDGRAY 	COLOR_GRAY2	
+	#define LITGRAY   	COLOR_GRAY3	
 	#define GREEN  		COLOR_GREEN
-	#define LIGHTGREEN  COLOR_LIGHTGREEN
+	#define LITGREEN    COLOR_LIGHTGREEN
 	#define PURPLE 		COLOR_PURPLE
 	#define RED    		COLOR_RED
 	#define YELLOW 		COLOR_YELLOW
@@ -84,8 +85,9 @@
 	// Atari Colors
 	#define BLACK  		0
 	#define BLUE   		9
-	#define DARKGRAY   	1
-	#define GRAY   		2
+	#define DRKGRAY   	1
+	#define MEDGRAY   	2
+	#define LITGRAY     3
 	#define GREEN  	   15
 	#define PURPLE     11
 	#define RED    		6
@@ -95,13 +97,14 @@
 	// Apple Colors
 	#define BLACK   	0
 	#define RED     	1
-	#define DARKKBLUE	2
+	#define DRKBLUE	    2
 	#define PURPLE  	3
-	#define LIGHTGREEN	4
-	#define GRAY   		5
-	#define DARKGRAY   	5
+	#define LITGREEN	4
+	#define DRKGRAY   	5
+	#define MEDGRAY   	5
+	#define LITGRAY   	5
 	#define BLUE		6
-	#define LIGHTTBLUE 	7
+	#define LITBLUE 	7
 	#define BROWN   	8
 	#define ORANGE  	9
 	#define GREY    	10
@@ -141,6 +144,7 @@ void ClearBitmap(void);
 void LoadBitmap(char *filename);
 unsigned char GetColor(unsigned int x, unsigned int y);
 void SetColor(unsigned int x, unsigned int y, unsigned char color);
+void DrawPanel(unsigned char colBeg, unsigned char rowBeg, unsigned char colEnd, unsigned char rowEnd);
 void PrintChr(unsigned char col, unsigned char row, const char *matrix);
 void PrintStr(unsigned char col, unsigned char row, const char *buffer);
 void PrintLogo(unsigned char col, unsigned char row, unsigned char index);
@@ -266,16 +270,18 @@ void SetSprite(unsigned char index, unsigned int frame, unsigned int x, unsigned
 	// On Atari, we need to reset collisions by poking 0 into 53278
 	#define COLLISIONS(i) (PEEK(53260+i)+(1<<i)); POKE(53278,0)
 	#define COLLIDING(collisions,i) ((collisions >> i) & 1) 
-#elif defined __APPLE2__	
+#elif defined __APPLE2__
 	// On Apple, there is no collision detection at present
 	#define COLLISIONS(i) (0)
 	#define COLLIDING(collisions,i) (0) 
 #endif
 
-// Special functions (for code optimization)
+// Apple DHR functions, for code optimization (see Apple/DHR.c)
 #if defined __APPLE2__
-extern unsigned char *dhrmain, *dhraux, *dhrptr;
+extern unsigned char *dhrmain, *dhraux, *dhrptr, dhrpattern;
+void MainToAux(unsigned src0, unsigned src1, unsigned dst0);
 void SetDHRPointer(unsigned int x, unsigned int y);
+void SetDHRColor(unsigned char color);
 #endif
 
 // Workaround for missing Apple clock
@@ -284,19 +290,27 @@ void SetDHRPointer(unsigned int x, unsigned int y);
 unsigned int cnts, timer;
 clock_t clk;
 clock_t clock()
-{	/*
-	if (timer_read() > timer+CLK_MSC) {
+{
+/*	if (timer_read() > timer+CLK_MSC) {
 		cnts = (timer_read()-timer)/CLK_MSC;
 		timer += cnts*CLK_MSC;
 		clk += cnts;
 	} else if (timer_read() < timer) {
 		timer = 0;
 	}	*/
-	clk += 3;
+	clk += 4;
 	return clk;
 }
-unsigned sleep (unsigned wait) 
+unsigned sleep (unsigned wait)
 {
-	return 0;
+	unsigned int i;
+	while (wait) {
+		i = 0;
+		while (i<4096) {
+			i++;
+		}
+		wait--;
+	}
+	return 1;
 }
 #endif

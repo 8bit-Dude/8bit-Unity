@@ -21,10 +21,10 @@
 	#define SPRITE_HEIGHT 8
 	#define SPRITE_FRAMES 16
 	#define SPRITE_LENGTH SPRITE_FRAMES*SPRITE_WIDTH*SPRITE_HEIGHT
-	#define PACKET_WIDTH  SPRITE_WIDTH/2
-	#define PACKET_BOUND  PACKET_WIDTH-1
 #endif
 
+
+// Apple II specific loading function
 #if defined __APPLE2__
 unsigned char sprDAT[4][SPRITE_LENGTH];
 void LoadSprite(unsigned char index, char *name)
@@ -70,7 +70,7 @@ void InitSprites(unsigned char *colors)
 	// Reset PMG RAM and set colors
     for (i=0; i<4; i++) {
         bzero(PMGaddr[i],0x100);   // Clear Player memory
-		POKE(704+i, colors[i]);   // Set Player colors  (shadow for 53266)
+		POKE(704+i, colors[i]);    // Set Player colors  (shadow for 53266)
     }
     bzero(PMGaddr[4],0x100);  // Clear Missile memory
 	POKE(711, colors[4]);	  // Set Missile color  (shadow for 53273)
@@ -84,14 +84,35 @@ void InitSprites(unsigned char *colors)
 #endif
 }
 
+// Apple II specific background redrawing function
 #if defined __APPLE2__
 // Extern variables (see bitmap.c)
 extern unsigned DHRBases[192];
-extern unsigned *dhrsrc, *dhrdst;
-unsigned char *PixelData;
-unsigned x1, y1, y2, destoffset, auxoffset, mainoffset;  
-unsigned char bgB[4] = {0,0,0,0}, bgX[4], bgY[4], bgDAT[4][SPRITE_WIDTH*SPRITE_HEIGHT];  
+unsigned char bgB[4] = {0,0,0,0}, bgX[4], bgY[4];
+unsigned char bgDAT[4][SPRITE_WIDTH*SPRITE_HEIGHT];  
+unsigned char *sprPTR, *bgPTR;
+unsigned int x1, y1; 
+void RestoreBg(unsigned char index)
+{
+	bgPTR = &bgDAT[index][0];
+	x1 = (bgX[index]/7)*2;
+	if ((bgX[index]%7) > 3) { x1++; }
+	for (y1=0; y1<SPRITE_HEIGHT; y1++) {
+		dhrptr = (unsigned char *) (DHRBases[bgY[index]+y1] + x1);
+		*dhraux = 0;
+		*dhrptr = bgPTR[0];
+		dhrptr++;
+		*dhrptr = bgPTR[1];
+		dhrptr--;
+		*dhrmain = 0;
+		*dhrptr = bgPTR[2];		
+		dhrptr++;
+		*dhrptr = bgPTR[3];
+		bgPTR += SPRITE_WIDTH;
+	}
+}
 #endif
+
 void SetSprite(unsigned char index, unsigned int frame, unsigned int x, unsigned int y)
 {
 #if defined __CBM__
@@ -120,63 +141,40 @@ void SetSprite(unsigned char index, unsigned int frame, unsigned int x, unsigned
 	PMGaddr[index] = PMGbase[index]+y;
 	memcpy(PMGaddr[index], SPRITERAM1+frame*SPRITELEN, SPRITELEN);		
 
-	// Pass information to 5th sprite handler (PMG.a65)
+	// Pass information to 5th sprite handler (PMG5.a65)
 	POKE(PMGX+index, x);
 	POKE(PMGY+index, y);
 	POKEW(PMGFram+index*2, frame*SPRITELEN);
 #elif defined __APPLE2__
 	// Convert to Apple coordinates
-	x = (80*x)/320;
+	x = (140*x)/320;
 	y = (192*y)/200;
-	
-	PixelData = &sprDAT[index][frame*SPRITE_WIDTH*SPRITE_HEIGHT];
-	x1 = bgX[index]/2; y1 = bgY[index]; y2 = y1 + SPRITE_HEIGHT;
-    auxoffset = 0; mainoffset = PACKET_WIDTH;
 
 	// restore background?
-	if (bgB[index]>0) {
-		/* rasters are split between auxiliary memory and main memory */
-		while (y1 < y2) {
-			/* restore auxiliary memory */
-			dhrsrc[0] = (unsigned) &bgDAT[index][auxoffset];
-			dhrsrc[1] = (unsigned) &bgDAT[index][mainoffset-1];
-			dhrdst[0] = destoffset = (DHRBases[y1] + x1);					
-			asm("sec");
-			asm("jsr $c311");
-			
-			/* restore main memory */
-			memcpy((char *)destoffset,&bgDAT[index][mainoffset],PACKET_WIDTH);
-			auxoffset+= SPRITE_WIDTH;
-			mainoffset+=SPRITE_WIDTH;
-			y1++;
-		}		
-	}
-
-	x1 = x/2; y1 = y; y2 = y1 + SPRITE_HEIGHT; 
-	auxoffset = 0; mainoffset = PACKET_WIDTH;
-
-    /* rasters are split between auxiliary memory and main memory */
-	while (y1 < y2) {
-		/* backup auxiliary & main memory */
-		dhrsrc[0] = (DHRBases[y1] + x1);
-		dhrsrc[1] = (dhrsrc[0] + PACKET_BOUND);
-		dhrdst[0] = (unsigned) &bgDAT[index][auxoffset];		
-		asm("clc");
-		asm("jsr $c311");
-		
-		/* assign auxiliary memory */
-		dhrsrc[0] = (unsigned) &PixelData[auxoffset];
-		dhrsrc[1] = (unsigned) &PixelData[mainoffset-1];
-		dhrdst[0] = destoffset = (DHRBases[y1] + x1);
-		asm("sec");
-		asm("jsr $c311");
-		
-		/* backup and assign main memory */
-		memcpy(&bgDAT[index][mainoffset],(char *)destoffset,PACKET_WIDTH);
-		memcpy((char *)destoffset,&PixelData[mainoffset],PACKET_WIDTH);
-		auxoffset+= SPRITE_WIDTH;
-		mainoffset+=SPRITE_WIDTH;
-		y1++;
+	if (bgB[index]>0) { RestoreBg(index); }
+	
+	// backup background and show sprite
+	sprPTR = &sprDAT[index][frame*SPRITE_WIDTH*SPRITE_HEIGHT];
+	bgPTR = &bgDAT[index][0];
+	x1 = (x/7)*2;
+	if ((x%7) > 3) { x1++; }	
+	for (y1=0; y1<SPRITE_HEIGHT; y1++) {
+		dhrptr = (unsigned char *) (DHRBases[y+y1] + x1);
+		*dhraux = 0;
+		bgPTR[0] = *dhrptr;
+		*dhrptr = sprPTR[0];
+		dhrptr++;
+		bgPTR[1] = *dhrptr;
+		*dhrptr = sprPTR[1];
+		dhrptr--;
+		*dhrmain = 0;
+		bgPTR[2] = *dhrptr;
+		*dhrptr = sprPTR[2];		
+		dhrptr++;
+		bgPTR[3] = *dhrptr;
+		*dhrptr = sprPTR[3];		
+		bgPTR += SPRITE_WIDTH;
+		sprPTR += SPRITE_WIDTH;
 	}
 	
 	// Background Toggle
@@ -200,10 +198,17 @@ void EnableSprite(signed char index)
 	// Switch all sprites off
 	} else {
 #if defined __CBM__
-		POKE(53269, 0);		// Set sprite bits		
+		// Set sprite bits		
+		POKE(53269, 0);
 #elif defined __ATARI__	
 		POKE(PMGMask,0);    // Set rolling sprite mask
 		bzero(PMGRAM+768,0x500);   // Clear all PMG memory
+#elif defined __APPLE2__
+		// Restore background if neccessary
+		for (index=0; index<4; index++) {
+			if (bgB[index]) { RestoreBg(index); }	
+			bgB[index] = 0;
+		}
 #endif
 	}
 }
@@ -217,5 +222,9 @@ void DisableSprite(signed char index)
 	// Set rolling sprite mask
 	POKE(PMGMask, PEEK(PMGMask) & ~(1 << index));
 	bzero(PMGaddr[index],0x100);   // Clear Player memory
+#elif defined __APPLE2__	
+	// Restore background if neccessary
+	if (bgB[index]) { RestoreBg(index); }
+	bgB[index] = 0;
 #endif
 }

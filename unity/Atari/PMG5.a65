@@ -3,7 +3,7 @@
 // Date created: 2017/12/21
 // Compile with MADS
 
-	org $8ee0
+	org $8ef0
 
 PM5BAS  = $9b00
 M1POS 	= $d004
