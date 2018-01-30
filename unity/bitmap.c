@@ -1,20 +1,23 @@
 
 #include "unity.h"
 
-#define BYTE2(a,b) ((a<<4) | b)
+#ifdef __APPLE2__
+#pragma code-name("LC")
+#endif
+
+// Helper functions
 #define BYTE4(a,b,c,d) ((a<<6) | (b<<4) | (c<<2) | d)
 
 // Colors for printing
-unsigned char bg = 0;
-unsigned char bgChat = 0;
+unsigned char bgHeader = 0;
 unsigned char fgCol, bgCol;
 
 // C64 specific variables & functions
 #ifdef __CBM__
 	int vicconf[3];
+	unsigned char bg = 0;
 	unsigned char pow2 = (2 | 2<<2 | 2<<4 | 2<<6);
-	void SwitchBank(char bank) 
-	{
+	void SwitchBank(char bank) {
 		// notice that 0 selects vic bank 3, 1 selects vic bank 2, etc.
 		POKE(0xDD00, (PEEK(0xDD00) & 252 | (3 - bank))); // switch VIC base
 	}
@@ -27,15 +30,46 @@ unsigned char fgCol, bgCol;
 	unsigned char bgByte1,bgByte2;
 #endif
 
-// Switch from Text mode to Bitmap mode
-void EnterBitmapMode()
-{	
+// Performance Drawing
+#ifdef DEBUG_FPS
+clock_t fpsClock;
+void DrawFPS(unsigned long  f)
+{
+    unsigned int fps,dmp1,dmp2;
+	
+	// Calculate stats
+	fpsClock = clock() - fpsClock;
+	fps = ( (f-60*(f/60)) * CLK_TCK) / fpsClock;
+	fgCol = WHITE;
+
+	// Output stats
+	dmp1 = fps/10;
+	PrintChr(38, 0, &charDigit[dmp1*3]);
+	dmp2 = (fps-dmp1*10);
+	PrintChr(39, 0, &charDigit[dmp2*3]);				
+	fpsClock = clock();	
+}
+#endif
+
+// Initialize Bitmap Screen
+void InitBitmap() {
 #if defined __CBM__
 	// Backup VIC config
 	vicconf[0] = PEEK(53272);
 	vicconf[1] = PEEK(53265);
 	vicconf[2] = PEEK(53270);
-	
+#elif defined __APPLE2__
+	// Prepare Double Hi-Res Mode
+	asm("sta $c052"); // TURN ON FULLSCREEN       
+	asm("sta $c057"); // TURN ON HI-RES           
+	asm("sta $c001"); // TURN ON 80 STORE
+#endif	
+}
+
+// Switch from Text mode to Bitmap mode
+void EnterBitmapMode()
+{		
+#if defined __CBM__
 	// Set data direction flag
 	POKE(0xDD02, (PEEK(0xDD02) | 3));
 
@@ -51,12 +85,9 @@ void EnterBitmapMode()
 	POKE(559, 32+16+8+4+2); // ANTIC: DMA Screen + Enable P/M + DMA Players + DMA Missiles + Single resolution
 #elif defined __APPLE2__
 	// Switch ON Double Hi-Res Mode
+	asm("sta $c00d"); // TURN ON 80 COLUMN MODE	  
     asm("sta $c050"); // TURN ON GRAPHICS         
-    asm("sta $c057"); // TURN ON HI-RES           
-    asm("sta $c052"); // TURN ON FULLSCREEN       
     asm("sta $c05e"); // TURN ON DOUBLE HI-RES    
-    asm("sta $c00d"); // TURN ON 80 COLUMN MODE	  
-	asm("sta $c001"); // TURN ON 80 STORE
 #endif
 }
 
@@ -75,9 +106,9 @@ void ExitBitmapMode()
 	POKE(559, 0);
 #elif defined __APPLE2__
     // Switch OFF Double Hi-Res Mode
-	asm("sta $c000"); // TURN OFF 80 STORE
     asm("sta $c051"); // TEXT - HIDE GRAPHICS
     asm("sta $c05f"); // TURN OFF DOUBLE RES
+	asm("sta $c00c"); // TURN OFF 80 COLUMN MODE	  
 #endif
 }
 
@@ -113,6 +144,8 @@ unsigned char GetColor(unsigned int x, unsigned int y)
 #elif defined __ATARI__
 	unsigned int offset;
 	unsigned char shift;
+	
+	// Compute pixel location
 	offset = 40*((y*192)/200)+x/8;
 	shift = 6 - 2*((x/2)%4);
 
@@ -120,7 +153,11 @@ unsigned char GetColor(unsigned int x, unsigned int y)
 	return ( ((PEEK((char*)BITMAPRAM1+offset) & ( 3 << shift )) >> shift) +
 			 ((PEEK((char*)BITMAPRAM2+offset) & ( 3 << shift )) >> shift) * 4 );
 #elif defined __APPLE2__
-	return MEDGRAY;
+	// Rescale coords
+ 	x = (140*x)/320;
+	y = (192*y)/200;
+	SetDHRPointer(x,y);
+	return GetDHRColor();
 #endif	
 }
 
@@ -141,10 +178,16 @@ void SetColor(unsigned int x, unsigned int y, unsigned char color)
 // Clear entire bitmap screen
 void ClearBitmap()
 {
-#if defined __APPLE2__
-    // clear main and aux screen memory
-    memset((char *)BITMAPRAM,0,8192);
-    MainToAux(BITMAPRAM,BITMAPRAM+8191,8192);
+#if defined __CBM__
+	bzero((char*)BITMAPRAM, 8000);
+	bzero((char*)SCREENRAM, 1000);
+	bzero((char*)COLORRAM, 1000);
+#elif defined __APPLE2__
+    // clear main and aux screen memory	
+	*dhraux = 0;
+    bzero((char *)BITMAPRAM, 8192);
+	*dhrmain = 0;
+    bzero((char *)BITMAPRAM, 8192);
 #endif
 }
 
@@ -182,28 +225,20 @@ void LoadBitmap(char *filename)
 	
 	// 7680 bytes RAM2 (luminance)
 	fread((char*)BITMAPRAM2, 1, 7680, fp);	
-	bg = BLACK;
 #elif defined __APPLE2__
+	// Read 8192 bytes to AUX
+	*dhraux = 0;
+	fread((char*)BITMAPRAM, 1, 8192, fp);
+	
 	// Read 8192 bytes to MAIN
 	*dhrmain = 0;
 	fread((char*)BITMAPRAM, 1, 8192, fp);
-	
-	// Transfer MAIN to AUX
-	MainToAux(BITMAPRAM, BITMAPRAM+8192, BITMAPRAM);
-	
-	// Read again 8192 bytes to MAIN
-	fread((char*)BITMAPRAM, 1, 8192, fp);
-	bg = BLACK;
 #endif
 	// Close file
 	fclose(fp);
 
-	// Set the border color
-	bordercolor(bg);
-	bgcolor(bg);
-	
-	// chat background color
-	bgChat = GetColor(0, 0);	
+	// Chat background color
+	bgHeader = GetColor(0, 0);
 }
 
 // Draw panel using the background color
@@ -242,14 +277,14 @@ void DrawPanel(unsigned char colBeg, unsigned char rowBeg, unsigned char colEnd,
 // Print multicolor logo for the various platforms...
 void PrintLogo(unsigned char col, unsigned char row, unsigned char index)
 {
-	unsigned int addr1, addr2;
-	unsigned char i;
 #if defined __CBM__
 	// Define logos
 	unsigned char logos[4][8] = { {0,0,0, 16, 68, 64, 72, 16}, 		// C64: (0,1,0,0) (1,0,1,0) (1,0,0,0) (1,0,2,0) (0,1,0,0)
 								  {0,0,0, 16, 68,168,136,204},		// ATR: (0,1,0,0) (1,0,1,0) (2,2,2,0) (2,0,2,0) (3,0,3,0)
-								  {0,0,0,  4, 16,168,168,252},		// APP: (0,0,1,0) (0,1,0,0) (2,2,2,0) (2,2,2,0) (3,3,3,0)
+								  {0,0,0,  4, 16,168,168, 48},		// APP: (0,0,1,0) (0,1,0,0) (2,2,2,0) (2,2,2,0) (0,3,0,0)
 								  {0,0,0,212,215,255,215,255} };	// FLP: (3,1,1,0) (3,1,1,3) (3,3,3,3) (3,1,1,3) (3,3,3,3)
+	unsigned int addr1, addr2;
+	unsigned char i;
 	
 	// Get memory addresses
 	addr1 = BITMAPRAM + 40*((row*8)&248)+((col*8)&504);
@@ -271,12 +306,14 @@ void PrintLogo(unsigned char col, unsigned char row, unsigned char index)
 	// Define logos
 	unsigned char logos1[4][8] = { {0,0,0, 48,204,192,204, 48}, 	// C64: (0,3,0,0) (3,0,3,0) (3,0,0,0) (3,0,3,0) (0,3,0,0)	LUMINANCE
 								   {0,0,0, 48,204,252,204,204},		// ATR: (0,3,0,0) (3,0,3,0) (3,3,3,0) (3,0,3,0) (3,0,3,0)
-								   {0,0,0, 12, 48,252,252,252},  	// APP: (0,0,3,0) (0,3,0,0) (3,3,3,0) (3,3,3,0) (3,3,3,0)
+								   {0,0,0, 12, 48,252,252, 48},  	// APP: (0,0,3,0) (0,3,0,0) (3,3,3,0) (3,3,3,0) (0,3,0,0)
 								   {0,0,0,252,255,255,255,255} };	// FLP: (3,3,3,0) (3,3,3,3) (3,3,3,3) (3,3,3,3) (3,3,3,3)
 	unsigned char logos2[4][8] = { {0,0,0, 32,136,128,132, 32}, 	// C64: (0,2,0,0) (2,0,2,0) (2,0,0,0) (2,0,1,0) (0,2,0,0)	CHROMA
 								   {0,0,0, 48,204, 84, 68,136},		// ATR: (0,3,0,0) (3,0,3,0) (1,1,1,0) (1,0,1,0) (2,0,2,0)
-								   {0,0,0, 12, 48, 84, 84,168},  	// APP: (0,0,3,0) (0,3,0,0) (1,1,1,0) (1,1,1,0) (2,2,2,0)
+								   {0,0,0, 12, 32, 84, 84,168},  	// APP: (0,0,3,0) (0,3,0,0) (1,1,1,0) (1,1,1,0) (0,2,0,0)
 								   {0,0,0,128,130,170,130,170} };	// FLP: (2,0,0,0) (2,0,0,2) (2,2,2,2) (2,0,0,2) (2,2,2,2)
+	unsigned int addr1, addr2;
+	unsigned char i;
 
 	// Get memory addresses
 	addr1 = BITMAPRAM1+row*320+col;
@@ -286,9 +323,38 @@ void PrintLogo(unsigned char col, unsigned char row, unsigned char index)
 	for (i=0; i<8; ++i) {
 		POKE(addr1+i*40, logos1[index][i]);
 		POKE(addr2+i*40, logos2[index][i]);
-	}		
+	}	
+#elif defined __APPLE2__
+	// Define logos
+	unsigned char logos[4][5][3] = { { { 0, 2, 0}, { 2, 0, 2}, { 2, 0, 0}, { 2, 0, 1}, { 0, 2, 0} },   // C64
+									 { { 0,12, 0}, {12, 0,12}, {11,11,11}, {11, 0,11}, { 7, 0, 7} },   // ATR
+								     { { 0, 0,12}, { 0,12, 0}, {11,11,11}, {11,11,11}, { 0, 7, 0} },   // APP
+								     { { 7, 5, 0}, { 7, 5, 7}, { 7, 7, 7}, { 7, 5, 7}, { 7, 7, 7} } }; // FLP
+	unsigned int x,y;
+	unsigned char i,j,n;
+	
+	// Compute location of character
+	if (col%2) { n=4; } else { n=3; }
+	x = (col*35)/10; y = (row*8);
+	
+	// Set character over 3/4 pixels out of 7 in a cell
+	for (i=0; i<5; ++i) {
+		SetDHRPointer(x, y+i+3);
+		for (j=0; j<n; j++) {
+			if (j<3) {
+				SetDHRColor(logos[index][i][j]);
+			} else {
+				SetDHRColor(BLACK);
+			}
+			dhrpixel++;
+		}
+	}
 #endif
 }
+
+#ifdef __ATARIXL__
+#pragma code-name("SHADOW_RAM2")
+#endif
 
 // Print character using background and foreground colors
 void PrintChr(unsigned char col, unsigned char row, const char *matrix)
@@ -348,25 +414,28 @@ void PrintChr(unsigned char col, unsigned char row, const char *matrix)
 	SetDHRPointer(x, y);	
 	for (j=0; j<n; j++) {
 		SetDHRColor(bgCol);
-		dhrpattern++;
+		dhrpixel++;
 	}
 	for (i=0; i<3; ++i) {
 		SetDHRPointer(x, y+i*2+1);
 		for (j=0; j<n; j++) {
 			SetDHRColor(((matrix[i]>>(7-j))&1) ? fgCol : bgCol);
-			dhrpattern++;
+			dhrpixel++;
 		}
 		SetDHRPointer(x, y+i*2+2);
 		for (j=0; j<n; j++) {
 			SetDHRColor(((matrix[i]>>(3-j))&1) ? fgCol : bgCol);
-			dhrpattern++;
+			dhrpixel++;
 		}
 	}
 	SetDHRPointer(x, y+7);
 	for (j=0; j<n; j++) {
 		SetDHRColor(bgCol);
-		dhrpattern++;
+		dhrpixel++;
 	}
+
+	// Update clock (slow function)
+	clk += 2;
 #endif
 }
 
@@ -403,22 +472,34 @@ void PrintStr(unsigned char col, unsigned char row, const char *buffer)
 // Rolling buffer at the top of the screen, that moves text leftward when printing
 void PrintHeader(const char *buffer)
 {
+	unsigned char len, i;
+	len = strlen(buffer);
 #if defined __CBM__
-	// Rolling message buffer
+	// Roll bitmap and screen ram
 	DisableRom();
-	memcpy((char*)BITMAPRAM, (char*)(BITMAPRAM+strlen(buffer)*8), (40-strlen(buffer))*8);
+	memcpy((char*)BITMAPRAM, (char*)(BITMAPRAM+len*8), (40-len)*8);
 	EnableRom();
-	memcpy((char*)SCREENRAM, (char*)(SCREENRAM+strlen(buffer)), (40-strlen(buffer)));
+	memcpy((char*)SCREENRAM, (char*)(SCREENRAM+len), (40-len));
 #elif defined __ATARI__
-	unsigned char i;
+	// Roll chroma and luma buffers
 	for (i=0; i<8; ++i) {
-		memcpy((char*)BITMAPRAM1+i*40, (char*)(BITMAPRAM1+strlen(buffer))+i*40, (40-strlen(buffer)));
-		memcpy((char*)BITMAPRAM2+i*40, (char*)(BITMAPRAM2+strlen(buffer))+i*40, (40-strlen(buffer)));
+		memcpy((char*)BITMAPRAM1+i*40, (char*)(BITMAPRAM1+len)+i*40, (40-len));
+		memcpy((char*)BITMAPRAM2+i*40, (char*)(BITMAPRAM2+len)+i*40, (40-len));
+	}
+#elif defined __APPLE2__
+	// Always move 7 pixels at a time!
+	len = 2*(len/2+len%2);
+	for (i=0; i<8; ++i) {
+		SetDHRPointer(0, i);		
+		*dhraux = 0;
+		memcpy((char*)(dhrptr), (char*)(dhrptr+len), (40-len));
+		*dhrmain = 0;
+		memcpy((char*)(dhrptr), (char*)(dhrptr+len), (40-len));
 	}
 #endif
 	// Print new message
-	bgCol = bgChat;
-	PrintStr(40-strlen(buffer), 0, buffer);
+	bgCol = bgHeader;
+	PrintStr(40-len, 0, buffer);
 	bgCol = COLOR_BLACK;
 }
 
@@ -430,6 +511,10 @@ void PrintInput(unsigned char col, unsigned char row, char *buffer, unsigned cha
 	PrintStr(col, row, buffer);
 	PrintChr(col+strlen(buffer), row, &charUnderbar[0]);
 }
+
+#ifdef __ATARIXL__
+#pragma code-name("CODE")
+#endif
 
 char KeyStr(char *buffer, unsigned char len, unsigned char key)
 {
@@ -478,24 +563,3 @@ void InputStr(unsigned char col, unsigned char row, char *buffer, unsigned char 
 		}
 	}
 }
-
-// Performance Drawing
-#ifdef DEBUG_FPS
-clock_t tFPS;
-void DrawFPS(unsigned long  f)
-{
-    unsigned int fps,dmp1,dmp2;
-	
-	// Calculate stats
-	tFPS = clock() - tFPS;
-	fps = ( (f-60*(f/60)) * CLK_TCK) / tFPS;
-	fgCol = WHITE;
-
-	// Output stats
-	dmp1 = fps/10;
-	PrintChr(38, 0, &charDigit[dmp1*3]);
-	dmp2 = (fps-dmp1*10);
-	PrintChr(39, 0, &charDigit[dmp2*3]);				
-	tFPS = clock();	
-}
-#endif

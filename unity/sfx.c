@@ -1,9 +1,20 @@
 
 #include "unity.h"
 
-// Atari specific functions (see Atari/POKEY.s)
+#ifdef __APPLE2__
+#pragma code-name("LC")
+#endif
+
 #if defined __ATARI__
+	// Atari specific functions (see Atari/POKEY.s)
 	void PlaySFX();
+	extern unsigned char sampleCount;
+	extern unsigned char sampleFreq;
+	extern unsigned char sampleCtrl;
+#elif defined __APPLE2__
+	// Nothing for now
+	void PlayMusic() {}
+	void StopMusic() {}
 #endif
 
 void InitSFX() 
@@ -39,6 +50,14 @@ void EngineSFX(int channel, int vel)
 	unsigned char freq = (200-vel/4)+channel*5;
 	POKE((char*)(0xD200+2*channel), freq);
 	POKE((char*)(0xD201+2*channel), 16*2+8);
+#elif defined __APPLE2__	
+	unsigned char delay;
+	POKE(0xc030,0);
+	delay = (600-vel)/60; 
+	while (delay) {
+		(delay--);
+	}
+	POKE(0xc030,0);
 #endif
 }
 
@@ -53,6 +72,12 @@ void BleepLowSFX()
 	sampleCount = 24;
 	sampleFreq = 192;
 	sampleCtrl = 170;
+#elif defined __APPLE2__	
+	unsigned int repeat = 64;
+	while (repeat) {
+		if (repeat%4) { POKE(0xc030,0); }
+		repeat--;
+	}
 #endif
 }
 
@@ -67,6 +92,12 @@ void BleepHighSFX()
 	sampleCount = 24;
 	sampleFreq = 128;
 	sampleCtrl = 170;
+#elif defined __APPLE2__	
+	unsigned int repeat = 64;
+	while (repeat) {
+		if (repeat%2) { POKE(0xc030,0); }
+		repeat--;
+	}
 #endif
 }
 

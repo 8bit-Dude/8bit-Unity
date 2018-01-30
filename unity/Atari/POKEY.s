@@ -21,6 +21,12 @@ _sampleCtrl:
 	.res 1
 
 	.code
+	
+; ---------------------------------------------------------------
+; void __near__ _PlayMusic (void)
+; void __near__ _StopMusic (void)
+; void __near__ _PlaySFX (void)
+; ---------------------------------------------------------------	
 		
 .proc _PlayMusic: near
 	lda #0				; starting song line 0-255 to A reg
@@ -28,7 +34,7 @@ _sampleCtrl:
 	ldy #>RMTModule		; hi byte of RMT module to Y reg
 	jsr RMTPlayer		; Init: returns instrument speed (1..4 => from 1/screen to 4/screen)
 
-    lda #$06       	; immediate
+    lda #$07       	; deferred
 	ldx #(>RMTVBI)	; install RMT VBI routine
 	ldy #(<RMTVBI)
 	;jsr $600	
@@ -37,9 +43,9 @@ _sampleCtrl:
 .endproc
 
 .proc _StopMusic: near
-    lda #$06       	; immediate
-	ldx #>$E45F		; reset VBI
-	ldy #<$E45F		
+    lda #$07       	; deferred
+	ldx #>XITVBV	; reset VBI
+	ldy #<XITVBV		
     jsr SETVBV	
 
 	jsr RMTPlayer+9	;all sounds off
@@ -47,7 +53,7 @@ _sampleCtrl:
 .endproc
 
 .proc _PlaySFX: near
-    lda #$06       	; immediate
+    lda #$07       	; deferred
     ldx #(>SFXVBI)  ; install SFX VBI routine
     ldy #(<SFXVBI)	    
     jsr SETVBV
@@ -58,7 +64,7 @@ _sampleCtrl:
 RMTVBI:
 	; Play 1 note of the RMT
 	jsr RMTPlayer+3	
-	jmp SYSVBV
+	jmp XITVBV
 	
 
 SFXVBI:
@@ -87,4 +93,4 @@ reset:
 	
 done:
 	; do the normal interrupt service routine
-	jmp SYSVBV
+	jmp XITVBV

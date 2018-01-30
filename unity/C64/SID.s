@@ -1,11 +1,16 @@
 
-.export _PlayMusic
-.export _StopMusic
+	.export _PlayMusic
+	.export _StopMusic
 
 sid_init = $b048
 sid_play = $b021
 
-.segment "CODE"
+	.segment "CODE"
+
+; ---------------------------------------------------------------
+; void __near__ _PlayMusic (void)
+; void __near__ _StopMusic (void)
+; ---------------------------------------------------------------
 
 .proc _PlayMusic: near
 		; init music
@@ -13,8 +18,8 @@ sid_play = $b021
 		
         ; set IRQ pointer in $314/$315
         sei
-        lda #<_InterruptSID
-        ldx #>_InterruptSID
+        lda #<InterruptSID
+        ldx #>InterruptSID
         sta $314
         stx $315
         cli 
@@ -62,10 +67,11 @@ rst2:
         rts 
 .endproc 
 
-.proc _InterruptSID
+
+InterruptSID:
 		; set through tune
         jsr sid_play
 		
 		; do the normal interrupt service routine		
         jmp $EA31 
-.endproc
+
