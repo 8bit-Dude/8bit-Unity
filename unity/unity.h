@@ -43,7 +43,6 @@
 	#define SCREENLOC  0
 	#define BITMAPLOC  8
 	#define SPRITELOC  28
-	
 	#define COLORRAM   (0xD800) // Fixed location
 	#define SCREENRAM  (VIDEOBANK * 0x4000 + SCREENLOC * 0x0400) // 0xC000
 	#define BITMAPRAM  (VIDEOBANK * 0x4000 + BITMAPLOC * 0x0400) // 0xE000
@@ -51,13 +50,9 @@
 	#define SPRITERAM  (VIDEOBANK * 0x4000 + SPRITELOC * 0x0040) // 0xC700 (sprites.prg is loaded at this address)
 #elif defined __ATARI__
 	// Atari Memory locations
-	#define PMG5	   (0x8ef0) // 5th sprite flicker routine
 	#define PMGRAM     (0x9800) // Player missile memory
 	#define SPRITERAM1 (0x9700)	// Sprite data
 	#define SPRITERAM2 (0x98A0)	// 5th sprite data
-	
-	#define STARTBMP   (0x8E10) // Start Bitmap routine
-	#define STOPBMP    (0x8E4D) // Stop Bitmap routine
 	#define PALETTERAM (0x7000) // Palette data
 	#define PALETTETOG (0xBFA4) // Palette toggle (RGB/BW)
 	#define BITMAPRAM1 (0x7010) // Colour data
@@ -200,13 +195,15 @@ extern unsigned char fgCol, bgCol, bgHeader;
 
 // Joystick functions
 #if defined __CBM__
-	// Joystick 1&2 
+	#define JOY_MAX	 4
+	// Joystick 1&2
 	#define GetJoy(i) (PEEK(56321-(i)))		
 	// Joystick 3&4 (see C64/JOY34.s)	
 	void InitJoy34(void);
 	unsigned char GetJoy3(void);
 	unsigned char GetJoy4(void);
 #else
+	#define JOY_MAX	 2
 	// Joystick 1&2
 	#if defined __ATARI__
 		#define GetJoy(i) (PEEK(0x0278+i)+(PEEK(0x0284+i)<<4))

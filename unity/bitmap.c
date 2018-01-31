@@ -25,6 +25,8 @@ unsigned char fgCol, bgCol;
 
 // Atari specific variables & functions
 #ifdef __ATARI__
+	#define STARTBMP (0x8E10) // Start Bitmap routine (see DLI.a65)
+	#define STOPBMP  (0x8E4D) // Stop Bitmap routine
 	unsigned char fgCol1,fgCol2;
 	unsigned char bgCol1,bgCol2;
 	unsigned char bgByte1,bgByte2;
@@ -58,6 +60,16 @@ void InitBitmap() {
 	vicconf[0] = PEEK(53272);
 	vicconf[1] = PEEK(53265);
 	vicconf[2] = PEEK(53270);
+#elif defined __ATARI__
+	// Set default palette
+	POKE(PALETTERAM+0, 0x00);
+	POKE(PALETTERAM+1, 0x02);
+	POKE(PALETTERAM+2, 0x06);
+	POKE(PALETTERAM+3, 0x0A);
+	POKE(PALETTERAM+4, 0x00);
+	POKE(PALETTERAM+5, 0x12);
+	POKE(PALETTERAM+6, 0x82);
+	POKE(PALETTERAM+7, 0xc2);
 #elif defined __APPLE2__
 	// Prepare Double Hi-Res Mode
 	asm("sta $c052"); // TURN ON FULLSCREEN       
@@ -70,13 +82,11 @@ void InitBitmap() {
 void EnterBitmapMode()
 {		
 #if defined __CBM__
-	// Set data direction flag
+	// Set data direction flag and Switch bank
 	POKE(0xDD02, (PEEK(0xDD02) | 3));
-
-	// now that we copied the bitmap data, switch bank
 	SwitchBank(VIDEOBANK);
 
-	// multicolor on
+	// Enter multicolor mode
 	POKE(0xD018, SCREENLOC*16 + BITMAPLOC);	// 53272: address of screen and bitmap RAM
 	POKE(0xD011, PEEK(0xD011) | 32);		// 53265: set bitmap mode
 	POKE(0xD016, PEEK(0xD016) | 16);		// 53270: set multicolor mode
@@ -164,8 +174,30 @@ unsigned char GetColor(unsigned int x, unsigned int y)
 void SetColor(unsigned int x, unsigned int y, unsigned char color)
 {
 #if defined __CBM__
-	// Set pixel
-	POKE(BITMAPRAM + 40*(y&248)+(y&7)+(x&504), 0);
+	unsigned int addr, offset;
+	unsigned char shift;
+	
+	// Set index to 3
+	DisableRom();
+	offset = 40*(y&248)+(y&7)+(x&504);
+	shift = (2*(3-(x/2)%4));
+	POKE(BITMAPRAM+offset, PEEK(BITMAPRAM+offset) | 3 << shift);
+	EnableRom();
+	
+	// Set color in COLORAM
+	offset = (y/8)*40+(x/8);
+	POKE(COLORRAM+offset, color);
+#elif defined __ATARI__
+	unsigned int offset;
+	unsigned char shift;	
+
+	// Compute pixel location
+	offset = 40*((y*192)/200)+x/8;
+	shift = 6 - 2*((x/2)%4);
+
+	// Dual buffer (colour/shade)
+	POKE((char*)BITMAPRAM1+offset, PEEK((char*)BITMAPRAM1+offset) | ( (color%4) << shift ));
+	POKE((char*)BITMAPRAM2+offset, PEEK((char*)BITMAPRAM2+offset) | ( (color/4) << shift ));
 #elif defined __APPLE2__
 	// Rescale coordinates
 	x = (140*x)/320;
@@ -182,6 +214,9 @@ void ClearBitmap()
 	bzero((char*)BITMAPRAM, 8000);
 	bzero((char*)SCREENRAM, 1000);
 	bzero((char*)COLORRAM, 1000);
+#elif defined __ATARI__
+	bzero((char*)BITMAPRAM1, 7680);
+	bzero((char*)BITMAPRAM2, 7680);
 #elif defined __APPLE2__
     // clear main and aux screen memory	
 	*dhraux = 0;
@@ -503,6 +538,10 @@ void PrintHeader(const char *buffer)
 	bgCol = COLOR_BLACK;
 }
 
+#ifdef __ATARIXL__
+#pragma code-name("CODE")
+#endif
+
 // Interactive text input function
 void PrintInput(unsigned char col, unsigned char row, char *buffer, unsigned char len)
 {
@@ -511,10 +550,6 @@ void PrintInput(unsigned char col, unsigned char row, char *buffer, unsigned cha
 	PrintStr(col, row, buffer);
 	PrintChr(col+strlen(buffer), row, &charUnderbar[0]);
 }
-
-#ifdef __ATARIXL__
-#pragma code-name("CODE")
-#endif
 
 char KeyStr(char *buffer, unsigned char len, unsigned char key)
 {

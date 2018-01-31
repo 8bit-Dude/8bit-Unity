@@ -1,22 +1,34 @@
 
 #include "unity.h"
 
-int main (void) 
+int main(void) 
 {
-	unsigned char joy;
+	unsigned char i, joy;
 
 	// Reset screen
 	clrscr();
 	
-	// Display joystick actions until 'q' was pressed
+	// Init Joy 3/4 (only on CBM)
+	if (JOY_MAX > 2) { InitJoy34(); }
+	
+	// Display joystick actions until 'Q' is pressed
 	while (!kbhit () || cgetc () != 'Q') {
-		joy = GetJoy(0);
-		gotoxy (0, 8);
-		cprintf ("%s ", joy & JOY_UP    ? "UP   ": "     ");
-		cprintf ("%s ", joy & JOY_DOWN  ? "DOWN ": "     ");
-		cprintf ("%s ", joy & JOY_LEFT  ? "LEFT ": "     ");
-		cprintf ("%s ", joy & JOY_RIGHT ? "RIGHT": "     ");
-		cprintf ("%s ", joy & JOY_FIRE  ? "FIRE ": "     ");	
+		for (i=0; i<JOY_MAX; i++) {
+			switch (i) {
+				case 0:
+				case 1: joy = GetJoy(i); break;
+				case 2: joy = GetJoy3(); break;
+				case 3: joy = GetJoy4(); break;
+			}
+			joy = GetJoy(i);
+			gotoxy (0, 8+2*i);
+			cprintf ("Joy %i: ", i+1);
+			cprintf ("%s ", joy & JOY_UP    ? "UP   ": "     ");
+			cprintf ("%s ", joy & JOY_DOWN  ? "DOWN ": "     ");
+			cprintf ("%s ", joy & JOY_LEFT  ? "LEFT ": "     ");
+			cprintf ("%s ", joy & JOY_RIGHT ? "RIGHT": "     ");
+			cprintf ("%s ", joy & JOY_FIRE  ? "FIRE ": "     ");
+		}
 	}
 	
     // Done

@@ -7,7 +7,8 @@
 
 // Atari specific definitions
 #if defined __ATARI__
-	// 5th sprite flicker data (PMG5.a65)
+	// 5th sprite flicker data (see DLI.a65)
+	#define PMG5	(0xbfa5)
 	#define PMGX 	PMG5+0x00
 	#define PMGY 	PMG5+0x04
 	#define PMGFram	PMG5+0x08

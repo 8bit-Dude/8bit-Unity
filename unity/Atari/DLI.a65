@@ -1,9 +1,12 @@
 // Twin Frame RAW graphics mode for Atari
 // Adapted from XL-Paint, DLIs were removed to speed-up display
+// Author: Anthony Beaucamp
+// Date created: 2017/12/21
 // Compile with MADS
 
 procs   = $8E10
 data	= $BE10
+PM5BAS  = $9b00
 
 palette	= $7000
 buf0	= $7010
@@ -19,18 +22,18 @@ color2	= $02c6
 color3	= $02c7
 color4	= $02c8
 
+M1POS 	= $d004
+M2POS 	= $d005
+M3POS 	= $d006
+M4POS 	= $d007
+
 gprior	= $d01b
 wsync	= $d40a
 nmien	= $d40e
 
-initPMG5 = $8f07
-updtPMG5 = $8f0d
-
 /*-------------------------------------------------------------------------------------------------*/
 	
 	org data
-
-	;.align	$100
 	
 dlist0:	dta d'pp',$30+$80
 		dta $4e,a(buf0)
@@ -50,8 +53,17 @@ dlist1:	dta d'pp',$30+$80
 		dta $e
 		dta $41,a(dlist1)	
 	
-; Palette switcher
-palS:	dta $0
+; Palette toggle
+palTOG:	dta $0
+
+; 5th sprite flicker
+PMGX	.ds 4
+PMGY	.ds 4
+PMGFram	.ds 8
+PMGMask	.ds 1
+PM5IND	.ds 1
+PM5AIN	.ds 2
+PM5AOU	.ds 2
 
 ; GFX config backup
 nmienT  .ds 1
@@ -81,7 +93,7 @@ regY	.ds 1
 	cli
 
 	; Init 5th sprite
-	jsr initPMG5
+	jsr initPM5
 	rts		
 .endp
 
@@ -113,9 +125,9 @@ dli:
 	sty regY
 	
 	; Switch palette
-	lda palS
+	lda palTOG
 	eor #$1
-	sta palS
+	sta palTOG
 	bne pal1
 
 pal0:	
@@ -141,9 +153,8 @@ pal1:
 	jmp done
 	
 done:
-	; Flicker 5th sprite? (check paletter toggle)
-	lda palS
-	jsr updtPMG5
+	; Flicker 5th sprite (if needed)
+	jsr updtPM5
 
 	; Reset atract (screen saver timer)
 	sta atract
@@ -153,3 +164,145 @@ done:
 	ldx regX
 	ldy regY
 	rti
+
+/*-------------------------------------------------------------------------------------------------*/	
+	
+// 5th sprite flicker routine
+
+initPM5:
+	; Init 5th sprite
+	mva #0 PM5IND
+	mva #0 PMGMask
+	rts
+
+updtPM5:	
+	; Check that sprites are enabled!
+	lda PMGMask
+	bne sprbranch0
+	rts
+
+sprbranch0:
+	; Reset pixels of 5th sprite
+	ldx PM5AOU+0	; Address of 5th sprite
+	stx $80
+	ldx PM5AOU+1
+	stx $81	
+	ldy #13			; Sprite length
+	lda #$00		; Reset value
+strloop0:	
+	sta ($80),y		
+	dey				
+	bne strloop0	; Loop through till y is 0
+	
+sprbranch1:
+	; Should we increment sprite index? (depends on palette toggle)
+	ldx PM5IND
+	lda palTOG
+	beq sprbranch3
+	
+	; Increment 5th sprite index (reset when index becomes 4)
+	inx	
+	cpx #4
+	bcc sprbranch2
+	ldx #0
+sprbranch2:
+	stx PM5IND
+	
+	; Verify sprite is allocated in mask
+	lda #$0000001
+	cpx #0
+	beq bittest
+bitshift:
+	asl
+	dex
+	bne bitshift	; Loop through till x is 0 
+bittest:
+	and PMGMask
+	beq sprbranch1
+	
+sprbranch3:
+	; Set x pos. of new 5th sprite
+	ldx PM5IND
+	lda PMGX,x  ; Xpos of sprite to A
+	sta M4POS
+	cpx #0
+	adc #1
+	sta M3POS
+	adc #2
+	sta M2POS
+	adc #2
+	sta M1POS
+	
+	; Offset of IN address (frame of 5th sprite)
+	cpx #0
+	beq off0
+	cpx #1
+	beq off1
+	cpx #2
+	beq off2
+off3:
+	mva PMGFram+7 PM5AIN+1
+	mva PMGFram+6 PM5AIN+0
+	jmp add0
+off2:	
+	mva PMGFram+5 PM5AIN+1
+	mva PMGFram+4 PM5AIN+0
+	jmp add0
+off1:	
+	mva PMGFram+3 PM5AIN+1
+	mva PMGFram+2 PM5AIN+0
+	jmp add0
+off0:	
+	mva PMGFram+1 PM5AIN+1
+	mva PMGFram+0 PM5AIN+0
+		
+	; Add base of IN address ($98A0)
+add0:
+	lda #$a0
+	clc
+	adc PM5AIN
+	sta PM5AIN
+	lda #$98
+	adc PM5AIN+1
+	sta PM5AIN+1
+	
+	; Offset of OUT address (ypos of 5th sprite)
+	lda PMGY,x   ; Ypos of sprite to A
+	sta PM5AOU
+	lda #0 
+	sta PM5AOU+1
+
+	; Add base of OUT address ($9b00)
+	lda #$00
+	clc
+	adc PM5AOU
+	sta PM5AOU
+	lda #$9b
+	adc PM5AOU+1
+	sta PM5AOU+1
+
+	; Set Address for IN
+	ldx PM5AIN+0
+	stx $0
+	ldx PM5AIN+1
+	stx $1
+
+	; Set Address for OUT
+	ldx PM5AOU+0
+	stx $2
+	ldx PM5AOU+1
+	stx $3
+		
+	; Set pixels of 5th sprite
+	ldy #12	 ; Sprite length
+sprloop1:
+	; Transfer values IN/OUT
+	lda ($0),y	
+	sta ($2),y	
+	dey
+	bne sprloop1	; Loop through till y is 0 
+	
+return:	
+	; All done!
+	rts
+	
