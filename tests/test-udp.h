@@ -68,7 +68,7 @@ void InitNetwork()
 	
 }
 
-int main(void)
+int TestUDP(void)
 {
 	unsigned char k,n;
 	char buffer[16];
@@ -101,6 +101,7 @@ int main(void)
 	}
 
 	// Wait for keyboard
+	printf("PRESS ANY KEY FOR NEXT TEST\n");
 	cgetc();
 	
     // Done

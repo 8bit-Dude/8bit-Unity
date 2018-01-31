@@ -1,7 +1,7 @@
 
 #include "unity.h"
 
-int main (void) 
+int TestBMP(void) 
 {
 	unsigned char i,j;
 

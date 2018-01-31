@@ -1,7 +1,7 @@
 
 #include "unity.h"
 
-int main(void) 
+int TestJOY(void) 
 {
 	unsigned char i, joy;
 
@@ -12,6 +12,7 @@ int main(void)
 	if (JOY_MAX > 2) { InitJoy34(); }
 	
 	// Display joystick actions until 'Q' is pressed
+	printf("PRESS Q FOR NEXT TEST\n");
 	while (!kbhit () || cgetc () != 'Q') {
 		for (i=0; i<JOY_MAX; i++) {
 			switch (i) {
