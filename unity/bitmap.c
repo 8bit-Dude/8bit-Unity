@@ -509,6 +509,7 @@ void PrintHeader(const char *buffer)
 {
 	unsigned char len, i;
 	len = strlen(buffer);
+	bgCol = bgHeader;
 #if defined __CBM__
 	// Roll bitmap and screen ram
 	DisableRom();
@@ -531,16 +532,12 @@ void PrintHeader(const char *buffer)
 		*dhrmain = 0;
 		memcpy((char*)(dhrptr), (char*)(dhrptr+len), (40-len));
 	}
+	if (strlen(buffer)%2) { PrintChr(39, 0, charBlank); }
 #endif
 	// Print new message
-	bgCol = bgHeader;
 	PrintStr(40-len, 0, buffer);
 	bgCol = COLOR_BLACK;
 }
-
-#ifdef __ATARIXL__
-#pragma code-name("CODE")
-#endif
 
 // Interactive text input function
 void PrintInput(unsigned char col, unsigned char row, char *buffer, unsigned char len)
@@ -550,6 +547,10 @@ void PrintInput(unsigned char col, unsigned char row, char *buffer, unsigned cha
 	PrintStr(col, row, buffer);
 	PrintChr(col+strlen(buffer), row, &charUnderbar[0]);
 }
+
+#ifdef __ATARIXL__
+#pragma code-name("CODE")
+#endif
 
 char KeyStr(char *buffer, unsigned char len, unsigned char key)
 {

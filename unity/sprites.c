@@ -194,21 +194,22 @@ void SetSprite(unsigned char index, unsigned int frame, unsigned int x, unsigned
 	// Comput sprite slots
 	x1 = (2*x)/7;
 
-	// Prevent collisions (it messes-up background)
+	// Check for collisions
+	sprCOL[index] = 0;
 	for (i=0; i<SPRITE_NUM; i++) {
 		if (i!=index && bgB[i]) {
 			delta = bgX[i] - x1;
 			if (delta < 2 || delta>254) {
 				delta = bgY[i] - y;
 				if (delta < SPRITE_HEIGHT || delta>(256-SPRITE_HEIGHT)) {
+					// Redraw background of that sprite
+					RestoreBg(i);
 					sprCOL[index] = 1;
 					sprCOL[i] = 1;
-					return;
 				}
 			}
 		}
 	}	
-	sprCOL[index] = 0;
 
 	// Restore background
 	if (bgB[index]>0) { RestoreBg(index); }
