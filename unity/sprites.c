@@ -22,13 +22,13 @@
 // Apple II specific loading function
 #if defined __APPLE2__
 	#define SPRITE_BLOCK SPRITE_FRAMES*SPRITE_LENGTH	// Note: There are 2 x blocks for each sprite (offset variants)
-	unsigned char sprDAT[SPRITE_NUM][SPRITE_BLOCK*2];	// Sprite RAW data
+	unsigned char sprDAT[SPRITE_NUM][SPRITE_BLOCK*4];	// Sprite RAW data
 	unsigned char sprCOL[SPRITE_NUM] = {0,0,0,0};		// Collision flags
 	void InitSprites(const char *filename)
 	{
 		FILE *fp;
 		fp = fopen(filename,"rb");
-		fread(sprDAT[0], 1, SPRITE_NUM*SPRITE_BLOCK*2, fp);
+		fread(sprDAT[0], 1, SPRITE_NUM*SPRITE_BLOCK*4, fp);
 		fclose(fp);
 	}
 #else
@@ -192,8 +192,7 @@ void SetSprite(unsigned char index, unsigned int frame, unsigned int x, unsigned
 	y = (192*y)/200;
 		
 	// Comput sprite slots
-	x1 = (x/7)*2;
-	if ((x%7) > 3) { x1++; }	
+	x1 = (2*x)/7;
 
 	// Prevent collisions (it messes-up background)
 	for (i=0; i<SPRITE_NUM; i++) {
@@ -216,9 +215,17 @@ void SetSprite(unsigned char index, unsigned int frame, unsigned int x, unsigned
 	
 	// Select the correct offset data
 	if (x1%2) {
-		y1 = frame*SPRITE_WIDTH*SPRITE_HEIGHT + SPRITE_BLOCK;
+		if (x%7 < 6) {
+			y1 = frame*SPRITE_WIDTH*SPRITE_HEIGHT + 2*SPRITE_BLOCK;
+		} else {
+			y1 = frame*SPRITE_WIDTH*SPRITE_HEIGHT + 3*SPRITE_BLOCK;			
+		}
 	} else {
-		y1 = frame*SPRITE_WIDTH*SPRITE_HEIGHT;
+		if (x%7 < 2) {
+			y1 = frame*SPRITE_WIDTH*SPRITE_HEIGHT;
+		} else {
+			y1 = frame*SPRITE_WIDTH*SPRITE_HEIGHT + 1*SPRITE_BLOCK;
+		}
 	}
 	
 	// Backup background and draw sprite	
