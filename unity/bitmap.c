@@ -64,8 +64,8 @@ void InitBitmap() {
 	// Set default palette
 	POKE(PALETTERAM+0, 0x00);
 	POKE(PALETTERAM+1, 0x02);
-	POKE(PALETTERAM+2, 0x06);
-	POKE(PALETTERAM+3, 0x0A);
+	POKE(PALETTERAM+2, 0x05);
+	POKE(PALETTERAM+3, 0x08);
 	POKE(PALETTERAM+4, 0x00);
 	POKE(PALETTERAM+5, 0x12);
 	POKE(PALETTERAM+6, 0x82);
@@ -539,6 +539,10 @@ void PrintHeader(const char *buffer)
 	bgCol = COLOR_BLACK;
 }
 
+#ifdef __ATARIXL__
+#pragma code-name("CODE")
+#endif
+
 // Interactive text input function
 void PrintInput(unsigned char col, unsigned char row, char *buffer, unsigned char len)
 {
@@ -547,10 +551,6 @@ void PrintInput(unsigned char col, unsigned char row, char *buffer, unsigned cha
 	PrintStr(col, row, buffer);
 	PrintChr(col+strlen(buffer), row, &charUnderbar[0]);
 }
-
-#ifdef __ATARIXL__
-#pragma code-name("CODE")
-#endif
 
 char KeyStr(char *buffer, unsigned char len, unsigned char key)
 {

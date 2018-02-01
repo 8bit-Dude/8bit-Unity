@@ -33,7 +33,7 @@
 #elif defined __APPLE2__
 	#define PLATFORM   2
 	#define LAST_LINE 23	
-	#define CH_DEL CH_ESC
+	#define CH_DEL  0x08
 #endif
 
 // Memory locations
