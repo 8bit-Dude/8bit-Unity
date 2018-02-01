@@ -207,25 +207,6 @@ void SetColor(unsigned int x, unsigned int y, unsigned char color)
 #endif
 }
 
-// Clear entire bitmap screen
-void ClearBitmap()
-{
-#if defined __CBM__
-	bzero((char*)BITMAPRAM, 8000);
-	bzero((char*)SCREENRAM, 1000);
-	bzero((char*)COLORRAM, 1000);
-#elif defined __ATARI__
-	bzero((char*)BITMAPRAM1, 7680);
-	bzero((char*)BITMAPRAM2, 7680);
-#elif defined __APPLE2__
-    // clear main and aux screen memory	
-	*dhraux = 0;
-    bzero((char *)BITMAPRAM, 8192);
-	*dhrmain = 0;
-    bzero((char *)BITMAPRAM, 8192);
-#endif
-}
-
 // Load bitmap from file
 void LoadBitmap(char *filename) 
 {
@@ -274,6 +255,29 @@ void LoadBitmap(char *filename)
 
 	// Chat background color
 	bgHeader = GetColor(0, 0);
+}
+
+#ifdef __ATARIXL__
+#pragma code-name("SHADOW_RAM2")
+#endif
+
+// Clear entire bitmap screen
+void ClearBitmap()
+{
+#if defined __CBM__
+	bzero((char*)BITMAPRAM, 8000);
+	bzero((char*)SCREENRAM, 1000);
+	bzero((char*)COLORRAM, 1000);
+#elif defined __ATARI__
+	bzero((char*)BITMAPRAM1, 7680);
+	bzero((char*)BITMAPRAM2, 7680);
+#elif defined __APPLE2__
+    // clear main and aux screen memory	
+	*dhraux = 0;
+    bzero((char *)BITMAPRAM, 8192);
+	*dhrmain = 0;
+    bzero((char *)BITMAPRAM, 8192);
+#endif
 }
 
 // Draw panel using the background color
@@ -386,10 +390,6 @@ void PrintLogo(unsigned char col, unsigned char row, unsigned char index)
 	}
 #endif
 }
-
-#ifdef __ATARIXL__
-#pragma code-name("SHADOW_RAM2")
-#endif
 
 // Print character using background and foreground colors
 void PrintChr(unsigned char col, unsigned char row, const char *matrix)
@@ -538,10 +538,6 @@ void PrintHeader(const char *buffer)
 	PrintStr(40-len, 0, buffer);
 	bgCol = COLOR_BLACK;
 }
-
-#ifdef __ATARIXL__
-#pragma code-name("CODE")
-#endif
 
 // Interactive text input function
 void PrintInput(unsigned char col, unsigned char row, char *buffer, unsigned char len)

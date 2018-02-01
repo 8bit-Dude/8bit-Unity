@@ -114,23 +114,35 @@
 // Keyboard definitions
 	#define KEY_SP		' '
 #if defined __APPLE2__
+	#define KEY_A		'A'
+	#define KEY_B		'B'
 	#define KEY_C		'C'
+	#define KEY_D		'D'
 	#define KEY_F		'F'
 	#define KEY_G		'G'
 	#define KEY_H		'H'
+	#define KEY_I		'I'
+	#define KEY_J		'J'
 	#define KEY_L		'L'
 	#define KEY_M		'M'
 	#define KEY_O		'O'
 	#define KEY_Q		'Q'	
+	#define KEY_W		'W'
 #else
+	#define KEY_A		'a'	
+	#define KEY_B		'b'	
 	#define KEY_C		'c'	
+	#define KEY_D		'd'	
 	#define KEY_F		'f'
 	#define KEY_G		'g'
 	#define KEY_H		'h'
+	#define KEY_I		'i'
+	#define KEY_J		'j'
 	#define KEY_L		'l'
 	#define KEY_M		'm'
 	#define KEY_O		'o'
 	#define KEY_Q		'q'	
+	#define KEY_W		'w'
 #endif
 
 // Bitmap functions (see bitmap.c)
