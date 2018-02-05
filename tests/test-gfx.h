@@ -28,9 +28,9 @@ int TestGFX(void)
 	}
 	
 	// Draw text
-	bgCol = BLACK;
+	colorBG = BLACK;
 	for (i=1; i<16; i++) {
-		fgCol = i;
+		colorFG = i;
 		PrintStr(10,i,"8BIT-UNITY IS EASY!");
 	}	
 

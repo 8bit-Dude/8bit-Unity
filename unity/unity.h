@@ -65,17 +65,20 @@
 // Color definitions
 #if defined __CBM__
 	// C64 Colors
-	#define BLACK  		COLOR_BLACK
-	#define BLUE   		COLOR_BLUE
-	#define DRKGRAY   	COLOR_GRAY1	
-	#define MEDGRAY 	COLOR_GRAY2	
-	#define LITGRAY   	COLOR_GRAY3	
-	#define GREEN  		COLOR_GREEN
-	#define LITGREEN    COLOR_LIGHTGREEN
-	#define PURPLE 		COLOR_PURPLE
-	#define RED    		COLOR_RED
-	#define YELLOW 		COLOR_YELLOW
-	#define WHITE  		COLOR_WHITE
+	#define BLACK  		0
+	#define BLUE   		6
+	#define CYAN   		3
+	#define DRKGRAY   	11	
+	#define MEDGRAY 	12	
+	#define LITGRAY   	15	
+	#define GREEN  		5
+	#define LITGREEN    13
+	#define ORANGE 		8
+	#define PINK 		10
+	#define PURPLE 		4
+	#define RED    		2
+	#define YELLOW 		7
+	#define WHITE  		1
 #elif defined __ATARI__
 	// Atari Colors
 	#define BLACK  		0
@@ -157,10 +160,9 @@ void DrawPanel(unsigned char colBeg, unsigned char rowBeg, unsigned char colEnd,
 void PrintChr(unsigned char col, unsigned char row, const char *matrix);
 void PrintStr(unsigned char col, unsigned char row, const char *buffer);
 void PrintLogo(unsigned char col, unsigned char row, unsigned char index);
-void PrintInput(unsigned char col, unsigned char row, char *buffer, unsigned char len);
 void PrintHeader(const char *buffer);
-char KeyStr(char *buffer, unsigned char len, unsigned char key);
 void InputStr(unsigned char col, unsigned char row, char *buffer, unsigned char len);
+unsigned char InputUpdate(unsigned char col, unsigned char row, char *buffer, unsigned char len, unsigned char key);
 #ifdef DEBUG_FPS
 void DrawFPS(unsigned long  f);
 extern clock_t fpsClock;
@@ -188,7 +190,7 @@ extern const char charSlash[3];
 extern const char charUnderbar[3];
 
 // Colors for printing
-extern unsigned char fgCol, bgCol, bgHeader;
+extern unsigned char colorFG, colorBG, headerBG;
 
 // Joystick definitions
 #if defined __APPLE2__
@@ -234,25 +236,14 @@ extern unsigned char fgCol, bgCol, bgHeader;
 unsigned char atan2(unsigned char y, unsigned char x);
 
 // Network functions (see IP65.lib)
-/* #ifndef __APPLE2__			 */
-	unsigned char ip65_init(void);
-	unsigned char ip65_process(void);
-	unsigned char dhcp_init(void);
-	unsigned long __fastcall__ parse_dotted_quad(char* quad);
-	unsigned char __fastcall__ udp_send(const unsigned char* buf, unsigned int len, unsigned long dest, unsigned int dest_port, unsigned int src_port);
-	unsigned char __fastcall__ udp_add_listener(unsigned int port, void (*callback)(void));
-	unsigned char __fastcall__ udp_remove_listener(unsigned int port);
-	extern unsigned char udp_recv_buf[192];   // Buffer with data received
-/* #else
-	// Temporary name holders until freeing-up memory
-	unsigned char ip65_init(void) { return 0; }
-	unsigned char ip65_process(void) { return 0; }
-	unsigned char dhcp_init(void) { return 0; }
-	unsigned char udp_send(const unsigned char* buf, unsigned int len, unsigned long dest, unsigned int dest_port, unsigned int src_port) { return 0; }	
-	unsigned char udp_add_listener(unsigned int port, void (*callback)(void)) { return 0; };	
-	unsigned char udp_remove_listener(unsigned int port) { return 0; };	
-	unsigned char udp_recv_buf[192];
-#endif */
+unsigned char ip65_init(void);
+unsigned char ip65_process(void);
+unsigned char dhcp_init(void);
+unsigned long __fastcall__ parse_dotted_quad(char* quad);
+unsigned char __fastcall__ udp_send(const unsigned char* buf, unsigned int len, unsigned long dest, unsigned int dest_port, unsigned int src_port);
+unsigned char __fastcall__ udp_add_listener(unsigned int port, void (*callback)(void));
+unsigned char __fastcall__ udp_remove_listener(unsigned int port);
+extern unsigned char udp_recv_buf[192];   // Buffer with data received
 
 // Music functions
 // C64: SID music player (see C64/SID.s)
@@ -287,9 +278,11 @@ void BumpSFX(void);
 #if defined __APPLE2__
 	void InitSprites(const char *filename);
 	unsigned char GetBGColor(unsigned char index);
-#else
+#elif defined __ATARI__
 	void InitSprites(unsigned char *colors);
-#endif	
+#elif defined __CBM__
+	void InitSprites(unsigned char *uniqueColors, unsigned char *sharedColors);
+#endif
 void EnableSprite(signed char index);
 void DisableSprite(signed char index);
 void SetSprite(unsigned char index, unsigned int frame, unsigned int x, unsigned int y);

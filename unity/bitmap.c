@@ -9,8 +9,8 @@
 #define BYTE4(a,b,c,d) ((a<<6) | (b<<4) | (c<<2) | d)
 
 // Colors for printing
-unsigned char bgHeader = 0;
-unsigned char fgCol, bgCol;
+unsigned char headerBG = 0;
+unsigned char colorFG, colorBG;
 
 // C64 specific variables & functions
 #ifdef __CBM__
@@ -27,8 +27,8 @@ unsigned char fgCol, bgCol;
 #ifdef __ATARI__
 	#define STARTBMP (0x8E10) // Start Bitmap routine (see DLI.a65)
 	#define STOPBMP  (0x8E4D) // Stop Bitmap routine
-	unsigned char fgCol1,fgCol2;
-	unsigned char bgCol1,bgCol2;
+	unsigned char colorFG1,colorFG2;
+	unsigned char colorBG1,colorBG2;
 	unsigned char bgByte1,bgByte2;
 #endif
 
@@ -42,7 +42,7 @@ void DrawFPS(unsigned long  f)
 	// Calculate stats
 	fpsClock = clock() - fpsClock;
 	fps = ( (f-60*(f/60)) * CLK_TCK) / fpsClock;
-	fgCol = WHITE;
+	colorFG = WHITE;
 
 	// Output stats
 	dmp1 = fps/10;
@@ -254,12 +254,8 @@ void LoadBitmap(char *filename)
 	fclose(fp);
 
 	// Chat background color
-	bgHeader = GetColor(0, 0);
+	headerBG = GetColor(0, 0);
 }
-
-#ifdef __ATARIXL__
-#pragma code-name("SHADOW_RAM2")
-#endif
 
 // Clear entire bitmap screen
 void ClearBitmap()
@@ -280,6 +276,10 @@ void ClearBitmap()
 #endif
 }
 
+#ifdef __ATARIXL__
+#pragma code-name("SHADOW_RAM2")
+#endif
+
 // Draw panel using the background color
 void DrawPanel(unsigned char colBeg, unsigned char rowBeg, unsigned char colEnd, unsigned char rowEnd)
 {
@@ -291,13 +291,13 @@ void DrawPanel(unsigned char colBeg, unsigned char rowBeg, unsigned char colEnd,
 #if defined __CBM__
 	for (j=rowBeg; j<rowEnd; ++j) {
 		memset((char*)(BITMAPRAM+320*j+colBeg*8), pow2, span*8);
-		memset((char*)(SCREENRAM+40*j+colBeg), bgCol, span);		
+		memset((char*)(SCREENRAM+40*j+colBeg), colorBG, span);		
 	}
 #elif defined __ATARI__
-	bgCol1 = bgCol%4;
-	bgCol2 = bgCol/4;
-	bgByte1 = BYTE4(bgCol1,bgCol1,bgCol1,bgCol1);
-	bgByte2 = BYTE4(bgCol2,bgCol2,bgCol2,bgCol2);
+	colorBG1 = colorBG%4;
+	colorBG2 = colorBG/4;
+	bgByte1 = BYTE4(colorBG1,colorBG1,colorBG1,colorBG1);
+	bgByte2 = BYTE4(colorBG2,colorBG2,colorBG2,colorBG2);
 	for (j=rowBeg*8; j<rowEnd*8; ++j) {
 		memset((char*)(BITMAPRAM1+j*40+colBeg), bgByte1, span);
 		memset((char*)(BITMAPRAM2+j*40+colBeg), bgByte2, span);
@@ -412,15 +412,15 @@ void PrintChr(unsigned char col, unsigned char row, const char *matrix)
 	
 	// Set Color
 	addr = SCREENRAM + row*40+col;
-	POKE(addr, fgCol << 4 | bgCol);
+	POKE(addr, colorFG << 4 | colorBG);
 #elif defined __ATARI__	
 	// Set Character across double buffer
 	unsigned char i;
 	unsigned int addr1,addr2;
-	fgCol1 = fgCol%4; fgCol2 = fgCol/4;
-	bgCol1 = bgCol%4; bgCol2 = bgCol/4;
-	bgByte1 = BYTE4(bgCol1,bgCol1,bgCol1,bgCol1);
-	bgByte2 = BYTE4(bgCol2,bgCol2,bgCol2,bgCol2);	
+	colorFG1 = colorFG%4; colorFG2 = colorFG/4;
+	colorBG1 = colorBG%4; colorBG2 = colorBG/4;
+	bgByte1 = BYTE4(colorBG1,colorBG1,colorBG1,colorBG1);
+	bgByte2 = BYTE4(colorBG2,colorBG2,colorBG2,colorBG2);	
 	addr1 = BITMAPRAM1+row*320+col;
 	addr2 = BITMAPRAM2+row*320+col;
 	if (matrix == &charBlank[0]) {
@@ -432,10 +432,10 @@ void PrintChr(unsigned char col, unsigned char row, const char *matrix)
 		POKE((char*)addr1+0*40, bgByte1);
 		POKE((char*)addr2+0*40, bgByte2);
 		for (i=0; i<3; ++i) {
-			POKE((char*)addr1+(i*2+1)*40, BYTE4((((matrix[i]>>7)&1) ? fgCol1 : bgCol1), (((matrix[i]>>6)&1) ? fgCol1 : bgCol1), (((matrix[i]>>5)&1) ? fgCol1 : bgCol1), bgCol1));
-			POKE((char*)addr1+(i*2+2)*40, BYTE4((((matrix[i]>>3)&1) ? fgCol1 : bgCol1), (((matrix[i]>>2)&1) ? fgCol1 : bgCol1), (((matrix[i]>>1)&1) ? fgCol1 : bgCol1), bgCol1));
-			POKE((char*)addr2+(i*2+1)*40, BYTE4((((matrix[i]>>7)&1) ? fgCol2 : bgCol2), (((matrix[i]>>6)&1) ? fgCol2 : bgCol2), (((matrix[i]>>5)&1) ? fgCol2 : bgCol2), bgCol2));
-			POKE((char*)addr2+(i*2+2)*40, BYTE4((((matrix[i]>>3)&1) ? fgCol2 : bgCol2), (((matrix[i]>>2)&1) ? fgCol2 : bgCol2), (((matrix[i]>>1)&1) ? fgCol2 : bgCol2), bgCol2));
+			POKE((char*)addr1+(i*2+1)*40, BYTE4((((matrix[i]>>7)&1) ? colorFG1 : colorBG1), (((matrix[i]>>6)&1) ? colorFG1 : colorBG1), (((matrix[i]>>5)&1) ? colorFG1 : colorBG1), colorBG1));
+			POKE((char*)addr1+(i*2+2)*40, BYTE4((((matrix[i]>>3)&1) ? colorFG1 : colorBG1), (((matrix[i]>>2)&1) ? colorFG1 : colorBG1), (((matrix[i]>>1)&1) ? colorFG1 : colorBG1), colorBG1));
+			POKE((char*)addr2+(i*2+1)*40, BYTE4((((matrix[i]>>7)&1) ? colorFG2 : colorBG2), (((matrix[i]>>6)&1) ? colorFG2 : colorBG2), (((matrix[i]>>5)&1) ? colorFG2 : colorBG2), colorBG2));
+			POKE((char*)addr2+(i*2+2)*40, BYTE4((((matrix[i]>>3)&1) ? colorFG2 : colorBG2), (((matrix[i]>>2)&1) ? colorFG2 : colorBG2), (((matrix[i]>>1)&1) ? colorFG2 : colorBG2), colorBG2));
 		}
 		POKE((char*)addr1+7*40, bgByte1);
 		POKE((char*)addr2+7*40, bgByte2);
@@ -448,24 +448,24 @@ void PrintChr(unsigned char col, unsigned char row, const char *matrix)
 	x = (col*35)/10; y = (row*8);
 	SetDHRPointer(x, y);	
 	for (j=0; j<n; j++) {
-		SetDHRColor(bgCol);
+		SetDHRColor(colorBG);
 		dhrpixel++;
 	}
 	for (i=0; i<3; ++i) {
 		SetDHRPointer(x, y+i*2+1);
 		for (j=0; j<n; j++) {
-			SetDHRColor(((matrix[i]>>(7-j))&1) ? fgCol : bgCol);
+			SetDHRColor(((matrix[i]>>(7-j))&1) ? colorFG : colorBG);
 			dhrpixel++;
 		}
 		SetDHRPointer(x, y+i*2+2);
 		for (j=0; j<n; j++) {
-			SetDHRColor(((matrix[i]>>(3-j))&1) ? fgCol : bgCol);
+			SetDHRColor(((matrix[i]>>(3-j))&1) ? colorFG : colorBG);
 			dhrpixel++;
 		}
 	}
 	SetDHRPointer(x, y+7);
 	for (j=0; j<n; j++) {
-		SetDHRColor(bgCol);
+		SetDHRColor(colorBG);
 		dhrpixel++;
 	}
 
@@ -509,7 +509,7 @@ void PrintHeader(const char *buffer)
 {
 	unsigned char len, i;
 	len = strlen(buffer);
-	bgCol = bgHeader;
+	colorBG = headerBG;
 #if defined __CBM__
 	// Roll bitmap and screen ram
 	DisableRom();
@@ -536,44 +536,51 @@ void PrintHeader(const char *buffer)
 #endif
 	// Print new message
 	PrintStr(40-len, 0, buffer);
-	bgCol = COLOR_BLACK;
+	colorBG = COLOR_BLACK;
 }
 
 // Interactive text input function
-void PrintInput(unsigned char col, unsigned char row, char *buffer, unsigned char len)
+unsigned char InputUpdate(unsigned char col, unsigned char row, char *buffer, unsigned char len, unsigned char key)
 {
-	// Refresh input field
-	DrawPanel(col, row, col+len, row);
-	PrintStr(col, row, buffer);
-	PrintChr(col+strlen(buffer), row, &charUnderbar[0]);
-}
-
-char KeyStr(char *buffer, unsigned char len, unsigned char key)
-{
-	// Letter key
-#if defined __ATARI__	
-	if (key == 32 | key == 33 | (key > 38 & key < 42) | (key > 43 & key < 59) | key == 63 | (key > 96 & key < 123)) {	// Atari
-#else
-	if (key == 32 | key == 33 | (key > 38 & key < 42) | (key > 43 & key < 59) | key == 63 | (key > 64 & key < 91)) {	// Apple/C64
-#endif
-		if (strlen(buffer) < len) { 
-			buffer[strlen(buffer)+1] = 0; 
-			buffer[strlen(buffer)] = key; 
-		}
-		return 2;		
-	}
-	// Delete key
-	if (key == CH_DEL) {
-		if (strlen(buffer) > 0) { 
-			buffer[strlen(buffer)-1] = 0; 
-		}
-		return 2;
-	// Return key
-	} else if (key == CH_ENTER) { 
-		return 1;	
+	unsigned char curlen;
+	
+	// Was a new key received?
+	if (!key) {
+		// Initialize input fied
+		DrawPanel(col, row, col+len, row);
+		PrintStr(col, row, buffer);
 	} else {
-		return 0;
+		// Check current length of input
+		curlen = strlen(buffer);
+
+		// Process Letter keys
+#if defined __ATARI__	
+		if (key == 32 | key == 33 | (key > 38 & key < 42) | (key > 43 & key < 59) | key == 63 | (key > 96 & key < 123)) {	// Atari
+#else
+		if (key == 32 | key == 33 | (key > 38 & key < 42) | (key > 43 & key < 59) | key == 63 | (key > 64 & key < 91)) {	// Apple/C64
+#endif
+			if (curlen < len) { 
+				buffer[curlen] = key;
+				buffer[curlen+1] = 0; 
+				PrintStr(col+curlen, row, &buffer[curlen]);
+			}
+		}
+		
+		// Process Delete key
+		if (key == CH_DEL) {
+			if (curlen > 0) {
+				buffer[curlen-1] = 0;
+				PrintChr(col+curlen, row, &charBlank[0]);
+			}
+		}
+
+		// Return key
+		if (key == CH_ENTER) { return 1; }
 	}
+	
+	// Show cursor
+	PrintChr(col+strlen(buffer), row, &charUnderbar[0]);
+	return 0;
 }
 
 void InputStr(unsigned char col, unsigned char row, char *buffer, unsigned char len)
@@ -581,17 +588,10 @@ void InputStr(unsigned char col, unsigned char row, char *buffer, unsigned char 
 	char i;
 	
 	// Print initial condition
-	PrintInput(col, row, buffer, len);
+	InputUpdate(col, row, buffer, len, 0);
 	
 	// Run input loop
 	while (1) {
-		if (kbhit()) {
-			i = KeyStr(buffer, len, cgetc());
-			if (i == 2) {
-				PrintInput(col, row, buffer, len);
-			} else if (i == 1) {
-				return;
-			}
-		}
+		if (InputUpdate(col, row, buffer, len, cgetc())) { return; }
 	}
 }
