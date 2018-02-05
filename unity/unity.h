@@ -268,15 +268,12 @@ void BumpSFX(void);
 	#define SPRITE_LENGTH 13 		// Byte length of 1 sprite
 #elif defined __APPLE2__
 	#define SPRITE_NUM	   4
-	#define SPRITE_WIDTH   4		// 4 bytes = 7 pixels
-	#define SPRITE_HEIGHT  5
-	#define SPRITE_FRAMES 16
-	#define SPRITE_LENGTH SPRITE_WIDTH*SPRITE_HEIGHT	// Byte length of 1 sprite;
+	#define SPRITE_LENGTH 20 		// Byte length of 1 sprite: 5 rows * 4 bytes (7 pixels)
 #endif	
 	
 // Sprite functions
 #if defined __APPLE2__
-	void InitSprites(const char *filename);
+	void InitSprites(const char *filename, unsigned char height, unsigned char frames);
 	unsigned char GetBGColor(unsigned char index);
 #elif defined __ATARI__
 	void InitSprites(unsigned char *colors);
