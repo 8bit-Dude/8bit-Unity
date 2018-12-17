@@ -65,9 +65,9 @@ void InitBitmap() {
 #elif defined __ATARI__
 	// Set default palette
 	POKE(PALETTERAM+0, 0x00);
-	POKE(PALETTERAM+1, 0x02);
-	POKE(PALETTERAM+2, 0x05);
-	POKE(PALETTERAM+3, 0x08);
+	POKE(PALETTERAM+1, 0x24);
+	POKE(PALETTERAM+2, 0x86);
+	POKE(PALETTERAM+3, 0xd8);
 #elif defined __APPLE2__
 	// Prepare Double Hi-Res Mode
 	asm("sta $c052"); // TURN ON FULLSCREEN       

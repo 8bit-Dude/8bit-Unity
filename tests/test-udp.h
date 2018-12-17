@@ -51,7 +51,7 @@ void InitNetwork()
 {
 	// Set time-outs and svr address
 	timeOut = 5*CLK_TCK;
-	svAddr = parse_dotted_quad("192.168.1.21");
+	svAddr = parse_dotted_quad("127.0.0.1");
 	
 	// Init IP65 > DHCP > UDP
 	printf("INIT NETWORK\n");
@@ -97,11 +97,12 @@ int TestUDP(void)
 			buffer[k++] = PEEK(++packet);
 		}
 		buffer[k] = 0;
+		printf("Received Packet: ");
 		printf(&buffer[0]);
 	}
 
 	// Wait for keyboard
-	printf("PRESS ANY KEY FOR NEXT TEST\n");
+	printf("\nPRESS ANY KEY FOR NEXT TEST\n");
 	cgetc();
 	
     // Done

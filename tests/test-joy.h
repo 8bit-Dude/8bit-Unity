@@ -8,20 +8,23 @@ int TestJOY(void)
 	// Reset screen
 	clrscr();
 	
-	// Init Joy 3/4 (only on CBM)
-	if (JOY_MAX > 2) { InitJoy34(); }
-	
+#if defined __CBM__	
+	InitJoy34();
+#endif
+
 	// Display joystick actions until 'Q' is pressed
-	printf("PRESS Q FOR NEXT TEST\n");
-	while (!kbhit () || cgetc () != 'Q') {
+	gotoxy (1, 2);
+	printf("JOYSTICK TEST (PRESS SPACE NEXT TEST)\n");
+	while (!kbhit () || cgetc () != KEY_SP) {
 		for (i=0; i<JOY_MAX; i++) {
 			switch (i) {
 				case 0:
 				case 1: joy = GetJoy(i); break;
+#if defined __CBM__	
 				case 2: joy = GetJoy3(); break;
 				case 3: joy = GetJoy4(); break;
+#endif
 			}
-			joy = GetJoy(i);
 			gotoxy (0, 8+2*i);
 			cprintf ("Joy %i: ", i+1);
 			cprintf ("%s ", joy & JOY_UP    ? "UP   ": "     ");

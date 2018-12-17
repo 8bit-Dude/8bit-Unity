@@ -231,6 +231,7 @@ extern unsigned char colorFG, colorBG, headerBG;
 
 // Joystick functions
 #if defined __CBM__
+	#define JOY_MAX 4
 	// Joystick 1&2
 	#define GetJoy(i) (PEEK(56321-(i)))		
 	// Joystick 3&4 (see C64/JOY34.s)	
@@ -238,6 +239,7 @@ extern unsigned char colorFG, colorBG, headerBG;
 	unsigned char GetJoy3(void);
 	unsigned char GetJoy4(void);
 #else
+	#define JOY_MAX 2
 	#if defined __ATARI__
 		// Joystick 1&2
 		#define GetJoy(i) (PEEK(0x0278+i)+(PEEK(0x0284+i)<<4))

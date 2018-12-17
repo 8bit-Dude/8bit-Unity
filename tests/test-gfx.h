@@ -33,6 +33,8 @@ int TestGFX(void)
 		colorFG = i;
 		PrintStr(10,i,"8BIT-UNITY IS EASY!");
 	}	
+	colorFG = WHITE;
+	PrintStr(7,16,"PRESS SPACE FOR NEXT TEST");
 
 	// Wait until keyboard is pressed
 	cgetc();
