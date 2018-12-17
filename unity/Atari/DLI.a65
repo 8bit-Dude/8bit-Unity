@@ -1,16 +1,41 @@
-// Twin Frame RAW graphics mode for Atari
-// Adapted from XL-Paint, DLIs were removed to speed-up display
-// Author: Anthony Beaucamp
-// Date created: 2017/12/21
-// Compile with MADS
+;
+; Copyright (c) 2018 Anthony Beaucamp.
+;
+; This software is provided 'as-is', without any express or implied warranty.
+; In no event will the authors be held liable for any damages arising from
+; the use of this software.
+;
+; Permission is granted to anyone to use this software for any purpose,
+; including commercial applications, and to alter it and redistribute it
+; freely, subject to the following restrictions:
+;
+;   1. The origin of this software must not be misrepresented; you must not
+;   claim that you wrote the original software. If you use this software in a
+;   product, an acknowledgment in the product documentation would be
+;   appreciated but is not required.
+;
+;   2. Altered source versions must be plainly marked as such, and must not
+;   be misrepresented as being the original software.
+;
+;   3. This notice may not be removed or altered from any distribution.
+;
+;   4. The names of this software and/or it's copyright holders may not be
+;   used to endorse or promote products derived from this software without
+;   specific prior written permission.
+;
 
-procs   = $8E10
-data	= $BE10
-PM5BAS  = $9b00
+; Twin frame graphic mode for Atari
+; Adapted from Inter-Player
+; Date created: 2017/12/21
+; Compile with MADS
 
-palette	= $7000
-buf0	= $7010
-buf1	= $A010
+lists	= $6520
+hbuf1   = $6525
+hbuf2   = $658d
+procs   = $6f50
+
+bmp1	= $7010
+bmp2	= $a010
 
 atract  = $004d
 vdslst	= $0200
@@ -33,140 +58,19 @@ nmien	= $d40e
 
 /*-------------------------------------------------------------------------------------------------*/
 	
-	org data
-	
-dlist0:	dta d'pp',$30+$80
-		dta $4e,a(buf0)
-		:101 dta $e
-		dta $4e,0,h(buf0+$1000)
-		:88 dta $e
-		dta $e
-		dta $41,a(dlist0)
+	org lists
 
-	;.align	$100	
+; Display lists	
+dlist:	dta $70,$70,$70
+		dta $4e,a(bmp1)
+		:101 dta $e			
+		dta $4e,0,h(bmp1+$1000)
+		:96 dta $e
+		dta $8e				; Invoke DLI with $80
+		dta $41,a(dlist)
 		
-dlist1:	dta d'pp',$30+$80
-		dta $4e,a(buf1)
-		:101 dta $e
-		dta $4e,0,h(buf1+$1000)
-		:88 dta $e
-		dta $e
-		dta $41,a(dlist1)	
-	
-; Palette toggle
-palTOG:	dta $0
-
-; 5th sprite flicker
-PMGX	.ds 4
-PMGY	.ds 4
-PMGFram	.ds 8
-PMGMask	.ds 1
-PM5IND	.ds 1
-PM5AIN	.ds 2
-PM5AOU	.ds 2
-
-; GFX config backup
-nmienT  .ds 1
-dlistT  .ds 2
-dliT	.ds 2
-
-; Registries backup
-regA	.ds 1
-regX	.ds 1
-regY	.ds 1
-
-/*-------------------------------------------------------------------------------------------------*/
-
-	org procs
-	
-.proc StartRAW	
-	; Backup GFX settings
-	mva nmien   nmienT
-	mwa sdlstl  dlistT
-	mwa vdslst  dliT
-
-	; Setup DLIST and DLI
-	sei
-	mva	#$c0	nmien
-	mwa	#dlist0	sdlstl
-	mwa	#dli	vdslst
-	cli
-
-	; Init 5th sprite
-	jsr initPM5
-	rts		
-.endp
-
-/*-------------------------------------------------------------------------------------------------*/
-
-.proc StopRAW
-	; Kill DLI
-	sei
-	mva	nmienT	nmien
-	mwa dlistT	sdlstl
-	mwa dliT	vdslst 
-	cli
-	
-	; Black-out palette
-	;mva #0 color4
-	;mva #0 color0
-	;mva #0	color1
-	;mva #0	color2	
-		
-	rts
-.endp
-	
-/*-------------------------------------------------------------------------------------------------*/
-
-dli:
-	; Backup registers
-	sta regA
-	stx regX
-	sty regY
-	
-	; Switch palette
-	lda palTOG
-	eor #$1
-	sta palTOG
-	bne pal1
-
-pal0:	
-	; Assign palette 1
-	mva palette+4	color4
-	mva palette+5	color0
-	mva palette+6	color1
-	mva palette+7	color2
-
-	; Switch Display List
-	mwa	#dlist1		sdlstl
-	jmp done
-
-pal1:	
-	; Assign palette 0
-	mva palette+0	color4
-	mva palette+1	color0
-	mva palette+2	color1
-	mva palette+3	color2
-
-	; Switch Display List
-	mwa	#dlist0		sdlstl
-	jmp done
-	
-done:
-	; Flicker 5th sprite (if needed)
-	jsr updtPM5
-
-	; Reset atract (screen saver timer)
-	sta atract
-
-	; Restore Registers
-	lda regA
-	ldx regX
-	ldy regY
-	rti
-
 /*-------------------------------------------------------------------------------------------------*/	
-	
+		
 // 5th sprite flicker routine
 
 initPM5:
@@ -180,7 +84,7 @@ updtPM5:
 	lda PMGMask
 	bne sprbranch0
 	rts
-
+	
 sprbranch0:
 	; Reset pixels of 5th sprite
 	ldx PM5AOU+0	; Address of 5th sprite
@@ -196,15 +100,16 @@ strloop0:
 	
 sprbranch1:
 	; Should we increment sprite index? (depends on palette toggle)
-	ldx PM5IND
-	lda palTOG
-	beq sprbranch3
+	;lda palTOG
+	;beq sprbranch3
 	
 	; Increment 5th sprite index (reset when index becomes 4)
+	ldx PM5IND
 	inx	
 	cpx #4
 	bcc sprbranch2
 	ldx #0
+	
 sprbranch2:
 	stx PM5IND
 	
@@ -305,4 +210,92 @@ sprloop1:
 return:	
 	; All done!
 	rts
+
+/*-------------------------------------------------------------------------------------------------*/
+
+	org procs
+	
+; Palette toggle
+palTOG:	dta $0
+
+; 5th sprite flicker
+PMGMask	.ds 1
+PMGX	.ds 4
+PMGY	.ds 4
+PMGFram	.ds 8
+PM5IND	.ds 1
+PM5AIN	.ds 2
+PM5AOU	.ds 2
+
+; GFX config backup
+nmienT  .ds 1
+dlistT  .ds 2
+
+; Registries backup
+regA	.ds 1
+regX	.ds 1
+regY	.ds 1	
+		
+.proc StartRAW	
+	; Backup GFX settings
+	mva nmien   nmienT
+	mwa sdlstl  dlistT
+	
+	; Setup DLIST and DLI
+	sei
+	mva	#$c0	nmien
+	mwa	#dlist	sdlstl
+	mwa	#dli	vdslst
+	cli
+
+	; Init 5th sprite
+	jsr initPM5
+	rts		
+.endp
+
+.proc StopRAW
+	; Kill DLI
+	sei
+	mva	nmienT	nmien
+	mwa dlistT	sdlstl
+	cli
+	rts
+.endp
+
+dli:
+	; Backup registers
+	sta regA
+	stx regX
+	sty regY
+	
+	; Switch palette
+	lda palTOG
+	eor #$1
+	sta palTOG
+	bne frame2
+
+frame1:	
+	; Switch bitmap buffer 1
+	mva #$A0 hbuf1
+	mva #$B0 hbuf2	
+	jmp done
+
+frame2:	
+	; Switch bitmap buffer 2
+	mva #$70 hbuf1
+	mva #$80 hbuf2		
+	jmp done
+	
+done:
+	; Flicker 5th sprite (if needed)
+	jsr updtPM5
+
+	; Reset atract (screen saver timer)
+	sta atract
+
+	; Restore Registers
+	lda regA
+	ldx regX
+	ldy regY
+	rti	
 	

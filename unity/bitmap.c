@@ -1,3 +1,28 @@
+/*
+ * Copyright (c) 2018 Anthony Beaucamp.
+ *
+ * This software is provided 'as-is', without any express or implied warranty.
+ * In no event will the authors be held liable for any damages arising from
+ * the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ *   1. The origin of this software must not be misrepresented * you must not
+ *   claim that you wrote the original software. If you use this software in a
+ *   product, an acknowledgment in the product documentation would be
+ *   appreciated but is not required.
+ *
+ *   2. Altered source versions must be plainly marked as such, and must not
+ *   be misrepresented as being the original software.
+ *
+ *   3. This notice may not be removed or altered from any distribution.
+ *
+ *   4. The names of this software and/or it's copyright holders may not be
+ *   used to endorse or promote products derived from this software without
+ *   specific prior written permission.
+ */
 
 #include "unity.h"
 
@@ -25,32 +50,9 @@ unsigned char colorFG, colorBG;
 
 // Atari specific variables & functions
 #ifdef __ATARI__
-	#define STARTBMP (0x8E10) // Start Bitmap routine (see DLI.a65)
-	#define STOPBMP  (0x8E4D) // Stop Bitmap routine
 	unsigned char colorFG1,colorFG2;
 	unsigned char colorBG1,colorBG2;
 	unsigned char bgByte1,bgByte2;
-#endif
-
-// Performance Drawing
-#ifdef DEBUG_FPS
-clock_t fpsClock;
-void DrawFPS(unsigned long  f)
-{
-    unsigned int fps,dmp1,dmp2;
-	
-	// Calculate stats
-	fpsClock = clock() - fpsClock;
-	fps = ( (f-60*(f/60)) * CLK_TCK) / fpsClock;
-	colorFG = WHITE;
-
-	// Output stats
-	dmp1 = fps/10;
-	PrintChr(38, 0, &charDigit[dmp1*3]);
-	dmp2 = (fps-dmp1*10);
-	PrintChr(39, 0, &charDigit[dmp2*3]);				
-	fpsClock = clock();	
-}
 #endif
 
 // Initialize Bitmap Screen
@@ -66,10 +68,6 @@ void InitBitmap() {
 	POKE(PALETTERAM+1, 0x02);
 	POKE(PALETTERAM+2, 0x05);
 	POKE(PALETTERAM+3, 0x08);
-	POKE(PALETTERAM+4, 0x00);
-	POKE(PALETTERAM+5, 0x12);
-	POKE(PALETTERAM+6, 0x82);
-	POKE(PALETTERAM+7, 0xc2);
 #elif defined __APPLE2__
 	// Prepare Double Hi-Res Mode
 	asm("sta $c052"); // TURN ON FULLSCREEN       
@@ -91,7 +89,14 @@ void EnterBitmapMode()
 	POKE(0xD011, PEEK(0xD011) | 32);		// 53265: set bitmap mode
 	POKE(0xD016, PEEK(0xD016) | 16);		// 53270: set multicolor mode
 #elif defined __ATARI__
-	__asm__("jsr %w", STARTBMP);			// Switch ON graphic mode and antic
+	// Assign palette
+	POKE(0x02c8, PEEK(PALETTERAM+0));
+	POKE(0x02c4, PEEK(PALETTERAM+1));
+	POKE(0x02c5, PEEK(PALETTERAM+2));
+	POKE(0x02c6, PEEK(PALETTERAM+3));	
+	
+	// Switch ON graphic mode and antic
+	__asm__("jsr %w", STARTBMP);			
 	POKE(559, 32+16+8+4+2); // ANTIC: DMA Screen + Enable P/M + DMA Players + DMA Missiles + Single resolution
 #elif defined __APPLE2__
 	// Switch ON Double Hi-Res Mode
@@ -153,15 +158,20 @@ unsigned char GetColor(unsigned int x, unsigned int y)
 	}
 #elif defined __ATARI__
 	unsigned int offset;
-	unsigned char shift;
+	unsigned char val1, val2, shift;
 	
 	// Compute pixel location
-	offset = 40*((y*192)/200)+x/8;
+	offset = 40*y+x/8;
 	shift = 6 - 2*((x/2)%4);
 
 	// Dual buffer (colour/shade)
-	return ( ((PEEK((char*)BITMAPRAM1+offset) & ( 3 << shift )) >> shift) +
-			 ((PEEK((char*)BITMAPRAM2+offset) & ( 3 << shift )) >> shift) * 4 );
+	val1 = (PEEK((char*)BITMAPRAM1+offset) & ( 3 << shift )) >> shift;
+	val2 = (PEEK((char*)BITMAPRAM2+offset) & ( 3 << shift )) >> shift;
+	if (val1 > val2) {
+		return val1*4 + val2;
+	} else {
+		return val2*4 + val1;
+	}
 #elif defined __APPLE2__
 	// Rescale coords
  	x = (140*x)/320;
@@ -189,15 +199,23 @@ void SetColor(unsigned int x, unsigned int y, unsigned char color)
 	POKE(COLORRAM+offset, color);
 #elif defined __ATARI__
 	unsigned int offset;
-	unsigned char shift;	
+	unsigned char shift, mask, col1, col2;	
 
 	// Compute pixel location
-	offset = 40*((y*192)/200)+x/8;
+	offset = 40*y + x/8;
 	shift = 6 - 2*((x/2)%4);
+	mask = 255 - (3 << shift);
+	if ((y+x/2)%2) {
+		col2 = (color%4) << shift;
+		col1 = (color/4) << shift;
+	} else {
+		col1 = (color%4) << shift;
+		col2 = (color/4) << shift;
+	}
 
 	// Dual buffer (colour/shade)
-	POKE((char*)BITMAPRAM1+offset, PEEK((char*)BITMAPRAM1+offset) | ( (color%4) << shift ));
-	POKE((char*)BITMAPRAM2+offset, PEEK((char*)BITMAPRAM2+offset) | ( (color/4) << shift ));
+	POKE((char*)BITMAPRAM1+offset, (PEEK((char*)BITMAPRAM1+offset) & mask) | col1);
+	POKE((char*)BITMAPRAM2+offset, (PEEK((char*)BITMAPRAM2+offset) & mask) | col2);
 #elif defined __APPLE2__
 	// Rescale coordinates
 	x = (140*x)/320;
@@ -232,15 +250,15 @@ void LoadBitmap(char *filename)
 	
 	// 1 byte background color
 	bg = (char) fgetc(fp);	
-#elif defined __ATARI__
-	// 9 bytes palette ram
-	fread((char*)PALETTERAM, 1, 9, fp);
+#elif defined __ATARI__	
+	// 4 bytes palette ram
+	fread((char*)PALETTERAM, 1, 4, fp);
 	
-	// 7680 bytes RAM1 (color)
-	fread((char*)BITMAPRAM1, 1, 7680, fp);
+	// 8000 bytes RAM1 (color 1)
+	fread((char*)BITMAPRAM1, 1, 8000, fp);
 	
-	// 7680 bytes RAM2 (luminance)
-	fread((char*)BITMAPRAM2, 1, 7680, fp);	
+	// 8000 bytes RAM2 (color 2)
+	fread((char*)BITMAPRAM2, 1, 8000, fp);
 #elif defined __APPLE2__
 	// Read 8192 bytes to AUX
 	*dhraux = 0;
@@ -276,6 +294,12 @@ void ClearBitmap()
 #endif
 }
 
+void PrintNum(unsigned char col, unsigned char row, unsigned char num)
+{
+	if (num > 9) { PrintChr(col, row, &charDigit[(num/10)*3]); }
+	PrintChr(col+1, row, &charDigit[(num%10)*3]);
+}
+
 #ifdef __ATARIXL__
 #pragma code-name("SHADOW_RAM2")
 #endif
@@ -296,13 +320,19 @@ void DrawPanel(unsigned char colBeg, unsigned char rowBeg, unsigned char colEnd,
 #elif defined __ATARI__
 	colorBG1 = colorBG%4;
 	colorBG2 = colorBG/4;
-	bgByte1 = BYTE4(colorBG1,colorBG1,colorBG1,colorBG1);
-	bgByte2 = BYTE4(colorBG2,colorBG2,colorBG2,colorBG2);
+	bgByte1 = BYTE4(colorBG1,colorBG2,colorBG1,colorBG2);
+	bgByte2 = BYTE4(colorBG2,colorBG1,colorBG2,colorBG1);
 	for (j=rowBeg*8; j<rowEnd*8; ++j) {
-		memset((char*)(BITMAPRAM1+j*40+colBeg), bgByte1, span);
-		memset((char*)(BITMAPRAM2+j*40+colBeg), bgByte2, span);
+		if (j%2) {
+			memset((char*)(BITMAPRAM1+j*40+colBeg), bgByte2, span);
+			memset((char*)(BITMAPRAM2+j*40+colBeg), bgByte1, span);
+		} else {
+			memset((char*)(BITMAPRAM1+j*40+colBeg), bgByte1, span);
+			memset((char*)(BITMAPRAM2+j*40+colBeg), bgByte2, span);
+		}
 	}	
 #elif defined __APPLE2__
+	// TODO: Implement panel drawing in color! (now only black)
 	for (j=rowBeg*8; j<rowEnd*8; ++j) {
 		SetDHRPointer((colBeg*35)/10, j);
 		*dhraux = 0;
@@ -343,14 +373,10 @@ void PrintLogo(unsigned char col, unsigned char row, unsigned char index)
 	}
 #elif defined __ATARI__
 	// Define logos
-	unsigned char logos1[4][8] = { {0,0,0, 48,204,192,204, 48}, 	// C64: (0,3,0,0) (3,0,3,0) (3,0,0,0) (3,0,3,0) (0,3,0,0)	LUMINANCE
-								   {0,0,0, 48,204,252,204,204},		// ATR: (0,3,0,0) (3,0,3,0) (3,3,3,0) (3,0,3,0) (3,0,3,0)
-								   {0,0,0, 12, 48,252,252, 48},  	// APP: (0,0,3,0) (0,3,0,0) (3,3,3,0) (3,3,3,0) (0,3,0,0)
-								   {0,0,0,252,255,255,255,255} };	// FLP: (3,3,3,0) (3,3,3,3) (3,3,3,3) (3,3,3,3) (3,3,3,3)
-	unsigned char logos2[4][8] = { {0,0,0, 32,136,128,132, 32}, 	// C64: (0,2,0,0) (2,0,2,0) (2,0,0,0) (2,0,1,0) (0,2,0,0)	CHROMA
-								   {0,0,0, 48,204, 84, 68,136},		// ATR: (0,3,0,0) (3,0,3,0) (1,1,1,0) (1,0,1,0) (2,0,2,0)
-								   {0,0,0, 12, 32, 84, 84,168},  	// APP: (0,0,3,0) (0,3,0,0) (1,1,1,0) (1,1,1,0) (0,2,0,0)
-								   {0,0,0,128,130,170,130,170} };	// FLP: (2,0,0,0) (2,0,0,2) (2,2,2,2) (2,0,0,2) (2,2,2,2)
+	unsigned char logos[4][8] = { {0,0,0, 32,136,128,132, 32}, 		// C64: (0,2,0,0) (2,0,2,0) (2,0,0,0) (2,0,1,0) (0,2,0,0)	BMP1
+								  {0,0,0, 48,204, 84, 68,136},		// ATR: (0,3,0,0) (3,0,3,0) (1,1,1,0) (1,0,1,0) (2,0,2,0)
+								  {0,0,0, 12, 48, 84,168, 32},  	// APP: (0,0,3,0) (0,3,0,0) (1,1,1,0) (2,2,2,0) (0,2,0,0)
+								  {0,0,0,188,190,170,190,170} };	// FLP: (2,3,3,0) (2,3,3,2) (2,2,2,2) (2,3,3,2) (2,2,2,2)
 	unsigned int addr1, addr2;
 	unsigned char i;
 
@@ -360,8 +386,8 @@ void PrintLogo(unsigned char col, unsigned char row, unsigned char index)
 	
 	// Set Character data
 	for (i=0; i<8; ++i) {
-		POKE(addr1+i*40, logos1[index][i]);
-		POKE(addr2+i*40, logos2[index][i]);
+		POKE(addr1+i*40, logos[index][i]);
+		POKE(addr2+i*40, logos[index][i]);
 	}	
 #elif defined __APPLE2__
 	// Define logos
@@ -404,8 +430,8 @@ void PrintChr(unsigned char col, unsigned char row, const char *matrix)
 	} else {
 		POKE(addr, pow2);
 		for (i=0; i<3; ++i) {
-			POKE(addr+2*i+1, BYTE4((((matrix[i]>>7)&1) ? 1 : 2), (((matrix[i]>>6)&1) ? 1 : 2), (((matrix[i]>>5)&1) ? 1 : 2), 2));
-			POKE(addr+2*i+2, BYTE4((((matrix[i]>>3)&1) ? 1 : 2), (((matrix[i]>>2)&1) ? 1 : 2), (((matrix[i]>>1)&1) ? 1 : 2), 2));
+			POKE(addr+2*i+1, BYTE4(((matrix[i]&128) ? 1 : 2), ((matrix[i]&64) ? 1 : 2), ((matrix[i]&32) ? 1 : 2), 2));
+			POKE(addr+2*i+2, BYTE4(((matrix[i]&8  ) ? 1 : 2), ((matrix[i]&4 ) ? 1 : 2), ((matrix[i]&2 ) ? 1 : 2), 2));
 		}
 		POKE(addr+7, pow2);
 	}
@@ -419,26 +445,31 @@ void PrintChr(unsigned char col, unsigned char row, const char *matrix)
 	unsigned int addr1,addr2;
 	colorFG1 = colorFG%4; colorFG2 = colorFG/4;
 	colorBG1 = colorBG%4; colorBG2 = colorBG/4;
-	bgByte1 = BYTE4(colorBG1,colorBG1,colorBG1,colorBG1);
-	bgByte2 = BYTE4(colorBG2,colorBG2,colorBG2,colorBG2);	
+	bgByte1 = BYTE4(colorBG1,colorBG2,colorBG1,colorBG2);
+	bgByte2 = BYTE4(colorBG2,colorBG1,colorBG2,colorBG1);	
 	addr1 = BITMAPRAM1+row*320+col;
 	addr2 = BITMAPRAM2+row*320+col;
 	if (matrix == &charBlank[0]) {
 		for (i=0; i<8; ++i) {
-			POKE((char*)addr1+i*40, bgByte1);
-			POKE((char*)addr2+i*40, bgByte2);
+			if (i%2) {
+				POKE((char*)addr1+i*40, bgByte2);
+				POKE((char*)addr2+i*40, bgByte1);
+			} else {
+				POKE((char*)addr1+i*40, bgByte1);
+				POKE((char*)addr2+i*40, bgByte2);
+			}
 		}
 	} else {
 		POKE((char*)addr1+0*40, bgByte1);
 		POKE((char*)addr2+0*40, bgByte2);
 		for (i=0; i<3; ++i) {
-			POKE((char*)addr1+(i*2+1)*40, BYTE4((((matrix[i]>>7)&1) ? colorFG1 : colorBG1), (((matrix[i]>>6)&1) ? colorFG1 : colorBG1), (((matrix[i]>>5)&1) ? colorFG1 : colorBG1), colorBG1));
-			POKE((char*)addr1+(i*2+2)*40, BYTE4((((matrix[i]>>3)&1) ? colorFG1 : colorBG1), (((matrix[i]>>2)&1) ? colorFG1 : colorBG1), (((matrix[i]>>1)&1) ? colorFG1 : colorBG1), colorBG1));
-			POKE((char*)addr2+(i*2+1)*40, BYTE4((((matrix[i]>>7)&1) ? colorFG2 : colorBG2), (((matrix[i]>>6)&1) ? colorFG2 : colorBG2), (((matrix[i]>>5)&1) ? colorFG2 : colorBG2), colorBG2));
-			POKE((char*)addr2+(i*2+2)*40, BYTE4((((matrix[i]>>3)&1) ? colorFG2 : colorBG2), (((matrix[i]>>2)&1) ? colorFG2 : colorBG2), (((matrix[i]>>1)&1) ? colorFG2 : colorBG2), colorBG2));
+			POKE((char*)addr2+(i*2+1)*40, BYTE4(((matrix[i]&128) ? colorFG1 : colorBG1), ((matrix[i]&64) ? colorFG2 : colorBG2), ((matrix[i]&32) ? colorFG1 : colorBG1), colorBG2));
+			POKE((char*)addr1+(i*2+2)*40, BYTE4(((matrix[i]&8  ) ? colorFG1 : colorBG1), ((matrix[i]&4 ) ? colorFG2 : colorBG2), ((matrix[i]&2 ) ? colorFG1 : colorBG1), colorBG2));
+			POKE((char*)addr1+(i*2+1)*40, BYTE4(((matrix[i]&128) ? colorFG2 : colorBG2), ((matrix[i]&64) ? colorFG1 : colorBG1), ((matrix[i]&32) ? colorFG2 : colorBG2), colorBG1));
+			POKE((char*)addr2+(i*2+2)*40, BYTE4(((matrix[i]&8  ) ? colorFG2 : colorBG2), ((matrix[i]&4 ) ? colorFG1 : colorBG1), ((matrix[i]&2 ) ? colorFG2 : colorBG2), colorBG1));
 		}
-		POKE((char*)addr1+7*40, bgByte1);
-		POKE((char*)addr2+7*40, bgByte2);
+		POKE((char*)addr1+7*40, bgByte2);
+		POKE((char*)addr2+7*40, bgByte1);
 	}
 #elif defined __APPLE2__
 	// Set Character over 3/4 pixels out of 7 in a cell

@@ -1,15 +1,38 @@
 /*
-	API of the "8bit-Unity" SDK for CC65
-	All functions are cross-platform for the Apple IIe, Atari XL/XE, and C64/C128
-	
-	Author: Anthony Beaucamp
-	Last modified: 2018/01/18
-	
-	Credits: 
-		* Oliver Schmidt for his IP65 network interface
-		* Christian Groessler for helping optimize the memory maps on Commodore and Atari
-		* Bill Buckels for his Apple II Double Hi-Res bitmap code
-*/
+ *	API of the "8bit-Unity" SDK for CC65
+ *	All functions are cross-platform for the Apple IIe, Atari XL/XE, and C64/C128
+ *	
+ *	Last modified: 2018/12/15
+ *	
+ * Copyright (c) 2018 Anthony Beaucamp.
+ *
+ * This software is provided 'as-is', without any express or implied warranty.
+ * In no event will the authors be held liable for any damages arising from
+ * the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ *   1. The origin of this software must not be misrepresented * you must not
+ *   claim that you wrote the original software. If you use this software in a
+ *   product, an acknowledgment in the product documentation would be
+ *   appreciated but is not required.
+ *
+ *   2. Altered source versions must be plainly marked as such, and must not
+ *   be misrepresented as being the original software.
+ *
+ *   3. This notice may not be removed or altered from any distribution.
+ *
+ *   4. The names of this software and/or it's copyright holders may not be
+ *   used to endorse or promote products derived from this software without
+ *   specific prior written permission.
+ *
+ *	Credits: 
+ *		* Oliver Schmidt for his IP65 network interface
+ *		* Christian Groessler for helping optimize the memory maps on Commodore and Atari
+ *		* Bill Buckels for his Apple II Double Hi-Res bitmap code
+ */
 
 // CC65 includes
 #include <conio.h>
@@ -20,16 +43,13 @@
 #include <time.h>
 #include <unistd.h>
 
-// Debugging flags
-//#define DEBUG_FPS
-
 // Platform IDs/Specs
 #if defined __CBM__
 	#define PLATFORM   0
 	#define LAST_LINE 24	
 #elif defined __ATARI__
 	#define PLATFORM   1
-	#define LAST_LINE 23	
+	#define LAST_LINE 24	
 #elif defined __APPLE2__
 	#define PLATFORM   2
 	#define LAST_LINE 23	
@@ -43,23 +63,33 @@
 	#define SCREENLOC  0
 	#define BITMAPLOC  8
 	#define SPRITELOC  28
-	#define COLORRAM   (0xD800) // Fixed location
-	#define SCREENRAM  (VIDEOBANK * 0x4000 + SCREENLOC * 0x0400) // 0xC000
-	#define BITMAPRAM  (VIDEOBANK * 0x4000 + BITMAPLOC * 0x0400) // 0xE000
-	#define SPRITEPTR  (SCREENRAM + 0x03F8)						 // 0xC3F8 (sprite position/frame)
-	#define SPRITERAM  (VIDEOBANK * 0x4000 + SPRITELOC * 0x0040) // 0xC700 (sprites.prg is loaded at this address)
+	#define MUSICRAM   (0xb000) 								 // B000-BFFF (SID sound track: ALSO EDIT SID.S WHEN CHANGING THIS VALUE!)
+	#define SCREENRAM  (VIDEOBANK * 0x4000 + SCREENLOC * 0x0400) // C000-C3FF (char data)
+	#define COLORRAM   (0xd800) 								 // D800-DBFF (color data; fixed location)
+	#define BITMAPRAM  (VIDEOBANK * 0x4000 + BITMAPLOC * 0x0400) // E000-FFFF (bitmap data)
+	#define SPRITEPTR  (SCREENRAM + 0x03f8)						 // C3F8-???? (sprite control)
+	#define SPRITERAM  (VIDEOBANK * 0x4000 + SPRITELOC * 0x0040) // C700-CFFF (sprites.prg loaded here)
 #elif defined __ATARI__
 	// Atari Memory locations
-	#define PMGRAM     (0x9800) // Player missile memory
-	#define SPRITERAM1 (0x9700)	// Sprite data
-	#define SPRITERAM2 (0x98A0)	// 5th sprite data
-	#define PALETTERAM (0x7000) // Palette data
-	#define PALETTETOG (0xBFA4) // Palette toggle (RGB/BW)
-	#define BITMAPRAM1 (0x7010) // Colour data
-	#define BITMAPRAM2 (0xA010) // Shade data
+	#define GFXROUTINE (0x6520) // 6520-66db (DLI list and PMG5 flicker)
+								// 6f50-6fee (START/STOP and Flicker routine)
+	#define RMTPLAYER  (0x66e0) // 66e0-6f4d (RMT music player; JSR to 0x6A00)
+	#define PALETTERAM (0x7000) // 7000-7003 (palette data)
+	#define BITMAPRAM1 (0x7010) // 7010-8f50 (colour data 1)
+	#define MUSICRAM   (0x9000) // 9000-96ff (RMT sound track)
+	#define SPRITERAM1 (0x9700)	// 9700-9aff (sprites.a8 loaded here, overlaps with unused part of PMGRAM)
+	#define PMGRAM     (0x9800) // 9800-9fff (player missile memory)
+	#define BITMAPRAM2 (0xa010) // a010-bf50 (colour data 2)
+	// External Routines/Variables 
+	#define FRAMETOG   (0x6f50) // Toggle frame blending (see DLI.a65)
+	#define PMG5VARS   (0x6f51) // 5th sprite control variables (see DLI.a65)
+	#define STARTBMP   (0x6f6d) // Start Bitmap routine (see DLI.a65)
+	#define STOPBMP    (0x6f9e) // Stop Bitmap routine (see DLI.a65)	
 #elif defined __APPLE2__
 	// Apple Memory locations
 	#define BITMAPRAM  (0x2000)
+	#define MUSICRAM   (0xa800) // A800-AAFF (electric duet track loaded here)
+	#define SPRITERAM  (0xab00)	// AB00-BEFF (sprites.app loaded here)
 #endif
 
 // Color definitions
@@ -69,7 +99,7 @@
 	#define BLUE   		6
 	#define CYAN   		3
 	#define DRKGRAY   	11	
-	#define MEDGRAY 	12	
+	#define MEDGRAY 	12
 	#define LITGRAY   	15	
 	#define GREEN  		5
 	#define LITGREEN    13
@@ -82,15 +112,16 @@
 #elif defined __ATARI__
 	// Atari Colors
 	#define BLACK  		0
-	#define BLUE   		9
-	#define DRKGRAY   	1
-	#define MEDGRAY   	2
-	#define LITGRAY     3
-	#define GREEN  	   15
-	#define PURPLE     11
-	#define RED    		6
-	#define YELLOW 		7
-	#define WHITE  		3
+	#define BLUE   		10
+	#define BROWN 		4
+	#define DRKBLUE     2
+	#define DRKGREEN  	3
+	#define GRAY   		9
+	#define GREEN  	    11
+	#define ORANGE 		7
+	#define RED    		5
+	#define YELLOW 		15
+	#define WHITE  		9
 #elif defined __APPLE2__
 	// Apple Colors
 	#define BLACK   	0
@@ -130,6 +161,7 @@
 	#define KEY_M		'M'
 	#define KEY_O		'O'
 	#define KEY_Q		'Q'	
+	#define KEY_S		'S'	
 	#define KEY_W		'W'
 #else
 	#define KEY_A		'a'	
@@ -145,6 +177,7 @@
 	#define KEY_M		'm'
 	#define KEY_O		'o'
 	#define KEY_Q		'q'	
+	#define KEY_S		's'	
 	#define KEY_W		'w'
 #endif
 
@@ -158,15 +191,12 @@ unsigned char GetColor(unsigned int x, unsigned int y);
 void SetColor(unsigned int x, unsigned int y, unsigned char color);
 void DrawPanel(unsigned char colBeg, unsigned char rowBeg, unsigned char colEnd, unsigned char rowEnd);
 void PrintChr(unsigned char col, unsigned char row, const char *matrix);
+void PrintNum(unsigned char col, unsigned char row, unsigned char num);
 void PrintStr(unsigned char col, unsigned char row, const char *buffer);
 void PrintLogo(unsigned char col, unsigned char row, unsigned char index);
 void PrintHeader(const char *buffer);
 void InputStr(unsigned char col, unsigned char row, char *buffer, unsigned char len);
 unsigned char InputUpdate(unsigned char col, unsigned char row, char *buffer, unsigned char len, unsigned char key);
-#ifdef DEBUG_FPS
-void DrawFPS(unsigned long  f);
-extern clock_t fpsClock;
-#endif
 
 // C64 specific functions (see C64/ROM.s)
 #ifdef __CBM__
@@ -193,23 +223,14 @@ extern const char charUnderbar[3];
 extern unsigned char colorFG, colorBG, headerBG;
 
 // Joystick definitions
-#if defined __APPLE2__
-	#define JOY_LEFT  4
-	#define JOY_RIGHT 8
-	#define JOY_UP    16
-	#define JOY_DOWN  32
-	#define JOY_FIRE  64
-#else 
-	#define JOY_UP    1
-	#define JOY_DOWN  2
-	#define JOY_LEFT  4
-	#define JOY_RIGHT 8
-	#define JOY_FIRE  16
-#endif
+#define JOY_UP    1
+#define JOY_DOWN  2
+#define JOY_LEFT  4
+#define JOY_RIGHT 8
+#define JOY_FIRE  16
 
 // Joystick functions
 #if defined __CBM__
-	#define JOY_MAX	 4
 	// Joystick 1&2
 	#define GetJoy(i) (PEEK(56321-(i)))		
 	// Joystick 3&4 (see C64/JOY34.s)	
@@ -217,18 +238,16 @@ extern unsigned char colorFG, colorBG, headerBG;
 	unsigned char GetJoy3(void);
 	unsigned char GetJoy4(void);
 #else
-	#define JOY_MAX	 2
-	// Joystick 1&2
 	#if defined __ATARI__
+		// Joystick 1&2
 		#define GetJoy(i) (PEEK(0x0278+i)+(PEEK(0x0284+i)<<4))
 	#else if defined __APPLE2__
-		#define GetJoy(i) (GetJoy12(i))
-		unsigned char GetJoy12(unsigned char);
+		// Joystick 1&2
+		unsigned char GetJoy(unsigned char);		
+		// Joystick 1-4
+		unsigned char GetPaddle(unsigned char);
+		#define GetButton(i) (PEEK(0xC061+i)>127)
 	#endif
-	// Joystick 3&4 (placeholders)
-	#define InitJoy34()   (0)
-	#define GetJoy3() 	  (255)
-	#define GetJoy4()     (255)
 #endif
 
 // Math functions (see math.s)
@@ -246,17 +265,20 @@ unsigned char __fastcall__ udp_remove_listener(unsigned int port);
 extern unsigned char udp_recv_buf[192];   // Buffer with data received
 
 // Music functions
+// Apple: Electric Duet player (see Apple/DUET.s) 
+// Atari: RMT/SFX player (see Atari/POKEY.s)
 // C64: SID music player (see C64/SID.s)
-// Atari: RMT/SFX players (see Atari/POKEY.s)
-// Apple: Not implemented yet
-void PlayMusic(void);
+#if defined __APPLE2__
+	extern unsigned char sfxOutput;	// 0 = Speaker, 1 = Mockingboard (Slot 4)
+	void InitMocking(void);
+#endif
+void PlayMusic(unsigned int address);
 void StopMusic(void);
 
 // SFX functions (see sfx.c)
 void InitSFX(void);
 void EngineSFX(int channel, int vel);
-void BleepLowSFX(void);
-void BleepHighSFX(void);
+void BleepSFX(unsigned char tone);
 void BumpSFX(void);
 
 // Sprite definitions
@@ -273,16 +295,25 @@ void BumpSFX(void);
 	
 // Sprite functions
 #if defined __APPLE2__
-	void InitSprites(const char *filename, unsigned char height, unsigned char frames);
+	void InitSprites(unsigned char height, unsigned char frames);
 	unsigned char GetBGColor(unsigned char index);
+	void RestoreBg(unsigned char index);	
 #elif defined __ATARI__
 	void InitSprites(unsigned char *colors);
 #elif defined __CBM__
 	void InitSprites(unsigned char *uniqueColors, unsigned char *sharedColors);
 #endif
+
+// Data used by SetSprite()
+#if defined __CBM__
+	extern unsigned int sprX;
+	extern unsigned char sprY,sprF;	
+#else
+	extern unsigned char sprX,sprY,sprF;
+#endif
 void EnableSprite(signed char index);
 void DisableSprite(signed char index);
-void SetSprite(unsigned char index, unsigned int frame, unsigned int x, unsigned int y);
+void SetSprite(unsigned char index);
 
 // Sprite collision functions
 #if defined __CBM__
@@ -300,7 +331,7 @@ void SetSprite(unsigned char index, unsigned int frame, unsigned int x, unsigned
 	extern unsigned char sprCOL[SPRITE_NUM];
 #endif
 
-// Apple DHR functions, for code optimization (see Apple/DHR.c)
+// Apple Double-HiRes functions (see Apple/DHR.c)
 #if defined __APPLE2__
 extern unsigned char *dhrmain, *dhraux, *dhrptr, dhrpixel;
 void SetDHRPointer(unsigned int x, unsigned int y);

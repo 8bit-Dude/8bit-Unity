@@ -1,3 +1,28 @@
+/*
+ * Copyright (c) 2018 Anthony Beaucamp.
+ *
+ * This software is provided 'as-is', without any express or implied warranty.
+ * In no event will the authors be held liable for any damages arising from
+ * the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ *   1. The origin of this software must not be misrepresented * you must not
+ *   claim that you wrote the original software. If you use this software in a
+ *   product, an acknowledgment in the product documentation would be
+ *   appreciated but is not required.
+ *
+ *   2. Altered source versions must be plainly marked as such, and must not
+ *   be misrepresented as being the original software.
+ *
+ *   3. This notice may not be removed or altered from any distribution.
+ *
+ *   4. The names of this software and/or it's copyright holders may not be
+ *   used to endorse or promote products derived from this software without
+ *   specific prior written permission.
+ */
 
 #include "unity.h"
 
@@ -8,37 +33,28 @@
 // Apple II specific init function
 #if defined __APPLE2__
 	#define SPRITE_WIDTH   4		
-	#define SPRITE_MEMORY 5120		   		// Memory allocated for sprites	
 	// Extern variables (see bitmap.c)
 	extern unsigned DHRBases[192];
-	unsigned char sprDAT[SPRITE_MEMORY];			// Sprite RAW data
 	unsigned char sprCOL[SPRITE_NUM] = {0,0,0,0};		// Collision flags
 	unsigned char sprEN[SPRITE_NUM] = {0,0,0,0}; 		// Enable status
-	unsigned char sprX[SPRITE_NUM], sprY[SPRITE_NUM];	// Coordinates
+	unsigned char sprXO[SPRITE_NUM], sprYO[SPRITE_NUM];	// Coordinates
 	unsigned char sprBG[SPRITE_NUM][SPRITE_LENGTH];	    // Background backup
 	unsigned char sprHEIGHT, sprFRAMES;
 	unsigned int sprBLOCK;
-	void InitSprites(const char *filename, unsigned char height, unsigned char frames)
+	void InitSprites(unsigned char height, unsigned char frames)
 	{
-		FILE *fp;
-		// Enough memory?
+		// Set sprite width, frames and resulting block size
 		sprFRAMES = frames;
 		sprHEIGHT = height;
 		sprBLOCK = sprFRAMES*sprHEIGHT*SPRITE_WIDTH;
-		if (4*sprBLOCK > SPRITE_MEMORY) { return; }
-		// Read from file
-		fp = fopen(filename,"rb");
-		fread(sprDAT, 1, 4*sprBLOCK, fp);
-		fclose(fp);
 	}	
 // Atari specific init function
 #elif defined __ATARI__	
 	// 5th sprite flicker data (see DLI.a65)
-	#define PMG5	(0xbfa5)
-	#define PMGX 	PMG5+0x00
-	#define PMGY 	PMG5+0x04
-	#define PMGFram	PMG5+0x08
-	#define PMGMask	PMG5+0x10
+	#define PMGMask	PMG5VARS+0x00
+	#define PMGX 	PMG5VARS+0x01
+	#define PMGY 	PMG5VARS+0x05
+	#define PMGFram	PMG5VARS+0x09
 	unsigned int PMGbase[SPRITE_NUM] = {PMGRAM+1024, PMGRAM+1280, PMGRAM+1536, PMGRAM+1792, PMGRAM+768};
 	unsigned int PMGaddr[SPRITE_NUM] = {PMGRAM+1024, PMGRAM+1280, PMGRAM+1536, PMGRAM+1792, PMGRAM+768};
 	void InitSprites(unsigned char *colors)
@@ -51,7 +67,7 @@
 		}
 		bzero(PMGaddr[4],0x100);  // Clear Missile memory
 		POKE(711, colors[4]);	  // Set Missile color  (shadow for 53273)
-		POKE(PMGMask, 0);  		  // Set rolling sprites mask (PMG.a65)
+		POKE(PMGMask, 0);  		  // Set rolling sprites mask (DLI.a65)
 		
 		// Setup ANTIC and GTIA
 		POKE(54279, PMGRAM>>8); // Tell ANTIC where the PM data is located
@@ -77,13 +93,17 @@
 
 // Apple II specific background redrawing function
 #if defined __APPLE2__
-	unsigned char xS,yS,xO,yO,delta;
+	unsigned char xO,yO,delta;
 	unsigned char *sprPTR, *bgPTR;
+	unsigned char xptr, yptr;
 	void RestoreBg(unsigned char index)
 	{
+		yO = 0;
+		xptr = sprXO[index];
+		yptr = sprYO[index];
 		bgPTR = &sprBG[index][0];
-		for (yO=0; yO<sprHEIGHT; yO++) {
-			dhrptr = (unsigned char *) (DHRBases[sprY[index]+yO] + sprX[index]);
+		while (yO<sprHEIGHT) {
+			dhrptr = (unsigned char *) (DHRBases[yptr++] + xptr);
 			*dhraux = 0;
 			dhrptr[0] = bgPTR[0];
 			dhrptr[1] = bgPTR[1];
@@ -91,6 +111,7 @@
 			dhrptr[0] = bgPTR[2];		
 			dhrptr[1] = bgPTR[3];
 			bgPTR += SPRITE_WIDTH;
+			yO++;
 		}
 	}
 	unsigned char GetBGColor(unsigned char index)
@@ -110,41 +131,38 @@
 	}
 #endif
 
-void SetSprite(unsigned char index, unsigned int frame, unsigned int x, unsigned int y)
+#if defined __CBM__
+	unsigned int sprX;
+	unsigned char sprY,sprF;	
+#else
+	unsigned char sprX,sprY,sprF;
+#endif
+
+void SetSprite(unsigned char index)
 {
 #if defined __APPLE2__
 	unsigned char i;
 	unsigned int addr;
 	
-	// Convert to Apple coordinates
-	xS = (140*x)/320;
-	yS = (192*y)/200;
-		
-	// Comput sprite slots
-	xO = (2*xS)/7;
+	// Compute sprite slots
+	xO = (2*sprX)/7;
 
 	// Select the correct offset block (4 offset blocks per 7 pixels)
 	if (xO%2) {
-		if (xS%7 < 6) {
-			addr = frame*sprHEIGHT*SPRITE_WIDTH + 2*sprBLOCK;
-		} else {
-			addr = frame*sprHEIGHT*SPRITE_WIDTH + 3*sprBLOCK;			
-		}
+		addr = sprF*sprHEIGHT*SPRITE_WIDTH + 2*sprBLOCK;
+		if (sprX%7 > 5) { addr += sprBLOCK; }
 	} else {
-		if (xS%7 < 2) {
-			addr = frame*sprHEIGHT*SPRITE_WIDTH;
-		} else {
-			addr = frame*sprHEIGHT*SPRITE_WIDTH + 1*sprBLOCK;
-		}
+		addr = sprF*sprHEIGHT*SPRITE_WIDTH;
+		if (sprX%7 > 3) { addr += sprBLOCK; }
 	}
 
 	// Check for collisions
 	sprCOL[index] = 0;
 	for (i=0; i<SPRITE_NUM; i++) {
-		if (i!=index && sprEN[i]) {
-			delta = sprX[i] - xO;
+		if (sprEN[i] && i!=index) {
+			delta = sprXO[i] - xO;
 			if (delta < 2 || delta>254) {
-				delta = sprY[i] - yS;
+				delta = sprYO[i] - sprY;
 				if (delta < sprHEIGHT || delta>(256-sprHEIGHT)) {
 					// Redraw background of that sprite
 					RestoreBg(i);
@@ -156,13 +174,15 @@ void SetSprite(unsigned char index, unsigned int frame, unsigned int x, unsigned
 	}	
 
 	// Restore old background
-	if (sprEN[index]>0) { RestoreBg(index); }
+	if (sprEN[index]) { RestoreBg(index); }
 	
-	// Backup new background and draw sprite	
+	// Backup new background and draw sprite
+	yO = 0;
+	yptr = sprY;	
+	sprPTR = SPRITERAM+addr;
 	bgPTR = &sprBG[index][0];
-	sprPTR = &sprDAT[addr];
-	for (yO=yS; yO<yS+sprHEIGHT; yO++) {
-		dhrptr = (unsigned char *) (DHRBases[yO] + xO);
+	while (yO<sprHEIGHT) {
+		dhrptr = (unsigned char *) (DHRBases[yptr++] + xO);
 		*dhraux = 0;
 		bgPTR[0]  = dhrptr[0];
 		bgPTR[1]  = dhrptr[1];
@@ -175,40 +195,41 @@ void SetSprite(unsigned char index, unsigned int frame, unsigned int x, unsigned
 		dhrptr[1] = sprPTR[3];		
 		bgPTR += SPRITE_WIDTH;
 		sprPTR += SPRITE_WIDTH;
+		yO++;
 	}
 	
 	// Background settings
 	sprEN[index] = 1;
-	sprX[index] = xO;
-	sprY[index] = yS;
+	sprXO[index] = xO;
+	sprYO[index] = sprY;
 #elif defined __ATARI__
-	// Convert to Atari coordinates
-	x = 45+(x*160)/320;
-	y = 22+(y*192)/200;
+	// Offset sprite (to coincide with map)
+	sprX += 45;
+	sprY += 24;
 	
 	// Set X coordinate
-	POKE(53248+index, x);
+	POKE(53248+index, sprX);
 	
 	// Refesh PMG colum
 	bzero(PMGaddr[index], SPRITE_LENGTH);       
-	PMGaddr[index] = PMGbase[index]+y;
-	memcpy(PMGaddr[index], SPRITERAM1+frame*SPRITE_LENGTH, SPRITE_LENGTH);		
+	PMGaddr[index] = PMGbase[index]+sprY;
+	memcpy(PMGaddr[index], SPRITERAM1+sprF*SPRITE_LENGTH, SPRITE_LENGTH);		
 
-	// Pass information to 5th sprite handler (PMG5.a65)
-	POKE(PMGX+index, x);
-	POKE(PMGY+index, y);
-	POKEW(PMGFram+index*2, frame*SPRITE_LENGTH);	
+	// Pass information to 5th sprite handler (see DLI.a65)
+	POKE(PMGX+index, sprX);
+	POKE(PMGY+index, sprY);
+	POKEW(PMGFram+index*2, sprF*SPRITE_LENGTH);	
 #elif defined __CBM__
 	// Tell VIC where to find the frame
-	POKE(SPRITEPTR+index, SPRITELOC+frame);
+	POKE(SPRITEPTR+index, SPRITELOC+sprF);
 
 	// Set X/Y Coordinates
-	POKE(53249+2*index, y+39);
-	if (x < 244) {
-		POKE(53248+2*index, x+12);
+	POKE(53249+2*index, sprY+39);
+	if (sprX < 244) {
+		POKE(53248+2*index, sprX+12);
 		POKE(53264, PEEK(53264) & ~(1 << index));
 	} else {
-		POKE(53248+2*index, x-244);
+		POKE(53248+2*index, sprX-244);
 		POKE(53264, PEEK(53264) |  (1 << index));
 	}	
 #endif
@@ -234,9 +255,9 @@ void EnableSprite(signed char index)
 		POKE(PMGMask,0);    // Set rolling sprite mask
 		bzero(PMGRAM+768,0x500);   // Clear all PMG memory
 #elif defined __APPLE2__
-		// Restore background if neccessary
+		// Restore background
 		for (index=0; index<SPRITE_NUM; index++) {
-			if (sprEN[index]) { RestoreBg(index); }	
+			if (sprEN[index]) { RestoreBg(index); }				
 			sprEN[index] = 0;
 		}
 #endif
@@ -252,7 +273,7 @@ void DisableSprite(signed char index)
 	// Set rolling sprite mask
 	POKE(PMGMask, PEEK(PMGMask) & ~(1 << index));
 	bzero(PMGaddr[index],0x100);   // Clear Player memory
-#elif defined __APPLE2__	
+#elif defined __APPLE2__
 	// Restore background if neccessary
 	if (sprEN[index]) { RestoreBg(index); }
 	sprEN[index] = 0;
