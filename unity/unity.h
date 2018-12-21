@@ -297,7 +297,7 @@ void BumpSFX(void);
 	
 // Sprite functions
 #if defined __APPLE2__
-	void InitSprites(unsigned char height, unsigned char frames);
+	void InitSprites(unsigned char height, unsigned char width, unsigned char frames);
 	unsigned char GetBGColor(unsigned char index);
 	void RestoreBg(unsigned char index);	
 #elif defined __ATARI__
@@ -305,17 +305,10 @@ void BumpSFX(void);
 #elif defined __CBM__
 	void InitSprites(unsigned char *uniqueColors, unsigned char *sharedColors);
 #endif
-
-// Data used by SetSprite()
-#if defined __CBM__
-	extern unsigned int sprX;
-	extern unsigned char sprY,sprF;	
-#else
-	extern unsigned char sprX,sprY,sprF;
-#endif
 void EnableSprite(signed char index);
 void DisableSprite(signed char index);
-void SetSprite(unsigned char index);
+void LocateSprite(unsigned int x, unsigned int y);
+void UpdateSprite(unsigned char index, unsigned char frame);
 
 // Sprite collision functions
 #if defined __CBM__

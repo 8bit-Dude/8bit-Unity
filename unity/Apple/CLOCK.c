@@ -34,9 +34,22 @@ clock_t clk;
 // Wait for 1 clock tick
 void tick()
 {
-	unsigned int i;
-	while (i<128) { i++; }
+	unsigned int i = 0;
+	while (i<100) { i++; }
 	clk += 1;		
+}
+
+// Sleep for x seconds
+unsigned sleep(unsigned seconds)
+{
+	unsigned int i;
+	while (seconds) {
+		i = 0;
+		while (i<6000) { i++; }
+		seconds--;
+	}
+	clk += CLK_TCK;
+	return 1;
 }
 
 #ifdef __APPLE2__
@@ -47,17 +60,4 @@ void tick()
 clock_t clock()
 {
 	return clk;
-}
-
-// Sleep for x seconds
-unsigned sleep(unsigned seconds)
-{
-	unsigned int i;
-	while (seconds) {
-		i = 0;
-		while (i<8192) { i++; }
-		seconds--;
-	}
-	clk += CLK_TCK;
-	return 1;
 }

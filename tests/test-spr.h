@@ -10,7 +10,7 @@
 
 int TestSPR(void) 
 {
-	unsigned char i,j;
+	unsigned char i,j,f;
 	clock_t timer = clock();
 
 	// Reset screen
@@ -25,7 +25,7 @@ int TestSPR(void)
 	
 	// Prepare sprites
 #if defined __APPLE2__
-	InitSprites(13, 8);
+	InitSprites(13, 4, 8);
 #elif defined __ATARI__
 	InitSprites(spriteColors);
 #elif defined __CBM__
@@ -34,17 +34,16 @@ int TestSPR(void)
 
 	// Display sprite
 	EnableSprite(0);
-	sprX = 160, sprY = 100;
+	LocateSprite(160, 100);
 	while (!kbhit()) {
 #if defined __APPLE2__
 		tick();	// Apple 2 has no clock, so simulate ticks!
 #endif
-		// Animate sprite every 3 ticks
-		if (clock()-timer > 3) {
+		// Animate sprite every 5 ticks
+		if (clock()-timer > 5) {
 			timer = clock();
-			sprF += 1;
-			sprF %= 8;
-			SetSprite(0);
+			f += 1; f %= 3;
+			UpdateSprite(0, f);
 		}
 	}
 	
