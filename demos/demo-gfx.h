@@ -1,7 +1,7 @@
 
 #include "unity.h"
 
-int TestGFX(void) 
+int DemoGFX(void) 
 {
 	unsigned char i,j,k;
 

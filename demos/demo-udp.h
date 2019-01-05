@@ -68,7 +68,7 @@ void InitNetwork()
 	
 }
 
-int TestUDP(void)
+int DemoUDP(void)
 {
 	unsigned char k,n;
 	char buffer[16];

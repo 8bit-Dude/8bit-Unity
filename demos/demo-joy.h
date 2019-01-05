@@ -1,7 +1,7 @@
 
 #include "unity.h"
 
-int TestJOY(void) 
+int DemoJOY(void) 
 {
 	unsigned char i, joy;
 

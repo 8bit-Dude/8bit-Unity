@@ -1,20 +1,20 @@
 
-#include "test-bmp.h"
-#include "test-gfx.h"
-#include "test-joy.h"
-#include "test-spr.h"
-#include "test-udp.h"
-//#include "test-exo.h"
+#include "demo-bmp.h"
+#include "demo-gfx.h"
+#include "demo-joy.h"
+#include "demo-spr.h"
+#include "demo-udp.h"
+//#include "demo-exo.h"
 
 int main (void) 
 {
-	// Run all tests
-	TestBMP();
-	TestGFX();
-	TestJOY();
-	TestSPR();
-	TestUDP();
-	//TestEXO();
+	// Run all demos
+	DemoBMP();
+	DemoGFX();
+	DemoJOY();
+	DemoSPR();
+	DemoUDP();
+	//DemoEXO();
 	
     // Done
     return EXIT_SUCCESS;	

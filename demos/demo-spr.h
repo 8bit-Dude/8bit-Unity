@@ -10,7 +10,7 @@
 	unsigned char spriteColors[5] = {0x74, 0x24, 0xa6, 0xdc, 0x06};				// P1, P2, P3, P4, TIRES
 #endif
 
-int TestSPR(void) 
+int DemoSPR(void) 
 {
 	unsigned char i, frame;
 	unsigned int xpos, ypos, angle;
