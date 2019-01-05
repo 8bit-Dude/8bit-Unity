@@ -3,7 +3,7 @@
 
 int TestGFX(void) 
 {
-	unsigned char i,j;
+	unsigned char i,j,k;
 
 	// Reset screen
 	clrscr();
@@ -18,12 +18,9 @@ int TestGFX(void)
 	// Draw palette
 	for (i=0; i<16; i++) {
 		for (j=0; j<10; j++) {
-			SetColor(i*20+2*j,0,i);
-			SetColor(i*20+2*j,1,i);
-			SetColor(i*20+2*j,2,i);
-			SetColor(i*20+2*j,3,i);
-			SetColor(i*20+2*j,4,i);
-			SetColor(i*20+2*j,5,i);
+			for (k=0; k<6; k++) {
+				SetColor(i*20+j*2, k, i);
+			}
 		}
 	}
 	
@@ -31,10 +28,10 @@ int TestGFX(void)
 	colorBG = BLACK;
 	for (i=1; i<16; i++) {
 		colorFG = i;
-		PrintStr(10,i,"8BIT-UNITY IS EASY!");
+		PrintStr(15,i,"8BIT-UNITY");
 	}	
 	colorFG = WHITE;
-	PrintStr(7,16,"PRESS SPACE FOR NEXT TEST");
+	PrintStr(8,16,"PRESS SPACE FOR NEXT TEST");
 
 	// Wait until keyboard is pressed
 	cgetc();

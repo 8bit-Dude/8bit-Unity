@@ -259,19 +259,34 @@ void UpdateSprite(unsigned char index, unsigned char frame)
 
 void EnableSprite(signed char index)
 {
-	// Switch sprites on
-	if (index >= 0) {
 #if defined __CBM__
-		// Set sprite bits
-		POKE(53269, PEEK(53269) |  (1 << index));
+	// Set sprite bits
+	POKE(53269, PEEK(53269) |  (1 << index));
+#elif defined __ATARI__
+	// Set rolling sprite mask
+	POKE(PMGMask, PEEK(PMGMask) | (1 << index));
+#endif
+}
+
+void DisableSprite(signed char index)
+{
+	// Switch single sprite off
+	if (index >= 0) {	
+#if defined __CBM__
+		POKE(53269, PEEK(53269) & ~(1 << index));
 #elif defined __ATARI__
 		// Set rolling sprite mask
-		POKE(PMGMask, PEEK(PMGMask) | (1 << index));
+		POKE(PMGMask, PEEK(PMGMask) & ~(1 << index));
+		bzero(PMGaddr[index],0x100);   // Clear Player memory
+#elif defined __APPLE2__
+		// Restore background if neccessary
+		if (sprEN[index]) { RestoreBg(index); }
+		sprEN[index] = 0;
 #endif
 	// Switch all sprites off
 	} else {
 #if defined __CBM__
-		// Set sprite bits		
+		// Set sprite bits
 		POKE(53269, 0);
 #elif defined __ATARI__	
 		POKE(PMGMask,0);    // Set rolling sprite mask
@@ -284,20 +299,4 @@ void EnableSprite(signed char index)
 		}
 #endif
 	}
-}
-
-void DisableSprite(signed char index)
-{
-	// Switch sprite off
-#if defined __CBM__
-	POKE(53269, PEEK(53269) & ~(1 << index));
-#elif defined __ATARI__
-	// Set rolling sprite mask
-	POKE(PMGMask, PEEK(PMGMask) & ~(1 << index));
-	bzero(PMGaddr[index],0x100);   // Clear Player memory
-#elif defined __APPLE2__
-	// Restore background if neccessary
-	if (sprEN[index]) { RestoreBg(index); }
-	sprEN[index] = 0;
-#endif
 }

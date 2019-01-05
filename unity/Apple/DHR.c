@@ -27,26 +27,7 @@
  */
  
 //	Helper functions for Apple II Double Hi-Res Mode
-//	Last modified: 2018/01/25
-
-// Bitmasks for color assignement
-unsigned char DHRBytes[16][4] = {
-	{0x00,0x00,0x00,0x00},
-	{0x08,0x11,0x22,0x44},
-	{0x11,0x22,0x44,0x08},
-	{0x19,0x33,0x66,0x4C},
-	{0x22,0x44,0x08,0x11},
-	{0x2A,0x55,0x2A,0x55},
-	{0x33,0x66,0x4C,0x19},
-	{0x3B,0x77,0x6E,0x5D},
-	{0x44,0x08,0x11,0x22},
-	{0x4C,0x19,0x33,0x66},
-	{0x55,0x2A,0x55,0x2A},
-	{0x5D,0x3B,0x77,0x6E},
-	{0x66,0x4C,0x19,0x33},
-	{0x6E,0x5D,0x3B,0x77},
-	{0x77,0x6E,0x5D,0x3B},
-	{0x7F,0x7F,0x7F,0x7F}};	
+//	Last modified: 2019/01/05
 
 // DHR base array: provides base address for 192 hires scanlines
 unsigned int DHRBases[192] = {
@@ -96,111 +77,80 @@ void SetDHRColor(unsigned char color)
 	switch(dhrpixel) {
 		case 0: *dhraux = 0; // select auxilliary memory 
 				*dhrptr &= 0x70;
-				*dhrptr |= (DHRBytes[color][0] & 0x0f);
+				*dhrptr |= color;
 				*dhrmain = 0; // reset to main memory 
 				break;
 		case 1: *dhraux = 0; // select auxilliary memory 
 				*dhrptr &= 0x0f;
-				*dhrptr |= (DHRBytes[color][0] & 0x70);
+				*dhrptr |= (color &  7) << 4;
 				*dhrmain = 0; // reset to main memory 
 				*dhrptr &= 0x7e;
-				*dhrptr |= (DHRBytes[color][1] & 0x01);
+				*dhrptr |= (color &  8) >> 3;
 				break;
 		case 2: *dhrptr &= 0x61;
-				*dhrptr |= (DHRBytes[color][1] & 0x1e);
+				*dhrptr |= color << 1;
 				break;
 		case 3: *dhrptr &= 0x1f;
-				*dhrptr |= (DHRBytes[color][1] & 0x60);
+				*dhrptr |= (color &  3) << 5;
 				*dhraux = 0; // select auxilliary memory 
 				*dhrptr++;   // advance offset in frame 
 				*dhrptr &= 0x7c;
-				*dhrptr |= (DHRBytes[color][2] & 0x03);
+				*dhrptr |= (color & 12) >> 2;
 				*dhrmain = 0; // reset to main memory 
 				break;
 		case 4: *dhraux = 0; // select auxilliary memory 
 				*dhrptr &= 0x43;
-				*dhrptr |= (DHRBytes[color][2] & 0x3c);
+				*dhrptr |= color << 2;
 				*dhrmain = 0; // reset to main memory 
 				break;
 		case 5: *dhraux = 0; // select auxilliary memory 
 				*dhrptr &= 0x3f;
-				*dhrptr |= (DHRBytes[color][2] & 0x40);
+				*dhrptr |= (color &  1) << 6;
 				*dhrmain = 0; // reset to main memory 
 				*dhrptr &= 0x78;
-				*dhrptr |= (DHRBytes[color][3] & 0x07);
+				*dhrptr |= (color & 14) >> 1;
 				break;
 		case 6: *dhrptr &= 0x07;
-				*dhrptr |= (DHRBytes[color][3] & 0x78);
+				*dhrptr |= color << 3;
 				break;
 	}
 }
 
 unsigned char GetDHRColor()
 {
-	unsigned char val1, val2, off1, off2, msk1, msk2, color;
+	unsigned char color;
 
-	// Use bitmsks to retrieve the relevant pixel
+	// Use bitmasks to retrieve the relevant pixel
 	switch(dhrpixel) {
 		case 0: *dhraux = 0; // select auxilliary memory 
-				val1 = *dhrptr;
-				off1 = 0;
-				msk1 = 0x0f;
-				msk2 = 0;
+				color = *dhrptr & 15;
 				*dhrmain = 0; // reset to main memory 
 				break;
 		case 1: *dhraux = 0; // select auxilliary memory 
-				val1 = *dhrptr;
-				off1 = 0;
-				msk1 = 0x70;
+				color = (*dhrptr & 112) >> 4;
 				*dhrmain = 0; // reset to main memory 
-				val2 = *dhrptr;
-				off2 = 1;
-				msk2 = 0x01;
+				color |= (*dhrptr & 1) << 3;
 				break;
-		case 2: val1 = *dhrptr;
-				off1 = 1;
-				msk1 = 0x1e;
-				msk2 = 0;
+		case 2: color = (*dhrptr & 30) >> 1;
 				break;
-		case 3: val1 = *dhrptr;
-				off1 = 1;
-				msk1 = 0x60;
+		case 3: color = (*dhrptr & 96) >> 5;
+				*dhraux = 0; // select auxilliary memory 
 				*dhrptr++;      // advance off in frame 
-				val2 = *dhrptr;
-				off2 = 2;
-				msk2 = 0x03;
+				color |= (*dhrptr & 3) << 2;
+				*dhrmain = 0; // reset to main memory 
 				break;
 		case 4: *dhraux = 0; // select auxilliary memory 
-				val1 = *dhrptr;
-				off1 = 2;
-				msk1 = 0x3c;
-				msk2 = 0;
+				color = (*dhrptr & 60) >> 2;
 				*dhrmain = 0; // reset to main memory 
 				break;
 		case 5: *dhraux = 0; // select auxilliary memory 
-				val1 = *dhrptr;
-				off1 = 2;
-				msk1 = 0x40;
+				color = (*dhrptr & 64) >> 6;
 				*dhrmain = 0; // reset to main memory 
-				val2 = *dhrptr;
-				off2 = 3;
-				msk2 = 0x07;
+				color |= (*dhrptr & 7) << 1;
 				break;
-		case 6: val1 = *dhrptr;
-				off1 = 3;
-				msk1 = 0x78;
-				msk2 = 0;
+		case 6: color = (*dhrptr & 120) >> 3;
 				break;
 	}
 
-	// Compare masked values with DHR color list
-	for (color=0; color<16; color++) {
-		if (!msk2) {
-			if ((val1 & msk1) == (DHRBytes[color][off1] & msk1)) { return color; }
-		} else {
-			if ((val1 & msk1) == (DHRBytes[color][off1] & msk1) && 
-				(val2 & msk2) == (DHRBytes[color][off2] & msk2)) { return color; }
-		}
-	}
-	return 0;
+	return color;
 }

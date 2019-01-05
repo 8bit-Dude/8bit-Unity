@@ -39,6 +39,10 @@ void tick()
 	clk += 1;		
 }
 
+#ifdef __APPLE2__
+#pragma code-name("LC")
+#endif
+
 // Sleep for x seconds
 unsigned sleep(unsigned seconds)
 {
@@ -51,10 +55,6 @@ unsigned sleep(unsigned seconds)
 	clk += CLK_TCK;
 	return 1;
 }
-
-#ifdef __APPLE2__
-#pragma code-name("LC")
-#endif
 
 // Return clock state
 clock_t clock()

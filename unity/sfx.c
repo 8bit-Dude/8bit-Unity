@@ -57,10 +57,6 @@
 	#define DISABLE_ALL		(0x3f)
 #endif
 
-#ifdef __APPLE2__
-#pragma code-name("LC")
-#endif
-
 void InitSFX() 
 {
 #if defined __CBM__
@@ -116,6 +112,10 @@ void EngineSFX(int channel, int vel)
 	}	
 #endif
 }
+
+#ifdef __APPLE2__
+#pragma code-name("LC")
+#endif
 
 void BleepSFX(unsigned char tone) 
 {
