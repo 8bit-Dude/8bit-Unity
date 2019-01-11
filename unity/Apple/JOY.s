@@ -44,32 +44,36 @@ THRESHOLD = 32  ; Deviation from center triggering movement
 	bit     $C082           ; Switch in ROM
 	and     #$01            ; Restrict joystick number
 
-	; Read horizontal paddle
-	asl                     ; Joystick number -> paddle number
-	tax                     ; Set paddle number (0, 2)
+	; Joystick number -> paddle number
+	asl                     
+
+	; Read vertical paddle
+	tax                     
+	inx						; Set paddle number (1, 3)
 	jsr     PREAD           ; Read paddle value
 	lda     #$00            ; 0 0 0 0 0 0 0 0
 	cpy     #127 - THRESHOLD
-	ror                     ; !LEFT 0 0 0 0 0 0 0
+	ror                     ; !UP 0 0 0 0 0 0 0
 	cpy     #127 + THRESHOLD
-	ror                     ; RIGHT !LEFT 0 0 0 0 0 0
+	ror                     ; DOWN !UP 0 0 0 0 0 0
 
-	; Read vertical paddle
+	; Read horizontal paddle
+	dex                     ; Set paddle number (0, 2)
 	pha
-	inx                     ; Set paddle number (1, 3)
 	jsr     PREAD           ; Read paddle value
 	pla
 	cpy     #127 - THRESHOLD
-	ror                     ; !UP RIGHT !LEFT 0 0 0 0 0
+	ror                     ; !LEFT DOWN !UP 0 0 0 0 0
 	cpy     #127 + THRESHOLD
-	ror                     ; DOWN !UP RIGHT !LEFT 0 0 0 0
+	ror                     ; RIGHT !LEFT DOWN !UP 0 0 0 0
+	inx
 
 	; Read primary button
 	tay
 	lda     BUTN0-1,x       ; Check button (1, 3)
 	asl
 	tya
-	ror                     ; BTN DOWN !UP RIGHT !LEFT 0 0 0
+	ror                     ; BTN1 RIGHT !LEFT DOWN !UP 0 0 0
 
 	; Read secondary button
 	tay
@@ -80,10 +84,12 @@ THRESHOLD = 32  ; Deviation from center triggering movement
 	lda     BUTN0-1,x       ; Check button (2, 0)
 	asl
 	tya
-	ror                     ; BTN2 BTN DOWN !UP RIGHT !LEFT 0 0
+	ror                     ; BTN2 BTN1 RIGHT !LEFT DOWN !UP 0 0
 
 	; Finalize
-	eor     #%11101000      ; !BTN2 !BTN !DOWN !UP !RIGHT !LEFT 0 0
+	eor     #%11101000      ; !BTN2 !BTN1 !RIGHT !LEFT !DOWN !UP 0 0
+	ror
+	ror						; 0 0 !BTN2 !BTN !DOWN !UP !RIGHT !LEFT	
 	ldx     #$00
 	bit     $C080           ; Switch in LC bank 2 for R/O
 	rts

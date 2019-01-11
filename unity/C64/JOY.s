@@ -25,8 +25,7 @@
 ;
 
 	.export _InitJoy34
-	.export _GetJoy3
-	.export _GetJoy4
+	.export _GetJoy
 
 ; C64/C128
 USERPORT_DATA = $DD01
@@ -70,19 +69,34 @@ _joy4:
 ; Read adapter and composes the
 ; additional virtual joystick-registers
 ; ---------------------------------------------------------------
-; unsigned char __near__ getJoy3 (void)
-; unsigned char __near__ getJoy4 (void)
-; ---------------------------------------------------------------
+; unsigned char __near__ _GetJoy (unsigned char)
+; ---------------------------------------------------------------	; ---------------------------------------------------------------
 
-.proc _GetJoy3: near
+.proc _GetJoy: near
+	; branch to correct algo
+	cmp #3
+	beq joy4
+	cmp #2
+	beq joy3
+	cmp #1
+	beq joy2
+	
+joy1:
+	lda 56321
+	rts
+
+joy2:
+	lda 56320
+	rts
+	
+joy3:
 	lda #$80                ; cia 2 port B read/write
 	sta USERPORT_DATA       ; (output one at PB7)
 	lda USERPORT_DATA       ; cia 2 port B read/write
 	and #$1f                ; get bit 4-0 (PB4-PB0)
 	rts
-.endproc
 
-.proc _GetJoy4: near
+joy4:
 	lda #$00                ; cia 2 port B read/write
 	sta USERPORT_DATA       ; (output zero at PB7)
 	lda USERPORT_DATA       ; cia 2 port B read/write

@@ -118,7 +118,7 @@ void ExitBitmapMode()
 #elif defined __ATARI__
     // Switch OFF graphic mode and antic
 	__asm__("jsr %w", STOPBMP);
-	POKE(559, 0);
+	POKE(559, 2);
 #elif defined __APPLE2__
     // Switch OFF Double Hi-Res Mode
     asm("sta $c051"); // TEXT - HIDE GRAPHICS
@@ -283,8 +283,8 @@ void ClearBitmap()
 	bzero((char*)SCREENRAM, 1000);
 	bzero((char*)COLORRAM, 1000);
 #elif defined __ATARI__
-	bzero((char*)BITMAPRAM1, 7680);
-	bzero((char*)BITMAPRAM2, 7680);
+	bzero((char*)BITMAPRAM1, 8000);
+	bzero((char*)BITMAPRAM2, 8000);
 #elif defined __APPLE2__
     // clear main and aux screen memory	
 	*dhraux = 0;

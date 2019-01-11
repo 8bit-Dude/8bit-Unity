@@ -24,27 +24,31 @@
 ;   specific prior written permission.
 ;
 
-	.include  "apple2.inc"
+.include    "atari.inc"
+.include    "zeropage.inc"
 	
-	.export _GetPaddle
-	
-PREAD = $FB1E   ; Read paddle in X, return AD conv. value in Y
+.export _DisableRom
+.export _EnableRom
 
-	.code
+_chargen: .res 1
 
-; ---------------------------------------------------------------
-; unsigned char __near__ _GetPaddle (unsigned char)
-; ---------------------------------------------------------------		
-	
-.proc _GetPaddle: near
-	; Read a particular paddle passed in A.
-	bit     $C082           ; Switch in ROM
-	
-	; Read Paddle Potentiometer
-	tax                     
-	jsr     PREAD           ; Read paddle x
-	tya
-	ldx     #$00
-	bit     $C080           ; Switch in LC bank 2 for R/O
+_DisableRom:
+	lda	PORTB
+	and	#$fe
+	sta	PORTB
+	lda	_chargen
+	sta	CHBAS
+	sta	CHBASE
 	rts
-.endproc	
+
+_EnableRom:
+	lda	PORTB
+	ora	#1
+	sta	PORTB
+	lda CHBAS
+	sta _chargen
+	lda	#$E0
+	sta	CHBAS
+	sta	CHBASE
+	rts
+

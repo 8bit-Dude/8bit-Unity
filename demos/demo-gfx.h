@@ -5,11 +5,6 @@ int DemoGFX(void)
 {
 	unsigned char i,j,k;
 
-	// Reset screen
-	clrscr();
-    bordercolor(COLOR_BLACK);
-    bgcolor(COLOR_BLACK);
-
 	// Prepare bitmap
 	InitBitmap();
 	ClearBitmap();

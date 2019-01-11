@@ -29,13 +29,13 @@
 ; Date created: 2017/12/21
 ; Compile with MADS
 
-lists	= $6520
-hbuf1   = $6525
-hbuf2   = $658d
+lists	= $6500
+addrTop = $6505
+addrBot = $656d
 procs   = $6f50
 
-bmp1	= $7010
-bmp2	= $a010
+frame1	= $7010
+frame2	= $a010
 
 atract  = $004d
 vdslst	= $0200
@@ -62,16 +62,23 @@ nmien	= $d40e
 
 ; Display lists	
 dlist:	dta $70,$70,$70
-		dta $4e,a(bmp1)
+		dta $4e,a(frame1)
 		:101 dta $e			
-		dta $4e,0,h(bmp1+$1000)
+		dta $4e,0,h(frame1+$1000)
 		:96 dta $e
 		dta $8e				; Invoke DLI with $80
 		dta $41,a(dlist)
 		
 /*-------------------------------------------------------------------------------------------------*/	
 		
-// 5th sprite flicker routine
+; 5th sprite flicker data
+PMGMask	.ds 1
+PMGX	.ds 4
+PMGY	.ds 4
+PMGFram	.ds 8
+PM5IND	.ds 1
+PM5AIN	.ds 2
+PM5AOU	.ds 2
 
 initPM5:
 	; Init 5th sprite
@@ -79,7 +86,7 @@ initPM5:
 	mva #0 PMGMask
 	rts
 
-updtPM5:	
+updatePM5:	
 	; Check that sprites are enabled!
 	lda PMGMask
 	bne sprbranch0
@@ -99,10 +106,6 @@ strloop0:
 	bne strloop0	; Loop through till y is 0
 	
 sprbranch1:
-	; Should we increment sprite index? (depends on palette toggle)
-	;lda palTOG
-	;beq sprbranch3
-	
 	; Increment 5th sprite index (reset when index becomes 4)
 	ldx PM5IND
 	inx	
@@ -125,7 +128,7 @@ bittest:
 	and PMGMask
 	beq sprbranch1
 	
-sprbranch3:
+setpos:
 	; Set x pos. of new 5th sprite
 	ldx PM5IND
 	lda PMGX,x  ; Xpos of sprite to A
@@ -161,13 +164,13 @@ off0:
 	mva PMGFram+1 PM5AIN+1
 	mva PMGFram+0 PM5AIN+0
 		
-	; Add base of IN address ($98A0)
+	; Add base of IN address ($97D0)
 add0:
-	lda #$a0
+	lda #$d0
 	clc
 	adc PM5AIN
 	sta PM5AIN
-	lda #$98
+	lda #$97
 	adc PM5AIN+1
 	sta PM5AIN+1
 	
@@ -216,30 +219,29 @@ return:
 	org procs
 	
 ; Palette toggle
-palTOG:	dta $0
-
-; 5th sprite flicker
-PMGMask	.ds 1
-PMGX	.ds 4
-PMGY	.ds 4
-PMGFram	.ds 8
-PM5IND	.ds 1
-PM5AIN	.ds 2
-PM5AOU	.ds 2
+frameTOG: dta $0
 
 ; GFX config backup
-nmienT  .ds 1
-dlistT  .ds 2
+nmienBAK  .ds 1
+sdlstlBAK .ds 2
+color0BAK .ds 1
+color1BAK .ds 1
+color2BAK .ds 1
+color4BAK .ds 1
 
 ; Registries backup
 regA	.ds 1
 regX	.ds 1
 regY	.ds 1	
 		
-.proc StartRAW	
+.proc StartBITMAP	
 	; Backup GFX settings
-	mva nmien   nmienT
-	mwa sdlstl  dlistT
+	mva nmien  nmienBAK
+	mwa sdlstl sdlstlBAK
+	mva color0 color0BAK
+	mva color1 color1BAK
+	mva color2 color2BAK
+	mva color4 color4BAK
 	
 	; Setup DLIST and DLI
 	sei
@@ -253,12 +255,16 @@ regY	.ds 1
 	rts		
 .endp
 
-.proc StopRAW
-	; Kill DLI
+.proc StopBITMAP
+	; Kill DLI and restore palette
 	sei
-	mva	nmienT	nmien
-	mwa dlistT	sdlstl
+	mva	nmienBAK  nmien
+	mwa sdlstlBAK sdlstl
 	cli
+	mva color0BAK color0
+	mva color1BAK color1
+	mva color2BAK color2
+	mva color4BAK color4
 	rts
 .endp
 
@@ -268,27 +274,27 @@ dli:
 	stx regX
 	sty regY
 	
-	; Switch palette
-	lda palTOG
+	; Switch buffer
+	lda frameTOG
 	eor #$1
-	sta palTOG
-	bne frame2
+	sta frameTOG
+	bne showframe2
 
-frame1:	
+showframe1:	
 	; Switch bitmap buffer 1
-	mva #$A0 hbuf1
-	mva #$B0 hbuf2	
+	mva #$A0 addrTop
+	mva #$B0 addrBot	
 	jmp done
 
-frame2:	
+showframe2:	
 	; Switch bitmap buffer 2
-	mva #$70 hbuf1
-	mva #$80 hbuf2		
+	mva #$70 addrTop
+	mva #$80 addrBot		
 	jmp done
 	
 done:
 	; Flicker 5th sprite (if needed)
-	jsr updtPM5
+	jsr updatePM5
 
 	; Reset atract (screen saver timer)
 	sta atract

@@ -71,20 +71,20 @@
 	#define SPRITERAM  (VIDEOBANK * 0x4000 + SPRITELOC * 0x0040) // C700-CFFF (sprites.prg loaded here)
 #elif defined __ATARI__
 	// Atari Memory locations
-	#define GFXROUTINE (0x6520) // 6520-66db (DLI list and PMG5 flicker)
-								// 6f50-6fee (START/STOP and Flicker routine)
+	#define GFXROUTINE (0x6500) // 6500-66d1 (DLI list and PMG5 flicker)
+								// 6f50-6ff2 (START/STOP and Flicker routine)
 	#define RMTPLAYER  (0x66e0) // 66e0-6f4d (RMT music player; JSR to 0x6A00)
-	#define PALETTERAM (0x7000) // 7000-7003 (palette data)
 	#define BITMAPRAM1 (0x7010) // 7010-8f50 (colour data 1)
 	#define MUSICRAM   (0x9000) // 9000-96ff (RMT sound track)
 	#define SPRITERAM1 (0x9700)	// 9700-9aff (sprites.a8 loaded here, overlaps with unused part of PMGRAM)
 	#define PMGRAM     (0x9800) // 9800-9fff (player missile memory)
+	#define PALETTERAM (0xa000) // a000-a003 (palette data)
 	#define BITMAPRAM2 (0xa010) // a010-bf50 (colour data 2)
 	// External Routines/Variables 
+	#define PMG5VARS   (0x65d2) // 5th sprite control variables (see DLI.a65)
 	#define FRAMETOG   (0x6f50) // Toggle frame blending (see DLI.a65)
-	#define PMG5VARS   (0x6f51) // 5th sprite control variables (see DLI.a65)
-	#define STARTBMP   (0x6f6d) // Start Bitmap routine (see DLI.a65)
-	#define STOPBMP    (0x6f9e) // Stop Bitmap routine (see DLI.a65)	
+	#define STARTBMP   (0x6f5b) // Start Bitmap routine (see DLI.a65)
+	#define STOPBMP    (0x6fa4) // Stop Bitmap routine (see DLI.a65)	
 #elif defined __APPLE2__
 	// Apple Memory locations
 	#define BITMAPRAM  (0x2000)
@@ -203,6 +203,10 @@ unsigned char InputUpdate(unsigned char col, unsigned char row, char *buffer, un
 extern void DisableRom();	// Disable ROM before using GetColor()
 extern void EnableRom();	// Enable ROM after using GetColor()
 #endif
+#ifdef __ATARI__
+extern void DisableRom();	// Disable Character ROM
+extern void EnableRom();	// Enable Character ROM
+#endif
 
 // Character data (see char.s)
 extern const char charBlank[3];
@@ -232,21 +236,14 @@ extern unsigned char colorFG, colorBG, headerBG;
 // Joystick functions
 #if defined __CBM__
 	#define JOY_MAX 4
-	// Joystick 1&2
-	#define GetJoy(i) (PEEK(56321-(i)))		
-	// Joystick 3&4 (see C64/JOY34.s)	
 	void InitJoy34(void);
-	unsigned char GetJoy3(void);
-	unsigned char GetJoy4(void);
+	unsigned char GetJoy(unsigned char);
 #else
 	#define JOY_MAX 2
 	#if defined __ATARI__
-		// Joystick 1&2
 		#define GetJoy(i) (PEEK(0x0278+i)+(PEEK(0x0284+i)<<4))
 	#else if defined __APPLE2__
-		// Joystick 1&2
 		unsigned char GetJoy(unsigned char);		
-		// Joystick 1-4
 		unsigned char GetPaddle(unsigned char);
 		#define GetButton(i) (PEEK(0xC061+i)>127)
 	#endif

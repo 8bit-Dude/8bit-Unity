@@ -10,6 +10,7 @@ unsigned long svAddr;
 unsigned int svPort = 5000;
 unsigned int clPort = 5000;
 unsigned int timeOut, timeSv;
+unsigned char line;
 
 void SendUDP(unsigned char length) 
 {
@@ -54,13 +55,13 @@ void InitNetwork()
 	svAddr = parse_dotted_quad("127.0.0.1");
 	
 	// Init IP65 > DHCP > UDP
-	printf("INIT NETWORK\n");
+	PrintStr(0,line++,"INIT NETWORK");
 	if (!ip65_init()) { 
-		printf("IP OK!\n");
+		PrintStr(0,line++,"IP OK!");
 		if (!dhcp_init()) {
-			printf("DHCP OK!\n");
+			PrintStr(0,line++,"DHCP OK!");
 			if (!udp_add_listener(clPort, ReceiveUDP)) {
-				printf("UDP READY!\n");
+				PrintStr(0,line++,"UDP READY!");
 				packet = RequestInfo();	// First packet is always lost!
 			}
 		}
@@ -73,8 +74,14 @@ int DemoUDP(void)
 	unsigned char k,n;
 	char buffer[16];
 	
-	// Reset screen
-	clrscr();
+	// Prepare bitmap
+	InitBitmap();
+	ClearBitmap();	
+	EnterBitmapMode();
+	
+	// Print header
+	colorBG = BLACK; colorFG = WHITE;
+	PrintStr(0,line++, "Network demo");	
 	
 	// Init network
 	InitNetwork();
@@ -83,11 +90,11 @@ int DemoUDP(void)
 	packet = RequestInfo();
 	if (packet == 0) {
 		// Timeout error
-		printf("ERROR: TIMEOUT\n");
+		PrintStr(0,line++,"ERROR: TIMEOUT");
 		
 	} else if (PEEK(packet) != REQUEST_INFO) {
 		// Unexpected error
-		printf("ERROR: CORRUPTION\n");
+		PrintStr(0,line++,"ERROR: CORRUPTION");
 		
 	} else {
 		// Print information
@@ -97,14 +104,17 @@ int DemoUDP(void)
 			buffer[k++] = PEEK(++packet);
 		}
 		buffer[k] = 0;
-		printf("Received Packet: ");
-		printf(&buffer[0]);
+		PrintStr(0,line++,"Received Packet: ");
+		PrintStr(0,line++,&buffer[0]);
 	}
 
 	// Wait for keyboard
-	printf("\nPRESS ANY KEY FOR NEXT TEST\n");
+	PrintStr(0,line++, "Press SPACE for next test");	
 	cgetc();
 	
+	// Black-out screen
+	ExitBitmapMode();	
+		
     // Done
     return EXIT_SUCCESS;	
 }

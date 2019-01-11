@@ -15,8 +15,10 @@ int DemoBMP(void)
 	LoadBitmap("banner.map");
 	EnterBitmapMode();
 	
-	// Wait until keyboard is pressed
+	// Wait for any key
 	cgetc();
+	
+	// Exit bitmap mode
 	ExitBitmapMode();
 	
     // Done

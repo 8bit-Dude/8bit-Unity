@@ -1,20 +1,25 @@
 
-#include "demo-bmp.h"
-#include "demo-gfx.h"
+#include "demo-hlo.h"
 #include "demo-joy.h"
-#include "demo-spr.h"
 #include "demo-udp.h"
-//#include "demo-exo.h"
+#include "demo-gfx.h"
+#include "demo-bmp.h"
+#include "demo-spr.h"
 
 int main (void) 
 {
+	// Set text mode colors
+    textcolor(COLOR_WHITE);
+    bordercolor(COLOR_BLACK);
+    bgcolor(COLOR_BLACK);
+	
 	// Run all demos
-	DemoBMP();
-	DemoGFX();
+	DemoHLO();
 	DemoJOY();
+	DemoGFX();
+	DemoBMP();
 	DemoSPR();
 	DemoUDP();
-	//DemoEXO();
 	
     // Done
     return EXIT_SUCCESS;	
