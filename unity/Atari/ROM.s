@@ -30,7 +30,11 @@
 .export _DisableRom
 .export _EnableRom
 
+	.segment	"DATA"	
+
 _chargen: .res 1
+
+	.segment	"CODE"	
 
 _DisableRom:
 	lda	PORTB

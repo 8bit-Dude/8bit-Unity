@@ -35,14 +35,14 @@
 
 RMTPlayer = $6A00
 
-	.data
+	.segment	"DATA"	
 
 _tmp: .res 1
 _sampleCount: .res 1
 _sampleFreq:  .res 1
 _sampleCtrl:  .res 1
 
-	.code
+	.segment	"CODE"	
 	
 ; ---------------------------------------------------------------
 ; void __near__ _PlayMusic (unsigned int address)

@@ -19,8 +19,8 @@ int DemoJOY(void)
 	PrintStr(1,1, "Joystick demo (press SPACE for next)");
 	for (i=0; i<JOY_MAX; i++) {
 		y = 8+2*i;
-		PrintStr(0, y, "Joy  :");
-		PrintChr(4, y, &charDigit[3*i]);		
+		PrintStr(10, y, "Joy  :");
+		PrintChr(14, y, &charDigit[3*i]);		
 	}
 	
 	// Display joystick actions until 'SPACE' is pressed
@@ -28,11 +28,11 @@ int DemoJOY(void)
 		for (i=0; i<JOY_MAX; i++) {
 			y = 8+2*i;
 			joy = GetJoy(i);
-			if (joy & JOY_UP)    { PrintStr(8,  y, "U"); } else { PrintStr(8,  y, " "); }
-			if (joy & JOY_DOWN)  { PrintStr(10, y, "D"); } else { PrintStr(10, y, " "); }
-			if (joy & JOY_LEFT)  { PrintStr(12, y, "L"); } else { PrintStr(12, y, " "); }
-			if (joy & JOY_RIGHT) { PrintStr(14, y, "R"); } else { PrintStr(14, y, " "); }
-			if (joy & JOY_FIRE)  { PrintStr(16, y, "F"); } else { PrintStr(16, y, " "); }		
+			if (joy & JOY_UP)    { PrintStr(18, y, "U"); } else { PrintStr(18, y, " "); }
+			if (joy & JOY_DOWN)  { PrintStr(20, y, "D"); } else { PrintStr(20, y, " "); }
+			if (joy & JOY_LEFT)  { PrintStr(22, y, "L"); } else { PrintStr(22, y, " "); }
+			if (joy & JOY_RIGHT) { PrintStr(24, y, "R"); } else { PrintStr(24, y, " "); }
+			if (joy & JOY_FIRE)  { PrintStr(26, y, "F"); } else { PrintStr(26, y, " "); }		
 		}
 	}
 	

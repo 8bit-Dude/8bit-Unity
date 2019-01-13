@@ -30,10 +30,14 @@
 #pragma code-name("LC")
 #endif
 
+#ifdef __ATARIXL__
+#pragma code-name("SHADOW_RAM")
+#endif
+
 // Apple II specific init function
 #if defined __APPLE2__
 	// Extern variables (see bitmap.c)	
-	extern unsigned DHRBases[192];
+	extern unsigned dhrLines[192];
 	
 	// Sprite data
 	#define sprWIDTH 4	// Byte width of sprite (7 pixels)
@@ -115,7 +119,7 @@
 		yptr = sprYO[index];
 		bgPTR = sprBG[index];
 		while (yO<sprROWS) {
-			dhrptr = (unsigned char *) (DHRBases[yptr++] + xptr);
+			dhrptr = (unsigned char *) (dhrLines[yptr++] + xptr);
 			*dhraux = 0;
 			dhrptr[0] = bgPTR[0];
 			dhrptr[1] = bgPTR[1];
@@ -210,7 +214,7 @@ void UpdateSprite(unsigned char index, unsigned char frame)
 	sprPTR = SPRITERAM+addr;
 	bgPTR = sprBG[index];
 	while (yO<sprROWS) {
-		dhrptr = (unsigned char *) (DHRBases[yptr++] + xO);
+		dhrptr = (unsigned char *) (dhrLines[yptr++] + xO);
 		*dhraux = 0;
 		bgPTR[0]  = dhrptr[0];
 		bgPTR[1]  = dhrptr[1];

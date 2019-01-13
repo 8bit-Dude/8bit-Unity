@@ -26,6 +26,10 @@
  
 #include "unity.h"
 
+#ifdef __ATARIXL__
+#pragma code-name("SHADOW_RAM")
+#endif
+
 #if defined __ATARI__
 	// Atari specific functions (see Atari/POKEY.s)
 	void SetupSFX(); // VBI for SFX samples

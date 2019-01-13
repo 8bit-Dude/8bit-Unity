@@ -30,6 +30,10 @@
 #pragma code-name("LC")
 #endif
 
+#ifdef __ATARIXL__
+#pragma code-name("SHADOW_RAM")
+#endif
+
 // Helper functions
 #define BYTE4(a,b,c,d) ((a<<6) | (b<<4) | (c<<2) | d)
 
@@ -299,10 +303,6 @@ void PrintNum(unsigned char col, unsigned char row, unsigned char num)
 	if (num > 9) { PrintChr(col, row, &charDigit[(num/10)*3]); }
 	PrintChr(col+1, row, &charDigit[(num%10)*3]);
 }
-
-#ifdef __ATARIXL__
-#pragma code-name("SHADOW_RAM2")
-#endif
 
 // Draw panel using the background color
 void DrawPanel(unsigned char colBeg, unsigned char rowBeg, unsigned char colEnd, unsigned char rowEnd)

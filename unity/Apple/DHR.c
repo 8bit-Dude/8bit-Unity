@@ -30,7 +30,7 @@
 //	Last modified: 2019/01/05
 
 // DHR base array: provides base address for 192 hires scanlines
-unsigned int DHRBases[192] = {
+unsigned int dhrLines[192] = {
 	0x2000, 0x2400, 0x2800, 0x2C00, 0x3000, 0x3400, 0x3800, 0x3C00,
 	0x2080, 0x2480, 0x2880, 0x2C80, 0x3080, 0x3480, 0x3880, 0x3C80,
 	0x2100, 0x2500, 0x2900, 0x2D00, 0x3100, 0x3500, 0x3900, 0x3D00,
@@ -68,7 +68,7 @@ void SetDHRPointer(unsigned int x, unsigned int y)
 	dhrpixel = (x%7);
 	xoff = (x/7)*2;
 	if (dhrpixel > 3) { ++xoff; }
-	dhrptr = (unsigned char *) (DHRBases[y] + xoff);
+	dhrptr = (unsigned char *) (dhrLines[y] + xoff);
 }
 
 void SetDHRColor(unsigned char color)
