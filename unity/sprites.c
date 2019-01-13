@@ -135,7 +135,7 @@
 		// Return likely color of most central pixel block
 		unsigned char ctrBlock = sprBG[index] + sprWIDTH*(sprROWS/2)+sprWIDTH/2;
 		switch (ctrBlock) {
-			case 85:  return MEDGRAY;
+			case 85:  return LGREY;
 			case 87:
 			case 93:
 			case 117:

@@ -95,54 +95,53 @@
 // Color definitions
 #if defined __CBM__
 	// C64 Colors
-	#define BLACK  		0
-	#define BLUE   		6
-	#define CYAN   		3
-	#define DRKGRAY   	11	
-	#define MEDGRAY 	12
-	#define LITGRAY   	15	
-	#define GREEN  		5
-	#define LITGREEN    13
-	#define ORANGE 		8
-	#define PINK 		10
-	#define PURPLE 		4
-	#define RED    		2
-	#define YELLOW 		7
-	#define WHITE  		1
+	#define BLACK  	0
+	#define WHITE  	1
+	#define RED    	2
+	#define CYAN   	3
+	#define PURPLE 	4
+	#define GREEN  	5
+	#define BLUE   	6
+	#define YELLOW 	7
+	#define ORANGE 	8
+	#define BROWN 	9
+	#define PINK 	10
+	#define DGREY   11	
+	#define MGREY 	12
+	#define LGREEN  13
+	#define LBLUE   13
+	#define LGREY   15	
 #elif defined __ATARI__
 	// Atari Colors
-	#define BLACK  		0
-	#define BLUE   		10
-	#define BROWN 		4
-	#define DRKBLUE     2
-	#define DRKGREEN  	3
-	#define GRAY   		9
-	#define GREEN  	    11
-	#define ORANGE 		7
-	#define RED    		5
-	#define YELLOW 		15
-	#define WHITE  		9
+	#define BLACK  	0
+	#define DBLUE   2
+	#define BROWN 	4
+	#define DGREEN  3
+	#define RED    	5
+	#define ORANGE 	7
+	#define GRAY   	9
+	#define WHITE  	9
+	#define BLUE   	10
+	#define GREEN  	11
+	#define YELLOW 	15
 #elif defined __APPLE2__
 	// Apple Colors
-	#define BLACK   	0
-	#define RED     	1
-	#define DRKBLUE	    2
-	#define PURPLE  	3
-	#define DRKGREEN	4
-	#define MEDGRAY   	5
-	#define LITGRAY   	5
-	#define MEDBLUE		6
-	#define BLUE		6
-	#define LITBLUE 	7
-	#define BROWN   	8
-	#define ORANGE  	9
-	#define DRKGREY 	10
-	#define PINK    	11
-	#define MEDGREEN	12
-	#define GREEN		12
-	#define YELLOW  	13
-	#define LITGREEN   	14
-	#define WHITE   	15
+	#define BLACK   0
+	#define DBLUE	1
+	#define DGREEN	2
+	#define BLUE	3
+	#define BROWN	4
+	#define GREY	5
+	#define GREEN	6
+	#define LGREEN	7
+	#define RED 	8
+	#define PURPLE  9
+	#define LGREY	10
+	#define LBLUE	11
+	#define ORANGE	12
+	#define PINK	13
+	#define YELLOW  14
+	#define WHITE   15
 #endif
 
 // Keyboard definitions
