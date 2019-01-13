@@ -5,7 +5,7 @@
 #if defined __ATARI__
 	unsigned char uniqueColors[] = {0x74, 0x24, 0xa6, 0xdc, 0x08};  //  {blue, red, green, yellow, grey }
 #elif defined __CBM__
-	unsigned char uniqueColors[] = { BLUE, RED, GREEN, YELLOW, LITGRAY, LITGRAY, LITGRAY, LITGRAY };
+	unsigned char uniqueColors[] = { BLUE, RED, GREEN, YELLOW, 0, 0, 0, 0 };
 	unsigned char sharedColors[] = { CYAN, BLACK };
 #endif
 
@@ -15,12 +15,13 @@ int DemoSPR(void)
 	unsigned int xpos, ypos, angle;
 	clock_t timer = clock();
 
-	// Prepare bitmap
+	// Initialize sfx and bitmap
+	InitSFX();
 	InitBitmap();
 	LoadBitmap("stadium.map");
 	EnterBitmapMode();
 	
-	// Prepare sprites
+	// Initialize sprites
 #if defined __APPLE2__
 	// number of rows, number of frames
 	InitSprites(5, 64);
@@ -31,6 +32,8 @@ int DemoSPR(void)
 	// unique colors of sprites 0-7, shared colors of all sprites 
 	InitSprites(uniqueColors, sharedColors);
 #endif
+
+	// Enable sprites
 	for (i=0; i<4; i++) {
 		EnableSprite(i);
 #if defined __ATARI__
@@ -38,10 +41,7 @@ int DemoSPR(void)
 #endif
 	}
 
-	// Prepare SFX
-	InitSFX();
-
-	// Rotate sprites
+	// Animate sprites
 	while (!kbhit()) {
 #if defined __APPLE2__
 		tick();	// Apple 2 has no clock, so simulate ticks!
@@ -56,12 +56,12 @@ int DemoSPR(void)
                 frame = ((12-(angle+(i+1)*90))%360)/23;
 				LocateSprite(xpos, ypos);
 #if defined __APPLE2__
-				UpdateSprite(i, (i*16)+frame);	// Point to sprite data associated with different colors
+				UpdateSprite(i, (i*16)+frame);	// Point to sprite data associated with each player color
 #elif defined __ATARI__
 				UpdateSprite(i, frame);			// Normal sprite for 1st color (body)
 				UpdateSprite(4+i, 16+frame);	// Flicker sprite for 2nd color (tires)	
 #elif defined __CBM__
-				UpdateSprite(i, frame);			// Single sprite made up of unique+shared color
+				UpdateSprite(i, frame);			// Single sprite including 1 unique + 2 shared colors
 #endif
 				EngineSFX(1, 300);
             }       
