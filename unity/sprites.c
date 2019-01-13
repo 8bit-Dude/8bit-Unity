@@ -32,48 +32,55 @@
 
 // Apple II specific init function
 #if defined __APPLE2__
-	// Extern variables (see bitmap.c)
+	// Extern variables (see bitmap.c)	
 	extern unsigned DHRBases[192];
+	
+	// Sprite data
+	#define sprWIDTH 4			// Byte width of sprite (7 pixels)
+	#define SPRITE_LENGTH 20 	// Byte length of 1 sprite: 5 rows * 4 bytes (7 pixels)
 	unsigned char sprCOL[SPRITE_NUM] = {0,0,0,0};		// Collision flags
 	unsigned char sprEN[SPRITE_NUM] = {0,0,0,0}; 		// Enable status
 	unsigned char sprXO[SPRITE_NUM], sprYO[SPRITE_NUM];	// Processed coordinates
 	unsigned char sprBG[SPRITE_NUM][SPRITE_LENGTH];	    // Background backup
-	unsigned char sprHEIGHT, sprWIDTH, sprFRAMES;		// Width is specified in Bytes!!
+	unsigned char sprHEIGHT;	
 	unsigned int sprBLOCK;
-	void InitSprites(unsigned char height, unsigned char width, unsigned char frames)
+	void InitSprites(unsigned char height, unsigned char frames)
 	{
-		// Set sprite width, frames and resulting block size
-		sprFRAMES = frames;
+		// Set sprite height, frames and resulting block size (there are 4 offset blocks for each sprite)
 		sprHEIGHT = height;
-		sprWIDTH = width;
-		sprBLOCK = sprFRAMES*sprHEIGHT*sprWIDTH*4;
+		sprBLOCK = frames*sprHEIGHT*sprWIDTH;
 	}	
 // Atari specific init function
 #elif defined __ATARI__	
-	// 5th sprite flicker data (see DLI.a65)
-	#define PMGMask	PMG5VARS+0x00
-	#define PMGX 	PMG5VARS+0x01
-	#define PMGY 	PMG5VARS+0x05
-	#define PMGFram	PMG5VARS+0x09
-	#define PMGInd	PMG5VARS+0x11
+	// Sprite flicker data (see DLI.a65)
+	#define FlickRows   FLICKDATA+0x00
+	#define FlickMask   FLICKDATA+0x01
+	#define FlickX      FLICKDATA+0x02
+	#define FlickY      FLICKDATA+0x06
+	#define FlickFrames FLICKDATA+0x0A
 	unsigned int PMGbase[SPRITE_NUM] = {PMGRAM+1024, PMGRAM+1280, PMGRAM+1536, PMGRAM+1792, PMGRAM+768};
 	unsigned int PMGaddr[SPRITE_NUM] = {PMGRAM+1024, PMGRAM+1280, PMGRAM+1536, PMGRAM+1792, PMGRAM+768};
-	void InitSprites(unsigned char *colors)
-	{		
+	unsigned char sprHEIGHT;
+	void InitSprites(unsigned char height, unsigned char *uniqueColors)
+	{			
 		// Reset PMG RAM and set colors
 		int i;	
 		for (i=0; i<4; i++) {
-			bzero(PMGaddr[i],0x100);   // Clear Player memory
-			POKE(704+i, colors[i]);    // Set Player colors  (shadow for 53266)
+			bzero(PMGaddr[i],0x100);   		// Clear Player memory
+			POKE(704+i, uniqueColors[i]);   // Set Player colors  (shadow for 53266)
 		}
-		bzero(PMGaddr[4],0x100);  // Clear Missile memory
-		POKE(711, colors[4]);	  // Set Missile color  (shadow for 53273)
-		POKE(PMGMask, 0);  		  // Set rolling sprites mask (DLI.a65)
+		bzero(PMGaddr[4],0x100);  	// Clear Missile memory
+		POKE(711, uniqueColors[4]);	// Set Missile color  (shadow for 53273)
+		POKE(FlickMask, 0);  	  	// Clear rolling sprites mask (DLI.a65)
 		
 		// Setup ANTIC and GTIA
 		POKE(54279, PMGRAM>>8); // Tell ANTIC where the PM data is located
 		POKE(53277, 2+1);       // Tell GTIA to enable players + missile	
 		POKE(623, 32+16+1);		// Tricolor players + enable fifth player + priority  (shadow for 53275)		
+		
+		// Set sprite height
+		sprHEIGHT = height;
+		POKE(FlickRows, height);		
 	}
 // C64 specific init function
 #elif defined __CBM__
@@ -161,9 +168,6 @@ void UpdateSprite(unsigned char index, unsigned char frame)
 	unsigned char i;
 	unsigned int addr;
 	
-	// Offset frame according to player index
-	frame += index*sprFRAMES;
-	
 	// Compute sprite slots
 	xO = (2*sprX)/7;
 
@@ -222,25 +226,19 @@ void UpdateSprite(unsigned char index, unsigned char frame)
 	sprEN[index] = 1;
 	sprXO[index] = xO;
 	sprYO[index] = sprY;
-#elif defined __ATARI__	
-	// Set X coordinate (5th sprite also, if currently set to this sprite)
-	POKE(53248+index, sprX);
-	if (index == PEEK(PMGInd)) { 
-		POKE(0xd007, sprX+0); 
-		POKE(0xd006, sprX+2); 
-		POKE(0xd005, sprX+4); 
-		POKE(0xd004, sprX+6); 
+#elif defined __ATARI__
+	if (index<4) {
+		// Set X coordinate of ith sprite and copy frame to PMG column
+		POKE(53248+index, sprX);
+		bzero(PMGaddr[index], sprHEIGHT);
+		PMGaddr[index] = PMGbase[index]+sprY;
+		memcpy(PMGaddr[index], SPRITERAM + frame*sprHEIGHT, sprHEIGHT);
+	} else {
+		// Pass information to flicker sprite handler (see DLI.a65)
+		POKE(FlickX-4+index, sprX);
+		POKE(FlickY-4+index, sprY);
+		POKEW(FlickFrames+(index-4)*2, SPRITERAM + frame*sprHEIGHT);			
 	}
-	
-	// Refesh PMG colum
-	bzero(PMGaddr[index], SPRITE_LENGTH);       
-	PMGaddr[index] = PMGbase[index]+sprY;
-	memcpy(PMGaddr[index], SPRITERAM1+frame*SPRITE_LENGTH, SPRITE_LENGTH);		
-
-	// Pass information to 5th sprite handler (see DLI.a65)
-	POKE(PMGX+index, sprX);
-	POKE(PMGY+index, sprY);
-	POKEW(PMGFram+index*2, frame*SPRITE_LENGTH);	
 #elif defined __CBM__
 	// Tell VIC where to find the frame
 	POKE(SPRITEPTR+index, SPRITELOC+frame);
@@ -264,7 +262,7 @@ void EnableSprite(signed char index)
 	POKE(53269, PEEK(53269) |  (1 << index));
 #elif defined __ATARI__
 	// Set rolling sprite mask
-	POKE(PMGMask, PEEK(PMGMask) | (1 << index));
+	if (index>3) { POKE(FlickMask, PEEK(FlickMask) | (1 << (index-4))); }
 #endif
 }
 
@@ -275,9 +273,11 @@ void DisableSprite(signed char index)
 #if defined __CBM__
 		POKE(53269, PEEK(53269) & ~(1 << index));
 #elif defined __ATARI__
-		// Set rolling sprite mask
-		POKE(PMGMask, PEEK(PMGMask) & ~(1 << index));
-		bzero(PMGaddr[index],0x100);   // Clear Player memory
+		if (index>3) {
+			POKE(FlickMask, PEEK(FlickMask) & ~(1 << (index-4))); // Remove from rolling sprite mask
+		} else {
+			bzero(PMGaddr[index],0x100);  // Clear PMG memory			
+		}
 #elif defined __APPLE2__
 		// Restore background if neccessary
 		if (sprEN[index]) { RestoreBg(index); }
@@ -288,8 +288,8 @@ void DisableSprite(signed char index)
 #if defined __CBM__
 		// Set sprite bits
 		POKE(53269, 0);
-#elif defined __ATARI__	
-		POKE(PMGMask,0);    // Set rolling sprite mask
+#elif defined __ATARI__			
+		POKE(FlickMask,0);   	   // Clear rolling sprite mask
 		bzero(PMGRAM+768,0x500);   // Clear all PMG memory
 #elif defined __APPLE2__
 		// Restore background

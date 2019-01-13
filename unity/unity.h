@@ -71,18 +71,18 @@
 	#define SPRITERAM  (VIDEOBANK * 0x4000 + SPRITELOC * 0x0040) // C700-CFFF (sprites.prg loaded here)
 #elif defined __ATARI__
 	// Atari Memory locations
-	#define GFXROUTINE (0x6500) // 6500-66d1 (DLI list and PMG5 flicker)
-								// 6f50-6ff2 (START/STOP and Flicker routine)
+	#define DLIRAM	   (0x6550) // 6550-66df (DLI list and sprite flicker routine)
+								// 6f50-700c (START/STOP routines for bitmap mode)
 	#define RMTPLAYER  (0x66e0) // 66e0-6f4d (RMT music player; JSR to 0x6A00)
-	#define BITMAPRAM1 (0x7010) // 7010-8f50 (colour data 1)
+	#define BITMAPRAM1 (0x7010) // 7010-8f50 (bitmap frame 1)
 	#define MUSICRAM   (0x9000) // 9000-96ff (RMT sound track)
-	#define SPRITERAM1 (0x9700)	// 9700-9aff (sprites.a8 loaded here, overlaps with unused part of PMGRAM)
+	#define SPRITERAM  (0x9700)	// 9700-9aff (sprite data loaded here, overlaps with unused part of PMGRAM)
 	#define PMGRAM     (0x9800) // 9800-9fff (player missile memory)
 	#define PALETTERAM (0xa000) // a000-a003 (palette data)
-	#define BITMAPRAM2 (0xa010) // a010-bf50 (colour data 2)
+	#define BITMAPRAM2 (0xa010) // a010-bf50 (bitmap frame 2)
 	// External Routines/Variables 
-	#define PMG5VARS   (0x65d2) // 5th sprite control variables (see DLI.a65)
-	#define FRAMETOG   (0x6f50) // Toggle frame blending (see DLI.a65)
+	#define FLICKDATA  (0x6622) // Sprite flicker variables (see DLI.a65)
+	#define BLENDTOG   (0x6f50) // Toggle for frame blending ON/OFF (see DLI.a65)
 	#define STARTBMP   (0x6f5b) // Start Bitmap routine (see DLI.a65)
 	#define STOPBMP    (0x6fa4) // Stop Bitmap routine (see DLI.a65)	
 #elif defined __APPLE2__
@@ -279,27 +279,16 @@ void InitSFX(void);
 void EngineSFX(int channel, int vel);
 void BleepSFX(unsigned char tone);
 void BumpSFX(void);
-
-// Sprite definitions
-#if defined __CBM__
-	#define SPRITE_NUM	   8
-	#define SPRITE_LENGTH 64 		// Byte length of 1 sprite
-#elif defined __ATARI__	
-	#define SPRITE_NUM	   5
-	#define SPRITE_LENGTH 13 		// Byte length of 1 sprite
-#elif defined __APPLE2__
-	#define SPRITE_NUM	   4
-	#define SPRITE_LENGTH 20 		// Byte length of 1 sprite: 5 rows * 4 bytes (7 pixels)
-#endif	
 	
 // Sprite functions
 #if defined __APPLE2__
-	void InitSprites(unsigned char height, unsigned char width, unsigned char frames);
-	unsigned char GetBGColor(unsigned char index);
-	void RestoreBg(unsigned char index);	
+	#define SPRITE_NUM 4
+	void InitSprites(unsigned char height, unsigned char frames);	
 #elif defined __ATARI__
-	void InitSprites(unsigned char *colors);
+	#define SPRITE_NUM 8
+	void InitSprites(unsigned char height, unsigned char *uniqueColors);
 #elif defined __CBM__
+	#define SPRITE_NUM 8
 	void InitSprites(unsigned char *uniqueColors, unsigned char *sharedColors);
 #endif
 void EnableSprite(signed char index);

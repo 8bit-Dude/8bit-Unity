@@ -2,12 +2,11 @@
 #include "unity.h"
 #include <cc65.h>
 
-// Sprite colors
-#ifdef __CBM__
-	unsigned char uniqueColors[8] = { BLUE, RED, GREEN, YELLOW, LITGRAY, LITGRAY, LITGRAY, LITGRAY };	// P1, P2, P3, P4, Lights
-	unsigned char sharedColors[2] = { CYAN, BLACK };
-#elif defined __ATARI__
-	unsigned char spriteColors[5] = {0x74, 0x24, 0xa6, 0xdc, 0x06};				// P1, P2, P3, P4, TIRES
+#if defined __ATARI__
+	unsigned char uniqueColors[] = {0x74, 0x24, 0xa6, 0xdc, 0x08};  //  {blue, red, green, yellow, grey }
+#elif defined __CBM__
+	unsigned char uniqueColors[] = { BLUE, RED, GREEN, YELLOW, LITGRAY, LITGRAY, LITGRAY, LITGRAY };
+	unsigned char sharedColors[] = { CYAN, BLACK };
 #endif
 
 int DemoSPR(void) 
@@ -16,11 +15,6 @@ int DemoSPR(void)
 	unsigned int xpos, ypos, angle;
 	clock_t timer = clock();
 
-	// Reset screen
-	clrscr();
-    bordercolor(COLOR_BLACK);
-    bgcolor(COLOR_BLACK);
-
 	// Prepare bitmap
 	InitBitmap();
 	LoadBitmap("stadium.map");
@@ -28,12 +22,21 @@ int DemoSPR(void)
 	
 	// Prepare sprites
 #if defined __APPLE2__
-	InitSprites(5, 4, 16);
+	// number of rows, number of frames
+	InitSprites(5, 64);
 #elif defined __ATARI__
-	InitSprites(spriteColors);
+	// number of rows, unique colors of sprites 0-4
+	InitSprites(13, uniqueColors);
 #elif defined __CBM__
+	// unique colors of sprites 0-7, shared colors of all sprites 
 	InitSprites(uniqueColors, sharedColors);
 #endif
+	for (i=0; i<4; i++) {
+		EnableSprite(i);
+#if defined __ATARI__
+		EnableSprite(4+i);	// Flicker sprites used for 2nd color (tires)
+#endif
+	}
 
 	// Prepare SFX
 	InitSFX();
@@ -46,23 +49,28 @@ int DemoSPR(void)
         // Update sprites position
         if (clock()>timer) {
             timer = clock();
-            angle += 2;
+            angle += 3;
             for (i=0; i<4; i++) {
                 xpos = 230+cc65_cos((angle+i*90)%360)/5;
                 ypos = 90+cc65_sin((angle+i*90)%360)/6;
                 frame = ((12-(angle+(i+1)*90))%360)/23;
 				LocateSprite(xpos, ypos);
-				UpdateSprite(i, frame);
-				EnableSprite(i);
+#if defined __APPLE2__
+				UpdateSprite(i, (i*16)+frame);	// Point to sprite data associated with different colors
+#elif defined __ATARI__
+				UpdateSprite(i, frame);			// Normal sprite for 1st color (body)
+				UpdateSprite(4+i, 16+frame);	// Flicker sprite for 2nd color (tires)	
+#elif defined __CBM__
+				UpdateSprite(i, frame);			// Single sprite made up of unique+shared color
+#endif
 				EngineSFX(1, 300);
             }       
         }
 	}
 	
-	// Exit GFX mode and clear key
-	DisableSprite(-1);
+	// Black-out screen and clear key
+	DisableSprite(-1);	// "-1" disables all sprites
 	ExitBitmapMode();
-	InitSFX();
 	cgetc();
 	
     // Done
