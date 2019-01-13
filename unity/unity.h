@@ -276,6 +276,7 @@ void StopMusic(void);
 
 // SFX functions (see sfx.c)
 void InitSFX(void);
+void StopSFX(void);
 void EngineSFX(int channel, int vel);
 void BleepSFX(unsigned char tone);
 void BumpSFX(void);

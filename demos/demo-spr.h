@@ -71,6 +71,7 @@ int DemoSPR(void)
 	// Black-out screen and clear key
 	DisableSprite(-1);	// "-1" disables all sprites
 	ExitBitmapMode();
+	StopSFX();
 	cgetc();
 	
     // Done

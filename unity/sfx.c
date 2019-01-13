@@ -77,6 +77,19 @@ void InitSFX()
 #endif
 }
 
+void StopSFX() 
+{
+#if defined __CBM__	
+	StopMusic();
+#elif defined __ATARI__
+	StopMusic();
+	POKE((char*)(0xD200), 0);
+	POKE((char*)(0xD202), 0);
+	POKE((char*)(0xD204), 0);
+	POKE((char*)(0xD208), 0);
+#endif	
+}
+
 void EngineSFX(int channel, int vel)
 {
 #if defined __CBM__	
