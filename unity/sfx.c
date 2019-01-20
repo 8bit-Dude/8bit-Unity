@@ -130,10 +130,6 @@ void EngineSFX(int channel, int vel)
 #endif
 }
 
-#ifdef __APPLE2__
-#pragma code-name("LC")
-#endif
-
 void BleepSFX(unsigned char tone) 
 {
 #if defined __CBM__	

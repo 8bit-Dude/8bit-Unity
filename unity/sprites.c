@@ -41,11 +41,13 @@
 	
 	// Sprite data
 	#define sprWIDTH 4	// Byte width of sprite (7 pixels)
-	unsigned char sprCOL[SPRITE_NUM] = {0,0,0,0};		// Collision flags
-	unsigned char sprEN[SPRITE_NUM] = {0,0,0,0}; 		// Enable status
-	unsigned char sprXO[SPRITE_NUM], sprYO[SPRITE_NUM];	// Processed coordinates
-	unsigned char* sprBG[SPRITE_NUM];	    			// Sprite background
-	unsigned char sprROWS, sprLENGTH;	
+	unsigned char sprCOL[SPRITE_NUM] = {0,0,0,0};	// Collision flags
+	unsigned char sprEN[SPRITE_NUM] = {0,0,0,0}; 	// Enable status
+	unsigned char sprXS[SPRITE_NUM];				// Screen coordinates
+	unsigned char sprYS[SPRITE_NUM];	
+	unsigned char sprXB[SPRITE_NUM];				// Byte coordinates
+	unsigned char* sprBG[SPRITE_NUM];	    		// Sprite background
+	unsigned char sprROWS, sprLENGTH;
 	unsigned int sprBLOCK;
 	void InitSprites(unsigned char rows, unsigned char frames)
 	{
@@ -112,11 +114,11 @@
 	unsigned char xO,yO,delta;
 	unsigned char *sprPTR, *bgPTR;
 	unsigned char xptr, yptr;
-	void RestoreBg(unsigned char index)
+	void RestoreSprBG(unsigned char index)
 	{
 		yO = 0;
-		xptr = sprXO[index];
-		yptr = sprYO[index];
+		xptr = sprXB[index];
+		yptr = sprYS[index];
 		bgPTR = sprBG[index];
 		while (yO<sprROWS) {
 			dhrptr = (unsigned char *) (dhrLines[yptr++] + xptr);
@@ -130,20 +132,28 @@
 			yO++;
 		}
 	}
-	unsigned char GetBGColor(unsigned char index)
+	void RestoreSprLine(unsigned char x, unsigned char y)
 	{
-		// Return likely color of most central pixel block
-		unsigned char ctrBlock = sprBG[index] + sprWIDTH*(sprROWS/2)+sprWIDTH/2;
-		switch (ctrBlock) {
-			case 85:  return LGREY;
-			case 87:
-			case 93:
-			case 117:
-			case 119: return YELLOW;
-			case 51:
-			case 76:  return PURPLE;
-		}
-		return BLACK;
+		unsigned char i;
+		for (i=0; i<SPRITE_NUM; i++) {
+			if (sprEN[i]) {
+				xO = x-sprXS[i];
+				yO = y-sprYS[i];
+				if (xO<7 && yO<sprROWS) {
+					xptr = sprXB[i];
+					yptr = sprYS[i]+yO;
+					bgPTR = sprBG[i]+yO*sprWIDTH;
+					dhrptr = (unsigned char *) (dhrLines[yptr] + xptr);
+					*dhraux = 0;
+					dhrptr[0] = bgPTR[0];
+					dhrptr[1] = bgPTR[1];
+					*dhrmain = 0;
+					dhrptr[0] = bgPTR[2];		
+					dhrptr[1] = bgPTR[3];
+					return;
+				}
+			}
+		}		
 	}
 #endif
 
@@ -192,12 +202,12 @@ void UpdateSprite(unsigned char index, unsigned char frame)
 	sprCOL[index] = 0;
 	for (i=0; i<SPRITE_NUM; i++) {
 		if (sprEN[i] && i!=index) {
-			delta = sprXO[i] - xO;
+			delta = sprXB[i] - xO;
 			if (delta < 2 || delta>254) {
-				delta = sprYO[i] - sprY;
+				delta = sprYS[i] - sprY;
 				if (delta < sprROWS || delta>(256-sprROWS)) {
 					// Redraw background of that sprite
-					RestoreBg(i);
+					RestoreSprBG(i);
 					sprCOL[i] = 1;
 					sprCOL[index] = 1;
 				}
@@ -206,7 +216,7 @@ void UpdateSprite(unsigned char index, unsigned char frame)
 	}	
 
 	// Restore old background
-	if (sprEN[index]) { RestoreBg(index); }
+	if (sprEN[index]) { RestoreSprBG(index); }
 	
 	// Backup new background and draw sprite
 	yO = 0;
@@ -232,8 +242,9 @@ void UpdateSprite(unsigned char index, unsigned char frame)
 	
 	// Background settings
 	sprEN[index] = 1;
-	sprXO[index] = xO;
-	sprYO[index] = sprY;
+	sprXB[index] = xO;
+	sprXS[index] = sprX;
+	sprYS[index] = sprY;
 #elif defined __ATARI__
 	if (index<4) {
 		// Set X coordinate of ith sprite and copy frame to PMG column
@@ -288,7 +299,7 @@ void DisableSprite(signed char index)
 		}
 #elif defined __APPLE2__
 		// Restore background if neccessary
-		if (sprEN[index]) { RestoreBg(index); }
+		if (sprEN[index]) { RestoreSprBG(index); }
 		sprEN[index] = 0;
 #endif
 	// Switch all sprites off
@@ -302,7 +313,7 @@ void DisableSprite(signed char index)
 #elif defined __APPLE2__
 		// Restore background
 		for (index=0; index<SPRITE_NUM; index++) {
-			if (sprEN[index]) { RestoreBg(index); }				
+			if (sprEN[index]) { RestoreSprBG(index); }				
 			sprEN[index] = 0;
 		}
 #endif

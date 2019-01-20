@@ -41,6 +41,18 @@
 unsigned char headerBG = 0;
 unsigned char colorFG, colorBG;
 
+// Apple specific variables & functions
+#ifdef __APPLE2__
+	extern void RestoreSprLine(unsigned char x, unsigned char y);
+#endif
+
+// Atari specific variables & functions
+#ifdef __ATARI__
+	unsigned char colorFG1,colorFG2;
+	unsigned char colorBG1,colorBG2;
+	unsigned char bgByte1,bgByte2;
+#endif
+
 // C64 specific variables & functions
 #ifdef __CBM__
 	int vicconf[3];
@@ -50,13 +62,6 @@ unsigned char colorFG, colorBG;
 		// notice that 0 selects vic bank 3, 1 selects vic bank 2, etc.
 		POKE(0xDD00, (PEEK(0xDD00) & 252 | (3 - bank))); // switch VIC base
 	}
-#endif
-
-// Atari specific variables & functions
-#ifdef __ATARI__
-	unsigned char colorFG1,colorFG2;
-	unsigned char colorBG1,colorBG2;
-	unsigned char bgByte1,bgByte2;
 #endif
 
 // Initialize Bitmap Screen
@@ -180,6 +185,7 @@ unsigned char GetColor(unsigned int x, unsigned int y)
 	// Rescale coords
  	x = (140*x)/320;
 	y = (192*y)/200;
+	RestoreSprLine(x,y);
 	SetDHRPointer(x,y);
 	return GetDHRColor();
 #endif	
