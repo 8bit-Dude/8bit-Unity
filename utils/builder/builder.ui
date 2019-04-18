@@ -1,0 +1,573 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!--
+ * Copyright (c) 2018 Anthony Beaucamp.
+ *
+ * This software is provided 'as-is', without any express or implied warranty.
+ * In no event will the authors be held liable for any damages arising from
+ * the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ *   1. The origin of this software must not be misrepresented * you must not
+ *   claim that you wrote the original software. If you use this software in a
+ *   product, an acknowledgment in the product documentation would be
+ *   appreciated but is not required.
+ *
+ *   2. Altered source versions must be plainly marked as such, and must not
+ *   be misrepresented as being the original software.
+ *
+ *   3. This notice may not be removed or altered from any distribution.
+ *
+ *   4. The names of this software and/or it's copyright holders may not be
+ *   used to endorse or promote products derived from this software without
+ *   specific prior written permission.
+-->
+<interface>
+  <object class="ttk.Frame" id="mainwindow">
+    <child>
+      <object class="ttk.Notebook" id="Notebook_Assets">
+        <property name="height">315</property>
+        <property name="width">400</property>
+        <layout>
+          <property name="column">0</property>
+          <property name="propagate">True</property>
+          <property name="row">0</property>
+          <property name="sticky">nw</property>
+        </layout>
+        <child>
+          <object class="ttk.Notebook.Tab" id="Tab_Apple">
+            <property name="text" translatable="yes">Apple</property>
+            <child>
+              <object class="tk.Frame" id="Frame_Apple">
+                <property name="height">500</property>
+                <property name="width">400</property>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="propagate">True</property>
+                  <property name="row">0</property>
+                </layout>
+                <child>
+                  <object class="tk.LabelFrame" id="LabelFrame_AppleBitmaps">
+                    <property name="text" translatable="yes">Bitmaps</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="propagate">True</property>
+                      <property name="row">0</property>
+                      <property name="sticky">nw</property>
+                    </layout>
+                    <child>
+                      <object class="tk.Listbox" id="Listbox_AppleBitmap">
+                        <property name="height">6</property>
+                        <property name="width">65</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="propagate">True</property>
+                          <property name="row">0</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Button" id="Button_AppleBitmapAdd">
+					  	<property name="command">AppleBitmapAdd</property>
+                        <property name="text" translatable="yes">Add File</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">25</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Button" id="Button_AppleBitmapRem">
+					  	<property name="command">AppleBitmapRem</property>
+                        <property name="text" translatable="yes">Rem File</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">100</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.LabelFrame" id="LabelFrame_AppleSprites">
+                    <property name="height">200</property>
+                    <property name="text" translatable="yes">Sprites</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="pady">160</property>
+                      <property name="propagate">True</property>
+                      <property name="row">0</property>
+                      <property name="sticky">nw</property>
+                    </layout>
+                    <child>
+                      <object class="tk.Listbox" id="Listbox_AppleSprites">
+                        <property name="height">1</property>
+                        <property name="width">65</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="propagate">True</property>
+                          <property name="row">0</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Button" id="Button_AppleSpritesSel">
+					  	<property name="command">AppleSpritesSel</property>
+                        <property name="text" translatable="yes">Select File</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">25</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.LabelFrame" id="LabelFrame_AppleMusic">
+                    <property name="height">200</property>
+                    <property name="text" translatable="yes">Music</property>
+                    <property name="width">200</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="pady">240</property>
+                      <property name="propagate">True</property>
+                      <property name="row">0</property>
+                      <property name="sticky">nw</property>
+                    </layout>
+                    <child>
+                      <object class="tk.Listbox" id="Listbox_AppleMusic">
+                        <property name="height">1</property>
+                        <property name="width">65</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="propagate">True</property>
+                          <property name="row">0</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Button" id="Button_AppleMusicSel">
+					  	<property name="command">AppleMusicSel</property>
+                        <property name="text" translatable="yes">Select File</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">25</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="ttk.Notebook.Tab" id="Tab_Atari">
+            <property name="text" translatable="yes">Atari</property>
+            <child>
+              <object class="tk.Frame" id="Frame_Atari">
+                <property name="height">500</property>
+                <property name="width">400</property>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="propagate">True</property>
+                  <property name="row">0</property>
+                </layout>
+                <child>
+                  <object class="tk.LabelFrame" id="LabelFrame_AtariBitmaps">
+                    <property name="text" translatable="yes">Bitmaps</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="propagate">True</property>
+                      <property name="row">0</property>
+                      <property name="sticky">nw</property>
+                    </layout>
+                    <child>
+                      <object class="tk.Listbox" id="Listbox_AtariBitmap">
+                        <property name="height">6</property>
+                        <property name="width">65</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="propagate">True</property>
+                          <property name="row">0</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Button" id="Button_AtariBitmapAdd">
+					  	<property name="command">AtariBitmapAdd</property>
+                        <property name="text" translatable="yes">Add File</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">25</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Button" id="Button_AtariBitmapRem">
+					  	<property name="command">AtariBitmapRem</property>
+                        <property name="text" translatable="yes">Rem File</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">100</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.LabelFrame" id="LabelFrame_AtariSprites">
+                    <property name="height">200</property>
+                    <property name="text" translatable="yes">Sprites</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="pady">160</property>
+                      <property name="propagate">True</property>
+                      <property name="row">0</property>
+                      <property name="sticky">nw</property>
+                    </layout>
+                    <child>
+                      <object class="tk.Listbox" id="Listbox_AtariSprites">
+                        <property name="height">1</property>
+                        <property name="width">65</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="propagate">True</property>
+                          <property name="row">0</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Button" id="Button_AtariSpritesSel">
+					  	<property name="command">AtariSpritesSel</property>
+                        <property name="text" translatable="yes">Select File</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">25</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.LabelFrame" id="LabelFrame_AtariMusic">
+                    <property name="height">200</property>
+                    <property name="text" translatable="yes">Music</property>
+                    <property name="width">200</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="pady">240</property>
+                      <property name="propagate">True</property>
+                      <property name="row">0</property>
+                      <property name="sticky">nw</property>
+                    </layout>
+                    <child>
+                      <object class="tk.Listbox" id="Listbox_AtariMusic">
+                        <property name="height">1</property>
+                        <property name="width">65</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="propagate">True</property>
+                          <property name="row">0</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Button" id="Button_AtariMusicSel">
+					  	<property name="command">AtariMusicSel</property>
+                        <property name="text" translatable="yes">Select File</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">25</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="ttk.Notebook.Tab" id="Tab_C64">
+            <property name="text" translatable="yes">C64</property>
+            <child>
+              <object class="tk.Frame" id="Frame_C64">
+                <property name="height">500</property>
+                <property name="width">400</property>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="propagate">True</property>
+                  <property name="row">0</property>
+                </layout>
+                <child>
+                  <object class="tk.LabelFrame" id="LabelFrame_C64Bitmaps">
+                    <property name="text" translatable="yes">Bitmaps</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="propagate">True</property>
+                      <property name="row">0</property>
+                      <property name="sticky">nw</property>
+                    </layout>
+                    <child>
+                      <object class="tk.Listbox" id="Listbox_C64Bitmap">
+                        <property name="height">6</property>
+                        <property name="width">65</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="propagate">True</property>
+                          <property name="row">0</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Button" id="Button_C64BitmapAdd">
+					  	<property name="command">C64BitmapAdd</property>
+                        <property name="text" translatable="yes">Add File</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">25</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Button" id="Button_C64BitmapRem">
+					  	<property name="command">C64BitmapRem</property>
+                        <property name="text" translatable="yes">Rem File</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">100</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.LabelFrame" id="LabelFrame_C64Sprites">
+                    <property name="height">200</property>
+                    <property name="text" translatable="yes">Sprites</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="pady">160</property>
+                      <property name="propagate">True</property>
+                      <property name="row">0</property>
+                      <property name="sticky">nw</property>
+                    </layout>
+                    <child>
+                      <object class="tk.Listbox" id="Listbox_C64Sprites">
+                        <property name="height">1</property>
+                        <property name="width">65</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="propagate">True</property>
+                          <property name="row">0</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Button" id="Button_C64SpritesSel">
+					  	<property name="command">C64SpritesSel</property>
+                        <property name="text" translatable="yes">Select File</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">25</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.LabelFrame" id="LabelFrame_C64Music">
+                    <property name="height">200</property>
+                    <property name="text" translatable="yes">Music</property>
+                    <property name="width">200</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="pady">240</property>
+                      <property name="propagate">True</property>
+                      <property name="row">0</property>
+                      <property name="sticky">nw</property>
+                    </layout>
+                    <child>
+                      <object class="tk.Listbox" id="Listbox_C64Music">
+                        <property name="height">1</property>
+                        <property name="width">65</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="propagate">True</property>
+                          <property name="row">0</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Button" id="Button_C64MusicSel">
+					  	<property name="command">C64MusicSel</property>
+                        <property name="text" translatable="yes">Select File</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">25</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>		
+    <child>
+      <object class="tk.LabelFrame" id="LabelFrame_Code">
+        <property name="text" translatable="yes">Code</property>
+        <layout>
+          <property name="column">0</property>
+          <property name="pady">5</property>
+          <property name="propagate">True</property>
+          <property name="row">1</property>
+          <property name="sticky">nw</property>
+        </layout>
+        <child>
+          <object class="tk.Listbox" id="Listbox_Code">
+            <property name="height">4</property>
+            <property name="width">65</property>
+            <layout>
+              <property name="column">0</property>
+              <property name="propagate">True</property>
+              <property name="row">0</property>
+              <property name="sticky">nw</property>
+            </layout>
+          </object>
+        </child>
+        <child>
+          <object class="ttk.Button" id="Button_CodeAdd">
+			<property name="command">CodeAdd</property>
+            <property name="text" translatable="yes">Add File</property>
+            <layout>
+              <property name="column">0</property>
+              <property name="padx">25</property>
+              <property name="pady">5</property>
+              <property name="propagate">True</property>
+              <property name="row">1</property>
+              <property name="sticky">nw</property>
+            </layout>
+          </object>
+        </child>
+        <child>
+          <object class="ttk.Button" id="Button_CodeRem">
+			<property name="command">CodeRem</property>
+            <property name="text" translatable="yes">Rem File</property>
+            <layout>
+              <property name="column">0</property>
+              <property name="padx">100</property>
+              <property name="pady">5</property>
+              <property name="propagate">True</property>
+              <property name="row">1</property>
+              <property name="sticky">nw</property>
+            </layout>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="ttk.Label" id="Label_Disk">
+        <property name="text" translatable="yes">Disk Name</property>
+        <layout>
+          <property name="column">0</property>
+          <property name="padx">25</property>
+          <property name="pady">10</property>
+          <property name="propagate">True</property>
+          <property name="row">2</property>
+          <property name="sticky">nw</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="ttk.Entry" id="Entry_Disk">
+        <property name="text" translatable="yes">diskname</property>
+        <property name="width">16</property>
+        <layout>
+          <property name="column">0</property>
+          <property name="padx">100</property>
+          <property name="pady">10</property>
+          <property name="propagate">True</property>
+          <property name="row">2</property>
+          <property name="sticky">nw</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="ttk.Button" id="Button_Generate">
+	    <property name="command">GenerateBuilder</property>
+        <property name="text" translatable="yes">Generate Build Scripts</property>
+        <layout>
+          <property name="column">0</property>
+          <property name="padx">25</property>
+          <property name="pady">10</property>
+          <property name="propagate">True</property>
+          <property name="row">2</property>
+          <property name="sticky">ne</property>
+        </layout>
+      </object>
+    </child>
+  </object>
+</interface>
