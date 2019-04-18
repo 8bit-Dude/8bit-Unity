@@ -38,8 +38,15 @@ sid_address: .res 2
 
 .proc _PlayMusic: near
 		; set JSR addresses
+		stx checkSID+2
 		stx initSID+2
 		stx InterruptSID+2
+		
+checkSID:
+		; check SID actually exists
+		lda $0048
+		cmp #0
+		beq skipSID
 
 initSID:
 		; init code (00 replaced by low-byte of SID address)
@@ -51,8 +58,9 @@ initSID:
         ldx #>InterruptSID
         sta $314
         stx $315
-        cli 
-
+        cli
+		
+skipSID:		
         rts
 .endproc        
 
