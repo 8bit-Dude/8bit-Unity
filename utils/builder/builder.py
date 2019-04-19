@@ -43,6 +43,9 @@ class Application:
     listbox_AtariBitmap = None
     listbox_AtariSprites = None
     listbox_AtariMusic = None
+    listbox_AtmosBitmap = None
+    listbox_AtmosSprites = None
+    listbox_AtmosMusic = None
     listbox_C64Bitmap = None
     listbox_C64Sprites = None
     listbox_C64Music = None
@@ -94,6 +97,9 @@ class Application:
         self.listbox_AtariBitmap = self.builder.get_object('Listbox_AtariBitmap')        
         self.listbox_AtariSprites = self.builder.get_object('Listbox_AtariSprites')        
         self.listbox_AtariMusic = self.builder.get_object('Listbox_AtariMusic')     
+        self.listbox_AtmosBitmap = self.builder.get_object('Listbox_AtmosBitmap')        
+        self.listbox_AtmosSprites = self.builder.get_object('Listbox_AtmosSprites')        
+        self.listbox_AtmosMusic = self.builder.get_object('Listbox_AtmosMusic')     
         self.listbox_C64Bitmap = self.builder.get_object('Listbox_C64Bitmap')        
         self.listbox_C64Sprites = self.builder.get_object('Listbox_C64Sprites')        
         self.listbox_C64Music = self.builder.get_object('Listbox_C64Music')     
@@ -103,7 +109,8 @@ class Application:
         self.lists = [ self.listbox_Code, 
                        self.listbox_AppleBitmap, self.listbox_AppleSprites, self.listbox_AppleMusic,
                        self.listbox_AtariBitmap, self.listbox_AtariSprites, self.listbox_AtariMusic,
-                       self.listbox_C64Bitmap,   self.listbox_C64Sprites,   self.listbox_C64Music ]
+                       self.listbox_C64Bitmap,   self.listbox_C64Sprites,   self.listbox_C64Music,
+                       self.listbox_AtmosBitmap, self.listbox_AtmosSprites, self.listbox_AtmosMusic ]
 
     def FileNew(self):
         # Reset all fields
@@ -207,6 +214,29 @@ class Application:
             filename = filename.replace(self.cwd, '')
             self.listbox_AtariMusic.delete(0, END)
             self.listbox_AtariMusic.insert(END, filename)
+            
+    def AtmosBitmapAdd(self):
+        filename = askopenfilename(initialdir = "../../", title = "Select Bitmap", filetypes = (("PNG files","*.png"),)) 
+        if filename is not '':
+            filename = filename.replace(self.cwd, '')
+            self.listbox_AtmosBitmap.insert(END, filename)
+
+    def AtmosBitmapRem(self):
+        self.listbox_AtmosBitmap.delete(0, ACTIVE)
+        
+    def AtmosSpritesSel(self):
+        filename = askopenfilename(initialdir = "../../", title = "Select Sprite Sheet", filetypes = (("PNG files","*.png"),)) 
+        if filename is not '':
+            filename = filename.replace(self.cwd, '')
+            self.listbox_AtmosSprites.delete(0, END)
+            self.listbox_AtmosSprites.insert(END, filename)
+
+    def AtmosMusicSel(self):
+        filename = askopenfilename(initialdir = "../../", title = "Select Music Track", filetypes = (("RMT files","*.rmt"),)) 
+        if filename is not '':
+            filename = filename.replace(self.cwd, '')
+            self.listbox_AtmosMusic.delete(0, END)
+            self.listbox_AtmosMusic.insert(END, filename)            
 
     def C64BitmapAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Bitmap", filetypes = (("PNG files","*.png"),)) 
@@ -289,10 +319,10 @@ class Application:
             fp.write('echo --------------- APPLE DISK BUILDER --------------- \n\n')
 
             # Disk builder
-            fp.write('copy utils\\apple\\AppleProDOS190.dsk [build]\\' + diskname + '.dsk\n')
-            fp.write('java -jar utils\\apple\\AppleCommander.jar -cc65 [build]/' + diskname + '.dsk LOADER bin 0x0803 < [build]/apple/loader\n')
+            fp.write('copy utils\\apple\\AppleProDOS190.dsk [build]\\' + diskname + '-apple.dsk\n')
+            fp.write('java -jar utils\\apple\\AppleCommander.jar -cc65 [build]/' + diskname + '-apple.dsk LOADER bin 0x0803 < [build]/apple/loader\n')
             for item in bitmaps:                
-                fp.write('java -jar utils\\apple\\AppleCommander.jar -p [build]/' + diskname + '.dsk ' + FileBase(item, '-apple.png').upper() + '.MAP bin < [build]/apple/' + FileBase(item, '-apple.png') + '.map\n')
+                fp.write('java -jar utils\\apple\\AppleCommander.jar -p [build]/' + diskname + '-apple.dsk ' + FileBase(item, '-apple.png').upper() + '.MAP bin < [build]/apple/' + FileBase(item, '-apple.png') + '.map\n')
 
             # Info
             fp.write('\necho DONE\n')
@@ -347,8 +377,65 @@ class Application:
             fp.write('echo --------------- ATARI DISK BUILDER --------------- \n\n')
 
             # Disk builder
-            fp.write('utils\\atari\\dir2atr -dm -B utils/atari/AtariXboot.obx 720 [build]/' + diskname + '.atr [build]\\atari\n')
+            fp.write('utils\\atari\\dir2atr -dm -B utils/atari/AtariXboot.obx 720 [build]/' + diskname + '-atari.atr [build]\\atari\n')
 
+            # Info
+            fp.write('\necho DONE\n')
+            fp.write('pause')            
+
+        ####################################################
+        # Atmos script
+        bitmaps = list(self.listbox_AtmosBitmap.get(0, END))
+        sprites = list(self.listbox_AtmosSprites.get(0, END))
+        music = list(self.listbox_AtmosMusic.get(0, END))
+        with open("../../build-"+diskname+"-atmos.bat", "wb") as fp:
+            # Info
+            fp.write('echo off\n\n')
+            fp.write('rm [build]\\atmos\\*.* \n\n')
+            fp.write('echo --------------- CONVERT ASSETS ---------------  \n\n')
+            
+            # Bitmaps / Sprites
+            for item in bitmaps:
+                filebase = FileBase(item, '-atmos.png')
+                fp.write('utils\\py27\\python utils\\atmos\\AtmosBitmap.py ' + item + ' [build]/atmos/' + filebase + '.raw\n')
+                fp.write('utils\\atmos\\header [build]/atmos/' + filebase + '.raw [build]/atmos/' + filebase + '.map $A000\n')
+            if len(sprites) > 0:
+                fp.write('utils\\py27\\python utils\\atmos\\AtmosSprites.py ' + sprites[0] + ' [build]/atmos/sprites.raw\n')
+                fp.write('utils\\atmos\\header [build]/atmos/sprites.raw [build]/atmos/sprites.dat $9000\n')
+
+            # Clean-up
+            fp.write('rm [build]\\atmos\\*.raw\n')
+                
+            # Info
+            fp.write('\necho DONE!\n\n')
+            fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
+
+            # Compilation
+            comp = 'utils\\cc65\\bin\\cl65 -o [build]/atmos/launch.bin -Cl -O -t atmos -C config/atmos-bin.cfg -I unity '
+            for item in code:
+                comp += item
+                comp += ' '
+            fp.write(comp + 'unity/bitmap.c unity/chars.s unity/sfx.c unity/sprites.c unity/Atmos/libsedoric.s\n')
+
+            # Fix heder
+            fp.write('utils\\atmos\\header [build]/atmos/launch.bin [build]/atmos/launch.com $0501\n')
+            
+            # Clean-up
+            fp.write('rm [build]\\atmos\\*.bin\n')
+
+            # Info
+            fp.write('\necho DONE!\n\n')
+            fp.write('echo --------------- ATMOS DISK BUILDER --------------- \n\n')
+
+            # Disk builder
+            cmd = 'utils\\atmos\\tap2dsk -iLAUNCH.COM [build]/atmos/launch.com [build]/atmos/sprites.dat'
+            for item in bitmaps:
+                filebase = ' [build]/atmos/' + FileBase(item, '-atmos.png')
+                cmd += filebase + '.map '
+            cmd += ' [build]/' + diskname + '-atmos.dsk\n'
+            fp.write(cmd)
+            fp.write('utils\\atmos\\old2mfm [build]/' + diskname + '-atmos.dsk\n')
+            
             # Info
             fp.write('\necho DONE\n')
             fp.write('pause')            
@@ -395,7 +482,7 @@ class Application:
             fp.write('echo --------------- C64 DISK BUILDER --------------- \n\n')
 
             # Disk builder
-            fp.write('utils\\c64\\c1541 -format loader,666 d64 [build]/' + diskname + '.d64 -attach [build]/' + diskname + '.d64 ')
+            fp.write('utils\\c64\\c1541 -format loader,666 d64 [build]/' + diskname + '-c64.d64 -attach [build]/' + diskname + '-c64.d64 ')
             fp.write('-write [build]/c64/loader.prg loader.prg ')
             for item in bitmaps:
                 fp.write('-write [build]/c64/' + FileBase(item, '-c64.png') + '.map ' + FileBase(item, '-c64.png') + '.map ')                
