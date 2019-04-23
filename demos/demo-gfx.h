@@ -1,8 +1,5 @@
 
 #include "unity.h"
-#include <cc65.h>
-
-extern unsigned char pixX, pixY;	// See bitmap.h
 
 int DemoGFX(void) 
 {
@@ -14,23 +11,23 @@ int DemoGFX(void)
 	ClearBitmap();
 	EnterBitmapMode();
 	
-	// Draw palette (Method #1: set pixel coordinates directly)
+	// Draw palette (Method #1: set pixel coordinates directly using global variables bmpX & bmpY)
 	blockW = BMPWIDTH/(BMPCOLORS-1);	// Cover width with available palette
 	blockH = (8*BMPHEIGHT)/200;		// Display equivalent of 8 lines (rescaling on APPLE/ATMOS)
 	for (color=1; color<BMPCOLORS; color++) {
 		for (row=0; row<blockH; row++) {
 			for (i=0; i<blockW; i++) {
-				pixY = row;
-				pixX = (color-1)*blockW + i;
+				bmpY = row;
+				bmpX = (color-1)*blockW + i;
 				SetPixel(color);
 			}
 		}
 	}
-		
-	// Draw text
-	colorBG = BLACK;
+	
+	// Print text (global variables inkColor & paperColor are assigned directly)
+	paperColor = BLACK;
 	for (i=1; i<BMPCOLORS; i++) {
-		colorFG = i;
+		inkColor = i;
 		PrintStr(15,i+1,"8BIT-UNITY");
 	}	
 	
@@ -41,7 +38,7 @@ int DemoGFX(void)
 	}
 	
 	// Wait until keyboard is pressed
-	colorFG = WHITE;
+	inkColor = BLACK; paperColor = WHITE; 
 	PrintStr(8,BMPCOLORS+3,"PRESS SPACE FOR NEXT TEST");
 	cgetc();
 	ExitBitmapMode();

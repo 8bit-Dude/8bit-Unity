@@ -80,7 +80,7 @@ int DemoUDP(void)
 	EnterBitmapMode();
 	
 	// Print header
-	colorBG = BLACK; colorFG = WHITE;
+	paperColor = BLACK; inkColor = WHITE;
 	PrintStr(0,line++, "Network demo");	
 	
 	// Init network

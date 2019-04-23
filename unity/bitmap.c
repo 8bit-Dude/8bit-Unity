@@ -42,8 +42,8 @@
 #define BYTE4(a,b,c,d) ((a<<6) | (b<<4) | (c<<2) | d)
 
 // Colors for printing
-unsigned char headerBG = 0;
-unsigned char colorFG, colorBG;
+unsigned char paperHead = 0;
+unsigned char inkColor, paperColor;
 
 // Apple specific variables & functions
 #ifdef __APPLE2__
@@ -52,8 +52,8 @@ unsigned char colorFG, colorBG;
 
 // Atari specific variables & functions
 #ifdef __ATARI__
-  unsigned char colorFG1,colorFG2;
-  unsigned char colorBG1,colorBG2;
+  unsigned char inkColor1,inkColor2;
+  unsigned char paperColor1,paperColor2;
   unsigned char bgByte1,bgByte2;
 #endif
 
@@ -143,24 +143,25 @@ void ExitBitmapMode()
 #endif
 }
 
-unsigned char pixX, pixY;	// Location of current pixel
+// Location of current pixel 
+unsigned char bmpX, bmpY;
 
 void LocatePixel(unsigned int x, unsigned int y)
 {
 // This function maps pixel coordinates from a 320x200 screen definition
-// It can be by-passed by assigning pixX, pixY directly in your code
+// It can be by-passed by assigning bmpX, bmpY directly in your code
 #if defined __APPLE2__
-	pixX = (x*140)/320;
-	pixY = (y*192)/200;
+	bmpX = (x*140)/320;
+	bmpY = (y*192)/200;
 #elif defined __ATARI__
-	pixX = x/2;
-	pixY = y;
+	bmpX = x/2;
+	bmpY = y;
 #elif defined __ATMOS__
-	pixX = (x*117)/320;	
-	pixY = y/2;
+	bmpX = (x*117)/320;	
+	bmpY = y/2;
 #elif defined __CBM__
-	pixX = x/2;
-	pixY = y;
+	bmpX = x/2;
+	bmpY = y;
 #endif
 }
 
@@ -172,15 +173,15 @@ unsigned char GetPixel()
 	
 	// Check color index
 	DisableRom();
-	addr = BITMAPRAM + 40*(pixY&248)+(pixY&7)+((pixX*2)&504);
-	index = (PEEK(addr) >> (2*(3-(pixX%4)))) & 3;
+	addr = BITMAPRAM + 40*(bmpY&248)+(bmpY&7)+((bmpX*2)&504);
+	index = (PEEK(addr) >> (2*(3-(bmpX%4)))) & 3;
 	EnableRom();
 	
 	// Is background color?
 	if (index==0) { return bg; }
 	
 	// Analyze color index
-	offset = (pixY/8)*40+(pixX/4);
+	offset = (bmpY/8)*40+(bmpX/4);
 	if (index==1) {	// Upper bits of screen RAM
 		addr = SCREENRAM + offset;
 		return (PEEK(addr) & 0xF0) >> 4;		
@@ -198,8 +199,8 @@ unsigned char GetPixel()
 	unsigned char val1, val2, shift;
 	
 	// Compute pixel location
-	offset = 40*pixY+pixX/4;
-	shift = 6 - 2*(pixX%4);
+	offset = 40*bmpY+bmpX/4;
+	shift = 6 - 2*(bmpX%4);
 
 	// Dual buffer (colour/shade)
 	val1 = (PEEK((char*)BITMAPRAM1+offset) & ( 3 << shift )) >> shift;
@@ -211,15 +212,15 @@ unsigned char GetPixel()
 	}
 #elif defined __APPLE2__
 	// Use DHR routines
-	RestoreSprLine(pixX,pixY);
-	SetDHRPointer(pixX,pixY);
+	RestoreSprLine(bmpX,bmpY);
+	SetDHRPointer(bmpX,bmpY);
 	return GetDHRColor();
 #elif defined __ATMOS__
 	unsigned int offset;
 	unsigned char byte1, byte2, color, shift;
 	
 	// Compute pixel offset
-	offset = pixY*80 + pixX/3 + 1;
+	offset = bmpY*80 + bmpX/3 + 1;
 	
 	// Get bytes from Bitmap RAM
 	byte1 = PEEK((char*)BITMAPRAM+offset);
@@ -229,7 +230,7 @@ unsigned char GetPixel()
 	color = 5 * ((byte2>191)*2 + (byte1>191));
 		
 	// Get pixels state
-	shift = 2 * (pixX%3);
+	shift = 2 * (bmpX%3);
 	byte1 = (byte1 & (48 >> shift)) << shift;
 	byte2 = (byte2 & (48 >> shift)) << shift;
 	switch (byte1) {
@@ -261,23 +262,23 @@ void SetPixel(unsigned char color)
 	
 	// Set index to 3
 	DisableRom();
-	offset = 40*(pixY&248)+(pixY&7)+((pixX*2)&504);
-	shift = (2*(3-(pixX%4)));
+	offset = 40*(bmpY&248)+(bmpY&7)+((bmpX*2)&504);
+	shift = (2*(3-(bmpX%4)));
 	POKE(BITMAPRAM+offset, PEEK(BITMAPRAM+offset) | 3 << shift);
 	EnableRom();
 	
 	// Set color in COLORAM
-	offset = (pixY/8)*40+(pixX/4);
+	offset = (bmpY/8)*40+(bmpX/4);
 	POKE(COLORRAM+offset, color);
 #elif defined __ATARI__
 	unsigned int offset;
 	unsigned char shift, mask, col1, col2;	
 
 	// Compute pixel location
-	offset = 40*pixY + pixX/4;
-	shift = 6 - 2*(pixX%4);
+	offset = 40*bmpY + bmpX/4;
+	shift = 6 - 2*(bmpX%4);
 	mask = 255 - (3 << shift);
-	if ((pixY+pixX)%2) {
+	if ((bmpY+bmpX)%2) {
 		col2 = (color%4) << shift;
 		col1 = (color/4) << shift;
 	} else {
@@ -290,14 +291,14 @@ void SetPixel(unsigned char color)
 	POKE((char*)BITMAPRAM2+offset, (PEEK((char*)BITMAPRAM2+offset) & mask) | col2);
 #elif defined __APPLE2__
 	// Use DHR routines
-	SetDHRPointer(pixX,pixY);
+	SetDHRPointer(bmpX,bmpY);
 	SetDHRColor(color);	
 #elif defined __ATMOS__
 	unsigned int offset;
 	unsigned char byte1, byte2, shift;
 	
 	// Compute pixel offset
-	offset = pixY*80 + pixX/3 + 1;
+	offset = bmpY*80 + bmpX/3 + 1;
 	
 	// Get bytes from Bitmap RAM
 	byte1 = PEEK((char*)BITMAPRAM+offset) & 63;
@@ -324,7 +325,7 @@ void SetPixel(unsigned char color)
 	}
 	
 	// Set pixels
-	shift = 2 * (pixX%3);
+	shift = 2 * (bmpX%3);
 	switch (color%5) {
     case 1:
 		byte1 |= 32 >> shift;
@@ -404,8 +405,8 @@ void LoadBitmap(char *filename)
 #endif
 
 	// Chat background color
-	pixX = 0; pixY =0;
-	headerBG = GetPixel();
+	bmpX = 0; bmpY =0;
+	paperHead = GetPixel();
 }
 
 // Clear entire bitmap screen
@@ -451,13 +452,13 @@ void DrawPanel(unsigned char colBeg, unsigned char rowBeg, unsigned char colEnd,
 #if defined __CBM__
 	for (j=rowBeg; j<rowEnd; ++j) {
 		memset((char*)(BITMAPRAM+320*j+colBeg*8), pow2, span*8);
-		memset((char*)(SCREENRAM+40*j+colBeg), colorBG, span);		
+		memset((char*)(SCREENRAM+40*j+colBeg), paperColor, span);		
 	}
 #elif defined __ATARI__
-	colorBG1 = colorBG%4;
-	colorBG2 = colorBG/4;
-	bgByte1 = BYTE4(colorBG1,colorBG2,colorBG1,colorBG2);
-	bgByte2 = BYTE4(colorBG2,colorBG1,colorBG2,colorBG1);
+	paperColor1 = paperColor%4;
+	paperColor2 = paperColor/4;
+	bgByte1 = BYTE4(paperColor1,paperColor2,paperColor1,paperColor2);
+	bgByte2 = BYTE4(paperColor2,paperColor1,paperColor2,paperColor1);
 	for (j=rowBeg*8; j<rowEnd*8; ++j) {
 		if (j%2) {
 			memset((char*)(BITMAPRAM1+j*40+colBeg), bgByte2, span);
@@ -560,10 +561,10 @@ void PrintChr(unsigned char col, unsigned char row, const char *matrix)
 	// Set Character across double buffer
 	unsigned char i;
 	unsigned int addr1,addr2;
-	colorFG1 = colorFG%4; colorFG2 = colorFG/4;
-	colorBG1 = colorBG%4; colorBG2 = colorBG/4;
-	bgByte1 = BYTE4(colorBG1,colorBG2,colorBG1,colorBG2);
-	bgByte2 = BYTE4(colorBG2,colorBG1,colorBG2,colorBG1);	
+	inkColor1 = inkColor%4; inkColor2 = inkColor/4;
+	paperColor1 = paperColor%4; paperColor2 = paperColor/4;
+	bgByte1 = BYTE4(paperColor1,paperColor2,paperColor1,paperColor2);
+	bgByte2 = BYTE4(paperColor2,paperColor1,paperColor2,paperColor1);	
 	addr1 = BITMAPRAM1 + row*320 + col;
 	addr2 = BITMAPRAM2 + row*320 + col;
 	if (matrix == &charBlank[0]) {
@@ -580,10 +581,10 @@ void PrintChr(unsigned char col, unsigned char row, const char *matrix)
 		POKE((char*)addr1+0*40, bgByte1);
 		POKE((char*)addr2+0*40, bgByte2);
 		for (i=0; i<3; ++i) {
-			POKE((char*)addr2+(i*2+1)*40, BYTE4(((matrix[i]&128) ? colorFG1 : colorBG1), ((matrix[i]&64) ? colorFG2 : colorBG2), ((matrix[i]&32) ? colorFG1 : colorBG1), colorBG2));
-			POKE((char*)addr1+(i*2+2)*40, BYTE4(((matrix[i]&8  ) ? colorFG1 : colorBG1), ((matrix[i]&4 ) ? colorFG2 : colorBG2), ((matrix[i]&2 ) ? colorFG1 : colorBG1), colorBG2));
-			POKE((char*)addr1+(i*2+1)*40, BYTE4(((matrix[i]&128) ? colorFG2 : colorBG2), ((matrix[i]&64) ? colorFG1 : colorBG1), ((matrix[i]&32) ? colorFG2 : colorBG2), colorBG1));
-			POKE((char*)addr2+(i*2+2)*40, BYTE4(((matrix[i]&8  ) ? colorFG2 : colorBG2), ((matrix[i]&4 ) ? colorFG1 : colorBG1), ((matrix[i]&2 ) ? colorFG2 : colorBG2), colorBG1));
+			POKE((char*)addr2+(i*2+1)*40, BYTE4(((matrix[i]&128) ? inkColor1 : paperColor1), ((matrix[i]&64) ? inkColor2 : paperColor2), ((matrix[i]&32) ? inkColor1 : paperColor1), paperColor2));
+			POKE((char*)addr1+(i*2+2)*40, BYTE4(((matrix[i]&8  ) ? inkColor1 : paperColor1), ((matrix[i]&4 ) ? inkColor2 : paperColor2), ((matrix[i]&2 ) ? inkColor1 : paperColor1), paperColor2));
+			POKE((char*)addr1+(i*2+1)*40, BYTE4(((matrix[i]&128) ? inkColor2 : paperColor2), ((matrix[i]&64) ? inkColor1 : paperColor1), ((matrix[i]&32) ? inkColor2 : paperColor2), paperColor1));
+			POKE((char*)addr2+(i*2+2)*40, BYTE4(((matrix[i]&8  ) ? inkColor2 : paperColor2), ((matrix[i]&4 ) ? inkColor1 : paperColor1), ((matrix[i]&2 ) ? inkColor2 : paperColor2), paperColor1));
 		}
 		POKE((char*)addr1+7*40, bgByte2);
 		POKE((char*)addr2+7*40, bgByte1);
@@ -596,24 +597,24 @@ void PrintChr(unsigned char col, unsigned char row, const char *matrix)
 	x = (col*35)/10; y = (row*8);
 	SetDHRPointer(x, y);	
 	for (j=0; j<n; j++) {
-		SetDHRColor(colorBG);
+		SetDHRColor(paperColor);
 		dhrpixel++;
 	}
 	for (i=0; i<3; ++i) {
 		SetDHRPointer(x, y+i*2+1);
 		for (j=0; j<n; j++) {
-			SetDHRColor(((matrix[i]>>(7-j))&1) ? colorFG : colorBG);
+			SetDHRColor(((matrix[i]>>(7-j))&1) ? inkColor : paperColor);
 			dhrpixel++;
 		}
 		SetDHRPointer(x, y+i*2+2);
 		for (j=0; j<n; j++) {
-			SetDHRColor(((matrix[i]>>(3-j))&1) ? colorFG : colorBG);
+			SetDHRColor(((matrix[i]>>(3-j))&1) ? inkColor : paperColor);
 			dhrpixel++;
 		}
 	}
 	SetDHRPointer(x, y+7);
 	for (j=0; j<n; j++) {
-		SetDHRColor(colorBG);
+		SetDHRColor(paperColor);
 		dhrpixel++;
 	}
 
@@ -625,13 +626,13 @@ void PrintChr(unsigned char col, unsigned char row, const char *matrix)
 	unsigned char a0,a2,a4,b,blank;
 	unsigned int addr;
 	addr = BITMAPRAM + row*320 + col;
-	blank = 64+ (colorBG ? 63 : 0);
+	blank = 64+ (paperColor ? 63 : 0);
 	if (matrix == &charBlank[0]) {
 		for (i=0; i<8; ++i) {
 			POKE((char*)addr+i*40, blank);
 		}
 	} else {
-		if (colorBG != 0) {
+		if (paperColor != 0) {
 			a0 = 2; a2 = 0; a4 = 1; b = 3;
 		} else {
 			a0 = 1; a2 = 3; a4 = 2; b = 0;
@@ -661,7 +662,7 @@ void PrintChr(unsigned char col, unsigned char row, const char *matrix)
 	
 	// Set Color
 	addr = SCREENRAM + row*40+col;
-	POKE((char*)addr, colorFG << 4 | colorBG);	
+	POKE((char*)addr, inkColor << 4 | paperColor);	
 #endif
 }
 
@@ -681,12 +682,12 @@ void PrintStr(unsigned char col, unsigned char row, const char *buffer)
 	unsigned char i1, i2;
 	unsigned int addr;	
 	addr = BITMAPRAM + row*320 + col;
-	if (colorBG != 0) {
-		i1 = ink1[colorBG];
-		i2 = ink2[colorBG];
+	if (paperColor != 0) {
+		i1 = ink1[paperColor];
+		i2 = ink2[paperColor];
 	} else {
-		i1 = ink1[colorFG];
-		i2 = ink2[colorFG];
+		i1 = ink1[inkColor];
+		i2 = ink2[inkColor];
 	}
 	for (i=0; i<4; ++i) {
 		POKE((char*)addr+i*80, i1);
@@ -724,7 +725,7 @@ void PrintHeader(const char *buffer)
 {
 	unsigned char len, i;
 	len = strlen(buffer);
-	colorBG = headerBG;
+	paperColor = paperHead;
 #if defined __CBM__
 	// Roll bitmap and screen ram
 	DisableRom();
@@ -751,7 +752,7 @@ void PrintHeader(const char *buffer)
 #endif
 	// Print new message
 	PrintStr(40-len, 0, buffer);
-	colorBG = COLOR_BLACK;
+	paperColor = COLOR_BLACK;
 }
 
 // Interactive text input function

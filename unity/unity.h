@@ -223,6 +223,12 @@
 	#define KEY_W		'w'
 #endif
 
+// Location of current pixel (see LocatePixel(), SetPixel(), GetPixel())
+extern unsigned char bmpX, bmpY;
+
+// Colors for printing
+extern unsigned char inkColor, paperColor, paperHead;
+
 // Bitmap functions (see bitmap.c)
 void InitBitmap(void);
 void EnterBitmapMode(void);
@@ -265,9 +271,6 @@ extern const char charQuestion[3];
 extern const char charQuote[3];
 extern const char charSlash[3];
 extern const char charUnderbar[3];
-
-// Colors for printing
-extern unsigned char colorFG, colorBG, headerBG;
 
 // Joystick definitions
 #define JOY_UP    1
