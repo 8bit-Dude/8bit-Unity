@@ -90,11 +90,20 @@
 	#define BITMAPRAM  (0x2000)
 	#define MUSICRAM   (0xa800) // A800-AAFF (electric duet track loaded here)
 	#define SPRITERAM  (0xab00)	// AB00-BEFF (sprites.app loaded here)
+#elif defined __ATMOS__
+	// Atmos Memory locations
+	#define MUSICRAM   (0x9C00) // 9C00-9fff
+	#define SPRITERAM  (0x9C00)	// 9C00-9fff
+	#define BITMAPRAM  (0xA000) // A000-Bfff
 #endif
 
-// Color definitions
+// Screen/Palette definitions
 #if defined __CBM__
-	// C64 Colors
+	// C64 Screen (Multi-Color Mode)
+	#define BMPWIDTH  160
+	#define BMPHEIGHT 200
+	#define BMPCOLORS 16
+	// C64 Palette
 	#define BLACK  	0
 	#define WHITE  	1
 	#define RED    	2
@@ -109,14 +118,18 @@
 	#define DGREY   11	
 	#define MGREY 	12
 	#define LGREEN  13
-	#define LBLUE   13
+	#define LBLUE   14
 	#define LGREY   15	
 #elif defined __ATARI__
-	// Atari Colors
+	// Atari Screen (INP Mode)
+	#define BMPWIDTH  160
+	#define BMPHEIGHT 200
+	#define BMPCOLORS 11
+	// Atari Palette
 	#define BLACK  	0
 	#define DBLUE   2
-	#define BROWN 	4
 	#define DGREEN  3
+	#define BROWN 	4
 	#define RED    	5
 	#define ORANGE 	7
 	#define GRAY   	9
@@ -125,7 +138,11 @@
 	#define GREEN  	11
 	#define YELLOW 	15
 #elif defined __APPLE2__
-	// Apple Colors
+	// Apple Screen (DHR Mode)
+	#define BMPWIDTH  140
+	#define BMPHEIGHT 192
+	#define BMPCOLORS 16
+	// Apple Palette
 	#define BLACK   0
 	#define DBLUE	1
 	#define DGREEN	2
@@ -142,6 +159,32 @@
 	#define PINK	13
 	#define YELLOW  14
 	#define WHITE   15
+#elif defined __ATMOS__	
+	// Oric Screen (AIC Mode)
+	#define BMPWIDTH  117
+	#define BMPHEIGHT 100
+	#define BMPCOLORS 20
+	// Oric Palette
+	#define BLACK   0
+	#define MGREEN	1
+	#define DGREEN	2
+	#define CYAN	3
+	#define LGREEN	4
+	#define GREY	5
+	#define MBLUE	6
+	#define DBLUE	7
+	#define LBLUE 	8
+	#define AQUA    9
+	#define GREY2	10
+	#define BROWN	11
+	#define YELLOW	12
+	#define RED		13
+	#define ORANGE  14
+	#define WHITE   15
+	#define DPINK   16
+	#define LPURPLE 17
+	#define LPINK   18
+	#define PURPLE  19
 #endif
 
 // Keyboard definitions
@@ -186,8 +229,9 @@ void EnterBitmapMode(void);
 void ExitBitmapMode(void);
 void ClearBitmap(void);
 void LoadBitmap(char *filename);
-unsigned char GetColor(unsigned int x, unsigned int y);
-void SetColor(unsigned int x, unsigned int y, unsigned char color);
+void LocatePixel(unsigned int x, unsigned int y);
+unsigned char GetPixel(void);
+void SetPixel(unsigned char color);
 void DrawPanel(unsigned char colBeg, unsigned char rowBeg, unsigned char colEnd, unsigned char rowEnd);
 void PrintChr(unsigned char col, unsigned char row, const char *matrix);
 void PrintNum(unsigned char col, unsigned char row, unsigned char num);
@@ -253,14 +297,16 @@ extern unsigned char colorFG, colorBG, headerBG;
 unsigned char atan2(unsigned char y, unsigned char x);
 
 // Network functions (see IP65.lib)
-unsigned char ip65_init(void);
-unsigned char ip65_process(void);
-unsigned char dhcp_init(void);
-unsigned long __fastcall__ parse_dotted_quad(char* quad);
-unsigned char __fastcall__ udp_send(const unsigned char* buf, unsigned int len, unsigned long dest, unsigned int dest_port, unsigned int src_port);
-unsigned char __fastcall__ udp_add_listener(unsigned int port, void (*callback)(void));
-unsigned char __fastcall__ udp_remove_listener(unsigned int port);
-extern unsigned char udp_recv_buf[192];   // Buffer with data received
+#if not defined __ATMOS__
+  unsigned char ip65_init(void);
+  unsigned char ip65_process(void);
+  unsigned char dhcp_init(void);
+  unsigned long __fastcall__ parse_dotted_quad(char* quad);
+  unsigned char __fastcall__ udp_send(const unsigned char* buf, unsigned int len, unsigned long dest,  unsigned int dest_port, unsigned int src_port);
+  unsigned char __fastcall__ udp_add_listener(unsigned int port, void (*callback)(void));
+  unsigned char __fastcall__ udp_remove_listener(unsigned int port);
+  extern unsigned char udp_recv_buf[192];   // Buffer with data received
+#endif
 
 // Music functions
 // Apple: Electric Duet player (see Apple/DUET.s) 
@@ -284,6 +330,9 @@ void BumpSFX(void);
 #if defined __APPLE2__
 	#define SPRITE_NUM 4
 	void InitSprites(unsigned char height, unsigned char frames);	
+#elif defined __ATMOS__
+	#define SPRITE_NUM 8
+	void InitSprites(unsigned char height, unsigned char *uniqueColors);
 #elif defined __ATARI__
 	#define SPRITE_NUM 8
 	void InitSprites(unsigned char height, unsigned char *uniqueColors);
@@ -305,8 +354,8 @@ void UpdateSprite(unsigned char index, unsigned char frame);
 	// On Atari, we need to reset collisions by poking 0 into 53278
 	#define COLLISIONS(i) (PEEK(53260+i)+(1<<i)); POKE(53278,0)
 	#define COLLIDING(collisions,i) ((collisions >> i) & 1) 
-#elif defined __APPLE2__
-	// On Apple, collisions are prevented at draw time
+#elif defined __APPLE2__ or defined __ATMOS__
+	// On Apple and Atmos, collisions are prevented at draw time
 	#define COLLISIONS(i) (0)
 	#define COLLIDING(collisions,i) (sprCOL[i])
 	extern unsigned char sprCOL[SPRITE_NUM];

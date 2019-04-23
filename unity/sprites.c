@@ -92,6 +92,18 @@
 		sprROWS = rows;
 		POKE(FlickRows, rows);		
 	}
+// Atmos specific init function
+#elif defined __ATMOS__	
+	int loadfile(const char* fname, void* buf, int* len);
+	unsigned int bgPTR, sprPTR, scrPTR, inkPTR, colPTR;
+	unsigned char bgX[4], bgY[4], bgDAT[4][32], sprROWS, inkVAL;
+	void InitSprites(unsigned char rows, unsigned char *uniqueColors)
+	{	
+		// Load sprite sheet and assigned colors
+		loadfile("sprites.com", (void*)SPRITERAM, 256);
+		colPTR = uniqueColors;
+		sprROWS = rows;
+	}
 // C64 specific init function
 #elif defined __CBM__
 	void InitSprites(unsigned char *uniqueColors, unsigned char *sharedColors)
@@ -174,6 +186,9 @@ void LocateSprite(unsigned int x, unsigned int y)
 #elif defined __ATARI__
 	sprX = x/2 + 45;
 	sprY = y + 24;
+#elif defined __ATMOS__
+	sprX = x/8 - 1;	
+	sprY = y;
 #elif defined __CBM__
 	sprX = x;
 	sprY = y;
@@ -258,6 +273,46 @@ void UpdateSprite(unsigned char index, unsigned char frame)
 		POKE(FlickY-4+index, sprY);
 		POKEW(FlickFrames+(index-4)*2, SPRITERAM + frame*sprROWS);			
 	}
+#elif defined __ATMOS__	
+	unsigned char i;
+	
+	// Restore old background
+	if (bgY[index]) {
+		scrPTR = BITMAPRAM + bgY[index]*40 + bgX[index];
+		bgPTR = bgDAT[index];
+		for (i=0; i<sprROWS; i++) {
+			memcpy(scrPTR, bgPTR, 4);
+			scrPTR += 40;
+			bgPTR += 4;
+		}	
+	}
+	
+	// Backup new background
+	scrPTR = BITMAPRAM + sprY*40 + sprX;
+	bgPTR = bgDAT[index];
+	for (i=0; i<sprROWS; i++) {
+		memcpy(bgPTR, scrPTR, 4);
+		scrPTR += 40;
+		bgPTR += 4;
+	}	
+	
+	// Display corresponding frame
+	sprPTR = SPRITERAM + frame*16;
+	inkPTR = BITMAPRAM + sprY*40;
+	inkVAL = PEEK(colPTR+index);
+	for (i=sprY+1; i<sprY+sprROWS+1; i++) {
+		// Set INK, Set Sprite, Reset INK
+		scrPTR = inkPTR+sprX;
+		if (i%2) { POKE(scrPTR, inkVAL); } scrPTR++; 
+		POKE(scrPTR++, PEEK(sprPTR++));
+		POKE(scrPTR++, PEEK(sprPTR++));
+		if (i%2) { POKE(scrPTR, PEEK(inkPTR)); }
+		inkPTR += 40;
+	}
+	
+	// Save position
+	bgX[index] = sprX;
+	bgY[index] = sprY;	
 #elif defined __CBM__
 	// Tell VIC where to find the frame
 	POKE(SPRITEPTR+index, SPRITELOC+frame);

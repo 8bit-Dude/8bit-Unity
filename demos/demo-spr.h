@@ -2,8 +2,12 @@
 #include "unity.h"
 #include <cc65.h>
 
-#if defined __ATARI__
-	unsigned char uniqueColors[] = {0x74, 0x24, 0xa6, 0xdc, 0x08};  //  {blue, red, green, yellow, grey }
+#if defined __APPLE2__
+	// Colors are pre-assigned in the sprite sheet
+#elif defined __ATARI__
+	unsigned char uniqueColors[] = {0x74, 0x24, 0xa6, 0xdc, 0x08};  //  { blue, red, green, yellow, grey }
+#elif defined __ATMOS__
+	unsigned char uniqueColors[] = {0x02, 0x03, 0x05, 0x06};  //  { blue, red, green, yellow }
 #elif defined __CBM__
 	unsigned char uniqueColors[] = { BLUE, RED, GREEN, YELLOW, 0, 0, 0, 0 };
 	unsigned char sharedColors[] = { CYAN, BLACK };
@@ -28,6 +32,9 @@ int DemoSPR(void)
 #elif defined __ATARI__
 	// number of rows, unique colors of sprites 0-4
 	InitSprites(13, uniqueColors);
+#elif defined __ATMOS__
+	// number of rows, unique colors of sprites 0-3
+	InitSprites(8, uniqueColors);
 #elif defined __CBM__
 	// unique colors of sprites 0-7, shared colors of all sprites 
 	InitSprites(uniqueColors, sharedColors);
@@ -60,6 +67,8 @@ int DemoSPR(void)
 #elif defined __ATARI__
 				UpdateSprite(i, frame);			// Normal sprite for 1st color (body)
 				UpdateSprite(4+i, 16+frame);	// Flicker sprite for 2nd color (tires)	
+#elif defined __ATMOS__
+				UpdateSprite(i, frame);			// Single coloured sprite (colour applies to second scan line)
 #elif defined __CBM__
 				UpdateSprite(i, frame);			// Single sprite including 1 unique + 2 shared colors
 #endif

@@ -27,11 +27,15 @@
 #include "unity.h"
 
 #ifdef __APPLE2__
-#pragma code-name("LC")
+  #pragma code-name("LC")
 #endif
 
 #ifdef __ATARIXL__
-#pragma code-name("SHADOW_RAM")
+  #pragma code-name("SHADOW_RAM")
+#endif
+
+#if defined __ATMOS__
+  #include <Atmos/libsedoric.h>
 #endif
 
 // Helper functions
@@ -43,25 +47,25 @@ unsigned char colorFG, colorBG;
 
 // Apple specific variables & functions
 #ifdef __APPLE2__
-	extern void RestoreSprLine(unsigned char x, unsigned char y);
+  extern void RestoreSprLine(unsigned char x, unsigned char y);
 #endif
 
 // Atari specific variables & functions
 #ifdef __ATARI__
-	unsigned char colorFG1,colorFG2;
-	unsigned char colorBG1,colorBG2;
-	unsigned char bgByte1,bgByte2;
+  unsigned char colorFG1,colorFG2;
+  unsigned char colorBG1,colorBG2;
+  unsigned char bgByte1,bgByte2;
 #endif
 
 // C64 specific variables & functions
 #ifdef __CBM__
-	int vicconf[3];
-	unsigned char bg = 0;
-	unsigned char pow2 = (2 | 2<<2 | 2<<4 | 2<<6);
-	void SwitchBank(char bank) {
-		// notice that 0 selects vic bank 3, 1 selects vic bank 2, etc.
-		POKE(0xDD00, (PEEK(0xDD00) & 252 | (3 - bank))); // switch VIC base
-	}
+  int vicconf[3];
+  unsigned char bg = 0;
+  unsigned char pow2 = (2 | 2<<2 | 2<<4 | 2<<6);
+  void SwitchBank(char bank) {
+	// notice that 0 selects vic bank 3, 1 selects vic bank 2, etc.
+	POKE(0xDD00, (PEEK(0xDD00) & 252 | (3 - bank))); // switch VIC base
+  }
 #endif
 
 // Initialize Bitmap Screen
@@ -82,6 +86,9 @@ void InitBitmap() {
 	asm("sta $c052"); // TURN ON FULLSCREEN       
 	asm("sta $c057"); // TURN ON HI-RES           
 	asm("sta $c001"); // TURN ON 80 STORE
+#elif defined __ATMOS__
+	// Switch to Hires mode
+	asm("jsr $EC33");
 #endif	
 }
 
@@ -111,7 +118,7 @@ void EnterBitmapMode()
 	// Switch ON Double Hi-Res Mode
 	asm("sta $c00d"); // TURN ON 80 COLUMN MODE	  
     asm("sta $c050"); // TURN ON GRAPHICS         
-    asm("sta $c05e"); // TURN ON DOUBLE HI-RES    
+    asm("sta $c05e"); // TURN ON DOUBLE HI-RES
 #endif
 }
 
@@ -136,7 +143,28 @@ void ExitBitmapMode()
 #endif
 }
 
-unsigned char GetColor(unsigned int x, unsigned int y)
+unsigned char pixX, pixY;	// Location of current pixel
+
+void LocatePixel(unsigned int x, unsigned int y)
+{
+// This function maps pixel coordinates from a 320x200 screen definition
+// It can be by-passed by assigning pixX, pixY directly in your code
+#if defined __APPLE2__
+	pixX = (x*140)/320;
+	pixY = (y*192)/200;
+#elif defined __ATARI__
+	pixX = x/2;
+	pixY = y;
+#elif defined __ATMOS__
+	pixX = (x*117)/320;	
+	pixY = y/2;
+#elif defined __CBM__
+	pixX = x/2;
+	pixY = y;
+#endif
+}
+
+unsigned char GetPixel()
 {
 #if defined __CBM__
 	unsigned char index;
@@ -144,15 +172,15 @@ unsigned char GetColor(unsigned int x, unsigned int y)
 	
 	// Check color index
 	DisableRom();
-	addr = BITMAPRAM + 40*(y&248)+(y&7)+(x&504);
-	index = (PEEK(addr) >> (2*(3-(x/2)%4))) & 3;
+	addr = BITMAPRAM + 40*(pixY&248)+(pixY&7)+((pixX*2)&504);
+	index = (PEEK(addr) >> (2*(3-(pixX%4)))) & 3;
 	EnableRom();
 	
 	// Is background color?
 	if (index==0) { return bg; }
 	
 	// Analyze color index
-	offset = (y/8)*40+(x/8);
+	offset = (pixY/8)*40+(pixX/4);
 	if (index==1) {	// Upper bits of screen RAM
 		addr = SCREENRAM + offset;
 		return (PEEK(addr) & 0xF0) >> 4;		
@@ -170,8 +198,8 @@ unsigned char GetColor(unsigned int x, unsigned int y)
 	unsigned char val1, val2, shift;
 	
 	// Compute pixel location
-	offset = 40*y+x/8;
-	shift = 6 - 2*((x/2)%4);
+	offset = 40*pixY+pixX/4;
+	shift = 6 - 2*(pixX%4);
 
 	// Dual buffer (colour/shade)
 	val1 = (PEEK((char*)BITMAPRAM1+offset) & ( 3 << shift )) >> shift;
@@ -182,40 +210,74 @@ unsigned char GetColor(unsigned int x, unsigned int y)
 		return val2*4 + val1;
 	}
 #elif defined __APPLE2__
-	// Rescale coords
- 	x = (140*x)/320;
-	y = (192*y)/200;
-	RestoreSprLine(x,y);
-	SetDHRPointer(x,y);
+	// Use DHR routines
+	RestoreSprLine(pixX,pixY);
+	SetDHRPointer(pixX,pixY);
 	return GetDHRColor();
+#elif defined __ATMOS__
+	unsigned int offset;
+	unsigned char byte1, byte2, color, shift;
+	
+	// Compute pixel offset
+	offset = pixY*80 + pixX/3 + 1;
+	
+	// Get bytes from Bitmap RAM
+	byte1 = PEEK((char*)BITMAPRAM+offset);
+	byte2 = PEEK((char*)BITMAPRAM+offset+40);	
+
+	// Get PAPER/INK inversion group
+	color = 5 * ((byte2>191)*2 + (byte1>191));
+		
+	// Get pixels state
+	shift = 2 * (pixX%3);
+	byte1 = (byte1 & (48 >> shift)) << shift;
+	byte2 = (byte2 & (48 >> shift)) << shift;
+	switch (byte1) {
+	case 0:
+		if (byte2 == 48) {
+			color += 3;
+		}
+		break;
+	case 32:
+		color += 1;
+		break;
+	case 48:
+		if (byte2 == 48) {
+			color += 4;
+		} else {
+			color += 2;
+		}
+		break;	
+	}
+	return color;
 #endif	
 }
 
-void SetColor(unsigned int x, unsigned int y, unsigned char color)
+void SetPixel(unsigned char color)
 {
 #if defined __CBM__
-	unsigned int addr, offset;
+	unsigned int offset;
 	unsigned char shift;
 	
 	// Set index to 3
 	DisableRom();
-	offset = 40*(y&248)+(y&7)+(x&504);
-	shift = (2*(3-(x/2)%4));
+	offset = 40*(pixY&248)+(pixY&7)+((pixX*2)&504);
+	shift = (2*(3-(pixX%4)));
 	POKE(BITMAPRAM+offset, PEEK(BITMAPRAM+offset) | 3 << shift);
 	EnableRom();
 	
 	// Set color in COLORAM
-	offset = (y/8)*40+(x/8);
+	offset = (pixY/8)*40+(pixX/4);
 	POKE(COLORRAM+offset, color);
 #elif defined __ATARI__
 	unsigned int offset;
 	unsigned char shift, mask, col1, col2;	
 
 	// Compute pixel location
-	offset = 40*y + x/8;
-	shift = 6 - 2*((x/2)%4);
+	offset = 40*pixY + pixX/4;
+	shift = 6 - 2*(pixX%4);
 	mask = 255 - (3 << shift);
-	if ((y+x/2)%2) {
+	if ((pixY+pixX)%2) {
 		col2 = (color%4) << shift;
 		col1 = (color/4) << shift;
 	} else {
@@ -227,24 +289,83 @@ void SetColor(unsigned int x, unsigned int y, unsigned char color)
 	POKE((char*)BITMAPRAM1+offset, (PEEK((char*)BITMAPRAM1+offset) & mask) | col1);
 	POKE((char*)BITMAPRAM2+offset, (PEEK((char*)BITMAPRAM2+offset) & mask) | col2);
 #elif defined __APPLE2__
-	// Rescale coordinates
-	x = (140*x)/320;
-	y = (192*y)/200;
-	SetDHRPointer(x,y);
+	// Use DHR routines
+	SetDHRPointer(pixX,pixY);
 	SetDHRColor(color);	
+#elif defined __ATMOS__
+	unsigned int offset;
+	unsigned char byte1, byte2, shift;
+	
+	// Compute pixel offset
+	offset = pixY*80 + pixX/3 + 1;
+	
+	// Get bytes from Bitmap RAM
+	byte1 = PEEK((char*)BITMAPRAM+offset) & 63;
+	byte2 = PEEK((char*)BITMAPRAM+offset+40) & 63;	
+	
+	// Set PAPER/INK inversion
+	switch (color/5) {
+	case 0:
+		byte1 |= 64;
+		byte2 |= 64;
+		break;
+	case 1:
+		byte1 |= 192;
+		byte2 |= 64;
+		break;
+	case 2:
+		byte1 |= 64;
+		byte2 |= 192;
+		break;
+	case 3:
+		byte1 |= 192;
+		byte2 |= 192;	
+		break;
+	}
+	
+	// Set pixels
+	shift = 2 * (pixX%3);
+	switch (color%5) {
+    case 1:
+		byte1 |= 32 >> shift;
+		byte2 |= 16 >> shift;
+		break;
+	case 2:
+		byte1 |= 48 >> shift;
+		break;
+	case 3:
+		byte2 |= 48 >> shift;
+		break;
+	case 4:
+		byte1 |= 48 >> shift;
+		byte2 |= 48 >> shift;
+		break;
+	}
+	
+	// Assign bytes in Bitmap RAM
+	POKE((char*)BITMAPRAM+offset,    byte1);
+	POKE((char*)BITMAPRAM+offset+40, byte2);
 #endif
 }
 
 // Load bitmap from file
 void LoadBitmap(char *filename) 
 {
+#if defined __ATMOS__
+	unsigned char i = 0;
+	while (PEEK(filename+i) != '.') { i += 1; }
+	i++; POKE(filename+i, 'c');
+	i++; POKE(filename+i, 'o');
+	i++; POKE(filename+i, 'm');
+	loadfile(filename, (void*)(BITMAPRAM), 8000);
+#else	
 	unsigned int i;
 	FILE* fp;
-	
+
 	// Open Map File
 	fp = fopen(filename, "rb");
 	
-#if defined __CBM__
+  #if defined __CBM__
 	// Consume two bytes of header
 	fgetc(fp);
 	fgetc(fp);
@@ -260,7 +381,7 @@ void LoadBitmap(char *filename)
 	
 	// 1 byte background color
 	bg = (char) fgetc(fp);	
-#elif defined __ATARI__	
+  #elif defined __ATARI__	
 	// 4 bytes palette ram
 	fread((char*)PALETTERAM, 1, 4, fp);
 	
@@ -269,7 +390,7 @@ void LoadBitmap(char *filename)
 	
 	// 8000 bytes RAM2 (color 2)
 	fread((char*)BITMAPRAM2, 1, 8000, fp);
-#elif defined __APPLE2__
+  #elif defined __APPLE2__
 	// Read 8192 bytes to AUX
 	*dhraux = 0;
 	fread((char*)BITMAPRAM, 1, 8192, fp);
@@ -277,12 +398,14 @@ void LoadBitmap(char *filename)
 	// Read 8192 bytes to MAIN
 	*dhrmain = 0;
 	fread((char*)BITMAPRAM, 1, 8192, fp);
-#endif
+  #endif
 	// Close file
 	fclose(fp);
+#endif
 
 	// Chat background color
-	headerBG = GetColor(0, 0);
+	pixX = 0; pixY =0;
+	headerBG = GetPixel();
 }
 
 // Clear entire bitmap screen
@@ -301,6 +424,13 @@ void ClearBitmap()
     bzero((char *)BITMAPRAM, 8192);
 	*dhrmain = 0;
     bzero((char *)BITMAPRAM, 8192);
+#elif defined __ATMOS__
+	// reset pixels and set AIC Paper/Ink
+	unsigned char y;
+	memset((char*)BITMAPRAM, 64, 8000);	
+    for (y=0; y<200; y++) {
+		POKE((char*)BITMAPRAM+y*40, (y%2) ? 6 : 3);
+	}	
 #endif
 }
 
@@ -426,26 +556,7 @@ void PrintLogo(unsigned char col, unsigned char row, unsigned char index)
 // Print character using background and foreground colors
 void PrintChr(unsigned char col, unsigned char row, const char *matrix)
 {
-#if defined __CBM__
-	// Set Character inside 4*8 cell
-	unsigned char i;
-	unsigned int addr;
-	addr = BITMAPRAM + 40*((row*8)&248)+((col*8)&504);
-	if (matrix == &charBlank[0]) {
-		memset((char*)addr, pow2, 8);
-	} else {
-		POKE(addr, pow2);
-		for (i=0; i<3; ++i) {
-			POKE(addr+2*i+1, BYTE4(((matrix[i]&128) ? 1 : 2), ((matrix[i]&64) ? 1 : 2), ((matrix[i]&32) ? 1 : 2), 2));
-			POKE(addr+2*i+2, BYTE4(((matrix[i]&8  ) ? 1 : 2), ((matrix[i]&4 ) ? 1 : 2), ((matrix[i]&2 ) ? 1 : 2), 2));
-		}
-		POKE(addr+7, pow2);
-	}
-	
-	// Set Color
-	addr = SCREENRAM + row*40+col;
-	POKE(addr, colorFG << 4 | colorBG);
-#elif defined __ATARI__	
+#if defined __ATARI__	
 	// Set Character across double buffer
 	unsigned char i;
 	unsigned int addr1,addr2;
@@ -453,8 +564,8 @@ void PrintChr(unsigned char col, unsigned char row, const char *matrix)
 	colorBG1 = colorBG%4; colorBG2 = colorBG/4;
 	bgByte1 = BYTE4(colorBG1,colorBG2,colorBG1,colorBG2);
 	bgByte2 = BYTE4(colorBG2,colorBG1,colorBG2,colorBG1);	
-	addr1 = BITMAPRAM1+row*320+col;
-	addr2 = BITMAPRAM2+row*320+col;
+	addr1 = BITMAPRAM1 + row*320 + col;
+	addr2 = BITMAPRAM2 + row*320 + col;
 	if (matrix == &charBlank[0]) {
 		for (i=0; i<8; ++i) {
 			if (i%2) {
@@ -508,14 +619,81 @@ void PrintChr(unsigned char col, unsigned char row, const char *matrix)
 
 	// Update clock (slow function)
 	clk += 2;
+#elif defined __ATMOS__
+	// Set Character inside 6*8 cell
+	unsigned char i;
+	unsigned char a0,a2,a4,b,blank;
+	unsigned int addr;
+	addr = BITMAPRAM + row*320 + col;
+	blank = 64+ (colorBG ? 63 : 0);
+	if (matrix == &charBlank[0]) {
+		for (i=0; i<8; ++i) {
+			POKE((char*)addr+i*40, blank);
+		}
+	} else {
+		if (colorBG != 0) {
+			a0 = 2; a2 = 0; a4 = 1; b = 3;
+		} else {
+			a0 = 1; a2 = 3; a4 = 2; b = 0;
+		}
+		POKE((char*)addr+0*40, blank);
+		for (i=0; i<3; ++i) {
+			POKE((char*)addr+(i*2+1)*40, BYTE4(1, ((matrix[i]&128) ? a0 : b), ((matrix[i]&64) ? a2 : b), ((matrix[i]&32) ? a4 : b)));
+			POKE((char*)addr+(i*2+2)*40, BYTE4(1, ((matrix[i]&8  ) ? a0 : b), ((matrix[i]&4 ) ? a2 : b), ((matrix[i]&2 ) ? a4 : b)));	
+		}
+		POKE((char*)addr+7*40, blank);
+	}
+#elif defined __CBM__
+	// Set Character inside 4*8 cell
+	unsigned char i;
+	unsigned int addr;
+	addr = BITMAPRAM + 40*((row*8)&248) + ((col*8)&504);
+	if (matrix == &charBlank[0]) {
+		memset((char*)addr, pow2, 8);
+	} else {
+		POKE((char*)addr, pow2);
+		for (i=0; i<3; ++i) {
+			POKE((char*)addr+2*i+1, BYTE4(((matrix[i]&128) ? 1 : 2), ((matrix[i]&64) ? 1 : 2), ((matrix[i]&32) ? 1 : 2), 2));
+			POKE((char*)addr+2*i+2, BYTE4(((matrix[i]&8  ) ? 1 : 2), ((matrix[i]&4 ) ? 1 : 2), ((matrix[i]&2 ) ? 1 : 2), 2));
+		}
+		POKE((char*)addr+7, pow2);
+	}
+	
+	// Set Color
+	addr = SCREENRAM + row*40+col;
+	POKE((char*)addr, colorFG << 4 | colorBG);	
 #endif
 }
+
+#if defined __ATMOS__
+  // INK attributes for characters
+  unsigned char ink1[20] = { 0, 2, 3, 6, 3, 7, 5, 4, 7, 2, 7, 1, 3, 1, 1, 7, 5, 5, 5, 5 };
+  unsigned char ink2[20] = { 0, 3, 3, 6, 6, 6, 6, 4, 6, 6, 6, 7, 7, 1, 3, 7, 4, 6, 7, 5 };
+#endif
 
 // Parse string and print characters one-by-one (slow)
 void PrintStr(unsigned char col, unsigned char row, const char *buffer)
 {
 	const char *chr;
 	unsigned char i;
+#if defined __ATMOS__
+	// Set INK attributes
+	unsigned char i1, i2;
+	unsigned int addr;	
+	addr = BITMAPRAM + row*320 + col;
+	if (colorBG != 0) {
+		i1 = ink1[colorBG];
+		i2 = ink2[colorBG];
+	} else {
+		i1 = ink1[colorFG];
+		i2 = ink2[colorFG];
+	}
+	for (i=0; i<4; ++i) {
+		POKE((char*)addr+i*80, i1);
+		POKE((char*)addr+i*80+40, i2);
+	}
+	col++;
+#endif
 	for (i=0; i<strlen(buffer); ++i) {
 		// Select the correct bitmask
 		if (buffer[i] == 95) 	  { chr = &charUnderbar[0]; }

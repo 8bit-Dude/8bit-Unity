@@ -3,8 +3,6 @@
 
 int DemoBMP(void) 
 {
-	unsigned char i,j;
-
 	// Reset screen
 	clrscr();
     bordercolor(COLOR_BLACK);
