@@ -329,152 +329,6 @@
           </object>
         </child>
         <child>
-          <object class="ttk.Notebook.Tab" id="Tab_Atmos">
-            <property name="text" translatable="yes">Atmos</property>
-            <child>
-              <object class="tk.Frame" id="Frame_Atmos">
-                <property name="height">500</property>
-                <property name="width">400</property>
-                <layout>
-                  <property name="column">0</property>
-                  <property name="propagate">True</property>
-                  <property name="row">0</property>
-                </layout>
-                <child>
-                  <object class="tk.LabelFrame" id="LabelFrame_AtmosBitmaps">
-                    <property name="text" translatable="yes">Bitmaps</property>
-                    <layout>
-                      <property name="column">0</property>
-                      <property name="propagate">True</property>
-                      <property name="row">0</property>
-                      <property name="sticky">nw</property>
-                    </layout>
-                    <child>
-                      <object class="tk.Listbox" id="Listbox_AtmosBitmap">
-                        <property name="height">6</property>
-                        <property name="width">65</property>
-                        <layout>
-                          <property name="column">0</property>
-                          <property name="propagate">True</property>
-                          <property name="row">0</property>
-                          <property name="sticky">nw</property>
-                        </layout>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="ttk.Button" id="Button_AtmosBitmapAdd">
-					  	<property name="command">AtmosBitmapAdd</property>
-                        <property name="text" translatable="yes">Add File</property>
-                        <layout>
-                          <property name="column">0</property>
-                          <property name="padx">25</property>
-                          <property name="pady">5</property>
-                          <property name="propagate">True</property>
-                          <property name="row">1</property>
-                          <property name="sticky">nw</property>
-                        </layout>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="ttk.Button" id="Button_AtmosBitmapRem">
-					  	<property name="command">AtmosBitmapRem</property>
-                        <property name="text" translatable="yes">Rem File</property>
-                        <layout>
-                          <property name="column">0</property>
-                          <property name="padx">100</property>
-                          <property name="pady">5</property>
-                          <property name="propagate">True</property>
-                          <property name="row">1</property>
-                          <property name="sticky">nw</property>
-                        </layout>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="tk.LabelFrame" id="LabelFrame_AtmosSprites">
-                    <property name="height">200</property>
-                    <property name="text" translatable="yes">Sprites</property>
-                    <layout>
-                      <property name="column">0</property>
-                      <property name="pady">160</property>
-                      <property name="propagate">True</property>
-                      <property name="row">0</property>
-                      <property name="sticky">nw</property>
-                    </layout>
-                    <child>
-                      <object class="tk.Listbox" id="Listbox_AtmosSprites">
-                        <property name="height">1</property>
-                        <property name="width">65</property>
-                        <layout>
-                          <property name="column">0</property>
-                          <property name="propagate">True</property>
-                          <property name="row">0</property>
-                          <property name="sticky">nw</property>
-                        </layout>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="ttk.Button" id="Button_AtmosSpritesSel">
-					  	<property name="command">AtmosSpritesSel</property>
-                        <property name="text" translatable="yes">Select File</property>
-                        <layout>
-                          <property name="column">0</property>
-                          <property name="padx">25</property>
-                          <property name="pady">5</property>
-                          <property name="propagate">True</property>
-                          <property name="row">1</property>
-                          <property name="sticky">nw</property>
-                        </layout>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="tk.LabelFrame" id="LabelFrame_AtmosMusic">
-                    <property name="height">200</property>
-                    <property name="text" translatable="yes">Music</property>
-                    <property name="width">200</property>
-                    <layout>
-                      <property name="column">0</property>
-                      <property name="pady">240</property>
-                      <property name="propagate">True</property>
-                      <property name="row">0</property>
-                      <property name="sticky">nw</property>
-                    </layout>
-                    <child>
-                      <object class="tk.Listbox" id="Listbox_AtmosMusic">
-                        <property name="height">1</property>
-                        <property name="width">65</property>
-                        <layout>
-                          <property name="column">0</property>
-                          <property name="propagate">True</property>
-                          <property name="row">0</property>
-                          <property name="sticky">nw</property>
-                        </layout>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="ttk.Button" id="Button_AtmosMusicSel">
-					  	<property name="command">AtmosMusicSel</property>
-                        <property name="text" translatable="yes">Select File</property>
-                        <layout>
-                          <property name="column">0</property>
-                          <property name="padx">25</property>
-                          <property name="pady">5</property>
-                          <property name="propagate">True</property>
-                          <property name="row">1</property>
-                          <property name="sticky">nw</property>
-                        </layout>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-              </object>
-            </child>
-          </object>
-        </child>		
-        <child>
           <object class="ttk.Notebook.Tab" id="Tab_C64">
             <property name="text" translatable="yes">C64</property>
             <child>
@@ -620,6 +474,152 @@
             </child>
           </object>
         </child>
+        <child>
+          <object class="ttk.Notebook.Tab" id="Tab_Oric">
+            <property name="text" translatable="yes">Oric</property>
+            <child>
+              <object class="tk.Frame" id="Frame_Oric">
+                <property name="height">500</property>
+                <property name="width">400</property>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="propagate">True</property>
+                  <property name="row">0</property>
+                </layout>
+                <child>
+                  <object class="tk.LabelFrame" id="LabelFrame_OricBitmaps">
+                    <property name="text" translatable="yes">Bitmaps</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="propagate">True</property>
+                      <property name="row">0</property>
+                      <property name="sticky">nw</property>
+                    </layout>
+                    <child>
+                      <object class="tk.Listbox" id="Listbox_OricBitmap">
+                        <property name="height">6</property>
+                        <property name="width">65</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="propagate">True</property>
+                          <property name="row">0</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Button" id="Button_OricBitmapAdd">
+					  	<property name="command">OricBitmapAdd</property>
+                        <property name="text" translatable="yes">Add File</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">25</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Button" id="Button_OricBitmapRem">
+					  	<property name="command">OricBitmapRem</property>
+                        <property name="text" translatable="yes">Rem File</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">100</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.LabelFrame" id="LabelFrame_OricSprites">
+                    <property name="height">200</property>
+                    <property name="text" translatable="yes">Sprites</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="pady">160</property>
+                      <property name="propagate">True</property>
+                      <property name="row">0</property>
+                      <property name="sticky">nw</property>
+                    </layout>
+                    <child>
+                      <object class="tk.Listbox" id="Listbox_OricSprites">
+                        <property name="height">1</property>
+                        <property name="width">65</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="propagate">True</property>
+                          <property name="row">0</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Button" id="Button_OricSpritesSel">
+					  	<property name="command">OricSpritesSel</property>
+                        <property name="text" translatable="yes">Select File</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">25</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.LabelFrame" id="LabelFrame_OricMusic">
+                    <property name="height">200</property>
+                    <property name="text" translatable="yes">Music</property>
+                    <property name="width">200</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="pady">240</property>
+                      <property name="propagate">True</property>
+                      <property name="row">0</property>
+                      <property name="sticky">nw</property>
+                    </layout>
+                    <child>
+                      <object class="tk.Listbox" id="Listbox_OricMusic">
+                        <property name="height">1</property>
+                        <property name="width">65</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="propagate">True</property>
+                          <property name="row">0</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Button" id="Button_OricMusicSel">
+					  	<property name="command">OricMusicSel</property>
+                        <property name="text" translatable="yes">Select File</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">25</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>		
       </object>
     </child>		
     <child>
