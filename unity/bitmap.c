@@ -35,7 +35,7 @@
 #endif
 
 #if defined __ATMOS__
-  #include <Atmos/libsedoric.h>
+  #include <Oric/libsedoric.h>
 #endif
 
 // Helper functions
@@ -88,7 +88,11 @@ void InitBitmap() {
 	asm("sta $c001"); // TURN ON 80 STORE
 #elif defined __ATMOS__
 	// Switch to Hires mode
-	asm("jsr $EC33");
+	if PEEK((char*)0xC800) {
+		asm("jsr $EC33");	// Atmos (ROM 1.1)
+	} else {
+		asm("jsr $E9BB");	// Oric-1 (ROM 1.0)
+	}
 #endif	
 }
 

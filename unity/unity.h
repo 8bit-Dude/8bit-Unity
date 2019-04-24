@@ -54,6 +54,9 @@
 	#define PLATFORM   2
 	#define LAST_LINE 23	
 	#define CH_DEL  0x08
+#elif defined __ATMOS__
+	#define PLATFORM   3
+	#define LAST_LINE 24	
 #endif
 
 // Memory locations
@@ -120,6 +123,7 @@
 	#define LGREEN  13
 	#define LBLUE   14
 	#define LGREY   15	
+	#define GREY    12	
 #elif defined __ATARI__
 	// Atari Screen (INP Mode)
 	#define BMPWIDTH  160
@@ -132,7 +136,7 @@
 	#define BROWN 	4
 	#define RED    	5
 	#define ORANGE 	7
-	#define GRAY   	9
+	#define GREY   	9
 	#define WHITE  	9
 	#define BLUE   	10
 	#define GREEN  	11
