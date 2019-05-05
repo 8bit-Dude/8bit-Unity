@@ -47,17 +47,16 @@
 	unsigned char sprYS[SPRITE_NUM];	
 	unsigned char sprXB[SPRITE_NUM];				// Byte coordinates
 	unsigned char* sprBG[SPRITE_NUM];	    		// Sprite background
-	unsigned char sprROWS, sprLENGTH;
+	unsigned char sprROWS;
 	unsigned int sprBLOCK;
 	void InitSprites(unsigned char rows, unsigned char frames)
 	{
 		// Set sprite rows, frames and resulting block size (there are 4 offset blocks for each sprite)
 		int i;
 		sprROWS = rows;
-		sprLENGTH = rows*4;	// Byte length of 1 sprite: num rows * 4 bytes (7 pixels)
 		sprBLOCK = frames*sprROWS*sprWIDTH;
 		for (i=0; i<SPRITE_NUM; i++) {
-			sprBG[i] = (unsigned char*)malloc(sprLENGTH);
+			sprBG[i] = (unsigned char*)malloc(4*rows);	// Byte length of 1 sprite: rows * 4 bytes (7 pixels)
 		}
 	}	
 // Atari specific init function
@@ -68,19 +67,21 @@
 	#define FlickX      FLICKDATA+0x02
 	#define FlickY      FLICKDATA+0x06
 	#define FlickFrames FLICKDATA+0x0A
+	unsigned char spritePalette[16] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x24, 0x00, 0x00, 0x00, 0xFF, 0x74, 0xa6, 0x00, 0x10, 0x2c, 0xdc};	
+								 // { BLACK, N/A, DBLUE, DGREEN, BROWN, RED, N/A, ORANGE, N/A, GREY, BLUE, GREEN, N/A, GREY, PINK, YELLOW }	
 	unsigned int PMGbase[SPRITE_NUM] = {PMGRAM+1024, PMGRAM+1280, PMGRAM+1536, PMGRAM+1792, PMGRAM+768};
 	unsigned int PMGaddr[SPRITE_NUM] = {PMGRAM+1024, PMGRAM+1280, PMGRAM+1536, PMGRAM+1792, PMGRAM+768};
 	unsigned char sprROWS;
-	void InitSprites(unsigned char rows, unsigned char *uniqueColors)
+	void InitSprites(unsigned char rows, unsigned char *spriteColors)
 	{			
 		// Reset PMG RAM and set colors
 		int i;	
 		for (i=0; i<4; i++) {
 			bzero(PMGaddr[i],0x100);   		// Clear Player memory
-			POKE(704+i, uniqueColors[i]);   // Set Player colors  (shadow for 53266)
+			POKE(704+i, spritePalette[spriteColors[i]]);   // Set Player colors  (shadow for 53266)
 		}
 		bzero(PMGaddr[4],0x100);  	// Clear Missile memory
-		POKE(711, uniqueColors[4]);	// Set Missile color  (shadow for 53273)
+		POKE(711, spritePalette[spriteColors[4]]);	// Set Missile color  (shadow for 53273)
 		POKE(FlickMask, 0);  	  	// Clear rolling sprites mask (DLI.a65)
 		
 		// Setup ANTIC and GTIA
@@ -94,23 +95,36 @@
 	}
 // Atmos specific init function
 #elif defined __ATMOS__	
-	int loadfile(const char* fname, void* buf, int* len);
+	#define sprWIDTH 2	// Byte width of sprite (12 pixels)
+	unsigned char sprCOL[SPRITE_NUM] = {0,0,0,0};	// Collision flags
+	unsigned char sprEN[SPRITE_NUM] = {0,0,0,0}; 	// Enable status
+	unsigned char sprXS[SPRITE_NUM], sprYS[SPRITE_NUM];
+	unsigned char *sprBG[SPRITE_NUM];
+	unsigned char sprROWS, inkVAL;
 	unsigned int bgPTR, sprPTR, scrPTR, inkPTR, colPTR;
-	unsigned char bgX[4], bgY[4], bgDAT[4][32], sprROWS, inkVAL;
-	void InitSprites(unsigned char rows, unsigned char *uniqueColors)
+	extern unsigned char ink1[20];	// see bitmap.c
+	int loadfile(const char* fname, void* buf, int* len);	// see libsedoric.h
+	void InitSprites(unsigned char rows, unsigned char *spriteColors)
 	{	
+		unsigned char i;
+		
 		// Load sprite sheet and assigned colors
 		loadfile("sprites.com", (void*)SPRITERAM, 256);
-		colPTR = uniqueColors;
+		colPTR = spriteColors;
 		sprROWS = rows;
+		
+		// Assign memory for sprite background
+		for (i=0; i<SPRITE_NUM; i++) {
+			sprBG[i] = (unsigned char*)malloc(4*rows);		// Byte length of 1 sprite: num rows * 4 bytes (Attribute + 12 pixels + Attribute)
+		}
 	}
 // C64 specific init function
 #elif defined __CBM__
-	void InitSprites(unsigned char *uniqueColors, unsigned char *sharedColors)
+	void InitSprites(unsigned char *spriteColors, unsigned char *sharedColors)
 	{		
 		// Set sprite colors
-		int i;	
-		for (i=0; i<8; ++i) { POKE(53287+i, uniqueColors[i]); }
+		unsigned int i;	
+		for (i=0; i<8; ++i) { POKE(53287+i, spriteColors[i]); }
 		
 		// Set common colors
 		POKE(53285, sharedColors[0]);
@@ -128,6 +142,7 @@
 	unsigned char xptr, yptr;
 	void RestoreSprBG(unsigned char index)
 	{
+		// Restore entire sprite background
 		yO = 0;
 		xptr = sprXB[index];
 		yptr = sprYS[index];
@@ -146,6 +161,7 @@
 	}
 	void RestoreSprLine(unsigned char x, unsigned char y)
 	{
+		// Restore 1 line from sprite background
 		unsigned char i;
 		for (i=0; i<SPRITE_NUM; i++) {
 			if (sprEN[i]) {
@@ -167,6 +183,22 @@
 			}
 		}		
 	}
+#endif
+
+// Oric specific background redrawing function
+#if defined __ATMOS__
+	void RestoreSprBG(unsigned char index)
+	{
+		// Restore entire sprite background
+		unsigned char i;
+		scrPTR = BITMAPRAM + sprYS[index]*40 + sprXS[index];
+		bgPTR = sprBG[index];
+		for (i=0; i<sprROWS; i++) {
+			memcpy(scrPTR, bgPTR, 4);
+			scrPTR += 40;
+			bgPTR += 4;
+		}	
+	}	
 #endif
 
 #if defined __CBM__
@@ -230,7 +262,7 @@ void UpdateSprite(unsigned char index, unsigned char frame)
 		}
 	}	
 
-	// Restore old background
+	// Restore old background?
 	if (sprEN[index]) { RestoreSprBG(index); }
 	
 	// Backup new background and draw sprite
@@ -255,7 +287,7 @@ void UpdateSprite(unsigned char index, unsigned char frame)
 		yO++;
 	}
 	
-	// Background settings
+	// Set sprite information
 	sprEN[index] = 1;
 	sprXB[index] = xO;
 	sprXS[index] = sprX;
@@ -275,21 +307,13 @@ void UpdateSprite(unsigned char index, unsigned char frame)
 	}
 #elif defined __ATMOS__	
 	unsigned char i;
-	
-	// Restore old background
-	if (bgY[index]) {
-		scrPTR = BITMAPRAM + bgY[index]*40 + bgX[index];
-		bgPTR = bgDAT[index];
-		for (i=0; i<sprROWS; i++) {
-			memcpy(scrPTR, bgPTR, 4);
-			scrPTR += 40;
-			bgPTR += 4;
-		}	
-	}
+
+	// Restore old background?
+	if (sprEN[index]) { RestoreSprBG(index); }
 	
 	// Backup new background
 	scrPTR = BITMAPRAM + sprY*40 + sprX;
-	bgPTR = bgDAT[index];
+	bgPTR = sprBG[index];
 	for (i=0; i<sprROWS; i++) {
 		memcpy(bgPTR, scrPTR, 4);
 		scrPTR += 40;
@@ -297,9 +321,9 @@ void UpdateSprite(unsigned char index, unsigned char frame)
 	}	
 	
 	// Display corresponding frame
-	sprPTR = SPRITERAM + frame*16;
+	sprPTR = SPRITERAM + frame*sprROWS*2;
 	inkPTR = BITMAPRAM + sprY*40;
-	inkVAL = PEEK(colPTR+index);
+	inkVAL = ink1[PEEK(colPTR+index)];
 	for (i=sprY+1; i<sprY+sprROWS+1; i++) {
 		// Set INK, Set Sprite, Reset INK
 		scrPTR = inkPTR+sprX;
@@ -310,9 +334,10 @@ void UpdateSprite(unsigned char index, unsigned char frame)
 		inkPTR += 40;
 	}
 	
-	// Save position
-	bgX[index] = sprX;
-	bgY[index] = sprY;	
+	// Set sprite information
+	sprEN[index] = 1;
+	sprXS[index] = sprX;
+	sprYS[index] = sprY;	
 #elif defined __CBM__
 	// Tell VIC where to find the frame
 	POKE(SPRITEPTR+index, SPRITELOC+frame);
@@ -335,7 +360,7 @@ void EnableSprite(signed char index)
 	// Set sprite bits
 	POKE(53269, PEEK(53269) |  (1 << index));
 #elif defined __ATARI__
-	// Set rolling sprite mask
+	// Set flicker sprite mask
 	if (index>3) { POKE(FlickMask, PEEK(FlickMask) | (1 << (index-4))); }
 #endif
 }
@@ -352,8 +377,8 @@ void DisableSprite(signed char index)
 		} else {
 			bzero(PMGaddr[index],0x100);  // Clear PMG memory			
 		}
-#elif defined __APPLE2__
-		// Restore background if neccessary
+#else
+		// Soft sprites: Restore background if neccessary
 		if (sprEN[index]) { RestoreSprBG(index); }
 		sprEN[index] = 0;
 #endif
@@ -365,8 +390,8 @@ void DisableSprite(signed char index)
 #elif defined __ATARI__			
 		POKE(FlickMask,0);   	   // Clear rolling sprite mask
 		bzero(PMGRAM+768,0x500);   // Clear all PMG memory
-#elif defined __APPLE2__
-		// Restore background
+#else	
+		// Soft sprites: Restore background if necessary
 		for (index=0; index<SPRITE_NUM; index++) {
 			if (sprEN[index]) { RestoreSprBG(index); }				
 			sprEN[index] = 0;

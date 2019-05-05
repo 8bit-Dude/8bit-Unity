@@ -59,6 +59,9 @@
     #define DISABLE_NOISE_B (0x10)
     #define DISABLE_NOISE_C (0x20)
 	#define DISABLE_ALL		(0x3f)
+#elif defined __ATMOS__
+	void PlayMusic(unsigned int address) {}
+	void StopMusic(void) {}
 #endif
 
 void InitSFX() 

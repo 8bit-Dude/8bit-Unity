@@ -33,7 +33,7 @@ int DemoGFX(void)
 	
 	// Draw Line (Method #2: locate pixel against a 320 x 200 screen)
 	for (i=0; i<20; i++) {
-		LocatePixel(140+i*2, (BMPCOLORS+2)*8+2);
+		LocatePixel(140+i*2, (BMPCOLORS+2)*8);
 		SetPixel(WHITE);
 	}
 	
@@ -41,8 +41,8 @@ int DemoGFX(void)
 	inkColor = BLACK; paperColor = WHITE; 
 	PrintStr(8,BMPCOLORS+3,"PRESS SPACE FOR NEXT TEST");
 	cgetc();
-	ExitBitmapMode();
 	
     // Done
+	ExitBitmapMode();
     return EXIT_SUCCESS;	
 }

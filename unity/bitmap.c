@@ -42,8 +42,8 @@
 #define BYTE4(a,b,c,d) ((a<<6) | (b<<4) | (c<<2) | d)
 
 // Colors for printing
-unsigned char paperHead = 0;
 unsigned char inkColor, paperColor;
+unsigned char paperHeader = 0;
 
 // Apple specific variables & functions
 #ifdef __APPLE2__
@@ -55,6 +55,31 @@ unsigned char inkColor, paperColor;
   unsigned char inkColor1,inkColor2;
   unsigned char paperColor1,paperColor2;
   unsigned char bgByte1,bgByte2;
+#endif
+
+// Oric specific variables & functions
+#if defined __ATMOS__
+  // INK attributes for characters
+  unsigned char ink1[20] = { 0, 2, 3, 6, 3, 7, 5, 4, 7, 2, 7, 1, 3, 1, 1, 7, 5, 5, 5, 5 };
+  unsigned char ink2[20] = { 0, 3, 3, 6, 6, 6, 6, 4, 6, 6, 6, 7, 7, 1, 3, 7, 4, 6, 7, 5 };
+  void SetInk(unsigned char col, unsigned char row)
+  {
+	// Set INK attributes
+	unsigned char i, line1, line2;
+	unsigned int addr;	
+	addr = BITMAPRAM + row*320 + col;
+	if (paperColor != 0) {
+		line1 = ink1[paperColor];
+		line2 = ink2[paperColor];
+	} else {
+		line1 = ink1[inkColor];
+		line2 = ink2[inkColor];
+	}
+	for (i=0; i<4; ++i) {
+		POKE((char*)addr+i*80, line1);
+		POKE((char*)addr+i*80+40, line2);
+	}
+  }
 #endif
 
 // C64 specific variables & functions
@@ -69,7 +94,8 @@ unsigned char inkColor, paperColor;
 #endif
 
 // Initialize Bitmap Screen
-void InitBitmap() {
+void InitBitmap() 
+{
 #if defined __CBM__
 	// Backup VIC config
 	vicconf[0] = PEEK(53272);
@@ -239,19 +265,13 @@ unsigned char GetPixel()
 	byte2 = (byte2 & (48 >> shift)) << shift;
 	switch (byte1) {
 	case 0:
-		if (byte2 == 48) {
-			color += 3;
-		}
+		if (byte2 == 48) { color += 3; }
 		break;
 	case 32:
 		color += 1;
 		break;
 	case 48:
-		if (byte2 == 48) {
-			color += 4;
-		} else {
-			color += 2;
-		}
+		if (byte2 == 48) { color += 4; } else { color += 2; }
 		break;	
 	}
 	return color;
@@ -410,7 +430,7 @@ void LoadBitmap(char *filename)
 
 	// Chat background color
 	bmpX = 0; bmpY =0;
-	paperHead = GetPixel();
+	paperHeader = GetPixel();
 }
 
 // Clear entire bitmap screen
@@ -441,6 +461,9 @@ void ClearBitmap()
 
 void PrintNum(unsigned char col, unsigned char row, unsigned char num)
 {
+#if defined __ATMOS__
+	SetInk(col, row);
+#endif
 	if (num > 9) { PrintChr(col, row, &charDigit[(num/10)*3]); }
 	PrintChr(col+1, row, &charDigit[(num%10)*3]);
 }
@@ -453,12 +476,7 @@ void DrawPanel(unsigned char colBeg, unsigned char rowBeg, unsigned char colEnd,
 	unsigned int span;
 	span = colEnd-colBeg+1;
 	rowEnd++;
-#if defined __CBM__
-	for (j=rowBeg; j<rowEnd; ++j) {
-		memset((char*)(BITMAPRAM+320*j+colBeg*8), pow2, span*8);
-		memset((char*)(SCREENRAM+40*j+colBeg), paperColor, span);		
-	}
-#elif defined __ATARI__
+#if defined __ATARI__
 	paperColor1 = paperColor%4;
 	paperColor2 = paperColor/4;
 	bgByte1 = BYTE4(paperColor1,paperColor2,paperColor1,paperColor2);
@@ -481,60 +499,27 @@ void DrawPanel(unsigned char colBeg, unsigned char rowBeg, unsigned char colEnd,
 		*dhrmain = 0;
 		bzero(dhrptr, span);
 	}
+#elif defined __ATMOS__
+	for (j=rowBeg*8; j<rowEnd*8; ++j) {
+		memset((char*)(BITMAPRAM+40*j+colBeg+1), 64, span);
+	}
+#elif defined __CBM__
+	for (j=rowBeg; j<rowEnd; ++j) {
+		memset((char*)(BITMAPRAM+320*j+colBeg*8), pow2, span*8);
+		memset((char*)(SCREENRAM+40*j+colBeg), paperColor, span);		
+	}	
 #endif
 }
 
 // Print multicolor logo for the various platforms...
 void PrintLogo(unsigned char col, unsigned char row, unsigned char index)
 {
-#if defined __CBM__
+#if defined __APPLE2__
 	// Define logos
-	unsigned char logos[4][8] = { {0,0,0, 16, 68, 64, 72, 16}, 		// C64: (0,1,0,0) (1,0,1,0) (1,0,0,0) (1,0,2,0) (0,1,0,0)
-								  {0,0,0, 16, 68,168,136,204},		// ATR: (0,1,0,0) (1,0,1,0) (2,2,2,0) (2,0,2,0) (3,0,3,0)
-								  {0,0,0,  4, 16,168,168, 48},		// APP: (0,0,1,0) (0,1,0,0) (2,2,2,0) (2,2,2,0) (0,3,0,0)
-								  {0,0,0,212,215,255,215,255} };	// FLP: (3,1,1,0) (3,1,1,3) (3,3,3,3) (3,1,1,3) (3,3,3,3)
-	unsigned int addr1, addr2;
-	unsigned char i;
-	
-	// Get memory addresses
-	addr1 = BITMAPRAM + 40*((row*8)&248)+((col*8)&504);
-	addr2 = SCREENRAM + row*40+col;
-	
-	// Set logo colors
-	if (index == 0)	{	// C64
-		POKE(addr2, BLUE << 4 | RED);
-	} else {
-		POKE(addr2, GREEN << 4 | PURPLE);
-		POKE(COLORRAM + row*40+col, BLUE);
-	}
-
-	// Set Character data
-	for (i=0; i<8; ++i) {
-		POKE(addr1+i, logos[index][i]);
-	}
-#elif defined __ATARI__
-	// Define logos
-	unsigned char logos[4][8] = { {0,0,0, 32,136,128,132, 32}, 		// C64: (0,2,0,0) (2,0,2,0) (2,0,0,0) (2,0,1,0) (0,2,0,0)	BMP1
-								  {0,0,0, 48,204, 84, 68,136},		// ATR: (0,3,0,0) (3,0,3,0) (1,1,1,0) (1,0,1,0) (2,0,2,0)
-								  {0,0,0, 12, 48, 84,168, 32},  	// APP: (0,0,3,0) (0,3,0,0) (1,1,1,0) (2,2,2,0) (0,2,0,0)
-								  {0,0,0,188,190,170,190,170} };	// FLP: (2,3,3,0) (2,3,3,2) (2,2,2,2) (2,3,3,2) (2,2,2,2)
-	unsigned int addr1, addr2;
-	unsigned char i;
-
-	// Get memory addresses
-	addr1 = BITMAPRAM1+row*320+col;
-	addr2 = BITMAPRAM2+row*320+col;		
-	
-	// Set Character data
-	for (i=0; i<8; ++i) {
-		POKE(addr1+i*40, logos[index][i]);
-		POKE(addr2+i*40, logos[index][i]);
-	}	
-#elif defined __APPLE2__
-	// Define logos
-	unsigned char logos[4][5][3] = { { { 0, 2, 0}, { 2, 0, 2}, { 2, 0, 0}, { 2, 0, 1}, { 0, 2, 0} },   // C64
+	unsigned char logos[5][5][3] = { { { 0, 2, 0}, { 2, 0, 2}, { 2, 0, 0}, { 2, 0,12}, { 0, 2, 0} },   // C64
 									 { { 0,12, 0}, {12, 0,12}, {11,11,11}, {11, 0,11}, { 7, 0, 7} },   // ATR
 								     { { 0, 0,12}, { 0,12, 0}, {11,11,11}, {11,11,11}, { 0, 7, 0} },   // APP
+								     { { 0,15,12}, {15,12,15}, {15,12,15}, {12,15, 0}, {12,12,12} },   // ORI
 								     { { 7, 5, 0}, { 7, 5, 7}, { 7, 7, 7}, { 7, 5, 7}, { 7, 7, 7} } }; // FLP
 	unsigned int x,y;
 	unsigned char i,j,n;
@@ -555,45 +540,72 @@ void PrintLogo(unsigned char col, unsigned char row, unsigned char index)
 			dhrpixel++;
 		}
 	}
+#elif defined __ATARI__
+	// Define logos (1=Red, 2=Blue, 3=Green)
+	unsigned char logos[5][8] = { {0,0,0, 32,136,128,132, 32}, 		// C64: (0,2,0,0) (2,0,2,0) (2,0,0,0) (2,0,1,0) (0,2,0,0)
+								  {0,0,0, 48,204, 84, 68,136},		// ATR: (0,3,0,0) (3,0,3,0) (1,1,1,0) (1,0,1,0) (2,0,2,0)
+								  {0,0,0, 12, 48, 84,168, 32},  	// APP: (0,0,3,0) (0,3,0,0) (1,1,1,0) (2,2,2,0) (0,2,0,0)
+								  {0,0,0, 52,220,220,112, 84},  	// ORI: (0,3,1,0) (3,1,3,0) (3,1,3,0) (1,3,0,0) (1,1,1,0)
+								  {0,0,0,188,190,170,190,170} };	// FLP: (2,3,3,0) (2,3,3,2) (2,2,2,2) (2,3,3,2) (2,2,2,2)
+	unsigned int addr1, addr2;
+	unsigned char i;
+
+	// Get memory addresses
+	addr1 = BITMAPRAM1+row*320+col;
+	addr2 = BITMAPRAM2+row*320+col;		
+	
+	// Set Character data
+	for (i=0; i<8; ++i) {
+		POKE(addr1+i*40, logos[index][i]);
+		POKE(addr2+i*40, logos[index][i]);
+	}	
+#elif defined __ATMOS__
+	unsigned char logos[5][8] = { {0,0,0,12,18,16,23,12}, 	// C64: (0,0,1,1,0,0) (0,1,0,0,1,0) (0,1,0,0,0,0) (0,1,0,1,1,1) (0,0,1,1,0,0)
+								  {0,0,0,12,18,30,18,18}, 	// ATR: (0,0,1,1,0,0) (0,1,0,0,1,0) (0,1,1,1,1,0) (0,1,0,0,1,0) (0,1,0,0,1,0)
+								  {0,0,0, 2,12,30,30,12}, 	// APP: (0,0,0,0,1,0) (0,0,1,1,0,0) (0,1,1,1,1,0) (0,1,1,1,1,0) (0,0,1,1,0,0)
+								  {0,0,0,13,18,18,28,30}, 	// ORI: (0,0,1,1,0,1) (0,1,0,0,1,0) (0,1,0,0,1,0) (0,1,1,1,0,0) (0,1,1,1,1,0)
+								  {0,0,0,30,18,30,30,30} };	// FLP: (0,1,1,1,1,0) (0,1,0,0,1,0) (0,1,1,1,1,0) (0,1,1,1,1,0) (0,1,1,1,1,0)
+	unsigned int addr;
+	unsigned char i;
+	
+	// Set Character data
+	addr = BITMAPRAM + row*320 + col+1;
+	for (i=0; i<8; ++i) {
+		POKE((char*)addr+i*40, 64+logos[index][i]);
+	}								  
+#elif defined __CBM__
+	// Define logos (1=Blue, 2=Red, 3=Green) 
+	unsigned char logos[5][8] = { {0,0,0, 16, 68, 64, 72, 16}, 		// C64: (0,1,0,0) (1,0,1,0) (1,0,0,0) (1,0,2,0) (0,1,0,0)
+								  {0,0,0, 16, 68,168,136,204},		// ATR: (0,1,0,0) (1,0,1,0) (2,2,2,0) (2,0,2,0) (3,0,3,0)
+								  {0,0,0,  4, 16,168,168, 48},		// APP: (0,0,1,0) (0,1,0,0) (2,2,2,0) (2,2,2,0) (0,3,0,0)
+								  {0,0,0, 56,236,236,176,168},		// ORI: (0,3,2,0) (3,2,3,0) (3,2,3,0) (2,3,0,0) (2,2,2,0)
+								  {0,0,0,212,215,255,215,255} };	// FLP: (3,1,1,0) (3,1,1,3) (3,3,3,3) (3,1,1,3) (3,3,3,3)
+	unsigned int addr1, addr2;
+	unsigned char i;
+	
+	// Get memory addresses
+	addr1 = BITMAPRAM + 40*((row*8)&248)+((col*8)&504);
+	addr2 = SCREENRAM + row*40+col;
+	
+	// Set logo colors
+	if (index == 0)	{	// C64
+		POKE(addr2, BLUE << 4 | RED);
+	} else {
+		POKE(addr2, GREEN << 4 | PURPLE);
+		POKE(COLORRAM + row*40+col, BLUE);
+	}
+
+	// Set Character data
+	for (i=0; i<8; ++i) {
+		POKE(addr1+i, logos[index][i]);
+	}
 #endif
 }
 
 // Print character using background and foreground colors
-void PrintChr(unsigned char col, unsigned char row, const char *matrix)
+void PrintChr(unsigned char col, unsigned char row, const char *chr)
 {
-#if defined __ATARI__	
-	// Set Character across double buffer
-	unsigned char i;
-	unsigned int addr1,addr2;
-	inkColor1 = inkColor%4; inkColor2 = inkColor/4;
-	paperColor1 = paperColor%4; paperColor2 = paperColor/4;
-	bgByte1 = BYTE4(paperColor1,paperColor2,paperColor1,paperColor2);
-	bgByte2 = BYTE4(paperColor2,paperColor1,paperColor2,paperColor1);	
-	addr1 = BITMAPRAM1 + row*320 + col;
-	addr2 = BITMAPRAM2 + row*320 + col;
-	if (matrix == &charBlank[0]) {
-		for (i=0; i<8; ++i) {
-			if (i%2) {
-				POKE((char*)addr1+i*40, bgByte2);
-				POKE((char*)addr2+i*40, bgByte1);
-			} else {
-				POKE((char*)addr1+i*40, bgByte1);
-				POKE((char*)addr2+i*40, bgByte2);
-			}
-		}
-	} else {
-		POKE((char*)addr1+0*40, bgByte1);
-		POKE((char*)addr2+0*40, bgByte2);
-		for (i=0; i<3; ++i) {
-			POKE((char*)addr2+(i*2+1)*40, BYTE4(((matrix[i]&128) ? inkColor1 : paperColor1), ((matrix[i]&64) ? inkColor2 : paperColor2), ((matrix[i]&32) ? inkColor1 : paperColor1), paperColor2));
-			POKE((char*)addr1+(i*2+2)*40, BYTE4(((matrix[i]&8  ) ? inkColor1 : paperColor1), ((matrix[i]&4 ) ? inkColor2 : paperColor2), ((matrix[i]&2 ) ? inkColor1 : paperColor1), paperColor2));
-			POKE((char*)addr1+(i*2+1)*40, BYTE4(((matrix[i]&128) ? inkColor2 : paperColor2), ((matrix[i]&64) ? inkColor1 : paperColor1), ((matrix[i]&32) ? inkColor2 : paperColor2), paperColor1));
-			POKE((char*)addr2+(i*2+2)*40, BYTE4(((matrix[i]&8  ) ? inkColor2 : paperColor2), ((matrix[i]&4 ) ? inkColor1 : paperColor1), ((matrix[i]&2 ) ? inkColor2 : paperColor2), paperColor1));
-		}
-		POKE((char*)addr1+7*40, bgByte2);
-		POKE((char*)addr2+7*40, bgByte1);
-	}
-#elif defined __APPLE2__
+#if defined __APPLE2__
 	// Set Character over 3/4 pixels out of 7 in a cell
 	unsigned int x,y;
 	unsigned char i,j,n;
@@ -607,12 +619,12 @@ void PrintChr(unsigned char col, unsigned char row, const char *matrix)
 	for (i=0; i<3; ++i) {
 		SetDHRPointer(x, y+i*2+1);
 		for (j=0; j<n; j++) {
-			SetDHRColor(((matrix[i]>>(7-j))&1) ? inkColor : paperColor);
+			SetDHRColor(((chr[i]>>(7-j))&1) ? inkColor : paperColor);
 			dhrpixel++;
 		}
 		SetDHRPointer(x, y+i*2+2);
 		for (j=0; j<n; j++) {
-			SetDHRColor(((matrix[i]>>(3-j))&1) ? inkColor : paperColor);
+			SetDHRColor(((chr[i]>>(3-j))&1) ? inkColor : paperColor);
 			dhrpixel++;
 		}
 	}
@@ -624,14 +636,46 @@ void PrintChr(unsigned char col, unsigned char row, const char *matrix)
 
 	// Update clock (slow function)
 	clk += 2;
+#elif defined __ATARI__	
+	// Set Character across double buffer
+	unsigned char i;
+	unsigned int addr1,addr2;
+	inkColor1 = inkColor%4; inkColor2 = inkColor/4;
+	paperColor1 = paperColor%4; paperColor2 = paperColor/4;
+	bgByte1 = BYTE4(paperColor1,paperColor2,paperColor1,paperColor2);
+	bgByte2 = BYTE4(paperColor2,paperColor1,paperColor2,paperColor1);	
+	addr1 = BITMAPRAM1 + row*320 + col;
+	addr2 = BITMAPRAM2 + row*320 + col;
+	if (chr == &charBlank[0]) {
+		for (i=0; i<8; ++i) {
+			if (i%2) {
+				POKE((char*)addr1+i*40, bgByte2);
+				POKE((char*)addr2+i*40, bgByte1);
+			} else {
+				POKE((char*)addr1+i*40, bgByte1);
+				POKE((char*)addr2+i*40, bgByte2);
+			}
+		}
+	} else {
+		POKE((char*)addr1+0*40, bgByte1);
+		POKE((char*)addr2+0*40, bgByte2);
+		for (i=0; i<3; ++i) {
+			POKE((char*)addr2+(i*2+1)*40, BYTE4(((chr[i]&128) ? inkColor1 : paperColor1), ((chr[i]&64) ? inkColor2 : paperColor2), ((chr[i]&32) ? inkColor1 : paperColor1), paperColor2));
+			POKE((char*)addr1+(i*2+2)*40, BYTE4(((chr[i]&8  ) ? inkColor1 : paperColor1), ((chr[i]&4 ) ? inkColor2 : paperColor2), ((chr[i]&2 ) ? inkColor1 : paperColor1), paperColor2));
+			POKE((char*)addr1+(i*2+1)*40, BYTE4(((chr[i]&128) ? inkColor2 : paperColor2), ((chr[i]&64) ? inkColor1 : paperColor1), ((chr[i]&32) ? inkColor2 : paperColor2), paperColor1));
+			POKE((char*)addr2+(i*2+2)*40, BYTE4(((chr[i]&8  ) ? inkColor2 : paperColor2), ((chr[i]&4 ) ? inkColor1 : paperColor1), ((chr[i]&2 ) ? inkColor2 : paperColor2), paperColor1));
+		}
+		POKE((char*)addr1+7*40, bgByte2);
+		POKE((char*)addr2+7*40, bgByte1);
+	}
 #elif defined __ATMOS__
 	// Set Character inside 6*8 cell
 	unsigned char i;
 	unsigned char a0,a2,a4,b,blank;
 	unsigned int addr;
-	addr = BITMAPRAM + row*320 + col;
+	addr = BITMAPRAM + row*320 + col+1;
 	blank = 64+ (paperColor ? 63 : 0);
-	if (matrix == &charBlank[0]) {
+	if (chr == &charBlank[0]) {
 		for (i=0; i<8; ++i) {
 			POKE((char*)addr+i*40, blank);
 		}
@@ -643,8 +687,8 @@ void PrintChr(unsigned char col, unsigned char row, const char *matrix)
 		}
 		POKE((char*)addr+0*40, blank);
 		for (i=0; i<3; ++i) {
-			POKE((char*)addr+(i*2+1)*40, BYTE4(1, ((matrix[i]&128) ? a0 : b), ((matrix[i]&64) ? a2 : b), ((matrix[i]&32) ? a4 : b)));
-			POKE((char*)addr+(i*2+2)*40, BYTE4(1, ((matrix[i]&8  ) ? a0 : b), ((matrix[i]&4 ) ? a2 : b), ((matrix[i]&2 ) ? a4 : b)));	
+			POKE((char*)addr+(i*2+1)*40, BYTE4(1, ((chr[i]&128) ? a0 : b), ((chr[i]&64) ? a2 : b), ((chr[i]&32) ? a4 : b)));
+			POKE((char*)addr+(i*2+2)*40, BYTE4(1, ((chr[i]&8  ) ? a0 : b), ((chr[i]&4 ) ? a2 : b), ((chr[i]&2 ) ? a4 : b)));	
 		}
 		POKE((char*)addr+7*40, blank);
 	}
@@ -653,13 +697,13 @@ void PrintChr(unsigned char col, unsigned char row, const char *matrix)
 	unsigned char i;
 	unsigned int addr;
 	addr = BITMAPRAM + 40*((row*8)&248) + ((col*8)&504);
-	if (matrix == &charBlank[0]) {
+	if (chr == &charBlank[0]) {
 		memset((char*)addr, pow2, 8);
 	} else {
 		POKE((char*)addr, pow2);
 		for (i=0; i<3; ++i) {
-			POKE((char*)addr+2*i+1, BYTE4(((matrix[i]&128) ? 1 : 2), ((matrix[i]&64) ? 1 : 2), ((matrix[i]&32) ? 1 : 2), 2));
-			POKE((char*)addr+2*i+2, BYTE4(((matrix[i]&8  ) ? 1 : 2), ((matrix[i]&4 ) ? 1 : 2), ((matrix[i]&2 ) ? 1 : 2), 2));
+			POKE((char*)addr+2*i+1, BYTE4(((chr[i]&128) ? 1 : 2), ((chr[i]&64) ? 1 : 2), ((chr[i]&32) ? 1 : 2), 2));
+			POKE((char*)addr+2*i+2, BYTE4(((chr[i]&8  ) ? 1 : 2), ((chr[i]&4 ) ? 1 : 2), ((chr[i]&2 ) ? 1 : 2), 2));
 		}
 		POKE((char*)addr+7, pow2);
 	}
@@ -670,11 +714,30 @@ void PrintChr(unsigned char col, unsigned char row, const char *matrix)
 #endif
 }
 
-#if defined __ATMOS__
-  // INK attributes for characters
-  unsigned char ink1[20] = { 0, 2, 3, 6, 3, 7, 5, 4, 7, 2, 7, 1, 3, 1, 1, 7, 5, 5, 5, 5 };
-  unsigned char ink2[20] = { 0, 3, 3, 6, 6, 6, 6, 4, 6, 6, 6, 7, 7, 1, 3, 7, 4, 6, 7, 5 };
+// Find pointer to associated character
+const char *GetChr(unsigned char chr)
+{
+	// Select the correct bitmask
+	     if (chr == 95) { return &charUnderbar[0]; }
+#if defined __CBM__
+	else if (chr > 192) { return &charLetter[(chr-193)*3]; }		// Upper case (C64)
+	else if (chr > 64)  { return &charLetter[(chr-65)*3]; }		// Lower case (C64)
+#else
+	else if (chr > 96)  { return &charLetter[(chr-97)*3]; }	// Lower case (Apple/Atari)
+	else if (chr > 64)  { return &charLetter[(chr-65)*3]; }	// Upper case (Apple/Atari)
 #endif
+	else if (chr == 63) { return &charQuestion[0]; }
+	else if (chr == 58) { return &charColon[0]; }
+	else if (chr > 47)  { return &charDigit[(chr-48)*3]; }
+	else if (chr == 47) { return &charSlash[0]; }
+	else if (chr == 46) { return &charDot[0]; }
+	else if (chr == 45) { return &charHyphen[0]; }
+	else if (chr == 44) { return &charComma[0]; }
+	else if (chr > 39)  { return &charBracket[(chr-40)*3]; }
+	else if (chr == 39) { return &charQuote[0]; }
+	else if (chr == 33) { return &charExclaim[0]; }
+	return &charBlank[0];
+}
 
 // Parse string and print characters one-by-one (slow)
 void PrintStr(unsigned char col, unsigned char row, const char *buffer)
@@ -682,44 +745,12 @@ void PrintStr(unsigned char col, unsigned char row, const char *buffer)
 	const char *chr;
 	unsigned char i;
 #if defined __ATMOS__
-	// Set INK attributes
-	unsigned char i1, i2;
-	unsigned int addr;	
-	addr = BITMAPRAM + row*320 + col;
-	if (paperColor != 0) {
-		i1 = ink1[paperColor];
-		i2 = ink2[paperColor];
-	} else {
-		i1 = ink1[inkColor];
-		i2 = ink2[inkColor];
-	}
-	for (i=0; i<4; ++i) {
-		POKE((char*)addr+i*80, i1);
-		POKE((char*)addr+i*80+40, i2);
-	}
-	col++;
+	// Set ink color
+	SetInk(col, row);
 #endif
+	// Parse buffer to print characters
 	for (i=0; i<strlen(buffer); ++i) {
-		// Select the correct bitmask
-		if (buffer[i] == 95) 	  { chr = &charUnderbar[0]; }
-#if defined __CBM__
-		else if (buffer[i] > 192) { chr = &charLetter[(buffer[i]-193)*3]; }		// Upper case (C64)
-		else if (buffer[i] > 64)  { chr = &charLetter[(buffer[i]-65)*3]; }		// Lower case (C64)
-#else
-		else if (buffer[i] > 96)  { chr = &charLetter[(buffer[i]-97)*3]; }	// Lower case (Apple/Atari)
-		else if (buffer[i] > 64)  { chr = &charLetter[(buffer[i]-65)*3]; }	// Upper case (Apple/Atari)
-#endif
-		else if (buffer[i] == 63) { chr = &charQuestion[0]; }
-		else if (buffer[i] == 58) { chr = &charColon[0]; }
-		else if (buffer[i] > 47)  { chr = &charDigit[(buffer[i]-48)*3]; }
-		else if (buffer[i] == 47) { chr = &charSlash[0]; }
-		else if (buffer[i] == 46) { chr = &charDot[0]; }
-		else if (buffer[i] == 45) { chr = &charHyphen[0]; }
-		else if (buffer[i] == 44) { chr = &charComma[0]; }
-		else if (buffer[i] > 39)  { chr = &charBracket[(buffer[i]-40)*3]; }
-		else if (buffer[i] == 39) { chr = &charQuote[0]; }
-		else if (buffer[i] == 33) { chr = &charExclaim[0]; }
-		else if (buffer[i] == 32) { chr = &charBlank[0]; }
+		chr = GetChr(buffer[i]);
 		PrintChr(col+i, row, chr);
 	}
 }
@@ -729,7 +760,7 @@ void PrintHeader(const char *buffer)
 {
 	unsigned char len, i;
 	len = strlen(buffer);
-	paperColor = paperHead;
+	paperColor = paperHeader;
 #if defined __CBM__
 	// Roll bitmap and screen ram
 	DisableRom();
@@ -766,7 +797,7 @@ unsigned char InputUpdate(unsigned char col, unsigned char row, char *buffer, un
 	
 	// Was a new key received?
 	if (!key) {
-		// Initialize input fied
+		// Initialize input field
 		DrawPanel(col, row, col+len, row);
 		PrintStr(col, row, buffer);
 	} else {
@@ -782,7 +813,7 @@ unsigned char InputUpdate(unsigned char col, unsigned char row, char *buffer, un
 			if (curlen < len) { 
 				buffer[curlen] = key;
 				buffer[curlen+1] = 0; 
-				PrintStr(col+curlen, row, &buffer[curlen]);
+				PrintChr(col+curlen, row, GetChr(key));
 			}
 		}
 		
@@ -805,8 +836,6 @@ unsigned char InputUpdate(unsigned char col, unsigned char row, char *buffer, un
 
 void InputStr(unsigned char col, unsigned char row, char *buffer, unsigned char len)
 {
-	char i;
-	
 	// Print initial condition
 	InputUpdate(col, row, buffer, len, 0);
 	

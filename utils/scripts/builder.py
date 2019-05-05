@@ -120,7 +120,7 @@ class Application:
         self.entry_Disk.insert(0, 'diskname')
         
     def FileLoad(self):
-        filename = askopenfilename(initialdir = "../../", title = "Load Builder Project", filetypes = (("Project files","*.8bu"),)) 
+        filename = askopenfilename(initialdir = "../../", title = "Load Builder Project", filetypes = (("Project files","*.builder"),)) 
         if filename is not '':
             # Unpickle data
             with open(filename, "rb") as fp:
@@ -143,11 +143,11 @@ class Application:
                         item.insert(END, d)
             
     def FileSave(self):
-        filename = asksaveasfilename(initialdir = "../../", title = "Save Builder Project", filetypes = (("Project files","*.8bu"),))
+        filename = asksaveasfilename(initialdir = "../../", title = "Save Builder Project", filetypes = (("Project files","*.builder"),))
         if filename is not '':
             # Fix extension
-            if ".8bu" not in filename.lower():
-                filename += ".8bu"
+            if ".builder" not in filename.lower():
+                filename += ".builder"
                 
             # Pickle data
             with open(filename, "wb") as fp:
@@ -299,7 +299,7 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Compilation
-            comp = 'utils\\cc65\\bin\\cl65 -o [build]/apple/' + diskname.lower() + '.bin -Cl -O -t apple2 -C config/apple2-hgr.cfg -I unity '
+            comp = 'utils\\cc65\\bin\\cl65 -o [build]/apple/' + diskname.lower() + '.bin -Cl -O -t apple2 -C unity/Apple/apple2e.cfg -I unity '
             for item in code:
                 comp += item
                 comp += ' '
@@ -354,7 +354,7 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Compilation
-            comp = 'utils\\cc65\\bin\\cl65 -o [build]/atari/program.bin -Cl -O -t atarixl -C config/atarixl.cfg -I unity '
+            comp = 'utils\\cc65\\bin\\cl65 -o [build]/atari/program.bin -Cl -O -t atarixl -C unity/Atari/atarixl.cfg -I unity '
             for item in code:
                 comp += item
                 comp += ' '
@@ -413,11 +413,11 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
             
             # Compilation
-            comp = 'utils\\cc65\\bin\\cl65 -o [build]/c64/' + diskname.lower() + '.bin -Cl -O -t c64 -C config/c64.cfg -I unity '
+            comp = 'utils\\cc65\\bin\\cl65 -o [build]/c64/' + diskname.lower() + '.bin -Cl -O -t c64 -C unity/C64/c64.cfg -I unity '
             for item in code:
                 comp += item
                 comp += ' '
-            fp.write(comp + 'unity/bitmap.c unity/chars.s unity/sfx.c unity/sprites.c unity/c64/JOY.s unity/c64/ROM.s unity/C64/SID.s unity/IP65/ip65.lib unity/IP65/ip65_c64.lib\n')
+            fp.write(comp + 'unity/bitmap.c unity/chars.s unity/sfx.c unity/sprites.c unity/C64/JOY.s unity/c64/ROM.s unity/C64/SID.s unity/IP65/ip65.lib unity/IP65/ip65_c64.lib\n')
             
             # Compression
             cmd = 'utils\\scripts\\exomizer.exe sfx 2061 [build]/c64/' + diskname.lower() + '.bin'
@@ -474,11 +474,11 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Compilation
-            comp = 'utils\\cc65\\bin\\cl65 -o [build]/oric/launch.bin -Cl -O -t atmos -C config/oric.cfg -I unity '
+            comp = 'utils\\cc65\\bin\\cl65 -o [build]/oric/launch.bin -Cl -O -t atmos -C unity/Oric/oric.cfg -I unity '
             for item in code:
                 comp += item
                 comp += ' '
-            fp.write(comp + 'unity/bitmap.c unity/chars.s unity/sfx.c unity/sprites.c unity/Oric/libsedoric.s\n')
+            fp.write(comp + 'unity/bitmap.c unity/chars.s unity/sfx.c unity/sprites.c unity/Oric/joysticks.c unity/Oric/keyboard.s unity/Oric/libsedoric.s\n')
 
             # Fix heder
             fp.write('utils\\scripts\\oric\\header.exe [build]/oric/launch.bin [build]/oric/launch.com $0501\n')

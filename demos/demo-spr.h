@@ -3,15 +3,17 @@
 #include <cc65.h>
 
 #if defined __APPLE2__
-	// Colors are pre-assigned in the sprite sheet
+	unsigned char spriteColors[] = { BLUE, RED, GREEN, YELLOW };    //  Note: colors are pre-assigned in the sprite sheet
 #elif defined __ATARI__
-	unsigned char uniqueColors[] = {0x74, 0x24, 0xa6, 0xdc, 0x08};  //  { blue, red, green, yellow, grey }
+	unsigned char spriteColors[] = { BLUE, RED, GREEN, YELLOW, GREY };  //  Note: 5th color is shared between all sprites
 #elif defined __ATMOS__
-	unsigned char uniqueColors[] = {0x02, 0x03, 0x05, 0x06};  //  { blue, red, green, yellow }
+	unsigned char spriteColors[] = { CYAN, MBLUE, LGREEN, GREY };
 #elif defined __CBM__
-	unsigned char uniqueColors[] = { BLUE, RED, GREEN, YELLOW, 0, 0, 0, 0 };
-	unsigned char sharedColors[] = { CYAN, BLACK };
+	unsigned char spriteColors[] = { BLUE, RED, GREEN, YELLOW, 0, 0, 0, 0 };	// Main sprite color
+	unsigned char sharedColors[] = { CYAN, BLACK };		// Shared sprite colors
 #endif
+
+unsigned char buffer[20];
 
 int DemoSPR(void) 
 {
@@ -25,19 +27,31 @@ int DemoSPR(void)
 	LoadBitmap("stadium.map");
 	EnterBitmapMode();
 	
+	// Print some extra info
+	paperColor = GREY; 
+	inkColor = BLACK; 
+	PrintStr(0, LAST_LINE, "STADIUM");	
+	paperColor = BLACK; 
+	for (i=0; i<4; i++) {
+		inkColor = spriteColors[i]; 
+		PrintLogo(8*(i+1)+5, LAST_LINE, i);
+		PrintNum(8*(i+1)+2, LAST_LINE, i+1);
+		PrintStr(8*(i+1), LAST_LINE, "PL");
+	}
+	
 	// Initialize sprites
 #if defined __APPLE2__
 	// number of rows, number of frames
 	InitSprites(5, 64);
 #elif defined __ATARI__
 	// number of rows, unique colors of sprites 0-4
-	InitSprites(13, uniqueColors);
+	InitSprites(13, spriteColors);
 #elif defined __ATMOS__
 	// number of rows, unique colors of sprites 0-3
-	InitSprites(8, uniqueColors);
+	InitSprites(8, spriteColors);
 #elif defined __CBM__
 	// unique colors of sprites 0-7, shared colors of all sprites 
-	InitSprites(uniqueColors, sharedColors);
+	InitSprites(spriteColors, sharedColors);
 #endif
 
 	// Enable sprites

@@ -1,10 +1,10 @@
 
 #include "demo-hlo.h"
 #include "demo-joy.h"
-#include "demo-udp.h"
 #include "demo-gfx.h"
 #include "demo-bmp.h"
 #include "demo-spr.h"
+//#include "demo-udp.h"
 
 int main (void) 
 {
@@ -19,7 +19,7 @@ int main (void)
 	DemoGFX();
 	DemoBMP();
 	DemoSPR();
-	DemoUDP();
+//	DemoUDP();
 	
     // Done
     return EXIT_SUCCESS;	

@@ -231,7 +231,7 @@
 extern unsigned char bmpX, bmpY;
 
 // Colors for printing
-extern unsigned char inkColor, paperColor, paperHead;
+extern unsigned char inkColor, paperColor, paperHeader;
 
 // Bitmap functions (see bitmap.c)
 void InitBitmap(void);
@@ -243,13 +243,14 @@ void LocatePixel(unsigned int x, unsigned int y);
 unsigned char GetPixel(void);
 void SetPixel(unsigned char color);
 void DrawPanel(unsigned char colBeg, unsigned char rowBeg, unsigned char colEnd, unsigned char rowEnd);
-void PrintChr(unsigned char col, unsigned char row, const char *matrix);
+void PrintChr(unsigned char col, unsigned char row, const char *chr);
 void PrintNum(unsigned char col, unsigned char row, unsigned char num);
 void PrintStr(unsigned char col, unsigned char row, const char *buffer);
 void PrintLogo(unsigned char col, unsigned char row, unsigned char index);
 void PrintHeader(const char *buffer);
 void InputStr(unsigned char col, unsigned char row, char *buffer, unsigned char len);
 unsigned char InputUpdate(unsigned char col, unsigned char row, char *buffer, unsigned char len, unsigned char key);
+const char *GetChr(unsigned char chr);
 
 // C64 specific functions (see C64/ROM.s)
 #ifdef __CBM__
@@ -287,6 +288,10 @@ extern const char charUnderbar[3];
 #if defined __CBM__
 	#define JOY_MAX 4
 	void InitJoy34(void);
+	unsigned char GetJoy(unsigned char);
+#elif defined __ATMOS__
+	#define JOY_MAX 2
+	unsigned char GetKey(unsigned char);
 	unsigned char GetJoy(unsigned char);
 #else
 	#define JOY_MAX 2
@@ -338,14 +343,14 @@ void BumpSFX(void);
 	#define SPRITE_NUM 4
 	void InitSprites(unsigned char height, unsigned char frames);	
 #elif defined __ATMOS__
-	#define SPRITE_NUM 8
-	void InitSprites(unsigned char height, unsigned char *uniqueColors);
+	#define SPRITE_NUM 4
+	void InitSprites(unsigned char height, unsigned char *spriteColors);
 #elif defined __ATARI__
 	#define SPRITE_NUM 8
-	void InitSprites(unsigned char height, unsigned char *uniqueColors);
+	void InitSprites(unsigned char height, unsigned char *spriteColors);
 #elif defined __CBM__
 	#define SPRITE_NUM 8
-	void InitSprites(unsigned char *uniqueColors, unsigned char *sharedColors);
+	void InitSprites(unsigned char *spriteColors, unsigned char *sharedColors);
 #endif
 void EnableSprite(signed char index);
 void DisableSprite(signed char index);
