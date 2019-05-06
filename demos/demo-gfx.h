@@ -4,7 +4,6 @@
 int DemoGFX(void) 
 {
 	unsigned char i, color, row, blockW, blockH;
-	unsigned int xpos, ypos, angle;
 
 	// Prepare bitmap
 	InitBitmap();

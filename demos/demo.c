@@ -4,9 +4,9 @@
 #include "demo-gfx.h"
 #include "demo-bmp.h"
 #include "demo-spr.h"
-//#include "demo-udp.h"
+#include "demo-udp.h"
 
-int main (void) 
+int main (void)
 {
 	// Set text mode colors
     textcolor(COLOR_WHITE);
@@ -19,8 +19,8 @@ int main (void)
 	DemoGFX();
 	DemoBMP();
 	DemoSPR();
-//	DemoUDP();
+	DemoUDP();
 	
     // Done
-    return EXIT_SUCCESS;	
+    return EXIT_SUCCESS;
 }

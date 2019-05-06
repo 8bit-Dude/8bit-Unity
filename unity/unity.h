@@ -2,9 +2,9 @@
  *	API of the "8bit-Unity" SDK for CC65
  *	All functions are cross-platform for the Apple IIe, Atari XL/XE, and C64/C128
  *	
- *	Last modified: 2018/12/15
+ *	Last modified: 2019/05/05
  *	
- * Copyright (c) 2018 Anthony Beaucamp.
+ * Copyright (c) 2019 Anthony Beaucamp.
  *
  * This software is provided 'as-is', without any express or implied warranty.
  * In no event will the authors be held liable for any damages arising from
@@ -43,7 +43,7 @@
 #include <time.h>
 #include <unistd.h>
 
-// Platform IDs/Specs
+// Platform IDs
 #if defined __CBM__
 	#define PLATFORM   0
 	#define LAST_LINE 24	
@@ -120,10 +120,10 @@
 	#define PINK 	10
 	#define DGREY   11	
 	#define MGREY 	12
+	#define GREY    12	
 	#define LGREEN  13
 	#define LBLUE   14
 	#define LGREY   15	
-	#define GREY    12	
 #elif defined __ATARI__
 	// Atari Screen (INP Mode)
 	#define BMPWIDTH  160
@@ -254,12 +254,16 @@ const char *GetChr(unsigned char chr);
 
 // C64 specific functions (see C64/ROM.s)
 #ifdef __CBM__
-extern void DisableRom();	// Disable ROM before using GetColor()
-extern void EnableRom();	// Enable ROM after using GetColor()
+  extern void DisableRom();	// Disable ROM before using GetColor()
+  extern void EnableRom();	// Enable ROM after using GetColor()
 #endif
-#ifdef __ATARI__
-extern void DisableRom();	// Disable Character ROM
-extern void EnableRom();	// Enable Character ROM
+
+// Apple Double-HiRes functions (see Apple/DHR.c)
+#if defined __APPLE2__
+  extern unsigned char *dhrmain, *dhraux, *dhrptr, dhrpixel;
+  void SetDHRPointer(unsigned int x, unsigned int y);
+  void SetDHRColor(unsigned char color);
+  unsigned char GetDHRColor(void);
 #endif
 
 // Character data (see char.s)
@@ -286,47 +290,51 @@ extern const char charUnderbar[3];
 
 // Joystick functions
 #if defined __CBM__
-	#define JOY_MAX 4
-	void InitJoy34(void);
-	unsigned char GetJoy(unsigned char);
+  #define JOY_MAX 4
+  void InitJoy34(void);
+  unsigned char GetJoy(unsigned char);
 #elif defined __ATMOS__
-	#define JOY_MAX 2
-	unsigned char GetKey(unsigned char);
-	unsigned char GetJoy(unsigned char);
+  #define JOY_MAX 2
+  unsigned char GetKey(unsigned char);
+  unsigned char GetJoy(unsigned char);
 #else
-	#define JOY_MAX 2
-	#if defined __ATARI__
-		#define GetJoy(i) (PEEK(0x0278+i)+(PEEK(0x0284+i)<<4))
-	#else if defined __APPLE2__
-		unsigned char GetJoy(unsigned char);		
-		unsigned char GetPaddle(unsigned char);
-		#define GetButton(i) (PEEK(0xC061+i)>127)
-	#endif
+  #define JOY_MAX 2
+  #if defined __ATARI__
+    #define GetJoy(i) (PEEK(0x0278+i)+(PEEK(0x0284+i)<<4))
+  #else if defined __APPLE2__
+    unsigned char GetJoy(unsigned char);		
+    unsigned char GetPaddle(unsigned char);
+    #define GetButton(i) (PEEK(0xC061+i)>127)
+  #endif
 #endif
 
 // Math functions (see math.s)
 #define DOT(a,b) (a[0]*b[0]+a[1]*b[1])
 unsigned char atan2(unsigned char y, unsigned char x);
 
-// Network functions (see IP65.lib)
-#if not defined __ATMOS__
-  unsigned char ip65_init(void);
-  unsigned char ip65_process(void);
-  unsigned char dhcp_init(void);
-  unsigned long __fastcall__ parse_dotted_quad(char* quad);
-  unsigned char __fastcall__ udp_send(const unsigned char* buf, unsigned int len, unsigned long dest,  unsigned int dest_port, unsigned int src_port);
-  unsigned char __fastcall__ udp_add_listener(unsigned int port, void (*callback)(void));
-  unsigned char __fastcall__ udp_remove_listener(unsigned int port);
-  extern unsigned char udp_recv_buf[192];   // Buffer with data received
-#endif
+// Network functions (see network.c)
+#define NETW_OK  0
+#define ADAP_ERR 1
+#define DHCP_ERR 2
+#define ParseIP(a,b,c,d) (a<<24+b<<16+c<<8+d)
+extern unsigned long udp_send_ip;
+extern unsigned int  udp_send_port;
+extern unsigned char udp_send_buf[32];
+extern unsigned char udp_recv_buf[192];
+unsigned char InitNetwork(void);				// Initialize network interface and get IP from DHCP
+void ListenUDP(unsigned int port);				// Set listening port for incoming UDP packets
+void SetUDPTarget(char *IP, unsigned int port);	// Set UDP target's IP and Port
+void SendUDPPacket(unsigned char length);		// Send contents of udp_send_buf[] to UDP target
+void RecvUDPPacket(unsigned char timeOut);		// Fetch UDP packet in udp_recv`_buf[] (within time-out period)
+unsigned long __fastcall__ parse_dotted_quad(char* quad);
 
 // Music functions
 // Apple: Electric Duet player (see Apple/DUET.s) 
 // Atari: RMT/SFX player (see Atari/POKEY.s)
-// C64: SID music player (see C64/SID.s)
+// C64:   SID music player (see C64/SID.s)
 #if defined __APPLE2__
-	extern unsigned char sfxOutput;	// 0 = Speaker, 1 = Mockingboard (Slot 4)
-	void InitMocking(void);
+  extern unsigned char sfxOutput;	// 0 = Speaker, 1 = Mockingboard (Slot 4)
+  void InitMocking(void);
 #endif
 void PlayMusic(unsigned int address);
 void StopMusic(void);
@@ -337,20 +345,20 @@ void StopSFX(void);
 void EngineSFX(int channel, int vel);
 void BleepSFX(unsigned char tone);
 void BumpSFX(void);
-	
+
 // Sprite functions
 #if defined __APPLE2__
-	#define SPRITE_NUM 4
-	void InitSprites(unsigned char height, unsigned char frames);	
+  #define SPRITE_NUM 4
+  void InitSprites(unsigned char height, unsigned char frames);	
 #elif defined __ATMOS__
-	#define SPRITE_NUM 4
-	void InitSprites(unsigned char height, unsigned char *spriteColors);
+  #define SPRITE_NUM 4
+  void InitSprites(unsigned char height, unsigned char *spriteColors);
 #elif defined __ATARI__
-	#define SPRITE_NUM 8
-	void InitSprites(unsigned char height, unsigned char *spriteColors);
+  #define SPRITE_NUM 8
+  void InitSprites(unsigned char height, unsigned char *spriteColors);
 #elif defined __CBM__
-	#define SPRITE_NUM 8
-	void InitSprites(unsigned char *spriteColors, unsigned char *sharedColors);
+  #define SPRITE_NUM 8
+  void InitSprites(unsigned char *spriteColors, unsigned char *sharedColors);
 #endif
 void EnableSprite(signed char index);
 void DisableSprite(signed char index);
@@ -359,33 +367,25 @@ void UpdateSprite(unsigned char index, unsigned char frame);
 
 // Sprite collision functions
 #if defined __CBM__
-	// On C64, all collisions are contained within a single register
-	#define COLLISIONS(i) (PEEK(53278))
-	#define COLLIDING(collisions,i) ((collisions >> i) & 1) 
+  // On C64, all collisions are contained within a single register
+  #define COLLISIONS(i) (PEEK(53278))
+  #define COLLIDING(collisions,i) ((collisions >> i) & 1) 
 #elif defined __ATARI__	
-	// On Atari, we need to reset collisions by poking 0 into 53278
-	#define COLLISIONS(i) (PEEK(53260+i)+(1<<i)); POKE(53278,0)
-	#define COLLIDING(collisions,i) ((collisions >> i) & 1) 
+  // On Atari, we need to reset collisions by poking 0 into 53278
+  #define COLLISIONS(i) (PEEK(53260+i)+(1<<i)); POKE(53278,0)
+  #define COLLIDING(collisions,i) ((collisions >> i) & 1) 
 #elif defined __APPLE2__ or defined __ATMOS__
-	// On Apple and Atmos, collisions are prevented at draw time
-	#define COLLISIONS(i) (0)
-	#define COLLIDING(collisions,i) (sprCOL[i])
-	extern unsigned char sprCOL[SPRITE_NUM];
-#endif
-
-// Apple Double-HiRes functions (see Apple/DHR.c)
-#if defined __APPLE2__
-extern unsigned char *dhrmain, *dhraux, *dhrptr, dhrpixel;
-void SetDHRPointer(unsigned int x, unsigned int y);
-void SetDHRColor(unsigned char color);
-unsigned char GetDHRColor(void);
+  // On Apple and Atmos, collisions are prevented at draw time
+  #define COLLISIONS(i) (0)
+  #define COLLIDING(collisions,i) (sprCOL[i])
+  extern unsigned char sprCOL[SPRITE_NUM];
 #endif
 
 // Workaround for missing Apple clock
 #if defined __APPLE2__
-	#define CLK_TCK 59	// Missing definition
-	void tick(void);
-	clock_t clock(void);
-	unsigned sleep(unsigned seconds);
-	extern clock_t clk;	
+  #define CLK_TCK 59	// Missing definition
+  void tick(void);
+  clock_t clock(void);
+  unsigned sleep(unsigned seconds);
+  extern clock_t clk;	
 #endif

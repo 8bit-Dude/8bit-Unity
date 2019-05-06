@@ -43,7 +43,6 @@
 
 // Colors for printing
 unsigned char inkColor, paperColor;
-unsigned char paperHeader = 0;
 
 // Apple specific variables & functions
 #ifdef __APPLE2__
@@ -384,7 +383,6 @@ void LoadBitmap(char *filename)
 	i++; POKE(filename+i, 'm');
 	loadfile(filename, (void*)(BITMAPRAM), 8000);
 #else	
-	unsigned int i;
 	FILE* fp;
 
 	// Open Map File
@@ -427,10 +425,6 @@ void LoadBitmap(char *filename)
 	// Close file
 	fclose(fp);
 #endif
-
-	// Chat background color
-	bmpX = 0; bmpY =0;
-	paperHeader = GetPixel();
 }
 
 // Clear entire bitmap screen
@@ -760,7 +754,6 @@ void PrintHeader(const char *buffer)
 {
 	unsigned char len, i;
 	len = strlen(buffer);
-	paperColor = paperHeader;
 #if defined __CBM__
 	// Roll bitmap and screen ram
 	DisableRom();
