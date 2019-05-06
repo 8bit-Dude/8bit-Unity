@@ -6,6 +6,7 @@
 int DemoUDP(void)
 {
 	unsigned char state, line;
+	unsigned char sendBuffer[1];	// Can be as long as you wish...
 	
 	// Prepare bitmap
 	InitBitmap();
@@ -14,11 +15,11 @@ int DemoUDP(void)
 	
 	// Print header
 	paperColor = BLACK; inkColor = WHITE;
-	PrintStr(0, line++, "Network demo");	
+	PrintStr(0, line++, "Initializing Network...");	
 	
 	// Init network and listen on UDP port 5000
 	state = InitNetwork();
-	if (state == ADAP_ERR) {
+	if (state == ADAPTOR_ERR) {
 		PrintStr(0, line++, "ADAPTOR ERROR");
 		
 	} else if (state == DHCP_ERR) {
@@ -31,27 +32,25 @@ int DemoUDP(void)
 		ListenUDP(5000);
 		
 		// Send UDP packet
-		//svAddr = ParseIP(127,0,0,1);
-		udp_send_ip = parse_dotted_quad("127.0.0.1");
+		udp_send_ip = EncodeIP(127,0,0,1);
 		udp_send_port = 5000;
-		udp_send_buf[0] = REQUEST_INFO;
-		SendUDPPacket(1);
+		sendBuffer[0] = REQUEST_INFO;
+		SendUDPPacket(sendBuffer, 1);
 			
 		// Fetch server response
 		RecvUDPPacket(5*CLK_TCK); // Allow short time-out, as server is localhost
-		if (!udp_recv_buf[0]) {
-			// No data received: packet length is 0
+		if (!udp_packet) {
+			// No data received: packet pointer is null
 			PrintStr(0, line++, "ERROR: TIMEOUT");
 			
-		} else if (udp_recv_buf[1] != REQUEST_INFO) {
+		} else if (PEEK(udp_packet) != REQUEST_INFO) {
 			// Packet header does not match
 			PrintStr(0, line++, "ERROR: CORRUPTION");
 			
 		} else {
-			// Print packet information
-			PrintStr(0, line++, "Received Bytes:");
-			PrintNum(16, line, udp_recv_buf[0]);
-			PrintStr(0, line++, &buffer[2]);
+			// Print packet contents (you can check byte length with PEEK(udp_packet+1))
+			PrintStr(0, line++, "Received Packet:");
+			PrintStr(0, line++, (char*)(udp_packet+2));
 		}
 	}
 	

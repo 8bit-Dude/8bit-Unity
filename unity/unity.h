@@ -313,20 +313,17 @@ extern const char charUnderbar[3];
 unsigned char atan2(unsigned char y, unsigned char x);
 
 // Network functions (see network.c)
-#define NETW_OK  0
-#define ADAP_ERR 1
-#define DHCP_ERR 2
-#define ParseIP(a,b,c,d) (a<<24+b<<16+c<<8+d)
+#define NETWORK_OK  0
+#define ADAPTOR_ERR 1
+#define DHCP_ERR    2
+#define EncodeIP(a,b,c,d) (a+b*256+c*65536+d*16777216)
 extern unsigned long udp_send_ip;
 extern unsigned int  udp_send_port;
-extern unsigned char udp_send_buf[32];
-extern unsigned char udp_recv_buf[192];
+extern unsigned int  udp_packet;
 unsigned char InitNetwork(void);				// Initialize network interface and get IP from DHCP
 void ListenUDP(unsigned int port);				// Set listening port for incoming UDP packets
-void SetUDPTarget(char *IP, unsigned int port);	// Set UDP target's IP and Port
-void SendUDPPacket(unsigned char length);		// Send contents of udp_send_buf[] to UDP target
+void SendUDPPacket(unsigned char* buffer, unsigned char length);  // Send packet to UDP target
 void RecvUDPPacket(unsigned char timeOut);		// Fetch UDP packet in udp_recv`_buf[] (within time-out period)
-unsigned long __fastcall__ parse_dotted_quad(char* quad);
 
 // Music functions
 // Apple: Electric Duet player (see Apple/DUET.s) 

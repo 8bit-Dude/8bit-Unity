@@ -28,12 +28,10 @@
 
 unsigned long udp_send_ip;
 unsigned int udp_send_port, udp_recv_port;
+unsigned int udp_packet;
 
 // IP65 functions (see linked libraries)
-unsigned char udp_send_buf[32];   // Buffer with data to send (can be any length you wish...)
-#ifdef __ATMOS__
-  unsigned char udp_recv_buf[192];   // Buffer with data received (length hard-coded in IP65)
-#else
+#ifndef __ATMOS__
   extern unsigned char udp_recv_buf[192];   // Buffer with data received (length hard-coded in IP65)
   unsigned char ip65_init(void);
   unsigned char ip65_process(void);
@@ -47,30 +45,31 @@ unsigned char InitNetwork(void)
 {
 #ifndef __ATMOS__
 	// Init IP65 and DHCP
-	if (ip65_init()) { return ADAP_ERR; }
+	if (ip65_init()) { return ADAPTOR_ERR; }
 	if (dhcp_init()) { return DHCP_ERR; }
 #endif
-	return NETW_OK;
+	return NETWORK_OK;
 }
 
-void SendUDPPacket(unsigned char length) 
+void SendUDPPacket(unsigned char* buffer, unsigned char length) 
 {
 #ifndef __ATMOS__
-	udp_send(udp_send_buf, length, udp_send_ip, udp_send_port, udp_recv_port);
+	udp_send(buffer, length, udp_send_ip, udp_send_port, udp_recv_port);
 #endif
 }
 
 void ReceiveUDP(void)
 {
-	// Placeholder for IP65 packet processing
+#ifndef __ATMOS__
+	udp_packet = &udp_recv_buf[0];
+#endif
 }
 
 void RecvUDPPacket(unsigned char timeOut)
-{
-	unsigned int timer;
-	
+{	
 	// Try to process UDP
-	udp_recv_buf[0] = 0;
+	unsigned int timer;
+	udp_packet = 0;
 #ifndef __ATMOS__
 	ip65_process();
 #endif
@@ -78,7 +77,7 @@ void RecvUDPPacket(unsigned char timeOut)
 	
 	// Wait for an answer (within time-out)
 	timer = clock();
-	while (!udp_recv_buf[0]) { 
+	while (!udp_packet) { 
 		if (clock() - timer > timeOut) { return; }
 #ifndef __ATMOS__
 		ip65_process();
@@ -91,13 +90,14 @@ void RecvUDPPacket(unsigned char timeOut)
 
 void ListenUDP(unsigned int port)
 {
+	unsigned char dummy[1];
 	udp_recv_port = port;
 #ifndef __ATMOS__
 	if (!udp_add_listener(port, ReceiveUDP)) {
-		// Send first packet, as it is always lost!
-		udp_send_buf[0] = 0;
-		SendUDPPacket(1);
-		RecvUDPPacket(0);
+		// Send dummy packet, as first one is always lost!
+		dummy[0] = 0;
+		SendUDPPacket(dummy, 1);
+		RecvUDPPacket(5*CLK_TCK);
 	}
 #endif
 }
