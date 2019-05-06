@@ -30,47 +30,51 @@ from PIL import Image
 input = sys.argv[1]
 output = sys.argv[2]
 
-######################
-# Inter-player colors
-palette = [ chr(0x00), chr(0x24), chr(0x86), chr(0xd8) ]
+try:
+    ######################
+    # Inter-player colors
+    palette = [ chr(0x00), chr(0x24), chr(0x86), chr(0xd8) ]
 
-#####################
-# Read source bitmap
-img1 = Image.open(input)
-pixdata = list(img1.getdata())
+    #####################
+    # Read source bitmap
+    img1 = Image.open(input)
+    pixdata = list(img1.getdata())
 
-################################
-# Convert pixel data to buffers 
-buf1 = [0] * 8000
-buf2 = [0] * 8000
-for y in range(200):
-    for x in range(160):
-        # Convert PNG to INP index 
-        shift = 6 - 2*(x%4)
-        color = pixdata[y*160+x]
-        if (x+y)%2:   # Alternate to create checker board
-            col2 = color%4 << shift
-            col1 = color/4 << shift
-        else:
-            col1 = color%4 << shift
-            col2 = color/4 << shift
+    ################################
+    # Convert pixel data to buffers 
+    buf1 = [0] * 8000
+    buf2 = [0] * 8000
+    for y in range(200):
+        for x in range(160):
+            # Convert PNG to INP index 
+            shift = 6 - 2*(x%4)
+            color = pixdata[y*160+x]
+            if (x+y)%2:   # Alternate to create checker board
+                col2 = color%4 << shift
+                col1 = color/4 << shift
+            else:
+                col1 = color%4 << shift
+                col2 = color/4 << shift
+                
+            # Assign bits in both buffers
+            offset = y*40+x/4
+            mask = 255 - (3<<shift)            
+            buf1[offset] = (buf1[offset] & mask) | col1
+            buf2[offset] = (buf2[offset] & mask) | col2  
             
-        # Assign bits in both buffers
-        offset = y*40+x/4
-        mask = 255 - (3<<shift)            
-        buf1[offset] = (buf1[offset] & mask) | col1
-        buf2[offset] = (buf2[offset] & mask) | col2  
-        
-#################
-# Convert to CHR
-for i in range(8000):
-    buf1[i] = chr(buf1[i])
-    buf2[i] = chr(buf2[i])
-        
-########################
-# Write output INP file
-f2 = io.open(output, 'wb')	
-f2.write(''.join(palette))
-f2.write(''.join(buf1))
-f2.write(''.join(buf2))
-f2.close()
+    #################
+    # Convert to CHR
+    for i in range(8000):
+        buf1[i] = chr(buf1[i])
+        buf2[i] = chr(buf2[i])
+            
+    ########################
+    # Write output INP file
+    f2 = io.open(output, 'wb')	
+    f2.write(''.join(palette))
+    f2.write(''.join(buf1))
+    f2.write(''.join(buf2))
+    f2.close()
+
+except:
+    print "Error: cannot convert " + input + "... (is it a 160x200 PNG file with 16 color palette?)"
