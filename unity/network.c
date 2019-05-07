@@ -26,6 +26,10 @@
 
 #include "unity.h"
 
+#ifdef __ATARIXL__
+  #pragma code-name("SHADOW_RAM")
+#endif
+
 unsigned long udp_send_ip;
 unsigned int udp_send_port, udp_recv_port;
 unsigned int udp_packet;
@@ -65,7 +69,7 @@ void ReceiveUDP(void)
 #endif
 }
 
-void RecvUDPPacket(unsigned char timeOut)
+unsigned char RecvUDPPacket(unsigned char timeOut)
 {	
 	// Try to process UDP
 	unsigned int timer;
@@ -73,12 +77,12 @@ void RecvUDPPacket(unsigned char timeOut)
 #ifndef __ATMOS__
 	ip65_process();
 #endif
-	if (!timeOut) { return; }
+	if (!timeOut) { return udp_packet; }
 	
 	// Wait for an answer (within time-out)
 	timer = clock();
 	while (!udp_packet) { 
-		if (clock() - timer > timeOut) { return; }
+		if (clock() - timer > timeOut) { break; }
 #ifndef __ATMOS__
 		ip65_process();
 #endif
@@ -86,6 +90,7 @@ void RecvUDPPacket(unsigned char timeOut)
 		tick();
 #endif			
 	}
+	return udp_packet;
 }
 
 void ListenUDP(unsigned int port)

@@ -28,12 +28,12 @@ int DemoUDP(void)
 	} else {
 		PrintStr(0, line++, "ADAPTOR AND DHCP OK!");
 
-		// Setup UDP listener
+		// Setup UDP ports
+		udp_send_ip = EncodeIP(127,0,0,1);
+		udp_send_port = 5000;
 		ListenUDP(5000);
 		
 		// Send UDP packet
-		udp_send_ip = EncodeIP(127,0,0,1);
-		udp_send_port = 5000;
 		sendBuffer[0] = REQUEST_INFO;
 		SendUDPPacket(sendBuffer, 1);
 			

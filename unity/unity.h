@@ -323,7 +323,7 @@ extern unsigned int  udp_packet;
 unsigned char InitNetwork(void);				// Initialize network interface and get IP from DHCP
 void ListenUDP(unsigned int port);				// Set listening port for incoming UDP packets
 void SendUDPPacket(unsigned char* buffer, unsigned char length);  // Send packet to UDP target
-void RecvUDPPacket(unsigned char timeOut);		// Fetch UDP packet in udp_recv`_buf[] (within time-out period)
+unsigned char RecvUDPPacket(unsigned char timeOut);		// Fetch UDP packet in udp_recv`_buf[] (within time-out period)
 
 // Music functions
 // Apple: Electric Duet player (see Apple/DUET.s) 
