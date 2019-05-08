@@ -343,7 +343,15 @@ void EngineSFX(int channel, int vel);
 void BleepSFX(unsigned char tone);
 void BumpSFX(void);
 
-// Sprite functions
+// Location of current sprite (see LocateSprite(), SetSprite())
+#if defined __CBM__
+	extern unsigned int sprX;
+	extern unsigned char sprY;	
+#else
+	extern unsigned char sprX, sprY;
+#endif
+
+// Sprite handling functions
 #if defined __APPLE2__
   #define SPRITE_NUM 4
   void InitSprites(unsigned char height, unsigned char frames);	
@@ -360,7 +368,7 @@ void BumpSFX(void);
 void EnableSprite(signed char index);
 void DisableSprite(signed char index);
 void LocateSprite(unsigned int x, unsigned int y);
-void UpdateSprite(unsigned char index, unsigned char frame);
+void SetSprite(unsigned char index, unsigned char frame);
 
 // Sprite collision functions
 #if defined __CBM__

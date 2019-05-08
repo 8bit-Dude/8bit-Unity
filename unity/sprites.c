@@ -227,7 +227,7 @@ void LocateSprite(unsigned int x, unsigned int y)
 #endif	
 }
 
-void UpdateSprite(unsigned char index, unsigned char frame)
+void SetSprite(unsigned char index, unsigned char frame)
 {
 #if defined __APPLE2__
 	unsigned char i;

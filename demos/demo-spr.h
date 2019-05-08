@@ -77,14 +77,14 @@ int DemoSPR(void)
                 frame = ((12-(angle+(i+1)*90))%360)/23;
 				LocateSprite(xpos, ypos);
 #if defined __APPLE2__
-				UpdateSprite(i, (i*16)+frame);	// Point to sprite data associated with each player color
+				SetSprite(i, (i*16)+frame);	// Point to sprite data associated with each player color
 #elif defined __ATARI__
-				UpdateSprite(i, frame);			// Normal sprite for 1st color (body)
-				UpdateSprite(4+i, 16+frame);	// Flicker sprite for 2nd color (tires)	
+				SetSprite(i, frame);		// Normal sprite for 1st color (body)
+				SetSprite(4+i, 16+frame);	// Flicker sprite for 2nd color (tires)	
 #elif defined __ATMOS__
-				UpdateSprite(i, frame);			// Single coloured sprite (colour applies to second scan line)
+				SetSprite(i, frame);		// Single coloured sprite (colour applies to second scan line)
 #elif defined __CBM__
-				UpdateSprite(i, frame);			// Single sprite including 1 unique + 2 shared colors
+				SetSprite(i, frame);		// Single sprite including 1 unique + 2 shared colors
 #endif
 				EngineSFX(1, 300);
             }       
