@@ -43,9 +43,9 @@
 	#define sprWIDTH 4	// Byte width of sprite (7 pixels)
 	unsigned char sprCOL[SPRITE_NUM] = {0,0,0,0};	// Collision flags
 	unsigned char sprEN[SPRITE_NUM] = {0,0,0,0}; 	// Enable status
-	unsigned char sprXS[SPRITE_NUM];				// Screen coordinates
-	unsigned char sprYS[SPRITE_NUM];	
-	unsigned char sprXB[SPRITE_NUM];				// Byte coordinates
+	unsigned char spriteXS[SPRITE_NUM];				// Screen coordinates
+	unsigned char spriteYS[SPRITE_NUM];	
+	unsigned char spriteXB[SPRITE_NUM];				// Byte coordinates
 	unsigned char* sprBG[SPRITE_NUM];	    		// Sprite background
 	unsigned char sprROWS;
 	unsigned int sprBLOCK;
@@ -98,7 +98,7 @@
 	#define sprWIDTH 2	// Byte width of sprite (12 pixels)
 	unsigned char sprCOL[SPRITE_NUM] = {0,0,0,0};	// Collision flags
 	unsigned char sprEN[SPRITE_NUM] = {0,0,0,0}; 	// Enable status
-	unsigned char sprXS[SPRITE_NUM], sprYS[SPRITE_NUM];
+	unsigned char spriteXS[SPRITE_NUM], spriteYS[SPRITE_NUM];
 	unsigned char *sprBG[SPRITE_NUM];
 	unsigned char sprROWS, inkVAL;
 	unsigned int bgPTR, sprPTR, scrPTR, inkPTR, colPTR;
@@ -144,8 +144,8 @@
 	{
 		// Restore entire sprite background
 		yO = 0;
-		xptr = sprXB[index];
-		yptr = sprYS[index];
+		xptr = spriteXB[index];
+		yptr = spriteYS[index];
 		bgPTR = sprBG[index];
 		while (yO<sprROWS) {
 			dhrptr = (unsigned char *) (dhrLines[yptr++] + xptr);
@@ -165,11 +165,11 @@
 		unsigned char i;
 		for (i=0; i<SPRITE_NUM; i++) {
 			if (sprEN[i]) {
-				xO = x-sprXS[i];
-				yO = y-sprYS[i];
+				xO = x-spriteXS[i];
+				yO = y-spriteYS[i];
 				if (xO<7 && yO<sprROWS) {
-					xptr = sprXB[i];
-					yptr = sprYS[i]+yO;
+					xptr = spriteXB[i];
+					yptr = spriteYS[i]+yO;
 					bgPTR = sprBG[i]+yO*sprWIDTH;
 					dhrptr = (unsigned char *) (dhrLines[yptr] + xptr);
 					*dhraux = 0;
@@ -191,7 +191,7 @@
 	{
 		// Restore entire sprite background
 		unsigned char i;
-		scrPTR = BITMAPRAM + sprYS[index]*40 + sprXS[index];
+		scrPTR = BITMAPRAM + spriteYS[index]*40 + spriteXS[index];
 		bgPTR = sprBG[index];
 		for (i=0; i<sprROWS; i++) {
 			memcpy(scrPTR, bgPTR, 4);
@@ -202,28 +202,28 @@
 #endif
 
 #if defined __CBM__
-	unsigned int sprX;
-	unsigned char sprY;	
+	unsigned int spriteX;
+	unsigned char spriteY;	
 #else
-	unsigned char sprX,sprY;
+	unsigned char spriteX,spriteY;
 #endif
 
 void LocateSprite(unsigned int x, unsigned int y)
 {
 // This function maps sprite coordinates from a 320x200 screen definition
-// It can be by-passed by assigning sprX, sprY directly in your code
+// It can be by-passed by assigning spriteX, spriteY directly in your code
 #if defined __APPLE2__
-	sprX = (x*140)/320;
-	sprY = (y*192)/200;
+	spriteX = (x*140)/320;
+	spriteY = (y*192)/200;
 #elif defined __ATARI__
-	sprX = x/2 + 45;
-	sprY = y + 24;
+	spriteX = x/2 + 45;
+	spriteY = y + 24;
 #elif defined __ATMOS__
-	sprX = x/8 - 1;	
-	sprY = y;
+	spriteX = x/8 - 1;	
+	spriteY = y;
 #elif defined __CBM__
-	sprX = x;
-	sprY = y;
+	spriteX = x;
+	spriteY = y;
 #endif	
 }
 
@@ -234,24 +234,24 @@ void SetSprite(unsigned char index, unsigned char frame)
 	unsigned int addr;
 	
 	// Compute sprite slots
-	xO = (2*sprX)/7;
+	xO = (2*spriteX)/7;
 
 	// Select the correct offset block (4 offset blocks per 7 pixels)
 	if (xO%2) {
 		addr = frame*sprROWS*sprWIDTH + 2*sprBLOCK;
-		if (sprX%7 > 5) { addr += sprBLOCK; }
+		if (spriteX%7 > 5) { addr += sprBLOCK; }
 	} else {
 		addr = frame*sprROWS*sprWIDTH;
-		if (sprX%7 > 3) { addr += sprBLOCK; }
+		if (spriteX%7 > 3) { addr += sprBLOCK; }
 	}
 
 	// Check for collisions
 	sprCOL[index] = 0;
 	for (i=0; i<SPRITE_NUM; i++) {
 		if (sprEN[i] && i!=index) {
-			delta = sprXB[i] - xO;
+			delta = spriteXB[i] - xO;
 			if (delta < 2 || delta>254) {
-				delta = sprYS[i] - sprY;
+				delta = spriteYS[i] - spriteY;
 				if (delta < sprROWS || delta>(256-sprROWS)) {
 					// Redraw background of that sprite
 					RestoreSprBG(i);
@@ -267,7 +267,7 @@ void SetSprite(unsigned char index, unsigned char frame)
 	
 	// Backup new background and draw sprite
 	yO = 0;
-	yptr = sprY;	
+	yptr = spriteY;	
 	sprPTR = SPRITERAM+addr;
 	bgPTR = sprBG[index];
 	while (yO<sprROWS) {
@@ -289,20 +289,20 @@ void SetSprite(unsigned char index, unsigned char frame)
 	
 	// Set sprite information
 	sprEN[index] = 1;
-	sprXB[index] = xO;
-	sprXS[index] = sprX;
-	sprYS[index] = sprY;
+	spriteXB[index] = xO;
+	spriteXS[index] = spriteX;
+	spriteYS[index] = spriteY;
 #elif defined __ATARI__
 	if (index<4) {
 		// Set X coordinate of ith sprite and copy frame to PMG column
-		POKE(53248+index, sprX);
+		POKE(53248+index, spriteX);
 		bzero(PMGaddr[index], sprROWS);
-		PMGaddr[index] = PMGbase[index]+sprY;
+		PMGaddr[index] = PMGbase[index]+spriteY;
 		memcpy(PMGaddr[index], SPRITERAM + frame*sprROWS, sprROWS);
 	} else {
 		// Pass information to flicker sprite handler (see DLI.a65)
-		POKE(FlickX-4+index, sprX);
-		POKE(FlickY-4+index, sprY);
+		POKE(FlickX-4+index, spriteX);
+		POKE(FlickY-4+index, spriteY);
 		POKEW(FlickFrames+(index-4)*2, SPRITERAM + frame*sprROWS);			
 	}
 #elif defined __ATMOS__	
@@ -312,7 +312,7 @@ void SetSprite(unsigned char index, unsigned char frame)
 	if (sprEN[index]) { RestoreSprBG(index); }
 	
 	// Backup new background
-	scrPTR = BITMAPRAM + sprY*40 + sprX;
+	scrPTR = BITMAPRAM + spriteY*40 + spriteX;
 	bgPTR = sprBG[index];
 	for (i=0; i<sprROWS; i++) {
 		memcpy(bgPTR, scrPTR, 4);
@@ -322,11 +322,11 @@ void SetSprite(unsigned char index, unsigned char frame)
 	
 	// Display corresponding frame
 	sprPTR = SPRITERAM + frame*sprROWS*2;
-	inkPTR = BITMAPRAM + sprY*40;
+	inkPTR = BITMAPRAM + spriteY*40;
 	inkVAL = ink1[PEEK(colPTR+index)];
-	for (i=sprY+1; i<sprY+sprROWS+1; i++) {
+	for (i=spriteY+1; i<spriteY+sprROWS+1; i++) {
 		// Set INK, Set Sprite, Reset INK
-		scrPTR = inkPTR+sprX;
+		scrPTR = inkPTR+spriteX;
 		if (i%2) { POKE(scrPTR, inkVAL); } scrPTR++; 
 		POKE(scrPTR++, PEEK(sprPTR++));
 		POKE(scrPTR++, PEEK(sprPTR++));
@@ -336,19 +336,19 @@ void SetSprite(unsigned char index, unsigned char frame)
 	
 	// Set sprite information
 	sprEN[index] = 1;
-	sprXS[index] = sprX;
-	sprYS[index] = sprY;	
+	spriteXS[index] = spriteX;
+	spriteYS[index] = spriteY;	
 #elif defined __CBM__
 	// Tell VIC where to find the frame
 	POKE(SPRITEPTR+index, SPRITELOC+frame);
 
 	// Set X/Y Coordinates
-	POKE(53249+2*index, sprY+39);
-	if (sprX < 244) {
-		POKE(53248+2*index, sprX+12);
+	POKE(53249+2*index, spriteY+39);
+	if (spriteX < 244) {
+		POKE(53248+2*index, spriteX+12);
 		POKE(53264, PEEK(53264) & ~(1 << index));
 	} else {
-		POKE(53248+2*index, sprX-244);
+		POKE(53248+2*index, spriteX-244);
 		POKE(53264, PEEK(53264) |  (1 << index));
 	}	
 #endif

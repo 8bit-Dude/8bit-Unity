@@ -10,14 +10,14 @@ int DemoGFX(void)
 	ClearBitmap();
 	EnterBitmapMode();
 	
-	// Draw palette (Method #1: set pixel coordinates directly using global variables bmpX & bmpY)
+	// Draw palette (Method #1: set pixel coordinates directly using global variables pixelX & pixelY)
 	blockW = BMPWIDTH/(BMPCOLORS-1);	// Cover width with available palette
 	blockH = (8*BMPHEIGHT)/200;		// Display equivalent of 8 lines (rescaling on APPLE/ATMOS)
 	for (color=1; color<BMPCOLORS; color++) {
 		for (row=0; row<blockH; row++) {
 			for (i=0; i<blockW; i++) {
-				bmpY = row;
-				bmpX = (color-1)*blockW + i;
+				pixelY = row;
+				pixelX = (color-1)*blockW + i;
 				SetPixel(color);
 			}
 		}

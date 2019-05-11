@@ -173,24 +173,24 @@ void ExitBitmapMode()
 }
 
 // Location of current pixel 
-unsigned char bmpX, bmpY;
+unsigned char pixelX, pixelY;
 
 void LocatePixel(unsigned int x, unsigned int y)
 {
 // This function maps pixel coordinates from a 320x200 screen definition
-// It can be by-passed by assigning bmpX, bmpY directly in your code
+// It can be by-passed by assigning pixelX, pixelY directly in your code
 #if defined __APPLE2__
-	bmpX = (x*140)/320;
-	bmpY = (y*192)/200;
+	pixelX = (x*140)/320;
+	pixelY = (y*192)/200;
 #elif defined __ATARI__
-	bmpX = x/2;
-	bmpY = y;
+	pixelX = x/2;
+	pixelY = y;
 #elif defined __ATMOS__
-	bmpX = (x*117)/320;	
-	bmpY = y/2;
+	pixelX = (x*117)/320;	
+	pixelY = y/2;
 #elif defined __CBM__
-	bmpX = x/2;
-	bmpY = y;
+	pixelX = x/2;
+	pixelY = y;
 #endif
 }
 
@@ -202,15 +202,15 @@ unsigned char GetPixel()
 	
 	// Check color index
 	DisableRom();
-	addr = BITMAPRAM + 40*(bmpY&248)+(bmpY&7)+((bmpX*2)&504);
-	index = (PEEK(addr) >> (2*(3-(bmpX%4)))) & 3;
+	addr = BITMAPRAM + 40*(pixelY&248)+(pixelY&7)+((pixelX*2)&504);
+	index = (PEEK(addr) >> (2*(3-(pixelX%4)))) & 3;
 	EnableRom();
 	
 	// Is background color?
 	if (index==0) { return bg; }
 	
 	// Analyze color index
-	offset = (bmpY/8)*40+(bmpX/4);
+	offset = (pixelY/8)*40+(pixelX/4);
 	if (index==1) {	// Upper bits of screen RAM
 		addr = SCREENRAM + offset;
 		return (PEEK(addr) & 0xF0) >> 4;		
@@ -228,8 +228,8 @@ unsigned char GetPixel()
 	unsigned char val1, val2, shift;
 	
 	// Compute pixel location
-	offset = 40*bmpY+bmpX/4;
-	shift = 6 - 2*(bmpX%4);
+	offset = 40*pixelY+pixelX/4;
+	shift = 6 - 2*(pixelX%4);
 
 	// Dual buffer (colour/shade)
 	val1 = (PEEK((char*)BITMAPRAM1+offset) & ( 3 << shift )) >> shift;
@@ -241,15 +241,15 @@ unsigned char GetPixel()
 	}
 #elif defined __APPLE2__
 	// Use DHR routines
-	RestoreSprLine(bmpX,bmpY);
-	SetDHRPointer(bmpX,bmpY);
+	RestoreSprLine(pixelX,pixelY);
+	SetDHRPointer(pixelX,pixelY);
 	return GetDHRColor();
 #elif defined __ATMOS__
 	unsigned int offset;
 	unsigned char byte1, byte2, color, shift;
 	
 	// Compute pixel offset
-	offset = bmpY*80 + bmpX/3 + 1;
+	offset = pixelY*80 + pixelX/3 + 1;
 	
 	// Get bytes from Bitmap RAM
 	byte1 = PEEK((char*)BITMAPRAM+offset);
@@ -259,7 +259,7 @@ unsigned char GetPixel()
 	color = 5 * ((byte2>191)*2 + (byte1>191));
 		
 	// Get pixels state
-	shift = 2 * (bmpX%3);
+	shift = 2 * (pixelX%3);
 	byte1 = (byte1 & (48 >> shift)) << shift;
 	byte2 = (byte2 & (48 >> shift)) << shift;
 	switch (byte1) {
@@ -285,23 +285,23 @@ void SetPixel(unsigned char color)
 	
 	// Set index to 3
 	DisableRom();
-	offset = 40*(bmpY&248)+(bmpY&7)+((bmpX*2)&504);
-	shift = (2*(3-(bmpX%4)));
+	offset = 40*(pixelY&248)+(pixelY&7)+((pixelX*2)&504);
+	shift = (2*(3-(pixelX%4)));
 	POKE(BITMAPRAM+offset, PEEK(BITMAPRAM+offset) | 3 << shift);
 	EnableRom();
 	
 	// Set color in COLORAM
-	offset = (bmpY/8)*40+(bmpX/4);
+	offset = (pixelY/8)*40+(pixelX/4);
 	POKE(COLORRAM+offset, color);
 #elif defined __ATARI__
 	unsigned int offset;
 	unsigned char shift, mask, col1, col2;	
 
 	// Compute pixel location
-	offset = 40*bmpY + bmpX/4;
-	shift = 6 - 2*(bmpX%4);
+	offset = 40*pixelY + pixelX/4;
+	shift = 6 - 2*(pixelX%4);
 	mask = 255 - (3 << shift);
-	if ((bmpY+bmpX)%2) {
+	if ((pixelY+pixelX)%2) {
 		col2 = (color%4) << shift;
 		col1 = (color/4) << shift;
 	} else {
@@ -314,14 +314,14 @@ void SetPixel(unsigned char color)
 	POKE((char*)BITMAPRAM2+offset, (PEEK((char*)BITMAPRAM2+offset) & mask) | col2);
 #elif defined __APPLE2__
 	// Use DHR routines
-	SetDHRPointer(bmpX,bmpY);
+	SetDHRPointer(pixelX,pixelY);
 	SetDHRColor(color);	
 #elif defined __ATMOS__
 	unsigned int offset;
 	unsigned char byte1, byte2, shift;
 	
 	// Compute pixel offset
-	offset = bmpY*80 + bmpX/3 + 1;
+	offset = pixelY*80 + pixelX/3 + 1;
 	
 	// Get bytes from Bitmap RAM
 	byte1 = PEEK((char*)BITMAPRAM+offset) & 63;
@@ -348,7 +348,7 @@ void SetPixel(unsigned char color)
 	}
 	
 	// Set pixels
-	shift = 2 * (bmpX%3);
+	shift = 2 * (pixelX%3);
 	switch (color%5) {
     case 1:
 		byte1 |= 32 >> shift;
@@ -750,7 +750,7 @@ void PrintStr(unsigned char col, unsigned char row, const char *buffer)
 }
 
 // Rolling buffer at the top of the screen, that moves text leftward when printing
-void PrintHeader(const char *buffer)
+void PrintBuffer(const char *buffer)
 {
 	unsigned char len, i;
 	len = strlen(buffer);
@@ -780,7 +780,6 @@ void PrintHeader(const char *buffer)
 #endif
 	// Print new message
 	PrintStr(40-len, 0, buffer);
-	paperColor = COLOR_BLACK;
 }
 
 // Interactive text input function

@@ -171,6 +171,7 @@
 	// Oric Palette
 	#define BLACK   0
 	#define MGREEN	1
+	#define GREEN	1
 	#define DGREEN	2
 	#define CYAN	3
 	#define LGREEN	4
@@ -228,7 +229,7 @@
 #endif
 
 // Location of current pixel (see LocatePixel(), SetPixel(), GetPixel())
-extern unsigned char bmpX, bmpY;
+extern unsigned char pixelX, pixelY;
 
 // Colors for printing
 extern unsigned char inkColor, paperColor, paperHeader;
@@ -247,7 +248,7 @@ void PrintChr(unsigned char col, unsigned char row, const char *chr);
 void PrintNum(unsigned char col, unsigned char row, unsigned char num);
 void PrintStr(unsigned char col, unsigned char row, const char *buffer);
 void PrintLogo(unsigned char col, unsigned char row, unsigned char index);
-void PrintHeader(const char *buffer);
+void PrintBuffer(const char *buffer);
 void InputStr(unsigned char col, unsigned char row, char *buffer, unsigned char len);
 unsigned char InputUpdate(unsigned char col, unsigned char row, char *buffer, unsigned char len, unsigned char key);
 const char *GetChr(unsigned char chr);
@@ -345,10 +346,10 @@ void BumpSFX(void);
 
 // Location of current sprite (see LocateSprite(), SetSprite())
 #if defined __CBM__
-	extern unsigned int sprX;
-	extern unsigned char sprY;	
+	extern unsigned int spriteX;
+	extern unsigned char spriteY;	
 #else
-	extern unsigned char sprX, sprY;
+	extern unsigned char spriteX, spriteY;
 #endif
 
 // Sprite handling functions
@@ -379,7 +380,7 @@ void SetSprite(unsigned char index, unsigned char frame);
   // On Atari, we need to reset collisions by poking 0 into 53278
   #define COLLISIONS(i) (PEEK(53260+i)+(1<<i)); POKE(53278,0)
   #define COLLIDING(collisions,i) ((collisions >> i) & 1) 
-#elif defined __APPLE2__ or defined __ATMOS__
+#else	// Soft sprites on Apple and Oric
   // On Apple and Atmos, collisions are prevented at draw time
   #define COLLISIONS(i) (0)
   #define COLLIDING(collisions,i) (sprCOL[i])
