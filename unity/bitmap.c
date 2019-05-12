@@ -241,49 +241,42 @@ unsigned char GetPixel()
 	SetDHRPointer(pixelX,pixelY);
 	return GetDHRColor();
 #elif defined __ATMOS__
-	unsigned char i, xO, yO;
-	unsigned int bgPTR, scrPTR, addr;
+	unsigned int addr;
+	unsigned char i, pX, pY, xO, yO, occlusion = 0;
 	unsigned char byte1, byte2, color, shift;
-	extern unsigned char sprROWS;
 	extern unsigned char sprEN[SPRITE_NUM];
 	extern unsigned char spriteXS[SPRITE_NUM];
 	extern unsigned char spriteYS[SPRITE_NUM];
 	extern unsigned char* sprBG[SPRITE_NUM];
-	unsigned char buffer[8], sprLines = 0;
+	extern unsigned char sprROWS;
+
+	// Scale to sprite coordinates
+	pX = pixelX/3; pY = pixelY*2;
 	
-	// If necessary, restore lines from sprite background
+	// Check for sprite occlusion
 	for (i=0; i<SPRITE_NUM; i++) {
 		if (sprEN[i]) {
-/*			PrintNum(0,1,pixelX/3);
-			PrintNum(0,2,spriteXS[i]);
-			PrintNum(0,3,pixelY*2);
-			PrintNum(0,4,spriteYS[i]);	*/
-			xO = pixelX/3 - spriteXS[i];
-			yO = pixelY*2 - spriteYS[i];
+			xO = pX - spriteXS[i];
+			yO = pY - spriteYS[i];
 			if (xO<3 && yO<sprROWS) {
-				sprLines = 2;
-				scrPTR = BITMAPRAM + (spriteYS[i]+yO)*40 + spriteXS[i];
-				bgPTR = sprBG[i]+yO*4;
-				memcpy(&buffer[0], scrPTR, 4);
-				memcpy(scrPTR, bgPTR, 4);
-				memcpy(&buffer[4], scrPTR+40, 4);
-				memcpy(scrPTR+40, bgPTR+4, 4);
+				//PrintNum(0,2,pX); PrintNum(3,2,spriteXS[i]);
+				//PrintNum(0,3,pY); PrintNum(3,3,spriteYS[i]);
+				addr = sprBG[i]+yO*4+xO;
+				byte1 = PEEK(addr);
+				byte2 = PEEK(addr+4);	
+				occlusion = 1;
 				break;
 			}
 		}
-	}		
-		
-	// Get 2 bytes from Bitmap RAM (interlaced lines)
-	addr = (char*)BITMAPRAM + pixelY*80 + pixelX/3 + 1;
-	byte1 = PEEK(addr);
-	byte2 = PEEK(addr+40);	
+	}
 	
-	// Restore sprite lines
-	if (sprLines) {
-		memcpy(scrPTR, &buffer[0], 4);
-		memcpy(scrPTR+40, &buffer[4], 4);
-	}	
-
+	// Get 2 bytes from Bitmap RAM (interlaced lines)
+	if (!occlusion) {
+		addr = (char*)BITMAPRAM + pY*40 + (pX+1);		
+		byte1 = PEEK(addr);
+		byte2 = PEEK(addr+40);	
+	}
+	
 	// Get PAPER/INK inversion group
 	color = 5 * ((byte2>191)*2 + (byte1>191));
 		
@@ -302,6 +295,7 @@ unsigned char GetPixel()
 		if (byte2 == 48) { color += 4; } else { color += 2; }
 		break;	
 	}
+	//PrintNum(0,1,color);
 	return color;
 #endif	
 }
@@ -476,7 +470,11 @@ void ClearBitmap()
 
 void PrintNum(unsigned char col, unsigned char row, unsigned char num)
 {
-	if (num > 9) { PrintChr(col, row, &charDigit[(num/10)*3]); }
+	if (num > 9) { 
+		PrintChr(col, row, &charDigit[(num/10)*3]); 
+	} else {
+		PrintChr(col, row, charBlank); 
+	}
 	PrintChr(col+1, row, &charDigit[(num%10)*3]);
 }
 
