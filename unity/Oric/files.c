@@ -29,18 +29,15 @@
  *   specific prior written permission.
  *
  */
- 
-#ifndef __LIBSEDORIC_H__
-#define __LIBSEDORIC_H__
 
-#ifndef ASSEMBLER
+// Externals: see libsedoric.s
 extern const char* sed_fname;
 extern void* sed_begin;
 extern void* sed_end;
 extern unsigned int sed_size;
 extern int sed_err;
 
-int savefile(const char* fname, void* buf, int len) 
+int SedoricWrite(const char* fname, void* buf, int len) 
 {
     extern void sed_savefile(void);
     sed_fname = fname;
@@ -51,15 +48,11 @@ int savefile(const char* fname, void* buf, int len)
     return sed_err;
 }
 
-int loadfile(const char* fname, void* buf, int* len)
+int SedoricRead(const char* fname, void* buf)
 {
-    extern void sed_loadfile(void);
+	extern void sed_loadfile(void);
     sed_fname = fname;
     sed_begin = buf;
-    sed_loadfile();    
-    *len = sed_size;
+    sed_loadfile();
     return sed_err;
 }
-#endif
-
-#endif /* __LIBSEDORIC_H__ */

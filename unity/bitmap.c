@@ -34,10 +34,6 @@
   #pragma code-name("SHADOW_RAM")
 #endif
 
-#if defined __ATMOS__
-  #include <Oric/libsedoric.h>
-#endif
-
 // Helper functions
 #define BYTE4(a,b,c,d) ((a<<6) | (b<<4) | (c<<2) | d)
 
@@ -65,8 +61,8 @@ unsigned char inkColor, paperColor;
   {
 	// Set INK attributes
 	unsigned char i, line1, line2;
-	unsigned int addr;	
-	addr = BITMAPRAM + row*320 + col;
+	unsigned int addr;
+	addr = BITMAPRAM + row*320 + (col+1);
 	if (paperColor != 0) {
 		line1 = ink1[paperColor];
 		line2 = ink2[paperColor];
@@ -245,15 +241,48 @@ unsigned char GetPixel()
 	SetDHRPointer(pixelX,pixelY);
 	return GetDHRColor();
 #elif defined __ATMOS__
-	unsigned int offset;
+	unsigned char i, xO, yO;
+	unsigned int bgPTR, scrPTR, addr;
 	unsigned char byte1, byte2, color, shift;
+	extern unsigned char sprROWS;
+	extern unsigned char sprEN[SPRITE_NUM];
+	extern unsigned char spriteXS[SPRITE_NUM];
+	extern unsigned char spriteYS[SPRITE_NUM];
+	extern unsigned char* sprBG[SPRITE_NUM];
+	unsigned char buffer[8], sprLines = 0;
 	
-	// Compute pixel offset
-	offset = pixelY*80 + pixelX/3 + 1;
+	// If necessary, restore lines from sprite background
+	for (i=0; i<SPRITE_NUM; i++) {
+		if (sprEN[i]) {
+/*			PrintNum(0,1,pixelX/3);
+			PrintNum(0,2,spriteXS[i]);
+			PrintNum(0,3,pixelY*2);
+			PrintNum(0,4,spriteYS[i]);	*/
+			xO = pixelX/3 - spriteXS[i];
+			yO = pixelY*2 - spriteYS[i];
+			if (xO<3 && yO<sprROWS) {
+				sprLines = 2;
+				scrPTR = BITMAPRAM + (spriteYS[i]+yO)*40 + spriteXS[i];
+				bgPTR = sprBG[i]+yO*4;
+				memcpy(&buffer[0], scrPTR, 4);
+				memcpy(scrPTR, bgPTR, 4);
+				memcpy(&buffer[4], scrPTR+40, 4);
+				memcpy(scrPTR+40, bgPTR+4, 4);
+				break;
+			}
+		}
+	}		
+		
+	// Get 2 bytes from Bitmap RAM (interlaced lines)
+	addr = (char*)BITMAPRAM + pixelY*80 + pixelX/3 + 1;
+	byte1 = PEEK(addr);
+	byte2 = PEEK(addr+40);	
 	
-	// Get bytes from Bitmap RAM
-	byte1 = PEEK((char*)BITMAPRAM+offset);
-	byte2 = PEEK((char*)BITMAPRAM+offset+40);	
+	// Restore sprite lines
+	if (sprLines) {
+		memcpy(scrPTR, &buffer[0], 4);
+		memcpy(scrPTR+40, &buffer[4], 4);
+	}	
 
 	// Get PAPER/INK inversion group
 	color = 5 * ((byte2>191)*2 + (byte1>191));
@@ -376,22 +405,14 @@ void SetPixel(unsigned char color)
 void LoadBitmap(char *filename) 
 {
 #if defined __ATMOS__
-	unsigned char i = 0;
-	while (PEEK(filename+i) != '.') { i += 1; }
-	i++; POKE(filename+i, 'c');
-	i++; POKE(filename+i, 'o');
-	i++; POKE(filename+i, 'm');
-	loadfile(filename, (void*)(BITMAPRAM), 8000);
+	SedoricRead(filename, (void*)(BITMAPRAM));
 #else	
-	FILE* fp;
-
 	// Open Map File
-	fp = fopen(filename, "rb");
-	
+	FILE* fp;
+	fp = fopen(filename, "rb");	
   #if defined __CBM__
 	// Consume two bytes of header
-	fgetc(fp);
-	fgetc(fp);
+	fgetc(fp); fgetc(fp);
 	
 	// 8000 bytes bitmap ram
 	fread((char*)(BITMAPRAM), 1, 8000, fp);
@@ -455,9 +476,6 @@ void ClearBitmap()
 
 void PrintNum(unsigned char col, unsigned char row, unsigned char num)
 {
-#if defined __ATMOS__
-	SetInk(col, row);
-#endif
 	if (num > 9) { PrintChr(col, row, &charDigit[(num/10)*3]); }
 	PrintChr(col+1, row, &charDigit[(num%10)*3]);
 }
@@ -563,7 +581,7 @@ void PrintLogo(unsigned char col, unsigned char row, unsigned char index)
 	unsigned char i;
 	
 	// Set Character data
-	addr = BITMAPRAM + row*320 + col+1;
+	addr = BITMAPRAM + row*320 + (col+1);
 	for (i=0; i<8; ++i) {
 		POKE((char*)addr+i*40, 64+logos[index][i]);
 	}								  
@@ -667,7 +685,7 @@ void PrintChr(unsigned char col, unsigned char row, const char *chr)
 	unsigned char i;
 	unsigned char a0,a2,a4,b,blank;
 	unsigned int addr;
-	addr = BITMAPRAM + row*320 + col+1;
+	addr = BITMAPRAM + row*320 + (col+1);
 	blank = 64+ (paperColor ? 63 : 0);
 	if (chr == &charBlank[0]) {
 		for (i=0; i<8; ++i) {
@@ -736,13 +754,9 @@ const char *GetChr(unsigned char chr)
 // Parse string and print characters one-by-one (slow)
 void PrintStr(unsigned char col, unsigned char row, const char *buffer)
 {
+	// Parse buffer
 	const char *chr;
-	unsigned char i;
-#if defined __ATMOS__
-	// Set ink color
-	SetInk(col, row);
-#endif
-	// Parse buffer to print characters
+	unsigned char i;	
 	for (i=0; i<strlen(buffer); ++i) {
 		chr = GetChr(buffer[i]);
 		PrintChr(col+i, row, chr);
@@ -757,14 +771,14 @@ void PrintBuffer(const char *buffer)
 #if defined __CBM__
 	// Roll bitmap and screen ram
 	DisableRom();
-	memcpy((char*)BITMAPRAM, (char*)(BITMAPRAM+len*8), (40-len)*8);
+	memcpy((char*)BITMAPRAM, (char*)(BITMAPRAM+len*8), (CHR_COLS-len)*8);
 	EnableRom();
-	memcpy((char*)SCREENRAM, (char*)(SCREENRAM+len), (40-len));
+	memcpy((char*)SCREENRAM, (char*)(SCREENRAM+len), (CHR_COLS-len));
 #elif defined __ATARI__
 	// Roll chroma and luma buffers
 	for (i=0; i<8; ++i) {
-		memcpy((char*)BITMAPRAM1+i*40, (char*)(BITMAPRAM1+len)+i*40, (40-len));
-		memcpy((char*)BITMAPRAM2+i*40, (char*)(BITMAPRAM2+len)+i*40, (40-len));
+		memcpy((char*)BITMAPRAM1+i*40, (char*)(BITMAPRAM1+len)+i*40, (CHR_COLS-len));
+		memcpy((char*)BITMAPRAM2+i*40, (char*)(BITMAPRAM2+len)+i*40, (CHR_COLS-len));
 	}
 #elif defined __APPLE2__
 	// Always move 7 pixels at a time!
@@ -772,14 +786,14 @@ void PrintBuffer(const char *buffer)
 	for (i=0; i<8; ++i) {
 		SetDHRPointer(0, i);		
 		*dhraux = 0;
-		memcpy((char*)(dhrptr), (char*)(dhrptr+len), (40-len));
+		memcpy((char*)(dhrptr), (char*)(dhrptr+len), (CHR_COLS-len));
 		*dhrmain = 0;
-		memcpy((char*)(dhrptr), (char*)(dhrptr+len), (40-len));
+		memcpy((char*)(dhrptr), (char*)(dhrptr+len), (CHR_COLS-len));
 	}
-	if (strlen(buffer)%2) { PrintChr(39, 0, charBlank); }
+	if (strlen(buffer)%2) { PrintChr(CHR_COLS-1, 0, charBlank); }
 #endif
 	// Print new message
-	PrintStr(40-len, 0, buffer);
+	PrintStr(CHR_COLS-len, 0, buffer);
 }
 
 // Interactive text input function

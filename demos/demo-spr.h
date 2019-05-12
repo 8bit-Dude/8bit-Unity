@@ -17,7 +17,7 @@ unsigned char buffer[20];
 
 int DemoSPR(void) 
 {
-	unsigned char i, frame;
+	unsigned char i, slot, frame;
 	unsigned int xpos, ypos, angle;
 	clock_t timer = clock();
 
@@ -30,13 +30,21 @@ int DemoSPR(void)
 	// Print some extra info
 	paperColor = GREY; 
 	inkColor = BLACK; 
-	PrintStr(0, LAST_LINE, "STADIUM");	
+	PrintStr(0, CHR_ROWS-1, "STADIUM");	
 	paperColor = BLACK; 
 	for (i=0; i<4; i++) {
-		inkColor = spriteColors[i]; 
-		PrintLogo(8*(i+1)+5, LAST_LINE, i);
-		PrintNum(8*(i+1)+2, LAST_LINE, i+1);
-		PrintStr(8*(i+1), LAST_LINE, "PL");
+		slot = 8*(i+1);
+		inkColor = spriteColors[i];
+#if defined __ATMOS__
+		SetInk(slot-1, CHR_ROWS-1);
+#endif		
+		PrintStr(slot, CHR_ROWS-1, "CAR");
+		PrintNum(slot+2, CHR_ROWS-1, i+1);
+		PrintLogo(slot+4, CHR_ROWS-1, i);
+#if defined __ATMOS__
+		inkColor = AIC;
+		SetInk(slot+5, CHR_ROWS-1);
+#endif		
 	}
 	
 	// Initialize sprites

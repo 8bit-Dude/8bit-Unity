@@ -81,6 +81,12 @@ void InitSFX()
 	POKE((char*)0xD208,0);  // AUDCTL
 	POKE((char*)0xD20F,3);
 	SetupSFX();	// VBI for SFX samples
+#elif defined __ATMOS__
+	if PEEK((char*)0xC800) {
+		asm("jsr $FB14");	// Atmos (ROM 1.1)
+	} else {
+		asm("jsr $FAFA");	// Oric-1 (ROM 1.0)
+	}
 #endif
 }
 
@@ -94,6 +100,12 @@ void StopSFX()
 	POKE((char*)(0xD202), 0);
 	POKE((char*)(0xD204), 0);
 	POKE((char*)(0xD208), 0);
+#elif defined __ATMOS__
+	if PEEK((char*)0xC800) {
+		asm("jsr $FB14");	// Atmos (ROM 1.1)
+	} else {
+		asm("jsr $FAFA");	// Oric-1 (ROM 1.0)
+	}
 #endif	
 }
 
@@ -130,6 +142,17 @@ void EngineSFX(int channel, int vel)
 		while (tone) { (tone--); }
 		POKE(0xc030,0);
 	}	
+#elif defined __ATMOS__
+	vel = vel/20 + 1;
+	POKEW(0x02E1, channel%3+1);
+	POKEW(0x02E3, vel/12);
+	POKEW(0x02E5, vel%12);
+	POKEW(0x02E7, 0x09);
+	if PEEK((char*)0xC800) {
+		asm("jsr $FC18");	// Atmos (ROM 1.1)
+	} else {
+		asm("jsr $F424");	// Oric-1 (ROM 1.0)
+	}
 #endif
 }
 
@@ -169,6 +192,12 @@ void BleepSFX(unsigned char tone)
 			repeat--;
 		}
 	}
+#elif defined __ATMOS__
+	if PEEK((char*)0xC800) {
+		asm("jsr $FA9F");	// Atmos (ROM 1.1)
+	} else {
+		asm("jsr $F412");	// Oric-1 (ROM 1.0)
+	}
 #endif
 }
 
@@ -183,5 +212,11 @@ void BumpSFX()
 	sampleCount = 16;
 	sampleFreq = 255;
 	sampleCtrl = 232;
+#elif defined __ATMOS__
+	if PEEK((char*)0xC800) {
+		asm("jsr $FB2A");	// Atmos (ROM 1.1)
+	} else {
+		asm("jsr $FB10");	// Oric-1 (ROM 1.0)
+	}
 #endif
 }

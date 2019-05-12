@@ -46,17 +46,13 @@
 // Platform IDs
 #if defined __CBM__
 	#define PLATFORM   0
-	#define LAST_LINE 24	
 #elif defined __ATARI__
 	#define PLATFORM   1
-	#define LAST_LINE 24	
 #elif defined __APPLE2__
 	#define PLATFORM   2
-	#define LAST_LINE 23	
 	#define CH_DEL  0x08
 #elif defined __ATMOS__
 	#define PLATFORM   3
-	#define LAST_LINE 24	
 #endif
 
 // Memory locations
@@ -103,9 +99,11 @@
 // Screen/Palette definitions
 #if defined __CBM__
 	// C64 Screen (Multi-Color Mode)
-	#define BMPWIDTH  160
-	#define BMPHEIGHT 200
-	#define BMPCOLORS 16
+	#define BMP_COLS 160
+	#define BMP_ROWS 200
+	#define BMP_PALETTE 16
+	#define CHR_COLS 40
+	#define CHR_ROWS 25
 	// C64 Palette
 	#define BLACK  	0
 	#define WHITE  	1
@@ -126,9 +124,11 @@
 	#define LGREY   15	
 #elif defined __ATARI__
 	// Atari Screen (INP Mode)
-	#define BMPWIDTH  160
-	#define BMPHEIGHT 200
-	#define BMPCOLORS 11
+	#define BMP_COLS 160
+	#define BMP_ROWS 200
+	#define BMP_PALETTE 11
+	#define CHR_COLS 40
+	#define CHR_ROWS 25
 	// Atari Palette
 	#define BLACK  	0
 	#define DBLUE   2
@@ -143,9 +143,11 @@
 	#define YELLOW 	15
 #elif defined __APPLE2__
 	// Apple Screen (DHR Mode)
-	#define BMPWIDTH  140
-	#define BMPHEIGHT 192
-	#define BMPCOLORS 16
+	#define BMP_COLS 140
+	#define BMP_ROWS 192
+	#define BMP_PALETTE 16
+	#define CHR_COLS 40
+	#define CHR_ROWS 24
 	// Apple Palette
 	#define BLACK   0
 	#define DBLUE	1
@@ -165,9 +167,11 @@
 	#define WHITE   15
 #elif defined __ATMOS__	
 	// Oric Screen (AIC Mode)
-	#define BMPWIDTH  117
-	#define BMPHEIGHT 100
-	#define BMPCOLORS 20
+	#define BMP_COLS 117
+	#define BMP_ROWS 100
+	#define BMP_PALETTE 20
+	#define CHR_COLS 39
+	#define CHR_ROWS 25
 	// Oric Palette
 	#define BLACK   0
 	#define MGREEN	1
@@ -175,6 +179,7 @@
 	#define DGREEN	2
 	#define CYAN	3
 	#define LGREEN	4
+	#define AIC		4
 	#define GREY	5
 	#define MBLUE	6
 	#define DBLUE	7
@@ -232,7 +237,10 @@
 extern unsigned char pixelX, pixelY;
 
 // Colors for printing
-extern unsigned char inkColor, paperColor, paperHeader;
+extern unsigned char inkColor, paperColor;
+#if defined __ATMOS__
+  void SetInk(unsigned char col, unsigned char row);
+#endif
 
 // Bitmap functions (see bitmap.c)
 void InitBitmap(void);
@@ -255,8 +263,8 @@ const char *GetChr(unsigned char chr);
 
 // C64 specific functions (see C64/ROM.s)
 #ifdef __CBM__
-  extern void DisableRom();	// Disable ROM before using GetColor()
-  extern void EnableRom();	// Enable ROM after using GetColor()
+  void DisableRom();	// Disable ROM before using GetColor()
+  void EnableRom();	// Enable ROM after using GetColor()
 #endif
 
 // Apple Double-HiRes functions (see Apple/DHR.c)
@@ -394,4 +402,10 @@ void SetSprite(unsigned char index, unsigned char frame);
   clock_t clock(void);
   unsigned sleep(unsigned seconds);
   extern clock_t clk;	
+#endif
+
+// Workaround for sedoric file reading
+#if defined __ATMOS__
+  int SedoricWrite(const char* fname, void* buf, int len);
+  int SedoricRead(const char* fname, void* buf);
 #endif

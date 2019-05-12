@@ -103,13 +103,11 @@
 	unsigned char sprROWS, inkVAL;
 	unsigned int bgPTR, sprPTR, scrPTR, inkPTR, colPTR;
 	extern unsigned char ink1[20];	// see bitmap.c
-	int loadfile(const char* fname, void* buf, int* len);	// see libsedoric.h
 	void InitSprites(unsigned char rows, unsigned char *spriteColors)
-	{	
-		unsigned char i;
-		
+	{			
 		// Load sprite sheet and assigned colors
-		loadfile("sprites.com", (void*)SPRITERAM, 256);
+		unsigned char i;
+		SedoricRead("sprites.dat", (void*)SPRITERAM);
 		colPTR = spriteColors;
 		sprROWS = rows;
 		
@@ -306,7 +304,27 @@ void SetSprite(unsigned char index, unsigned char frame)
 		POKEW(FlickFrames+(index-4)*2, SPRITERAM + frame*sprROWS);			
 	}
 #elif defined __ATMOS__	
-	unsigned char i;
+	unsigned char i, delta;
+
+	// Offset from centre of sprite
+	spriteX -= 1; spriteY -= sprROWS/2;
+
+	// Check for collisions
+	sprCOL[index] = 0;
+	for (i=0; i<SPRITE_NUM; i++) {
+		if (sprEN[i] && i!=index) {
+			delta = spriteXS[i] - spriteX;
+			if (delta < 2 || delta>254) {
+				delta = spriteYS[i] - spriteY;
+				if (delta < sprROWS || delta>(256-sprROWS)) {
+					// Redraw background of that sprite
+					RestoreSprBG(i);
+					sprCOL[i] = 1;
+					sprCOL[index] = 1;
+				}
+			}
+		}
+	}	
 
 	// Restore old background?
 	if (sprEN[index]) { RestoreSprBG(index); }
