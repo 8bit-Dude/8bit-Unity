@@ -49,6 +49,7 @@ class Application:
     listbox_OricBitmap = None
     listbox_OricSprites = None
     listbox_OricMusic = None
+    listbox_Shared = None
     listbox_Code = None
     lists = None
     cwd = None
@@ -89,8 +90,6 @@ class Application:
         self.builder.connect_callbacks(self)
         
         # Get list boxes and fields
-        self.entry_Disk = self.builder.get_object('Entry_Disk');
-        self.listbox_Code = self.builder.get_object('Listbox_Code')
         self.listbox_AppleBitmap = self.builder.get_object('Listbox_AppleBitmap')        
         self.listbox_AppleSprites = self.builder.get_object('Listbox_AppleSprites')        
         self.listbox_AppleMusic = self.builder.get_object('Listbox_AppleMusic')        
@@ -103,6 +102,9 @@ class Application:
         self.listbox_OricBitmap = self.builder.get_object('Listbox_OricBitmap')        
         self.listbox_OricSprites = self.builder.get_object('Listbox_OricSprites')        
         self.listbox_OricMusic = self.builder.get_object('Listbox_OricMusic')     
+        self.listbox_Shared = self.builder.get_object('Listbox_Shared')
+        self.listbox_Code = self.builder.get_object('Listbox_Code')
+        self.entry_Disk = self.builder.get_object('Entry_Disk');
 
         # Make list of boxes
         self.entries = [ self.entry_Disk ]
@@ -110,7 +112,8 @@ class Application:
                        self.listbox_AppleBitmap, self.listbox_AppleSprites, self.listbox_AppleMusic,
                        self.listbox_AtariBitmap, self.listbox_AtariSprites, self.listbox_AtariMusic,
                        self.listbox_C64Bitmap,   self.listbox_C64Sprites,   self.listbox_C64Music,
-                       self.listbox_OricBitmap, self.listbox_OricSprites, self.listbox_OricMusic ]
+                       self.listbox_OricBitmap, self.listbox_OricSprites, self.listbox_OricMusic,
+                       self.listbox_Shared ]
 
     def FileNew(self):
         # Reset all fields
@@ -260,7 +263,16 @@ class Application:
             filename = filename.replace(self.cwd, '')
             self.listbox_OricMusic.delete(0, END)
             self.listbox_OricMusic.insert(END, filename)                   
-        
+
+    def SharedAdd(self):
+        filename = askopenfilename(initialdir = "../../", title = "Select Asset File", filetypes = (("All files","*.*"),)) 
+        if filename is not '':
+            filename = filename.replace(self.cwd, '')
+            self.listbox_Shared.insert(END, filename)
+
+    def SharedRem(self):
+        self.listbox_Shared.delete(0, ACTIVE)
+            
     def CodeAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Code File", filetypes = (("C files","*.c"),)) 
         if filename is not '':
@@ -272,6 +284,7 @@ class Application:
         
     def GenerateBuilder(self):
         diskname = self.entry_Disk.get()
+        shared = list(self.listbox_Shared.get(0, END))
         code = list(self.listbox_Code.get(0, END))
         if len(code) < 1:
             messagebox.showinfo('Error', 'Please add C source file(s)!')
@@ -282,7 +295,7 @@ class Application:
         bitmaps = list(self.listbox_AppleBitmap.get(0, END))
         sprites = list(self.listbox_AppleSprites.get(0, END))
         music = list(self.listbox_AppleMusic.get(0, END))
-        with open("../../build-"+diskname+"-apple.bat", "wb") as fp:
+        with open("../../"+diskname+"-apple.bat", "wb") as fp:
             # Info
             fp.write('echo off\n\n')
             fp.write('rm [build]\\apple\\*.* \n\n')
@@ -303,7 +316,7 @@ class Application:
             for item in code:
                 comp += item
                 comp += ' '
-            fp.write(comp + 'unity/bitmap.c unity/chars.s unity/network.c unity/sfx.c unity/sprites.c unity/Apple/CLOCK.c unity/Apple/DHR.c unity/Apple/DUET.s unity/Apple/JOY.s unity/Apple/MOCKING.s unity/IP65/ip65.lib unity/IP65/ip65_apple2.lib\n')
+            fp.write(comp + 'unity/bitmap.c unity/chars.s unity/math.s unity/network.c unity/sfx.c unity/sprites.c unity/Apple/CLOCK.c unity/Apple/DHR.c unity/Apple/DUET.s unity/Apple/JOY.s unity/Apple/MOCKING.s unity/Apple/PADDLE.s unity/IP65/ip65.lib unity/IP65/ip65_apple2.lib\n')
             
             # Compression
             cmd = 'utils\\scripts\\exomizer sfx $0803 -t162 -Di_load_addr=$0803 [build]/apple/' + diskname.lower() + '.bin@$0803,4'
@@ -321,7 +334,9 @@ class Application:
             # Disk builder
             fp.write('copy utils\\scripts\\apple\\AppleProDOS190.dsk [build]\\' + diskname + '-apple.dsk\n')
             fp.write('java -jar utils\\scripts\\apple\\AppleCommander.jar -cc65 [build]/' + diskname + '-apple.dsk LOADER bin 0x0803 < [build]/apple/loader\n')
-            for item in bitmaps:                
+            for item in shared:
+                fp.write('java -jar utils\\scripts\\apple\\AppleCommander.jar -p [build]/' + diskname + '-apple.dsk ' + FileBase(item, '').upper() + ' bin < ' + item + '\n')
+            for item in bitmaps:
                 fp.write('java -jar utils\\scripts\\apple\\AppleCommander.jar -p [build]/' + diskname + '-apple.dsk ' + FileBase(item, '-apple.png').upper() + '.MAP bin < [build]/apple/' + FileBase(item, '-apple.png') + '.map\n')
 
             # Info
@@ -337,7 +352,7 @@ class Application:
         bitmaps = list(self.listbox_AtariBitmap.get(0, END))
         sprites = list(self.listbox_AtariSprites.get(0, END))
         music = list(self.listbox_AtariMusic.get(0, END))
-        with open("../../build-"+diskname+"-atari.bat", "wb") as fp:
+        with open("../../"+diskname+"-atari.bat", "wb") as fp:
             # Info
             fp.write('echo off\n\n')
             fp.write('rm [build]\\atari\\*.* \n\n')
@@ -349,6 +364,10 @@ class Application:
             if len(sprites) > 0:
                 fp.write('utils\\py27\\python utils\\scripts\\atari\\AtariSprites.py ' + sprites[0] + ' [build]/atari/sprites.dat\n')
 
+            # Shared Data
+            for item in shared:
+                fp.write('copy ' + item.replace('/','\\') + ' [build]\\atari\n')
+
             # Info
             fp.write('\necho DONE!\n\n')
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
@@ -358,7 +377,7 @@ class Application:
             for item in code:
                 comp += item
                 comp += ' '
-            fp.write(comp + 'unity/bitmap.c unity/chars.s unity/network.c unity/sfx.c unity/sprites.c unity/Atari/POKEY.s unity/IP65/ip65.lib unity/IP65/ip65_atarixl.lib\n')
+            fp.write(comp + 'unity/bitmap.c unity/chars.s unity/math.s unity/network.c unity/sfx.c unity/sprites.c unity/Atari/POKEY.s unity/IP65/ip65.lib unity/IP65/ip65_atarixl.lib\n')
             fp.write('utils\\cc65\\bin\\cl65 -t atarixl -C atari-asm.cfg -o [build]/atari/basicoff.bin unity/Atari/BASICOFF.s\n')
             fp.write('utils\\scripts\\atari\\mads.exe -o:[build]/atari/dli.bin unity/Atari/DLI.a65\n')
             fp.write('utils\\scripts\\atari\\mads.exe -o:[build]/atari/rmt.bin unity/Atari/RMT.a65\n')
@@ -396,7 +415,7 @@ class Application:
         bitmaps = list(self.listbox_C64Bitmap.get(0, END))
         sprites = list(self.listbox_C64Sprites.get(0, END))
         music = list(self.listbox_C64Music.get(0, END))
-        with open("../../build-"+diskname+"-c64.bat", "wb") as fp:
+        with open("../../"+diskname+"-c64.bat", "wb") as fp:
             # Info
             fp.write('echo off\n\n')
             fp.write('rm [build]\\c64\\*.* \n\n')
@@ -417,7 +436,7 @@ class Application:
             for item in code:
                 comp += item
                 comp += ' '
-            fp.write(comp + 'unity/bitmap.c unity/chars.s unity/network.c unity/sfx.c unity/sprites.c unity/C64/JOY.s unity/c64/ROM.s unity/C64/SID.s unity/IP65/ip65.lib unity/IP65/ip65_c64.lib\n')
+            fp.write(comp + 'unity/bitmap.c unity/chars.s unity/math.s unity/network.c unity/sfx.c unity/sprites.c unity/C64/JOY.s unity/c64/ROM.s unity/C64/SID.s unity/IP65/ip65.lib unity/IP65/ip65_c64.lib\n')
             
             # Compression
             cmd = 'utils\\scripts\\exomizer.exe sfx 2061 [build]/c64/' + diskname.lower() + '.bin'
@@ -435,6 +454,8 @@ class Application:
             # Disk builder
             fp.write('utils\\scripts\\c64\\c1541 -format loader,666 d64 [build]/' + diskname + '-c64.d64 -attach [build]/' + diskname + '-c64.d64 ')
             fp.write('-write [build]/c64/loader.prg loader.prg ')
+            for item in shared:
+                fp.write('-write ' + item + ' ' + FileBase(item, '') + ' ')                
             for item in bitmaps:
                 fp.write('-write [build]/c64/' + FileBase(item, '-c64.png') + '.map ' + FileBase(item, '-c64.png') + '.map ')                
                 
@@ -451,20 +472,23 @@ class Application:
         bitmaps = list(self.listbox_OricBitmap.get(0, END))
         sprites = list(self.listbox_OricSprites.get(0, END))
         music = list(self.listbox_OricMusic.get(0, END))
-        with open("../../build-"+diskname+"-oric.bat", "wb") as fp:
+        with open("../../"+diskname+"-oric.bat", "wb") as fp:
             # Info
             fp.write('echo off\n\n')
             fp.write('rm [build]\\oric\\*.* \n\n')
             fp.write('echo --------------- CONVERT ASSETS ---------------  \n\n')
             
-            # Bitmaps / Sprites
+            # Process Shared / Bitmaps / Sprites
+            for item in shared:
+                filebase = FileBase(item, '')
+                fp.write('utils\\scripts\\oric\\header -a0 ' + item + ' [build]/oric/' + filebase + ' $A000\n')
             for item in bitmaps:
                 filebase = FileBase(item, '-oric.png')
-                fp.write('utils\\py27\\python utils\\scripts\\oric\\OricBitmap.py ' + item + ' [build]/oric/' + filebase + '.raw\n')
-                fp.write('utils\\scripts\\oric\\header [build]/oric/' + filebase + '.raw [build]/oric/' + filebase + '.map $A000\n')
+                fp.write('utils\\py27\\python utils\\scripts\\oric\\OricBitmap.py ' + item + ' [build]/oric/' + filebase + '.raw 19\n')
+                fp.write('utils\\scripts\\oric\\header -a0 [build]/oric/' + filebase + '.raw [build]/oric/' + filebase + '.map $A000\n')
             if len(sprites) > 0:
                 fp.write('utils\\py27\\python utils\\scripts\\oric\\OricSprites.py ' + sprites[0] + ' [build]/oric/sprites.raw\n')
-                fp.write('utils\\scripts\\oric\\header [build]/oric/sprites.raw [build]/oric/sprites.dat $9000\n')
+                fp.write('utils\\scripts\\oric\\header -a0 [build]/oric/sprites.raw [build]/oric/sprites.dat $9000\n')
 
             # Clean-up
             fp.write('rm [build]\\oric\\*.raw\n')
@@ -478,9 +502,9 @@ class Application:
             for item in code:
                 comp += item
                 comp += ' '
-            fp.write(comp + 'unity/bitmap.c unity/chars.s unity/network.c unity/sfx.c unity/sprites.c unity/Oric/joysticks.c unity/Oric/keyboard.s unity/Oric/libsedoric.s\n')
+            fp.write(comp + 'unity/bitmap.c unity/chars.s unity/math.s unity/memory.s unity/network.c unity/sfx.c unity/sprites.c unity/Oric/files.c unity/Oric/joysticks.c unity/Oric/keyboard.s unity/Oric/libsedoric.s\n')
 
-            # Fix heder
+            # Fix header
             fp.write('utils\\scripts\\oric\\header.exe [build]/oric/launch.bin [build]/oric/launch.com $0501\n')
             
             # Clean-up
@@ -492,9 +516,10 @@ class Application:
 
             # Disk builder
             cmd = 'utils\\scripts\\oric\\tap2dsk.exe -iLAUNCH.COM [build]/oric/launch.com [build]/oric/sprites.dat'
+            for item in shared:
+                cmd += ' [build]/oric/' + FileBase(item, '')
             for item in bitmaps:
-                filebase = ' [build]/oric/' + FileBase(item, '-oric.png')
-                cmd += filebase + '.map '
+                cmd += ' [build]/oric/' + FileBase(item, '-oric.png') + '.map'
             cmd += ' [build]/' + diskname + '-oric.dsk\n'
             fp.write(cmd)
             fp.write('utils\\scripts\\oric\\old2mfm.exe [build]/' + diskname + '-oric.dsk\n')

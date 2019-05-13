@@ -6,6 +6,10 @@ from math import sqrt
 
 input = sys.argv[1]
 output = sys.argv[2]
+try:
+    noRemap = [int(n) for n in sys.argv[3].split(',')]
+except:
+    noRemap = []
 
 try:
     # Read source file
@@ -54,8 +58,12 @@ try:
                     delta = []
                     vec1 = rgb[block[i]]
                     for k in range(len(groups[gsel])):
-                        vec2 = rgb[groups[gsel][k]]
-                        delta.append( sqrt( (vec1[0]-vec2[0])**2 + (vec1[1]-vec2[1])**2 + (vec1[2]-vec2[2])**2 ) )
+                        index = groups[gsel][k]
+                        if index in noRemap:
+                            delta.append( 999999 )
+                        else:
+                            vec2 = rgb[index]
+                            delta.append( sqrt( (vec1[0]-vec2[0])**2 + (vec1[1]-vec2[1])**2 + (vec1[2]-vec2[2])**2 ) )
                     swap = delta.index(min(delta))
                     block[i] = groups[gsel][swap]
             
