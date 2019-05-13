@@ -67,8 +67,6 @@
 	#define FlickX      FLICKDATA+0x02
 	#define FlickY      FLICKDATA+0x06
 	#define FlickFrames FLICKDATA+0x0A
-	unsigned char spritePalette[16] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x24, 0x00, 0x00, 0x00, 0xFF, 0x74, 0xa6, 0x00, 0x10, 0x2c, 0xdc};	
-								 // { BLACK, N/A, DBLUE, DGREEN, BROWN, RED, N/A, ORANGE, N/A, GREY, BLUE, GREEN, N/A, GREY, PINK, YELLOW }	
 	unsigned int PMGbase[SPRITE_NUM] = {PMGRAM+1024, PMGRAM+1280, PMGRAM+1536, PMGRAM+1792, PMGRAM+768};
 	unsigned int PMGaddr[SPRITE_NUM] = {PMGRAM+1024, PMGRAM+1280, PMGRAM+1536, PMGRAM+1792, PMGRAM+768};
 	unsigned char sprROWS;
@@ -78,10 +76,10 @@
 		int i;	
 		for (i=0; i<4; i++) {
 			bzero(PMGaddr[i],0x100);   		// Clear Player memory
-			POKE(704+i, spritePalette[spriteColors[i]]);   // Set Player colors  (shadow for 53266)
+			POKE(704+i, spriteColors[i]);   // Set Player colors  (shadow for 53266)
 		}
 		bzero(PMGaddr[4],0x100);  	// Clear Missile memory
-		POKE(711, spritePalette[spriteColors[4]]);	// Set Missile color  (shadow for 53273)
+		POKE(711, spriteColors[4]);	// Set Missile color  (shadow for 53273)
 		POKE(FlickMask, 0);  	  	// Clear rolling sprites mask (DLI.a65)
 		
 		// Setup ANTIC and GTIA
@@ -185,18 +183,16 @@
 
 // Oric specific background redrawing function
 #if defined __ATMOS__
-	void RestoreSprBG(unsigned char index)
-	{
-		// Restore entire sprite background
-		unsigned char i;
-		scrPTR = BITMAPRAM + spriteYS[index]*40 + spriteXS[index];
-		bgPTR = sprBG[index];
-		for (i=0; i<sprROWS; i++) {
-			memcpy(scrPTR, bgPTR, 4);
-			scrPTR += 40;
-			bgPTR += 4;
-		}	
-	}	
+  void MultiBlockCopy(void);	// (see memory.s)
+  void RestoreSprBG(unsigned char index)
+  {
+	// Restore sprite background
+	POKE(0x00, sprROWS); POKE(0x01, 4);					// Number of: blocks / bytes per block
+	POKEW(0x02, sprBG[index] - 1);						// Address of first source block (-1)
+	POKEW(0x04, BITMAPRAM + spriteYS[index]*40 + spriteXS[index] - 1);	// Address of first target block (-1)
+	POKE(0x06, 4); POKE(0x07, 40); 						// Offset between: source blocks / target blocks
+	MultiBlockCopy();
+  }
 #endif
 
 #if defined __CBM__
@@ -217,7 +213,7 @@ void LocateSprite(unsigned int x, unsigned int y)
 	spriteX = x/2 + 45;
 	spriteY = y + 24;
 #elif defined __ATMOS__
-	spriteX = x/8 - 1;	
+	spriteX = x/8;	
 	spriteY = y;
 #elif defined __CBM__
 	spriteX = x;
@@ -329,30 +325,29 @@ void SetSprite(unsigned char index, unsigned char frame)
 	// Restore old background?
 	if (sprEN[index]) { RestoreSprBG(index); }
 	
-	// Backup new background
-	scrPTR = BITMAPRAM + spriteY*40 + spriteX;
-	bgPTR = sprBG[index];
-	for (i=0; i<sprROWS; i++) {
-		memcpy(bgPTR, scrPTR, 4);
-		scrPTR += 40;
-		bgPTR += 4;
-	}	
+	// Backup sprite background
+	POKE(0x00, sprROWS); POKE(0x01, 4);					// Number of: blocks / bytes per block
+	POKEW(0x02, BITMAPRAM + spriteY*40 + spriteX - 1);	// Address of first source block (-1)
+	POKEW(0x04, sprBG[index] - 1);						// Address of first target block (-1)
+	POKE(0x06, 40); POKE(0x07, 4); 						// Offset between: source blocks / target blocks
+	MultiBlockCopy();
+
+	// Draw sprite frame
+	POKE(0x00, sprROWS); POKE(0x01, 2);					// Number of: blocks / bytes per block
+	POKEW(0x02, SPRITERAM + frame*sprROWS*2 - 1);		// Address of first source block (-1)
+	POKEW(0x04, BITMAPRAM + spriteY*40 + spriteX);		// Address of first target block (-1)
+	POKE(0x06, 2); POKE(0x07, 40); 						// Offset between: source blocks / target blocks
+	MultiBlockCopy();
 	
-	// Display corresponding frame
-	sprPTR = SPRITERAM + frame*sprROWS*2;
-	inkPTR = BITMAPRAM + spriteY*40;
+	// Adjust ink on even lines
+	scrPTR = BITMAPRAM + (spriteY + spriteY%2)*40 + spriteX;
 	inkVAL = ink1[PEEK(colPTR+index)];
-	for (i=spriteY+1; i<spriteY+sprROWS+1; i++) {
-		// Set INK, Set Sprite, Reset INK
-		scrPTR = inkPTR+spriteX;
-		if (i%2) { POKE(scrPTR, inkVAL); } scrPTR++; 
-		POKE(scrPTR++, PEEK(sprPTR++));
-		POKE(scrPTR++, PEEK(sprPTR++));
-		if (i%2) { POKE(scrPTR, PEEK(inkPTR)); }
-		inkPTR += 40;
+	for (i=0; i<sprROWS/2; i++) {
+		POKE(scrPTR, inkVAL); scrPTR+=3;	// Set Sprite INK
+		POKE(scrPTR, 3); scrPTR+=77;		// Reset AIC INK (yellow)
 	}
 	
-	// Set sprite information
+	// Save sprite information
 	sprEN[index] = 1;
 	spriteXS[index] = spriteX;
 	spriteYS[index] = spriteY;	

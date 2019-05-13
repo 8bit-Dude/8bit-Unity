@@ -762,9 +762,10 @@ void PrintStr(unsigned char col, unsigned char row, const char *buffer)
 }
 
 // Rolling buffer at the top of the screen, that moves text leftward when printing
-void PrintBuffer(const char *buffer)
+void PrintBuffer(char *buffer)
 {
 	unsigned char len, i;
+	buffer[CHR_COLS] = 0;
 	len = strlen(buffer);
 #if defined __CBM__
 	// Roll bitmap and screen ram

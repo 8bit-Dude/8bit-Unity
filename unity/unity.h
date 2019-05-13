@@ -256,7 +256,7 @@ void PrintChr(unsigned char col, unsigned char row, const char *chr);
 void PrintNum(unsigned char col, unsigned char row, unsigned char num);
 void PrintStr(unsigned char col, unsigned char row, const char *buffer);
 void PrintLogo(unsigned char col, unsigned char row, unsigned char index);
-void PrintBuffer(const char *buffer);
+void PrintBuffer(char *buffer);
 void InputStr(unsigned char col, unsigned char row, char *buffer, unsigned char len);
 unsigned char InputUpdate(unsigned char col, unsigned char row, char *buffer, unsigned char len, unsigned char key);
 const char *GetChr(unsigned char chr);
