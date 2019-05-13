@@ -309,14 +309,17 @@ void SetSprite(unsigned char index, unsigned char frame)
 	sprCOL[index] = 0;
 	for (i=0; i<SPRITE_NUM; i++) {
 		if (sprEN[i] && i!=index) {
-			delta = spriteXS[i] - spriteX;
-			if (delta < 2 || delta>254) {
-				delta = spriteYS[i] - spriteY;
-				if (delta < sprROWS || delta>(256-sprROWS)) {
+			delta = spriteYS[i] - spriteY;
+			if (delta < sprROWS || delta>(256-sprROWS)) {
+				delta = spriteXS[i] - spriteX;
+				if (delta < 4 || delta>252) {	// Including INK bytes
 					// Redraw background of that sprite
 					RestoreSprBG(i);
-					sprCOL[i] = 1;
-					sprCOL[index] = 1;
+					if (delta < 2 || delta>254) {	// Not including INK bytes
+						// Register collision
+						sprCOL[i] = 1;
+						sprCOL[index] = 1;
+					}
 				}
 			}
 		}
