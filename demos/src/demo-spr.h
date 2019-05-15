@@ -2,15 +2,18 @@
 #include "unity.h"
 #include <cc65.h>
 
-#if defined __APPLE2__
-	unsigned char spriteColors[] = { BLUE, RED, GREEN, YELLOW };    //  Note: colors are pre-assigned in the sprite sheet
-#elif defined __ATARI__
-	unsigned char spriteColors[] = { BLUE, RED, GREEN, YELLOW, GREY };  //  Note: 5th color is shared between all sprites
+#if defined __APPLE2__	//  Colors are pre-assigned in the sprite sheet
+	unsigned char inkColors[] = { BLUE, RED, GREEN, YELLOW };		// P1, P2, P3, P4
+#elif defined __ATARI__ //  5th color shared between all sprites
+	unsigned char inkColors[] = { BLUE, RED, GREEN, YELLOW };		// P1, P2, P3, P4
+	unsigned char spriteColors[] = {0x74, 0x24, 0xa6, 0xdc, 0x06};	// Refer to atari palette in docs
 #elif defined __ATMOS__
-	unsigned char spriteColors[] = { CYAN, MBLUE, LGREEN, GREY };
+	unsigned char inkColors[] = { CYAN, MBLUE, LGREEN, GREY };		// P1, P2, P3, P4
+	unsigned char spriteColors[] = { CYAN, MBLUE, LGREEN, GREY };	// Matching more or less with above
 #elif defined __CBM__
-	unsigned char spriteColors[] = { BLUE, RED, GREEN, YELLOW, 0, 0, 0, 0 };	// Main sprite color
-	unsigned char sharedColors[] = { CYAN, BLACK };		// Shared sprite colors
+	unsigned char inkColors[] = { BLUE, RED, LGREEN, YELLOW };		// P1, P2, P3, P4
+	unsigned char spriteColors[] = { BLUE, RED, GREEN, YELLOW, 0, 0, 0, 0 };	// Main sprite colors
+	unsigned char sharedColors[] = { CYAN, BLACK };					// Shared sprite colors
 #endif
 
 unsigned char buffer[20];
@@ -34,13 +37,13 @@ int DemoSPR(void)
 	paperColor = BLACK; 
 	for (i=0; i<4; i++) {
 		slot = 8*(i+1);
-		inkColor = spriteColors[i];
+		inkColor = inkColors[i];
 #if defined __ATMOS__
 		SetInk(slot-1, CHR_ROWS-1);
 #endif		
-		PrintStr(slot, CHR_ROWS-1, "CAR");
-		PrintNum(slot+2, CHR_ROWS-1, i+1);
 		PrintLogo(slot+4, CHR_ROWS-1, i);
+		PrintNum(slot+2, CHR_ROWS-1, i+1);
+		PrintStr(slot, CHR_ROWS-1, "CAR");
 #if defined __ATMOS__
 		inkColor = AIC;
 		SetInk(slot+5, CHR_ROWS-1);
@@ -56,7 +59,7 @@ int DemoSPR(void)
 	InitSprites(13, spriteColors);
 #elif defined __ATMOS__
 	// number of rows, unique colors of sprites 0-3
-	InitSprites(8, spriteColors);
+	InitSprites(6, spriteColors);
 #elif defined __CBM__
 	// unique colors of sprites 0-7, shared colors of all sprites 
 	InitSprites(spriteColors, sharedColors);
