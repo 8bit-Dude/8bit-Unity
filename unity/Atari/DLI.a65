@@ -25,7 +25,11 @@
 ;
 
 ; Original sprite flicker routine by Anthony Beaucamp
+; 	Note: Uses 4 zero page registers in range $FC - $FF
+;
 ; Twin frame graphic mode adapted from Inter-Player
+;	Note: Set blendTOG to enable/disable frame blending
+;
 ; Date created: 2017/12/21
 ; Compile with MADS
 
@@ -84,7 +88,7 @@ initFlicker:
 	; Init 5th sprite
 	mva #0 FlickIndex
 	mva #0 FlickMask
-	mva #$9b $ce	; High-byte of 5th sprite's base address ($9b00)
+	mva #$9b $ff	; High-byte of 5th sprite's base address ($9b00)
 	rts
 
 updateFlicker:	
@@ -96,11 +100,11 @@ updateFlicker:
 resetPMG5:
 	; Reset pixels of 5th sprite
 	ldx FlickOffset	; Offset of 5th sprite ($9b00 ~ $9bff)
-	stx $cd
+	stx $fe
 	ldy FlickRows	; Sprite length
 	lda #$00		; Reset value
 strloop0:	
-	sta ($cd),y		
+	sta ($fe),y		
 	dey
 	bne strloop0	; Loop through till y is 0
 	
@@ -148,33 +152,33 @@ setpos:
 	cpx #2
 	beq off2
 off3:
-	mva FlickFrames+6 $cb
-	mva FlickFrames+7 $cc
+	mva FlickFrames+6 $fc
+	mva FlickFrames+7 $fd
 	jmp copy
 off2:	
-	mva FlickFrames+4 $cb
-	mva FlickFrames+5 $cc
+	mva FlickFrames+4 $fc
+	mva FlickFrames+5 $fd
 	jmp copy
 off1:	
-	mva FlickFrames+2 $cb
-	mva FlickFrames+3 $cc
+	mva FlickFrames+2 $fc
+	mva FlickFrames+3 $fd
 	jmp copy
 off0:	
-	mva FlickFrames+0 $cb
-	mva FlickFrames+1 $cc
+	mva FlickFrames+0 $fc
+	mva FlickFrames+1 $fd
 	
 copy:	
 	; Compute screen offset and copy to zeropage
 	lda FlickY,x   ; Ypos of sprite to A
 	sta FlickOffset
-	sta $cd
+	sta $fe
 		
 	; Copy frame to screen
 	ldy FlickRows	; Sprite length
 sprloop1:
 	; Transfer values
-	lda ($cb),y	
-	sta ($cd),y	
+	lda ($fc),y	
+	sta ($fe),y	
 	dey
 	bne sprloop1	; Loop through till y is 0 
 	

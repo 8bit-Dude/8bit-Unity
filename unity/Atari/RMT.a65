@@ -33,7 +33,7 @@ TRACKS		equ 4
 	EIF
 ;*
 
-;* RMT ZeroPage addresses
+;* RMT ZeroPage addresses: $cb-$de (19 registers)
 	org 203
 p_tis
 p_instrstable	org *+2
