@@ -96,6 +96,8 @@ class Application:
         self.listbox_AtariBitmap = self.builder.get_object('Listbox_AtariBitmap')        
         self.listbox_AtariSprites = self.builder.get_object('Listbox_AtariSprites')        
         self.listbox_AtariMusic = self.builder.get_object('Listbox_AtariMusic')     
+        self.Checkbutton_AtariNoText = self.builder.get_object('Checkbutton_AtariNoText');
+        self.Combobox_AtariDiskSize = self.builder.get_object('Combobox_AtariDiskSize');
         self.listbox_C64Bitmap = self.builder.get_object('Listbox_C64Bitmap')        
         self.listbox_C64Sprites = self.builder.get_object('Listbox_C64Sprites')        
         self.listbox_C64Music = self.builder.get_object('Listbox_C64Music')     
@@ -105,19 +107,25 @@ class Application:
         self.listbox_Shared = self.builder.get_object('Listbox_Shared')
         self.listbox_Code = self.builder.get_object('Listbox_Code')
         self.entry_Disk = self.builder.get_object('Entry_Disk');
+        
+        # Set some defaults
+        self.Checkbutton_AtariNoText.state(['!selected'])
+        self.Combobox_AtariDiskSize.current(0)
 
-        # Make list of boxes
+        # Make lists of various GUI inputs (adding new inputs to the end of each list will guarantee backward compatibility)
         self.entries = [ self.entry_Disk ]
-        self.lists = [ self.listbox_Code, 
-                       self.listbox_AppleBitmap, self.listbox_AppleSprites, self.listbox_AppleMusic,
-                       self.listbox_AtariBitmap, self.listbox_AtariSprites, self.listbox_AtariMusic,
-                       self.listbox_C64Bitmap,   self.listbox_C64Sprites,   self.listbox_C64Music,
-                       self.listbox_OricBitmap, self.listbox_OricSprites, self.listbox_OricMusic,
-                       self.listbox_Shared ]
-
+        self.listboxes = [ self.listbox_Code, 
+                           self.listbox_AppleBitmap, self.listbox_AppleSprites, self.listbox_AppleMusic,
+                           self.listbox_AtariBitmap, self.listbox_AtariSprites, self.listbox_AtariMusic,
+                           self.listbox_C64Bitmap,   self.listbox_C64Sprites,   self.listbox_C64Music,
+                           self.listbox_OricBitmap, self.listbox_OricSprites, self.listbox_OricMusic,
+                           self.listbox_Shared ]
+        self.checkbuttons = [ self.Checkbutton_AtariNoText ]
+        self.comboboxes = [ self.Combobox_AtariDiskSize ]
+                       
     def FileNew(self):
         # Reset all fields
-        for l in self.lists:
+        for l in self.listboxes:
             l.delete(0, END)
         self.entry_Disk.delete(0, END)
         self.entry_Disk.insert(0, 'diskname')
@@ -128,23 +136,46 @@ class Application:
             # Unpickle data
             with open(filename, "rb") as fp:
                 # Version number
-                print pickle.load(fp)
-                
+                print "File version: " + str(pickle.load(fp))
+                data = pickle.load(fp)
+                                
                 # Entry boxes
-                print pickle.load(fp)
+                while data != 'entries':
+                    data = pickle.load(fp)                    
                 for item in self.entries:
                     data = pickle.load(fp)
+                    if data == 'lists':
+                        break   # Legacy file
                     item.delete(0, END)
                     item.insert(0, data)
                     
                 # List boxes                     
-                print pickle.load(fp)
-                for item in self.lists:
+                while data != 'listboxes' and data != 'lists':  # Legacy files
+                    data = pickle.load(fp)                    
+                for item in self.listboxes:
                     data = pickle.load(fp)
+                    if data == 'checkbuttons':
+                        break   # Legacy file
                     item.delete(0, END)
-                    for d in data:
-                        item.insert(END, d)
-            
+                    for row in data:
+                        item.insert(END, row)
+                        
+                # Check buttons
+                while data != 'checkbuttons':
+                    data = pickle.load(fp)                    
+                for item in self.checkbuttons:                
+                    data = pickle.load(fp)
+                    if data == 'comboboxes':
+                        break   # Legacy file
+                    item.state(data)
+
+                # Combo boxes
+                while data != 'comboboxes':
+                    data = pickle.load(fp)                    
+                for item in self.comboboxes:                
+                    data = pickle.load(fp)
+                    item.set(data)
+                    
     def FileSave(self):
         filename = asksaveasfilename(initialdir = "../../", title = "Save Builder Project", filetypes = (("Project files","*.builder"),))
         if filename is not '':
@@ -164,11 +195,23 @@ class Application:
                     pickle.dump(data, fp)
                     
                 # List boxes                     
-                pickle.dump('lists', fp)
-                for item in self.lists:
+                pickle.dump('listboxes', fp)
+                for item in self.listboxes:
                     data = list(item.get(0, END))
                     pickle.dump(data, fp)
-            
+
+                # Check buttons
+                pickle.dump('checkbuttons', fp)
+                for item in self.checkbuttons:
+                    data = item.state()
+                    pickle.dump(data, fp)
+
+                # Check buttons
+                pickle.dump('comboboxes', fp)
+                for item in self.comboboxes:
+                    data = item.get()
+                    pickle.dump(data, fp)
+                    
     def FileExit(self):
         sys.exit()
         
@@ -373,7 +416,11 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Compilation
-            comp = 'utils\\cc65\\bin\\cl65 -o [build]/atari/program.bin -Cl -O -t atarixl -C unity/Atari/atarixl.cfg -I unity '
+            if len(self.Checkbutton_AtariNoText.state()):
+                configFile = 'atarixl-notext.cfg'
+            else:
+                configFile = 'atarixl.cfg'
+            comp = 'utils\\cc65\\bin\\cl65 -o [build]/atari/program.bin -Cl -O -t atarixl -C unity/Atari/' + configFile + ' -I unity '
             for item in code:
                 comp += item
                 comp += ' '
@@ -400,7 +447,11 @@ class Application:
             fp.write('echo --------------- ATARI DISK BUILDER --------------- \n\n')
 
             # Disk builder
-            fp.write('utils\\scripts\\atari\\dir2atr.exe -dm -B utils/scripts/atari/AtariXboot.obx 720 [build]/' + diskname + '-atari.atr [build]\\atari\n')
+            if self.Combobox_AtariDiskSize.get() == '180KB':                
+                diskSize = '720'
+            else:
+                diskSize = '1440'
+            fp.write('utils\\scripts\\atari\\dir2atr.exe -dm -B utils/scripts/atari/AtariXboot.obx ' + diskSize + ' [build]/' + diskname + '-atari.atr [build]\\atari\n')
 
             # Info
             fp.write('\necho DONE\n')
@@ -502,7 +553,7 @@ class Application:
             for item in code:
                 comp += item
                 comp += ' '
-            fp.write(comp + 'unity/bitmap.c unity/chars.s unity/math.s unity/memory.s unity/network.c unity/sfx.c unity/sprites.c unity/Oric/files.c unity/Oric/joysticks.c unity/Oric/keyboard.s unity/Oric/libsedoric.s\n')
+            fp.write(comp + 'unity/bitmap.c unity/chars.s unity/math.s unity/network.c unity/sfx.c unity/sprites.c unity/Oric/files.c unity/Oric/joysticks.c unity/Oric/keyboard.s unity/Oric/libsedoric.s unity/Oric/utils.s \n')
 
             # Fix header
             fp.write('utils\\scripts\\oric\\header.exe [build]/oric/launch.bin [build]/oric/launch.com $0501\n')

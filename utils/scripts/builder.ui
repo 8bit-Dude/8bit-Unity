@@ -1,34 +1,9 @@
 <?xml version='1.0' encoding='utf-8'?>
-<!--
- * Copyright (c) 2018 Anthony Beaucamp.
- *
- * This software is provided 'as-is', without any express or implied warranty.
- * In no event will the authors be held liable for any damages arising from
- * the use of this software.
- *
- * Permission is granted to anyone to use this software for any purpose,
- * including commercial applications, and to alter it and redistribute it
- * freely, subject to the following restrictions:
- *
- *   1. The origin of this software must not be misrepresented * you must not
- *   claim that you wrote the original software. If you use this software in a
- *   product, an acknowledgment in the product documentation would be
- *   appreciated but is not required.
- *
- *   2. Altered source versions must be plainly marked as such, and must not
- *   be misrepresented as being the original software.
- *
- *   3. This notice may not be removed or altered from any distribution.
- *
- *   4. The names of this software and/or it's copyright holders may not be
- *   used to endorse or promote products derived from this software without
- *   specific prior written permission.
--->
 <interface>
   <object class="ttk.Frame" id="mainwindow">
     <child>
       <object class="ttk.Notebook" id="Notebook_Assets">
-        <property name="height">315</property>
+        <property name="height">365</property>
         <property name="width">400</property>
         <layout>
           <property name="column">0</property>
@@ -42,6 +17,7 @@
             <child>
               <object class="tk.Frame" id="Frame_Apple">
                 <property name="height">500</property>
+                <property name="padx">10</property>
                 <property name="width">400</property>
                 <layout>
                   <property name="column">0</property>
@@ -60,7 +36,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_AppleBitmap">
                         <property name="height">6</property>
-                        <property name="width">65</property>
+                        <property name="width">62</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -71,7 +47,7 @@
                     </child>
                     <child>
                       <object class="ttk.Button" id="Button_AppleBitmapAdd">
-					  	<property name="command">AppleBitmapAdd</property>
+                        <property name="command">AppleBitmapAdd</property>
                         <property name="text" translatable="yes">Add File</property>
                         <layout>
                           <property name="column">0</property>
@@ -85,7 +61,7 @@
                     </child>
                     <child>
                       <object class="ttk.Button" id="Button_AppleBitmapRem">
-					  	<property name="command">AppleBitmapRem</property>
+                        <property name="command">AppleBitmapRem</property>
                         <property name="text" translatable="yes">Rem File</property>
                         <layout>
                           <property name="column">0</property>
@@ -113,7 +89,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_AppleSprites">
                         <property name="height">1</property>
-                        <property name="width">65</property>
+                        <property name="width">62</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -124,7 +100,7 @@
                     </child>
                     <child>
                       <object class="ttk.Button" id="Button_AppleSpritesSel">
-					  	<property name="command">AppleSpritesSel</property>
+                        <property name="command">AppleSpritesSel</property>
                         <property name="text" translatable="yes">Select File</property>
                         <layout>
                           <property name="column">0</property>
@@ -153,7 +129,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_AppleMusic">
                         <property name="height">1</property>
-                        <property name="width">65</property>
+                        <property name="width">62</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -164,7 +140,7 @@
                     </child>
                     <child>
                       <object class="ttk.Button" id="Button_AppleMusicSel">
-					  	<property name="command">AppleMusicSel</property>
+                        <property name="command">AppleMusicSel</property>
                         <property name="text" translatable="yes">Select File</property>
                         <layout>
                           <property name="column">0</property>
@@ -172,6 +148,34 @@
                           <property name="pady">5</property>
                           <property name="propagate">True</property>
                           <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.LabelFrame" id="LabelFrame_AppleOptions">
+                    <property name="height">200</property>
+                    <property name="text" translatable="yes">Options</property>
+                    <property name="width">200</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="pady">320</property>
+                      <property name="propagate">True</property>
+                      <property name="row">0</property>
+                      <property name="sticky">nw</property>
+                    </layout>
+                    <child>
+                      <object class="tk.Label" id="Label_AppleOptions">
+                        <property name="height">1</property>
+                        <property name="height">1</property>
+                        <property name="text" translatable="yes">No particular options for Apple...</property>
+                        <property name="width">53</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="propagate">True</property>
+                          <property name="row">0</property>
                           <property name="sticky">nw</property>
                         </layout>
                       </object>
@@ -188,6 +192,7 @@
             <child>
               <object class="tk.Frame" id="Frame_Atari">
                 <property name="height">500</property>
+                <property name="padx">10</property>
                 <property name="width">400</property>
                 <layout>
                   <property name="column">0</property>
@@ -206,7 +211,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_AtariBitmap">
                         <property name="height">6</property>
-                        <property name="width">65</property>
+                        <property name="width">62</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -217,7 +222,7 @@
                     </child>
                     <child>
                       <object class="ttk.Button" id="Button_AtariBitmapAdd">
-					  	<property name="command">AtariBitmapAdd</property>
+                        <property name="command">AtariBitmapAdd</property>
                         <property name="text" translatable="yes">Add File</property>
                         <layout>
                           <property name="column">0</property>
@@ -231,7 +236,7 @@
                     </child>
                     <child>
                       <object class="ttk.Button" id="Button_AtariBitmapRem">
-					  	<property name="command">AtariBitmapRem</property>
+                        <property name="command">AtariBitmapRem</property>
                         <property name="text" translatable="yes">Rem File</property>
                         <layout>
                           <property name="column">0</property>
@@ -259,7 +264,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_AtariSprites">
                         <property name="height">1</property>
-                        <property name="width">65</property>
+                        <property name="width">62</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -270,7 +275,7 @@
                     </child>
                     <child>
                       <object class="ttk.Button" id="Button_AtariSpritesSel">
-					  	<property name="command">AtariSpritesSel</property>
+                        <property name="command">AtariSpritesSel</property>
                         <property name="text" translatable="yes">Select File</property>
                         <layout>
                           <property name="column">0</property>
@@ -299,7 +304,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_AtariMusic">
                         <property name="height">1</property>
-                        <property name="width">65</property>
+                        <property name="width">62</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -310,12 +315,65 @@
                     </child>
                     <child>
                       <object class="ttk.Button" id="Button_AtariMusicSel">
-					  	<property name="command">AtariMusicSel</property>
+                        <property name="command">AtariMusicSel</property>
                         <property name="text" translatable="yes">Select File</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="padx">25</property>
                           <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.LabelFrame" id="LabelFrame_AtariOptions">
+                    <property name="height">200</property>
+                    <property name="text" translatable="yes">Options</property>
+                    <property name="width">200</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="pady">320</property>
+                      <property name="propagate">True</property>
+                      <property name="row">0</property>
+                      <property name="sticky">nw</property>
+                    </layout>
+                    <child>
+                      <object class="tk.Label" id="Label_AtariDiskSize">
+                        <property name="text" translatable="yes">Disk Size</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">220</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Combobox" id="Combobox_AtariDiskSize">
+                        <property name="state">readonly</property>
+                        <property name="values">180KB 360KB</property>
+                        <property name="width">8</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">280</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Checkbutton" id="Checkbutton_AtariNoText">
+                        <property name="text" translatable="yes">No Text Mode (+1KB RAM)</property>
+                        <property name="variable">string:checkAtariNoText</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">20</property>
                           <property name="propagate">True</property>
                           <property name="row">1</property>
                           <property name="sticky">nw</property>
@@ -334,6 +392,7 @@
             <child>
               <object class="tk.Frame" id="Frame_C64">
                 <property name="height">500</property>
+                <property name="padx">10</property>
                 <property name="width">400</property>
                 <layout>
                   <property name="column">0</property>
@@ -352,7 +411,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_C64Bitmap">
                         <property name="height">6</property>
-                        <property name="width">65</property>
+                        <property name="width">62</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -363,7 +422,7 @@
                     </child>
                     <child>
                       <object class="ttk.Button" id="Button_C64BitmapAdd">
-					  	<property name="command">C64BitmapAdd</property>
+                        <property name="command">C64BitmapAdd</property>
                         <property name="text" translatable="yes">Add File</property>
                         <layout>
                           <property name="column">0</property>
@@ -377,7 +436,7 @@
                     </child>
                     <child>
                       <object class="ttk.Button" id="Button_C64BitmapRem">
-					  	<property name="command">C64BitmapRem</property>
+                        <property name="command">C64BitmapRem</property>
                         <property name="text" translatable="yes">Rem File</property>
                         <layout>
                           <property name="column">0</property>
@@ -405,7 +464,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_C64Sprites">
                         <property name="height">1</property>
-                        <property name="width">65</property>
+                        <property name="width">62</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -416,7 +475,7 @@
                     </child>
                     <child>
                       <object class="ttk.Button" id="Button_C64SpritesSel">
-					  	<property name="command">C64SpritesSel</property>
+                        <property name="command">C64SpritesSel</property>
                         <property name="text" translatable="yes">Select File</property>
                         <layout>
                           <property name="column">0</property>
@@ -445,7 +504,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_C64Music">
                         <property name="height">1</property>
-                        <property name="width">65</property>
+                        <property name="width">62</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -456,7 +515,7 @@
                     </child>
                     <child>
                       <object class="ttk.Button" id="Button_C64MusicSel">
-					  	<property name="command">C64MusicSel</property>
+                        <property name="command">C64MusicSel</property>
                         <property name="text" translatable="yes">Select File</property>
                         <layout>
                           <property name="column">0</property>
@@ -464,6 +523,34 @@
                           <property name="pady">5</property>
                           <property name="propagate">True</property>
                           <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.LabelFrame" id="LabelFrame_C64Options">
+                    <property name="height">200</property>
+                    <property name="text" translatable="yes">Options</property>
+                    <property name="width">200</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="pady">320</property>
+                      <property name="propagate">True</property>
+                      <property name="row">0</property>
+                      <property name="sticky">nw</property>
+                    </layout>
+                    <child>
+                      <object class="tk.Label" id="Label_C64Options">
+                        <property name="height">1</property>
+                        <property name="height">1</property>
+                        <property name="text" translatable="yes">No particular options for C64...</property>
+                        <property name="width">53</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="propagate">True</property>
+                          <property name="row">0</property>
                           <property name="sticky">nw</property>
                         </layout>
                       </object>
@@ -480,6 +567,7 @@
             <child>
               <object class="tk.Frame" id="Frame_Oric">
                 <property name="height">500</property>
+                <property name="padx">10</property>
                 <property name="width">400</property>
                 <layout>
                   <property name="column">0</property>
@@ -498,7 +586,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_OricBitmap">
                         <property name="height">6</property>
-                        <property name="width">65</property>
+                        <property name="width">62</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -509,7 +597,7 @@
                     </child>
                     <child>
                       <object class="ttk.Button" id="Button_OricBitmapAdd">
-					  	<property name="command">OricBitmapAdd</property>
+                        <property name="command">OricBitmapAdd</property>
                         <property name="text" translatable="yes">Add File</property>
                         <layout>
                           <property name="column">0</property>
@@ -523,7 +611,7 @@
                     </child>
                     <child>
                       <object class="ttk.Button" id="Button_OricBitmapRem">
-					  	<property name="command">OricBitmapRem</property>
+                        <property name="command">OricBitmapRem</property>
                         <property name="text" translatable="yes">Rem File</property>
                         <layout>
                           <property name="column">0</property>
@@ -551,7 +639,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_OricSprites">
                         <property name="height">1</property>
-                        <property name="width">65</property>
+                        <property name="width">62</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -562,7 +650,7 @@
                     </child>
                     <child>
                       <object class="ttk.Button" id="Button_OricSpritesSel">
-					  	<property name="command">OricSpritesSel</property>
+                        <property name="command">OricSpritesSel</property>
                         <property name="text" translatable="yes">Select File</property>
                         <layout>
                           <property name="column">0</property>
@@ -591,7 +679,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_OricMusic">
                         <property name="height">1</property>
-                        <property name="width">65</property>
+                        <property name="width">62</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -602,7 +690,7 @@
                     </child>
                     <child>
                       <object class="ttk.Button" id="Button_OricMusicSel">
-					  	<property name="command">OricMusicSel</property>
+                        <property name="command">OricMusicSel</property>
                         <property name="text" translatable="yes">Select File</property>
                         <layout>
                           <property name="column">0</property>
@@ -616,16 +704,45 @@
                     </child>
                   </object>
                 </child>
+                <child>
+                  <object class="tk.LabelFrame" id="LabelFrame_OricOptions">
+                    <property name="height">200</property>
+                    <property name="text" translatable="yes">Options</property>
+                    <property name="width">200</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="pady">320</property>
+                      <property name="propagate">True</property>
+                      <property name="row">0</property>
+                      <property name="sticky">nw</property>
+                    </layout>
+                    <child>
+                      <object class="tk.Label" id="Label_OricOptions">
+                        <property name="height">1</property>
+                        <property name="height">1</property>
+                        <property name="text" translatable="yes">No particular options for Oric...</property>
+                        <property name="width">53</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="propagate">True</property>
+                          <property name="row">0</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                  </object>
+                </child>
               </object>
             </child>
           </object>
-        </child>		
+        </child>
         <child>
           <object class="ttk.Notebook.Tab" id="Tab_Shared">
             <property name="text" translatable="yes">*Shared*</property>
             <child>
               <object class="tk.Frame" id="Frame_Shared">
                 <property name="height">500</property>
+                <property name="padx">10</property>
                 <property name="width">400</property>
                 <layout>
                   <property name="column">0</property>
@@ -644,7 +761,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_Shared">
                         <property name="height">15</property>
-                        <property name="width">65</property>
+                        <property name="width">62</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -655,7 +772,7 @@
                     </child>
                     <child>
                       <object class="ttk.Button" id="Button_SharedAdd">
-					  	<property name="command">SharedAdd</property>
+                        <property name="command">SharedAdd</property>
                         <property name="text" translatable="yes">Add File</property>
                         <layout>
                           <property name="column">0</property>
@@ -669,7 +786,7 @@
                     </child>
                     <child>
                       <object class="ttk.Button" id="Button_SharedRem">
-					  	<property name="command">SharedRem</property>
+                        <property name="command">SharedRem</property>
                         <property name="text" translatable="yes">Rem File</property>
                         <layout>
                           <property name="column">0</property>
@@ -686,9 +803,9 @@
               </object>
             </child>
           </object>
-        </child>		
+        </child>
       </object>
-    </child>		
+    </child>
     <child>
       <object class="tk.LabelFrame" id="LabelFrame_Code">
         <property name="text" translatable="yes">Code</property>
@@ -713,7 +830,7 @@
         </child>
         <child>
           <object class="ttk.Button" id="Button_CodeAdd">
-			<property name="command">CodeAdd</property>
+            <property name="command">CodeAdd</property>
             <property name="text" translatable="yes">Add File</property>
             <layout>
               <property name="column">0</property>
@@ -727,7 +844,7 @@
         </child>
         <child>
           <object class="ttk.Button" id="Button_CodeRem">
-			<property name="command">CodeRem</property>
+            <property name="command">CodeRem</property>
             <property name="text" translatable="yes">Rem File</property>
             <layout>
               <property name="column">0</property>
@@ -770,7 +887,7 @@
     </child>
     <child>
       <object class="ttk.Button" id="Button_Generate">
-	    <property name="command">GenerateBuilder</property>
+        <property name="command">GenerateBuilder</property>
         <property name="text" translatable="yes">Generate Build Scripts</property>
         <layout>
           <property name="column">0</property>

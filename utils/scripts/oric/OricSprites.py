@@ -16,7 +16,7 @@ for i in range(0, len(pixdata), 6):
     pow = 1
     byte = 64
     for j in range(6):
-        byte += pow * (1-pixdata[i+(5-j)])
+        byte += pow * pixdata[i+(5-j)]
         pow *= 2
     sprdata.append(chr(byte))
 #print sprdata
