@@ -424,7 +424,7 @@ class Application:
             for item in code:
                 comp += item
                 comp += ' '
-            fp.write(comp + 'unity/bitmap.c unity/chars.s unity/math.s unity/network.c unity/sfx.c unity/sprites.c unity/Atari/POKEY.s unity/IP65/ip65.lib unity/IP65/ip65_atarixl.lib\n')
+            fp.write(comp + 'unity/bitmap.c unity/chars.s unity/math.s unity/network.c unity/sfx.c unity/sprites.c unity/Atari/POKEY.s unity/Atari/sprites.s unity/IP65/ip65.lib unity/IP65/ip65_atarixl.lib\n')
             fp.write('utils\\cc65\\bin\\cl65 -t atarixl -C atari-asm.cfg -o [build]/atari/basicoff.bin unity/Atari/BASICOFF.s\n')
             fp.write('utils\\scripts\\atari\\mads.exe -o:[build]/atari/dli.bin unity/Atari/DLI.a65\n')
             fp.write('utils\\scripts\\atari\\mads.exe -o:[build]/atari/rmt.bin unity/Atari/RMT.a65\n')
