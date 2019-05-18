@@ -372,6 +372,8 @@ void SetPixel(unsigned char color)
 	
 	// Set pixels
 	shift = 2 * (pixelX%3);
+	byte1 &= ~(48 >> shift);
+	byte2 &= ~(48 >> shift);
 	switch (color%5) {
     case 1:
 		byte1 |= 32 >> shift;

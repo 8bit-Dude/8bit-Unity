@@ -24,12 +24,12 @@
 ;   specific prior written permission.
 ;
 
-	.export _MultiBlockCopy
+	.export _SpriteCopy
 
 	.segment	"CODE"	
 	
 ; ---------------------------------------------------------------
-; void __near__ _MultiBlockCopy (void)
+; void __near__ SpriteCopy (void)
 ;	Copy a series of evenly spaced blocks
 ;	Zero Page Data:
 ;		$00: Number of blocks
@@ -40,7 +40,7 @@
 ;		$07: Offset between target blocks
 ; ---------------------------------------------------------------	
 
-.proc _MultiBlockCopy: near
+.proc _SpriteCopy: near
 	ldx $00			; X loop: Number of blocks (ZP$00)
 loopx: 
 	ldy $01			; Y loop: Number of bytes per block (ZP$01)

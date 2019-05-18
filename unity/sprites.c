@@ -41,12 +41,12 @@
 	
 	// Sprite data
 	#define sprWIDTH 4	// Byte width of sprite (7 pixels)
-	unsigned char sprCOL[SPRITE_NUM] = {0,0,0,0};	// Collision flags
-	unsigned char sprEN[SPRITE_NUM] = {0,0,0,0}; 	// Enable status
-	unsigned char spriteXS[SPRITE_NUM];				// Screen coordinates
+	unsigned char sprCOL[] = {0,0,0,0,0};	// Collision flags
+	unsigned char sprEN[] = {0,0,0,0,0}; 	// Enable status
+	unsigned char spriteXS[SPRITE_NUM];		// Screen coordinates
 	unsigned char spriteYS[SPRITE_NUM];	
-	unsigned char spriteXB[SPRITE_NUM];				// Byte coordinates
-	unsigned char* sprBG[SPRITE_NUM];	    		// Sprite background
+	unsigned char spriteXB[SPRITE_NUM];		// Byte coordinates
+	unsigned char* sprBG[SPRITE_NUM];	    // Sprite background
 	unsigned char sprROWS;
 	unsigned int sprBLOCK;
 	void InitSprites(unsigned char rows, unsigned char frames)
@@ -92,12 +92,12 @@
 // Atmos specific init function
 #elif defined __ATMOS__	
 	#define sprWIDTH 2	// Byte width of sprite (12 pixels)
-	unsigned char sprCOL[SPRITE_NUM] = {0,0,0,0};	// Collision flags
-	unsigned char sprEN[SPRITE_NUM] = {0,0,0,0}; 	// Enable status
+	unsigned char sprCOL[] = {0,0,0,0,0};	// Collision flags
+	unsigned char sprEN[] = {0,0,0,0,0}; 	// Enable status
 	unsigned char spriteXS[SPRITE_NUM], spriteYS[SPRITE_NUM];
 	unsigned char *sprBG[SPRITE_NUM];
 	unsigned char sprROWS, inkVAL;
-	unsigned int bgPTR, sprPTR, scrPTR, inkPTR, colPTR;
+	unsigned int scrPTR, colPTR;
 	extern unsigned char ink1[20];	// see bitmap.c
 	void InitSprites(unsigned char rows, unsigned char *spriteColors)
 	{			
@@ -129,70 +129,6 @@
 	}	
 #endif
 
-// Apple II specific background redrawing function
-#if defined __APPLE2__
-	unsigned char xO,yO,delta;
-	unsigned char *sprPTR, *bgPTR;
-	unsigned char xptr, yptr;
-	void RestoreSprBG(unsigned char index)
-	{
-		// Restore entire sprite background
-		yO = 0;
-		xptr = spriteXB[index];
-		yptr = spriteYS[index];
-		bgPTR = sprBG[index];
-		while (yO<sprROWS) {
-			dhrptr = (unsigned char *) (dhrLines[yptr++] + xptr);
-			*dhraux = 0;
-			dhrptr[0] = bgPTR[0];
-			dhrptr[1] = bgPTR[1];
-			*dhrmain = 0;
-			dhrptr[0] = bgPTR[2];		
-			dhrptr[1] = bgPTR[3];
-			bgPTR += sprWIDTH;
-			yO++;
-		}
-	}
-	void RestoreSprLine(unsigned char x, unsigned char y)
-	{
-		// Restore 1 line from sprite background
-		unsigned char i;
-		for (i=0; i<SPRITE_NUM; i++) {
-			if (sprEN[i]) {
-				xO = x-spriteXS[i];
-				yO = y-spriteYS[i];
-				if (xO<7 && yO<sprROWS) {
-					xptr = spriteXB[i];
-					yptr = spriteYS[i]+yO;
-					bgPTR = sprBG[i]+yO*sprWIDTH;
-					dhrptr = (unsigned char *) (dhrLines[yptr] + xptr);
-					*dhraux = 0;
-					dhrptr[0] = bgPTR[0];
-					dhrptr[1] = bgPTR[1];
-					*dhrmain = 0;
-					dhrptr[0] = bgPTR[2];		
-					dhrptr[1] = bgPTR[3];
-					return;
-				}
-			}
-		}		
-	}
-#endif
-
-// Oric specific background redrawing function
-#if defined __ATMOS__
-  void MultiBlockCopy(void);	// (see memory.s)
-  void RestoreSprBG(unsigned char index)
-  {
-	// Restore sprite background
-	POKE(0x00, sprROWS); POKE(0x01, 4);					// Number of: blocks / bytes per block
-	POKEW(0x02, sprBG[index] - 1);						// Address of first source block (-1)
-	POKEW(0x04, BITMAPRAM + spriteYS[index]*40 + spriteXS[index] - 1);	// Address of first target block (-1)
-	POKE(0x06, 4); POKE(0x07, 40); 						// Offset between: source blocks / target blocks
-	MultiBlockCopy();
-  }
-#endif
-
 #if defined __CBM__
 	unsigned int spriteX;
 	unsigned char spriteY;	
@@ -219,10 +155,62 @@ void LocateSprite(unsigned int x, unsigned int y)
 #endif	
 }
 
+// Apple II specific background redrawing function
+#if defined __APPLE2__
+  unsigned char xO, yO, xptr, yptr, *bgPTR;
+  void SpriteCopy(void);	// (see Apple/sprites.s)
+  void RestoreSprBG(unsigned char index)
+  {
+	  POKE(0xEB, sprROWS);
+	  POKE(0xEC, spriteXB[index]);
+	  POKE(0xED, spriteYS[index]);
+	  POKEW(0xFA, sprBG[index]);
+	  SpriteCopy();
+  }
+  void RestoreSprLine(unsigned char x, unsigned char y)
+  {
+	  // Restore 1 line from sprite background
+	  unsigned char i;
+	  for (i=0; i<SPRITE_NUM; i++) {
+		  if (sprEN[i]) {
+			  xO = x-spriteXS[i];
+			  yO = y-spriteYS[i];
+			  if (xO<7 && yO<sprROWS) {
+				  xptr = spriteXB[i];
+				  yptr = spriteYS[i]+yO;
+				  bgPTR = sprBG[i]+yO*sprWIDTH;
+				  dhrptr = (unsigned char *) (dhrLines[yptr] + xptr);
+				  *dhraux = 0;
+				  dhrptr[0] = bgPTR[0];
+				  dhrptr[1] = bgPTR[1];
+				  *dhrmain = 0;
+				  dhrptr[0] = bgPTR[2];		
+				  dhrptr[1] = bgPTR[3];
+				  return;
+			  }
+		  }
+	  }		
+  }
+#endif
+
+// Oric specific background redrawing function
+#if defined __ATMOS__
+  void SpriteCopy(void);	// (see Oric/utils.s)
+  void RestoreSprBG(unsigned char index)
+  {
+	// Restore sprite background
+	POKE(0x00, sprROWS); POKE(0x01, 4);					// Number of: blocks / bytes per block
+	POKEW(0x02, sprBG[index] - 1);						// Address of first source block (-1)
+	POKEW(0x04, BITMAPRAM + spriteYS[index]*40 + spriteXS[index] - 1);	// Address of first target block (-1)
+	POKE(0x06, 4); POKE(0x07, 40); 						// Offset between: source blocks / target blocks
+	SpriteCopy();
+  }
+#endif
+
 void SetSprite(unsigned char index, unsigned char frame)
 {
 #if defined __APPLE2__
-	unsigned char i;
+	unsigned char i, delta;
 	unsigned int addr;
 	
 	// Compute sprite slots
@@ -258,36 +246,24 @@ void SetSprite(unsigned char index, unsigned char frame)
 	if (sprEN[index]) { RestoreSprBG(index); }
 	
 	// Backup new background and draw sprite
-	yO = 0;
-	yptr = spriteY;	
-	sprPTR = SPRITERAM+addr;
-	bgPTR = sprBG[index];
-	while (yO<sprROWS) {
-		dhrptr = (unsigned char *) (dhrLines[yptr++] + xO);
-		*dhraux = 0;
-		bgPTR[0]  = dhrptr[0];
-		bgPTR[1]  = dhrptr[1];
-		dhrptr[0] = sprPTR[0];
-		dhrptr[1] = sprPTR[1];
-		*dhrmain = 0;
-		bgPTR[2]  = dhrptr[0];
-		bgPTR[3]  = dhrptr[1];
-		dhrptr[0] = sprPTR[2];		
-		dhrptr[1] = sprPTR[3];		
-		bgPTR += sprWIDTH;
-		sprPTR += sprWIDTH;
-		yO++;
-	}
-	
+	POKE(0xEB, sprROWS);
+	POKE(0xEC, xO);
+	POKE(0xED, spriteY);
+	POKEW(0xEE, sprBG[index]);
+	POKEW(0xFA, SPRITERAM+addr);
+	SpriteCopy();
+
 	// Set sprite information
 	sprEN[index] = 1;
 	spriteXB[index] = xO;
 	spriteXS[index] = spriteX;
 	spriteYS[index] = spriteY;
+	
 #elif defined __ATARI__
 	flickerX[index] = spriteX;
 	flickerY[index] = spriteY;
 	flickerFrame[index] = SPRITERAM + frame*flickerRows;
+	
 #elif defined __ATMOS__	
 	unsigned char i, delta;
 
@@ -322,14 +298,14 @@ void SetSprite(unsigned char index, unsigned char frame)
 	POKEW(0x02, BITMAPRAM + spriteY*40 + spriteX - 1);	// Address of first source block (-1)
 	POKEW(0x04, sprBG[index] - 1);						// Address of first target block (-1)
 	POKE(0x06, 40); POKE(0x07, 4); 						// Offset between: source blocks / target blocks
-	MultiBlockCopy();
+	SpriteCopy();
 
 	// Draw sprite frame
 	POKE(0x00, sprROWS); POKE(0x01, 2);					// Number of: blocks / bytes per block
 	POKEW(0x02, SPRITERAM + frame*sprROWS*2 - 1);		// Address of first source block (-1)
 	POKEW(0x04, BITMAPRAM + spriteY*40 + spriteX);		// Address of first target block (-1)
 	POKE(0x06, 2); POKE(0x07, 40); 						// Offset between: source blocks / target blocks
-	MultiBlockCopy();
+	SpriteCopy();
 	
 	// Adjust ink on even lines
 	scrPTR = BITMAPRAM + (spriteY + spriteY%2)*40 + spriteX;
@@ -342,7 +318,8 @@ void SetSprite(unsigned char index, unsigned char frame)
 	// Save sprite information
 	sprEN[index] = 1;
 	spriteXS[index] = spriteX;
-	spriteYS[index] = spriteY;	
+	spriteYS[index] = spriteY;
+	
 #elif defined __CBM__
 	// Tell VIC where to find the frame
 	POKE(SPRITEPTR+index, SPRITELOC+frame);

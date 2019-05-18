@@ -361,10 +361,10 @@ void BumpSFX(void);
 
 // Sprite handling functions
 #if defined __APPLE2__
-  #define SPRITE_NUM 8
+  #define SPRITE_NUM 5
   void InitSprites(unsigned char height, unsigned char frames);	
 #elif defined __ATMOS__
-  #define SPRITE_NUM 8
+  #define SPRITE_NUM 5
   void InitSprites(unsigned char height, unsigned char *spriteColors);
 #elif defined __ATARI__
   #define SPRITE_NUM 10
