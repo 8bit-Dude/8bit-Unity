@@ -95,17 +95,16 @@
 	unsigned char sprCOL[] = {0,0,0,0,0};	// Collision flags
 	unsigned char sprEN[] = {0,0,0,0,0}; 	// Enable status
 	unsigned char spriteXS[SPRITE_NUM], spriteYS[SPRITE_NUM];
-	unsigned char *sprBG[SPRITE_NUM];
-	unsigned char sprROWS, inkVAL;
-	unsigned int scrPTR, colPTR;
+	unsigned char sprROWS, inkVAL, *sprBG[SPRITE_NUM];
+	unsigned int scrPTR, colPTR, sprBLOCK;
 	extern unsigned char ink1[20];	// see bitmap.c
-	void InitSprites(unsigned char rows, unsigned char *spriteColors)
+	void InitSprites(unsigned char rows, unsigned char frames, unsigned char *spriteColors)
 	{			
 		// Load sprite sheet and assigned colors
 		unsigned char i;
 		SedoricRead("sprites.dat", (void*)SPRITERAM);
-		colPTR = spriteColors;
-		sprROWS = rows;
+		colPTR = spriteColors; sprROWS = rows;
+		sprBLOCK = frames*sprROWS*sprWIDTH;
 		
 		// Assign memory for sprite background
 		for (i=0; i<SPRITE_NUM; i++) {
@@ -147,7 +146,7 @@ void LocateSprite(unsigned int x, unsigned int y)
 	spriteX = x/2 + 45;
 	spriteY = y + 24;
 #elif defined __ATMOS__
-	spriteX = x/8;	
+	spriteX = x/4;	
 	spriteY = y;
 #elif defined __CBM__
 	spriteX = x;
@@ -266,6 +265,12 @@ void SetSprite(unsigned char index, unsigned char frame)
 	
 #elif defined __ATMOS__	
 	unsigned char i, delta;
+	unsigned int addr;
+	
+	// Frame block (left or right)
+	addr = SPRITERAM + frame*sprROWS*2;
+	if (spriteX%2) { addr += sprBLOCK; }
+	spriteX /= 2;
 
 	// Offset from centre of sprite
 	spriteX -= 1; spriteY -= sprROWS/2;
@@ -302,7 +307,7 @@ void SetSprite(unsigned char index, unsigned char frame)
 
 	// Draw sprite frame
 	POKE(0x00, sprROWS); POKE(0x01, 2);					// Number of: blocks / bytes per block
-	POKEW(0x02, SPRITERAM + frame*sprROWS*2 - 1);		// Address of first source block (-1)
+	POKEW(0x02, addr - 1);								// Address of first source block (-1)
 	POKEW(0x04, BITMAPRAM + spriteY*40 + spriteX);		// Address of first target block (-1)
 	POKE(0x06, 2); POKE(0x07, 40); 						// Offset between: source blocks / target blocks
 	SpriteCopy();

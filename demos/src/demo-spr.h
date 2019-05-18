@@ -59,7 +59,7 @@ int DemoSPR(void)
 	InitSprites(13, spriteColors);
 #elif defined __ATMOS__
 	// number of rows, unique colors of sprites 0-3
-	InitSprites(6, spriteColors);
+	InitSprites(6, 16, spriteColors);
 #elif defined __CBM__
 	// unique colors of sprites 0-7, shared colors of all sprites 
 	InitSprites(spriteColors, sharedColors);
