@@ -12,13 +12,32 @@ pixdata = list(img1.getdata())
 #########################
 # Fix paper color
 sprdata = []
-for i in range(0, len(pixdata), 6):
-    pow = 1
-    byte = 64
-    for j in range(6):
-        byte += pow * pixdata[i+(5-j)]
-        pow *= 2
-    sprdata.append(chr(byte))
+
+# Left-shifted
+for i in range(0, len(pixdata), 12):
+    block = []
+    block.append(pixdata[i+1:i+7])
+    block.append(pixdata[i+7:i+12] + [0])
+    for j in range(2):
+        pow = 1
+        byte = 64
+        for k in range(6):
+            byte += pow * block[j][5-k]
+            pow *= 2
+        sprdata.append(chr(byte))
+
+# Right-shifted
+for i in range(0, len(pixdata), 12):
+    block = []
+    block.append([0] + pixdata[i:i+5])
+    block.append(pixdata[i+5:i+11])
+    for j in range(2):
+        pow = 1
+        byte = 64
+        for k in range(6):
+            byte += pow * block[j][5-k]
+            pow *= 2
+        sprdata.append(chr(byte))        
 #print sprdata
         
 ##########################
