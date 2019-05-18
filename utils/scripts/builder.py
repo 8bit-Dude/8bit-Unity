@@ -359,7 +359,7 @@ class Application:
             for item in code:
                 comp += item
                 comp += ' '
-            fp.write(comp + 'unity/bitmap.c unity/chars.s unity/math.s unity/network.c unity/sfx.c unity/sprites.c unity/Apple/CLOCK.c unity/Apple/DHR.c unity/Apple/DUET.s unity/Apple/JOY.s unity/Apple/MOCKING.s unity/Apple/PADDLE.s unity/IP65/ip65.lib unity/IP65/ip65_apple2.lib\n')
+            fp.write(comp + 'unity/bitmap.c unity/chars.s unity/math.s unity/network.c unity/sfx.c unity/sprites.c unity/Apple/CLOCK.c unity/Apple/DHR.c unity/Apple/DUET.s unity/Apple/JOY.s unity/Apple/MOCKING.s unity/Apple/PADDLE.s unity/Apple/sprites.s unity/IP65/ip65.lib unity/IP65/ip65_apple2.lib\n')
             
             # Compression
             cmd = 'utils\\scripts\\exomizer sfx $0803 -t162 -Di_load_addr=$0803 [build]/apple/' + diskname.lower() + '.bin@$0803,4'
@@ -553,7 +553,7 @@ class Application:
             for item in code:
                 comp += item
                 comp += ' '
-            fp.write(comp + 'unity/bitmap.c unity/chars.s unity/math.s unity/network.c unity/sfx.c unity/sprites.c unity/Oric/files.c unity/Oric/joysticks.c unity/Oric/keyboard.s unity/Oric/libsedoric.s unity/Oric/utils.s \n')
+            fp.write(comp + 'unity/bitmap.c unity/chars.s unity/math.s unity/network.c unity/sfx.c unity/sprites.c unity/Oric/files.c unity/Oric/joysticks.c unity/Oric/keyboard.s unity/Oric/libsedoric.s unity/Oric/sprites.s \n')
 
             # Fix header
             fp.write('utils\\scripts\\oric\\header.exe [build]/oric/launch.bin [build]/oric/launch.com $0501\n')
