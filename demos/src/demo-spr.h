@@ -6,7 +6,7 @@
 	unsigned char inkColors[] = { BLUE, RED, GREEN, YELLOW };		// P1, P2, P3, P4
 #elif defined __ATARI__ //  5th color shared between all sprites
 	unsigned char inkColors[] = { BLUE, RED, GREEN, YELLOW };		// P1, P2, P3, P4
-	unsigned char spriteColors[] = {0x74, 0x24, 0xa6, 0xdc, 0x06};	// Refer to atari palette in docs
+	unsigned char spriteColors[] = {0x88, 0x28, 0xba, 0xee, 0x00, 0x08, 0x08, 0x08, 0x08, 0x00 };	// Refer to atari palette in docs
 #elif defined __ATMOS__
 	unsigned char inkColors[] = { CYAN, MBLUE, LGREEN, GREY };		// P1, P2, P3, P4
 	unsigned char spriteColors[] = { CYAN, MBLUE, LGREEN, GREY };	// Matching more or less with above
@@ -69,7 +69,7 @@ int DemoSPR(void)
 	for (i=0; i<4; i++) {
 		EnableSprite(i);
 #if defined __ATARI__
-		EnableSprite(4+i);	// Flicker sprites used for 2nd color (tires)
+		EnableSprite(i+5);	// Also assign sprite for 2nd color (tires)
 #endif
 	}
 
@@ -88,10 +88,10 @@ int DemoSPR(void)
                 frame = ((12-(angle+(i+1)*90))%360)/23;
 				LocateSprite(xpos, ypos);
 #if defined __APPLE2__
-				SetSprite(i, (i*16)+frame);	// Point to sprite data associated with each player color
+				SetSprite(i, frame+(i*16));	// Point to sprite data associated with each player color
 #elif defined __ATARI__
-				SetSprite(i, frame);		// Normal sprite for 1st color (body)
-				SetSprite(4+i, 16+frame);	// Flicker sprite for 2nd color (tires)	
+				SetSprite(i, frame);		// Body sprite using 1st color
+				SetSprite(i+5, frame+16);	// Tire sprite using 2nd color
 #elif defined __ATMOS__
 				SetSprite(i, frame);		// Single coloured sprite (colour applies to second scan line)
 #elif defined __CBM__

@@ -62,34 +62,32 @@
 // Atari specific init function
 #elif defined __ATARI__	
 	// Sprite flicker data (see DLI.a65)
-	#define FlickRows   FLICKDATA+0x00
-	#define FlickMask   FLICKDATA+0x01
-	#define FlickX      FLICKDATA+0x02
-	#define FlickY      FLICKDATA+0x06
-	#define FlickFrames FLICKDATA+0x0A
-	unsigned int PMGbase[SPRITE_NUM] = {PMGRAM+1024, PMGRAM+1280, PMGRAM+1536, PMGRAM+1792, PMGRAM+768};
-	unsigned int PMGaddr[SPRITE_NUM] = {PMGRAM+1024, PMGRAM+1280, PMGRAM+1536, PMGRAM+1792, PMGRAM+768};
-	unsigned char sprROWS;
+	void SetupFlickerDLI(void);
+	extern unsigned int flickerFrame[10];
+	extern unsigned char flickerMask[5], flickerX[10], flickerY[10], flickerColor[10], flickerRows;
 	void InitSprites(unsigned char rows, unsigned char *spriteColors)
 	{			
-		// Reset PMG RAM and set colors
-		int i;	
-		for (i=0; i<4; i++) {
-			bzero(PMGaddr[i],0x100);   		// Clear Player memory
-			POKE(704+i, spriteColors[i]);   // Set Player colors  (shadow for 53266)
+		// Reset Sprite Mask, Frames, Colors and Rows
+		unsigned char i;
+		for (i=0; i<5; i++) {
+			flickerMask[i] = 0;
 		}
-		bzero(PMGaddr[4],0x100);  	// Clear Missile memory
-		POKE(711, spriteColors[4]);	// Set Missile color  (shadow for 53273)
-		POKE(FlickMask, 0);  	  	// Clear rolling sprites mask (DLI.a65)
+		for (i=0; i<10; i++) {
+			flickerFrame[i] = 0;
+			flickerColor[i] = spriteColors[i];
+		}
+		flickerRows = rows;
+
+		// Clear all PMG memory
+		bzero(PMGRAM+768,0x500);
 		
 		// Setup ANTIC and GTIA
 		POKE(54279, PMGRAM>>8); // Tell ANTIC where the PM data is located
 		POKE(53277, 2+1);       // Tell GTIA to enable players + missile	
-		POKE(623, 32+16+1);		// Tricolor players + enable fifth player + priority  (shadow for 53275)		
+		POKE(623, 32+16+1);		// Tricolor players + enable fifth player + priority  (shadow for 53275)	
 		
-		// Set sprite rows
-		sprROWS = rows;
-		POKE(FlickRows, rows);		
+		// Setup flicker DLI
+		SetupFlickerDLI();
 	}
 // Atmos specific init function
 #elif defined __ATMOS__	
@@ -287,18 +285,9 @@ void SetSprite(unsigned char index, unsigned char frame)
 	spriteXS[index] = spriteX;
 	spriteYS[index] = spriteY;
 #elif defined __ATARI__
-	if (index<4) {
-		// Set X coordinate of ith sprite and copy frame to PMG column
-		POKE(53248+index, spriteX);
-		bzero(PMGaddr[index], sprROWS);
-		PMGaddr[index] = PMGbase[index]+spriteY;
-		memcpy(PMGaddr[index], SPRITERAM + frame*sprROWS, sprROWS);
-	} else {
-		// Pass information to flicker sprite handler (see DLI.a65)
-		POKE(FlickX-4+index, spriteX);
-		POKE(FlickY-4+index, spriteY);
-		POKEW(FlickFrames+(index-4)*2, SPRITERAM + frame*sprROWS);			
-	}
+	flickerX[index] = spriteX;
+	flickerY[index] = spriteY;
+	flickerFrame[index] = SPRITERAM + frame*flickerRows;
 #elif defined __ATMOS__	
 	unsigned char i, delta;
 
@@ -376,8 +365,12 @@ void EnableSprite(signed char index)
 	// Set sprite bits
 	POKE(53269, PEEK(53269) |  (1 << index));
 #elif defined __ATARI__
-	// Set flicker sprite mask
-	if (index>3) { POKE(FlickMask, PEEK(FlickMask) | (1 << (index-4))); }
+	// Set bit in flicker mask	
+	if (index<5) { 
+		flickerMask[index] |= 1;
+	} else {
+		flickerMask[index-5] |= 2;
+	}
 #endif
 }
 
@@ -388,11 +381,13 @@ void DisableSprite(signed char index)
 #if defined __CBM__
 		POKE(53269, PEEK(53269) & ~(1 << index));
 #elif defined __ATARI__
-		if (index>3) {
-			POKE(FlickMask, PEEK(FlickMask) & ~(1 << (index-4))); // Remove from rolling sprite mask
+		// Set bit in flicker mask	
+		if (index<5) { 
+			flickerMask[index] &= ~1;
 		} else {
-			bzero(PMGaddr[index],0x100);  // Clear PMG memory			
+			flickerMask[index-5] &= ~2;
 		}
+		bzero(PMGRAM+768+((index+1)%5)*256,0x100); // Clear PMG slot
 #else
 		// Soft sprites: Restore background if neccessary
 		if (sprEN[index]) { RestoreSprBG(index); }
@@ -403,9 +398,9 @@ void DisableSprite(signed char index)
 #if defined __CBM__
 		// Set sprite bits
 		POKE(53269, 0);
-#elif defined __ATARI__			
-		POKE(FlickMask,0);   	   // Clear rolling sprite mask
-		bzero(PMGRAM+768,0x500);   // Clear all PMG memory
+#elif defined __ATARI__
+		bzero(flickerMask, 5);	 // Clear flicker mask
+		bzero(PMGRAM+768,0x500); // Clear PMG memory
 #else	
 		// Soft sprites: Restore background if necessary
 		for (index=0; index<SPRITE_NUM; index++) {

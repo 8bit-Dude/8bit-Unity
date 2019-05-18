@@ -70,8 +70,8 @@
 	#define SPRITERAM  (VIDEOBANK * 0x4000 + SPRITELOC * 0x0040) // C700-CFFF (sprites.prg loaded here)
 #elif defined __ATARI__
 	// Atari Memory locations
-	#define DLIRAM	   (0x6550) // 6550-66df (DLI list and sprite flicker routine)
-								// 6f50-700c (START/STOP routines for bitmap mode)
+	#define DLIST	   (0x6600) // 6600-66df (DLI list)
+								// 6f50-700a (START/STOP routines for bitmap mode)
 	#define RMTPLAYER  (0x66e0) // 66e0-6f4d (RMT music player; JSR to 0x6A00)
 	#define BITMAPRAM1 (0x7010) // 7010-8f50 (bitmap frame 1)
 	#define MUSICRAM   (0x9000) // 9000-96ff (RMT sound track)
@@ -80,10 +80,9 @@
 	#define PALETTERAM (0xa000) // a000-a003 (palette data)
 	#define BITMAPRAM2 (0xa010) // a010-bf50 (bitmap frame 2)
 	// External Routines/Variables 
-	#define FLICKDATA  (0x6622) // Sprite flicker variables (see DLI.a65)
 	#define BLENDTOG   (0x6f50) // Toggle for frame blending ON/OFF (see DLI.a65)
 	#define STARTBMP   (0x6f5b) // Start Bitmap routine (see DLI.a65)
-	#define STOPBMP    (0x6fa4) // Stop Bitmap routine (see DLI.a65)	
+	#define STOPBMP    (0x6fa1) // Stop Bitmap routine (see DLI.a65)	
 #elif defined __APPLE2__
 	// Apple Memory locations
 	#define BITMAPRAM  (0x2000)
@@ -362,13 +361,13 @@ void BumpSFX(void);
 
 // Sprite handling functions
 #if defined __APPLE2__
-  #define SPRITE_NUM 4
+  #define SPRITE_NUM 8
   void InitSprites(unsigned char height, unsigned char frames);	
 #elif defined __ATMOS__
-  #define SPRITE_NUM 4
+  #define SPRITE_NUM 8
   void InitSprites(unsigned char height, unsigned char *spriteColors);
 #elif defined __ATARI__
-  #define SPRITE_NUM 8
+  #define SPRITE_NUM 10
   void InitSprites(unsigned char height, unsigned char *spriteColors);
 #elif defined __CBM__
   #define SPRITE_NUM 8

@@ -23,9 +23,6 @@
 ;   used to endorse or promote products derived from this software without
 ;   specific prior written permission.
 ;
-
-; Original sprite flicker routine by Anthony Beaucamp
-; 	Note: Uses 4 zero page registers in range $FC - $FF
 ;
 ; Twin frame graphic mode adapted from Inter-Player
 ;	Note: Set blendTOG to enable/disable frame blending
@@ -33,9 +30,9 @@
 ; Date created: 2017/12/21
 ; Compile with MADS
 
-lists	= $6550
-addrTop = $6555
-addrBot = $65bd
+lists	= $6600
+addrTop = $6605
+addrBot = $666d
 procs   = $6f50
 
 frame1	= $7010
@@ -73,119 +70,6 @@ dlist:	dta $70,$70,$70
 		dta $8e				; Invoke DLI with $80
 		dta $41,a(dlist)
 		
-/*-------------------------------------------------------------------------------------------------*/	
-		
-; Sprite flicker routine
-FlickRows	.ds 1
-FlickMask	.ds 1
-FlickX		.ds 4
-FlickY		.ds 4
-FlickFrames .ds 8
-FlickOffset .ds 1
-FlickIndex	.ds 1
-
-initFlicker:
-	; Init 5th sprite
-	mva #0 FlickIndex
-	mva #0 FlickMask
-	mva #$9b $ff	; High-byte of 5th sprite's base address ($9b00)
-	rts
-
-updateFlicker:	
-	; Check that sprites are enabled!
-	lda FlickMask
-	bne resetPMG5
-	rts
-	
-resetPMG5:
-	; Reset pixels of 5th sprite
-	ldx FlickOffset	; Offset of 5th sprite ($9b00 ~ $9bff)
-	stx $fe
-	ldy FlickRows	; Sprite length
-	lda #$00		; Reset value
-strloop0:	
-	sta ($fe),y		
-	dey
-	bne strloop0	; Loop through till y is 0
-	
-sprbranch1:
-	; Increment 5th sprite index (reset when index becomes 4)
-	ldx FlickIndex
-	inx	
-	cpx #4
-	bcc sprbranch2
-	ldx #0
-	
-sprbranch2:
-	stx FlickIndex
-	
-	; Verify sprite is allocated in mask
-	lda #$0000001
-	cpx #0
-	beq bittest
-bitshift:
-	asl
-	dex
-	bne bitshift	; Loop through till x is 0 
-bittest:
-	and FlickMask
-	beq sprbranch1
-	
-setpos:
-	; Set x pos. of new 5th sprite
-	ldx FlickIndex
-	lda FlickX,x  ; Xpos of sprite to A
-	sta M4POS
-	cpx #0
-	adc #1
-	sta M3POS
-	adc #2
-	sta M2POS
-	adc #2
-	sta M1POS
-	
-	; Copy frame address to zeropage
-	cpx #0
-	beq off0
-	cpx #1
-	beq off1
-	cpx #2
-	beq off2
-off3:
-	mva FlickFrames+6 $fc
-	mva FlickFrames+7 $fd
-	jmp copy
-off2:	
-	mva FlickFrames+4 $fc
-	mva FlickFrames+5 $fd
-	jmp copy
-off1:	
-	mva FlickFrames+2 $fc
-	mva FlickFrames+3 $fd
-	jmp copy
-off0:	
-	mva FlickFrames+0 $fc
-	mva FlickFrames+1 $fd
-	
-copy:	
-	; Compute screen offset and copy to zeropage
-	lda FlickY,x   ; Ypos of sprite to A
-	sta FlickOffset
-	sta $fe
-		
-	; Copy frame to screen
-	ldy FlickRows	; Sprite length
-sprloop1:
-	; Transfer values
-	lda ($fc),y	
-	sta ($fe),y	
-	dey
-	bne sprloop1	; Loop through till y is 0 
-	
-return:	
-	; All done!
-	rts
-
 /*-------------------------------------------------------------------------------------------------*/
 
 	org procs
@@ -221,9 +105,6 @@ regY	.ds 1
 	mwa	#dlist	sdlstl
 	mwa	#dli	vdslst
 	cli
-
-	; Init Sprite Flicker Routine
-	jsr initFlicker
 	rts		
 .endp
 
@@ -246,7 +127,7 @@ dli:
 	stx regX
 	sty regY
 	
-	; Switch buffer
+	; Toggle buffer 1/2
 	lda blendTOG
 	eor #$1
 	sta blendTOG
@@ -265,15 +146,18 @@ showframe2:
 	jmp done
 	
 done:
-	; Flicker 5th sprite (if needed)
-	jsr updateFlicker
+	; Sprite flicker handling
+	jsr dummy	; Value is overwritten by SpriteDLI in sprites.s
 
 	; Reset atract (screen saver timer)
+	lda #$00
 	sta atract
 
 	; Restore Registers
 	lda regA
 	ldx regX
 	ldy regY
-	rti	
+	rti
 	
+dummy:
+	rts

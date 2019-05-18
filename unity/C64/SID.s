@@ -27,8 +27,6 @@
 	.export _PlayMusic
 	.export _StopMusic
 
-sid_address: .res 2
-
 	.segment "CODE"
 
 ; ---------------------------------------------------------------
