@@ -175,16 +175,16 @@ void LocatePixel(unsigned int x, unsigned int y)
 {
 // This function maps pixel coordinates from a 320x200 screen definition
 // It can be by-passed by assigning pixelX, pixelY directly in your code
-#if defined __APPLE2__
+#if defined __APPLE2__	// DHR Mode: 140 x 192
 	pixelX = (x*140)/320;
 	pixelY = (y*192)/200;
-#elif defined __ATARI__
+#elif defined __ATARI__	// INP Mode: 160 x 200
 	pixelX = x/2;
 	pixelY = y;
-#elif defined __ATMOS__
+#elif defined __ATMOS__	// AIC Mode: 117 x 100
 	pixelX = (x*117)/320;	
 	pixelY = y/2;
-#elif defined __CBM__
+#elif defined __CBM__	// MLC Mode: 160 x 200
 	pixelX = x/2;
 	pixelY = y;
 #endif

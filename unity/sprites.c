@@ -264,46 +264,68 @@ void SetSprite(unsigned char index, unsigned char frame)
 	flickerFrame[index] = SPRITERAM + frame*flickerRows;
 	
 #elif defined __ATMOS__	
-	unsigned char i, delta;
-	unsigned int addr;
+	unsigned char i, x1, x2, y1, y2, dX, dY;
+	unsigned int addr, bgPTR1, bgPTR2;
 	
-	// Frame block (left or right)
+	// Check frame block (left or right)
 	addr = SPRITERAM + frame*sprROWS*2;
 	if (spriteX%2) { addr += sprBLOCK; }
 	spriteX /= 2;
 
 	// Offset from centre of sprite
-	spriteX -= 1; spriteY -= sprROWS/2;
-
-	// Check for collisions
-	sprCOL[index] = 0;
-	for (i=0; i<SPRITE_NUM; i++) {
-		if (sprEN[i] && i!=index) {
-			delta = spriteYS[i] - spriteY;
-			if (delta < sprROWS || delta>(256-sprROWS)) {
-				delta = spriteXS[i] - spriteX;
-				if (delta < 4 || delta>252) {	// Including INK bytes
-					// Redraw background of that sprite
-					RestoreSprBG(i);
-					if (delta < 2 || delta>254) {	// Not including INK bytes
-						// Register collision
-						sprCOL[i] = 1;
-						sprCOL[index] = 1;
-					}
-				}
-			}
-		}
-	}	
+	if (spriteX > 0) { spriteX -= 1; }
+	spriteY -= sprROWS/2;
 
 	// Restore old background?
 	if (sprEN[index]) { RestoreSprBG(index); }
 	
-	// Backup sprite background
+	// Backup new background
 	POKE(0x00, sprROWS); POKE(0x01, 4);					// Number of: blocks / bytes per block
 	POKEW(0x02, BITMAPRAM + spriteY*40 + spriteX - 1);	// Address of first source block (-1)
 	POKEW(0x04, sprBG[index] - 1);						// Address of first target block (-1)
 	POKE(0x06, 40); POKE(0x07, 4); 						// Offset between: source blocks / target blocks
-	SpriteCopy();
+	SpriteCopy();	
+	
+	// Check for collisions
+	sprCOL[index] = 0;
+	for (i=0; i<SPRITE_NUM; i++) {
+		if (sprEN[i] && i!=index) {
+			dY = spriteYS[i] - spriteY;
+			if (dY < sprROWS || dY>(256-sprROWS)) {
+				dX = spriteXS[i] - spriteX;				
+				if (dX < 4 || dX>252) {	// Including INK bytes
+					// Check narrower collision sector
+					if (dX < 2 || dX>254) {	// Not including INK bytes
+						sprCOL[index] = 1;
+						sprCOL[i] = 1;
+					}
+				
+					// Define overlapping sector
+					if (dX < 4) { 
+						x1 = dX; x2 = 4; 
+					} else { 
+						x1 = 0; x2 = 4+dX; 
+					}
+					if (dY < sprROWS) { 
+						y1 = dY; y2 = sprROWS; 
+					} else { 
+						y1 = 0; y2 = sprROWS+dY; 
+					}
+					
+					// Copy overlapping background
+					bgPTR1 = sprBG[index] + y1*4;
+					bgPTR2 = sprBG[i] + (sprROWS-y2)*4 + (4-x2) - x1;
+					for (dY=y1; dY<y2; dY++) {
+						for (dX=x1; dX<x2; dX++) {
+							POKE(bgPTR1+dX, PEEK(bgPTR2+dX));	
+						}
+						bgPTR1 += 4;
+						bgPTR2 += 4;
+					}
+				}
+			}
+		}
+	}
 
 	// Draw sprite frame
 	POKE(0x00, sprROWS); POKE(0x01, 2);					// Number of: blocks / bytes per block
