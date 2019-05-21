@@ -26,6 +26,10 @@
  
 #include "unity.h"
 
+#ifdef __APPLE2__
+  #pragma code-name("LC")
+#endif
+
 #ifdef __ATARIXL__
 #pragma code-name("SHADOW_RAM")
 #endif
@@ -62,6 +66,40 @@
 #elif defined __ATMOS__
 	void PlayMusic(unsigned int address) {}
 	void StopMusic(void) {}
+	void ResetChannels(void) {
+		// Play 7,0,0: enable channels 1/2/3 (with no enveloppe)
+		POKEW(0x02E1, 7);
+		POKEW(0x02E3, 0);
+		POKEW(0x02E5, 0);
+		if PEEK((char*)0xC800) {
+			asm("jsr $FBD0");	// Atmos (ROM 1.1)
+		} else {
+			asm("jsr $F421");	// Oric-1 (ROM 1.0)
+		}		
+	}
+	void PlaySFX(unsigned char tone, unsigned int enveloppe) {
+		// Music 1,octave,note,0: set the tone (volume 0 allows changing the enveloppe)
+		POKEW(0x02E1, 1);
+		POKEW(0x02E3, tone/12);
+		POKEW(0x02E5, tone%12);
+		POKEW(0x02E7, 0);
+		if PEEK((char*)0xC800) {
+			asm("jsr $FC18");	// Atmos (ROM 1.1)
+		} else {
+			asm("jsr $F424");	// Oric-1 (ROM 1.0)
+		}
+		
+		// Play 1,0,1,enveloppe: set a decaying enveloppe for channel 1
+		POKEW(0x02E1, 1);
+		POKEW(0x02E3, 0);
+		POKEW(0x02E5, 1);
+		POKEW(0x02E7, enveloppe);
+		if PEEK((char*)0xC800) {
+			asm("jsr $FBD0");	// Atmos (ROM 1.1)
+		} else {
+			asm("jsr $F421");	// Oric-1 (ROM 1.0)
+		}		
+	}
 #endif
 
 void InitSFX() 
@@ -82,11 +120,7 @@ void InitSFX()
 	POKE((char*)0xD20F,3);
 	SetupSFX();	// VBI for SFX samples
 #elif defined __ATMOS__
-	if PEEK((char*)0xC800) {
-		asm("jsr $FB14");	// Atmos (ROM 1.1)
-	} else {
-		asm("jsr $FAFA");	// Oric-1 (ROM 1.0)
-	}
+	ResetChannels();
 #endif
 }
 
@@ -101,10 +135,14 @@ void StopSFX()
 	POKE((char*)(0xD204), 0);
 	POKE((char*)(0xD208), 0);
 #elif defined __ATMOS__
+	// Play 0,0,0: disable channels 1/2/3
+	POKEW(0x02E1, 0);
+	POKEW(0x02E3, 0);
+	POKEW(0x02E5, 0);
 	if PEEK((char*)0xC800) {
-		asm("jsr $FB14");	// Atmos (ROM 1.1)
+		asm("jsr $FBD0");	// Atmos (ROM 1.1)
 	} else {
-		asm("jsr $FAFA");	// Oric-1 (ROM 1.0)
+		asm("jsr $F421");	// Oric-1 (ROM 1.0)
 	}
 #endif	
 }
@@ -144,7 +182,7 @@ void EngineSFX(int channel, int vel)
 	}	
 #elif defined __ATMOS__
 	vel = vel/20 + 1;
-	POKEW(0x02E1, channel%3+1);
+	POKEW(0x02E1, channel%2+2);
 	POKEW(0x02E3, vel/12);
 	POKEW(0x02E5, vel%12);
 	POKEW(0x02E7, 0x09);
@@ -156,24 +194,20 @@ void EngineSFX(int channel, int vel)
 #endif
 }
 
-#ifdef __APPLE2__
-  #pragma code-name("LC")
-#endif
-
 void BleepSFX(unsigned char tone) 
 {
 #if defined __CBM__	
-	SID.v3.freq = 78*(320-tone);
+	SID.v3.freq = 78*(64+tone);
 	SID.v3.sr   = 0x09; // sustain, release
 	SID.v3.ctrl = 0x11; // triangle wave, set attack bit
 	SID.v3.ctrl = 0x10; // release attack bit
 #elif defined __ATARI__
 	sampleCount = 24;
-	sampleFreq = tone;
+	sampleFreq = 255-tone;
 	sampleCtrl = 170;
 #elif defined __APPLE2__
 	unsigned char repeat = 64;
-	unsigned char interval = tone/48;
+	unsigned char interval = (255-tone)/48;
 	if (sfxOutput) {
 		// Mocking board sound
 		sfxData[7] &= ~DISABLE_TONE_C;
@@ -193,16 +227,14 @@ void BleepSFX(unsigned char tone)
 		}
 	}
 #elif defined __ATMOS__
-	if PEEK((char*)0xC800) {
-		asm("jsr $FA9F");	// Atmos (ROM 1.1)
-	} else {
-		asm("jsr $F412");	// Oric-1 (ROM 1.0)
-	}
+	PlaySFX(tone/4+12, 1000);
+	ResetChannels();	
 #endif
 }
 
 void BumpSFX() 
 {
+	// Low frequency burst
 #if defined __CBM__	
 	SID.v3.freq = 2000;
 	SID.v3.sr   = 0xA8; // sustain, release
@@ -213,10 +245,7 @@ void BumpSFX()
 	sampleFreq = 255;
 	sampleCtrl = 232;
 #elif defined __ATMOS__
-	if PEEK((char*)0xC800) {
-		asm("jsr $FB2A");	// Atmos (ROM 1.1)
-	} else {
-		asm("jsr $FB10");	// Oric-1 (ROM 1.0)
-	}
+	PlaySFX(16, 100);
+	ResetChannels();	
 #endif
 }

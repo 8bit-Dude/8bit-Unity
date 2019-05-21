@@ -259,8 +259,6 @@ unsigned char GetPixel()
 			xO = pX - spriteXS[i];
 			yO = pY - spriteYS[i];
 			if (xO<3 && yO<sprROWS) {
-				//PrintNum(0,2,pX); PrintNum(3,2,spriteXS[i]);
-				//PrintNum(0,3,pY); PrintNum(3,3,spriteYS[i]);
 				addr = sprBG[i]+yO*4+xO;
 				byte1 = PEEK(addr);
 				byte2 = PEEK(addr+4);	

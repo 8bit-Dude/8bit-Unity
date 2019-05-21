@@ -36,9 +36,6 @@
 
 // Apple II specific init function
 #if defined __APPLE2__
-	// Extern variables (see bitmap.c)	
-	extern unsigned dhrLines[192];
-	
 	// Sprite data
 	#define sprWIDTH 4	// Byte width of sprite (7 pixels)
 	unsigned char sprCOL[] = {0,0,0,0,0};	// Collision flags
@@ -158,6 +155,7 @@ void LocateSprite(unsigned int x, unsigned int y)
 #if defined __APPLE2__
   unsigned char xO, yO, xptr, yptr, *bgPTR;
   void SpriteCopy(void);	// (see Apple/sprites.s)
+  unsigned int DHRLine(unsigned char y);
   void RestoreSprBG(unsigned char index)
   {
 	  POKE(0xEB, sprROWS);
@@ -177,8 +175,8 @@ void LocateSprite(unsigned int x, unsigned int y)
 			  if (xO<7 && yO<sprROWS) {
 				  xptr = spriteXB[i];
 				  yptr = spriteYS[i]+yO;
-				  bgPTR = sprBG[i]+yO*sprWIDTH;
-				  dhrptr = (unsigned char *) (dhrLines[yptr] + xptr);
+				  bgPTR = sprBG[i]+yO*sprWIDTH;				  
+				  dhrptr = DHRLine(yptr) + xptr;
 				  *dhraux = 0;
 				  dhrptr[0] = bgPTR[0];
 				  dhrptr[1] = bgPTR[1];

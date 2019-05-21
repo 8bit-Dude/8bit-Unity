@@ -24,6 +24,7 @@
 ;   specific prior written permission.
 ;
 
+	.export _DHRLine
 	.export _SpriteCopy
 
 	.segment	"DATA"
@@ -83,6 +84,20 @@ _dhrLinesLO:
 _mainAuxTog: .res 1
 
 	.segment	"CODE"
+
+; ---------------------------------------------------------------
+; int __near__ _DHRLine (char line)
+;	Return address of DHR line
+; ---------------------------------------------------------------	
+	
+.proc _DHRLine: near
+
+	; Save DHR address to registers A/X
+	tay
+	ldx _dhrLinesHI,y
+	lda _dhrLinesLO,y
+	rts
+.endproc	
 	
 ; ---------------------------------------------------------------
 ; void __near__ SpriteCopy (void)
