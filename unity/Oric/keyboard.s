@@ -23,11 +23,26 @@
 ;   used to endorse or promote products derived from this software without
 ;   specific prior written permission.
 ;
+;	Adapted from Micr'Oric N6, original code by Fabrice Broche
+;
+;	Keyboard Layout: code = row*8 + col
+;
+;						row
+;			7	6	5	4	3	2	1	0
+;		0	8	Y	U	Spc	K	M	J	7
+;		1	L	H	I	,	9	6	T	N
+;		2	0	G	O	.	;	B	R	5
+;  		3	/	E	P	Up	-	4	F	V
+;	col	4	ShR		Fun	ShL		Ctr
+;		5	Ret	A	Del	Lft		Z	Esc	1
+;		6		S	]	Dwn		2	Q	X
+;		7	=	W	[	Rgt	,	C	D	3
+;
  
 	.export		_GetKey
 
 ; ---------------------------------------------------------------
-; unsigned char __near__ GetKey (unsigned char)
+; unsigned char __near__ GetKey (unsigned char code)
 ; ---------------------------------------------------------------
 
 .segment	"CODE"

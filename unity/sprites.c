@@ -154,7 +154,7 @@ void LocateSprite(unsigned int x, unsigned int y)
 // Apple II specific background redrawing function
 #if defined __APPLE2__
   unsigned char xO, yO, xptr, yptr, *bgPTR;
-  void SpriteCopy(void);	// (see Apple/sprites.s)
+  void __fastcall__ SpriteCopy(void);	// (see Apple/sprites.s)
   unsigned int DHRLine(unsigned char y);
   void RestoreSprBG(unsigned char index)
   {
@@ -192,7 +192,7 @@ void LocateSprite(unsigned int x, unsigned int y)
 
 // Oric specific background redrawing function
 #if defined __ATMOS__
-  void SpriteCopy(void);	// (see Oric/utils.s)
+  void __fastcall__ SpriteCopy(void);	// (see Oric/utils.s)
   void RestoreSprBG(unsigned char index)
   {
 	// Restore sprite background

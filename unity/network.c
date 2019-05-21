@@ -51,8 +51,10 @@ unsigned char InitNetwork(void)
 	// Init IP65 and DHCP
 	if (ip65_init()) { return ADAPTOR_ERR; }
 	if (dhcp_init()) { return DHCP_ERR; }
-#endif
 	return NETWORK_OK;
+#else
+	return ADAPTOR_ERR;
+#endif
 }
 
 void SendUDPPacket(unsigned char* buffer, unsigned char length) 

@@ -36,10 +36,10 @@ unsigned char GetJoy(unsigned char joy)
 {
 	unsigned char state = 255;
 	if (joy) {
-		if (GetKey(3+8*5)) { state -= JOY_UP;    } // P
-		if (GetKey(2+8*3)) { state -= JOY_DOWN;  } // ;
-		if (GetKey(1+8*7)) { state -= JOY_LEFT;  } // L
-		if (GetKey(7+8*3)) { state -= JOY_RIGHT; } // '
+		if (GetKey(1+8*5)) { state -= JOY_UP;    } // I
+		if (GetKey(0+8*3)) { state -= JOY_DOWN;  } // K
+		if (GetKey(0+8*1)) { state -= JOY_LEFT;  } // J
+		if (GetKey(1+8*7)) { state -= JOY_RIGHT; } // L
 		if (GetKey(5+8*7)) { state -= JOY_FIRE;  } // RETURN
 	} else {
 		if (GetKey(7+8*6)) { state -= JOY_UP;    } // W
