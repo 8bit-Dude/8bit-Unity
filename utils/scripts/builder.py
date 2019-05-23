@@ -301,7 +301,7 @@ class Application:
             self.listbox_OricSprites.insert(END, filename)
 
     def OricMusicSel(self):
-        filename = askopenfilename(initialdir = "../../", title = "Select Music Track", filetypes = (("RMT files","*.rmt"),)) 
+        filename = askopenfilename(initialdir = "../../", title = "Select Music Track", filetypes = (("YM files","*.ym"),)) 
         if filename is not '':
             filename = filename.replace(self.cwd, '')
             self.listbox_OricMusic.delete(0, END)
@@ -539,7 +539,10 @@ class Application:
                 fp.write('utils\\scripts\\oric\\header -a0 [build]/oric/' + filebase + '.raw [build]/oric/' + filebase + '.map $A000\n')
             if len(sprites) > 0:
                 fp.write('utils\\py27\\python utils\\scripts\\oric\\OricSprites.py ' + sprites[0] + ' [build]/oric/sprites.raw\n')
-                fp.write('utils\\scripts\\oric\\header -a0 [build]/oric/sprites.raw [build]/oric/sprites.dat $9000\n')
+                fp.write('utils\\scripts\\oric\\header -a0 [build]/oric/sprites.raw [build]/oric/sprites.dat $9C00\n')
+            if len(music) > 0:
+                fp.write('utils\\scripts\\oric\\ym2mym ' + music[0] + ' [build]/oric/music.raw\n')
+                fp.write('utils\\scripts\\oric\\header -h1 -a0 [build]/oric/music.raw [build]/oric/music.dat $9000\n')
 
             # Clean-up
             fp.write('rm [build]\\oric\\*.raw\n')
@@ -553,7 +556,7 @@ class Application:
             for item in code:
                 comp += item
                 comp += ' '
-            fp.write(comp + 'unity/bitmap.c unity/chars.s unity/math.s unity/network.c unity/sfx.c unity/sprites.c unity/Oric/files.c unity/Oric/joysticks.c unity/Oric/keyboard.s unity/Oric/libsedoric.s unity/Oric/sprites.s \n')
+            fp.write(comp + 'unity/bitmap.c unity/chars.s unity/math.s unity/network.c unity/sfx.c unity/sprites.c unity/Oric/files.c unity/Oric/joysticks.c unity/Oric/keyboard.s unity/Oric/libsedoric.s unity/Oric/MYM.s unity/Oric/sprites.s \n')
 
             # Fix header
             fp.write('utils\\scripts\\oric\\header.exe [build]/oric/launch.bin [build]/oric/launch.com $0501\n')
@@ -571,6 +574,8 @@ class Application:
                 cmd += ' [build]/oric/' + FileBase(item, '')
             for item in bitmaps:
                 cmd += ' [build]/oric/' + FileBase(item, '-oric.png') + '.map'
+            if len(music) > 0:
+                cmd += ' [build]/oric/music.dat'
             cmd += ' [build]/' + diskname + '-oric.dsk\n'
             fp.write(cmd)
             fp.write('utils\\scripts\\oric\\old2mfm.exe [build]/' + diskname + '-oric.dsk\n')
