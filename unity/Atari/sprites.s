@@ -151,12 +151,13 @@ copyFrame:
 	sta $fd	
 	
 	; Copy frame data
-	ldy _flickerRows	; Sprite length	
+	ldy #0
 copyLoopY:	
 	; Transfer 1 register
 	lda ($fc),y	
 	sta ($fe),y	
-	dey
+	iny
+	cpy _flickerRows
 	bne copyLoopY	; Loop through Y (number of rows)
 
 nextSlot:
