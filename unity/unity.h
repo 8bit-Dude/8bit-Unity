@@ -90,9 +90,10 @@
 	#define SPRITERAM  (0xab00)	// AB00-BEFF (sprites.app loaded here)
 #elif defined __ATMOS__
 	// Atmos Memory locations
-	#define MUSICRAM   (0x9C00) // 9C00-9fff
-	#define SPRITERAM  (0x9C00)	// 9C00-9fff
-	#define BITMAPRAM  (0xA000) // A000-Bfff
+	#define MUSICBUF   (0x8200) // 8200-8fff (music buffer used by player)
+	#define MUSICRAM   (0x9000) // 9000-97ff (compressed music data)
+	#define SPRITERAM  (0x9C00)	// 9C00-9fff (location of sprite frames)
+	#define BITMAPRAM  (0xA000) // A000-Bfff (address where bitmaps are loaded)
 #endif
 
 // Screen/Palette definitions
@@ -341,6 +342,7 @@ unsigned char RecvUDPPacket(unsigned char timeOut);		// Fetch UDP packet in udp_
   extern unsigned char sfxOutput;	// 0 = Speaker, 1 = Mockingboard (Slot 4)
   void InitMocking(void);
 #endif
+void LoadMusic(const char* filename, unsigned int address);
 void PlayMusic(unsigned int address);
 void StopMusic(void);
 

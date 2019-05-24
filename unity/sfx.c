@@ -64,8 +64,6 @@
     #define DISABLE_NOISE_C (0x20)
 	#define DISABLE_ALL		(0x3f)
 #elif defined __ATMOS__
-	void PlayMusic(unsigned int address) {}
-	void StopMusic(void) {}
 	void ResetChannels(void) {
 		// Play 7,0,0: enable channels 1/2/3 (with no enveloppe)
 		POKEW(0x02E1, 7);
@@ -101,6 +99,13 @@
 		}		
 	}
 #endif
+
+void LoadMusic(const char* filename, unsigned int address)
+{
+#if defined __ATMOS__
+	SedoricRead(filename, address);
+#endif
+}
 
 void InitSFX() 
 {

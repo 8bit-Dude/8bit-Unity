@@ -37,6 +37,7 @@ int DemoHLO(void)
     cprintf("%s", presskey);
 	
 	// Play music until keyboard is pressed
+	LoadMusic("music.dat", MUSICRAM);
 	PlayMusic(MUSICRAM);
 #if defined __APPLE2__	// no interrupt on Apple, need to progress step-by-step
 	while (!kbhit () || cgetc () != KEY_SP) { PlayMusic(0); }

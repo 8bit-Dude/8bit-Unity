@@ -148,7 +148,7 @@ void LocateSprite(unsigned int x, unsigned int y)
 #elif defined __CBM__
 	spriteX = x;
 	spriteY = y;
-#endif	
+#endif
 }
 
 // Apple II specific background redrawing function
@@ -159,9 +159,10 @@ void LocateSprite(unsigned int x, unsigned int y)
   void RestoreSprBG(unsigned char index)
   {
 	  POKE(0xEB, sprROWS);
-	  POKE(0xEC, spriteXB[index]);
-	  POKE(0xED, spriteYS[index]);
-	  POKEW(0xFA, sprBG[index]);
+	  POKE(0xEC, spriteXB[index]);	// DHR Offset X
+	  POKE(0xED, spriteYS[index]);	// DHR Offset X
+	  POKEW(0xEE, 0);				// Address of Backup
+	  POKEW(0xFA, sprBG[index]);	// Address of Data
 	  SpriteCopy();
   }
   void RestoreSprLine(unsigned char x, unsigned char y)
@@ -192,6 +193,7 @@ void LocateSprite(unsigned int x, unsigned int y)
 
 // Oric specific background redrawing function
 #if defined __ATMOS__
+
   void __fastcall__ SpriteCopy(void);	// (see Oric/utils.s)
   void RestoreSprBG(unsigned char index)
   {
@@ -204,10 +206,73 @@ void LocateSprite(unsigned int x, unsigned int y)
   }
 #endif
 
+#if (defined __APPLE2__) || (defined __ATMOS__)
+void SpriteCollisions(unsigned char index)
+{
+	unsigned char i, dX, dY;
+  #if defined __ATMOS__	
+	unsigned char x1, x2, y1, y2;
+	unsigned int bgPTR1, bgPTR2;
+  #endif					
+	
+	// Check for collisions
+	sprCOL[index] = 0;
+	for (i=0; i<SPRITE_NUM; i++) {
+		if (sprEN[i]) {	// Sprite Index has been disabled before hand...
+			dY = spriteYS[i] - spriteY;
+			if (dY < sprROWS || dY>(256-sprROWS)) {
+	#if defined __APPLE2__
+				dX = spriteXB[i] - xO;
+				if (dX < 2 || dX>254) {
+					// Apply collision
+					sprCOL[index] = 1;
+					sprCOL[i] = 1;
+					RestoreSprBG(i);
+				}
+	#elif defined __ATMOS__
+				dX = spriteXS[i] - spriteX;		
+				if (dX < 4 || dX>252) {	// Including INK bytes
+					// Check narrower collision sector
+					if (dX < 2 || dX>254) {	// Not including INK bytes
+						sprCOL[index] = 1;
+						sprCOL[i] = 1;
+					}					
+				
+					// Define X overlap
+					if (dX < 4) { 
+						x1 = dX; x2 = 4; 
+					} else { 
+						x1 = 0; x2 = 4+dX; 
+					}
+					
+					// Define Y overlap
+					if (dY < sprROWS) { 
+						y1 = dY; y2 = sprROWS; 
+					} else { 
+						y1 = 0; y2 = sprROWS+dY; 
+					}
+					
+					// Copy overlapping background
+					bgPTR1 = sprBG[index] + y1*4;
+					bgPTR2 = sprBG[i] + (sprROWS-y2)*4 + (4-x2) - x1;
+					for (dY=y1; dY<y2; dY++) {
+						for (dX=x1; dX<x2; dX++) {
+							POKE(bgPTR1+dX, PEEK(bgPTR2+dX));	
+						}
+						bgPTR1 += 4;
+						bgPTR2 += 4;
+					}					
+				}
+	#endif					
+			}
+		}
+	}
+}
+#endif
+
 void SetSprite(unsigned char index, unsigned char frame)
 {
 #if defined __APPLE2__
-	unsigned char i, delta;
 	unsigned int addr;
 	
 	// Compute sprite slots
@@ -222,36 +287,23 @@ void SetSprite(unsigned char index, unsigned char frame)
 		if (spriteX%7 > 3) { addr += sprBLOCK; }
 	}
 
-	// Check for collisions
-	sprCOL[index] = 0;
-	for (i=0; i<SPRITE_NUM; i++) {
-		if (sprEN[i] && i!=index) {
-			delta = spriteXB[i] - xO;
-			if (delta < 2 || delta>254) {
-				delta = spriteYS[i] - spriteY;
-				if (delta < sprROWS || delta>(256-sprROWS)) {
-					// Redraw background of that sprite
-					RestoreSprBG(i);
-					sprCOL[i] = 1;
-					sprCOL[index] = 1;
-				}
-			}
-		}
-	}	
-
-	// Restore old background?
+	// Restore old background
 	if (sprEN[index]) { RestoreSprBG(index); }
-	
+
+	// Check collisions with other sprites
+	sprEN[index] = 0;
+	SpriteCollisions(index);	
+	sprEN[index] = 1;
+		
 	// Backup new background and draw sprite
 	POKE(0xEB, sprROWS);
-	POKE(0xEC, xO);
-	POKE(0xED, spriteY);
-	POKEW(0xEE, sprBG[index]);
-	POKEW(0xFA, SPRITERAM+addr);
+	POKE(0xEC, xO);					// DHR Offset X
+	POKE(0xED, spriteY);			// DHR Offset X
+	POKEW(0xEE, sprBG[index]);		// Address of Backup
+	POKEW(0xFA, SPRITERAM+addr);	// Address of Data
 	SpriteCopy();
 
 	// Set sprite information
-	sprEN[index] = 1;
 	spriteXB[index] = xO;
 	spriteXS[index] = spriteX;
 	spriteYS[index] = spriteY;
@@ -261,9 +313,9 @@ void SetSprite(unsigned char index, unsigned char frame)
 	flickerY[index] = spriteY;
 	flickerFrame[index] = SPRITERAM + frame*flickerRows;
 	
-#elif defined __ATMOS__	
-	unsigned char i, x1, x2, y1, y2, dX, dY;
-	unsigned int addr, bgPTR1, bgPTR2;
+#elif defined __ATMOS__
+	unsigned char i;
+	unsigned int addr;
 	
 	// Check frame block (left or right)
 	addr = SPRITERAM + frame*sprROWS*2;
@@ -284,53 +336,12 @@ void SetSprite(unsigned char index, unsigned char frame)
 	POKE(0x06, 40); POKE(0x07, 4); 						// Offset between: source blocks / target blocks
 	SpriteCopy();	
 	
-	// Check for collisions
-	sprCOL[index] = 0;
-	for (i=0; i<SPRITE_NUM; i++) {
-		if (sprEN[i] && i!=index) {
-			dY = spriteYS[i] - spriteY;
-			if (dY < sprROWS || dY>(256-sprROWS)) {
-				dX = spriteXS[i] - spriteX;				
-				if (dX < 4 || dX>252) {	// Including INK bytes
-					// Check narrower collision sector
-					if (dX < 2 || dX>254) {	// Not including INK bytes
-						sprCOL[index] = 1;
-						sprCOL[i] = 1;
-					}
-				
-					// Define overlapping sector
-					if (dX < 4) { 
-						x1 = dX; x2 = 4; 
-					} else { 
-						x1 = 0; x2 = 4+dX; 
-					}
-					if (dY < sprROWS) { 
-						y1 = dY; y2 = sprROWS; 
-					} else { 
-						y1 = 0; y2 = sprROWS+dY; 
-					}
-					
-					// Copy overlapping background
-					bgPTR1 = sprBG[index] + y1*4;
-					bgPTR2 = sprBG[i] + (sprROWS-y2)*4 + (4-x2) - x1;
-					for (dY=y1; dY<y2; dY++) {
-						for (dX=x1; dX<x2; dX++) {
-							POKE(bgPTR1+dX, PEEK(bgPTR2+dX));	
-						}
-						bgPTR1 += 4;
-						bgPTR2 += 4;
-					}
-				}
-			}
-		}
-	}
-
 	// Draw sprite frame
 	POKE(0x00, sprROWS); POKE(0x01, 2);					// Number of: blocks / bytes per block
 	POKEW(0x02, addr - 1);								// Address of first source block (-1)
 	POKEW(0x04, BITMAPRAM + spriteY*40 + spriteX);		// Address of first target block (-1)
 	POKE(0x06, 2); POKE(0x07, 40); 						// Offset between: source blocks / target blocks
-	SpriteCopy();
+	SpriteCopy();	
 	
 	// Adjust ink on even lines
 	scrPTR = BITMAPRAM + (spriteY + spriteY%2)*40 + spriteX;
@@ -338,10 +349,14 @@ void SetSprite(unsigned char index, unsigned char frame)
 	for (i=0; i<sprROWS/2; i++) {
 		POKE(scrPTR, inkVAL); scrPTR+=3;	// Set Sprite INK
 		POKE(scrPTR, 3); scrPTR+=77;		// Reset AIC INK (yellow)
-	}
+	}	
+	
+	// Check collisions with other sprites
+	sprEN[index] = 0;
+	SpriteCollisions(index);	
+	sprEN[index] = 1;
 	
 	// Save sprite information
-	sprEN[index] = 1;
 	spriteXS[index] = spriteX;
 	spriteYS[index] = spriteY;
 	

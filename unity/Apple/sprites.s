@@ -106,8 +106,10 @@ _mainAuxTog: .res 1
 ;		$eb: Number of rows
 ;		$ec: DHR offset X
 ;		$ed: DHR offset Y
-;		$fa: 16 bit address of Backup (optional)
+;		$ee: 16 bit address of Backup (optional)
 ;		$fa: 16 bit address of Sprite
+;
+;		$fc: 16 bit address of DHR line (generated from offsets)
 ; ---------------------------------------------------------------	
 
 .proc _SpriteCopy: near
