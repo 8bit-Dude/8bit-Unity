@@ -245,8 +245,8 @@ unsigned char GetPixel()
 	unsigned char i, pX, pY, xO, yO, occlusion = 0;
 	unsigned char byte1, byte2, color, shift;
 	extern unsigned char sprEN[SPRITE_NUM];
-	extern unsigned char spriteXS[SPRITE_NUM];
-	extern unsigned char spriteYS[SPRITE_NUM];
+	extern unsigned char sprX[SPRITE_NUM];
+	extern unsigned char sprY[SPRITE_NUM];
 	extern unsigned char* sprBG[SPRITE_NUM];
 	extern unsigned char sprROWS;
 
@@ -256,8 +256,8 @@ unsigned char GetPixel()
 	// Check for sprite occlusion
 	for (i=0; i<SPRITE_NUM; i++) {
 		if (sprEN[i]) {
-			xO = pX - spriteXS[i];
-			yO = pY - spriteYS[i];
+			xO = pX - sprX[i];
+			yO = pY - sprY[i];
 			if (xO<3 && yO<sprROWS) {
 				addr = sprBG[i]+yO*4+xO;
 				byte1 = PEEK(addr);
