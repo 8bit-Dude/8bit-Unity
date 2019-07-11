@@ -89,11 +89,12 @@ slotLoopX:
 	sta $fe				 ; Write to zero page for indirect addressing
 	
 	; Eraze previous data
-	ldy _flickerRows	 ; Sprite length
-	lda #$00			 ; Reset value
+	lda #$00		; Reset value
+	ldy #$00
 resetLoopY:	
 	sta ($fe),y		; Write 0 to nth row of ith column
-	dey
+	iny
+	cpy _flickerRows
 	bne resetLoopY	; Loop through Y (number of rows)
 	
 	;-----------------------

@@ -9,7 +9,7 @@
 #define MODE_LYNX 4
 #define MODE_ORIC 5
 
-unsigned char hubInit, hubMode, hubNetwork, hubPacket, hubVersion;
+unsigned char hubMode, hubNetwork, hubPacket, hubVersion;
 clock_t hubClock;
 
 unsigned char recvLen = 0;
