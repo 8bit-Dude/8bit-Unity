@@ -24,7 +24,7 @@
 ;   specific prior written permission.
 ;
 
-	.export _InitJoy34
+	.export _InitJoy
 	.export _GetJoy
 
 ; C64/C128
@@ -49,7 +49,7 @@ _joy4:
 	.segment	"CODE"	
 	
 ;---------------------------------------
-; initialize CIAs
+; initialize CIAs for Joy 3/4 Adapter
 ;---------------------------------------
 ;warning: do not mess around with this
 ;         unless you really know what
@@ -57,7 +57,7 @@ _joy4:
 ;         may toast your cia !
 ;---------------------------------------
 
-.proc _InitJoy34: near
+.proc _InitJoy: near
         lda #%10000000          ; cia 2 port B Data-Direction
         sta USERPORT_DDR        ; bit 7: out    bit 6-0: in
         lda #0

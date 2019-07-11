@@ -32,21 +32,39 @@
 
 #include "unity.h"
 
+unsigned char GetKey(unsigned char);		// see keyboard.s
+unsigned char GetJoyAdaptor(unsigned char);	// see JOY.s
+void FetchHub(void);						// see hub.c
+extern unsigned char recvHead[5];	
+
 unsigned char GetJoy(unsigned char joy)
 {
-	unsigned char state = 255;
-	if (joy) {
-		if (GetKey(1+8*5)) { state -= JOY_UP;    } // I
-		if (GetKey(0+8*3)) { state -= JOY_DOWN;  } // K
-		if (GetKey(0+8*1)) { state -= JOY_LEFT;  } // J
-		if (GetKey(1+8*7)) { state -= JOY_RIGHT; } // L
-		if (GetKey(5+8*7)) { state -= JOY_FIRE;  } // RETURN
-	} else {
+	unsigned char state;
+	switch (joy) {
+	case 0:
+		state = 255;				// Joy #0:  Keyboard
 		if (GetKey(7+8*6)) { state -= JOY_UP;    } // W
 		if (GetKey(6+8*6)) { state -= JOY_DOWN;  } // S
 		if (GetKey(5+8*6)) { state -= JOY_LEFT;  } // A
 		if (GetKey(7+8*1)) { state -= JOY_RIGHT; } // D
 		if (GetKey(4+8*2)) { state -= JOY_FIRE;  } // CTRL
+		return state;
+	case 1:
+		state = 255;				// Joy #1:  Keyboard
+		if (GetKey(1+8*5)) { state -= JOY_UP;    } // I
+		if (GetKey(0+8*3)) { state -= JOY_DOWN;  } // K
+		if (GetKey(0+8*1)) { state -= JOY_LEFT;  } // J
+		if (GetKey(1+8*7)) { state -= JOY_RIGHT; } // L
+		if (GetKey(5+8*7)) { state -= JOY_FIRE;  } // RETURN
+		return state;
+	case 2:
+		state = GetJoyAdaptor(0);	// Joy #2:  ALTAI/PASE/IJK Left
+		return state;
+	case 3:
+		state = GetJoyAdaptor(1);	// Joy #3:  ALTAI/PASE/IJK Right
+		return state;
+	default:
+		FetchHub();
+		return recvHead[joy-4];		// Joy #4-#7: 8bit-Hub (Refresh state by calling FetchHub())
 	}
-	return state;
 }

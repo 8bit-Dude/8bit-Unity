@@ -1,30 +1,38 @@
 
 #include "unity.h"
 
+#if defined __ATMOS__
+	const char* joyList[] = { "WASD+CTR", "IJKL+RET", "PASE/IJK 1", "PASE/IJK 2" };
+#else
+	const char* joyList[] = { "JOY 1", "JOY 2", "JOY 3", "JOY 4" };
+#endif
+
 int DemoJOY(void) 
 {
 	unsigned char i, joy;
-		
-#if defined __CBM__	
-	InitJoy34();
-#endif
-
+	
+	//	Init joystick adapters
+	InitJoy();
+	
 	// Print header
 	clrscr();
 	gotoxy (1, 2);
 	printf("Joystick demo (press SPACE for next)\n");	
+	for (i=0; i<JOY_MAX; i++) {
+		gotoxy (7, 8+2*i);
+		cprintf (joyList[i]);
+	}
 	
 	// Display joystick actions until 'SPACE' is pressed
 	while (!kbhit () || cgetc () != KEY_SP) {
 		for (i=0; i<JOY_MAX; i++) {
 			joy = GetJoy(i);
-			gotoxy (0, 8+2*i);
-			cprintf ("Joy %i: ", i+1);
-			cprintf ("%s ", joy & JOY_UP    ? "UP   ": "     ");
-			cprintf ("%s ", joy & JOY_DOWN  ? "DOWN ": "     ");
-			cprintf ("%s ", joy & JOY_LEFT  ? "LEFT ": "     ");
-			cprintf ("%s ", joy & JOY_RIGHT ? "RIGHT": "     ");
-			cprintf ("%s ", joy & JOY_FIRE  ? "FIRE ": "     ");
+			gotoxy (19, 8+2*i);
+			cprintf ("%s ", joy & JOY_UP    ? "U ": "  ");
+			cprintf ("%s ", joy & JOY_DOWN  ? "D ": "  ");
+			cprintf ("%s ", joy & JOY_LEFT  ? "L ": "  ");
+			cprintf ("%s ", joy & JOY_RIGHT ? "R ": "  ");
+			cprintf ("%s ", joy & JOY_FIRE  ? "F ": "  ");
 		}
 	}
 	

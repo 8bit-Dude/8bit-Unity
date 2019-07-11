@@ -28,17 +28,15 @@ int DemoUDP(void)
 	} else {
 		PrintStr(0, line++, "ADAPTOR AND DHCP OK!");
 
-		// Setup UDP ports
-		udp_send_ip = EncodeIP(127,0,0,1);
-		udp_send_port = 5000;
-		ListenUDP(5000);
+		// Setup UDP connection
+		InitUDP(199, 47, 196, 106, 1234, 4321);
 		
 		// Send UDP packet
 		sendBuffer[0] = REQUEST_INFO;
-		SendUDPPacket(sendBuffer, 1);
+		SendUDP(sendBuffer, 1);
 			
 		// Fetch server response
-		RecvUDPPacket(5*CLK_TCK); // Allow short time-out, as server is localhost
+		RecvUDP(5*CLK_TCK); // Allow short time-out, as server is localhost
 		if (!udp_packet) {
 			// No data received: packet pointer is null
 			PrintStr(0, line++, "ERROR: TIMEOUT");

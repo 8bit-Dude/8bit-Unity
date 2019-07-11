@@ -243,7 +243,7 @@ unsigned char GetPixel()
 #elif defined __ATMOS__
 	unsigned int addr;
 	unsigned char i, pX, pY, xO, yO, occlusion = 0;
-	unsigned char byte1, byte2, color, shift;
+	unsigned char byte1, byte2, shift, color = 0;
 	extern unsigned char sprEN[SPRITE_NUM];
 	extern unsigned char sprX[SPRITE_NUM];
 	extern unsigned char sprY[SPRITE_NUM];
@@ -276,12 +276,13 @@ unsigned char GetPixel()
 	}
 	
 	// Get PAPER/INK inversion group
-	color = 5 * ((byte2>191)*2 + (byte1>191));
+	if (byte1 & 128) { color += 5; }
+	if (byte2 & 128) { color += 10; }
 		
 	// Get pixels state
 	shift = 2 * (pixelX%3);
-	byte1 = (byte1 & (48 >> shift)) << shift;
-	byte2 = (byte2 & (48 >> shift)) << shift;
+	byte1 = (byte1 << shift) & 48;
+	byte2 = (byte2 << shift) & 48;
 	switch (byte1) {
 	case 0:
 		if (byte2 == 48) { color += 3; }
@@ -619,6 +620,7 @@ void PrintChr(unsigned char col, unsigned char row, const char *chr)
 	// Set Character over 3/4 pixels out of 7 in a cell
 	unsigned int x,y;
 	unsigned char i,j,n;
+	if ((col > CHR_COLS) || (row > CHR_ROWS)) { return; }		
 	if (col%2) { n=4; } else { n=3; }
 	x = (col*35)/10; y = (row*8);
 	SetDHRPointer(x, y);	
@@ -650,6 +652,7 @@ void PrintChr(unsigned char col, unsigned char row, const char *chr)
 	// Set Character across double buffer
 	unsigned char i;
 	unsigned int addr1,addr2;
+	if ((col > CHR_COLS) || (row > CHR_ROWS)) { return; }		
 	inkColor1 = inkColor%4; inkColor2 = inkColor/4;
 	paperColor1 = paperColor%4; paperColor2 = paperColor/4;
 	bgByte1 = BYTE4(paperColor1,paperColor2,paperColor1,paperColor2);
@@ -683,6 +686,7 @@ void PrintChr(unsigned char col, unsigned char row, const char *chr)
 	unsigned char i;
 	unsigned char a0,a2,a4,b,blank;
 	unsigned int addr;
+	if ((col > CHR_COLS) || (row > CHR_ROWS)) { return; }		
 	addr = BITMAPRAM + row*320 + (col+1);
 	blank = 64+ (paperColor ? 63 : 0);
 	if (chr == &charBlank[0]) {
@@ -706,6 +710,7 @@ void PrintChr(unsigned char col, unsigned char row, const char *chr)
 	// Set Character inside 4*8 cell
 	unsigned char i;
 	unsigned int addr;
+	if ((col > CHR_COLS) || (row > CHR_ROWS)) { return; }		
 	addr = BITMAPRAM + 40*((row*8)&248) + ((col*8)&504);
 	if (chr == &charBlank[0]) {
 		memset((char*)addr, pow2, 8);
@@ -730,7 +735,7 @@ const char *GetChr(unsigned char chr)
 	// Select the correct bitmask
 	     if (chr == 95) { return &charUnderbar[0]; }
 #if defined __CBM__
-	else if (chr > 192) { return &charLetter[(chr-193)*3]; }		// Upper case (C64)
+	else if (chr > 192) { return &charLetter[(chr-193)*3]; }	// Upper case (C64)
 	else if (chr > 64)  { return &charLetter[(chr-65)*3]; }		// Lower case (C64)
 #else
 	else if (chr > 96)  { return &charLetter[(chr-97)*3]; }	// Lower case (Apple/Atari)
@@ -774,10 +779,20 @@ void PrintBuffer(char *buffer)
 	EnableRom();
 	memcpy((char*)SCREENRAM, (char*)(SCREENRAM+len), (CHR_COLS-len));
 #elif defined __ATARI__
-	// Roll chroma and luma buffers
+	// Roll bitmap 1 and 2
 	for (i=0; i<8; ++i) {
 		memcpy((char*)BITMAPRAM1+i*40, (char*)(BITMAPRAM1+len)+i*40, (CHR_COLS-len));
 		memcpy((char*)BITMAPRAM2+i*40, (char*)(BITMAPRAM2+len)+i*40, (CHR_COLS-len));
+	}
+#elif defined __ATMOS__
+	// Roll bitmap RAM
+	for (i=0; i<8; ++i) {
+		memcpy((char*)BITMAPRAM+1+i*40, (char*)(BITMAPRAM+1+len)+i*40, (CHR_COLS-len));
+	}
+	// Check for ink changes
+	if (buffer[0] == '^') {
+		SetInk(CHR_COLS-len, 0);
+		buffer = &buffer[1];
 	}
 #elif defined __APPLE2__
 	// Always move 7 pixels at a time!
@@ -808,10 +823,10 @@ unsigned char InputUpdate(unsigned char col, unsigned char row, char *buffer, un
 	} else {
 		// Check current length of input
 		curlen = strlen(buffer);
-
+		
 		// Process Letter keys
-#if defined __ATARI__	
-		if (key == 32 | key == 33 | (key > 38 & key < 42) | (key > 43 & key < 59) | key == 63 | (key > 96 & key < 123)) {	// Atari
+#if (defined __ATARI__) || (defined __ATMOS__)
+		if (key == 32 | key == 33 | (key > 38 & key < 42) | (key > 43 & key < 59) | key == 63 | (key > 96 & key < 123)) {	// Atari/Oric
 #else
 		if (key == 32 | key == 33 | (key > 38 & key < 42) | (key > 43 & key < 59) | key == 63 | (key > 64 & key < 91)) {	// Apple/C64
 #endif
@@ -846,6 +861,9 @@ void InputStr(unsigned char col, unsigned char row, char *buffer, unsigned char 
 	
 	// Run input loop
 	while (1) {
-		if (InputUpdate(col, row, buffer, len, cgetc())) { return; }
+		while (!kbhit()) {}
+		if (InputUpdate(col, row, buffer, len, cgetc())) { 
+			return; 
+		}
 	}
 }

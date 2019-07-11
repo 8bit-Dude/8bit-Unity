@@ -126,7 +126,7 @@
 	// Atari Screen (INP Mode)
 	#define BMP_COLS 160
 	#define BMP_ROWS 200
-	#define BMP_PALETTE 11
+	#define BMP_PALETTE 16
 	#define CHR_COLS 40
 	#define CHR_ROWS 25
 	// Atari Palette
@@ -290,6 +290,17 @@ extern const char charQuote[3];
 extern const char charSlash[3];
 extern const char charUnderbar[3];
 
+// 8bit-Hub support (see http://www.8bit-unity.com/8bit-Hub)
+#if defined __ATMOS__	// see Oric/hub.c
+	unsigned char InitHub();
+	extern unsigned char hubMode;		// Detect Hub Operation Mode
+	extern unsigned char hubNetwork;	// Detect Hub Networking
+#else
+	#define InitHub()  ( 0 )
+	#define hubMode		 0
+	#define hubNetwork	 0
+#endif
+
 // Joystick definitions
 #define JOY_UP    1
 #define JOY_DOWN  2
@@ -298,16 +309,13 @@ extern const char charUnderbar[3];
 #define JOY_FIRE  16
 
 // Joystick functions
-#if defined __CBM__
+#if (defined __CBM__) || (defined __ATMOS__)
   #define JOY_MAX 4
-  void InitJoy34(void);
-  unsigned char GetJoy(unsigned char);
-#elif defined __ATMOS__
-  #define JOY_MAX 2
-  unsigned char GetKey(unsigned char);
+  void InitJoy(void);
   unsigned char GetJoy(unsigned char);
 #else
   #define JOY_MAX 2
+  #define InitJoy() (PEEK(0))
   #if defined __ATARI__
     #define GetJoy(i) (PEEK(0x0278+i)+(PEEK(0x0284+i)<<4))
   #else if defined __APPLE2__
@@ -325,14 +333,13 @@ unsigned char atan2(unsigned char y, unsigned char x);
 #define NETWORK_OK  0
 #define ADAPTOR_ERR 1
 #define DHCP_ERR    2
-#define EncodeIP(a,b,c,d) (a+b*256+c*65536+d*16777216)
 extern unsigned long udp_send_ip;
 extern unsigned int  udp_send_port;
 extern unsigned int  udp_packet;
-unsigned char InitNetwork(void);				// Initialize network interface and get IP from DHCP
-void ListenUDP(unsigned int port);				// Set listening port for incoming UDP packets
-void SendUDPPacket(unsigned char* buffer, unsigned char length);  // Send packet to UDP target
-unsigned char RecvUDPPacket(unsigned char timeOut);		// Fetch UDP packet in udp_recv`_buf[] (within time-out period)
+unsigned char InitNetwork(void);																		// Initialize network interface and get IP from DHCP
+void InitUDP(unsigned char ip1, unsigned char ip2, unsigned char ip3, unsigned char ip4, unsigned int svPort, unsigned int clPort);	// Setup UDP connection
+void SendUDP(unsigned char* buffer, unsigned char length);  											// Send UDP packet (of specified length)
+unsigned char RecvUDP(unsigned int timeOut);															// Fetch UDP packet (within time-out period)
 
 // Music functions
 // Apple: Electric Duet player (see Apple/DUET.s) 
