@@ -97,11 +97,13 @@ pase:
 	and #%00111111		;Mask out unused bits
 	eor #%00111111		;Invert Bits
 	tax
-	cpx #%00100000		;Check fire bit
+	and #%00100000		;Check fire bit
+	cmp #%00100000		
 	bne fire
+	txa
 	eor #%00100100		;Move fire bit
-fire:
 	tax
+fire:
 	lda bitmasksPASE,X
 	
 restore:
