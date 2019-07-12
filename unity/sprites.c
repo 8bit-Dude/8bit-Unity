@@ -274,6 +274,10 @@ void SetSprite(unsigned char index, unsigned char frame)
 {
 #if defined __APPLE2__
 	unsigned int addr;
+
+	// Offset from centre of sprite
+	if (spriteX > 2) { spriteX -= 3; }
+	spriteY -= sprROWS/2;
 	
 	// Compute sprite slots
 	xO = (2*spriteX)/7;
