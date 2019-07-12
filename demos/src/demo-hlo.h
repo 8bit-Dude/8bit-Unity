@@ -3,6 +3,8 @@
 
 static const char welcome[] = "Welcome to 8bit Unity!";
 static const char presskey[] = " > press SPACE bar < ";
+static const char hubON[] = "(8bit-Hub detected)";
+static const char hubOFF[] = "(8bit-Hub NOT detected)";
 
 int DemoHLO(void) 
 {
@@ -35,6 +37,13 @@ int DemoHLO(void)
     cprintf("%s", welcome);
     gotoxy((xSize - strlen(presskey))/2, ySize/2+1);
     cprintf("%s", presskey);
+	if (hubMode) {
+		gotoxy((xSize - strlen(hubON))/2, ySize/2+7);
+		cprintf("%s", hubON);
+	} else {
+		gotoxy((xSize - strlen(hubOFF))/2, ySize/2+7);
+		cprintf("%s", hubOFF);
+	}
 	
 	// Play music until keyboard is pressed
 	LoadMusic("music.dat", MUSICRAM);

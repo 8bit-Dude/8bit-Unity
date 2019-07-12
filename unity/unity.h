@@ -2,7 +2,7 @@
  *	API of the "8bit-Unity" SDK for CC65
  *	All functions are cross-platform for the Apple IIe, Atari XL/XE, and C64/C128
  *	
- *	Last modified: 2019/05/05
+ *	Last modified: 2019/07/12
  *	
  * Copyright (c) 2019 Anthony Beaucamp.
  *
@@ -333,13 +333,11 @@ unsigned char atan2(unsigned char y, unsigned char x);
 #define NETWORK_OK  0
 #define ADAPTOR_ERR 1
 #define DHCP_ERR    2
-extern unsigned long udp_send_ip;
-extern unsigned int  udp_send_port;
 extern unsigned int  udp_packet;
-unsigned char InitNetwork(void);																		// Initialize network interface and get IP from DHCP
+unsigned char InitNetwork(void);							// Initialize network interface and get IP from DHCP
 void InitUDP(unsigned char ip1, unsigned char ip2, unsigned char ip3, unsigned char ip4, unsigned int svPort, unsigned int clPort);	// Setup UDP connection
-void SendUDP(unsigned char* buffer, unsigned char length);  											// Send UDP packet (of specified length)
-unsigned char RecvUDP(unsigned int timeOut);															// Fetch UDP packet (within time-out period)
+void SendUDP(unsigned char* buffer, unsigned char length);  // Send UDP packet (of specified length)
+unsigned char RecvUDP(unsigned int timeOut);				// Fetch UDP packet (within time-out period)
 
 // Music functions
 // Apple: Electric Duet player (see Apple/DUET.s) 
