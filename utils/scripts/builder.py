@@ -341,7 +341,7 @@ class Application:
         with open("../../"+diskname+"-apple.bat", "wb") as fp:
             # Info
             fp.write('echo off\n\n')
-            fp.write('rm [build]\\apple\\*.* \n\n')
+            fp.write('del [build]\\apple\\*.* /F /Q\n\n')
             fp.write('echo --------------- CONVERT ASSETS ---------------  \n\n')
             
             # Bitmaps / Sprites
@@ -376,11 +376,11 @@ class Application:
 
             # Disk builder
             fp.write('copy utils\\scripts\\apple\\AppleProDOS190.dsk [build]\\' + diskname + '-apple.dsk\n')
-            fp.write('java -jar utils\\scripts\\apple\\AppleCommander.jar -cc65 [build]/' + diskname + '-apple.dsk LOADER bin 0x0803 < [build]/apple/loader\n')
+            fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander.jar -cc65 [build]/' + diskname + '-apple.dsk LOADER bin 0x0803 < [build]/apple/loader\n')
             for item in shared:
-                fp.write('java -jar utils\\scripts\\apple\\AppleCommander.jar -p [build]/' + diskname + '-apple.dsk ' + FileBase(item, '').upper() + ' bin < ' + item + '\n')
+                fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander.jar -p [build]/' + diskname + '-apple.dsk ' + FileBase(item, '').upper() + ' bin < ' + item + '\n')
             for item in bitmaps:
-                fp.write('java -jar utils\\scripts\\apple\\AppleCommander.jar -p [build]/' + diskname + '-apple.dsk ' + FileBase(item, '-apple.png').upper() + '.MAP bin < [build]/apple/' + FileBase(item, '-apple.png') + '.map\n')
+                fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander.jar -p [build]/' + diskname + '-apple.dsk ' + FileBase(item, '-apple.png').upper() + '.MAP bin < [build]/apple/' + FileBase(item, '-apple.png') + '.map\n')
 
             # Info
             fp.write('\necho DONE\n')
@@ -388,7 +388,7 @@ class Application:
             
             # Start emulator?
             fp.write('cd "utils\emulators\AppleWin-1.26.3.1"\n')
-            fp.write('Applewin.exe -d1 "..\..\..\[build]\\' + diskname + '-apple.dsk"\\n')
+            fp.write('Applewin.exe -d1 "..\..\..\[build]\\' + diskname + '-apple.dsk"\n')
             
         ####################################################
         # Atari script
@@ -398,7 +398,7 @@ class Application:
         with open("../../"+diskname+"-atari.bat", "wb") as fp:
             # Info
             fp.write('echo off\n\n')
-            fp.write('rm [build]\\atari\\*.* \n\n')
+            fp.write('del [build]\\atari\\*.* /F /Q\n\n')
             fp.write('echo --------------- CONVERT ASSETS ---------------  \n\n')
             
             # Bitmaps / Sprites
@@ -439,8 +439,8 @@ class Application:
             fp.write(cmd)
             
             # Clean-up
-            fp.write('rm [build]\\atari\\*.bin\n')
-            fp.write('rm [build]\\atari\\*.dat\n')
+            fp.write('del [build]\\atari\\*.bin /F /Q\n')
+            fp.write('del [build]\\atari\\*.dat /F /Q\n')
 
             # Info
             fp.write('\necho DONE!\n\n')
@@ -458,7 +458,7 @@ class Application:
             fp.write('pause\n\n')
             
             # Start emulator?
-            fp.write('cd "utils\emulators\Altirra-2.90"\n')
+            fp.write('cd "utils\emulators\Altirra-3.20"\n')
             fp.write('Altirra.exe "..\..\..\[build]\\' + diskname + '-atari.atr"\n')             
 
         ####################################################
@@ -469,7 +469,7 @@ class Application:
         with open("../../"+diskname+"-c64.bat", "wb") as fp:
             # Info
             fp.write('echo off\n\n')
-            fp.write('rm [build]\\c64\\*.* \n\n')
+            fp.write('del [build]\\c64\\*.* /F /Q\n\n')
             fp.write('echo --------------- CONVERT ASSETS ---------------  \n\n')
             
             # Bitmaps / Sprites
@@ -526,7 +526,7 @@ class Application:
         with open("../../"+diskname+"-oric.bat", "wb") as fp:
             # Info
             fp.write('echo off\n\n')
-            fp.write('rm [build]\\oric\\*.* \n\n')
+            fp.write('del [build]\\oric\\*.* /F /Q\n\n')
             fp.write('echo --------------- CONVERT ASSETS ---------------  \n\n')
             
             # Process Shared / Bitmaps / Sprites
@@ -545,7 +545,7 @@ class Application:
                 fp.write('utils\\scripts\\oric\\header -h1 -a0 [build]/oric/music.raw [build]/oric/music.dat $9000\n')
 
             # Clean-up
-            fp.write('rm [build]\\oric\\*.raw\n')
+            fp.write('del [build]\\oric\\*.raw /F /Q\n')
                 
             # Info
             fp.write('\necho DONE!\n\n')
@@ -556,13 +556,13 @@ class Application:
             for item in code:
                 comp += item
                 comp += ' '
-            fp.write(comp + 'unity/bitmap.c unity/chars.s unity/math.s unity/network.c unity/sfx.c unity/sprites.c unity/Oric/files.c unity/Oric/joysticks.c unity/Oric/keyboard.s unity/Oric/libsedoric.s unity/Oric/MYM.s unity/Oric/sprites.s \n')
+            fp.write(comp + 'unity/bitmap.c unity/chars.s unity/hub.c unity/math.s unity/network.c unity/sfx.c unity/sprites.c unity/Oric/files.c unity/Oric/JOY.s unity/Oric/joysticks.c unity/Oric/keyboard.s unity/Oric/libsedoric.s unity/Oric/MYM.s unity/Oric/sprites.s \n')
 
             # Fix header
             fp.write('utils\\scripts\\oric\\header.exe [build]/oric/launch.bin [build]/oric/launch.com $0501\n')
             
             # Clean-up
-            fp.write('rm [build]\\oric\\*.bin\n')
+            fp.write('del [build]\\oric\\*.bin /F /Q\n')
 
             # Info
             fp.write('\necho DONE!\n\n')

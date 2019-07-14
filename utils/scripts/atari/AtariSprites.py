@@ -40,16 +40,21 @@ print "Superposed Frames: %i" % (max(pixdata))
 # Convert pixel data to buffers 
 block = 8*13
 frames = len(pixdata) / block
-sprdata = [chr(0)] * (2*frames*13)
+numBytes = (2*frames*13)
+sprdata = [chr(0)] * numBytes
 for v in range(1,max(pixdata)+1):
     for f in range(frames):
         for i in range(0, block, 8):
-            sprdata[(v-1)*frames*13+f*13+i/8] = chr(((pixdata[f*block+i+7]==v)<<0) + ((pixdata[f*block+i+6]==v)<<1) + ((pixdata[f*block+i+5]==v)<<2) + ((pixdata[f*block+i+4]==v)<<3) +
-                                                    ((pixdata[f*block+i+3]==v)<<4) + ((pixdata[f*block+i+2]==v)<<5) + ((pixdata[f*block+i+1]==v)<<6) + ((pixdata[f*block+i+0]==v)<<7))
+            sprdata[(v-1)*frames*13+f*13+i/8] = chr(((pixdata[f*block+i+7]==v)<<0) + ((pixdata[f*block+i+6]==v)<<1) + ((pixdata[f*block+i+5]==v)<<2) + ((pixdata[f*block+i+4]==v)<<3)
+                                                  + ((pixdata[f*block+i+3]==v)<<4) + ((pixdata[f*block+i+2]==v)<<5) + ((pixdata[f*block+i+1]==v)<<6) + ((pixdata[f*block+i+0]==v)<<7))
 
 ###########################
 # Write output binary file
 f2 = io.open(output, 'wb')
-f2.write(''.join([chr(0xff),chr(0xff),chr(0x00),chr(0x97),chr(0x9f),chr(0x98)]))
+begLow = chr(0x00)
+begHig = chr(0x97)
+endLow = chr((0x9700+numBytes-1)%256)
+endHig = chr((0x9700+numBytes-1)/256)
+f2.write(''.join([chr(0xff),chr(0xff),begLow,begHig,endLow,endHig]))
 f2.write(''.join(sprdata))
 f2.close()
