@@ -337,14 +337,14 @@ void SetSprite(unsigned char index, unsigned char frame)
 	POKE(0x00, sprROWS); POKE(0x01, 4);					// Number of: blocks / bytes per block
 	POKEW(0x02, BITMAPRAM + spriteY*40 + spriteX - 1);	// Address of first source block (-1)
 	POKEW(0x04, sprBG[index] - 1);						// Address of first target block (-1)
-	POKE(0x06, 40); POKE(0x07, 4); 						// Offset between: source blocks / target blocks
+	POKE(0x06, 40); POKE(0x07, 4); 						// Offset between: source lines / target lines
 	SpriteCopy();	
 	
 	// Draw sprite frame
 	POKE(0x00, sprROWS); POKE(0x01, 2);					// Number of: blocks / bytes per block
-	POKEW(0x02, addr - 1);								// Address of first source block (-1)
-	POKEW(0x04, BITMAPRAM + spriteY*40 + spriteX);		// Address of first target block (-1)
-	POKE(0x06, 2); POKE(0x07, 40); 						// Offset between: source blocks / target blocks
+	POKEW(0x02, addr - 1);								// Address of first source block
+	POKEW(0x04, BITMAPRAM + spriteY*40 + spriteX);		// Address of first target block
+	POKE(0x06, 2); POKE(0x07, 40); 						// Offset between: source lines / target lines
 	SpriteCopy();	
 	
 	// Adjust ink on even lines

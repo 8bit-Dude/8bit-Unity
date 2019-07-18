@@ -47,7 +47,7 @@ unsigned char GetJoy(unsigned char joy)
 		if (GetKey(6+8*6)) { state -= JOY_DOWN;  } // S
 		if (GetKey(5+8*6)) { state -= JOY_LEFT;  } // A
 		if (GetKey(7+8*1)) { state -= JOY_RIGHT; } // D
-		if (GetKey(4+8*2)) { state -= JOY_FIRE;  } // CTRL
+		if (GetKey(4+8*2)) { state -= JOY_BTN1;  } // CTRL
 		return state;
 	case 1:
 		state = 255;				// Joy #1:  Keyboard
@@ -55,7 +55,7 @@ unsigned char GetJoy(unsigned char joy)
 		if (GetKey(0+8*3)) { state -= JOY_DOWN;  } // K
 		if (GetKey(0+8*1)) { state -= JOY_LEFT;  } // J
 		if (GetKey(1+8*7)) { state -= JOY_RIGHT; } // L
-		if (GetKey(5+8*7)) { state -= JOY_FIRE;  } // RETURN
+		if (GetKey(5+8*7)) { state -= JOY_BTN1;  } // RETURN
 		return state;
 	case 2:
 		state = GetJoyAdaptor(0);	// Joy #2:  ALTAI/PASE/IJK Left

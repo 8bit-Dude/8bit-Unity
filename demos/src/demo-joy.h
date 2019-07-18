@@ -32,7 +32,7 @@ int DemoJOY(void)
 			cprintf ("%s ", joy & JOY_DOWN  ? "D ": "  ");
 			cprintf ("%s ", joy & JOY_LEFT  ? "L ": "  ");
 			cprintf ("%s ", joy & JOY_RIGHT ? "R ": "  ");
-			cprintf ("%s ", joy & JOY_FIRE  ? "F ": "  ");
+			cprintf ("%s ", joy & JOY_BTN1  ? "F ": "  ");
 		}
 	}
 	

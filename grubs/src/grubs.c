@@ -293,7 +293,7 @@ void ProcessInput(Grub *grub, Proj *proj)
 	// Check joystick
 	joy = GetJoy(0);
 	grub->numFrames = 1;
-	if (!(joy & JOY_FIRE)) {
+	if (!(joy & JOY_BTN1)) {
 		if (!(grub->state & STATE_JUMP))  {
 			// Set grub and projectile state
 			grub->state |= STATE_LOAD;

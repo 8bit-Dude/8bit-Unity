@@ -182,7 +182,7 @@ void LocatePixel(unsigned int x, unsigned int y)
 	pixelX = x/2;
 	pixelY = y;
 #elif defined __ATMOS__	// AIC Mode: 117 x 100
-	pixelX = (x*117)/320;	
+	pixelX = (x*117)/320+3;	
 	pixelY = y/2;
 #elif defined __CBM__	// MLC Mode: 160 x 200
 	pixelX = x/2;

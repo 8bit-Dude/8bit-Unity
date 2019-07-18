@@ -53,6 +53,8 @@
 	#define CH_DEL  0x08
 #elif defined __ATMOS__
 	#define PLATFORM   3
+#elif defined __LYNX__
+	#define PLATFORM   4
 #endif
 
 // Memory locations
@@ -195,6 +197,13 @@
 	#define LPURPLE 17
 	#define LPINK   18
 	#define PURPLE  19
+#elif defined __LYNX__	
+	// Oric Screen (AIC Mode)
+	#define BMP_COLS 160
+	#define BMP_ROWS 102
+	#define BMP_PALETTE 32
+	#define CHR_COLS 39
+	#define CHR_ROWS 17	
 #endif
 
 // Keyboard definitions
@@ -306,7 +315,7 @@ extern const char charUnderbar[3];
 #define JOY_DOWN  2
 #define JOY_LEFT  4
 #define JOY_RIGHT 8
-#define JOY_FIRE  16
+#define JOY_BTN1  16
 
 // Joystick functions
 #if (defined __CBM__) || (defined __ATMOS__)
@@ -379,6 +388,9 @@ void BumpSFX(void);
 #elif defined __CBM__
   #define SPRITE_NUM 8
   void InitSprites(unsigned char *spriteColors, unsigned char *sharedColors);
+#elif defined __LYNX__
+  #define SPRITE_NUM 8  
+  void InitSprites(void) {}
 #endif
 void EnableSprite(signed char index);
 void DisableSprite(signed char index);
