@@ -359,7 +359,7 @@ class Application:
             for item in code:
                 comp += item
                 comp += ' '
-            fp.write(comp + 'unity/bitmap.c unity/chars.s unity/math.s unity/network.c unity/sfx.c unity/sprites.c unity/Apple/CLOCK.c unity/Apple/DHR.c unity/Apple/DUET.s unity/Apple/JOY.s unity/Apple/MOCKING.s unity/Apple/PADDLE.s unity/Apple/sprites.s unity/IP65/ip65.lib unity/IP65/ip65_apple2.lib\n')
+            fp.write(comp + 'unity/bitmap.c unity/chars.s unity/math.s unity/network.c unity/sfx.c unity/sprites.c unity/Apple/CLOCK.c unity/Apple/DHR.c unity/Apple/DUET.s unity/Apple/JOY.s unity/Apple/MOCKING.s unity/Apple/PADDLE.s unity/Apple/sprites.s utils/IP65/IP65/ip65.lib utils/IP65/drivers/ip65_apple2.lib\n')
             
             # Compression
             cmd = 'utils\\scripts\\exomizer sfx $0803 -t162 -Di_load_addr=$0803 [build]/apple/' + diskname.lower() + '.bin@$0803,4'
@@ -424,7 +424,7 @@ class Application:
             for item in code:
                 comp += item
                 comp += ' '
-            fp.write(comp + 'unity/bitmap.c unity/chars.s unity/math.s unity/network.c unity/sfx.c unity/sprites.c unity/Atari/POKEY.s unity/Atari/sprites.s unity/IP65/ip65.lib unity/IP65/ip65_atarixl.lib\n')
+            fp.write(comp + 'unity/bitmap.c unity/chars.s unity/math.s unity/network.c unity/sfx.c unity/sprites.c unity/Atari/POKEY.s unity/Atari/sprites.s utils/IP65/IP65/ip65.lib utils/IP65/drivers/ip65_atarixl.lib\n')
             fp.write('utils\\cc65\\bin\\cl65 -t atarixl -C atari-asm.cfg -o [build]/atari/basicoff.bin unity/Atari/BASICOFF.s\n')
             fp.write('utils\\scripts\\atari\\mads.exe -o:[build]/atari/dli.bin unity/Atari/DLI.a65\n')
             fp.write('utils\\scripts\\atari\\mads.exe -o:[build]/atari/rmt.bin unity/Atari/RMT.a65\n')
@@ -487,7 +487,7 @@ class Application:
             for item in code:
                 comp += item
                 comp += ' '
-            fp.write(comp + 'unity/bitmap.c unity/chars.s unity/math.s unity/network.c unity/sfx.c unity/sprites.c unity/C64/JOY.s unity/c64/ROM.s unity/C64/SID.s unity/IP65/ip65.lib unity/IP65/ip65_c64.lib\n')
+            fp.write(comp + 'unity/bitmap.c unity/chars.s unity/math.s unity/network.c unity/sfx.c unity/sprites.c unity/C64/JOY.s unity/c64/ROM.s unity/C64/SID.s utils/IP65/IP65/ip65.lib utils/IP65/drivers/ip65_c64.lib\n')
             
             # Compression
             cmd = 'utils\\scripts\\exomizer.exe sfx 2061 [build]/c64/' + diskname.lower() + '.bin'
