@@ -2,21 +2,28 @@
 #include "unity.h"
 #include <cc65.h>
 
-#if defined __APPLE2__	//  Colors are pre-assigned in the sprite sheet
+// Sprite definitions
+#if defined __APPLE2__
+	#define spriteFrames 64
+	#define spriteRows   5
+	unsigned char spriteColors[] = { };	//  Colors are pre-assigned in the sprite sheet
 	unsigned char inkColors[] = { BLUE, RED, GREEN, YELLOW };		// P1, P2, P3, P4
 #elif defined __ATARI__ //  5th color shared between all sprites
+	#define spriteFrames 16
+	#define spriteRows   13
+	unsigned char spriteColors[] = {0x88, 0x28, 0xba, 0xee, 0x00, 0x08, 0x08, 0x08, 0x08, 0x00 };	// 0-3: 1st color, 5-8: 2nd color (Refer to atari palette in docs)
 	unsigned char inkColors[] = { BLUE, RED, GREEN, YELLOW };		// P1, P2, P3, P4
-	unsigned char spriteColors[] = {0x88, 0x28, 0xba, 0xee, 0x00, 0x08, 0x08, 0x08, 0x08, 0x00 };	// Refer to atari palette in docs
 #elif defined __ATMOS__
-	unsigned char inkColors[] = { CYAN, MBLUE, LGREEN, GREY };		// P1, P2, P3, P4
+	#define spriteFrames 16
+	#define spriteRows   6
 	unsigned char spriteColors[] = { CYAN, MBLUE, LGREEN, GREY };	// Matching more or less with above
+	unsigned char inkColors[] = { CYAN, MBLUE, LGREEN, GREY };		// P1, P2, P3, P4
 #elif defined __CBM__
+	#define spriteFrames 16
+	#define spriteRows   21
+	unsigned char spriteColors[] = { BLUE, RED, GREEN, YELLOW, 0, 0, 0, 0, CYAN, BLACK };  // 0-8: Sprite colors, 9-10: Shared colors
 	unsigned char inkColors[] = { BLUE, RED, LGREEN, YELLOW };		// P1, P2, P3, P4
-	unsigned char spriteColors[] = { BLUE, RED, GREEN, YELLOW, 0, 0, 0, 0 };	// Main sprite colors
-	unsigned char sharedColors[] = { CYAN, BLACK };					// Shared sprite colors
 #endif
-
-unsigned char buffer[20];
 
 int DemoSPR(void) 
 {
@@ -24,9 +31,12 @@ int DemoSPR(void)
 	unsigned int xpos, ypos, angle;
 	clock_t timer = clock();
 
-	// Initialize sfx and bitmap
+	// Initialize sfx, bitmap, sprites
 	InitSFX();
 	InitBitmap();
+	InitSprites(spriteFrames, spriteRows, spriteColors);
+	
+	// Load and show bitmap
 	LoadBitmap("stadium.map");
 	EnterBitmapMode();
 	
@@ -49,21 +59,6 @@ int DemoSPR(void)
 		SetInk(slot+5, CHR_ROWS-1);
 #endif		
 	}
-	
-	// Initialize sprites
-#if defined __APPLE2__
-	// number of rows, number of frames
-	InitSprites(5, 64);
-#elif defined __ATARI__
-	// number of rows, unique colors of sprites 0-4
-	InitSprites(13, spriteColors);
-#elif defined __ATMOS__
-	// number of rows, unique colors of sprites 0-3
-	InitSprites(6, 16, spriteColors);
-#elif defined __CBM__
-	// unique colors of sprites 0-7, shared colors of all sprites 
-	InitSprites(spriteColors, sharedColors);
-#endif
 
 	// Enable sprites
 	for (i=0; i<4; i++) {

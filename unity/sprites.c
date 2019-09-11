@@ -46,8 +46,8 @@
 	unsigned char* sprBG[SPRITE_NUM];	    // Sprite background
 	unsigned char sprROWS;
 	unsigned int sprBLOCK;
-	void InitSprites(unsigned char rows, unsigned char frames)
-	{
+	void InitSprites(unsigned char frames, unsigned char rows, unsigned char *spriteColors)
+	{			
 		// Set sprite rows, frames and resulting block size (there are 4 offset blocks for each sprite)
 		int i;
 		sprROWS = rows;
@@ -62,7 +62,7 @@
 	void SetupFlickerDLI(void);
 	extern unsigned int flickerFrame[10];
 	extern unsigned char flickerMask[5], flickerX[10], flickerY[10], flickerColor[10], flickerRows;
-	void InitSprites(unsigned char rows, unsigned char *spriteColors)
+	void InitSprites(unsigned char frames, unsigned char rows, unsigned char *spriteColors)
 	{			
 		// Reset Sprite Mask, Frames, Colors and Rows
 		unsigned char i;
@@ -95,7 +95,7 @@
 	unsigned char sprROWS, inkVAL, *sprBG[SPRITE_NUM];
 	unsigned int scrPTR, colPTR, sprBLOCK;
 	extern unsigned char ink1[20];	// see bitmap.c
-	void InitSprites(unsigned char rows, unsigned char frames, unsigned char *spriteColors)
+	void InitSprites(unsigned char frames, unsigned char rows, unsigned char *spriteColors)
 	{			
 		// Load sprite sheet and assigned colors
 		unsigned char i;
@@ -110,15 +110,15 @@
 	}
 // C64 specific init function
 #elif defined __CBM__
-	void InitSprites(unsigned char *spriteColors, unsigned char *sharedColors)
-	{		
+	void InitSprites(unsigned char frames, unsigned char rows, unsigned char *spriteColors)
+	{			
 		// Set sprite colors
 		unsigned int i;	
 		for (i=0; i<8; ++i) { POKE(53287+i, spriteColors[i]); }
 		
 		// Set common colors
-		POKE(53285, sharedColors[0]);
-		POKE(53286, sharedColors[1]);	
+		POKE(53285, spriteColors[8]);
+		POKE(53286, spriteColors[9]);	
 		
 		// Set to multicolor code
 		POKE(53276, 255);			

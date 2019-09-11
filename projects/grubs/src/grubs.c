@@ -75,14 +75,17 @@ unsigned int xStart[4] = { 60, 120, 180, 240 };
 //unsigned int xStart[4] = { 100, 120, 140, 160 };
 unsigned char *names[4] = { "SAM", "JOE", "TOM", "LUC" };
 
-// Sprite colors for various platforms (On Apple2, different sprite frames are used for each color)
-#if defined __ATARI__
+// Sprite definitions
+#define spriteFrames 16
+#define spriteRows   13
+#if defined __APPLE2__
+	unsigned char spriteColors[] = { };	//  Colors are pre-assigned in the sprite sheet
+#elif defined __ATARI__
 	unsigned char spriteColors[] = {0x2a, 0x2a, 0x2a, 0x2a, 0x14, 0x10, 0x10, 0x10, 0x10, 0x10};
 #elif defined __ATMOS__
 	unsigned char spriteColors[] = {GREEN, GREEN, GREEN, GREEN, RED};
 #elif defined __CBM__
-	unsigned char spriteColors[] = {0, 0, 0, 0, PINK, PINK, PINK, PINK};
-	unsigned char sharedColors[] = {RED, WHITE};
+	unsigned char spriteColors[] = {0, 0, 0, 0, PINK, PINK, PINK, PINK, RED, WHITE};
 #endif
 
 // Effect masks
@@ -531,22 +534,14 @@ int main(void)
     bordercolor(COLOR_BLACK);
     bgcolor(COLOR_BLACK);
 
-	// Prepare bitmap
+	// Initialize sfx, bitmap, sprites
+	InitSFX();
 	InitBitmap();
+	InitSprites(spriteFrames, spriteRows, spriteColors);
+	
+	// Load and show bitmap
 	LoadBitmap("pumpkins.map");
 	EnterBitmapMode();
-
-	// Prepare sprites/sfx
-#if defined __APPLE2__
-	InitSprites(13, 16);
-#elif defined __ATARI__
-	InitSprites(13, spriteColors);
-#elif defined __ATMOS__
-	InitSprites(13, 16, spriteColors);
-#elif defined __CBM__
-	InitSprites(spriteColors, sharedColors);
-#endif
-	InitSFX();
 
 	// Setup grubs/projectiles
 	InitGrubs();
