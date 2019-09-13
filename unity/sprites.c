@@ -123,6 +123,36 @@
 		// Set to multicolor code
 		POKE(53276, 255);			
 	}	
+// Lynx specific init function
+#elif defined __LYNX__	
+	// declare RO and TGI data
+	extern unsigned int spriteData[]; 
+	SCB_REHV_PAL spriteTGI[SPRITE_NUM];
+	void InitSprites(unsigned char frames, unsigned char rows, unsigned char *spriteColors)
+	{
+		unsigned char i;
+		SCB_REHV_PAL* sprite;
+		for (i=0; i<SPRITE_NUM; i++) {
+			sprite = &spriteTGI[i];
+			sprite->sprctl0 = BPP_4 | TYPE_NORMAL;
+			sprite->sprctl1 = REHV;
+			sprite->sprcoll = 0x01;
+			sprite->next = 0x0000;
+			sprite->data = 0x0000;
+			sprite->hpos = 0;
+			sprite->vpos = 0;
+			sprite->hsize = 0x0100;
+			sprite->vsize = 0x0100;
+			sprite->penpal[0] = 0x01;
+			sprite->penpal[1] = 0x23; 
+			sprite->penpal[2] = 0x45; 
+			sprite->penpal[3] = 0x67; 
+			sprite->penpal[4] = 0x89; 
+			sprite->penpal[5] = 0xab; 
+			sprite->penpal[6] = 0xcd; 
+			sprite->penpal[7] = 0xef; 
+		}
+	}
 #endif
 
 #if defined __CBM__
@@ -148,6 +178,9 @@ void LocateSprite(unsigned int x, unsigned int y)
 #elif defined __CBM__
 	spriteX = x;
 	spriteY = y;
+#elif defined __LYNX__
+	spriteX = x/2;
+	spriteY = (y*102)/200;
 #endif
 }
 
@@ -376,7 +409,11 @@ void SetSprite(unsigned char index, unsigned char frame)
 	} else {
 		POKE(53248+2*index, spriteX-244);
 		POKE(53264, PEEK(53264) |  (1 << index));
-	}	
+	}
+#elif defined __LYNX__
+	spriteTGI[index].data = spriteData[frame];
+	spriteTGI[index].hpos = spriteX;
+	spriteTGI[index].vpos = spriteY;
 #endif
 }
 
@@ -400,6 +437,7 @@ void DisableSprite(signed char index)
 	// Switch single sprite off
 	if (index >= 0) {	
 #if defined __CBM__
+		// Set bit in sprite register
 		POKE(53269, PEEK(53269) & ~(1 << index));
 #elif defined __ATARI__
 		// Set bit in flicker mask	
@@ -409,6 +447,9 @@ void DisableSprite(signed char index)
 			flickerMask[index-5] &= ~2;
 		}
 		bzero(PMGRAM+768+((index+1)%5)*256,0x100); // Clear PMG slot
+#elif defined __LYNX__
+		// Reset sprite data address
+		spriteTGI[index].data = 0;
 #else
 		// Soft sprites: Restore background if neccessary
 		if (sprEN[index]) { RestoreSprBG(index); }
@@ -417,12 +458,17 @@ void DisableSprite(signed char index)
 	// Switch all sprites off
 	} else {
 #if defined __CBM__
-		// Set sprite bits
+		// Reset sprite register
 		POKE(53269, 0);
 #elif defined __ATARI__
 		bzero(flickerMask, 5);	 // Clear flicker mask
 		bzero(PMGRAM+768,0x500); // Clear PMG memory
-#else	
+#elif defined __LYNX__
+		// Reset all sprite data addresses
+		for (index=0; index<SPRITE_NUM; index++) {
+			spriteTGI[index].data = 0;
+		}
+#else
 		// Soft sprites: Restore background if necessary
 		for (index=0; index<SPRITE_NUM; index++) {
 			if (sprEN[index]) { RestoreSprBG(index); }				

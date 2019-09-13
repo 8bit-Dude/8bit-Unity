@@ -55,6 +55,11 @@
 	#define PLATFORM   3
 #elif defined __LYNX__
 	#define PLATFORM   4
+	#define CH_DEL   0x00
+	#define CH_ENTER 0x00
+    #include <6502.h> 
+    #include <lynx.h>
+    #include <tgi.h>	
 #endif
 
 // Memory locations
@@ -198,12 +203,29 @@
 	#define LPINK   18
 	#define PURPLE  19
 #elif defined __LYNX__	
-	// Oric Screen (AIC Mode)
+	// Lynx Screen (Default Mode)
 	#define BMP_COLS 160
 	#define BMP_ROWS 102
-	#define BMP_PALETTE 32
-	#define CHR_COLS 39
+	#define BMP_PALETTE 16
+	#define CHR_COLS 40
 	#define CHR_ROWS 17	
+	// Lynx Palette
+	#define BLACK  0
+	#define RED    1
+	#define PINK   2
+	#define LGREY  3
+	#define GREY   4
+	#define DGREY  5
+	#define BROWN  6
+	#define PEACH  7
+	#define YELLOW 8
+	#define LGREEN 9
+	#define GREEN  10
+	#define DBROWN 11
+	#define PURPLE 12
+	#define BLUE   13
+	#define LBLUE  14
+	#define WHITE  15
 #endif
 
 // Keyboard definitions
@@ -276,12 +298,17 @@ const char *GetChr(unsigned char chr);
   void EnableRom();	// Enable ROM after using GetColor()
 #endif
 
-// Apple Double-HiRes functions (see Apple/DHR.c)
+// Apple specific functions (see Apple/DHR.c)
 #if defined __APPLE2__
   extern unsigned char *dhrmain, *dhraux, *dhrptr, dhrpixel;
   void SetDHRPointer(unsigned int x, unsigned int y);
   void SetDHRColor(unsigned char color);
   unsigned char GetDHRColor(void);
+#endif
+
+// Lynx specific functions (see Lynx/display.c)
+#if defined __LYNX__
+  void UpdateDisplay(void);
 #endif
 
 // Character data (see char.s)
@@ -378,10 +405,10 @@ void BumpSFX(void);
 // Sprite handling functions
 #if defined __APPLE2__
   #define SPRITE_NUM 8
-#elif defined __ATMOS__
-  #define SPRITE_NUM 8
 #elif defined __ATARI__
   #define SPRITE_NUM 10
+#elif defined __ATMOS__
+  #define SPRITE_NUM 8
 #elif defined __CBM__
   #define SPRITE_NUM 8
 #elif defined __LYNX__
@@ -394,13 +421,13 @@ void LocateSprite(unsigned int x, unsigned int y);
 void SetSprite(unsigned char index, unsigned char frame);
 
 // Sprite collision functions
-#if defined __CBM__
-  // On C64, all collisions are contained within a single register
-  #define COLLISIONS(i) (PEEK(53278))
-  #define COLLIDING(collisions,i) ((collisions >> i) & 1) 
-#elif defined __ATARI__	
+#if defined __ATARI__	
   // On Atari, we need to reset collisions by poking 0 into 53278
   #define COLLISIONS(i) (PEEK(53260+i)+(1<<i)); POKE(53278,0)
+  #define COLLIDING(collisions,i) ((collisions >> i) & 1) 
+#elif defined __CBM__
+  // On C64, all collisions are contained within a single register
+  #define COLLISIONS(i) (PEEK(53278))
   #define COLLIDING(collisions,i) ((collisions >> i) & 1) 
 #else	// Soft sprites on Apple and Oric
   // On Apple and Atmos, collisions are prevented at draw time

@@ -34,16 +34,31 @@
   #pragma code-name("SHADOW_RAM")
 #endif
 
+#ifdef __LYNX__  
+  // dummy functions
+  void clrscr(void)	{}
+  unsigned char textcolor(unsigned char col)   {}
+  unsigned char bordercolor(unsigned char col) {}
+  unsigned char bgcolor(unsigned char col)     {}
+  
+  // declare RO and TGI data
+  extern unsigned char bitmapNum;
+  extern unsigned int bitmapFile[];
+  extern unsigned int bitmapData[]; 
+  SCB_REHV_PAL bitmapTGI =  { BPP_4 | TYPE_BACKGROUND, REHV, 0x01, 0x0000, 0, 0, 0, 
+							  0x0100, 0x0100, { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef } };  
+#endif
+
 // Helper functions
 #define BYTE4(a,b,c,d) ((a<<6) | (b<<4) | (c<<2) | d)
-
-// Colors for printing
-unsigned char inkColor, paperColor;
 
 // Apple specific variables & functions
 #ifdef __APPLE2__
   extern void RestoreSprLine(unsigned char x, unsigned char y);
 #endif
+
+// Colors for printing
+unsigned char inkColor, paperColor;
 
 // Atari specific variables & functions
 #ifdef __ATARI__
@@ -91,22 +106,17 @@ unsigned char inkColor, paperColor;
 // Initialize Bitmap Screen
 void InitBitmap() 
 {
-#if defined __CBM__
-	// Backup VIC config
-	vicconf[0] = PEEK(53272);
-	vicconf[1] = PEEK(53265);
-	vicconf[2] = PEEK(53270);
+#if defined __APPLE2__
+	// Prepare Double Hi-Res Mode
+	asm("sta $c052"); // TURN ON FULLSCREEN       
+	asm("sta $c057"); // TURN ON HI-RES           
+	asm("sta $c001"); // TURN ON 80 STORE
 #elif defined __ATARI__
 	// Set default palette
 	POKE(PALETTERAM+0, 0x00);
 	POKE(PALETTERAM+1, 0x24);
 	POKE(PALETTERAM+2, 0x86);
 	POKE(PALETTERAM+3, 0xd8);
-#elif defined __APPLE2__
-	// Prepare Double Hi-Res Mode
-	asm("sta $c052"); // TURN ON FULLSCREEN       
-	asm("sta $c057"); // TURN ON HI-RES           
-	asm("sta $c001"); // TURN ON 80 STORE
 #elif defined __ATMOS__
 	// Switch to Hires mode
 	if PEEK((char*)0xC800) {
@@ -114,6 +124,17 @@ void InitBitmap()
 	} else {
 		asm("jsr $E9BB");	// Oric-1 (ROM 1.0)
 	}
+#elif defined __CBM__
+	// Backup VIC config
+	vicconf[0] = PEEK(53272);
+	vicconf[1] = PEEK(53265);
+	vicconf[2] = PEEK(53270);
+#elif defined __LYNX__
+	// Init TGI driver and setup interrupts
+	tgi_install(tgi_static_stddrv);
+	tgi_init();
+	CLI();
+	while (tgi_busy()) {}
 #endif	
 }
 
@@ -187,6 +208,9 @@ void LocatePixel(unsigned int x, unsigned int y)
 #elif defined __CBM__	// MLC Mode: 160 x 200
 	pixelX = x/2;
 	pixelY = y;
+#elif defined __LYNX__	// STD Mode: 160 x 102
+	pixelX = x/2;
+	pixelY = (y*102)/200;
 #endif
 }
 
@@ -296,6 +320,8 @@ unsigned char GetPixel()
 	}
 	//PrintNum(0,1,color);
 	return color;
+#elif defined __LYNX__
+	return 0;
 #endif	
 }
 
@@ -393,6 +419,9 @@ void SetPixel(unsigned char color)
 	// Assign bytes in Bitmap RAM
 	POKE((char*)BITMAPRAM+offset,    byte1);
 	POKE((char*)BITMAPRAM+offset+40, byte2);
+#elif defined __LYNX__
+	tgi_setcolor(color);
+	tgi_setpixel(pixelX, pixelY);	
 #endif
 }
 
@@ -400,7 +429,17 @@ void SetPixel(unsigned char color)
 void LoadBitmap(char *filename) 
 {
 #if defined __ATMOS__
+	// Load directly to bitmap ram
 	SedoricRead(filename, (void*)(BITMAPRAM));
+#elif defined __LYNX__
+	// Find bitmap and draw as sprite
+	unsigned char i;
+	for (i=0; i<bitmapNum; i++) {
+		if (!strcmp(filename, bitmapFile[i])) {
+			bitmapTGI.data = bitmapData[i];
+			tgi_sprite(&bitmapTGI);
+		}
+	}
 #else	
 	// Open Map File
 	FILE* fp;
@@ -446,19 +485,15 @@ void LoadBitmap(char *filename)
 // Clear entire bitmap screen
 void ClearBitmap()
 {
-#if defined __CBM__
-	bzero((char*)BITMAPRAM, 8000);
-	bzero((char*)SCREENRAM, 1000);
-	bzero((char*)COLORRAM, 1000);
-#elif defined __ATARI__
-	bzero((char*)BITMAPRAM1, 8000);
-	bzero((char*)BITMAPRAM2, 8000);
-#elif defined __APPLE2__
+#if defined __APPLE2__
     // clear main and aux screen memory	
 	*dhraux = 0;
     bzero((char *)BITMAPRAM, 8192);
 	*dhrmain = 0;
     bzero((char *)BITMAPRAM, 8192);
+#elif defined __ATARI__
+	bzero((char*)BITMAPRAM1, 8000);
+	bzero((char*)BITMAPRAM2, 8000);
 #elif defined __ATMOS__
 	// reset pixels and set AIC Paper/Ink
 	unsigned char y;
@@ -466,6 +501,13 @@ void ClearBitmap()
     for (y=0; y<200; y++) {
 		POKE((char*)BITMAPRAM+y*40, (y%2) ? 6 : 3);
 	}	
+#elif defined __CBM__
+	bzero((char*)BITMAPRAM, 8000);
+	bzero((char*)SCREENRAM, 1000);
+	bzero((char*)COLORRAM, 1000);
+#elif defined __LYNX__
+	bitmapTGI.data = 0;
+	tgi_clear();	
 #endif
 }
 
@@ -725,7 +767,30 @@ void PrintChr(unsigned char col, unsigned char row, const char *chr)
 	
 	// Set Color
 	addr = SCREENRAM + row*40+col;
-	POKE((char*)addr, inkColor << 4 | paperColor);	
+	POKE((char*)addr, inkColor << 4 | paperColor);
+#elif defined __LYNX__
+	// Set Character Pixels
+	unsigned char i,j,offset;
+	pixelX = col*4;
+	pixelY = row*6;
+	for (i=0; i<3; ++i) {
+		offset = 128;
+		for (j=0; j<6; ++j) {			
+			if (chr[i] & offset) {
+				SetPixel(inkColor);
+			} else {
+				SetPixel(paperColor);
+			}
+			if (j == 2 || j == 5) {
+				pixelY++;
+				pixelX -= 2;
+				offset >>= 2;
+			} else {
+				pixelX++;
+				offset >>= 1;
+			}
+		}	
+	}	
 #endif
 }
 
