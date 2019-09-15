@@ -130,12 +130,12 @@
 	SCB_REHV_PAL spriteTGI[SPRITE_NUM];
 	void InitSprites(unsigned char frames, unsigned char rows, unsigned char *spriteColors)
 	{
-		unsigned char i;
+		unsigned char i,j;
 		SCB_REHV_PAL* sprite;
 		for (i=0; i<SPRITE_NUM; i++) {
 			sprite = &spriteTGI[i];
 			sprite->sprctl0 = BPP_4 | TYPE_NORMAL;
-			sprite->sprctl1 = REHV;
+			sprite->sprctl1 = REHV | LITERAL;
 			sprite->sprcoll = 0x01;
 			sprite->next = 0x0000;
 			sprite->data = 0x0000;
@@ -143,14 +143,9 @@
 			sprite->vpos = 0;
 			sprite->hsize = 0x0100;
 			sprite->vsize = 0x0100;
-			sprite->penpal[0] = 0x01;
-			sprite->penpal[1] = 0x23; 
-			sprite->penpal[2] = 0x45; 
-			sprite->penpal[3] = 0x67; 
-			sprite->penpal[4] = 0x89; 
-			sprite->penpal[5] = 0xab; 
-			sprite->penpal[6] = 0xcd; 
-			sprite->penpal[7] = 0xef; 
+			for (j=0; j<8; j++) {
+				sprite->penpal[j] = spriteColors[i*8+j];
+			}
 		}
 	}
 #endif

@@ -45,7 +45,8 @@
   extern unsigned char bitmapNum;
   extern unsigned int bitmapFile[];
   extern unsigned int bitmapData[]; 
-  SCB_REHV_PAL bitmapTGI =  { BPP_4 | TYPE_BACKGROUND, REHV, 0x01, 0x0000, 0, 0, 0, 
+  unsigned char bitmapEdit[8364];
+  SCB_REHV_PAL bitmapTGI =  { BPP_4 | TYPE_BACKGROUND, REHV | LITERAL, 0x01, 0x0000, &bitmapEdit[0], 0, 0, 
 							  0x0100, 0x0100, { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef } };  
 #endif
 
@@ -135,6 +136,7 @@ void InitBitmap()
 	tgi_init();
 	CLI();
 	while (tgi_busy()) {}
+	ClearBitmap();
 #endif	
 }
 
@@ -318,10 +320,15 @@ unsigned char GetPixel()
 		if (byte2 == 48) { color += 4; } else { color += 2; }
 		break;	
 	}
-	//PrintNum(0,1,color);
 	return color;
 #elif defined __LYNX__
-	return 0;
+	unsigned int offset;
+	offset = pixelY*82 + pixelX/2 + 1;
+	if (pixelX%2) { 
+		return (bitmapEdit[offset] & 15);
+	} else {
+		return (bitmapEdit[offset] & 240) >> 4;
+	}	
 #endif	
 }
 
@@ -420,8 +427,15 @@ void SetPixel(unsigned char color)
 	POKE((char*)BITMAPRAM+offset,    byte1);
 	POKE((char*)BITMAPRAM+offset+40, byte2);
 #elif defined __LYNX__
-	tgi_setcolor(color);
-	tgi_setpixel(pixelX, pixelY);	
+	unsigned int offset;
+	offset = pixelY*82 + pixelX/2 + 1;
+	if (pixelX%2) { 
+		bitmapEdit[offset] &= 240;
+		bitmapEdit[offset] |= color;
+	} else {
+		bitmapEdit[offset] &= 15;
+		bitmapEdit[offset] |= color << 4;
+	}
 #endif
 }
 
@@ -436,7 +450,7 @@ void LoadBitmap(char *filename)
 	unsigned char i;
 	for (i=0; i<bitmapNum; i++) {
 		if (!strcmp(filename, bitmapFile[i])) {
-			bitmapTGI.data = bitmapData[i];
+			memcpy(&bitmapEdit[0], bitmapData[i], 8364);
 			tgi_sprite(&bitmapTGI);
 		}
 	}
@@ -506,8 +520,10 @@ void ClearBitmap()
 	bzero((char*)SCREENRAM, 1000);
 	bzero((char*)COLORRAM, 1000);
 #elif defined __LYNX__
-	bitmapTGI.data = 0;
-	tgi_clear();	
+	unsigned int i;
+	bzero(bitmapEdit, 8364); 
+	for (i=0; i<102; i++) { bitmapEdit[i*82] = 0x52; }
+	tgi_clear();
 #endif
 }
 
@@ -771,25 +787,15 @@ void PrintChr(unsigned char col, unsigned char row, const char *chr)
 #elif defined __LYNX__
 	// Set Character Pixels
 	unsigned char i,j,offset;
-	pixelX = col*4;
-	pixelY = row*6;
+	unsigned int addr;
+	addr = row*(6*82) + col*2 + 1;
 	for (i=0; i<3; ++i) {
-		offset = 128;
-		for (j=0; j<6; ++j) {			
-			if (chr[i] & offset) {
-				SetPixel(inkColor);
-			} else {
-				SetPixel(paperColor);
-			}
-			if (j == 2 || j == 5) {
-				pixelY++;
-				pixelX -= 2;
-				offset >>= 2;
-			} else {
-				pixelX++;
-				offset >>= 1;
-			}
-		}	
+		bitmapEdit[addr++] = ((chr[i]&128) ? inkColor : paperColor) << 4 | ((chr[i]&64) ? inkColor : paperColor);
+		bitmapEdit[addr++] = ((chr[i]&32)  ? inkColor : paperColor) << 4 | paperColor;
+		addr += 80;
+		bitmapEdit[addr++] = ((chr[i]&8)   ? inkColor : paperColor) << 4 | ((chr[i]&4)  ? inkColor : paperColor);
+		bitmapEdit[addr++] = ((chr[i]&2)   ? inkColor : paperColor) << 4 | paperColor;
+		addr += 80;
 	}	
 #endif
 }
