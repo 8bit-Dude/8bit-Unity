@@ -210,22 +210,22 @@
 	#define CHR_COLS 40
 	#define CHR_ROWS 17	
 	// Lynx Palette
-	#define BLACK  0
-	#define RED    1
-	#define PINK   2
-	#define LGREY  3
-	#define GREY   4
-	#define DGREY  5
-	#define BROWN  6
-	#define PEACH  7
-	#define YELLOW 8
-	#define LGREEN 9
-	#define GREEN  10
-	#define DBROWN 11
-	#define PURPLE 12
-	#define BLUE   13
-	#define LBLUE  14
-	#define WHITE  15
+	#define PURPLE 0
+	#define DBLUE  1
+	#define BLUE   2
+	#define LBLUE  3
+	#define LGREEN 4
+	#define GREEN  5
+	#define DGREEN 6
+	#define BROWN  7
+	#define ORANGE 8
+	#define YELLOW 9
+	#define PINK   10
+	#define RED    11
+	#define DRED   12
+	#define WHITE  13
+	#define GREY   14
+	#define BLACK  15
 #endif
 
 // Keyboard definitions

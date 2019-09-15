@@ -42,12 +42,16 @@
   unsigned char bgcolor(unsigned char col)     {}
   
   // declare RO and TGI data
-  extern unsigned char bitmapNum;
-  extern unsigned int bitmapFile[];
-  extern unsigned int bitmapData[]; 
-  unsigned char bitmapEdit[8364];
+  extern unsigned char bitmapNum;	// see Lynx/display.c
+  extern unsigned int bitmapFile[];	//			"
+  extern unsigned int bitmapData[];	//			"
+  unsigned char bitmapEdit[8364];	// RW bitmap (editable)
   SCB_REHV_PAL bitmapTGI =  { BPP_4 | TYPE_BACKGROUND, REHV | LITERAL, 0x01, 0x0000, &bitmapEdit[0], 0, 0, 
-							  0x0100, 0x0100, { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef } };  
+							  0x0100, 0x0100, { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef } };
+//  static int palette[] =  { 0x0011, 0x034d, 0x09af, 0x09b8, 0x0777, 0x0335, 0x0448, 0x075e, 
+//							0x0d5f, 0x0c53, 0x0822, 0x0223, 0x0484, 0x08e5, 0x0cf5, 0x0fff };							
+  static int palette[] =  { 0x01ca, 0x03b4, 0x08c4, 0x0cc3, 0x0c53, 0x0822, 0x0552, 0x0527, 
+							0x075e, 0x0e0f, 0x09af, 0x034d, 0x0248, 0x0fff, 0x0888, 0x0000 };
 #endif
 
 // Helper functions
@@ -132,10 +136,15 @@ void InitBitmap()
 	vicconf[2] = PEEK(53270);
 #elif defined __LYNX__
 	// Init TGI driver and setup interrupts
+	unsigned char i;
 	tgi_install(tgi_static_stddrv);
 	tgi_init();
 	CLI();
-	while (tgi_busy()) {}
+	while (tgi_busy()) {}	
+	for (i=0; i<16; i++) {
+		POKE(0xFDA0+i, palette[i] >> 8);
+		POKE(0xFDB0+i, palette[i] & 0xFF);
+	}	
 	ClearBitmap();
 #endif	
 }
@@ -521,8 +530,11 @@ void ClearBitmap()
 	bzero((char*)COLORRAM, 1000);
 #elif defined __LYNX__
 	unsigned int i;
-	bzero(bitmapEdit, 8364); 
-	for (i=0; i<102; i++) { bitmapEdit[i*82] = 0x52; }
+	memset(bitmapEdit, 0xff, 8364); 
+	for (i=0; i<102; i++) { 
+		bitmapEdit[i*82] = 0x52; 
+		bitmapEdit[i*82+81] = 0x00; 
+	}
 	tgi_clear();
 #endif
 }
