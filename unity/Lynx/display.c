@@ -33,14 +33,14 @@ extern SCB_REHV_PAL spriteTGI[];
 void UpdateDisplay(void)
 {
 	unsigned char i;
+
+	// Wait for previous drawing to complete
+	while (tgi_busy()) {}
 	
 	// Send bitmap and sprites to Suzy
 	tgi_sprite(&bitmapTGI);
 	for (i=0; i<SPRITE_NUM; i++) {
 		if (spriteTGI[i].data) { tgi_sprite(&spriteTGI[i]); }
 	}
-	
-	// Wait for drawing to complete
 	tgi_updatedisplay();
-	while (tgi_busy()) {}
 }
