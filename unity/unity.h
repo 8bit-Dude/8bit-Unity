@@ -251,9 +251,9 @@ void SetSprite(unsigned char index, unsigned char frame);
 // Software sprite collisions on Apple, Oric
 #else
   // Collisions are checked at draw time
-  #define COLLISIONS(i) (0)
-  #define COLLIDING(collisions,i) (sprCOL[i])
   extern unsigned char sprCOL[SPRITE_NUM];
+  #define COLLISIONS(i) (sprCOL[i])
+  #define COLLIDING(collisions,i) ((collisions >> i) & 1) 
 #endif
 
 // 8bit-Hub support (see http://www.8bit-unity.com/8bit-Hub)

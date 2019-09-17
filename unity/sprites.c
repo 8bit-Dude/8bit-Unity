@@ -38,12 +38,10 @@
 #if defined __APPLE2__
 	// Sprite data
 	#define sprWIDTH 4	// Byte width of sprite (7 pixels)
-	unsigned char sprEN[] = {0,0,0,0,0}; 	// Enable status
-	unsigned char sprCOL[] = {0,0,0,0,0};	// Collision status
-	unsigned char sprXO[SPRITE_NUM];		// Byte offset within DHR line
-	unsigned char sprX[SPRITE_NUM];			// Screen coordinates
-	unsigned char sprY[SPRITE_NUM];
-	unsigned char* sprBG[SPRITE_NUM];	    // Sprite background
+	unsigned char sprEN[SPRITE_NUM], sprCOL[SPRITE_NUM]; // Enable and Collision status
+	unsigned char sprX[SPRITE_NUM], sprY[SPRITE_NUM];	 // Screen coordinates
+	unsigned char sprXO[SPRITE_NUM];					 // Byte offset within DHR line
+	unsigned char* sprBG[SPRITE_NUM];	// Sprite background
 	unsigned char sprROWS;
 	unsigned int sprBLOCK;
 	void InitSprites(unsigned char frames, unsigned char rows, unsigned char *spriteColors)
@@ -89,9 +87,8 @@
 // Atmos specific init function
 #elif defined __ATMOS__	
 	#define sprWIDTH 2	// Byte width of sprite (12 pixels)
-	unsigned char sprCOL[] = {0,0,0,0,0};	// Collision flags
-	unsigned char sprEN[] = {0,0,0,0,0}; 	// Enable status
-	unsigned char sprX[SPRITE_NUM], sprY[SPRITE_NUM];
+	unsigned char sprEN[SPRITE_NUM], sprCOL[SPRITE_NUM]; // Enable and Collision status
+	unsigned char sprX[SPRITE_NUM], sprY[SPRITE_NUM];	 // Screen coordinates
 	unsigned char sprROWS, inkVAL, *sprBG[SPRITE_NUM];
 	unsigned int scrPTR, colPTR, sprBLOCK;
 	extern unsigned char ink1[20];	// see bitmap.c
@@ -255,8 +252,8 @@ void SpriteCollisions(unsigned char index)
 				dX = sprXO[i] - xO;
 				if (dX < 2 || dX>254) {
 					// Apply collision
-					sprCOL[index] = 1;
-					sprCOL[i] = 1;
+					sprCOL[index] |= 1 << i;
+					sprCOL[i] |= 1 << index;
 					RestoreSprBG(i);
 				}
 	#elif defined __ATMOS__
@@ -264,8 +261,8 @@ void SpriteCollisions(unsigned char index)
 				if (dX < 4 || dX>252) {	// Including INK bytes
 					// Check narrower collision sector
 					if (dX < 2 || dX>254) {	// Not including INK bytes
-						sprCOL[index] = 1;
-						sprCOL[i] = 1;
+						sprCOL[index] |= 1 << i;
+						sprCOL[i] |= 1 << index;
 					}					
 				
 					// Define X overlap
