@@ -34,13 +34,7 @@
   #pragma code-name("SHADOW_RAM")
 #endif
 
-#ifdef __LYNX__  
-  // dummy functions
-  void clrscr(void)	{}
-  unsigned char textcolor(unsigned char col)   {}
-  unsigned char bordercolor(unsigned char col) {}
-  unsigned char bgcolor(unsigned char col)     {}
-  
+#ifdef __LYNX__   
   // declare RO and TGI data
   extern unsigned char bitmapNum;	// see Lynx/display.c
   extern unsigned int bitmapFile[];	//			"
@@ -801,10 +795,15 @@ void PrintChr(unsigned char col, unsigned char row, const char *chr)
 	unsigned char i,j,offset;
 	unsigned int addr;
 	addr = row*(6*82) + col*2 + 1;
+	bitmapEdit[addr++] = (paperColor << 4) | paperColor;
+	bitmapEdit[addr++] = (paperColor << 4) | paperColor;
+	addr += 80;
 	for (i=0; i<3; ++i) {
-		bitmapEdit[addr++] = ((chr[i]&128) ? inkColor : paperColor) << 4 | ((chr[i]&64) ? inkColor : paperColor);
-		bitmapEdit[addr++] = ((chr[i]&32)  ? inkColor : paperColor) << 4 | paperColor;
-		addr += 80;
+		if (i!=1) {
+		  bitmapEdit[addr++] = ((chr[i]&128) ? inkColor : paperColor) << 4 | ((chr[i]&64) ? inkColor : paperColor);
+		  bitmapEdit[addr++] = ((chr[i]&32)  ? inkColor : paperColor) << 4 | paperColor;
+		  addr += 80;
+		}
 		bitmapEdit[addr++] = ((chr[i]&8)   ? inkColor : paperColor) << 4 | ((chr[i]&4)  ? inkColor : paperColor);
 		bitmapEdit[addr++] = ((chr[i]&2)   ? inkColor : paperColor) << 4 | paperColor;
 		addr += 80;

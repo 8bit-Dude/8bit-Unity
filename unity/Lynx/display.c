@@ -31,6 +31,12 @@ extern SCB_REHV_PAL bitmapTGI;
 extern LynxSprite spriteSlot[SPRITE_NUM];
 extern unsigned char spriteCols[SPRITE_NUM];
 
+// dummy functions
+void clrscr(void)	{}
+unsigned char textcolor(unsigned char col)   {}
+unsigned char bordercolor(unsigned char col) {}
+unsigned char bgcolor(unsigned char col)     {}
+
 void UpdateDisplay(void)
 {
 	unsigned char i, c;
