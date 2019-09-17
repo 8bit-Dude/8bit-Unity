@@ -27,20 +27,23 @@
 #include "../unity.h"
 
 // See bitmap.c and sprites.c
-extern SCB_REHV_PAL bitmapTGI; 
-extern SCB_REHV_PAL spriteTGI[];
+extern SCB_REHV_PAL bitmapTGI;
+extern LynxSprite spriteSlot[SPRITE_NUM];
 
 void UpdateDisplay(void)
 {
 	unsigned char i;
 
-	// Wait for previous drawing to complete
+	// Wait for previous drawing to complete then check collisions
 	while (tgi_busy()) {}
+	tgi_clear();
 	
 	// Send bitmap and sprites to Suzy
 	tgi_sprite(&bitmapTGI);
 	for (i=0; i<SPRITE_NUM; i++) {
-		if (spriteTGI[i].data) { tgi_sprite(&spriteTGI[i]); }
+		if (spriteSlot[i].scb.data) { 
+			tgi_sprite(&spriteSlot[i].scb); 
+		}
 	}
 	tgi_updatedisplay();
 }

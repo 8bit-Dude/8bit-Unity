@@ -127,26 +127,27 @@
 #elif defined __LYNX__	
 	// declare RO and TGI data
 	extern unsigned int spriteData[]; 
-	SCB_REHV_PAL spriteTGI[SPRITE_NUM];
+	LynxSprite spriteSlot[SPRITE_NUM];
 	void InitSprites(unsigned char frames, unsigned char rows, unsigned char *spriteColors)
 	{
 		unsigned char i,j;
-		SCB_REHV_PAL* sprite;
+		SCB_REHV_PAL *scb;
 		for (i=0; i<SPRITE_NUM; i++) {
-			sprite = &spriteTGI[i];
-			sprite->sprctl0 = BPP_4 | TYPE_NORMAL;
-			sprite->sprctl1 = REHV | LITERAL;
-			sprite->sprcoll = 0x01;
-			sprite->next = 0x0000;
-			sprite->data = 0x0000;
-			sprite->hpos = 0;
-			sprite->vpos = 0;
-			sprite->hsize = 0x0100;
-			sprite->vsize = 0x0100;
+			scb = &spriteSlot[i].scb;
+			scb->sprctl0 = BPP_4 | TYPE_NORMAL;
+			scb->sprctl1 = REHV | LITERAL;
+			scb->sprcoll = 0x01;
+			scb->next = 0x0000;
+			scb->data = 0x0000;
+			scb->hpos = 0;
+			scb->vpos = 0;
+			scb->hsize = 0x0100;
+			scb->vsize = 0x0100;
 			for (j=0; j<8; j++) {
-				sprite->penpal[j] = spriteColors[i*8+j];
+				scb->penpal[j] = spriteColors[i*8+j];
 			}
 		}
+		tgi_setcollisiondetection(1);		
 	}
 #endif
 
@@ -406,9 +407,11 @@ void SetSprite(unsigned char index, unsigned char frame)
 		POKE(53264, PEEK(53264) |  (1 << index));
 	}
 #elif defined __LYNX__
-	spriteTGI[index].data = spriteData[frame];
-	spriteTGI[index].hpos = spriteX;
-	spriteTGI[index].vpos = spriteY;
+	SCB_REHV_PAL *scb;
+	scb = &spriteSlot[index].scb;
+	scb->data = spriteData[frame];
+	scb->hpos = spriteX;
+	scb->vpos = spriteY;
 #endif
 }
 
@@ -444,7 +447,7 @@ void DisableSprite(signed char index)
 		bzero(PMGRAM+768+((index+1)%5)*256,0x100); // Clear PMG slot
 #elif defined __LYNX__
 		// Reset sprite data address
-		spriteTGI[index].data = 0;
+		spriteSlot[index].scb.data = 0;
 #else
 		// Soft sprites: Restore background if neccessary
 		if (sprEN[index]) { RestoreSprBG(index); }
@@ -461,7 +464,7 @@ void DisableSprite(signed char index)
 #elif defined __LYNX__
 		// Reset all sprite data addresses
 		for (index=0; index<SPRITE_NUM; index++) {
-			spriteTGI[index].data = 0;
+			spriteSlot[index].scb.data = 0;
 		}
 #else
 		// Soft sprites: Restore background if necessary
