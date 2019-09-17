@@ -128,6 +128,7 @@
 	// declare RO and TGI data
 	extern unsigned int spriteData[]; 
 	LynxSprite spriteSlot[SPRITE_NUM];
+	unsigned char spriteCols[SPRITE_NUM];
 	void InitSprites(unsigned char frames, unsigned char rows, unsigned char *spriteColors)
 	{
 		unsigned char i,j;
@@ -136,7 +137,7 @@
 			scb = &spriteSlot[i].scb;
 			scb->sprctl0 = BPP_4 | TYPE_NORMAL;
 			scb->sprctl1 = REHV | LITERAL;
-			scb->sprcoll = 0x01;
+			scb->sprcoll = i+1;
 			scb->next = 0x0000;
 			scb->data = 0x0000;
 			scb->hpos = 0;

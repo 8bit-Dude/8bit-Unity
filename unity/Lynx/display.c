@@ -29,20 +29,30 @@
 // See bitmap.c and sprites.c
 extern SCB_REHV_PAL bitmapTGI;
 extern LynxSprite spriteSlot[SPRITE_NUM];
+extern unsigned char spriteCols[SPRITE_NUM];
 
 void UpdateDisplay(void)
 {
-	unsigned char i;
+	unsigned char i, c;
 
-	// Wait for previous drawing to complete then check collisions
+	// Wait for previous drawing to complete then reset collisions
 	while (tgi_busy()) {}
 	tgi_clear();
+	for (i=0; i<SPRITE_NUM; i++) { 
+		spriteCols[i] = 0; 
+	}	
 	
 	// Send bitmap and sprites to Suzy
 	tgi_sprite(&bitmapTGI);
 	for (i=0; i<SPRITE_NUM; i++) {
 		if (spriteSlot[i].scb.data) { 
-			tgi_sprite(&spriteSlot[i].scb); 
+			tgi_sprite(&spriteSlot[i].scb);
+			c = spriteSlot[i].collisions;
+			if (c) {
+				c -= 1;
+				spriteCols[i] |= 1 << c;
+				spriteCols[c] |= 1 << i;
+			}
 		}
 	}
 	tgi_updatedisplay();

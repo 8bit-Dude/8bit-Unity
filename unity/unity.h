@@ -234,7 +234,7 @@ void SetSprite(unsigned char index, unsigned char frame);
 	extern unsigned char spriteX, spriteY;
 #endif
 
-// Sprite collision functions
+// Hardware sprite collisions on Atari, C64, Lynx
 #if defined __ATARI__	
   // On Atari, we need to reset collisions by poking 0 into 53278
   #define COLLISIONS(i) (PEEK(53260+i)+(1<<i)); POKE(53278,0)
@@ -244,10 +244,13 @@ void SetSprite(unsigned char index, unsigned char frame);
   #define COLLISIONS(i) (PEEK(53278))
   #define COLLIDING(collisions,i) ((collisions >> i) & 1) 
 #elif defined __LYNX__
-  extern LynxSprite spriteSlot[SPRITE_NUM];
-  #define COLLISIONS(i) (spriteSlot[i].collisions)  
-#else	// Soft sprites on Apple and Oric
-  // On Apple and Atmos, collisions are prevented at draw time
+  // On Lynx, collisions are checked in UpdateDisplay() 
+  extern unsigned char spriteCols[SPRITE_NUM];
+  #define COLLISIONS(i) (spriteCols[i])
+  #define COLLIDING(collisions,i) ((collisions >> i) & 1) 
+// Software sprite collisions on Apple, Oric
+#else
+  // Collisions are checked at draw time
   #define COLLISIONS(i) (0)
   #define COLLIDING(collisions,i) (sprCOL[i])
   extern unsigned char sprCOL[SPRITE_NUM];
