@@ -69,14 +69,12 @@
 #define BLACK  15
 
 // Structure for colliding sprites
-#if defined __LYNX__
-  #ifndef __LYNX_SPRITE__
-    #define __LYNX_SPRITE__
-	typedef struct {
-		unsigned char collisions;
-		SCB_REHV_PAL scb;
-	} LynxSprite;
-  #endif
+#ifndef __LYNX_SPRITE__
+#define __LYNX_SPRITE__
+typedef struct {
+	unsigned char collisions;
+	SCB_REHV_PAL scb;
+} LynxSprite;
 #endif
 
 // Workaround for missing chardefs

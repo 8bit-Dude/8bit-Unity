@@ -62,7 +62,11 @@
 #endif
 
 // Keyboard definitions
+#if defined __LYNX__
+	#define KEY_SP		49
+#else
 	#define KEY_SP		' '
+#endif
 #if defined __APPLE2__
 	#define KEY_A		'A'
 	#define KEY_B		'B'
@@ -152,17 +156,31 @@ extern unsigned char pixelX, pixelY;
 #endif
 
 // Joystick definitions
-#define JOY_UP    1
-#define JOY_DOWN  2
-#define JOY_LEFT  4
-#define JOY_RIGHT 8
-#define JOY_BTN1  16
+#if defined __LYNX__
+  #define JOY_UP    128
+  #define JOY_DOWN  64
+  #define JOY_LEFT  32
+  #define JOY_RIGHT 16
+  #define JOY_BTN1  2
+  #define JOY_BTN2  1
+#else
+  #define JOY_UP    1
+  #define JOY_DOWN  2
+  #define JOY_LEFT  4
+  #define JOY_RIGHT 8
+  #define JOY_BTN1  16
+  #define JOY_BTN2  32
+#endif
 
 // Joystick functions
 #if (defined __CBM__) || (defined __ATMOS__)
   #define JOY_MAX 4
   void InitJoy(void);
   unsigned char GetJoy(unsigned char);
+#elif (defined __LYNX__)
+  #define JOY_MAX 1
+  #define InitJoy() (PEEK(0))
+  #define GetJoy(i) (~PEEK(0xfcb0))
 #else
   #define JOY_MAX 2
   #define InitJoy() (PEEK(0))

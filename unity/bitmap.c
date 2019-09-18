@@ -529,7 +529,7 @@ void ClearBitmap()
 		bitmapEdit[i*82] = 0x52; 
 		bitmapEdit[i*82+81] = 0x00; 
 	}
-	tgi_clear();
+	tgi_sprite(&bitmapTGI);
 #endif
 }
 
