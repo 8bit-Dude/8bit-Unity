@@ -3,18 +3,17 @@
 
 int DemoBMP(void) 
 {
-	// Reset screen
-	clrscr();
-    bordercolor(COLOR_BLACK);
-    bgcolor(COLOR_BLACK);
-
 	// Prepare bitmap
 	InitBitmap();
 	LoadBitmap("banner.map");
 	EnterBitmapMode();
 	
-	// Wait for any key
-	cgetc();
+	// Wait until 'SPACE' is pressed
+	while (!kbhit () || cgetc () != KEY_SP) {	
+	#if defined __LYNX__
+		UpdateDisplay(); // Refresh Lynx screen
+	#endif		
+	}
 	
 	// Exit bitmap mode
 	ExitBitmapMode();

@@ -46,8 +46,11 @@
 	#define SKY 		BLACK
 	#define HEALTH_HIGH MGREEN
 	#define GRND_OFFST	5
+#elif defined __LYNX__
+	#define SKY 		LBLUE
+	#define HEALTH_HIGH GREEN
+	#define GRND_OFFST	7
 #endif
-
 
 // Grub structure
 typedef struct {
@@ -77,15 +80,33 @@ unsigned char *names[4] = { "SAM", "JOE", "TOM", "LUC" };
 
 // Sprite definitions
 #define spriteFrames 16
-#define spriteRows   13
 #if defined __APPLE2__
+	#define spriteCols   7
+	#define spriteRows   13
 	unsigned char spriteColors[] = { };	//  Colors are pre-assigned in the sprite sheet
 #elif defined __ATARI__
+	#define spriteCols   8
+	#define spriteRows   13
 	unsigned char spriteColors[] = {0x2a, 0x2a, 0x2a, 0x2a, 0x14, 0x10, 0x10, 0x10, 0x10, 0x10};
 #elif defined __ATMOS__
+	#define spriteCols   12
+	#define spriteRows   13
 	unsigned char spriteColors[] = {GREEN, GREEN, GREEN, GREEN, RED};
 #elif defined __CBM__
+	#define spriteCols   12
+	#define spriteRows   21
 	unsigned char spriteColors[] = {0, 0, 0, 0, PINK, PINK, PINK, PINK, RED, WHITE};
+#elif defined __LYNX__
+	#define spriteCols   7
+	#define spriteRows   11
+	unsigned char spriteColors[] = { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,   // Default palette
+									 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,   // Default palette
+									 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,   // Default palette
+									 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,   // Default palette
+									 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,   // Default palette
+									 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,   // Default palette
+									 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,   // Default palette
+									 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef }; // Default palette	
 #endif
 
 // Effect masks
@@ -135,11 +156,11 @@ void InitGrubs()
 		// Set state
 		grub = &grubs[i];
 		grub->x = xStart[i];
-#if defined __CBM__				
+	#if defined __CBM__				
 		grub->index = 4+i;	// Using sprites 0-3 for weapons/missiles, 4-7 for players
-#else
+	#else
 		grub->index = i;
-#endif	
+	#endif	
 		grub->state = 0;
 		grub->health = 100;
 		grub->wAng = 180;
@@ -155,10 +176,10 @@ void InitGrubs()
 		LocateSprite(grub->x, grub->y);
 		SetSprite(grub->index, 0);
 		EnableSprite(grub->index);
-#if defined __ATARI__
+	#if defined __ATARI__
 		SetSprite(5+grub->index, 16);	// Frame 0-3 shows body colour, Frame 5-8 shows outline of body
 		EnableSprite(5+grub->index);
-#endif		
+	#endif		
 		
 		// Print name/health
 		PrintStr((i+1)*8+0, CHR_ROWS-1, names[i]);
@@ -278,7 +299,7 @@ void ProcessGrub(Grub *grub, signed char xMove, signed char yMove)
 	
 #if (defined __APPLE2__) || (defined __ATMOS__)
 	// Manually redraw colliding sprites
-	collisions = COLLISIONS();
+	collisions = COLLISIONS(grub->index);
 	for (i=0; i<MAX_GRUBS; i++) {
 		if (i != grub->index && COLLIDING(collisions, i)) {
 			DrawGrub(&grubs[i]);
@@ -397,6 +418,9 @@ void Explosion(unsigned int x, unsigned int y)
 				}
 			}
 		}
+	#if defined __LYNX__
+		UpdateDisplay(); // Refresh Lynx screen
+	#endif		
 	}
 	
 	// Process damage
@@ -428,9 +452,9 @@ void Explosion(unsigned int x, unsigned int y)
 			grub->state &= ~STATE_PHYS;
 		}
 		while (clock()-gameClock < 8) { 
-	#if defined __APPLE2__
+		#if defined __APPLE2__
 			tick();	// Virtual clock on Apple
-	#endif		
+		#endif		
 		}
 		gameClock = clock();		
 	}
@@ -442,11 +466,11 @@ void InitProjs()
 	unsigned char i;
 	for (i=0; i<MAX_PROJS; i++) {
 		// Set sprite index of proj.
-#if defined __CBM__		
+	#if defined __CBM__		
 		projs[i].index = 1+i;	// Lower index for drawing priority (weap/proj on top of grubs)
-#else
+	#else
 		projs[i].index = 4+i;
-#endif
+	#endif
 	}
 }
 
@@ -462,10 +486,10 @@ void ProcessProj(Proj *proj)
 			LocateSprite(proj->x, proj->y);
 			SetSprite(proj->index, KEYFRAME_PROJ);		
 			EnableSprite(proj->index);
-#if defined __ATARI__ 	// Assign sprite for second color
+		#if defined __ATARI__ 	// Assign sprite for second color
 			SetSprite(proj->index+5, KEYFRAME_PROJ+16);		
 			EnableSprite(proj->index+5);
-#endif
+		#endif
 			break;
 		case PROJ_MOVE:
 			if (abs(proj->xVel) > abs(proj->yVel)) { steps = abs(proj->xVel); } 
@@ -479,18 +503,18 @@ void ProcessProj(Proj *proj)
 				if (x < 1 || x > 318 || y > 191) {
 					proj->state = PROJ_NULL;
 					DisableSprite(proj->index);
-#if defined __ATARI__ 
+				#if defined __ATARI__ 
 					DisableSprite(5+proj->index);
-#endif
+				#endif
 					NextGrub();
 					return;
 				}
 				// Disappeared at top of screen?
 				if (y < 1) {
 					DisableSprite(proj->index);
-#if defined __ATARI__ 
+				#if defined __ATARI__ 
 					DisableSprite(5+proj->index);
-#endif
+				#endif
 					continue;
 				}
 				// Check if we hit the ground
@@ -499,9 +523,9 @@ void ProcessProj(Proj *proj)
 					// Destroy proj. and process explosion
 					proj->state = PROJ_NULL;
 					DisableSprite(proj->index);
-#if defined __ATARI__ 
+				#if defined __ATARI__ 
 					DisableSprite(5+proj->index);
-#endif
+				#endif
 					Explosion(x, y);
 					NextGrub();
 					return;					
@@ -510,10 +534,10 @@ void ProcessProj(Proj *proj)
 					LocateSprite(x, y);
 					SetSprite(proj->index, KEYFRAME_PROJ);
 					EnableSprite(proj->index);
-#if defined __ATARI__ 
+				#if defined __ATARI__ 
 					SetSprite(5+proj->index, KEYFRAME_PROJ+16);		
 					EnableSprite(5+proj->index);
-#endif
+				#endif
 				}
 				fraction++;
 			}
@@ -537,9 +561,27 @@ int main(void)
 	// Initialize sfx, bitmap, sprites
 	InitSFX();
 	InitBitmap();
-	InitSprites(spriteFrames, spriteRows, spriteColors);
+	InitSprites(spriteFrames, spriteCols, spriteRows, spriteColors);	
 	
-	// Load and show bitmap
+	// Load and show banner
+	LoadBitmap("banner.map");
+	EnterBitmapMode();
+	
+	// Show credit/build
+	paperColor = SKY; 
+	inkColor = WHITE; 
+	PrintStr(CHR_COLS-12, CHR_ROWS-3, "TECH DEMO");		
+	PrintStr(CHR_COLS-13, CHR_ROWS-2, "BY 8BIT-DUDE");		
+	PrintStr(CHR_COLS-12, CHR_ROWS-1,  "2019/09/18");
+
+	// Wait until 'SPACE' is pressed
+	while (!kbhit () || cgetc () != KEY_SP) {	
+	#if defined __LYNX__
+		UpdateDisplay(); // Refresh Lynx screen
+	#endif
+	}
+		
+	// Load and show playfield
 	LoadBitmap("pumpkins.map");
 	EnterBitmapMode();
 
@@ -551,9 +593,11 @@ int main(void)
 	gameClock = clock();	
 	projClock = clock();	
 	while (1) {
-#if defined __APPLE2__		
-		tick();	// Virtual clock on Apple
-#endif
+	#if defined __APPLE2__
+		tick();	// Simulate clock on Apple 2
+	#elif defined __LYNX__
+		UpdateDisplay(); // Refresh Lynx screen
+	#endif
 		// Process projectiles?
 		if (clock()-projClock > 2) {
 			projClock = clock();
@@ -566,10 +610,14 @@ int main(void)
 			grub = &grubs[curGrub];
 			proj = &projs[0];
 			ProcessInput(grub, proj);
-		}	
+		}
 	}
 	
-    // Done
+	// Black-out screen and stop SFX
+	DisableSprite(-1);	// "-1" disables all sprites
 	ExitBitmapMode();
+	StopSFX();
+		
+    // Done
     return EXIT_SUCCESS;	
 }
