@@ -38,21 +38,21 @@
 #if defined __APPLE2__
 	// Sprite data
 	#define sprWIDTH 4	// Byte width of sprite (7 pixels)
-	unsigned char sprEN[SPRITE_NUM], sprCOL[SPRITE_NUM]; // Enable and Collision status
 	unsigned char sprX[SPRITE_NUM], sprY[SPRITE_NUM];	 // Screen coordinates
-	unsigned char sprXO[SPRITE_NUM];					 // Byte offset within DHR line
-	unsigned char* sprBG[SPRITE_NUM];	// Sprite background
-	unsigned char sprROWS;
-	unsigned int sprBLOCK;
-	void InitSprites(unsigned char frames, unsigned char rows, unsigned char *spriteColors)
+	unsigned char sprEN[SPRITE_NUM], sprCOL[SPRITE_NUM]; // Enable and Collision status
+	unsigned char sprXO[SPRITE_NUM];   // Byte offset within DHR line
+	unsigned char* sprBG[SPRITE_NUM];  // Sprite background
+    unsigned int sprBLOCK;	// Size of sprite offset block (4 blocks)
+	unsigned char sprROWS;	// Sprite dimensions used in algorithms
+	void InitSprites(unsigned char frames, unsigned char cols, unsigned char rows, unsigned char *spriteColors)
 	{			
 		// Set sprite rows, frames and resulting block size (there are 4 offset blocks for each sprite)
 		int i;
-		sprROWS = rows;
-		sprBLOCK = frames*sprROWS*sprWIDTH;
 		for (i=0; i<SPRITE_NUM; i++) {
 			sprBG[i] = (unsigned char*)malloc(4*rows);	// Byte length of 1 sprite: rows * 4 bytes (7 pixels)
 		}
+		sprBLOCK = frames*sprROWS*sprWIDTH;
+		sprROWS = rows;
 	}	
 // Atari specific init function
 #elif defined __ATARI__	
@@ -60,7 +60,7 @@
 	void SetupFlickerDLI(void);
 	extern unsigned int flickerFrame[10];
 	extern unsigned char flickerMask[5], flickerX[10], flickerY[10], flickerColor[10], flickerRows;
-	void InitSprites(unsigned char frames, unsigned char rows, unsigned char *spriteColors)
+	void InitSprites(unsigned char frames, unsigned char cols, unsigned char rows, unsigned char *spriteColors)
 	{			
 		// Reset Sprite Mask, Frames, Colors and Rows
 		unsigned char i;
@@ -87,12 +87,12 @@
 // Atmos specific init function
 #elif defined __ATMOS__	
 	#define sprWIDTH 2	// Byte width of sprite (12 pixels)
-	unsigned char sprEN[SPRITE_NUM], sprCOL[SPRITE_NUM]; // Enable and Collision status
 	unsigned char sprX[SPRITE_NUM], sprY[SPRITE_NUM];	 // Screen coordinates
+	unsigned char sprEN[SPRITE_NUM], sprCOL[SPRITE_NUM]; // Enable and Collision status
 	unsigned char sprROWS, inkVAL, *sprBG[SPRITE_NUM];
-	unsigned int scrPTR, colPTR, sprBLOCK;
+	unsigned int scrPTR, colPTR, sprBLOCK;	// Size of sprite offset block (4 blocks)
 	extern unsigned char ink1[20];	// see bitmap.c
-	void InitSprites(unsigned char frames, unsigned char rows, unsigned char *spriteColors)
+	void InitSprites(unsigned char frames, unsigned char cols, unsigned char rows, unsigned char *spriteColors)
 	{			
 		// Load sprite sheet and assigned colors
 		unsigned char i;
@@ -107,7 +107,7 @@
 	}
 // C64 specific init function
 #elif defined __CBM__
-	void InitSprites(unsigned char frames, unsigned char rows, unsigned char *spriteColors)
+	void InitSprites(unsigned char frames, unsigned char cols, unsigned char rows, unsigned char *spriteColors)
 	{			
 		// Set sprite colors
 		unsigned int i;	
@@ -123,20 +123,23 @@
 // Lynx specific init function
 #elif defined __LYNX__	
 	// declare RO and TGI data
+	unsigned char sprX[SPRITE_NUM], sprY[SPRITE_NUM];	 // Screen coordinates
+	unsigned char sprEN[SPRITE_NUM], sprCOL[SPRITE_NUM]; // Enable and Collision status
+	unsigned char sprCOLS, sprROWS;					     // Sprite dimensions
 	extern unsigned int spriteData[]; 
 	LynxSprite spriteSlot[SPRITE_NUM];
-	unsigned char spriteCols[SPRITE_NUM];
-	void InitSprites(unsigned char frames, unsigned char rows, unsigned char *spriteColors)
+	void InitSprites(unsigned char frames, unsigned char cols, unsigned char rows, unsigned char *spriteColors)
 	{
 		unsigned char i,j;
 		SCB_REHV_PAL *scb;
+		sprCOLS = rows; sprROWS = rows;		
 		for (i=0; i<SPRITE_NUM; i++) {
 			scb = &spriteSlot[i].scb;
 			scb->sprctl0 = BPP_4 | TYPE_NORMAL;
 			scb->sprctl1 = REHV | LITERAL;
-			scb->sprcoll = i+1;
-			scb->next = 0x0000;
-			scb->data = 0x0000;
+			scb->sprcoll = 0;
+			scb->next = 0;
+			scb->data = 0;
 			scb->hpos = 0;
 			scb->vpos = 0;
 			scb->hsize = 0x0100;
@@ -145,7 +148,6 @@
 				scb->penpal[j] = spriteColors[i*8+j];
 			}
 		}
-		tgi_setcollisiondetection(1);		
 	}
 #endif
 
@@ -233,9 +235,10 @@ void LocateSprite(unsigned int x, unsigned int y)
   }
 #endif
 
-#if (defined __APPLE2__) || (defined __ATMOS__)
-void SpriteCollisions(unsigned char index)
-{
+
+#if (defined __APPLE2__) || (defined __ATMOS__)  || (defined __LYNX__)
+  void SpriteCollisions(unsigned char index)
+  {
 	unsigned char i, dX, dY;
   #if defined __ATMOS__	
 	unsigned char x1, x2, y1, y2;
@@ -245,56 +248,66 @@ void SpriteCollisions(unsigned char index)
 	// Check for collisions
 	sprCOL[index] = 0;
 	for (i=0; i<SPRITE_NUM; i++) {
-		if (sprEN[i]) {	// Sprite Index has been disabled before hand...
-			dY = sprY[i] - spriteY;
-			if (dY < sprROWS || dY>(256-sprROWS)) {
+		// Should this sprite be checked?
+		if (i == index) { continue; }
+		if (!sprEN[i]) { continue; }
+		
+		// Check Y distance
+		dY = sprY[i] - spriteY;
+		if (dY < sprROWS || dY>(256-sprROWS)) {
 	#if defined __APPLE2__
-				dX = sprXO[i] - xO;
-				if (dX < 2 || dX>254) {
-					// Apply collision
+			dX = sprXO[i] - xO;
+			if (dX < 2 || dX>254) {
+				// Apply collision
+				sprCOL[index] |= 1 << i;
+				sprCOL[i] |= 1 << index;
+				RestoreSprBG(i);
+			}
+	#elif defined __ATMOS__
+			dX = sprX[i] - spriteX;		
+			if (dX < 4 || dX>252) {	// Including INK bytes
+				// Check narrower collision sector
+				if (dX < 2 || dX>254) {	// Not including INK bytes
 					sprCOL[index] |= 1 << i;
 					sprCOL[i] |= 1 << index;
-					RestoreSprBG(i);
+				}					
+			
+				// Define X overlap
+				if (dX < 4) { 
+					x1 = dX; x2 = 4; 
+				} else { 
+					x1 = 0; x2 = 4+dX; 
 				}
-	#elif defined __ATMOS__
-				dX = sprX[i] - spriteX;		
-				if (dX < 4 || dX>252) {	// Including INK bytes
-					// Check narrower collision sector
-					if (dX < 2 || dX>254) {	// Not including INK bytes
-						sprCOL[index] |= 1 << i;
-						sprCOL[i] |= 1 << index;
-					}					
 				
-					// Define X overlap
-					if (dX < 4) { 
-						x1 = dX; x2 = 4; 
-					} else { 
-						x1 = 0; x2 = 4+dX; 
-					}
-					
-					// Define Y overlap
-					if (dY < sprROWS) { 
-						y1 = dY; y2 = sprROWS; 
-					} else { 
-						y1 = 0; y2 = sprROWS+dY; 
-					}
-					
-					// Copy overlapping background
-					bgPTR1 = sprBG[index] + y1*4;
-					bgPTR2 = sprBG[i] + (sprROWS-y2)*4 + (4-x2) - x1;
-					for (dY=y1; dY<y2; dY++) {
-						for (dX=x1; dX<x2; dX++) {
-							POKE(bgPTR1+dX, PEEK(bgPTR2+dX));	
-						}
-						bgPTR1 += 4;
-						bgPTR2 += 4;
-					}					
+				// Define Y overlap
+				if (dY < sprROWS) { 
+					y1 = dY; y2 = sprROWS; 
+				} else { 
+					y1 = 0; y2 = sprROWS+dY; 
 				}
-	#endif					
+				
+				// Copy overlapping background
+				bgPTR1 = sprBG[index] + y1*4;
+				bgPTR2 = sprBG[i] + (sprROWS-y2)*4 + (4-x2) - x1;
+				for (dY=y1; dY<y2; dY++) {
+					for (dX=x1; dX<x2; dX++) {
+						POKE(bgPTR1+dX, PEEK(bgPTR2+dX));	
+					}
+					bgPTR1 += 4;
+					bgPTR2 += 4;
+				}					
 			}
+	#elif defined __LYNX__
+			dX = sprX[i] - spriteX;
+			if (dX < sprCOLS || dX>(256-sprCOLS)) {
+				// Apply collision
+				sprCOL[index] |= 1 << i;
+				sprCOL[i] |= 1 << index;
+			}				
+	#endif					
 		}
 	}
-}
+  }
 #endif
 
 void SetSprite(unsigned char index, unsigned char frame)
@@ -322,9 +335,7 @@ void SetSprite(unsigned char index, unsigned char frame)
 	if (sprEN[index]) { RestoreSprBG(index); }
 
 	// Check collisions with other sprites
-	sprEN[index] = 0;
 	SpriteCollisions(index);	
-	sprEN[index] = 1;
 		
 	// Backup new background and draw sprite
 	POKE(0xEB, sprROWS);
@@ -338,6 +349,7 @@ void SetSprite(unsigned char index, unsigned char frame)
 	sprXO[index] = xO;
 	sprX[index] = spriteX;
 	sprY[index] = spriteY;
+	sprEN[index] = 1;	
 	
 #elif defined __ATARI__
 	flickerX[index] = spriteX;
@@ -383,13 +395,12 @@ void SetSprite(unsigned char index, unsigned char frame)
 	}	
 	
 	// Check collisions with other sprites
-	sprEN[index] = 0;
-	SpriteCollisions(index);	
-	sprEN[index] = 1;
+	SpriteCollisions(index);
 	
 	// Save sprite information
 	sprX[index] = spriteX;
 	sprY[index] = spriteY;
+	sprEN[index] = 1;
 	
 #elif defined __CBM__
 	// Tell VIC where to find the frame
@@ -405,11 +416,20 @@ void SetSprite(unsigned char index, unsigned char frame)
 		POKE(53264, PEEK(53264) |  (1 << index));
 	}
 #elif defined __LYNX__
+	// Set sprite data for Suzy
 	SCB_REHV_PAL *scb;
 	scb = &spriteSlot[index].scb;
 	scb->data = spriteData[frame];
 	scb->hpos = spriteX;
 	scb->vpos = spriteY;
+	
+	// Check collisions with other sprites
+	SpriteCollisions(index);
+
+	// Save sprite information
+	sprX[index] = spriteX;
+	sprY[index] = spriteY;
+	sprEN[index] = 1;
 #endif
 }
 
@@ -425,6 +445,9 @@ void EnableSprite(signed char index)
 	} else {
 		flickerMask[index-5] |= 2;
 	}
+#elif defined __LYNX__
+	// Enable sprite collisions
+	//tgi_setcollisiondetection(1);
 #endif
 }
 
@@ -445,7 +468,8 @@ void DisableSprite(signed char index)
 		bzero(PMGRAM+768+((index+1)%5)*256,0x100); // Clear PMG slot
 #elif defined __LYNX__
 		// Reset sprite data address
-		spriteSlot[index].scb.data = 0;
+		//spriteSlot[index].scb.data = 0;
+		sprEN[index] = 0;
 #else
 		// Soft sprites: Restore background if neccessary
 		if (sprEN[index]) { RestoreSprBG(index); }
@@ -460,10 +484,12 @@ void DisableSprite(signed char index)
 		bzero(flickerMask, 5);	 // Clear flicker mask
 		bzero(PMGRAM+768,0x500); // Clear PMG memory
 #elif defined __LYNX__
-		// Reset all sprite data addresses
+		// Reset all sprite data addresses and collisions
 		for (index=0; index<SPRITE_NUM; index++) {
-			spriteSlot[index].scb.data = 0;
+			//spriteSlot[index].scb.data = 0;
+			sprEN[index] = 0;
 		}
+		//tgi_setcollisiondetection(0);
 #else
 		// Soft sprites: Restore background if necessary
 		for (index=0; index<SPRITE_NUM; index++) {

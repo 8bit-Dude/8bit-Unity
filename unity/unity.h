@@ -238,7 +238,7 @@ void BumpSFX(void);
 #elif defined __LYNX__
   #define SPRITE_NUM 8  
 #endif
-void InitSprites(unsigned char frames, unsigned char rows, unsigned char *spriteColors);
+void InitSprites(unsigned char frames, unsigned char cols, unsigned char rows, unsigned char *spriteColors);
 void EnableSprite(signed char index);
 void DisableSprite(signed char index);
 void LocateSprite(unsigned int x, unsigned int y);
@@ -252,27 +252,19 @@ void SetSprite(unsigned char index, unsigned char frame);
 	extern unsigned char spriteX, spriteY;
 #endif
 
-// Hardware sprite collisions on Atari, C64, Lynx
+// Sprite collisions: Hardware on Atari/C64 vs. Software on Apple/Oric/Lynx 
 #if defined __ATARI__	
   // On Atari, we need to reset collisions by poking 0 into 53278
-  #define COLLISIONS(i) (PEEK(53260+i)+(1<<i)); POKE(53278,0)
-  #define COLLIDING(collisions,i) ((collisions >> i) & 1) 
+  #define COLLISIONS(i) PEEK(53260+i); POKE(53278,0)
 #elif defined __CBM__
   // On C64, all collisions are contained within a single register
   #define COLLISIONS(i) (PEEK(53278))
-  #define COLLIDING(collisions,i) ((collisions >> i) & 1) 
-#elif defined __LYNX__
-  // On Lynx, collisions are checked in UpdateDisplay() 
-  extern unsigned char spriteCols[SPRITE_NUM];
-  #define COLLISIONS(i) (spriteCols[i])
-  #define COLLIDING(collisions,i) ((collisions >> i) & 1) 
-// Software sprite collisions on Apple, Oric
 #else
-  // Collisions are checked at draw time
+  // Software sprite collisions on Apple, Oric, Lynx
   extern unsigned char sprCOL[SPRITE_NUM];
   #define COLLISIONS(i) (sprCOL[i])
-  #define COLLIDING(collisions,i) ((collisions >> i) & 1) 
 #endif
+#define COLLIDING(collisions,i) ((collisions >> i) & 1) 
 
 // 8bit-Hub support (see http://www.8bit-unity.com/8bit-Hub)
 #if defined __ATMOS__	// see Oric/hub.c

@@ -29,7 +29,7 @@
 // See bitmap.c and sprites.c
 extern SCB_REHV_PAL bitmapTGI;
 extern LynxSprite spriteSlot[SPRITE_NUM];
-extern unsigned char spriteCols[SPRITE_NUM];
+extern unsigned char sprEN[SPRITE_NUM];
 
 // Workaround for missing char printing (including palette remapping)
 unsigned char textColors[] = { BLACK, RED, PINK, GREY, GREY, GREY, BROWN, ORANGE, YELLOW, LGREEN, GREEN, DRED, PURPLE, BLUE, LBLUE, WHITE };
@@ -57,27 +57,17 @@ int cprintf (const char* format, ...) {
 // update display routine
 void UpdateDisplay(void)
 {
-	unsigned char i, j, c;
+	unsigned char i, j;
 
 	// Wait for previous drawing to complete then reset collisions
 	while (tgi_busy()) {}
-	tgi_clear();
-	for (i=0; i<SPRITE_NUM; i++) { 
-		spriteCols[i] = 0; 
-	}	
 	
 	// Send bitmap and sprites (in reverse order) to Suzy
 	tgi_sprite(&bitmapTGI);
-	for (j=1; j<SPRITE_NUM+1; j++) {
-		i = SPRITE_NUM - j;
-		if (spriteSlot[i].scb.data) { 
+	for (j=0; j<SPRITE_NUM; j++) {
+		i = (SPRITE_NUM-1) - j;
+		if (sprEN[i]) { 
 			tgi_sprite(&spriteSlot[i].scb);
-			c = spriteSlot[i].collisions;
-			if (c) {
-				c -= 1;
-				spriteCols[i] |= 1 << c;
-				spriteCols[c] |= 1 << i;
-			}
 		}
 	}
 	tgi_updatedisplay();

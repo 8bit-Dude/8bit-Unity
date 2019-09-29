@@ -40,7 +40,7 @@
   extern unsigned int bitmapFile[];	//			"
   extern unsigned int bitmapData[];	//			"
   unsigned char bitmapEdit[8364];	// RW bitmap (editable)
-  SCB_REHV_PAL bitmapTGI =  { BPP_4 | TYPE_BACKNONCOLL, REHV | LITERAL, 0x01, 0x0000, &bitmapEdit[0], 0, 0, 
+  SCB_REHV_PAL bitmapTGI =  { BPP_4 | TYPE_BACKNONCOLL, REHV | LITERAL, 0, 0, &bitmapEdit[0], 0, 0, 
 							  0x0100, 0x0100, { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef } };
 //  static int palette[] =  { 0x0011, 0x034d, 0x09af, 0x09b8, 0x0777, 0x0335, 0x0448, 0x075e, 
 //							0x0d5f, 0x0c53, 0x0822, 0x0223, 0x0484, 0x08e5, 0x0cf5, 0x0fff };							
