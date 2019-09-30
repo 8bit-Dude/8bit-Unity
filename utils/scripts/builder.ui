@@ -562,6 +562,236 @@
           </object>
         </child>
         <child>
+          <object class="ttk.Notebook.Tab" id="Tab_Lynx">
+            <property name="text" translatable="yes">Lynx</property>
+            <child>
+              <object class="tk.Frame" id="Frame_Lynx">
+                <property name="height">500</property>
+                <property name="padx">10</property>
+                <property name="width">400</property>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="propagate">True</property>
+                  <property name="row">0</property>
+                </layout>
+                <child>
+                  <object class="tk.LabelFrame" id="LabelFrame_LynxBitmaps">
+                    <property name="text" translatable="yes">Bitmaps</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="propagate">True</property>
+                      <property name="row">0</property>
+                      <property name="sticky">nw</property>
+                    </layout>
+                    <child>
+                      <object class="tk.Listbox" id="Listbox_LynxBitmap">
+                        <property name="height">6</property>
+                        <property name="width">62</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="propagate">True</property>
+                          <property name="row">0</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Button" id="Button_LynxBitmapAdd">
+                        <property name="command">LynxBitmapAdd</property>
+                        <property name="text" translatable="yes">Add File</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">25</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Button" id="Button_LynxBitmapRem">
+                        <property name="command">LynxBitmapRem</property>
+                        <property name="text" translatable="yes">Rem File</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">100</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.LabelFrame" id="LabelFrame_LynxSprites">
+                    <property name="height">200</property>
+                    <property name="text" translatable="yes">Sprites</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="pady">160</property>
+                      <property name="propagate">True</property>
+                      <property name="row">0</property>
+                      <property name="sticky">nw</property>
+                    </layout>
+                    <child>
+                      <object class="tk.Listbox" id="Listbox_LynxSprites">
+                        <property name="height">1</property>
+                        <property name="width">62</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="propagate">True</property>
+                          <property name="row">0</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Button" id="Button_LynxSpritesSel">
+                        <property name="command">LynxSpritesSel</property>
+                        <property name="text" translatable="yes">Select File</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">25</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.LabelFrame" id="LabelFrame_LynxMusic">
+                    <property name="height">200</property>
+                    <property name="text" translatable="yes">Music</property>
+                    <property name="width">200</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="pady">240</property>
+                      <property name="propagate">True</property>
+                      <property name="row">0</property>
+                      <property name="sticky">nw</property>
+                    </layout>
+                    <child>
+                      <object class="tk.Listbox" id="Listbox_LynxMusic">
+                        <property name="height">1</property>
+                        <property name="width">62</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="propagate">True</property>
+                          <property name="row">0</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Button" id="Button_LynxMusicSel">
+                        <property name="command">LynxMusicSel</property>
+                        <property name="text" translatable="yes">Select File</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">25</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.LabelFrame" id="LabelFrame_LynxOptions">
+                    <property name="height">200</property>
+                    <property name="text" translatable="yes">Options</property>
+                    <property name="width">200</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="pady">320</property>
+                      <property name="propagate">True</property>
+                      <property name="row">0</property>
+                      <property name="sticky">nw</property>
+                    </layout>
+					<child>
+					  <object class="ttk.Label" id="Label_LynxSpriteFrames">
+						<property name="text" translatable="yes">Sprite:  Frames=</property>
+						<layout>
+						  <property name="column">0</property>
+						  <property name="propagate">True</property>
+						  <property name="row">0</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>
+					</child>
+					<child>
+					  <object class="ttk.Entry" id="Entry_LynxSpriteFrames">
+						<property name="text" translatable="yes">0</property>
+						<property name="width">8</property>
+						<layout>
+						  <property name="column">1</property>
+						  <property name="propagate">True</property>
+						  <property name="row">0</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>
+					</child>
+					<child>
+					  <object class="ttk.Label" id="Label_LynxSpriteWidth">
+						<property name="text" translatable="yes">Width=</property>
+						<layout>
+						  <property name="column">2</property>
+						  <property name="propagate">True</property>
+						  <property name="row">0</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>
+					</child>
+					<child>
+					  <object class="ttk.Entry" id="Entry_LynxSpriteWidth">
+						<property name="text" translatable="yes">0</property>
+						<property name="width">8</property>
+						<layout>
+						  <property name="column">3</property>
+						  <property name="propagate">True</property>
+						  <property name="row">0</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>
+					</child>
+					<child>
+					  <object class="ttk.Label" id="Label_LynxSpriteHeight">
+						<property name="text" translatable="yes">Height=</property>
+						<layout>
+						  <property name="column">4</property>
+						  <property name="propagate">True</property>
+						  <property name="row">0</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>
+					</child>
+					<child>
+					  <object class="ttk.Entry" id="Entry_LynxSpriteHeight">
+						<property name="text" translatable="yes">0</property>
+						<property name="width">8</property>
+						<layout>
+						  <property name="column">5</property>
+						  <property name="propagate">True</property>
+						  <property name="row">0</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>
+					</child>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>		
+        <child>
           <object class="ttk.Notebook.Tab" id="Tab_Oric">
             <property name="text" translatable="yes">Oric</property>
             <child>

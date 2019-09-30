@@ -46,6 +46,9 @@ class Application:
     listbox_C64Bitmap = None
     listbox_C64Sprites = None
     listbox_C64Music = None
+    listbox_LynxBitmap = None
+    listbox_LynxSprites = None
+    listbox_LynxMusic = None    
     listbox_OricBitmap = None
     listbox_OricSprites = None
     listbox_OricMusic = None
@@ -101,25 +104,33 @@ class Application:
         self.listbox_C64Bitmap = self.builder.get_object('Listbox_C64Bitmap')        
         self.listbox_C64Sprites = self.builder.get_object('Listbox_C64Sprites')        
         self.listbox_C64Music = self.builder.get_object('Listbox_C64Music')     
+        self.listbox_LynxBitmap = self.builder.get_object('Listbox_LynxBitmap')        
+        self.listbox_LynxSprites = self.builder.get_object('Listbox_LynxSprites')        
+        self.listbox_LynxMusic = self.builder.get_object('Listbox_LynxMusic')     
         self.listbox_OricBitmap = self.builder.get_object('Listbox_OricBitmap')        
         self.listbox_OricSprites = self.builder.get_object('Listbox_OricSprites')        
         self.listbox_OricMusic = self.builder.get_object('Listbox_OricMusic')     
         self.listbox_Shared = self.builder.get_object('Listbox_Shared')
         self.listbox_Code = self.builder.get_object('Listbox_Code')
-        self.entry_Disk = self.builder.get_object('Entry_Disk');
+        self.entry_Disk = self.builder.get_object('Entry_Disk')
+        self.entry_LynxSpriteFrames = self.builder.get_object('Entry_LynxSpriteFrames')
+        self.entry_LynxSpriteWidth = self.builder.get_object('Entry_LynxSpriteWidth')
+        self.entry_LynxSpriteHeight = self.builder.get_object('Entry_LynxSpriteHeight')
         
         # Set some defaults
         self.Checkbutton_AtariNoText.state(['!selected'])
         self.Combobox_AtariDiskSize.current(0)
 
         # Make lists of various GUI inputs (adding new inputs to the end of each list will guarantee backward compatibility)
-        self.entries = [ self.entry_Disk ]
+        self.entries = [ self.entry_Disk, 
+                         self.entry_LynxSpriteFrames, self.entry_LynxSpriteWidth, self.entry_LynxSpriteHeight ]
         self.listboxes = [ self.listbox_Code, 
                            self.listbox_AppleBitmap, self.listbox_AppleSprites, self.listbox_AppleMusic,
                            self.listbox_AtariBitmap, self.listbox_AtariSprites, self.listbox_AtariMusic,
                            self.listbox_C64Bitmap,   self.listbox_C64Sprites,   self.listbox_C64Music,
-                           self.listbox_OricBitmap, self.listbox_OricSprites, self.listbox_OricMusic,
-                           self.listbox_Shared ]
+                           self.listbox_OricBitmap,  self.listbox_OricSprites,  self.listbox_OricMusic,
+                           self.listbox_Shared,
+                           self.listbox_LynxBitmap,  self.listbox_LynxSprites,  self.listbox_LynxMusic ]
         self.checkbuttons = [ self.Checkbutton_AtariNoText ]
         self.comboboxes = [ self.Combobox_AtariDiskSize ]
                        
@@ -144,13 +155,13 @@ class Application:
                     data = pickle.load(fp)                    
                 for item in self.entries:
                     data = pickle.load(fp)
-                    if data == 'lists':
+                    if data == 'listboxes' or data == 'lists':
                         break   # Legacy file
                     item.delete(0, END)
                     item.insert(0, data)
                     
                 # List boxes                     
-                while data != 'listboxes' and data != 'lists':  # Legacy files
+                while data != 'listboxes' and data != 'lists':
                     data = pickle.load(fp)                    
                 for item in self.listboxes:
                     data = pickle.load(fp)
@@ -282,7 +293,30 @@ class Application:
         if filename is not '':
             filename = filename.replace(self.cwd, '')
             self.listbox_C64Music.delete(0, END)
-            self.listbox_C64Music.insert(END, filename)     
+            self.listbox_C64Music.insert(END, filename) 
+
+    def LynxBitmapAdd(self):
+        filename = askopenfilename(initialdir = "../../", title = "Select Bitmap", filetypes = (("PNG files","*.png"),)) 
+        if filename is not '':
+            filename = filename.replace(self.cwd, '')
+            self.listbox_LynxBitmap.insert(END, filename)
+
+    def LynxBitmapRem(self):
+        self.listbox_LynxBitmap.delete(0, ACTIVE)
+        
+    def LynxSpritesSel(self):
+        filename = askopenfilename(initialdir = "../../", title = "Select Sprite Sheet", filetypes = (("PNG files","*.png"),)) 
+        if filename is not '':
+            filename = filename.replace(self.cwd, '')
+            self.listbox_LynxSprites.delete(0, END)
+            self.listbox_LynxSprites.insert(END, filename)
+
+    def LynxMusicSel(self):
+        filename = askopenfilename(initialdir = "../../", title = "Select Music Track", filetypes = (("Chipper files","*.asm"),)) 
+        if filename is not '':
+            filename = filename.replace(self.cwd, '')
+            self.listbox_LynxMusic.delete(0, END)
+            self.listbox_LynxMusic.insert(END, filename)             
 
     def OricBitmapAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Bitmap", filetypes = (("PNG files","*.png"),)) 
@@ -338,9 +372,10 @@ class Application:
         bitmaps = list(self.listbox_AppleBitmap.get(0, END))
         sprites = list(self.listbox_AppleSprites.get(0, END))
         music = list(self.listbox_AppleMusic.get(0, END))
-        with open("../../"+diskname+"-apple.bat", "wb") as fp:
+        with open("../../[build]/"+diskname+"-apple.bat", "wb") as fp:
             # Info
             fp.write('echo off\n\n')
+            fp.write('cd ..\n\n')
             fp.write('del [build]\\apple\\*.* /F /Q\n\n')
             fp.write('echo --------------- CONVERT ASSETS ---------------  \n\n')
             
@@ -359,7 +394,7 @@ class Application:
             for item in code:
                 comp += item
                 comp += ' '
-            fp.write(comp + 'unity/bitmap.c unity/chars.s unity/math.s unity/network.c unity/sfx.c unity/sprites.c unity/Apple/CLOCK.c unity/Apple/DHR.c unity/Apple/DUET.s unity/Apple/JOY.s unity/Apple/MOCKING.s unity/Apple/PADDLE.s unity/Apple/sprites.s utils/IP65/IP65/ip65.lib utils/IP65/drivers/ip65_apple2.lib\n')
+            fp.write(comp + 'unity/bitmap.c unity/chars.s unity/math.s unity/network.c unity/sfx.c unity/sprites.c unity/Apple/CLOCK.c unity/Apple/DHR.c unity/Apple/DUET.s unity/Apple/JOY.s unity/Apple/MOCKING.s unity/Apple/PADDLE.s unity/Apple/sprites.s unity/IP65/ip65.lib unity/IP65/ip65_apple2.lib\n')
             
             # Compression
             cmd = 'utils\\scripts\\exomizer sfx $0803 -t162 -Di_load_addr=$0803 [build]/apple/' + diskname.lower() + '.bin@$0803,4'
@@ -395,9 +430,10 @@ class Application:
         bitmaps = list(self.listbox_AtariBitmap.get(0, END))
         sprites = list(self.listbox_AtariSprites.get(0, END))
         music = list(self.listbox_AtariMusic.get(0, END))
-        with open("../../"+diskname+"-atari.bat", "wb") as fp:
+        with open("../../[build]/"+diskname+"-atari.bat", "wb") as fp:
             # Info
             fp.write('echo off\n\n')
+            fp.write('cd ..\n\n')
             fp.write('del [build]\\atari\\*.* /F /Q\n\n')
             fp.write('echo --------------- CONVERT ASSETS ---------------  \n\n')
             
@@ -424,7 +460,7 @@ class Application:
             for item in code:
                 comp += item
                 comp += ' '
-            fp.write(comp + 'unity/bitmap.c unity/chars.s unity/math.s unity/network.c unity/sfx.c unity/sprites.c unity/Atari/POKEY.s unity/Atari/sprites.s utils/IP65/IP65/ip65.lib utils/IP65/drivers/ip65_atarixl.lib\n')
+            fp.write(comp + 'unity/bitmap.c unity/chars.s unity/math.s unity/network.c unity/sfx.c unity/sprites.c unity/Atari/POKEY.s unity/Atari/sprites.s unity/IP65/ip65.lib unity/IP65/ip65_atarixl.lib\n')
             fp.write('utils\\cc65\\bin\\cl65 -t atarixl -C atari-asm.cfg -o [build]/atari/basicoff.bin unity/Atari/BASICOFF.s\n')
             fp.write('utils\\scripts\\atari\\mads.exe -o:[build]/atari/dli.bin unity/Atari/DLI.a65\n')
             fp.write('utils\\scripts\\atari\\mads.exe -o:[build]/atari/rmt.bin unity/Atari/RMT.a65\n')
@@ -466,9 +502,10 @@ class Application:
         bitmaps = list(self.listbox_C64Bitmap.get(0, END))
         sprites = list(self.listbox_C64Sprites.get(0, END))
         music = list(self.listbox_C64Music.get(0, END))
-        with open("../../"+diskname+"-c64.bat", "wb") as fp:
+        with open("../../[build]/"+diskname+"-c64.bat", "wb") as fp:
             # Info
             fp.write('echo off\n\n')
+            fp.write('cd ..\n\n')            
             fp.write('del [build]\\c64\\*.* /F /Q\n\n')
             fp.write('echo --------------- CONVERT ASSETS ---------------  \n\n')
             
@@ -487,7 +524,7 @@ class Application:
             for item in code:
                 comp += item
                 comp += ' '
-            fp.write(comp + 'unity/bitmap.c unity/chars.s unity/math.s unity/network.c unity/sfx.c unity/sprites.c unity/C64/JOY.s unity/c64/ROM.s unity/C64/SID.s utils/IP65/IP65/ip65.lib utils/IP65/drivers/ip65_c64.lib\n')
+            fp.write(comp + 'unity/bitmap.c unity/chars.s unity/math.s unity/network.c unity/sfx.c unity/sprites.c unity/C64/JOY.s unity/c64/ROM.s unity/C64/SID.s unity/IP65/ip65.lib unity/IP65/ip65_c64.lib\n')
             
             # Compression
             cmd = 'utils\\scripts\\exomizer.exe sfx 2061 [build]/c64/' + diskname.lower() + '.bin'
@@ -516,16 +553,129 @@ class Application:
             
             # Start emulator?
             fp.write('cd "utils\emulators\WinVICE-2.4"\n')
-            fp.write('x64.exe "..\..\..\[build]\\' + diskname + '-c64.d64"\n')              
+            fp.write('x64.exe "..\..\..\[build]\\' + diskname + '-c64.d64"\n')
+
+        ####################################################
+        # Lynx script
+        bitmaps = list(self.listbox_LynxBitmap.get(0, END))
+        sprites = list(self.listbox_LynxSprites.get(0, END))
+        music = list(self.listbox_LynxMusic.get(0, END))
+        with open("../../[build]/"+diskname+"-lynx.bat", "wb") as fp:
+            # Info
+            fp.write('echo off\n\n')
+            fp.write('cd lynx\n')
+            fp.write('del *.* /F /Q\n\n')
+            fp.write('echo --------------- CONVERT ASSETS ---------------  \n\n')
+            
+            # Convert Bitmap/Sprite files then clean-up
+            for item in bitmaps:
+                fb = FileBase(item, '-lynx.png')
+                fp.write('copy ..\\..\\' + item.replace('/', '\\') + ' ' + fb + '.png\n')
+                fp.write('..\\..\\utils\\scripts\\png2bmp ' + fb + '.png\n')
+                fp.write('..\\..\\utils\\scripts\\lynx\\sprpck -t6 -p2 -u ' + fb + '.bmp\n')
+            if len(sprites) > 0:
+                spriteFrames = int(self.entry_LynxSpriteFrames.get())
+                spriteWidth  = int(self.entry_LynxSpriteWidth.get())
+                spriteHeight = int(self.entry_LynxSpriteHeight.get())
+                fp.write('copy ..\\..\\' + sprites[0].replace('/', '\\') + ' sprites.png\n')
+                fp.write('..\\..\\utils\\scripts\\png2bmp sprites.png\n')
+                fp.write('..\\..\\utils\\scripts\\lynx\\sprpck -t6 -p2 -u -r001' + str(spriteFrames).zfill(3) + \
+                                            ' -S' + str(spriteWidth).zfill(3) + str(spriteHeight).zfill(3) + \
+                                            ' -a' + str(spriteWidth/2).zfill(3) + str(spriteHeight/2).zfill(3) + ' sprites.bmp\n')
+            fp.write('del *.png /F /Q\n')
+            fp.write('del *.bmp /F /Q\n')
+            fp.write('del *.pal /F /Q\n')
+
+            # Generate declare file for read-only data
+            fp.write('@echo .global _bitmapNum > gfxdata.asm\n')
+            fp.write('@echo .global _bitmapFile >> gfxdata.asm\n')
+            fp.write('@echo .global _bitmapData >> gfxdata.asm\n')
+            fp.write('@echo .global _spriteData >> gfxdata.asm\n')
+            fp.write('@echo .segment "RODATA" >> gfxdata.asm\n')
+            fp.write('@echo _bitmapNum: .byte ' + str(len(bitmaps)) + ' >> gfxdata.asm\n')
+            
+            # List of Bitmap Filenames
+            if len(bitmaps) > 0:             
+                fp.write('@echo _bitmapFile: .addr ')
+                index = 0
+                for item in bitmaps:
+                    fb = FileBase(item, '-lynx.png')
+                    if index > 0:
+                        fp.write(', ')
+                    index += 1
+                    fp.write('_' + fb + 'File')
+                fp.write(' >> gfxdata.asm\n')
+                for item in bitmaps:
+                    fb = FileBase(item, '-lynx.png')
+                    fp.write('@echo _' + fb + 'File: .byte "' + fb + '.map",0 >> gfxdata.asm\n')
+                
+            # List of Bitmap Binary Data
+            if len(bitmaps) > 0:             
+                fp.write('@echo _bitmapData: .addr ')   
+                index = 0
+                for item in bitmaps:
+                    fb = FileBase(item, '-lynx.png')
+                    if index > 0:
+                        fp.write(', ')
+                    index += 1
+                    fp.write('_' + fb + 'Data')
+                fp.write(' >> gfxdata.asm\n')
+                for item in bitmaps:
+                    fb = FileBase(item, '-lynx.png')
+                    fp.write('@echo _' + fb + 'Data: .incbin "' + fb + '.spr" >> gfxdata.asm\n')
+                
+            # List of Sprite Binary Data 
+            if len(sprites) > 0:            
+                fp.write('@echo _spriteData: .addr ')    
+                for index in range(int(self.entry_LynxSpriteFrames.get())):
+                    if index > 0:
+                        fp.write(', ')
+                    fp.write('_spr' + str(index).zfill(3))
+                fp.write(' >> gfxdata.asm\n')
+                for index in range(int(self.entry_LynxSpriteFrames.get())):
+                    fp.write('@echo _spr' + str(index).zfill(3) + ': .incbin "sprites' + str(index).zfill(3) + '000.spr" >> gfxdata.asm\n')
+
+            # Done, return to base folder
+            fp.write('cd ..\n')
+            fp.write('cd ..\n')
+
+            # Copy music track (if any)
+            if len(music) > 0:
+                fp.write('utils\\py27\\python utils/scripts/lynx/LynxChipper.py ' + music[0] + ' [build]/lynx/musicdata.asm\n')
+                fp.write('copy unity\\Lynx\\chipper.s [build]\\lynx\\chipper.s\n')                
+            
+            # Info
+            fp.write('\necho DONE!\n\n')
+            fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
+
+            # Compilation
+            comp = 'utils\\cc65\\bin\\cl65 -o [build]/' + diskname.lower() + '-lynx.lnx -Cl -O -t lynx -I unity '
+            for item in code:
+                comp += (item + ' ')
+            if len(bitmaps) > 0 or len(sprites) > 0:             
+                comp += ('[build]/lynx/gfxdata.asm ')
+            if len(music) > 0:
+                comp += ('[build]/lynx/musicdata.asm ')
+            fp.write(comp + 'unity/bitmap.c unity/chars.s unity/math.s unity/sprites.c unity/sfx.c unity/Lynx/display.c\n')
+            
+            # Info
+            fp.write('\necho DONE!\n\n')
+            fp.write('pause\n\n')
+            
+            # Start emulator?
+            fp.write('cd "utils\emulators\Handy-0.95"\n')
+            fp.write('handy.exe "..\..\..\[build]\\' + diskname + '-lynx.lnx"\n')
+
 
         ####################################################
         # Oric script
         bitmaps = list(self.listbox_OricBitmap.get(0, END))
         sprites = list(self.listbox_OricSprites.get(0, END))
         music = list(self.listbox_OricMusic.get(0, END))
-        with open("../../"+diskname+"-oric.bat", "wb") as fp:
+        with open("../../[build]/"+diskname+"-oric.bat", "wb") as fp:
             # Info
             fp.write('echo off\n\n')
+            fp.write('cd ..\n\n')            
             fp.write('del [build]\\oric\\*.* /F /Q\n\n')
             fp.write('echo --------------- CONVERT ASSETS ---------------  \n\n')
             
@@ -589,7 +739,7 @@ class Application:
             fp.write('oricutron.exe -d "..\..\..\[build]\\' + diskname + '-oric.dsk"\n')            
    
         # Done!
-        messagebox.showinfo('Completed', 'Scripts generated in 8bit-Unity root folder!')
+        messagebox.showinfo('Completed', 'Scripts succesfully written to the [build] folder!')
         
         
 if __name__ == '__main__':
