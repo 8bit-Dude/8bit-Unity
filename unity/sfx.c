@@ -99,24 +99,39 @@
 		}		
 	}
 #elif defined __LYNX__
-	//need this struct to point to the seperate channels of music
+	// Need this struct to point to the seperate channels of music
 	typedef struct {
 		unsigned char *chan0;
 		unsigned char *chan1;
 		unsigned char *chan2;
 		unsigned char *chan3;
 	} music_t;	
-	extern music_t musicptr;
+	extern music_t musicData;
+	
+	// Play and Stop music
 	void PlayMusic(unsigned int address) { 
 		lynx_snd_pause();
-		lynx_snd_play(0, musicptr.chan0);
-		lynx_snd_play(1, musicptr.chan1);
-		lynx_snd_play(2, musicptr.chan2);
-		lynx_snd_play(3, musicptr.chan3);
+		lynx_snd_play(0, musicData.chan0);
+		lynx_snd_play(1, musicData.chan1);
+		lynx_snd_play(2, musicData.chan2);
+		lynx_snd_play(3, musicData.chan3);
 		lynx_snd_continue();
 	}
 	void StopMusic() { 
 		lynx_snd_stop();
+	}
+	
+	// Play SFX
+	void PlaySFX(unsigned char channel, unsigned char volume, unsigned char shift, unsigned char lowshift, unsigned char backup, unsigned char flags, unsigned char control) {
+		unsigned int addr;
+		addr = 0xfd20 + 8*channel;
+		POKE(addr++, volume);
+		POKE(addr++, shift);
+		POKE(addr++, lowshift);
+		POKE(addr++, backup);
+		POKE(addr++, flags);
+		POKE(addr++, control); // Chan control: 0001100100 (B7=feedback bit 7, B6=reset timer done, B5=enable integrate mode, B4=enable reload, B3=enable count, 
+							   // 					       	B2,B1,B0=clock select: 7 = linking, 6 = 64 us, 5 = 32us, 4 = 16 us, 3 = 8 us, 2 = 4 us, 1 = 2us, 0 = 1us)
 	}
 #endif
 
@@ -146,6 +161,18 @@ void InitSFX()
 	SetupSFX();	// VBI for SFX samples
 #elif defined __ATMOS__
 	ResetChannels();
+#elif defined __LYNX__
+	// Set Volumes, Panning and MStereo to zero
+	POKE(0xfd20, 0x00);	// Chan 0 volume
+	POKE(0xfd28, 0x00);	// Chan 1 volume
+	POKE(0xfd30, 0x00);	// Chan 2 volume
+	POKE(0xfd38, 0x00);	// Chan 3 volume
+	POKE(0xfd44, 0x00);	// Panning
+	POKE(0xfd50, 0x00);	// MStereo
+	POKE(0xfd25, 0x58);	// Chan 0 control: 01011000 (see PlaySFX)  
+	POKE(0xfd2d, 0x58);	// Chan 1 control: 01011000
+	POKE(0xfd35, 0x58);	// Chan 2 control: 01011000
+	POKE(0xfd3d, 0x58);	// Chan 3 control: 01011000
 #endif
 }
 
@@ -218,6 +245,10 @@ void EngineSFX(int channel, int vel)
 	} else {
 		asm("jsr $F424");	// Oric-1 (ROM 1.0)
 	}
+#elif defined __LYNX__
+	unsigned char tone;
+	tone = (600-vel)/60; 
+	PlaySFX(channel, 0x40, 0xff, 0xff, 0xff, tone, 0x38+6);
 #endif
 }
 
