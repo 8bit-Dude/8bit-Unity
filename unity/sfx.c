@@ -98,6 +98,26 @@
 			asm("jsr $F421");	// Oric-1 (ROM 1.0)
 		}		
 	}
+#elif defined __LYNX__
+	//need this struct to point to the seperate channels of music
+	typedef struct {
+		unsigned char *chan0;
+		unsigned char *chan1;
+		unsigned char *chan2;
+		unsigned char *chan3;
+	} music_t;	
+	extern music_t musicptr;
+	void PlayMusic(unsigned int address) { 
+		lynx_snd_pause();
+		lynx_snd_play(0, musicptr.chan0);
+		lynx_snd_play(1, musicptr.chan1);
+		lynx_snd_play(2, musicptr.chan2);
+		lynx_snd_play(3, musicptr.chan3);
+		lynx_snd_continue();
+	}
+	void StopMusic() { 
+		lynx_snd_stop();
+	}
 #endif
 
 void LoadMusic(const char* filename, unsigned int address)
@@ -149,7 +169,9 @@ void StopSFX()
 	} else {
 		asm("jsr $F421");	// Oric-1 (ROM 1.0)
 	}
-#endif	
+#elif define __LYNX__
+	lynx_snd_stop();
+#endif
 }
 
 void EngineSFX(int channel, int vel)

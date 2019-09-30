@@ -39,7 +39,7 @@
 #include <tgi.h>
 
 // Memory Map
-// TODO
+#define MUSICRAM   (0x0000) 	
 
 // Character Mode
 #define CHR_COLS 40

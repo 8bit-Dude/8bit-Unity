@@ -91,6 +91,11 @@ unsigned char inkColor, paperColor;
   }
 #endif
 
+// Lynx specific variables & functions
+#ifdef __LYNX__
+  unsigned char videoInit = 0;
+#endif
+
 // C64 specific variables & functions
 #ifdef __CBM__
   int vicconf[3];
@@ -129,17 +134,25 @@ void InitBitmap()
 	vicconf[1] = PEEK(53265);
 	vicconf[2] = PEEK(53270);
 #elif defined __LYNX__
-	// Init TGI driver and setup interrupts
+	// Did we already initialize?
 	unsigned char i;
+	if (videoInit) { return; }
+	
+	// Init TGI and Sound drivers
 	tgi_install(tgi_static_stddrv);
 	tgi_init();
+	lynx_snd_init();
 	CLI();
-	while (tgi_busy()) {}	
+	
+	// Reset palette
 	for (i=0; i<16; i++) {
 		POKE(0xFDA0+i, palette[i] >> 8);
 		POKE(0xFDB0+i, palette[i] & 0xFF);
 	}	
-	ClearBitmap();
+	
+	// Set flag
+	while (tgi_busy()) {}
+	videoInit = 1;
 #endif	
 }
 
@@ -529,7 +542,7 @@ void ClearBitmap()
 		bitmapEdit[i*82] = 0x52; 
 		bitmapEdit[i*82+81] = 0x00; 
 	}
-	tgi_sprite(&bitmapTGI);
+	UpdateDisplay();
 #endif
 }
 

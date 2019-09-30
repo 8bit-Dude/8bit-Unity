@@ -36,6 +36,7 @@ unsigned char textColors[] = { BLACK, RED, PINK, GREY, GREY, GREY, BROWN, ORANGE
 unsigned char chrCol, chrRow;
 void clrscr(void) {
 	InitBitmap();
+	ClearBitmap();
 }
 unsigned char textcolor(unsigned char color) {
 	inkColor = textColors[color];

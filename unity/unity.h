@@ -211,6 +211,8 @@ unsigned char RecvUDP(unsigned int timeOut);				// Fetch UDP packet (within time
 // Apple: Electric Duet player (see Apple/DUET.s) 
 // Atari: RMT/SFX player (see Atari/POKEY.s)
 // C64:   SID music player (see C64/SID.s)
+// Lynx:  Chipper player (see Lynx/CHIPPER.s)
+// Oric:  YM player  (see Oric/MYM.s)
 #if defined __APPLE2__
   extern unsigned char sfxOutput;	// 0 = Speaker, 1 = Mockingboard (Slot 4)
   void InitMocking(void);
