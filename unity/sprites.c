@@ -135,7 +135,7 @@
 		sprCOLS = rows; sprROWS = rows;		
 		for (i=0; i<SPRITE_NUM; i++) {
 			scb = &spriteSlot[i].scb;
-			scb->sprctl0 = BPP_4 | TYPE_NORMAL;
+			scb->sprctl0 = BPP_4 | TYPE_NONCOLL;
 			scb->sprctl1 = REHV | LITERAL;
 			scb->sprcoll = 0;
 			scb->next = 0;

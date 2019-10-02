@@ -73,3 +73,10 @@ void UpdateDisplay(void)
 	}
 	tgi_updatedisplay();
 }
+
+// Workaround for missing network
+unsigned int  udp_packet;
+unsigned char InitNetwork(void) { return 0; }							// Initialize network interface and get IP from DHCP
+void InitUDP(unsigned char ip1, unsigned char ip2, unsigned char ip3, unsigned char ip4, unsigned int svPort, unsigned int clPort) { }	// Setup UDP connection
+void SendUDP(unsigned char* buffer, unsigned char length) { }  // Send UDP packet (of specified length)
+unsigned char RecvUDP(unsigned int timeOut) { return 0;}	   // Fetch UDP packet (within time-out period)

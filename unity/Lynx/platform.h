@@ -39,6 +39,7 @@
 #include <tgi.h>
 
 // Memory Map
+#define BITMAPRAM  (0x9F8B)
 #define MUSICRAM   (0x0000) 	
 
 // Character Mode

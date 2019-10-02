@@ -287,6 +287,8 @@ void BleepSFX(unsigned char tone)
 #elif defined __ATMOS__
 	PlaySFX(tone/4+12, 1000);
 	ResetChannels();	
+#elif defined __LYNX__	
+	PlaySFX(0, 0x80, 0x80, 0xff, 0xff, 0x80, 64+8+6);
 #endif
 }
 
@@ -305,5 +307,7 @@ void BumpSFX()
 #elif defined __ATMOS__
 	PlaySFX(16, 100);
 	ResetChannels();	
+#elif defined __LYNX__	
+	PlaySFX(0, 0x80, 0x80, 0xff, 0xff, 0x80, 64+8+6);
 #endif
 }
