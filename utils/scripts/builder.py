@@ -585,78 +585,110 @@ class Application:
             fp.write('del *.png /F /Q\n')
             fp.write('del *.bmp /F /Q\n')
             fp.write('del *.pal /F /Q\n')
+            fp.write('\n')
+            
+            # Copy Shared files
+            if len(shared) > 0:             
+                for item in shared:
+                    fb = FileBase(item, '')
+                    fp.write('copy ..\\..\\' + item.replace('/', '\\') + ' ' + fb + '\n')
+                fp.write('\n')
 
             # Generate declare file for read-only data
-            fp.write('@echo .global _bitmapNum > gfxdata.asm\n')
-            fp.write('@echo .global _bitmapFile >> gfxdata.asm\n')
-            fp.write('@echo .global _bitmapData >> gfxdata.asm\n')
+            fp.write('@echo .global _bitmapNum  >  gfxdata.asm\n')
+            fp.write('@echo .global _spriteNum  >> gfxdata.asm\n')
+            fp.write('@echo .global _sharedNum  >> gfxdata.asm\n')
+            fp.write('@echo .global _bitmapName >> gfxdata.asm\n')
             fp.write('@echo .global _spriteData >> gfxdata.asm\n')
-            fp.write('@echo .segment "RODATA" >> gfxdata.asm\n')
-            fp.write('@echo _bitmapNum: .byte ' + str(len(bitmaps)) + ' >> gfxdata.asm\n')
+            fp.write('@echo .global _sharedName >> gfxdata.asm\n')
+            fp.write('@echo .global _sharedData >> gfxdata.asm\n')
+            
+            # Quantity of assets
+            fp.write('@echo _bitmapNum: .byte ' + str(len(bitmaps)) + ' >> gfxdata.asm\n')            
+            fp.write('@echo _spriteNum: .byte ' + self.entry_LynxSpriteFrames.get() + ' >> gfxdata.asm\n')            
+            fp.write('@echo _sharedNum: .byte ' + str(len(shared)) + ' >> gfxdata.asm\n')            
             
             # List of Bitmap Filenames
-            if len(bitmaps) > 0:             
-                fp.write('@echo _bitmapFile: .addr ')
-                index = 0
-                for item in bitmaps:
-                    fb = FileBase(item, '-lynx.png')
-                    if index > 0:
-                        fp.write(', ')
-                    index += 1
-                    fp.write('_' + fb + 'File')
+            if len(bitmaps) > 0:
+                fp.write('@echo _bitmapName: .addr ')
+                for i in range(len(bitmaps)):
+                    if i > 0:
+                        fp.write(', ')                
+                    fp.write('_bmpName' + str(i).zfill(2))
                 fp.write(' >> gfxdata.asm\n')
-                for item in bitmaps:
-                    fb = FileBase(item, '-lynx.png')
-                    fp.write('@echo _' + fb + 'File: .byte "' + fb + '.map",0 >> gfxdata.asm\n')
+                for i in range(len(bitmaps)):
+                    fb = FileBase(bitmaps[i], '-lynx.png')
+                    fp.write('@echo _bmpName' + str(i).zfill(2) + ': .byte "' + fb + '.map",0 >> gfxdata.asm\n')
                 
             # List of Bitmap Binary Data
             if len(bitmaps) > 0:             
-                fp.write('@echo _bitmapData: .addr ')   
-                index = 0
-                for item in bitmaps:
-                    fb = FileBase(item, '-lynx.png')
-                    if index > 0:
-                        fp.write(', ')
-                    index += 1
-                    fp.write('_' + fb + 'Data')
-                fp.write(' >> gfxdata.asm\n')
-                for item in bitmaps:
-                    fb = FileBase(item, '-lynx.png')
-                    fp.write('@echo _' + fb + 'Data: .incbin "' + fb + '.spr" >> gfxdata.asm\n')
-                
+                for i in range(len(bitmaps)):
+                    fb = FileBase(bitmaps[i], '-lynx.png')
+                    fp.write('@echo .segment "BMP' + str(i) + 'DATA" >> gfxdata.asm\n')
+                    fp.write('@echo _bmpData' + str(i).zfill(2) + ': .incbin "' + fb + '.spr" >> gfxdata.asm\n')
+                                    
             # List of Sprite Binary Data 
             if len(sprites) > 0:            
+                fp.write('@echo .segment "RODATA" >> gfxdata.asm\n')
                 fp.write('@echo _spriteData: .addr ')    
-                for index in range(int(self.entry_LynxSpriteFrames.get())):
-                    if index > 0:
+                for i in range(int(self.entry_LynxSpriteFrames.get())):
+                    if i > 0:
                         fp.write(', ')
-                    fp.write('_spr' + str(index).zfill(3))
+                    fp.write('_spr' + str(i).zfill(3))
                 fp.write(' >> gfxdata.asm\n')
-                for index in range(int(self.entry_LynxSpriteFrames.get())):
-                    fp.write('@echo _spr' + str(index).zfill(3) + ': .incbin "sprites' + str(index).zfill(3) + '000.spr" >> gfxdata.asm\n')
+                for i in range(int(self.entry_LynxSpriteFrames.get())):
+                    fp.write('@echo _spr' + str(i).zfill(3) + ': .incbin "sprites' + str(i).zfill(3) + '000.spr" >> gfxdata.asm\n')
+                    
+            # List of Shared Filenames
+            if len(shared) > 0:             
+                fp.write('@echo _sharedName: .addr ')
+                for i in range(len(shared)):
+                    if i > 0:
+                        fp.write(', ')                
+                    fp.write('_shrName' + str(i).zfill(2))
+                fp.write(' >> gfxdata.asm\n')
+                for i in range(len(shared)):
+                    fb = FileBase(shared[i], '')
+                    fp.write('@echo _shrName' + str(i).zfill(2) + ': .byte "' + fb + '",0 >> gfxdata.asm\n')
 
+            # List of Shared Data
+            if len(shared) > 0:             
+                fp.write('@echo _sharedData: .addr ')
+                for i in range(len(shared)):
+                    if i > 0:
+                        fp.write(', ')                
+                    fp.write('_shrData' + str(i).zfill(2))
+                fp.write(' >> gfxdata.asm\n')
+                for i in range(len(shared)):
+                    fb = FileBase(shared[i], '')
+                    fp.write('@echo _shrData' + str(i).zfill(2) + ': .incbin "' + fb + '" >> gfxdata.asm\n')
+                    
             # Done, return to base folder
+            fp.write('\n')
             fp.write('cd ..\n')
             fp.write('cd ..\n')
+            fp.write('\n')
 
             # Copy music track (if any)
+            fp.write('copy unity\\Lynx\\chipper.s [build]\\lynx\\chipper.s\n')                
             if len(music) > 0:
                 fp.write('utils\\py27\\python utils/scripts/lynx/LynxChipper.py ' + music[0] + ' [build]/lynx/musicdata.asm\n')
-                fp.write('copy unity\\Lynx\\chipper.s [build]\\lynx\\chipper.s\n')                
-            
+            else:
+                fp.write('utils\\py27\\python utils/scripts/lynx/LynxChipper.py utils/scripts/lynx/MusicDummy.asm [build]/lynx/musicdata.asm\n')
+
+            # Generate config and directory Files
+            fp.write('utils\\py27\\python utils/scripts/lynx/LynxConfig.py unity/Lynx/lynx.cfg [build]/lynx/lynx.cfg ' + str(len(bitmaps)) + '\n')
+            fp.write('utils\\py27\\python utils/scripts/lynx/LynxDirectory.py unity/Lynx/directory.s [build]/lynx/directory.asm ' + str(len(bitmaps)) + '\n')
+                        
             # Info
             fp.write('\necho DONE!\n\n')
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Compilation
-            comp = 'utils\\cc65\\bin\\cl65 -o [build]/' + diskname.lower() + '-lynx.lnx -Cl -O -t lynx -I unity '
+            comp = 'utils\\cc65\\bin\\cl65 -o [build]/' + diskname.lower() + '-lynx.lnx -Cl -O -t lynx -C [build]/lynx/lynx.cfg -I unity '
             for item in code:
                 comp += (item + ' ')
-            if len(bitmaps) > 0 or len(sprites) > 0:             
-                comp += ('[build]/lynx/gfxdata.asm ')
-            if len(music) > 0:
-                comp += ('[build]/lynx/musicdata.asm ')
-            fp.write(comp + 'unity/bitmap.c unity/chars.s unity/math.s unity/sprites.c unity/sfx.c unity/Lynx/display.c\n')
+            fp.write(comp + 'unity/bitmap.c unity/chars.s unity/math.s unity/sprites.c unity/sfx.c unity/Lynx/display.c unity/Lynx/header.s [build]/lynx/directory.asm [build]/lynx/gfxdata.asm [build]/lynx/musicdata.asm\n')
             
             # Info
             fp.write('\necho DONE!\n\n')

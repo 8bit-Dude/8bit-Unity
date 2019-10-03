@@ -28,15 +28,22 @@ import sys
 
 input = sys.argv[1]
 output = sys.argv[2]
+num = sys.argv[3]
 
 try:
-    # Slightly modify ASM file output by Chipper
+    # Add bitmap assets to Config file
     with open(input, "rt") as fin:
         with open(output, "wt") as fout:
             for line in fin:
-                line = line.replace('soundbs.mac', 'chipper.s')
-                line = line.replace('musicptr', '_musicData')
+                if 'size = 1*8' in line:
+                    line = line.replace('1*8', str(1+int(num)) + '*8')
                 fout.write(line)
+                if 'size = __MAINSIZE__' in line:
+                    for i in range(int(num)):
+                        fout.write('	BMP' + str(i) + ':	file = %O, define = yes, start = $0200 + __MAINSIZE__ + __STACKSIZE__, size = __BMPSIZE__;\n')
+                if 'BSS:       load = MAIN' in line:
+                    for i in range(int(num)):
+                        fout.write('	BMP' + str(i) + 'DATA:  load = BMP' + str(i) + ',	  type = rw,  define = yes;\n')
                 
 except:
-    print 'Error: cannot convert ' + input + '... (was it exported from Chipper as cc65 "remake"?)'
+    print 'Error: cannot generate Lynx config file'
