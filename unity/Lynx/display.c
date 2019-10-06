@@ -35,8 +35,7 @@ extern unsigned char sprEN[SPRITE_NUM];
 unsigned char textColors[] = { BLACK, RED, PINK, GREY, GREY, GREY, BROWN, ORANGE, YELLOW, LGREEN, GREEN, DRED, PURPLE, BLUE, LBLUE, WHITE };
 unsigned char chrCol, chrRow;
 void clrscr(void) {
-	InitBitmap();
-	ClearBitmap();
+	InitBitmap(); ClearBitmap();
 }
 unsigned char textcolor(unsigned char color) {
 	inkColor = textColors[color];
@@ -45,11 +44,12 @@ unsigned char bgcolor(unsigned char color) {
 	paperColor = textColors[color];
 }
 unsigned char bordercolor(unsigned char color) {
-	// Do nothing
+}
+void screensize(unsigned char *xSize, unsigned char *ySize) {
+	*xSize = 40; *ySize = 17;
 }
 void gotoxy(unsigned char col, unsigned char row) {
-	chrCol = col;
-	chrRow = row;
+	chrCol = col; chrRow = row;
 }
 int cprintf (const char* format, ...) {
 	PrintStr(chrCol, chrRow, format);

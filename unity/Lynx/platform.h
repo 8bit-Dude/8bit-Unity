@@ -34,8 +34,8 @@
  *		* Bill Buckels for his Apple II Double Hi-Res bitmap code
  */
  
-#include <6502.h> 
 #include <lynx.h>
+#include <serial.h>
 #include <tgi.h>
 
 // Memory Map

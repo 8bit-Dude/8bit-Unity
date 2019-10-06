@@ -10,7 +10,10 @@
 #define MODE_ORIC 5
 
 #if defined __LYNX__
-  //struct ser_params comLynx = { SER_BAUD_9600, SER_BITS_8, SER_STOP_1, SER_PAR_MARK, SER_HS_NONE };  
+  #include <conio.h>
+  #include <serial.h>
+  extern void PrintNum(unsigned char col, unsigned char row, unsigned char num);
+  struct ser_params comLynx = { SER_BAUD_9600, SER_BITS_8, SER_STOP_1, SER_PAR_MARK, SER_HS_NONE };  
 #endif
 
 unsigned char hubMode, hubNetwork, hubPacket, hubVersion;
@@ -63,30 +66,20 @@ void InitData()
 unsigned char InitHub()
 {
 #if defined __LYNX__
-	//ser_open(&comLynx);
-	return 0;
+	ser_open(&comLynx);
+	hubMode = 1;
+	hubNetwork = 1;
+	hubVersion = 1;
 #elif defined __ATMOS__
-	// Disable interrupts
-	__asm__("sei");
-	
-	// Send reset code
-	SendByte(213);
-
-	// Open Port A for listening
-	POKE(0x0303, 0);
-	
-	// Receive data from hub
-	InitData();
-	
-	// Close port A
-	POKE(0x0303, 255);
-
-	// Enable interrupts
-	__asm__("cli");	
-
+	__asm__("sei");		// Disable interrupts
+	SendByte(213);		// Send reset code
+	POKE(0x0303, 0);	// Open Port A for listening
+	InitData();			// Receive data from hub
+	POKE(0x0303, 255);	// Close port A
+	__asm__("cli");		// Resume interrupts
+#endif
 	// Return HUB mode
 	return hubMode;	
-#endif
 }
 
 void FetchData() 
@@ -139,61 +132,46 @@ void FetchData()
 
 void FetchHub(void) 
 {
-#if defined __LYNX__	
-#elif defined __ATMOS__	
 	// Check hub is ready
 	if (!hubMode) { return; }
 	
 	// Perform every 3 clock cycles max.
 	if (clock() - hubClock < 3) { return; }
 	hubClock = clock();
-
-	// Disable interrupts
-	__asm__("sei");
-	
-	// Send read code
-	SendByte(170);
-			
-	// Open Port A for listening
-	POKE(0x0303, 0);
-	
-	// Receive data from hub
-	FetchData();
-	
-	// Close port A
-	POKE(0x0303, 255);
-
-	// Enable interrupts
-	__asm__("cli");
+#if defined __LYNX__	
+#elif defined __ATMOS__	
+	__asm__("sei");		// Disable interrupts
+	SendByte(170);		// Send read code
+	POKE(0x0303, 0);	// Open Port A for listening
+	FetchData();		// Receive data from hub
+	POKE(0x0303, 255);	// Close port A
+	__asm__("cli");		// Resume interrupts
 #endif
 }
 
 void SendHub(unsigned char *buffer, unsigned char length) 
 {
 	unsigned char i = 0;
-#if defined __LYNX__	
-#elif defined __ATMOS__		
+	
 	// Check hub is ready
 	if (!hubMode) { return; }	
 	
 	// Wait 3 clock cycles between HUB access
 	while (clock() - hubClock < 3) { }
-	hubClock = clock();
-
-	__asm__("sei");
-	
-	// Send data length
-	SendByte(length+1);
-	
-	// Send buffer to printer port
+	hubClock = clock();	
+#if defined __LYNX__	
+	ser_put(0); PrintNum(0,3,0);
+	while (!kbhit () || cgetc () != 49) {}
+	ser_put(16); PrintNum(0,3,16);
+#elif defined __ATMOS__		
+	__asm__("sei");		// Disable interrupts
+	SendByte(length+1);	// Send data length
 	while (i<length) {
 		POKE(0x0301, buffer[i++]);	// Write 1 Byte to Printer Port
 		POKE(0x0300, 175);			// Send STROBE signal
 		tick++; tick++; tick++;
 		POKE(0x0300, 255);			// Reset STROBE
 	}
-	
-	// Enable interrupts	
-	__asm__("cli");
+	__asm__("cli");		// Enable interrupts	
 #endif
 }

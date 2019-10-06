@@ -61,7 +61,6 @@
 	#define __HUB__
 	#define PLATFORM   4
     #include "Lynx/platform.h"	
-    #include <serial.h>
 #endif
 
 // Keyboard definitions
