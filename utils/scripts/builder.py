@@ -688,7 +688,7 @@ class Application:
             comp = 'utils\\cc65\\bin\\cl65 -o [build]/' + diskname.lower() + '-lynx.lnx -Cl -O -t lynx -C [build]/lynx/lynx.cfg -I unity '
             for item in code:
                 comp += (item + ' ')
-            fp.write(comp + 'unity/bitmap.c unity/chars.s unity/math.s unity/sprites.c unity/sfx.c unity/Lynx/display.c unity/Lynx/header.s [build]/lynx/directory.asm [build]/lynx/gfxdata.asm [build]/lynx/musicdata.asm\n')
+            fp.write(comp + 'unity/bitmap.c unity/chars.s unity/hub.c unity/math.s unity/network.c unity/sprites.c unity/sfx.c unity/Lynx/display.c unity/Lynx/header.s [build]/lynx/directory.asm [build]/lynx/gfxdata.asm [build]/lynx/musicdata.asm\n')
             
             # Info
             fp.write('\necho DONE!\n\n')
