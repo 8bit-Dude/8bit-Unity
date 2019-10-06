@@ -28,7 +28,7 @@
 
 // See bitmap.c and sprites.c
 extern SCB_REHV_PAL bitmapTGI;
-extern LynxSprite spriteSlot[SPRITE_NUM];
+extern SCB_REHV_PAL sprTGI[SPRITE_NUM];
 extern unsigned char sprEN[SPRITE_NUM];
 
 // Workaround for missing char printing (including palette remapping)
@@ -55,7 +55,7 @@ int cprintf (const char* format, ...) {
 	PrintStr(chrCol, chrRow, format);
 }
 
-// update display routine
+// Update display routine
 void UpdateDisplay(void)
 {
 	unsigned char i, j;
@@ -68,15 +68,8 @@ void UpdateDisplay(void)
 	for (j=0; j<SPRITE_NUM; j++) {
 		i = (SPRITE_NUM-1) - j;
 		if (sprEN[i]) { 
-			tgi_sprite(&spriteSlot[i].scb);
+			tgi_sprite(&sprTGI[i]);
 		}
 	}
 	tgi_updatedisplay();
 }
-
-// Workaround for missing network
-unsigned int  udp_packet;
-unsigned char InitNetwork(void) { return 0; }							// Initialize network interface and get IP from DHCP
-void InitUDP(unsigned char ip1, unsigned char ip2, unsigned char ip3, unsigned char ip4, unsigned int svPort, unsigned int clPort) { }	// Setup UDP connection
-void SendUDP(unsigned char* buffer, unsigned char length) { }  // Send UDP packet (of specified length)
-unsigned char RecvUDP(unsigned int timeOut) { return 0;}	   // Fetch UDP packet (within time-out period)

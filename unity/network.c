@@ -32,7 +32,7 @@
 
 #define EncodeIP(a,b,c,d) (a+b*256+c*65536+d*16777216)
 
-#ifndef __ATMOS__
+#ifndef __HUB__
   unsigned long udp_send_ip;
   unsigned int udp_send_port, udp_recv_port;
 #else
@@ -44,7 +44,7 @@
 unsigned int udp_packet;
 
 // IP65 functions (see linked libraries)
-#ifndef __ATMOS__
+#ifndef __HUB__
   extern unsigned char udp_recv_buf[192];   // Buffer with data received (length hard-coded in IP65)
   unsigned char ip65_init(void);
   unsigned char ip65_process(void);
@@ -56,7 +56,7 @@ unsigned int udp_packet;
 
 unsigned char InitNetwork(void)
 {
-#ifndef __ATMOS__
+#ifndef __HUB__
 	// Init IP65 and DHCP
 	if (ip65_init()) { return ADAPTOR_ERR; }
 	if (dhcp_init()) { return DHCP_ERR; }
@@ -70,7 +70,7 @@ unsigned char InitNetwork(void)
 #endif
 }
 
-#ifndef __ATMOS__
+#ifndef __HUB__
 void PacketReceived(void)
 {
 	udp_packet = &udp_recv_buf[0];
@@ -79,7 +79,7 @@ void PacketReceived(void)
 
 void InitUDP(unsigned char ip1, unsigned char ip2, unsigned char ip3, unsigned char ip4, unsigned int svPort, unsigned int clPort)
 {
-#ifndef __ATMOS__
+#ifndef __HUB__
 	unsigned char dummy[1];
 	udp_send_ip = EncodeIP(ip1,ip2,ip3,ip4);
 	udp_send_port = svPort;
@@ -114,7 +114,7 @@ void InitUDP(unsigned char ip1, unsigned char ip2, unsigned char ip3, unsigned c
 
 void SendUDP(unsigned char* buffer, unsigned char length) 
 {
-#ifndef __ATMOS__
+#ifndef __HUB__
 	udp_send(buffer, length, udp_send_ip, udp_send_port, udp_recv_port);
 #else
 	buffer[length++] = 2;	// Send UDP 
@@ -127,7 +127,7 @@ unsigned char RecvUDP(unsigned int timeOut)
 	// Try to process UDP
 	clock_t timer;
 	udp_packet = 0;
-#ifndef __ATMOS__
+#ifndef __HUB__
 	ip65_process();
 #else
 	FetchHub();
@@ -142,7 +142,7 @@ unsigned char RecvUDP(unsigned int timeOut)
 	timer = clock();
 	while (!udp_packet) { 
 		if (clock() - timer > timeOut) { break; }
-#ifndef __ATMOS__
+#ifndef __HUB__
 		ip65_process();
 #else
 		FetchHub();

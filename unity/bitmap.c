@@ -130,10 +130,11 @@ void InitBitmap()
 	unsigned char i;
 	if (videoInit) { return; }
 	
-	// Init TGI and Sound drivers
-	tgi_install(tgi_static_stddrv);
+	// Install drivers
+	ser_install(lynx_comlynx_ser);		// Comlynx driver
+	tgi_install(tgi_static_stddrv); // Screen driver
 	tgi_init();
-	lynx_snd_init();
+	lynx_snd_init(); 
 	CLI();
 	
 	// Reset palette
@@ -844,7 +845,7 @@ const char *GetChr(unsigned char chr)
 	return &charBlank[0];
 }
 
-// Parse string and print characters one-by-one (slow)
+// Parse string and print characters one-by-one (can be slow...)
 void PrintStr(unsigned char col, unsigned char row, const char *buffer)
 {
 	// Parse buffer

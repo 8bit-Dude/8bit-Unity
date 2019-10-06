@@ -126,15 +126,15 @@
 	unsigned char sprX[SPRITE_NUM], sprY[SPRITE_NUM];	 // Screen coordinates
 	unsigned char sprEN[SPRITE_NUM], sprCOL[SPRITE_NUM]; // Enable and Collision status
 	unsigned char sprCOLS, sprROWS;					     // Sprite dimensions
+	SCB_REHV_PAL sprTGI[SPRITE_NUM];					 // Frame data
 	extern unsigned int spriteData[]; 
-	LynxSprite spriteSlot[SPRITE_NUM];
 	void InitSprites(unsigned char frames, unsigned char cols, unsigned char rows, unsigned char *spriteColors)
 	{
 		unsigned char i,j;
 		SCB_REHV_PAL *scb;
 		sprCOLS = rows; sprROWS = rows;		
 		for (i=0; i<SPRITE_NUM; i++) {
-			scb = &spriteSlot[i].scb;
+			scb = &sprTGI[i];
 			scb->sprctl0 = BPP_4 | TYPE_NONCOLL;
 			scb->sprctl1 = REHV | LITERAL;
 			scb->sprcoll = 0;
@@ -418,7 +418,7 @@ void SetSprite(unsigned char index, unsigned char frame)
 #elif defined __LYNX__
 	// Set sprite data for Suzy
 	SCB_REHV_PAL *scb;
-	scb = &spriteSlot[index].scb;
+	scb = &sprTGI[index];
 	scb->data = spriteData[frame];
 	scb->hpos = spriteX;
 	scb->vpos = spriteY;
@@ -429,7 +429,7 @@ void SetSprite(unsigned char index, unsigned char frame)
 	// Save sprite information
 	sprX[index] = spriteX;
 	sprY[index] = spriteY;
-	sprEN[index] = 1;
+	sprEN[index] = 1;	
 #endif
 }
 
@@ -445,9 +445,6 @@ void EnableSprite(signed char index)
 	} else {
 		flickerMask[index-5] |= 2;
 	}
-#elif defined __LYNX__
-	// Enable sprite collisions
-	//tgi_setcollisiondetection(1);
 #endif
 }
 
@@ -455,10 +452,10 @@ void DisableSprite(signed char index)
 {
 	// Switch single sprite off
 	if (index >= 0) {	
-#if defined __CBM__
+	#if defined __CBM__
 		// Set bit in sprite register
 		POKE(53269, PEEK(53269) & ~(1 << index));
-#elif defined __ATARI__
+	#elif defined __ATARI__
 		// Set bit in flicker mask	
 		if (index<5) { 
 			flickerMask[index] &= ~1;
@@ -466,36 +463,29 @@ void DisableSprite(signed char index)
 			flickerMask[index-5] &= ~2;
 		}
 		bzero(PMGRAM+768+((index+1)%5)*256,0x100); // Clear PMG slot
-#elif defined __LYNX__
-		// Reset sprite data address
-		//spriteSlot[index].scb.data = 0;
-		sprEN[index] = 0;
-#else
+	#else
 		// Soft sprites: Restore background if neccessary
+	  #ifndef __LYNX__
 		if (sprEN[index]) { RestoreSprBG(index); }
+	  #endif
 		sprEN[index] = 0;
-#endif
+	#endif
 	// Switch all sprites off
 	} else {
-#if defined __CBM__
+	#if defined __CBM__
 		// Reset sprite register
 		POKE(53269, 0);
-#elif defined __ATARI__
+	#elif defined __ATARI__
 		bzero(flickerMask, 5);	 // Clear flicker mask
 		bzero(PMGRAM+768,0x500); // Clear PMG memory
-#elif defined __LYNX__
-		// Reset all sprite data addresses and collisions
-		for (index=0; index<SPRITE_NUM; index++) {
-			//spriteSlot[index].scb.data = 0;
-			sprEN[index] = 0;
-		}
-		//tgi_setcollisiondetection(0);
-#else
+	#else
 		// Soft sprites: Restore background if necessary
 		for (index=0; index<SPRITE_NUM; index++) {
+		#ifndef __LYNX__
 			if (sprEN[index]) { RestoreSprBG(index); }				
+		#endif
 			sprEN[index] = 0;
 		}
-#endif
+	#endif
 	}
 }

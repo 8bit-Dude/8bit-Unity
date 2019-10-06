@@ -54,11 +54,14 @@
 	#define PLATFORM   2
     #include "Apple/platform.h"		
 #elif defined __ATMOS__
+	#define __HUB__
 	#define PLATFORM   3
-    #include "Oric/platform.h"		
+    #include "Oric/platform.h"	
 #elif defined __LYNX__
+	#define __HUB__
 	#define PLATFORM   4
     #include "Lynx/platform.h"	
+    #include <serial.h>
 #endif
 
 // Keyboard definitions
@@ -269,7 +272,7 @@ void SetSprite(unsigned char index, unsigned char frame);
 #define COLLIDING(collisions,i) ((collisions >> i) & 1) 
 
 // 8bit-Hub support (see http://www.8bit-unity.com/8bit-Hub)
-#if defined __ATMOS__	// see Oric/hub.c
+#if defined __HUB__	// see Oric/hub.c
 	unsigned char InitHub();
 	extern unsigned char hubMode;		// Detect Hub Operation Mode
 	extern unsigned char hubNetwork;	// Detect Hub Networking

@@ -9,6 +9,10 @@
 #define MODE_LYNX 4
 #define MODE_ORIC 5
 
+#if defined __LYNX__
+  //struct ser_params comLynx = { SER_BAUD_9600, SER_BITS_8, SER_STOP_1, SER_PAR_MARK, SER_HS_NONE };  
+#endif
+
 unsigned char hubMode, hubNetwork, hubPacket, hubVersion;
 clock_t hubClock;
 
@@ -19,17 +23,21 @@ unsigned char recvBuf[256];
 unsigned char tick;
 void SendByte(unsigned char value)
 {
+#if defined __LYNX__	
+#elif defined __ATMOS__
 	// Send 1 byte to printer port
 	POKE(0x0301, value);		// Write 1 Byte to Printer Port
 	POKE(0x0300, 175);			// Send STROBE signal (falling pulse)
 	tick++; tick++; tick++; 
 	POKE(0x0300, 255);			// Reset STROBE
+#endif
 }
 
 void InitData()
 {
 	unsigned char i, j;
-	
+#if defined __LYNX__	
+#elif defined __ATMOS__	
 	// Reset ORA
 	i = PEEK(0x0301); 
 
@@ -45,7 +53,7 @@ void InitData()
 		}
 		recvHead[j++] = PEEK(0x0301);
 	}
- 
+#endif 
 	// Assign data from buffer
 	hubMode	   = recvHead[0];
 	hubNetwork = recvHead[1];
@@ -54,6 +62,10 @@ void InitData()
 
 unsigned char InitHub()
 {
+#if defined __LYNX__
+	//ser_open(&comLynx);
+	return 0;
+#elif defined __ATMOS__
 	// Disable interrupts
 	__asm__("sei");
 	
@@ -74,12 +86,14 @@ unsigned char InitHub()
 
 	// Return HUB mode
 	return hubMode;	
+#endif
 }
 
 void FetchData() 
 {
 	unsigned char i, j;
-	
+#if defined __LYNX__	
+#elif defined __ATMOS__	
 	// Reset ORA
 	i = PEEK(0x0301); 
 
@@ -120,10 +134,13 @@ void FetchData()
 	} else {
 		hubPacket = 0;
 	}
+#endif
 }
 
 void FetchHub(void) 
 {
+#if defined __LYNX__	
+#elif defined __ATMOS__	
 	// Check hub is ready
 	if (!hubMode) { return; }
 	
@@ -148,12 +165,14 @@ void FetchHub(void)
 
 	// Enable interrupts
 	__asm__("cli");
+#endif
 }
 
 void SendHub(unsigned char *buffer, unsigned char length) 
 {
 	unsigned char i = 0;
-	
+#if defined __LYNX__	
+#elif defined __ATMOS__		
 	// Check hub is ready
 	if (!hubMode) { return; }	
 	
@@ -176,4 +195,5 @@ void SendHub(unsigned char *buffer, unsigned char length)
 	
 	// Enable interrupts	
 	__asm__("cli");
+#endif
 }
