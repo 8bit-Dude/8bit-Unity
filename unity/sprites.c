@@ -48,11 +48,11 @@
 	{			
 		// Set sprite rows, frames and resulting block size (there are 4 offset blocks for each sprite)
 		int i;
+		sprROWS = rows;
+		sprBLOCK = frames*sprROWS*sprWIDTH;
 		for (i=0; i<SPRITE_NUM; i++) {
 			sprBG[i] = (unsigned char*)malloc(4*rows);	// Byte length of 1 sprite: rows * 4 bytes (7 pixels)
 		}
-		sprBLOCK = frames*sprROWS*sprWIDTH;
-		sprROWS = rows;
 	}	
 // Atari specific init function
 #elif defined __ATARI__	
