@@ -30,18 +30,23 @@
   #pragma code-name("SHADOW_RAM")
 #endif
 
-#define EncodeIP(a,b,c,d) (a+b*256+c*65536+d*16777216)
-
-#ifndef __HUB__
-  unsigned long udp_send_ip;
-  unsigned int udp_send_port, udp_recv_port;
+#ifdef __HUB__
+  #define CMD_UDP_INIT     10
+  #define CMD_UDP_RECV     11
+  #define CMD_UDP_SEND     12
+  #define CMD_TCP_INIT     20
+  #define CMD_TCP_RECV     21
+  #define CMD_TCP_SEND     22
+  extern unsigned char sendLen, recvLen;
+  extern unsigned char sendBuffer[256];
+  extern unsigned char recvBuffer[256];
 #else
-  extern unsigned char hubPacket;	// see Oric/hub.c
-  extern unsigned char recvBuf[256];
-  void SendHub(unsigned char *buffer, unsigned char length);
-  void FetchHub(void);
+  #define EncodeIP(a,b,c,d) (a+b*256+c*65536+d*16777216)
+  unsigned long udp_send_ip;
+  unsigned int udp_send_port;
+  unsigned int udp_recv_port;
+  unsigned int udp_recv_packet;
 #endif
-unsigned int udp_packet;
 
 // IP65 functions (see linked libraries)
 #ifndef __HUB__
@@ -56,30 +61,52 @@ unsigned int udp_packet;
 
 unsigned char InitNetwork(void)
 {
-#ifndef __HUB__
+#ifdef __HUB__
+	// Check HUB state
+	//if (hubNetwork) {
+		return NETWORK_OK;
+	//} else {
+	//	return ADAPTOR_ERR;
+	//}
+#else
 	// Init IP65 and DHCP
 	if (ip65_init()) { return ADAPTOR_ERR; }
 	if (dhcp_init()) { return DHCP_ERR; }
 	return NETWORK_OK;
-#else
-	if (hubMode && hubNetwork) {
-		return NETWORK_OK;
-	} else {
-		return ADAPTOR_ERR;
-	}
 #endif
 }
 
 #ifndef __HUB__
 void PacketReceived(void)
 {
-	udp_packet = &udp_recv_buf[0];
+	udp_recv_packet = &udp_recv_buf[0];
 }
 #endif
 
 void InitUDP(unsigned char ip1, unsigned char ip2, unsigned char ip3, unsigned char ip4, unsigned int svPort, unsigned int clPort)
 {
-#ifndef __HUB__
+#ifdef __HUB__
+	// Ask HUB to set up connection
+	clock_t timer;
+	unsigned char len = 0;
+	sendBuffer[len++] = CMD_UDP_INIT;
+	sendBuffer[len++] = ip1;
+	sendBuffer[len++] = ip2;
+	sendBuffer[len++] = ip3;
+	sendBuffer[len++] = ip4;
+	sendBuffer[len++] = svPort & 0xFF;
+	sendBuffer[len++] = svPort >> 8;	
+	sendBuffer[len++] = clPort & 0xFF;
+	sendBuffer[len++] = clPort >> 8;
+	sendLen = len;
+	
+	// Wait while HUB sets-up connection
+	timer = clock();
+	while ((clock()-timer) < 2*CLK_TCK) {
+		UpdateHub();
+	}
+#else
+	// Set-up UDP params and listener
 	unsigned char dummy[1];
 	udp_send_ip = EncodeIP(ip1,ip2,ip3,ip4);
 	udp_send_port = svPort;
@@ -88,27 +115,8 @@ void InitUDP(unsigned char ip1, unsigned char ip2, unsigned char ip3, unsigned c
 		// Send dummy packet, as first one is always lost!
 		dummy[0] = 0;
 		SendUDP(dummy, 1);
-		RecvUDP(5*CLK_TCK);
+		RecvUDP(2*CLK_TCK);
 	}
-#else
-	// Ask HUB to set up connection
-	clock_t timer;
-	unsigned char buffer[9];
-	unsigned char i = 0;
-	buffer[i++] = ip1;
-	buffer[i++] = ip2;
-	buffer[i++] = ip3;
-	buffer[i++] = ip4;
-	buffer[i++] = svPort & 0xFF;
-	buffer[i++] = svPort >> 8;	
-	buffer[i++] = clPort & 0xFF;
-	buffer[i++] = clPort >> 8;
-	buffer[i++] = 1;	// Init UDP 		
-	SendHub(buffer, 9);
-	
-	// Wait while HUB sets-up connection
-	timer = clock();
-	while (clock() - timer < CLK_TCK) { }
 #endif
 }
 
@@ -117,43 +125,50 @@ void SendUDP(unsigned char* buffer, unsigned char length)
 #ifndef __HUB__
 	udp_send(buffer, length, udp_send_ip, udp_send_port, udp_recv_port);
 #else
-	buffer[length++] = 2;	// Send UDP 
-	SendHub(buffer, length);
+	unsigned char i, len = 0;
+	sendBuffer[len++] = CMD_UDP_SEND;
+	sendBuffer[len++] = length;
+	for (i=0; i<length; i++) {
+		sendBuffer[len++] = buffer[i];
+	}
+	sendLen = len;
 #endif
 }
 
-unsigned char RecvUDP(unsigned int timeOut)
+unsigned int RecvUDP(unsigned int timeOut)
 {	
+#ifdef __HUB__
+	// Check if data was received from Hub
+	clock_t timer = clock();
+	while (1) {
+		// Check if we received packet
+		if (recvLen) { 
+			recvLen = 0;  // Clear packet
+			return &recvBuffer[1]; 
+		}		
+		
+		// Inquire next packet
+		UpdateHub();
+		
+		// Check time-out
+		if ((clock() - timer) > timeOut) { return 0; }
+	}
+#else
 	// Try to process UDP
-	clock_t timer;
-	udp_packet = 0;
-#ifndef __HUB__
-	ip65_process();
-#else
-	FetchHub();
-	if (hubPacket) {
-		udp_packet = &recvBuf[0];
-		hubPacket = 0;
-	}
-#endif
-	if (!timeOut) { return udp_packet; }
-	
-	// Wait for an answer (within time-out)
-	timer = clock();
-	while (!udp_packet) { 
-		if (clock() - timer > timeOut) { break; }
-#ifndef __HUB__
+	clock_t timer = clock();
+	udp_recv_packet = 0;
+	while (1) {
+		// Check if we received packet
 		ip65_process();
-#else
-		FetchHub();
-		if (hubPacket) {
-			udp_packet = &recvBuf[0];
-			hubPacket = 0;
+		if (udp_recv_packet) {
+			return udp_recv_packet;
 		}
-#endif
-#if defined __APPLE2__
+		
+		// Check time-out
+		if (clock() - timer > timeOut) { return 0; }	
+	#if defined __APPLE2__
 		tick();
-#endif			
+	#endif
 	}
-	return udp_packet;
+#endif
 }

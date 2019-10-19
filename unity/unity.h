@@ -180,9 +180,9 @@ extern unsigned char pixelX, pixelY;
   void InitJoy(void);
   unsigned char GetJoy(unsigned char);
 #elif (defined __LYNX__)
-  #define JOY_MAX 1
-  #define InitJoy() (PEEK(0))
-  #define GetJoy(i) (~PEEK(0xfcb0))
+  #define JOY_MAX 5
+  void InitJoy(void);
+  unsigned char GetJoy(unsigned char);
 #else
   #define JOY_MAX 2
   #define InitJoy() (PEEK(0))
@@ -203,11 +203,10 @@ unsigned char atan2(unsigned char y, unsigned char x);
 #define NETWORK_OK  0
 #define ADAPTOR_ERR 1
 #define DHCP_ERR    2
-extern unsigned int  udp_packet;
 unsigned char InitNetwork(void);							// Initialize network interface and get IP from DHCP
 void InitUDP(unsigned char ip1, unsigned char ip2, unsigned char ip3, unsigned char ip4, unsigned int svPort, unsigned int clPort);	// Setup UDP connection
 void SendUDP(unsigned char* buffer, unsigned char length);  // Send UDP packet (of specified length)
-unsigned char RecvUDP(unsigned int timeOut);				// Fetch UDP packet (within time-out period)
+unsigned int RecvUDP(unsigned int timeOut);				// Fetch UDP packet (within time-out period)
 
 // Music functions
 // Apple: Electric Duet player (see Apple/DUET.s) 
@@ -271,12 +270,12 @@ void SetSprite(unsigned char index, unsigned char frame);
 #define COLLIDING(collisions,i) ((collisions >> i) & 1) 
 
 // 8bit-Hub support (see http://www.8bit-unity.com/8bit-Hub)
-#if defined __HUB__	// see Oric/hub.c
-	unsigned char InitHub();
-	extern unsigned char hubMode;		// Detect Hub Operation Mode
-	extern unsigned char hubNetwork;	// Detect Hub Networking
-#else
-	#define InitHub()  ( 0 )
-	#define hubMode		 0
-	#define hubNetwork	 0
+#if defined __HUB__	// see hub.c
+  #define COMM_ERR_OK      0
+  #define COMM_ERR_NOHUB   1
+  #define COMM_ERR_NODATA  2
+  #define COMM_ERR_HEADER  3 
+  #define COMM_ERR_TRUNCAT 4
+  #define COMM_ERR_CORRUPT 5
+  unsigned char UpdateHub(void);
 #endif
