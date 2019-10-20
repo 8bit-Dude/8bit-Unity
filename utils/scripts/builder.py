@@ -619,6 +619,8 @@ class Application:
                 for i in range(len(bitmaps)):
                     fb = FileBase(bitmaps[i], '-lynx.png')
                     fp.write('@echo _bmpName' + str(i).zfill(2) + ': .byte "' + fb + '.map",0 >> gfxdata.asm\n')
+            else:
+                fp.write('@echo _bitmapName: .byte 0 >> gfxdata.asm\n')
                 
             # List of Bitmap Binary Data
             if len(bitmaps) > 0:             
@@ -638,6 +640,8 @@ class Application:
                 fp.write(' >> gfxdata.asm\n')
                 for i in range(int(self.entry_LynxSpriteFrames.get())):
                     fp.write('@echo _spr' + str(i).zfill(3) + ': .incbin "sprites' + str(i).zfill(3) + '000.spr" >> gfxdata.asm\n')
+            else:
+                fp.write('@echo _spriteData: .byte 0 >> gfxdata.asm\n')
                     
             # List of Shared Filenames
             if len(shared) > 0:             
@@ -688,7 +692,7 @@ class Application:
             comp = 'utils\\cc65\\bin\\cl65 -o [build]/' + diskname.lower() + '-lynx.lnx -Cl -O -t lynx -C [build]/lynx/lynx.cfg -I unity '
             for item in code:
                 comp += (item + ' ')
-            fp.write(comp + 'unity/bitmap.c unity/chars.s unity/hub.c unity/math.s unity/network.c unity/sprites.c unity/sfx.c unity/Lynx/display.c unity/Lynx/header.s [build]/lynx/directory.asm [build]/lynx/gfxdata.asm [build]/lynx/musicdata.asm\n')
+            fp.write(comp + 'unity/bitmap.c unity/chars.s unity/hub.c unity/math.s unity/network.c unity/sprites.c unity/sfx.c unity/Lynx/display.c unity/Lynx/header.s unity/Lynx/joysticks.c [build]/lynx/directory.asm [build]/lynx/gfxdata.asm [build]/lynx/musicdata.asm\n')
             
             # Info
             fp.write('\necho DONE!\n\n')
@@ -751,7 +755,9 @@ class Application:
             fp.write('echo --------------- ORIC DISK BUILDER --------------- \n\n')
 
             # Disk builder
-            cmd = 'utils\\scripts\\oric\\tap2dsk.exe -iLAUNCH.COM [build]/oric/launch.com [build]/oric/sprites.dat'
+            cmd = 'utils\\scripts\\oric\\tap2dsk.exe -iLAUNCH.COM [build]/oric/launch.com'
+            if len(sprites) > 0:
+                cmd += ' [build]/oric/sprites.dat'
             for item in shared:
                 cmd += ' [build]/oric/' + FileBase(item, '')
             for item in bitmaps:
