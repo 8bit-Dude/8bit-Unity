@@ -70,5 +70,5 @@
 #define BLACK  15
 
 // Workaround for missing chardefs
-#define CH_DEL   0x00
-#define CH_ENTER 0x00
+#define CH_DEL   0x14
+#define CH_ENTER 0x0D

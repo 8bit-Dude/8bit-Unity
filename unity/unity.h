@@ -64,11 +64,7 @@
 #endif
 
 // Keyboard definitions
-#if defined __LYNX__
-	#define KEY_SP		49
-#else
 	#define KEY_SP		' '
-#endif
 #if defined __APPLE2__
 	#define KEY_A		'A'
 	#define KEY_B		'B'
@@ -155,6 +151,11 @@ extern unsigned char pixelX, pixelY;
 // Lynx specific functions (see Lynx/display.c)
 #if defined __LYNX__
   void UpdateDisplay(void);
+  void ShowKeyboardOverlay(void);
+  void HideKeyboardOverlay(void);
+  void SetKeyboardOverlay(unsigned char x, unsigned char y);
+  unsigned char GetKeyboardOverlay(void); 
+  unsigned char KeyboardOverlayHit(void); 
 #endif
 
 // Joystick definitions
@@ -185,7 +186,7 @@ extern unsigned char pixelX, pixelY;
   unsigned char GetJoy(unsigned char);
 #else
   #define JOY_MAX 2
-  #define InitJoy() (PEEK(0))
+  #define InitJoy() (PEEK(0))	// Dummy function
   #if defined __ATARI__
     #define GetJoy(i) (PEEK(0x0278+i)+(PEEK(0x0284+i)<<4))
   #else if defined __APPLE2__
@@ -257,13 +258,10 @@ void SetSprite(unsigned char index, unsigned char frame);
 
 // Sprite collisions: Hardware on Atari/C64 vs. Software on Apple/Oric/Lynx 
 #if defined __ATARI__	
-  // On Atari, we need to reset collisions by poking 0 into 53278
-  #define COLLISIONS(i) PEEK(53260+i); POKE(53278,0)
+  #define COLLISIONS(i) PEEK(53260+i); POKE(53278,0)	// On Atari, reset collisions by poking 0 into 53278
 #elif defined __CBM__
-  // On C64, all collisions are contained within a single register
-  #define COLLISIONS(i) (PEEK(53278))
+  #define COLLISIONS(i) (PEEK(53278))		// On C64, all collisions are contained within a single register
 #else
-  // Software sprite collisions on Apple, Oric, Lynx
   extern unsigned char sprCOL[SPRITE_NUM];
   #define COLLISIONS(i) (sprCOL[i])
 #endif
@@ -271,6 +269,15 @@ void SetSprite(unsigned char index, unsigned char frame);
 
 // 8bit-Hub support (see http://www.8bit-unity.com/8bit-Hub)
 #if defined __HUB__	// see hub.c
+  #define CMD_DIR_LIST      1
+  #define CMD_FIL_READ      2
+  #define CMD_FIL_WRITE     3
+  #define CMD_UDP_INIT     10
+  #define CMD_UDP_RECV     11
+  #define CMD_UDP_SEND     12
+  #define CMD_TCP_INIT     20
+  #define CMD_TCP_RECV     21
+  #define CMD_TCP_SEND     22
   #define COMM_ERR_OK      0
   #define COMM_ERR_NOHUB   1
   #define COMM_ERR_NODATA  2
