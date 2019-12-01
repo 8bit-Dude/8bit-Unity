@@ -42,6 +42,7 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
+#include "chars.h"
 
 // Platform IDs
 #if defined __CBM__
@@ -62,60 +63,6 @@
 	#define PLATFORM   4
     #include "Lynx/platform.h"	
 #endif
-
-// Keyboard definitions
-	#define KEY_SP		' '
-#if defined __APPLE2__
-	#define KEY_A		'A'
-	#define KEY_B		'B'
-	#define KEY_C		'C'
-	#define KEY_D		'D'
-	#define KEY_F		'F'
-	#define KEY_G		'G'
-	#define KEY_H		'H'
-	#define KEY_I		'I'
-	#define KEY_J		'J'
-	#define KEY_L		'L'
-	#define KEY_M		'M'
-	#define KEY_O		'O'
-	#define KEY_Q		'Q'	
-	#define KEY_S		'S'	
-	#define KEY_W		'W'
-#else
-	#define KEY_A		'a'	
-	#define KEY_B		'b'	
-	#define KEY_C		'c'	
-	#define KEY_D		'd'	
-	#define KEY_F		'f'
-	#define KEY_G		'g'
-	#define KEY_H		'h'
-	#define KEY_I		'i'
-	#define KEY_J		'j'
-	#define KEY_L		'l'
-	#define KEY_M		'm'
-	#define KEY_O		'o'
-	#define KEY_Q		'q'	
-	#define KEY_S		's'	
-	#define KEY_W		'w'
-#endif
-
-// Character data (see char.s)
-extern const char charBlank[3];
-extern const char charDigit[30];
-extern const char charLetter[78];
-extern const char charBracket[6];
-extern const char charColon[3];
-extern const char charComma[3];
-extern const char charDot[3];
-extern const char charExclaim[3];
-extern const char charHyphen[3];
-extern const char charPlus[3];
-extern const char charQuestion[3];
-extern const char charQuote[3];
-extern const char charBwSlash[3];
-extern const char charFwSlash[3];
-extern const char charStar[3];
-extern const char charUnderbar[3];
 
 // Colors for printing
 extern unsigned char inkColor, paperColor;
@@ -250,6 +197,7 @@ void EnableSprite(signed char index);
 void DisableSprite(signed char index);
 void LocateSprite(unsigned int x, unsigned int y);
 void SetSprite(unsigned char index, unsigned char frame);
+void RecolorSprite(unsigned char index, unsigned char number, unsigned char color);
 
 // Screen coordinates of current sprite (see LocateSprite())
 #if defined __CBM__

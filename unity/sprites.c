@@ -132,7 +132,7 @@
 	{
 		unsigned char i,j;
 		SCB_REHV_PAL *scb;
-		sprCOLS = rows; sprROWS = rows;		
+		sprCOLS = cols; sprROWS = rows;		
 		for (i=0; i<SPRITE_NUM; i++) {
 			scb = &sprTGI[i];
 			scb->sprctl0 = BPP_4 | TYPE_NONCOLL;
@@ -150,6 +150,19 @@
 		}
 	}
 #endif
+
+void RecolorSprite(unsigned char index, unsigned char number, unsigned char color)
+{
+#if defined __ATARI__
+	flickerColor[index] = color;
+#elif defined __ATMOS__
+	POKE(colPTR+index, color);
+#elif defined __CBM__
+	POKE(53287+index, color);
+#elif defined __LYNX__
+	sprTGI[index].penpal[number] = color;
+#endif
+}
 
 #if defined __CBM__
 	unsigned int spriteX;
@@ -254,8 +267,8 @@ void LocateSprite(unsigned int x, unsigned int y)
 		
 		// Check Y distance
 		dY = sprY[i] - spriteY;
-		if (dY < sprROWS || dY>(256-sprROWS)) {
 	#if defined __APPLE2__
+		if (dY < sprROWS || dY>(256-sprROWS)) {
 			dX = sprXO[i] - xO;
 			if (dX < 2 || dX>254) {
 				// Apply collision
@@ -263,7 +276,9 @@ void LocateSprite(unsigned int x, unsigned int y)
 				sprCOL[i] |= 1 << index;
 				RestoreSprBG(i);
 			}
+		}
 	#elif defined __ATMOS__
+		if (dY < sprROWS || dY>(256-sprROWS)) {
 			dX = sprX[i] - spriteX;		
 			if (dX < 4 || dX>252) {	// Including INK bytes
 				// Check narrower collision sector
@@ -297,15 +312,17 @@ void LocateSprite(unsigned int x, unsigned int y)
 					bgPTR2 += 4;
 				}					
 			}
+		}
 	#elif defined __LYNX__
+		if (dY < (sprROWS-3) || dY>(256-(sprROWS-3))) {
 			dX = sprX[i] - spriteX;
-			if (dX < sprCOLS || dX>(256-sprCOLS)) {
+			if (dX < (sprCOLS-3) || dX>(256-(sprCOLS-3))) {
 				// Apply collision
 				sprCOL[index] |= 1 << i;
 				sprCOL[i] |= 1 << index;
 			}				
-	#endif					
 		}
+	#endif					
 	}
   }
 #endif

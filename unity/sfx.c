@@ -304,7 +304,7 @@ void BumpSFX()
 #elif defined __LYNX__	
 	abctaps(3, 7);
 	abcoctave(3, 4);
-	abcvolume(3, 60);
+	abcvolume(3, 80);
 	abcintegrate(3, 1);
 	abcpitch(3, 192);
 	abctimers[3] = 10;
