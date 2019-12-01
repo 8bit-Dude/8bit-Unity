@@ -832,6 +832,7 @@ const char *GetChr(unsigned char chr)
 {
 	// Select the correct bitmask
 	     if (chr == 95) { return &charUnderbar[0]; }
+	else if (chr == 92) { return &charBwSlash[0]; }
 #if defined __CBM__
 	else if (chr > 192) { return &charLetter[(chr-193)*3]; }	// Upper case (C64)
 	else if (chr > 64)  { return &charLetter[(chr-65)*3]; }		// Lower case (C64)
@@ -842,10 +843,12 @@ const char *GetChr(unsigned char chr)
 	else if (chr == 63) { return &charQuestion[0]; }
 	else if (chr == 58) { return &charColon[0]; }
 	else if (chr > 47)  { return &charDigit[(chr-48)*3]; }
-	else if (chr == 47) { return &charSlash[0]; }
+	else if (chr == 47) { return &charFwSlash[0]; }
 	else if (chr == 46) { return &charDot[0]; }
 	else if (chr == 45) { return &charHyphen[0]; }
 	else if (chr == 44) { return &charComma[0]; }
+	else if (chr == 43) { return &charPlus[0]; }
+	else if (chr == 42) { return &charStar[0]; }
 	else if (chr > 39)  { return &charBracket[(chr-40)*3]; }
 	else if (chr == 39) { return &charQuote[0]; }
 	else if (chr == 33) { return &charExclaim[0]; }
@@ -927,9 +930,9 @@ unsigned char InputUpdate(unsigned char col, unsigned char row, char *buffer, un
 		
 		// Process Letter keys
 #if (defined __ATARI__) || (defined __ATMOS__)
-		if (key == 32 | key == 33 | (key > 38 & key < 42) | (key > 43 & key < 59) | key == 63 | key == 95 | (key > 96 & key < 123)) {	// Atari/Oric
+		if (key == 32 | key == 33 | (key > 38 & key < 59) | key == 63 | key == 92 | key == 95 | (key > 96 & key < 123)) {	// Atari/Oric
 #else
-		if (key == 32 | key == 33 | (key > 38 & key < 42) | (key > 43 & key < 59) | key == 63 | (key > 64 & key < 91) | key == 95) {	// Apple/C64
+		if (key == 32 | key == 33 | (key > 38 & key < 59) | key == 63 | (key > 64 & key < 91) | key == 92 | key == 95) {	// Apple/C64
 #endif
 			if (curlen < len) { 
 				buffer[curlen] = key;

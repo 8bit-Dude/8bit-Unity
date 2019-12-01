@@ -99,14 +99,22 @@
 		}		
 	}
 #elif defined __LYNX__
+	// ABCmusic functions (see lynx/sfx.s)
+	extern unsigned char abctimers[4];	// Timers of musics channels
+	extern void __fastcall__ abcoctave(unsigned char chan, unsigned char val);	  // legal values 0..6
+	extern void __fastcall__ abcpitch(unsigned char chan, unsigned char val);	  // legal values 0..255
+	extern void __fastcall__ abctaps(unsigned char chan, unsigned int val);		  // legal values 0..511
+	extern void __fastcall__ abcintegrate(unsigned char chan, unsigned char val); // legal values 0..1
+	extern void __fastcall__ abcvolume(unsigned char chan, unsigned char val);	  // legal values 0..127
+
 	// Need this struct to point to the seperate channels of music
 	typedef struct {
 		unsigned char *chan0;
 		unsigned char *chan1;
 		unsigned char *chan2;
 		unsigned char *chan3;
-	} music_t;	
-	extern music_t musicData;
+	} chipper_t;	
+	extern chipper_t musicData;
 	
 	// Play and Stop music
 	void PlayMusic(unsigned int address) { 
@@ -119,19 +127,6 @@
 	}
 	void StopMusic() { 
 		lynx_snd_stop();
-	}
-	
-	// Play SFX
-	void PlaySFX(unsigned char channel, unsigned char volume, unsigned char shift, unsigned char lowshift, unsigned char backup, unsigned char flags, unsigned char control) {
-		unsigned int addr;
-		addr = 0xfd20 + 8*channel;
-		POKE(addr++, volume);
-		POKE(addr++, shift);
-		POKE(addr++, lowshift);
-		POKE(addr++, backup);
-		POKE(addr++, flags);
-		POKE(addr++, control); // Chan control: 0001100100 (B7=feedback bit 7, B6=reset timer done, B5=enable integrate mode, B4=enable reload, B3=enable count, 
-							   // 					       	B2,B1,B0=clock select: 7 = linking, 6 = 64 us, 5 = 32us, 4 = 16 us, 3 = 8 us, 2 = 4 us, 1 = 2us, 0 = 1us)
 	}
 #endif
 
@@ -161,18 +156,6 @@ void InitSFX()
 	SetupSFX();	// VBI for SFX samples
 #elif defined __ATMOS__
 	ResetChannels();
-#elif defined __LYNX__
-	// Set Volumes, Panning and MStereo to zero
-	POKE(0xfd20, 0x00);	// Chan 0 volume
-	POKE(0xfd28, 0x00);	// Chan 1 volume
-	POKE(0xfd30, 0x00);	// Chan 2 volume
-	POKE(0xfd38, 0x00);	// Chan 3 volume
-	POKE(0xfd44, 0x00);	// Panning
-	POKE(0xfd50, 0x00);	// MStereo
-	POKE(0xfd25, 0x58);	// Chan 0 control: 01011000 (see PlaySFX)  
-	POKE(0xfd2d, 0x58);	// Chan 1 control: 01011000
-	POKE(0xfd35, 0x58);	// Chan 2 control: 01011000
-	POKE(0xfd3d, 0x58);	// Chan 3 control: 01011000
 #endif
 }
 
@@ -196,8 +179,11 @@ void StopSFX()
 	} else {
 		asm("jsr $F421");	// Oric-1 (ROM 1.0)
 	}
-#elif define __LYNX__
-	lynx_snd_stop();
+#elif defined __LYNX__
+	unsigned char i;
+	for (i=0; i<4; i++) {
+		abcvolume(i, 0);
+	}
 #endif
 }
 
@@ -246,9 +232,12 @@ void EngineSFX(int channel, int vel)
 		asm("jsr $F424");	// Oric-1 (ROM 1.0)
 	}
 #elif defined __LYNX__
-	unsigned char tone;
-	tone = (600-vel)/60; 
-	PlaySFX(channel, 0x40, 0xff, 0xff, 0xff, tone, 0x38+6);
+	unsigned char freq = (160-vel/6)+channel*5;
+	abctaps(channel, 60);
+	abcoctave(channel, 2);
+	abcvolume(channel, 20);
+	abcintegrate(channel, 0);
+	abcpitch(channel, freq);
 #endif
 }
 
@@ -288,7 +277,12 @@ void BleepSFX(unsigned char tone)
 	PlaySFX(tone/4+12, 1000);
 	ResetChannels();	
 #elif defined __LYNX__	
-	PlaySFX(0, 0x80, 0x80, 0xff, 0xff, 0x80, 64+8+6);
+	abctaps(3, 7);
+	abcoctave(3, 2);
+	abcvolume(3, 60);
+	abcintegrate(3, 1);
+	abcpitch(3, 255-tone);
+	abctimers[3] = 15;
 #endif
 }
 
@@ -308,6 +302,11 @@ void BumpSFX()
 	PlaySFX(16, 100);
 	ResetChannels();	
 #elif defined __LYNX__	
-	PlaySFX(0, 0x80, 0x80, 0xff, 0xff, 0x80, 64+8+6);
+	abctaps(3, 7);
+	abcoctave(3, 4);
+	abcvolume(3, 60);
+	abcintegrate(3, 1);
+	abcpitch(3, 192);
+	abctimers[3] = 10;
 #endif
 }

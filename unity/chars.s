@@ -33,9 +33,12 @@
 	.export _charDot
 	.export _charExclaim
 	.export _charHyphen
+	.export _charPlus
 	.export _charQuestion
 	.export _charQuote
-	.export _charSlash
+	.export _charBwSlash
+	.export _charFwSlash
+	.export _charStar
 	.export _charUnderbar
 
 .segment "DATA"
@@ -93,11 +96,17 @@ _charExclaim:
 	.byte %01000100, %01000100, %00000100
 _charHyphen:
 	.byte %00000000, %00001110, %00000000
+_charPlus:
+	.byte %00000100, %11101110, %01000000
 _charQuestion:
 	.byte %01001010, %00100100, %00000100
 _charQuote:	
 	.byte %01000100, %01000000, %00000000
-_charSlash:
+_charBwSlash:
+	.byte %10001000, %01000100, %00100010
+_charFwSlash:
 	.byte %00100010, %01000100, %10001000
+_charStar:
+	.byte %00000100, %11101110, %10100000
 _charUnderbar:
 	.byte %00000000, %00000000, %00001110

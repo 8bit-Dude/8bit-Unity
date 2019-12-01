@@ -68,10 +68,10 @@ clock_t keybrdClock = 0;
 unsigned char keybrdShow = 0, keybrdVal = 0; 
 unsigned char keybrdJoy = 0, keybrdPressed = 0;
 signed char keybrdRow = 0, keybrdCol = 0;
-signed char keyCodes[4][14] = { { 49, 50, 51, 52, 53, 54, 55, 56, 57, 48, 40, 41, 20, 20 },
-								{ 81, 87, 69, 82, 84, 89, 85, 73, 79, 80, 58, 39, 45, 95 },
-								{ 65, 83, 68, 70, 71, 72, 74, 75, 76, 44, 46, 33, 63, 47 },
-								{ 90, 88, 67, 86, 66, 78, 77,  0, 32, 32,  0, 13, 13, 13 } };
+signed char keyCodes[4][13] = { { 49, 50, 51, 52, 53, 54, 55, 56, 57, 48, 45, 95, 43 },
+								{ 81, 87, 69, 82, 84, 89, 85, 73, 79, 80, 40, 41, 20 },
+								{ 65, 83, 68, 70, 71, 72, 74, 75, 76, 58, 39, 33, 13 },
+								{ 90, 88, 67, 86, 66, 78, 77, 44, 46, 63, 47, 92, 32 } };
 void ShowKeyboardOverlay() {
 	keybrdShow = 1;
 }
@@ -101,8 +101,8 @@ void UpdateKeyboardOverlay() {
 		if (!keybrdPressed) {  
 			keybrdPressed = 1;
 			keybrdClock = clock()-20;
-			if (!(keybrdJoy & JOY_LEFT)) { keybrdCol -= 1; if (keybrdCol<0)  keybrdCol = 13; }
-			if (!(keybrdJoy & JOY_RIGHT)){ keybrdCol += 1; if (keybrdCol>13) keybrdCol = 0; }
+			if (!(keybrdJoy & JOY_LEFT)) { keybrdCol -= 1; if (keybrdCol<0)  keybrdCol = 12; }
+			if (!(keybrdJoy & JOY_RIGHT)){ keybrdCol += 1; if (keybrdCol>12) keybrdCol = 0; }
 			if (!(keybrdJoy & JOY_UP))   { keybrdRow -= 1; if (keybrdRow<0)  keybrdRow = 3; }
 			if (!(keybrdJoy & JOY_DOWN)) { keybrdRow += 1; if (keybrdRow>3)  keybrdRow = 0; }
 			if (!(keybrdJoy & JOY_BTN1)) { keybrdVal = keyCodes[keybrdRow][keybrdCol]; }

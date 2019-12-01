@@ -109,9 +109,12 @@ extern const char charComma[3];
 extern const char charDot[3];
 extern const char charExclaim[3];
 extern const char charHyphen[3];
+extern const char charPlus[3];
 extern const char charQuestion[3];
 extern const char charQuote[3];
-extern const char charSlash[3];
+extern const char charBwSlash[3];
+extern const char charFwSlash[3];
+extern const char charStar[3];
 extern const char charUnderbar[3];
 
 // Colors for printing
@@ -269,20 +272,21 @@ void SetSprite(unsigned char index, unsigned char frame);
 
 // 8bit-Hub support (see http://www.8bit-unity.com/8bit-Hub)
 #if defined __HUB__	// see hub.c
-  #define CMD_DIR_LIST      1
-  #define CMD_FIL_READ      2
-  #define CMD_FIL_WRITE     3
+  #define COM_ERR_OK      	0
+  #define COM_ERR_OFFLINE 	1
+  #define COM_ERR_HEADER  	2 
+  #define COM_ERR_TRUNCAT 	3
+  #define COM_ERR_CORRUPT 	4
+  #define CMD_SYS_RESET     1
+  #define CMD_DIR_LIST      2
+  #define CMD_FIL_READ      3
+  #define CMD_FIL_WRITE     4
   #define CMD_UDP_INIT     10
   #define CMD_UDP_RECV     11
   #define CMD_UDP_SEND     12
   #define CMD_TCP_INIT     20
   #define CMD_TCP_RECV     21
   #define CMD_TCP_SEND     22
-  #define COMM_ERR_OK      0
-  #define COMM_ERR_NOHUB   1
-  #define COMM_ERR_NODATA  2
-  #define COMM_ERR_HEADER  3 
-  #define COMM_ERR_TRUNCAT 4
-  #define COMM_ERR_CORRUPT 5
-  unsigned char UpdateHub(void);
+  extern unsigned char hubState[8];
+  void UpdateHub(void);
 #endif
