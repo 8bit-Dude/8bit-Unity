@@ -132,7 +132,7 @@ extern unsigned char pixelX, pixelY;
   unsigned char GetJoy(unsigned char);
 #elif (defined __LYNX__)
   #define JOY_MAX 5
-  void InitJoy(void);
+  #define InitJoy() (PEEK(0))	// Dummy function
   unsigned char GetJoy(unsigned char);
 #else
   #define JOY_MAX 2
@@ -236,5 +236,6 @@ void RecolorSprite(unsigned char index, unsigned char number, unsigned char colo
   #define CMD_TCP_RECV     21
   #define CMD_TCP_SEND     22
   extern unsigned char hubState[8];
+  void InitHub(void);
   void UpdateHub(void);
 #endif

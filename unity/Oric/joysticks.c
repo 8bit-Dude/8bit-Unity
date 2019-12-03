@@ -32,10 +32,10 @@
 
 #include "unity.h"
 
+unsigned char joyState[4];
+
 unsigned char GetKey(unsigned char);		// see keyboard.s
 unsigned char GetJoyAdaptor(unsigned char);	// see JOY.s
-void FetchHub(void);						// see hub.c
-extern unsigned char recvHead[5];	
 
 unsigned char GetJoy(unsigned char joy)
 {
@@ -64,7 +64,11 @@ unsigned char GetJoy(unsigned char joy)
 		state = GetJoyAdaptor(1);	// Joy #3:  ALTAI/PASE/IJK Right
 		return state;
 	default:
-		FetchHub();
-		return recvHead[joy-4];		// Joy #4-#7: 8bit-Hub (Refresh state by calling FetchHub())
+		// Get state from HUB
+		UpdateHub();
+		if (hubState[0] < COM_ERR_TRUNCAT) {
+			joyState[joy-4] = hubState[joy-3];
+		}
+		return joyState[joy];
 	}
 }

@@ -31,7 +31,7 @@
 #endif
 
 #ifdef __ATARIXL__
-#pragma code-name("SHADOW_RAM")
+  #pragma code-name("SHADOW_RAM")
 #endif
 
 #if defined __ATARI__

@@ -607,11 +607,12 @@ void PrintLogo(unsigned char col, unsigned char row, unsigned char index)
 {
 #if defined __APPLE2__
 	// Define logos
-	unsigned char logos[5][5][3] = { { { 0, 2, 0}, { 2, 0, 2}, { 2, 0, 0}, { 2, 0,12}, { 0, 2, 0} },   // C64
-									 { { 0,12, 0}, {12, 0,12}, {11,11,11}, {11, 0,11}, { 7, 0, 7} },   // ATR
-								     { { 0, 0,12}, { 0,12, 0}, {11,11,11}, {11,11,11}, { 0, 7, 0} },   // APP
+	unsigned char logos[6][5][3] = { { { 0,11, 0}, {11, 0,11}, {11, 0, 0}, {11, 0,12}, { 0,11, 0} },   // C64
+									 { { 0, 7, 0}, { 7, 0, 7}, { 9, 9, 9}, { 4, 0, 4}, {11, 0,11} },   // ATR
+								     { { 0, 0, 7}, { 0, 7, 0}, { 9, 9, 9}, { 4, 4, 4}, { 0,11, 0} },   // APP
 								     { { 0,15,12}, {15,12,15}, {15,12,15}, {12,15, 0}, {12,12,12} },   // ORI
-								     { { 7, 5, 0}, { 7, 5, 7}, { 7, 7, 7}, { 7, 5, 7}, { 7, 7, 7} } }; // FLP
+								     { {12, 0,12}, {12,12, 0}, { 0,12, 0}, { 0,12,12}, {12, 0,12} },   // LNX
+								     { {11, 7, 0}, {11, 7,11}, {11,11,11}, {11, 7,11}, {11,11,11} } }; // FLP
 	unsigned int x,y;
 	unsigned char i,j,n;
 	
@@ -633,10 +634,11 @@ void PrintLogo(unsigned char col, unsigned char row, unsigned char index)
 	}
 #elif defined __ATARI__
 	// Define logos (1=Red, 2=Blue, 3=Green)
-	unsigned char logos[5][8] = { {0,0,0, 32,136,128,132, 32}, 		// C64: (0,2,0,0) (2,0,2,0) (2,0,0,0) (2,0,1,0) (0,2,0,0)
+	unsigned char logos[6][8] = { {0,0,0, 32,136,128,132, 32}, 		// C64: (0,2,0,0) (2,0,2,0) (2,0,0,0) (2,0,1,0) (0,2,0,0)
 								  {0,0,0, 48,204, 84, 68,136},		// ATR: (0,3,0,0) (3,0,3,0) (1,1,1,0) (1,0,1,0) (2,0,2,0)
 								  {0,0,0, 12, 48, 84,168, 32},  	// APP: (0,0,3,0) (0,3,0,0) (1,1,1,0) (2,2,2,0) (0,2,0,0)
 								  {0,0,0, 52,220,220,112, 84},  	// ORI: (0,3,1,0) (3,1,3,0) (3,1,3,0) (1,3,0,0) (1,1,1,0)
+								  {0,0,0, 68, 80, 16, 20, 68},  	// LNX: (1,0,1,0) (1,1,0,0) (0,1,0,0) (0,1,1,0) (1,0,1,0)
 								  {0,0,0,188,190,170,190,170} };	// FLP: (2,3,3,0) (2,3,3,2) (2,2,2,2) (2,3,3,2) (2,2,2,2)
 	unsigned int addr1, addr2;
 	unsigned char i;
@@ -649,12 +651,13 @@ void PrintLogo(unsigned char col, unsigned char row, unsigned char index)
 	for (i=0; i<8; ++i) {
 		POKE(addr1+i*40, logos[index][i]);
 		POKE(addr2+i*40, logos[index][i]);
-	}	
+	}
 #elif defined __ATMOS__
-	unsigned char logos[5][8] = { {0,0,0,12,18,16,23,12}, 	// C64: (0,0,1,1,0,0) (0,1,0,0,1,0) (0,1,0,0,0,0) (0,1,0,1,1,1) (0,0,1,1,0,0)
+	unsigned char logos[6][8] = { {0,0,0,12,18,16,23,12}, 	// C64: (0,0,1,1,0,0) (0,1,0,0,1,0) (0,1,0,0,0,0) (0,1,0,1,1,1) (0,0,1,1,0,0)
 								  {0,0,0,12,18,30,18,18}, 	// ATR: (0,0,1,1,0,0) (0,1,0,0,1,0) (0,1,1,1,1,0) (0,1,0,0,1,0) (0,1,0,0,1,0)
 								  {0,0,0, 2,12,30,30,12}, 	// APP: (0,0,0,0,1,0) (0,0,1,1,0,0) (0,1,1,1,1,0) (0,1,1,1,1,0) (0,0,1,1,0,0)
-								  {0,0,0,13,18,18,28,30}, 	// ORI: (0,0,1,1,0,1) (0,1,0,0,1,0) (0,1,0,0,1,0) (0,1,1,1,0,0) (0,1,1,1,1,0)
+								  {0,0,0,13,18,22,28,30}, 	// ORI: (0,0,1,1,0,1) (0,1,0,0,1,0) (0,1,0,1,1,0) (0,1,1,1,0,0) (0,1,1,1,1,0)
+								  {0,0,0,27,28, 4, 7,27}, 	// LNX: (0,1,1,0,1,1) (0,1,1,1,0,0) (0,0,0,1,0,0) (0,0,0,1,1,1) (0,1,1,0,1,1)
 								  {0,0,0,30,18,30,30,30} };	// FLP: (0,1,1,1,1,0) (0,1,0,0,1,0) (0,1,1,1,1,0) (0,1,1,1,1,0) (0,1,1,1,1,0)
 	unsigned int addr;
 	unsigned char i;
@@ -665,11 +668,12 @@ void PrintLogo(unsigned char col, unsigned char row, unsigned char index)
 		POKE((char*)addr+i*40, 64+logos[index][i]);
 	}								  
 #elif defined __CBM__
-	// Define logos (1=Blue, 2=Red, 3=Green) 
-	unsigned char logos[5][8] = { {0,0,0, 16, 68, 64, 72, 16}, 		// C64: (0,1,0,0) (1,0,1,0) (1,0,0,0) (1,0,2,0) (0,1,0,0)
-								  {0,0,0, 16, 68,168,136,204},		// ATR: (0,1,0,0) (1,0,1,0) (2,2,2,0) (2,0,2,0) (3,0,3,0)
-								  {0,0,0,  4, 16,168,168, 48},		// APP: (0,0,1,0) (0,1,0,0) (2,2,2,0) (2,2,2,0) (0,3,0,0)
-								  {0,0,0, 56,236,236,176,168},		// ORI: (0,3,2,0) (3,2,3,0) (3,2,3,0) (2,3,0,0) (2,2,2,0)
+	// Define logos (1=Green, 2=Red, 3=Blue) 
+	unsigned char logos[6][8] = { {0,0,0, 48,204,192,200, 48}, 		// C64: (0,3,0,0) (3,0,3,0) (3,0,0,0) (3,0,2,0) (0,3,0,0)
+								  {0,0,0, 16, 68,168,204,204},		// ATR: (0,1,0,0) (1,0,1,0) (2,2,2,0) (3,0,3,0) (3,0,3,0)
+								  {0,0,0,  4, 16,168,252, 48},		// APP: (0,0,1,0) (0,1,0,0) (2,2,2,0) (3,3,3,0) (0,3,0,0)
+								  {0,0,0, 24,100,100,144,168},		// ORI: (0,1,2,0) (1,2,1,0) (1,2,1,0) (2,1,0,0) (2,2,2,0)
+								  {0,0,0,136,160, 32, 40,136},		// LNX: (2,0,2,0) (2,2,0,0) (0,2,0,0) (0,2,2,0) (2,0,2,0)
 								  {0,0,0,212,215,255,215,255} };	// FLP: (3,1,1,0) (3,1,1,3) (3,3,3,3) (3,1,1,3) (3,3,3,3)
 	unsigned int addr1, addr2;
 	unsigned char i;
@@ -679,16 +683,30 @@ void PrintLogo(unsigned char col, unsigned char row, unsigned char index)
 	addr2 = SCREENRAM + row*40+col;
 	
 	// Set logo colors
-	if (index == 0)	{	// C64
-		POKE(addr2, BLUE << 4 | RED);
-	} else {
-		POKE(addr2, GREEN << 4 | PURPLE);
-		POKE(COLORRAM + row*40+col, BLUE);
-	}
+	POKE(addr2, GREEN << 4 | RED);
+	POKE(COLORRAM + row*40+col, BLUE);
 
 	// Set Character data
 	for (i=0; i<8; ++i) {
 		POKE(addr1+i, logos[index][i]);
+	}
+#elif defined __LYNX__	
+	// Define logos (2=Blue, 5=Green, 8=Orange, b=Red, d=White) 
+	unsigned char logos[6][6][2] = { {{0xff,0xff},{0xf2,0xff},{0x2f,0x2f},{0x2f,0xff},{0x2f,0xbf},{0xf2,0xff}}, 	// C64
+									 {{0xff,0xff},{0xf5,0xff},{0x5f,0x5f},{0x88,0x8f},{0xbf,0xbf},{0x2f,0x2f}}, 	// ATR
+									 {{0xff,0xff},{0xff,0x5f},{0xf5,0xff},{0x88,0x8f},{0xbb,0xbf},{0xf2,0xff}}, 	// APP
+								     {{0xff,0xff},{0xfd,0xbf},{0xdb,0xdf},{0xdb,0xdf},{0xbd,0xff},{0xbb,0xbf}}, 	// ORI
+									 {{0xff,0xff},{0x8f,0x8f},{0x88,0xff},{0xf8,0xff},{0xf8,0x8f},{0x8f,0x8f}}, 	// LNX
+									 {{0xff,0xff},{0x2d,0xdf},{0x2d,0xd2},{0x22,0x22},{0x2d,0xd2},{0x22,0x22}} }; 	// FLP
+	unsigned int addr;
+	unsigned char i,j;
+								  
+	// Set Character data
+	addr = BITMAPRAM+1 + row*(6*82) + col*2;
+	for (i=0; i<6; ++i) {
+		for (j=0; j<2; ++j) {
+			POKE(addr+i*82+j, logos[index][i][j]);
+		}
 	}
 #endif
 }
@@ -767,7 +785,7 @@ void PrintChr(unsigned char col, unsigned char row, const char *chr)
 	unsigned char a0,a2,a4,b,blank;
 	unsigned int addr;
 	if ((col > CHR_COLS) || (row > CHR_ROWS)) { return; }		
-	addr = BITMAPRAM + row*320 + (col+1);
+	addr = BITMAPRAM+1 + row*320 + col;
 	blank = 64+ (paperColor ? 63 : 0);
 	if (chr == &charBlank[0]) {
 		for (i=0; i<8; ++i) {
@@ -804,13 +822,13 @@ void PrintChr(unsigned char col, unsigned char row, const char *chr)
 	}
 	
 	// Set Color
-	addr = SCREENRAM + row*40+col;
+	addr = SCREENRAM + row*40 + col;
 	POKE((char*)addr, inkColor << 4 | paperColor);
 #elif defined __LYNX__
 	// Set Character Pixels
 	unsigned char i,j,offset;
 	unsigned int addr;
-	addr = BITMAPRAM + row*(6*82) + col*2 + 1;
+	addr = BITMAPRAM+1 + row*(6*82) + col*2;
 	POKE((char*)addr++, (paperColor << 4) | paperColor);
 	POKE((char*)addr++, (paperColor << 4) | paperColor);
 	addr += 80;
@@ -877,21 +895,21 @@ void PrintBuffer(char *buffer)
 	buffer[CHR_COLS] = 0;
 	len = strlen(buffer);
 #if defined __CBM__
-	// Roll bitmap and screen ram
+	// Copy bitmap and screen ram
 	DisableRom();
-	memcpy((char*)BITMAPRAM, (char*)(BITMAPRAM+len*8), (CHR_COLS-len)*8);
+	memcpy((char*)BITMAPRAM, (char*)BITMAPRAM+len*8, (CHR_COLS-len)*8);
 	EnableRom();
-	memcpy((char*)SCREENRAM, (char*)(SCREENRAM+len), (CHR_COLS-len));
+	memcpy((char*)SCREENRAM, (char*)SCREENRAM+len, (CHR_COLS-len));
 #elif defined __ATARI__
-	// Roll bitmap 1 and 2
+	// Copy bitmap 1 and 2
 	for (i=0; i<8; ++i) {
-		memcpy((char*)BITMAPRAM1+i*40, (char*)(BITMAPRAM1+len)+i*40, (CHR_COLS-len));
-		memcpy((char*)BITMAPRAM2+i*40, (char*)(BITMAPRAM2+len)+i*40, (CHR_COLS-len));
+		memcpy((char*)BITMAPRAM1+i*40, (char*)BITMAPRAM1+i*40+len, (CHR_COLS-len));
+		memcpy((char*)BITMAPRAM2+i*40, (char*)BITMAPRAM2+i*40+len, (CHR_COLS-len));
 	}
 #elif defined __ATMOS__
-	// Roll bitmap RAM
+	// Copy bitmap RAM
 	for (i=0; i<8; ++i) {
-		memcpy((char*)BITMAPRAM+1+i*40, (char*)(BITMAPRAM+1+len)+i*40, (CHR_COLS-len));
+		memcpy((char*)BITMAPRAM+1+i*40, (char*)BITMAPRAM+1+i*40+len, (CHR_COLS-len));
 	}
 	// Check for ink changes
 	if (buffer[0] == '^') {
@@ -899,7 +917,7 @@ void PrintBuffer(char *buffer)
 		buffer = &buffer[1];
 	}
 #elif defined __APPLE2__
-	// Always move 7 pixels at a time!
+	// Always copy 7 pixels at a time!
 	len = 2*(len/2+len%2);
 	for (i=0; i<8; ++i) {
 		SetDHRPointer(0, i);		
@@ -909,6 +927,11 @@ void PrintBuffer(char *buffer)
 		memcpy((char*)(dhrptr), (char*)(dhrptr+len), (CHR_COLS-len));
 	}
 	if (strlen(buffer)%2) { PrintChr(CHR_COLS-1, 0, charBlank); }
+#elif defined __LYNX__
+	// Copy bitmap RAM
+	for (i=0; i<6; ++i) {	
+		memcpy((char*)BITMAPRAM+1+i*82, (char*)BITMAPRAM+1+i*82+len*2, (CHR_COLS-len)*2);
+	}
 #endif
 	// Print new message
 	PrintStr(CHR_COLS-len, 0, buffer);

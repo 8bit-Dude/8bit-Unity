@@ -27,16 +27,10 @@
 #include "unity.h"
 
 #ifdef __ATARIXL__
-  #pragma code-name("SHADOW_RAM")
+  #pragma code-name("SHADOW_RAM2")
 #endif
 
 #ifdef __HUB__
-  #define CMD_UDP_INIT     10
-  #define CMD_UDP_RECV     11
-  #define CMD_UDP_SEND     12
-  #define CMD_TCP_INIT     20
-  #define CMD_TCP_RECV     21
-  #define CMD_TCP_SEND     22
   extern unsigned char sendLen, recvLen;
   extern unsigned char sendBuffer[256];
   extern unsigned char recvBuffer[256];
@@ -62,12 +56,13 @@
 unsigned char InitNetwork(void)
 {
 #ifdef __HUB__
-	// Check HUB state
-	//if (hubNetwork) {
-		return NETWORK_OK;
-	//} else {
-	//	return ADAPTOR_ERR;
-	//}
+	// Detect if HUB is connected
+	clock_t timer = clock();
+	while ((clock()-timer) < 2*CLK_TCK) { 
+		if (hubState[0] == COM_ERR_OK) { return NETWORK_OK; }
+		UpdateHub();
+	}
+	return ADAPTOR_ERR;
 #else
 	// Init IP65 and DHCP
 	if (ip65_init()) { return ADAPTOR_ERR; }
@@ -120,6 +115,10 @@ void InitUDP(unsigned char ip1, unsigned char ip2, unsigned char ip3, unsigned c
 #endif
 }
 
+#ifdef __ATARIXL__
+  #pragma code-name("SHADOW_RAM")
+#endif
+
 void SendUDP(unsigned char* buffer, unsigned char length) 
 {
 #ifndef __HUB__
@@ -160,9 +159,7 @@ unsigned int RecvUDP(unsigned int timeOut)
 	while (1) {
 		// Check if we received packet
 		ip65_process();
-		if (udp_recv_packet) {
-			return udp_recv_packet;
-		}
+		if (udp_recv_packet) { return udp_recv_packet; }
 		
 		// Check time-out
 		if (clock() - timer > timeOut) { return 0; }	

@@ -27,11 +27,11 @@
 #include "unity.h"
 
 #ifdef __APPLE2__
-#pragma code-name("LC")
+  #pragma code-name("LC")
 #endif
 
 #ifdef __ATARIXL__
-#pragma code-name("SHADOW_RAM")
+  #pragma code-name("SHADOW_RAM")
 #endif
 
 // Apple II specific init function

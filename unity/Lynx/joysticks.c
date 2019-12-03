@@ -30,14 +30,9 @@
  *
  */
 
-#include "../unity.h"
+#include "unity.h"
 
-extern unsigned char hubState[7];	// see hub.c
-unsigned char joyState[5];
-
-void InitJoy(void) { 
-	// Do nothing
-}
+unsigned char joyState[4];
 
 unsigned char GetJoy(unsigned char joy)
 {
@@ -45,13 +40,14 @@ unsigned char GetJoy(unsigned char joy)
 	switch (joy) {
 	case 0:
 		// Get state from registry
-		joyState[joy] = ~PEEK(0xfcb0);
+		return ~PEEK(0xfcb0);
 		break;
 	default:
-		// Make sure to use RefreshHub() in main loop!
-		if (hubState[0] < COMM_ERR_TRUNCAT) {
+		// Get state from HUB
+		UpdateHub();
+		if (hubState[0] < COM_ERR_TRUNCAT) {
 			joyState[joy] = hubState[joy];
 		}
+		return joyState[joy];
 	}
-	return joyState[joy];
 }
