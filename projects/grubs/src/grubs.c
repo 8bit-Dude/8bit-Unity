@@ -31,22 +31,27 @@
 #define HEALTH_LOW RED
 #define HEALTH_MED ORANGE
 #if defined __APPLE2__
+	#define KEY_NEXT	KEY_SP
 	#define SKY 		LBLUE
 	#define HEALTH_HIGH LGREEN
 	#define GRND_OFFST	7
 #elif defined __ATARI__
+	#define KEY_NEXT	KEY_SP
 	#define SKY 		BLUE
 	#define HEALTH_HIGH GREEN
 	#define GRND_OFFST	4
 #elif defined __CBM__
+	#define KEY_NEXT	KEY_SP
 	#define SKY 		CYAN
 	#define HEALTH_HIGH GREEN
 	#define GRND_OFFST	4
 #elif defined __ATMOS__
+	#define KEY_NEXT	KEY_SP
 	#define SKY 		BLACK
 	#define HEALTH_HIGH MGREEN
 	#define GRND_OFFST	5
 #elif defined __LYNX__
+	#define KEY_NEXT	49
 	#define SKY 		LBLUE
 	#define HEALTH_HIGH GREEN
 	#define GRND_OFFST	7
@@ -454,7 +459,9 @@ void Explosion(unsigned int x, unsigned int y)
 		while (clock()-gameClock < 8) { 
 		#if defined __APPLE2__
 			tick();	// Virtual clock on Apple
-		#endif		
+		#elif defined __LYNX__
+			UpdateDisplay(); // Refresh Lynx screen
+		#endif
 		}
 		gameClock = clock();		
 	}
@@ -548,6 +555,28 @@ void ProcessProj(Proj *proj)
 	}
 }
 
+void SplashScreen(void)
+{
+	// Load and show banner
+	ExitBitmapMode();
+	LoadBitmap("banner.map");
+	EnterBitmapMode();
+	
+	// Show credit/build
+	paperColor = SKY; 
+	inkColor = WHITE; 
+	PrintStr(CHR_COLS-12, CHR_ROWS-4, "TECH DEMO");		
+	PrintStr(CHR_COLS-13, CHR_ROWS-3, "BY 8BIT-DUDE");		
+	PrintStr(CHR_COLS-12, CHR_ROWS-2,  "2019/09/18");
+
+	// Wait until 'SPACE' is pressed
+	while (!kbhit () || cgetc () != KEY_NEXT) {	
+	#if defined __LYNX__
+		UpdateDisplay(); // Refresh Lynx screen
+	#endif
+	}	
+}
+
 int main(void) 
 {
 	Grub *grub;
@@ -559,29 +588,15 @@ int main(void)
     bgcolor(COLOR_BLACK);
 
 	// Initialize sfx, bitmap, sprites
-	InitSFX();
 	InitBitmap();
 	InitSprites(spriteFrames, spriteCols, spriteRows, spriteColors);	
+	InitSFX();
 	
-	// Load and show banner
-	LoadBitmap("banner.map");
-	EnterBitmapMode();
-	
-	// Show credit/build
-	paperColor = SKY; 
-	inkColor = WHITE; 
-	PrintStr(CHR_COLS-12, CHR_ROWS-3, "TECH DEMO");		
-	PrintStr(CHR_COLS-13, CHR_ROWS-2, "BY 8BIT-DUDE");		
-	PrintStr(CHR_COLS-12, CHR_ROWS-1,  "2019/09/18");
-
-	// Wait until 'SPACE' is pressed
-	while (!kbhit () || cgetc () != KEY_SP) {	
-	#if defined __LYNX__
-		UpdateDisplay(); // Refresh Lynx screen
-	#endif
-	}
+	// Show splash screen
+	SplashScreen();
 		
 	// Load and show playfield
+	ExitBitmapMode();
 	LoadBitmap("pumpkins.map");
 	EnterBitmapMode();
 
@@ -589,7 +604,7 @@ int main(void)
 	InitGrubs();
 	InitProjs();
 	
-	// Show until keyboard is pressed
+	// Run game indefinetely
 	gameClock = clock();	
 	projClock = clock();	
 	while (1) {
