@@ -7,6 +7,10 @@ int DemoUDP(void)
 {
 	unsigned char state, line;
 	unsigned char sendBuffer[1];	// Can be as long as you wish...
+	unsigned int packet;
+	
+	// Clear screen
+	clrscr();
 	
 	// Prepare bitmap
 	InitBitmap();
@@ -15,7 +19,7 @@ int DemoUDP(void)
 	
 	// Print header
 	paperColor = BLACK; inkColor = WHITE;
-	PrintStr(0, line++, "Initializing Network...");	
+	PrintStr(0, line++, "Initializing Network...");
 	
 	// Init network and listen on UDP port 5000
 	state = InitNetwork();
@@ -36,27 +40,27 @@ int DemoUDP(void)
 		SendUDP(sendBuffer, 1);
 			
 		// Fetch server response
-		RecvUDP(5*CLK_TCK); // Allow short time-out, as server is localhost
-		if (!udp_packet) {
+		packet = RecvUDP(3*CLK_TCK); // Allow some time-out
+		if (!packet) {
 			// No data received: packet pointer is null
 			PrintStr(0, line++, "ERROR: TIMEOUT");
 			
-		} else if (PEEK(udp_packet) != REQUEST_INFO) {
+		} else if (PEEK(packet) != REQUEST_INFO) {
 			// Packet header does not match
 			PrintStr(0, line++, "ERROR: CORRUPTION");
 			
 		} else {
-			// Print packet contents (you can check byte length with PEEK(udp_packet+1))
+			// Print packet contents (you can check byte length with PEEK(packet+1))
 			PrintStr(0, line++, "Received Packet:");
-			PrintStr(0, line++, (char*)(udp_packet+2));
+			PrintStr(0, line++, (char*)(packet+2));
 		}
 	}
-	
-	// Wait for keyboard
-	PrintStr(0,line++, "Press SPACE for next test");	
-	cgetc();
-	
-    // Done
-	ExitBitmapMode();	
-    return EXIT_SUCCESS;	
+
+	// Run endlessly
+	PrintStr(0,line++, "All demos completed");	
+	while (1) {	
+	#if defined __LYNX__
+		UpdateDisplay(); // Refresh Lynx screen
+	#endif		
+	}	
 }

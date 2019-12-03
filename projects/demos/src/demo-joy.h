@@ -1,9 +1,13 @@
 
 #include "unity.h"
 
+extern const char keyNext, pressKeyMsg[];
+
 #if defined __ATMOS__
 	const char* joyList[] = { "WASD+CTR", "IJKL+RET", "PASE/IJK 1", "PASE/IJK 2" };
-#else
+#elif defined __LYNX__
+	const char* joyList[] = { "JOY 1", "HUB 1", "HUB 2", "HUB 3", "HUB 4" };
+#else 
 	const char* joyList[] = { "JOY 1", "JOY 2", "JOY 3", "JOY 4" };
 #endif
 
@@ -11,23 +15,25 @@ int DemoJOY(void)
 {
 	unsigned char i, joy, state[11];
 	
+	// Clear screen
+	clrscr();
+	
 	//	Init joystick adapters
 	InitJoy();
 	
 	// Print header
-	clrscr();
-	gotoxy (2, 2);
-	cprintf("Joystick demo (press SPACE for next)");	
+	gotoxy (8, 2);
+	cprintf(pressKeyMsg);	
 	for (i=0; i<JOY_MAX; i++) {
-		gotoxy (7, 8+2*i);
+		gotoxy (7, 4+2*i);
 		cprintf(joyList[i]);
 	}
 	
 	// Display joystick actions until 'SPACE' is pressed
-	while (!kbhit () || cgetc () != KEY_SP) {
+	while (!kbhit () || cgetc () != keyNext) {
 	#if defined __LYNX__
 		UpdateDisplay(); // Refresh Lynx screen
-	#endif			
+	#endif
 		for (i=0; i<JOY_MAX; i++) {
 			joy = GetJoy(i);
 			memset(state, ' ', 10);
@@ -36,12 +42,11 @@ int DemoJOY(void)
 			if (joy & JOY_LEFT)  { state[4] = 'L'; }
 			if (joy & JOY_RIGHT) { state[6] = 'R'; }
 			if (joy & JOY_BTN1)  { state[8] = 'F'; }
-			gotoxy (19, 8+2*i);
+			gotoxy (19, 4+2*i);
 			cprintf(state);
 		}
 	}
 	
     // Done
-	clrscr();	
     return EXIT_SUCCESS;	
 }

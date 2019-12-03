@@ -1,15 +1,20 @@
 
 #include "unity.h"
 
+extern const char keyNext;
+
 int DemoBMP(void) 
 {
+	// Clear screen
+	clrscr();
+	
 	// Prepare bitmap
 	InitBitmap();
 	LoadBitmap("banner.map");
 	EnterBitmapMode();
 	
 	// Wait until 'SPACE' is pressed
-	while (!kbhit () || cgetc () != KEY_SP) {	
+	while (!kbhit () || cgetc () != keyNext) {	
 	#if defined __LYNX__
 		UpdateDisplay(); // Refresh Lynx screen
 	#endif		
