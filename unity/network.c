@@ -26,31 +26,33 @@
 
 #include "unity.h"
 
+#ifdef __APPLE2__
+  #pragma code-name("LC")
+#endif
+
 #ifdef __ATARIXL__
-  #pragma code-name("SHADOW_RAM2")
+  #pragma code-name("SHADOW_RAM")
 #endif
 
 #ifdef __HUB__
+  // Use serial communication
   extern unsigned char sendLen, recvLen;
   extern unsigned char sendBuffer[256];
   extern unsigned char recvBuffer[256];
 #else
+  // Use IP65 library
   #define EncodeIP(a,b,c,d) (a+b*256+c*65536+d*16777216)
   unsigned long udp_send_ip;
   unsigned int udp_send_port;
   unsigned int udp_recv_port;
   unsigned int udp_recv_packet;
-#endif
-
-// IP65 functions (see linked libraries)
-#ifndef __HUB__
   extern unsigned char udp_recv_buf[192];   // Buffer with data received (length hard-coded in IP65)
-  unsigned char ip65_init(void);
-  unsigned char ip65_process(void);
-  unsigned char dhcp_init(void);
   unsigned char __fastcall__ udp_send(const unsigned char* buf, unsigned int len, unsigned long dest,  unsigned int dest_port, unsigned int src_port);
   unsigned char __fastcall__ udp_add_listener(unsigned int port, void (*callback)(void));
   unsigned char __fastcall__ udp_remove_listener(unsigned int port);
+  unsigned char ip65_init(void);
+  unsigned char ip65_process(void);
+  unsigned char dhcp_init(void);
 #endif
 
 unsigned char InitNetwork(void)
@@ -114,10 +116,6 @@ void InitUDP(unsigned char ip1, unsigned char ip2, unsigned char ip3, unsigned c
 	}
 #endif
 }
-
-#ifdef __ATARIXL__
-  #pragma code-name("SHADOW_RAM")
-#endif
 
 void SendUDP(unsigned char* buffer, unsigned char length) 
 {

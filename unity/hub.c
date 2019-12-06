@@ -12,8 +12,8 @@
 #endif
 
 unsigned char hubState[8] = { COM_ERR_OFFLINE, 255, 255, 255, 255, 0, 0, 0 };
-unsigned char sendLen = 0, sendBuffer[256];
-unsigned char recvLen = 0, recvBuffer[256];
+unsigned char sendLen = 0, sendBuffer[192];
+unsigned char recvLen = 0, recvBuffer[192];
 unsigned char recvID = 0, tick;
 clock_t hubClock = 0;
 
