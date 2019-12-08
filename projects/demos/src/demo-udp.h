@@ -40,7 +40,7 @@ int DemoUDP(void)
 		SendUDP(sendBuffer, 1);
 			
 		// Fetch server response
-		packet = RecvUDP(3*CLK_TCK); // Allow some time-out
+		packet = RecvUDP(3*TCK_PER_SEC); // Allow some time-out
 		if (!packet) {
 			// No data received: packet pointer is null
 			PrintStr(0, line++, "ERROR: TIMEOUT");
