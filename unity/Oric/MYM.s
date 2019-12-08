@@ -32,9 +32,9 @@
 VIA_1 = $30f
 VIA_2 = $30c
 
-_PlayerBuffer 	 =	$8200		; .dsb 256*14 (About 3.5 kilobytes)
-_PlayerBufferEnd =	$9000
-_MusicData 		 =	$9000		
+_MusicData 		 =	$8000		
+_PlayerBuffer 	 =	$9000		; .dsb 256*14 (About 3.5 kilobytes)
+_PlayerBufferEnd =	$9fff
 	
 	.segment	"DATA"	
 	

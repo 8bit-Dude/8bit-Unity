@@ -73,4 +73,6 @@
 #define LGREEN  13
 #define LBLUE   14
 #define LGREY   15
-	
+
+// Clock
+#define TCK_PER_SEC	CLK_TCK

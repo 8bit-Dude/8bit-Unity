@@ -109,21 +109,12 @@ extern unsigned char pixelX, pixelY;
 #endif
 
 // Joystick definitions
-#if defined __LYNX__
-  #define JOY_UP    128
-  #define JOY_DOWN  64
-  #define JOY_LEFT  32
-  #define JOY_RIGHT 16
-  #define JOY_BTN1  2
-  #define JOY_BTN2  1
-#else
-  #define JOY_UP    1
-  #define JOY_DOWN  2
-  #define JOY_LEFT  4
-  #define JOY_RIGHT 8
-  #define JOY_BTN1  16
-  #define JOY_BTN2  32
-#endif
+#define JOY_UP    1
+#define JOY_DOWN  2
+#define JOY_LEFT  4
+#define JOY_RIGHT 8
+#define JOY_BTN1  16
+#define JOY_BTN2  32
 
 // Joystick functions
 #if (defined __CBM__) || (defined __ATMOS__)
@@ -131,7 +122,7 @@ extern unsigned char pixelX, pixelY;
   void InitJoy(void);
   unsigned char GetJoy(unsigned char);
 #elif (defined __LYNX__)
-  #define JOY_MAX 5
+  #define JOY_MAX 3
   #define InitJoy() (PEEK(0))	// Dummy function
   unsigned char GetJoy(unsigned char);
 #else

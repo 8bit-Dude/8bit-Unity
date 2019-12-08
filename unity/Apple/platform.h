@@ -76,7 +76,7 @@ unsigned char GetDHRColor(void);
 #define CH_DEL  0x08
 
 // Workaround for missing clock (see CLOCK.c)
-#define CLK_TCK 59
+#define TCK_PER_SEC	59
 void tick(void);
 clock_t clock(void);
 unsigned sleep(unsigned seconds);

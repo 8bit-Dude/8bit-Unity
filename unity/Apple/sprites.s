@@ -83,7 +83,7 @@ _dhrLinesLO:
 
 _mainAuxTog: .res 1
 
-	.segment	"CODE"
+	.segment	"LOWCODE"
 
 ; ---------------------------------------------------------------
 ; int __near__ _DHRLine (char line)

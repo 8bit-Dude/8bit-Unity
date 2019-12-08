@@ -35,9 +35,9 @@
  */
  
 // Memory Map
-#define MUSICBUF   (0x8200) // 8200-8fff (music buffer used by player)
-#define MUSICRAM   (0x9000) // 9000-97ff (compressed music data)
-#define SPRITERAM  (0x9C00)	// 9C00-9fff (location of sprite frames)
+#define SPRITERAM  (0x7800)	// 7800-7fff (location of sprite frames)
+#define MUSICRAM   (0x8000) // 8000-8fff (compressed music data)
+#define MUSICBUF   (0x9000) // 9000-9fff (music buffer used by player)
 #define BITMAPRAM  (0xA000) // A000-Bfff (address where bitmaps are loaded)
 
 // Character Mode
@@ -72,6 +72,9 @@
 #define LPURPLE 17
 #define LPINK   18
 #define PURPLE  19
+
+// Clock
+#define TCK_PER_SEC	CLK_TCK
 
 // Workaround for file reading
 #if defined __ATMOS__

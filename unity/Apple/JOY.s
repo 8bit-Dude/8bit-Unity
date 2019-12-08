@@ -33,7 +33,7 @@
 PREAD = $FB1E   ; Read paddle in X, return AD conv. value in Y
 THRESHOLD = 32  ; Deviation from center triggering movement
 
-	.code
+	.segment "LOWCODE"	
 	
 ; ---------------------------------------------------------------
 ; unsigned char __near__ _GetJoy (unsigned char)

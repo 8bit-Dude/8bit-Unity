@@ -40,7 +40,7 @@
 
 // Memory Map
 #define BITMAPRAM  (0x9F8B)
-#define MUSICRAM   (0x0000) 	
+#define MUSICRAM   (0x0000)
 
 // Character Mode
 #define CHR_COLS 40
@@ -72,3 +72,6 @@
 // Workaround for missing chardefs
 #define CH_DEL   0x14
 #define CH_ENTER 0x0D
+
+// Clock
+#define TCK_PER_SEC	60

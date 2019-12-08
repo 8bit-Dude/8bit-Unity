@@ -26,10 +26,6 @@
  
 #include "unity.h"
 
-#ifdef __APPLE2__
-  #pragma code-name("LC")
-#endif
-
 #ifdef __ATARIXL__
   #pragma code-name("SHADOW_RAM")
 #endif
@@ -128,6 +124,10 @@
 	void StopMusic() { 
 		lynx_snd_stop();
 	}
+#endif
+
+#ifdef __APPLE2__
+  #pragma code-name("LC")
 #endif
 
 void LoadMusic(const char* filename, unsigned int address)
@@ -253,12 +253,14 @@ void BleepSFX(unsigned char tone)
 	sampleFreq = 255-tone;
 	sampleCtrl = 170;
 #elif defined __APPLE2__
+	unsigned char interval;
 	unsigned char repeat = 64;
-	unsigned char interval = (255-tone)/48;
+	interval = 8-tone/32;
+	
 	if (sfxOutput) {
 		// Mocking board sound
 		sfxData[7] &= ~DISABLE_TONE_C;
-		sfxData[4] = tone;
+		sfxData[4] = 255-tone;
 		SFXMocking(sfxData);		
 		while (repeat) { 
 			if (repeat%interval) { }
@@ -294,6 +296,12 @@ void BumpSFX()
 	SID.v3.sr   = 0xA8; // sustain, release
 	SID.v3.ctrl = 0x21; // square wave, set attack bit
 	SID.v3.ctrl = 0x20; // release attack bit
+#elif defined __APPLE2__
+	unsigned char repeat = 8;
+	while (repeat) {
+		if (repeat%4) { POKE(0xc030,0); }
+		repeat--;
+	}
 #elif defined __ATARI__
 	sampleCount = 16;
 	sampleFreq = 255;

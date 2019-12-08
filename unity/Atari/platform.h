@@ -71,3 +71,6 @@
 #define BLUE   	10
 #define GREEN  	11
 #define YELLOW 	15
+
+// Clock
+#define TCK_PER_SEC	CLK_TCK

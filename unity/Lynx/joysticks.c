@@ -32,22 +32,31 @@
 
 #include "unity.h"
 
-unsigned char joyState[4];
+unsigned char joyState[3];
 
 unsigned char GetJoy(unsigned char joy)
 {
-	unsigned char state;
+	unsigned char reg;
 	switch (joy) {
 	case 0:
 		// Get state from registry
-		return ~PEEK(0xfcb0);
+		reg = PEEK(0xfcb0); 
+		joyState[0] = 255;
+		if (reg & 128) { joyState[0] &= ~JOY_UP; }
+		if (reg & 64)  { joyState[0] &= ~JOY_DOWN; }
+		if (reg & 32)  { joyState[0] &= ~JOY_LEFT; }
+		if (reg & 16)  { joyState[0] &= ~JOY_RIGHT; }
+		if (reg & 2)   { joyState[0] &= ~JOY_BTN1; }
+		if (reg & 1)   { joyState[0] &= ~JOY_BTN2; }		
 		break;
+		
 	default:
 		// Get state from HUB
 		UpdateHub();
 		if (hubState[0] < COM_ERR_TRUNCAT) {
 			joyState[joy] = hubState[joy];
 		}
-		return joyState[joy];
+		break;
 	}
+	return joyState[joy];
 }

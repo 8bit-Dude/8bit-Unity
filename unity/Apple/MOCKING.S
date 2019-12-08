@@ -32,7 +32,7 @@
 	.export _StopMocking
 	.export _SFXMocking
 
-	.segment "CODE"	
+	.segment "LOWCODE"	
 
 ; Mockingboard Base Address
 ADDR6522        = $C400      ; *** Default Mockingboard to slot 4 ***

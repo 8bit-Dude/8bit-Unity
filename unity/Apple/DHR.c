@@ -29,6 +29,10 @@
 //	Helper functions for Apple II Double Hi-Res Mode
 //	Last modified: 2019/05/21
 
+#ifdef __APPLE2__
+  #pragma code-name("LOWCODE")
+#endif
+
 // Addresses for AUX bank copying
 unsigned char *dhrmain = (unsigned char*)0xC054;
 unsigned char *dhraux = (unsigned char*)0xC055;	

@@ -35,7 +35,7 @@ clock_t clk;
 void tick()
 {
 	unsigned int i = 0;
-	while (i<100) { i++; }
+	while (i<220) { i++; }
 	clk += 1;		
 }
 
@@ -45,10 +45,10 @@ unsigned sleep(unsigned seconds)
 	unsigned int i;
 	while (seconds) {
 		i = 0;
-		while (i<6000) { i++; }
+		while (i<13200) { i++; }
 		seconds--;
 	}
-	clk += CLK_TCK;
+	clk += TCK_PER_SEC;
 	return 1;
 }
 

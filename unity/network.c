@@ -37,8 +37,8 @@
 #ifdef __HUB__
   // Use serial communication
   extern unsigned char sendLen, recvLen;
-  extern unsigned char sendBuffer[256];
-  extern unsigned char recvBuffer[256];
+  extern unsigned char sendBuffer[192];
+  extern unsigned char recvBuffer[192];
 #else
   // Use IP65 library
   #define EncodeIP(a,b,c,d) (a+b*256+c*65536+d*16777216)
@@ -60,7 +60,7 @@ unsigned char InitNetwork(void)
 #ifdef __HUB__
 	// Detect if HUB is connected
 	clock_t timer = clock();
-	while ((clock()-timer) < 2*CLK_TCK) { 
+	while ((clock()-timer) < 2*TCK_PER_SEC) { 
 		if (hubState[0] == COM_ERR_OK) { return NETWORK_OK; }
 		UpdateHub();
 	}
@@ -99,7 +99,7 @@ void InitUDP(unsigned char ip1, unsigned char ip2, unsigned char ip3, unsigned c
 	
 	// Wait while HUB sets-up connection
 	timer = clock();
-	while ((clock()-timer) < 2*CLK_TCK) {
+	while ((clock()-timer) < 2*TCK_PER_SEC) {
 		UpdateHub();
 	}
 #else
@@ -112,7 +112,7 @@ void InitUDP(unsigned char ip1, unsigned char ip2, unsigned char ip3, unsigned c
 		// Send dummy packet, as first one is always lost!
 		dummy[0] = 0;
 		SendUDP(dummy, 1);
-		RecvUDP(2*CLK_TCK);
+		RecvUDP(2*TCK_PER_SEC);
 	}
 #endif
 }
@@ -148,7 +148,7 @@ unsigned int RecvUDP(unsigned int timeOut)
 		UpdateHub();
 		
 		// Check time-out
-		if ((clock() - timer) > timeOut) { return 0; }
+		if ((clock() - timer) >= timeOut) { return 0; }
 	}
 #else
 	// Try to process UDP
@@ -160,7 +160,7 @@ unsigned int RecvUDP(unsigned int timeOut)
 		if (udp_recv_packet) { return udp_recv_packet; }
 		
 		// Check time-out
-		if (clock() - timer > timeOut) { return 0; }	
+		if (clock() - timer >= timeOut) { return 0; }	
 	#if defined __APPLE2__
 		tick();
 	#endif
