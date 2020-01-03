@@ -64,6 +64,9 @@
     #include "Lynx/platform.h"	
 #endif
 
+// Useful functions
+#define MIN(a,b) (a>b ? b : a)
+
 // Colors for printing
 extern unsigned char inkColor, paperColor;
 #if defined __ATMOS__
@@ -151,11 +154,11 @@ void SendUDP(unsigned char* buffer, unsigned char length);  // Send UDP packet (
 unsigned int RecvUDP(unsigned int timeOut);				// Fetch UDP packet (within time-out period)
 
 // Music functions
-// Apple: Electric Duet player (see Apple/DUET.s) 
-// Atari: RMT/SFX player (see Atari/POKEY.s)
-// C64:   SID music player (see C64/SID.s)
-// Lynx:  Chipper player (see Lynx/CHIPPER.s)
-// Oric:  YM player  (see Oric/MYM.s)
+// Apple: ElectricDuet (see Apple/DUET.s) 
+// Atari: RMT track (see Atari/POKEY.s)
+// C64:   SID track (see C64/SID.s)
+// Lynx:  Chipper   (see Lynx/CHIPPER.s)
+// Oric:  YM track  (see Oric/MYM.s)
 #if defined __APPLE2__
   extern unsigned char sfxOutput;	// 0 = Speaker, 1 = Mockingboard (Slot 4)
   void InitMocking(void);
@@ -226,7 +229,7 @@ void RecolorSprite(unsigned char index, unsigned char number, unsigned char colo
   #define CMD_TCP_INIT     20
   #define CMD_TCP_RECV     21
   #define CMD_TCP_SEND     22
-  extern unsigned char hubState[8];
   void InitHub(void);
-  void UpdateHub(void);
+  void UpdateHub(unsigned char timeout);
+  extern unsigned char hubState[5];
 #endif

@@ -65,7 +65,7 @@ unsigned char GetJoy(unsigned char joy)
 		return state;
 	default:
 		// Get state from HUB
-		UpdateHub();
+		UpdateHub(0);
 		if (hubState[0] < COM_ERR_TRUNCAT) {
 			joyState[joy-4] = hubState[joy-3];
 		}

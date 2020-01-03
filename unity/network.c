@@ -26,6 +26,8 @@
 
 #include "unity.h"
 
+//#define DEBUG_NET
+
 #ifdef __APPLE2__
   #pragma code-name("LC")
 #endif
@@ -62,7 +64,7 @@ unsigned char InitNetwork(void)
 	clock_t timer = clock();
 	while ((clock()-timer) < 2*TCK_PER_SEC) { 
 		if (hubState[0] == COM_ERR_OK) { return NETWORK_OK; }
-		UpdateHub();
+		UpdateHub(5);
 	}
 	return ADAPTOR_ERR;
 #else
@@ -85,22 +87,21 @@ void InitUDP(unsigned char ip1, unsigned char ip2, unsigned char ip3, unsigned c
 #ifdef __HUB__
 	// Ask HUB to set up connection
 	clock_t timer;
-	unsigned char len = 0;
-	sendBuffer[len++] = CMD_UDP_INIT;
-	sendBuffer[len++] = ip1;
-	sendBuffer[len++] = ip2;
-	sendBuffer[len++] = ip3;
-	sendBuffer[len++] = ip4;
-	sendBuffer[len++] = svPort & 0xFF;
-	sendBuffer[len++] = svPort >> 8;	
-	sendBuffer[len++] = clPort & 0xFF;
-	sendBuffer[len++] = clPort >> 8;
-	sendLen = len;
+	sendBuffer[sendLen++] = 9;
+	sendBuffer[sendLen++] = CMD_UDP_INIT;
+	sendBuffer[sendLen++] = ip1;
+	sendBuffer[sendLen++] = ip2;
+	sendBuffer[sendLen++] = ip3;
+	sendBuffer[sendLen++] = ip4;
+	sendBuffer[sendLen++] = svPort & 0xFF;
+	sendBuffer[sendLen++] = svPort >> 8;	
+	sendBuffer[sendLen++] = clPort & 0xFF;
+	sendBuffer[sendLen++] = clPort >> 8;
 	
 	// Wait while HUB sets-up connection
 	timer = clock();
 	while ((clock()-timer) < 2*TCK_PER_SEC) {
-		UpdateHub();
+		UpdateHub(5);
 	}
 #else
 	// Set-up UDP params and listener
@@ -119,16 +120,15 @@ void InitUDP(unsigned char ip1, unsigned char ip2, unsigned char ip3, unsigned c
 
 void SendUDP(unsigned char* buffer, unsigned char length) 
 {
-#ifndef __HUB__
-	udp_send(buffer, length, udp_send_ip, udp_send_port, udp_recv_port);
-#else
-	unsigned char i, len = 0;
-	sendBuffer[len++] = CMD_UDP_SEND;
-	sendBuffer[len++] = length;
+#ifdef __HUB__
+	unsigned char i;
+	sendBuffer[sendLen++] = length+1;
+	sendBuffer[sendLen++] = CMD_UDP_SEND;
 	for (i=0; i<length; i++) {
-		sendBuffer[len++] = buffer[i];
+		sendBuffer[sendLen++] = buffer[i];
 	}
-	sendLen = len;
+#else
+	udp_send(buffer, length, udp_send_ip, udp_send_port, udp_recv_port);
 #endif
 }
 
@@ -140,15 +140,19 @@ unsigned int RecvUDP(unsigned int timeOut)
 	while (1) {
 		// Check if we received packet
 		if (recvLen) { 
+		#if defined DEBUG_NET
+			PrintStr(0, 13, "UDP:");
+			PrintNum(5, 13, recvLen);
+		#endif		
 			recvLen = 0;  // Clear packet
-			return &recvBuffer[1]; 
+			return &recvBuffer[0]; 
 		}		
 		
 		// Inquire next packet
-		UpdateHub();
-		
+		UpdateHub(MIN(5,timeOut));	
+
 		// Check time-out
-		if ((clock() - timer) >= timeOut) { return 0; }
+		if ((clock() - timer) >= timeOut) { return 0; }	
 	}
 #else
 	// Try to process UDP
