@@ -38,7 +38,7 @@
 
 #ifdef __HUB__
   // Use serial communication
-  extern unsigned char sendLen, recvLen;
+  extern unsigned char countID, sendLen, recvLen;
   extern unsigned char sendBuffer[192];
   extern unsigned char recvBuffer[192];
 #else
@@ -87,6 +87,8 @@ void InitUDP(unsigned char ip1, unsigned char ip2, unsigned char ip3, unsigned c
 #ifdef __HUB__
 	// Ask HUB to set up connection
 	clock_t timer;
+	if (++countID > 15) { countID = 1; }
+	sendBuffer[sendLen++] = countID;
 	sendBuffer[sendLen++] = 9;
 	sendBuffer[sendLen++] = CMD_UDP_INIT;
 	sendBuffer[sendLen++] = ip1;
@@ -122,6 +124,8 @@ void SendUDP(unsigned char* buffer, unsigned char length)
 {
 #ifdef __HUB__
 	unsigned char i;
+	if (++countID > 15) { countID = 1; }
+	sendBuffer[sendLen++] = countID;	
 	sendBuffer[sendLen++] = length+1;
 	sendBuffer[sendLen++] = CMD_UDP_SEND;
 	for (i=0; i<length; i++) {

@@ -42,7 +42,7 @@
 unsigned char hubState[5] = { COM_ERR_OFFLINE, 255, 255, 0, 0 };
 unsigned char sendLen = 0, sendBuffer[192];
 unsigned char recvLen = 0, recvBuffer[192];
-unsigned char recvID = 0, tick;
+unsigned char countID = 0; sendID = 0; recvID = 0, tick;
 clock_t hubClock = 0;
 
 void SendByte(unsigned char value)
@@ -69,38 +69,28 @@ void SendHub()
 	// Clear Buffer
 	while (ser_get(&i) == SER_ERR_OK) ;
 	
-	// Send: Header, RecvID
+	// Send Header
 	SendByte(170);
-	SendByte(recvID);
-	checksum = recvID;
-	if (!sendLen) {
-		// NULL command
-		SendByte(0); 
-		SendByte(checksum);	
-	} else {
-	#if defined DEBUG_HUB
-		PrintStr(0, CHR_ROWS-2, "LEN ");
-		PrintNum(4, CHR_ROWS-2, sendBuffer[0]);
-	#endif				
-		// Length > Command > Data
-		packetLen = sendBuffer[0];
+	
+	// Send Packet ID
+	if (sendLen) { sendID = sendBuffer[0]; }
+	checksum = (recvID & 0xf0) + sendID;
+	SendByte(checksum);
+	
+	// Send Packet Data (if any)
+	if (sendLen) {	
+		packetLen = sendBuffer[1];
 		SendByte(packetLen);
-		for (i=1; i<=packetLen; i++) {
+		for (i=2; i<packetLen+2; i++) {
 			SendByte(sendBuffer[i]); 
 			checksum += sendBuffer[i];
 		}
-		SendByte(checksum);	
-		//sendLen = 0;
-		
-		// Shift any remaining data
-		packetLen += 1;
-		if (packetLen < sendLen) {
-			memcpy(&sendBuffer[0], &sendBuffer[packetLen], sendLen-packetLen);
-			sendLen -= packetLen;		
-		} else {
-			sendLen = 0;
-		}
+	} else {	
+		SendByte(0); 
 	}
+	
+	// Send footer
+	SendByte(checksum);			
 	
 #elif defined __ATMOS__	
 	// Interrupt Hub
@@ -119,7 +109,7 @@ void SendHub()
 
 void RecvHub(unsigned char timeOut) 
 {
-	unsigned char i, j, len, ID;
+	unsigned char i, j, len, ID, packetLen;
 	unsigned char header, footer, checksum;
 	clock_t recvClock;
 		
@@ -172,10 +162,30 @@ void RecvHub(unsigned char timeOut)
 	for (i=0; i<len; i++) { checksum += recvBuffer[i]; }
 	if (footer != checksum) { hubState[0] = COM_ERR_CORRUPT; return; }
 	
-	// All good!
-	if (len) {
+	// Check packet reception
+	if (ID != recvID) {
+		// Check ID againt last packet sent
+		if ((ID & 0x0f) == sendID) {
+			// Shift any remaining data
+			packetLen = sendBuffer[1]+2;
+			if (packetLen < sendLen) {
+				memcpy(&sendBuffer[0], &sendBuffer[packetLen], sendLen-packetLen);
+				sendLen -= packetLen;		
+			} else {
+				sendLen = 0;
+			}		
+		}
+		
+		// Check ID against last packet received
+		if ((ID & 0xf0) != (recvID & 0xf0)) {
+			// Accept packet
+			if (len) {
+				recvLen = len;
+			}
+		}
+		
+		// Update ID
 		recvID = ID;
-		recvLen = len;		
 	}
 	hubState[0] = COM_ERR_OK;
 	
@@ -226,10 +236,16 @@ void RecvHub(unsigned char timeOut)
 void InitHub()
 {
 	// Send reset command
+	recvID = 0;
+	sendID = 0;
+	recvLen = 0;
 	sendLen = 0;
+	countID = 1;
+	sendBuffer[sendLen++] = countID;
 	sendBuffer[sendLen++] = 1;
 	sendBuffer[sendLen++] = CMD_SYS_RESET;
 	SendHub();	
+	RecvHub(10);
 }
 
 void UpdateHub(unsigned char timeout) 
