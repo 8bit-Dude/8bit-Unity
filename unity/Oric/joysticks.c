@@ -30,6 +30,7 @@
  *
  */
 
+#include "hub.h"
 #include "unity.h"
 
 unsigned char joyState[4];

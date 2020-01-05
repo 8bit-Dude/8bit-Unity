@@ -24,6 +24,7 @@
  *   specific prior written permission.
  */
 
+#include "hub.h"
 #include "unity.h"
 
 //#define DEBUG_NET
@@ -38,9 +39,6 @@
 
 #ifdef __HUB__
   // Use serial communication
-  extern unsigned char countID, sendLen, recvLen;
-  extern unsigned char sendBuffer[192];
-  extern unsigned char recvBuffer[192];
 #else
   // Use IP65 library
   #define EncodeIP(a,b,c,d) (a+b*256+c*65536+d*16777216)
@@ -87,18 +85,17 @@ void InitUDP(unsigned char ip1, unsigned char ip2, unsigned char ip3, unsigned c
 #ifdef __HUB__
 	// Ask HUB to set up connection
 	clock_t timer;
-	if (++countID > 15) { countID = 1; }
-	sendBuffer[sendLen++] = countID;
-	sendBuffer[sendLen++] = 9;
-	sendBuffer[sendLen++] = CMD_UDP_INIT;
-	sendBuffer[sendLen++] = ip1;
-	sendBuffer[sendLen++] = ip2;
-	sendBuffer[sendLen++] = ip3;
-	sendBuffer[sendLen++] = ip4;
-	sendBuffer[sendLen++] = svPort & 0xFF;
-	sendBuffer[sendLen++] = svPort >> 8;	
-	sendBuffer[sendLen++] = clPort & 0xFF;
-	sendBuffer[sendLen++] = clPort >> 8;
+	sendHub[sendLen++] = NextID();
+	sendHub[sendLen++] = 9;
+	sendHub[sendLen++] = HUB_UDP_INIT;
+	sendHub[sendLen++] = ip1;
+	sendHub[sendLen++] = ip2;
+	sendHub[sendLen++] = ip3;
+	sendHub[sendLen++] = ip4;
+	sendHub[sendLen++] = svPort & 0xFF;
+	sendHub[sendLen++] = svPort >> 8;	
+	sendHub[sendLen++] = clPort & 0xFF;
+	sendHub[sendLen++] = clPort >> 8;
 	
 	// Wait while HUB sets-up connection
 	timer = clock();
@@ -124,12 +121,11 @@ void SendUDP(unsigned char* buffer, unsigned char length)
 {
 #ifdef __HUB__
 	unsigned char i;
-	if (++countID > 15) { countID = 1; }
-	sendBuffer[sendLen++] = countID;	
-	sendBuffer[sendLen++] = length+1;
-	sendBuffer[sendLen++] = CMD_UDP_SEND;
+	sendHub[sendLen++] = NextID();	
+	sendHub[sendLen++] = length+1;
+	sendHub[sendLen++] = HUB_UDP_SEND;
 	for (i=0; i<length; i++) {
-		sendBuffer[sendLen++] = buffer[i];
+		sendHub[sendLen++] = buffer[i];
 	}
 #else
 	udp_send(buffer, length, udp_send_ip, udp_send_port, udp_recv_port);
@@ -143,13 +139,13 @@ unsigned int RecvUDP(unsigned int timeOut)
 	clock_t timer = clock();
 	while (1) {
 		// Check if we received packet
-		if (recvLen) { 
+		if (recvLen && recvHub[0] == HUB_UDP_RECV) { 
 		#if defined DEBUG_NET
 			PrintStr(0, 13, "UDP:");
 			PrintNum(5, 13, recvLen);
 		#endif		
 			recvLen = 0;  // Clear packet
-			return &recvBuffer[0]; 
+			return &recvHub[1]; 
 		}		
 		
 		// Inquire next packet

@@ -24,6 +24,7 @@
  *   specific prior written permission.
  */
  
+#include "hub.h"
 #include "unity.h"
 
 // Debugging flags
@@ -40,10 +41,16 @@
 #endif
 
 unsigned char hubState[5] = { COM_ERR_OFFLINE, 255, 255, 0, 0 };
-unsigned char sendLen = 0, sendBuffer[192];
-unsigned char recvLen = 0, recvBuffer[192];
+unsigned char sendLen = 0, sendHub[192];
+unsigned char recvLen = 0, recvHub[192];
 unsigned char countID = 0; sendID = 0; recvID = 0, tick;
 clock_t hubClock = 0;
+
+unsigned char NextID(void) 
+{
+	if (++countID > 15) { countID = 1; }
+	return countID;
+}
 
 void SendByte(unsigned char value)
 {
@@ -73,17 +80,17 @@ void SendHub()
 	SendByte(170);
 	
 	// Send Packet ID
-	if (sendLen) { sendID = sendBuffer[0]; }
+	if (sendLen) { sendID = sendHub[0]; }
 	checksum = (recvID & 0xf0) + sendID;
 	SendByte(checksum);
 	
 	// Send Packet Data (if any)
 	if (sendLen) {	
-		packetLen = sendBuffer[1];
+		packetLen = sendHub[1];
 		SendByte(packetLen);
 		for (i=2; i<packetLen+2; i++) {
-			SendByte(sendBuffer[i]); 
-			checksum += sendBuffer[i];
+			SendByte(sendHub[i]); 
+			checksum += sendHub[i];
 		}
 	} else {	
 		SendByte(0); 
@@ -97,7 +104,7 @@ void SendHub()
 	__asm__("sei");		// Disable interrupts
 	SendByte(sendLen);	// Send data length
 	while (i<sendLen) {
-		POKE(0x0301, sendBuffer[i++]);	// Write 1 Byte to Printer Port
+		POKE(0x0301, sendHub[i++]);	// Write 1 Byte to Printer Port
 		POKE(0x0300, 175);			// Send STROBE signal
 		tick++; tick++; tick++;
 		POKE(0x0300, 255);			// Reset STROBE
@@ -146,7 +153,7 @@ void RecvHub(unsigned char timeOut)
 	
 	// Read buffer data
 	for (i=0; i<len; i++) {
-		while (ser_get(&recvBuffer[i]) != SER_ERR_OK) { 
+		while (ser_get(&recvHub[i]) != SER_ERR_OK) { 
 			if (clock() - recvClock >  timeOut) { hubState[0] = COM_ERR_TRUNCAT; return; }
 		}
 	}
@@ -159,7 +166,7 @@ void RecvHub(unsigned char timeOut)
 	// Verify checkum
 	checksum = ID;
 	for (i=1; i<5; i++) { checksum += hubState[i]; }
-	for (i=0; i<len; i++) { checksum += recvBuffer[i]; }
+	for (i=0; i<len; i++) { checksum += recvHub[i]; }
 	if (footer != checksum) { hubState[0] = COM_ERR_CORRUPT; return; }
 	
 	// Check packet reception
@@ -167,9 +174,9 @@ void RecvHub(unsigned char timeOut)
 		// Check ID againt last packet sent
 		if ((ID & 0x0f) == sendID) {
 			// Shift any remaining data
-			packetLen = sendBuffer[1]+2;
+			packetLen = sendHub[1]+2;
 			if (packetLen < sendLen) {
-				memcpy(&sendBuffer[0], &sendBuffer[packetLen], sendLen-packetLen);
+				memcpy(&sendHub[0], &sendHub[packetLen], sendLen-packetLen);
 				sendLen -= packetLen;		
 			} else {
 				sendLen = 0;
@@ -204,7 +211,7 @@ void RecvHub(unsigned char timeOut)
 		i = 255;
 		while (1) {  // Make sure we don't get stuck...
 			if (PEEK(0x030d)&2) { break; }
-			if (!i) { recvBuffer[0] = 0; recvLen = 0; return; }		
+			if (!i) { recvHub[0] = 0; recvLen = 0; return; }		
 			i--;
 		}
 		hubState[j++] = PEEK(0x0301);
@@ -220,13 +227,13 @@ void RecvHub(unsigned char timeOut)
 		i = 255;
 		while (1) {  // Make sure we don't get stuck...
 			if (PEEK(0x030d)&2) { break; }
-			if (!i) { recvBuffer[0] = 0; recvLen = 0; return; }		
+			if (!i) { recvHub[0] = 0; recvLen = 0; return; }		
 			i--;
 		}
 		// Read next byte
-		recvBuffer[j++] = PEEK(0x0301);		
+		recvHub[j++] = PEEK(0x0301);		
 	}
-	recvBuffer[j] = 0;
+	recvHub[j] = 0;
 	
 	POKE(0x0303, 255);	// Close port A
 	__asm__("cli");		// Resume interrupts	
@@ -241,9 +248,9 @@ void InitHub()
 	recvLen = 0;
 	sendLen = 0;
 	countID = 1;
-	sendBuffer[sendLen++] = countID;
-	sendBuffer[sendLen++] = 1;
-	sendBuffer[sendLen++] = CMD_SYS_RESET;
+	sendHub[sendLen++] = countID;
+	sendHub[sendLen++] = 1;
+	sendHub[sendLen++] = HUB_SYS_RESET;
 	SendHub();	
 	RecvHub(10);
 }
@@ -262,7 +269,8 @@ void UpdateHub(unsigned char timeout)
 		SendHub();
 	}
 #if defined DEBUG_HUB
-	PrintStr(0, CHR_ROWS-1, "PCKT ");
+	PrintStr(0, CHR_ROWS-1, "LN ");
+	PrintNum(2, CHR_ROWS-1, sendLen);	
 	     if (hubState[0] == COM_ERR_OK)      { ok+=1; PrintStr( 5, CHR_ROWS-1, "OK"); PrintNum( 7, CHR_ROWS-1, ok); }	
  	else if (hubState[0] == COM_ERR_HEADER)  { hd+=1; PrintStr(10, CHR_ROWS-1, "HD"); PrintNum(12, CHR_ROWS-1, hd); }	
  	else if (hubState[0] == COM_ERR_TRUNCAT) { tr+=1; PrintStr(15, CHR_ROWS-1, "TR"); PrintNum(17, CHR_ROWS-1, tr); } 

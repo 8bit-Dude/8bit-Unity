@@ -2,7 +2,7 @@
  *	API of the "8bit-Unity" SDK for CC65
  *	All functions are cross-platform for the Apple IIe, Atari XL/XE, and C64/C128
  *	
- *	Last modified: 2019/05/05
+ *	Last modified: 2019/07/12
  *	
  * Copyright (c) 2019 Anthony Beaucamp.
  *
@@ -28,36 +28,29 @@
  *   used to endorse or promote products derived from this software without
  *   specific prior written permission.
  *
+ *	Credits: 
+ *		* Oliver Schmidt for his IP65 network interface
+ *		* Christian Groessler for helping optimize the memory maps on Commodore and Atari
+ *		* Bill Buckels for his Apple II Double Hi-Res bitmap code
  */
 
-#include "hub.h"
-#include "unity.h"
+// 8bit-Hub commands
+#define COM_ERR_OK      	0
+#define COM_ERR_OFFLINE 	1
+#define COM_ERR_HEADER  	2 
+#define COM_ERR_TRUNCAT 	3
+#define COM_ERR_CORRUPT 	4
 
-unsigned char joyState[3];
-
-unsigned char GetJoy(unsigned char joy)
-{
-	unsigned char reg;
-	switch (joy) {
-	case 0:
-		// Get state from registry
-		reg = PEEK(0xfcb0); 
-		joyState[0] = 255;
-		if (reg & 128) { joyState[0] &= ~JOY_UP; }
-		if (reg & 64)  { joyState[0] &= ~JOY_DOWN; }
-		if (reg & 32)  { joyState[0] &= ~JOY_LEFT; }
-		if (reg & 16)  { joyState[0] &= ~JOY_RIGHT; }
-		if (reg & 2)   { joyState[0] &= ~JOY_BTN2; }
-		if (reg & 1)   { joyState[0] &= ~JOY_BTN1; }		
-		break;
-		
-	default:
-		// Get state from HUB
-		UpdateHub(0);
-		if (hubState[0] < COM_ERR_TRUNCAT) {
-			joyState[joy] = hubState[joy];
-		}
-		break;
-	}
-	return joyState[joy];
-}
+#define HUB_SYS_RESET     1
+#define HUB_DIR_LS       10
+#define HUB_DIR_MK       11
+#define HUB_DIR_RM       12
+#define HUB_DIR_CD       13
+#define HUB_FIL_OPEN     21
+#define HUB_FIL_SEEK	   22
+#define HUB_FIL_READ     23
+#define HUB_FIL_WRITE    24
+#define HUB_FIL_CLOSE    25
+#define HUB_UDP_INIT     30
+#define HUB_UDP_RECV     31
+#define HUB_UDP_SEND     32
