@@ -36,11 +36,13 @@
 #if defined __LYNX__
   #include <serial.h>
   #define HUB_REFRESH_RATE 3	// every 3 clock cycles
+  unsigned char recvTimeOut;
+  clock_t recvClock;
 #else
   #define HUB_REFRESH_RATE 3	// every 3 clock cycles
 #endif
 
-unsigned char hubState[5] = { COM_ERR_OFFLINE, 255, 255, 0, 0 };
+unsigned char hubState[5] = { COM_ERR_OFFLINE, 255, 255, 80, 100 };
 unsigned char sendLen = 0, sendHub[192];
 unsigned char recvLen = 0, recvHub[192];
 unsigned char countID = 0; sendID = 0; recvID = 0, tick;
@@ -68,14 +70,36 @@ void SendByte(unsigned char value)
 #endif
 }
 
+unsigned char RecvByte(unsigned char* value)
+{
+	// Recv 1 byte from HUB
+#if defined __LYNX__
+	while (ser_get(value) != SER_ERR_OK) {
+		if (clock() - recvClock >  recvTimeOut) { return 0; }
+	}
+	return 1;
+			
+#elif defined __ATMOS__	
+	unsigned char i = 255;
+	while (1) {  // Countdown i to 0
+		if (PEEK(0x030d)&2) { break; }	// Look for CA1 signal
+		if (!i--) { return 0; }	
+	}
+	*value = PEEK(0x0301);
+	return 1;
+#endif
+}
+
+
 void SendHub()
 {
 	unsigned char i, checksum, packetLen;
-	
-#if defined __LYNX__	
-	// Clear Buffer
-	while (ser_get(&i) == SER_ERR_OK) ;
-	
+#if defined __ATMOS__	
+	__asm__("sei");	// Disable interrupts
+#elif defined __LYNX__	
+	while (ser_get(&i) == SER_ERR_OK) ; // Clear UART Buffer
+#endif
+
 	// Send Header
 	SendByte(170);
 	
@@ -99,79 +123,69 @@ void SendHub()
 	// Send footer
 	SendByte(checksum);			
 	
-#elif defined __ATMOS__	
-	// Interrupt Hub
-	__asm__("sei");		// Disable interrupts
-	SendByte(sendLen);	// Send data length
-	while (i<sendLen) {
-		POKE(0x0301, sendHub[i++]);	// Write 1 Byte to Printer Port
-		POKE(0x0300, 175);			// Send STROBE signal
-		tick++; tick++; tick++;
-		POKE(0x0300, 255);			// Reset STROBE
-	}
-	__asm__("cli");		// Enable interrupts	
-	sendLen = 0;	
+#if defined __ATMOS__	
+	__asm__("cli");	// Enable interrupts
 #endif
 }
 
 void RecvHub(unsigned char timeOut) 
 {
-	unsigned char i, j, len, ID, packetLen;
+	unsigned char i, len, ID, packetLen;
 	unsigned char header, footer, checksum;
-	clock_t recvClock;
 		
 #if defined __LYNX__
-	recvClock = clock();
+	recvClock = clock();	// Set clock
+	recvTimeOut = timeOut;	// Set timeout
+#elif defined __ATMOS__	
+	__asm__("sei");		// Disable interrupts
+	SendByte(85);		// Send read code
+	POKE(0x0303, 0);	// Open Port A for listening
+	i = PEEK(0x0301);   // Reset ORA
+#endif
 	
-	// Find header
-	header = 0;
-	while (header != 170) {
-		while (ser_get(&header) != SER_ERR_OK) { 
-			if (clock() - recvClock >  timeOut) { 
-				if (hubState[0] != COM_ERR_OFFLINE) { hubState[0] = COM_ERR_HEADER; }
-				return; 
-			}		
-		}
+	// Check header
+	if (!RecvByte(&header) || header != 170) {
+		if (hubState[0] != COM_ERR_OFFLINE) { hubState[0] = COM_ERR_HEADER; }
+		return;
 	}
-
-	// Get ID
-	while (ser_get(&ID) != SER_ERR_OK) { 
-		if (clock() - recvClock >  timeOut) { hubState[0] = COM_ERR_TRUNCAT; return; }		
-	}
-
+			
+	// Get packet ID
+	if (!RecvByte(&ID)) { hubState[0] = COM_ERR_TRUNCAT; return; }
+	
 	// Read joystick/mouse data
 	for (i=1; i<5; i++) {
-		while (ser_get(&hubState[i]) != SER_ERR_OK) { 
-			if (clock() - recvClock >  timeOut) { hubState[0] = COM_ERR_TRUNCAT; return; }
-		}
+		if (!RecvByte(&hubState[i])) { hubState[0] = COM_ERR_TRUNCAT; return; }
 	}
-	
+
 	// Get buffer length
-	while (ser_get(&len) != SER_ERR_OK) { 
-		if (clock() - recvClock >  timeOut) { hubState[0] = COM_ERR_TRUNCAT; return; }		
-	}	
-	
+	if (!RecvByte(&len)) { hubState[0] = COM_ERR_TRUNCAT; return; }
+
 	// Read buffer data
 	for (i=0; i<len; i++) {
-		while (ser_get(&recvHub[i]) != SER_ERR_OK) { 
-			if (clock() - recvClock >  timeOut) { hubState[0] = COM_ERR_TRUNCAT; return; }
-		}
-	}
-	
-	// Get footer 
-	while (ser_get(&footer) != SER_ERR_OK) { 
-		if (clock() - recvClock >  timeOut) { hubState[0] = COM_ERR_TRUNCAT; return; }		
-	}
-	
+		if (!RecvByte(&recvHub[i])) { hubState[0] = COM_ERR_TRUNCAT; return; }
+	}	
+
+	// Get footer
+	if (!RecvByte(&footer)) { hubState[0] = COM_ERR_TRUNCAT; return; }
+		
+#if defined __ATMOS__	
+	POKE(0x0303, 255);	// Close port A
+	__asm__("cli");		// Resume interrupts	
+#endif
+
 	// Verify checkum
 	checksum = ID;
 	for (i=1; i<5; i++) { checksum += hubState[i]; }
 	for (i=0; i<len; i++) { checksum += recvHub[i]; }
-	if (footer != checksum) { hubState[0] = COM_ERR_CORRUPT; return; }
-	
+	if (footer != checksum) { 
+		hubState[0] = COM_ERR_CORRUPT; 
+		return; 
+	}
+	hubState[0] = COM_ERR_OK;
+
 	// Check packet reception
 	if (ID != recvID) {
-		// Check ID againt last packet sent
+		// Check ID against last packet sent
 		if ((ID & 0x0f) == sendID) {
 			// Shift any remaining data
 			packetLen = sendHub[1]+2;
@@ -194,59 +208,24 @@ void RecvHub(unsigned char timeOut)
 		// Update ID
 		recvID = ID;
 	}
-	hubState[0] = COM_ERR_OK;
 	
-#elif defined __ATMOS__	
-	__asm__("sei");		// Disable interrupts
-	SendByte(170);		// Send read code
-	POKE(0x0303, 0);	// Open Port A for listening
-
-	// Reset ORA
-	i = PEEK(0x0301); 
-
-	// Read data header (joy1, joy2, mouseX, mouseY)
-	j = 0;
-	while (j<5) {
-		// Wait for flag CA1 = 1 (%00000010)
-		i = 255;
-		while (1) {  // Make sure we don't get stuck...
-			if (PEEK(0x030d)&2) { break; }
-			if (!i) { recvHub[0] = 0; recvLen = 0; return; }		
-			i--;
-		}
-		hubState[j++] = PEEK(0x0301);
-	}
-	
-	// 5th byte encodes length of remaining data
-	recvLen = hubState[4];
-	
-	// Read packet data
-	j = 0;
-	while (j<recvLen-1) {
-		// Wait for flag CA1 = 1 (%00000010)
-		i = 255;
-		while (1) {  // Make sure we don't get stuck...
-			if (PEEK(0x030d)&2) { break; }
-			if (!i) { recvHub[0] = 0; recvLen = 0; return; }		
-			i--;
-		}
-		// Read next byte
-		recvHub[j++] = PEEK(0x0301);		
-	}
-	recvHub[j] = 0;
-	
-	POKE(0x0303, 255);	// Close port A
-	__asm__("cli");		// Resume interrupts	
-#endif
+#if defined DEBUG_HUB
+	PrintNum(0,10,header); PrintNum(4,10,ID); 
+	PrintNum(8,10,len); PrintNum(12,10,footer);
+	for (i=1; i<5; i++) {
+		PrintNum(4*(i-1),11,hubState[i]);
+	}	
+	for (i=0; i<len; i++) {
+		PrintNum(4*(i%10),12+i/10,recvHub[i]);
+	}	
+#endif	
 }
 
 void InitHub()
 {
 	// Send reset command
-	recvID = 0;
-	sendID = 0;
-	recvLen = 0;
-	sendLen = 0;
+	recvID = 0; sendID = 0;
+	recvLen = 0; sendLen = 0;
 	countID = 1;
 	sendHub[sendLen++] = countID;
 	sendHub[sendLen++] = 1;
@@ -256,16 +235,15 @@ void InitHub()
 }
 
 void UpdateHub(unsigned char timeout) 
-{	
-	// Check refresh rate
-	if (clock() - hubClock < HUB_REFRESH_RATE) { return; }
-	hubClock = clock();
-	RecvHub(timeout);
-		
-	// Check hub is connected
+{			
+	// Check hub was already initialized?
 	if (hubState[0] == COM_ERR_OFFLINE) {
 		InitHub();
 	} else {
+		// Check refresh rate
+		if (clock() - hubClock < HUB_REFRESH_RATE) { return; }
+		hubClock = clock();
+		RecvHub(timeout);
 		SendHub();
 	}
 #if defined DEBUG_HUB

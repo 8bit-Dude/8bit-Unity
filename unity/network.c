@@ -37,9 +37,7 @@
   #pragma code-name("SHADOW_RAM")
 #endif
 
-#ifdef __HUB__
-  // Use serial communication
-#else
+#ifndef __HUB__
   // Use IP65 library
   #define EncodeIP(a,b,c,d) (a+b*256+c*65536+d*16777216)
   unsigned long udp_send_ip;

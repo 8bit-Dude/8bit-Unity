@@ -47,7 +47,7 @@
 #define HUB_DIR_RM       12
 #define HUB_DIR_CD       13
 #define HUB_FIL_OPEN     21
-#define HUB_FIL_SEEK	   22
+#define HUB_FIL_SEEK	 22
 #define HUB_FIL_READ     23
 #define HUB_FIL_WRITE    24
 #define HUB_FIL_CLOSE    25

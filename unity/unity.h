@@ -84,7 +84,7 @@ unsigned char GetPixel(void);
 void SetPixel(unsigned char color);
 void DrawPanel(unsigned char colBeg, unsigned char rowBeg, unsigned char colEnd, unsigned char rowEnd);
 void PrintChr(unsigned char col, unsigned char row, const char *chr);
-void PrintNum(unsigned char col, unsigned char row, unsigned char num);
+void PrintNum(unsigned char col, unsigned char row, unsigned int num);
 void PrintStr(unsigned char col, unsigned char row, const char *buffer);
 void PrintLogo(unsigned char col, unsigned char row, unsigned char index);
 void PrintBuffer(char *buffer);
@@ -111,13 +111,16 @@ extern unsigned char pixelX, pixelY;
   unsigned char KeyboardOverlayHit(void); 
 #endif
 
-// Joystick definitions
-#define JOY_UP    1
-#define JOY_DOWN  2
-#define JOY_LEFT  4
-#define JOY_RIGHT 8
-#define JOY_BTN1  16
-#define JOY_BTN2  32
+// Joystick/Mouse definitions
+#define JOY_UP      1
+#define JOY_DOWN    2
+#define JOY_LEFT    4
+#define JOY_RIGHT   8
+#define JOY_BTN1    16
+#define JOY_BTN2    32
+#define MOUSE_LEFT  64
+#define MOUSE_MIDDL 64
+#define MOUSE_RIGHT 128
 
 // Joystick functions
 #if (defined __CBM__) || (defined __ATMOS__)

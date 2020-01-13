@@ -541,14 +541,23 @@ void ClearBitmap()
 #endif
 }
 
-void PrintNum(unsigned char col, unsigned char row, unsigned char num)
+void PrintNum(unsigned char col, unsigned char row, unsigned int num)
 {
-	if (num > 9) { 
-		PrintChr(col, row, &charDigit[(num/10)*3]); 
-	} else {
-		PrintChr(col, row, charBlank); 
+	unsigned int step = 1;
+	unsigned char tmp;
+	while ((step*10)<=num) {
+		step *= 10;
 	}
-	PrintChr(col+1, row, &charDigit[(num%10)*3]);
+	while (step>0) {
+		if (num >= step) { 
+			tmp = num/step;
+			num -= tmp*step;
+		} else {
+			tmp = 0;
+		}		
+		PrintChr(col++, row, &charDigit[tmp*3]);
+		step /= 10;
+	}
 #if defined __LYNX__
 	if (autoRefresh) { UpdateDisplay(); }
 #endif	
