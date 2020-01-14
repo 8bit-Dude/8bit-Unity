@@ -3,7 +3,7 @@
   <object class="ttk.Frame" id="mainwindow">
     <child>
       <object class="ttk.Notebook" id="Notebook_Assets">
-        <property name="height">365</property>
+        <property name="height">370</property>
         <property name="width">400</property>
         <layout>
           <property name="column">0</property>
@@ -112,6 +112,88 @@
                         </layout>
                       </object>
                     </child>
+					<child>
+					  <object class="ttk.Label" id="Label_AppleSpriteFrames">
+						<property name="text" translatable="yes">Frames=</property>
+						<layout>
+						  <property name="column">0</property>
+                          <property name="padx">120</property>						  
+                          <property name="pady">5</property>
+						  <property name="propagate">True</property>
+						  <property name="row">1</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>
+					</child>
+					<child>
+					  <object class="ttk.Entry" id="Entry_AppleSpriteFrames">
+						<property name="text" translatable="yes">0</property>
+						<property name="width">4</property>
+						<layout>
+						  <property name="column">0</property>
+                          <property name="padx">170</property>
+                          <property name="pady">5</property>
+						  <property name="propagate">True</property>
+						  <property name="row">1</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>
+					</child>
+					<child>
+					  <object class="ttk.Label" id="Label_AppleSpriteWidth">
+						<property name="text" translatable="yes">Width=</property>
+						<layout>
+						  <property name="column">0</property>
+                          <property name="padx">200</property>						  
+                          <property name="pady">5</property>
+						  <property name="propagate">True</property>
+						  <property name="row">1</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>
+					</child>
+					<child>
+					  <object class="ttk.Entry" id="Entry_AppleSpriteWidth">
+						<property name="text" translatable="yes">7</property>
+						<property name="width">4</property>
+						<property name="state">disabled</property>
+						<layout>
+						  <property name="column">0</property>
+                          <property name="padx">250</property>						  
+                          <property name="pady">5</property>
+						  <property name="propagate">True</property>
+						  <property name="row">1</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>
+					</child>
+					<child>
+					  <object class="ttk.Label" id="Label_AppleSpriteHeight">
+						<property name="text" translatable="yes">Height=</property>
+						<layout>
+						  <property name="column">0</property>
+                          <property name="padx">280</property>						  
+                          <property name="pady">5</property>
+						  <property name="propagate">True</property>
+						  <property name="row">1</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>
+					</child>
+					<child>
+					  <object class="ttk.Entry" id="Entry_AppleSpriteHeight">
+						<property name="text" translatable="yes">0</property>
+						<property name="width">4</property>
+						<layout>
+						  <property name="column">0</property>
+                          <property name="padx">330</property>						  
+                          <property name="pady">5</property>
+						  <property name="propagate">True</property>
+						  <property name="row">1</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>
+					</child>					
                   </object>
                 </child>
                 <child>
@@ -174,6 +256,7 @@
                         <property name="width">53</property>
                         <layout>
                           <property name="column">0</property>
+					      <property name="pady">2</property>
                           <property name="propagate">True</property>
                           <property name="row">0</property>
                           <property name="sticky">nw</property>
@@ -287,6 +370,88 @@
                         </layout>
                       </object>
                     </child>
+					<child>
+					  <object class="ttk.Label" id="Label_AtariSpriteFrames">
+						<property name="text" translatable="yes">Frames=</property>
+						<layout>
+						  <property name="column">0</property>
+                          <property name="padx">120</property>						  
+                          <property name="pady">5</property>
+						  <property name="propagate">True</property>
+						  <property name="row">1</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>
+					</child>
+					<child>
+					  <object class="ttk.Entry" id="Entry_AtariSpriteFrames">
+						<property name="text" translatable="yes">0</property>
+						<property name="width">4</property>
+						<layout>
+						  <property name="column">0</property>
+                          <property name="padx">170</property>
+                          <property name="pady">5</property>
+						  <property name="propagate">True</property>
+						  <property name="row">1</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>
+					</child>
+					<child>
+					  <object class="ttk.Label" id="Label_AtariSpriteWidth">
+						<property name="text" translatable="yes">Width=</property>
+						<layout>
+						  <property name="column">0</property>
+                          <property name="padx">200</property>						  
+                          <property name="pady">5</property>
+						  <property name="propagate">True</property>
+						  <property name="row">1</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>
+					</child>
+					<child>
+					  <object class="ttk.Entry" id="Entry_AtariSpriteWidth">
+						<property name="text" translatable="yes">8</property>
+						<property name="width">4</property>
+						<property name="state">disabled</property>
+						<layout>
+						  <property name="column">0</property>
+                          <property name="padx">250</property>						  
+                          <property name="pady">5</property>
+						  <property name="propagate">True</property>
+						  <property name="row">1</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>
+					</child>
+					<child>
+					  <object class="ttk.Label" id="Label_AtariSpriteHeight">
+						<property name="text" translatable="yes">Height=</property>
+						<layout>
+						  <property name="column">0</property>
+                          <property name="padx">280</property>						  
+                          <property name="pady">5</property>
+						  <property name="propagate">True</property>
+						  <property name="row">1</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>
+					</child>
+					<child>
+					  <object class="ttk.Entry" id="Entry_AtariSpriteHeight">
+						<property name="text" translatable="yes">0</property>
+						<property name="width">4</property>
+						<layout>
+						  <property name="column">0</property>
+                          <property name="padx">330</property>						  
+                          <property name="pady">5</property>
+						  <property name="propagate">True</property>
+						  <property name="row">1</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>	
+					</child>
                   </object>
                 </child>
                 <child>
@@ -347,6 +512,7 @@
                         <layout>
                           <property name="column">0</property>
                           <property name="padx">220</property>
+						  <property name="pady">2</property>
                           <property name="propagate">True</property>
                           <property name="row">1</property>
                           <property name="sticky">nw</property>
@@ -361,6 +527,7 @@
                         <layout>
                           <property name="column">0</property>
                           <property name="padx">280</property>
+						  <property name="pady">2</property>
                           <property name="propagate">True</property>
                           <property name="row">1</property>
                           <property name="sticky">nw</property>
@@ -374,6 +541,7 @@
                         <layout>
                           <property name="column">0</property>
                           <property name="padx">20</property>
+						  <property name="pady">2</property>
                           <property name="propagate">True</property>
                           <property name="row">1</property>
                           <property name="sticky">nw</property>
@@ -487,6 +655,89 @@
                         </layout>
                       </object>
                     </child>
+					<child>
+					  <object class="ttk.Label" id="Label_C64SpriteFrames">
+						<property name="text" translatable="yes">Frames=</property>
+						<layout>
+						  <property name="column">0</property>
+                          <property name="padx">120</property>						  
+                          <property name="pady">5</property>
+						  <property name="propagate">True</property>
+						  <property name="row">1</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>
+					</child>
+					<child>
+					  <object class="ttk.Entry" id="Entry_C64SpriteFrames">
+						<property name="text" translatable="yes">0</property>
+						<property name="width">4</property>
+						<layout>
+						  <property name="column">0</property>
+                          <property name="padx">170</property>
+                          <property name="pady">5</property>
+						  <property name="propagate">True</property>
+						  <property name="row">1</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>
+					</child>
+					<child>
+					  <object class="ttk.Label" id="Label_C64SpriteWidth">
+						<property name="text" translatable="yes">Width=</property>
+						<layout>
+						  <property name="column">0</property>
+                          <property name="padx">200</property>						  
+                          <property name="pady">5</property>
+						  <property name="propagate">True</property>
+						  <property name="row">1</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>
+					</child>
+					<child>
+					  <object class="ttk.Entry" id="Entry_C64SpriteWidth">
+						<property name="text" translatable="yes">12</property>
+						<property name="width">4</property>
+						<property name="state">disabled</property>
+						<layout>
+						  <property name="column">0</property>
+                          <property name="padx">250</property>						  
+                          <property name="pady">5</property>
+						  <property name="propagate">True</property>
+						  <property name="row">1</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>
+					</child>
+					<child>
+					  <object class="ttk.Label" id="Label_C64SpriteHeight">
+						<property name="text" translatable="yes">Height=</property>
+						<layout>
+						  <property name="column">0</property>
+                          <property name="padx">280</property>						  
+                          <property name="pady">5</property>
+						  <property name="propagate">True</property>
+						  <property name="row">1</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>
+					</child>
+					<child>
+					  <object class="ttk.Entry" id="Entry_C64SpriteHeight">
+						<property name="text" translatable="yes">21</property>
+						<property name="width">4</property>
+						<property name="state">disabled</property>
+						<layout>
+						  <property name="column">0</property>
+                          <property name="padx">330</property>						  
+                          <property name="pady">5</property>
+						  <property name="propagate">True</property>
+						  <property name="row">1</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>	
+					</child>					
                   </object>
                 </child>
                 <child>
@@ -549,6 +800,7 @@
                         <property name="width">53</property>
                         <layout>
                           <property name="column">0</property>
+						  <property name="pady">2</property>						  
                           <property name="propagate">True</property>
                           <property name="row">0</property>
                           <property name="sticky">nw</property>
@@ -662,6 +914,87 @@
                         </layout>
                       </object>
                     </child>
+					<child>
+					  <object class="ttk.Label" id="Label_LynxSpriteFrames">
+						<property name="text" translatable="yes">Frames=</property>
+						<layout>
+						  <property name="column">0</property>
+                          <property name="padx">120</property>						  
+                          <property name="pady">5</property>
+						  <property name="propagate">True</property>
+						  <property name="row">1</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>
+					</child>
+					<child>
+					  <object class="ttk.Entry" id="Entry_LynxSpriteFrames">
+						<property name="text" translatable="yes">0</property>
+						<property name="width">4</property>
+						<layout>
+						  <property name="column">0</property>
+                          <property name="padx">170</property>
+                          <property name="pady">5</property>
+						  <property name="propagate">True</property>
+						  <property name="row">1</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>
+					</child>
+					<child>
+					  <object class="ttk.Label" id="Label_LynxSpriteWidth">
+						<property name="text" translatable="yes">Width=</property>
+						<layout>
+						  <property name="column">0</property>
+                          <property name="padx">200</property>						  
+                          <property name="pady">5</property>
+						  <property name="propagate">True</property>
+						  <property name="row">1</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>
+					</child>
+					<child>
+					  <object class="ttk.Entry" id="Entry_LynxSpriteWidth">
+						<property name="text" translatable="yes">0</property>
+						<property name="width">4</property>
+						<layout>
+						  <property name="column">0</property>
+                          <property name="padx">250</property>						  
+                          <property name="pady">5</property>
+						  <property name="propagate">True</property>
+						  <property name="row">1</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>
+					</child>
+					<child>
+					  <object class="ttk.Label" id="Label_LynxSpriteHeight">
+						<property name="text" translatable="yes">Height=</property>
+						<layout>
+						  <property name="column">0</property>
+                          <property name="padx">280</property>						  
+                          <property name="pady">5</property>
+						  <property name="propagate">True</property>
+						  <property name="row">1</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>
+					</child>
+					<child>
+					  <object class="ttk.Entry" id="Entry_LynxSpriteHeight">
+						<property name="text" translatable="yes">0</property>
+						<property name="width">4</property>
+						<layout>
+						  <property name="column">0</property>
+                          <property name="padx">330</property>						  
+                          <property name="pady">5</property>
+						  <property name="propagate">True</property>
+						  <property name="row">1</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>
+					</child>					
                   </object>
                 </child>
                 <child>
@@ -716,75 +1049,21 @@
                       <property name="row">0</property>
                       <property name="sticky">nw</property>
                     </layout>
-					<child>
-					  <object class="ttk.Label" id="Label_LynxSpriteFrames">
-						<property name="text" translatable="yes">Sprite:  Frames=</property>
-						<layout>
-						  <property name="column">0</property>
-						  <property name="propagate">True</property>
-						  <property name="row">0</property>
-						  <property name="sticky">nw</property>
-						</layout>
-					  </object>
-					</child>
-					<child>
-					  <object class="ttk.Entry" id="Entry_LynxSpriteFrames">
-						<property name="text" translatable="yes">0</property>
-						<property name="width">8</property>
-						<layout>
-						  <property name="column">1</property>
-						  <property name="propagate">True</property>
-						  <property name="row">0</property>
-						  <property name="sticky">nw</property>
-						</layout>
-					  </object>
-					</child>
-					<child>
-					  <object class="ttk.Label" id="Label_LynxSpriteWidth">
-						<property name="text" translatable="yes">Width=</property>
-						<layout>
-						  <property name="column">2</property>
-						  <property name="propagate">True</property>
-						  <property name="row">0</property>
-						  <property name="sticky">nw</property>
-						</layout>
-					  </object>
-					</child>
-					<child>
-					  <object class="ttk.Entry" id="Entry_LynxSpriteWidth">
-						<property name="text" translatable="yes">0</property>
-						<property name="width">8</property>
-						<layout>
-						  <property name="column">3</property>
-						  <property name="propagate">True</property>
-						  <property name="row">0</property>
-						  <property name="sticky">nw</property>
-						</layout>
-					  </object>
-					</child>
-					<child>
-					  <object class="ttk.Label" id="Label_LynxSpriteHeight">
-						<property name="text" translatable="yes">Height=</property>
-						<layout>
-						  <property name="column">4</property>
-						  <property name="propagate">True</property>
-						  <property name="row">0</property>
-						  <property name="sticky">nw</property>
-						</layout>
-					  </object>
-					</child>
-					<child>
-					  <object class="ttk.Entry" id="Entry_LynxSpriteHeight">
-						<property name="text" translatable="yes">0</property>
-						<property name="width">8</property>
-						<layout>
-						  <property name="column">5</property>
-						  <property name="propagate">True</property>
-						  <property name="row">0</property>
-						  <property name="sticky">nw</property>
-						</layout>
-					  </object>
-					</child>
+                    <child>
+                      <object class="tk.Label" id="Label_C64Options">
+                        <property name="height">1</property>
+                        <property name="height">1</property>
+                        <property name="text" translatable="yes">No particular options for Lynx...</property>
+                        <property name="width">53</property>
+                        <layout>
+                          <property name="column">0</property>
+						  <property name="pady">2</property>						  
+                          <property name="propagate">True</property>
+                          <property name="row">0</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
                   </object>
                 </child>
               </object>
@@ -892,6 +1171,88 @@
                         </layout>
                       </object>
                     </child>
+					<child>
+					  <object class="ttk.Label" id="Label_OricSpriteFrames">
+						<property name="text" translatable="yes">Frames=</property>
+						<layout>
+						  <property name="column">0</property>
+                          <property name="padx">120</property>						  
+                          <property name="pady">5</property>
+						  <property name="propagate">True</property>
+						  <property name="row">1</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>
+					</child>
+					<child>
+					  <object class="ttk.Entry" id="Entry_OricSpriteFrames">
+						<property name="text" translatable="yes">0</property>
+						<property name="width">4</property>
+						<layout>
+						  <property name="column">0</property>
+                          <property name="padx">170</property>
+                          <property name="pady">5</property>
+						  <property name="propagate">True</property>
+						  <property name="row">1</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>
+					</child>
+					<child>
+					  <object class="ttk.Label" id="Label_OricSpriteWidth">
+						<property name="text" translatable="yes">Width=</property>
+						<layout>
+						  <property name="column">0</property>
+                          <property name="padx">200</property>						  
+                          <property name="pady">5</property>
+						  <property name="propagate">True</property>
+						  <property name="row">1</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>
+					</child>
+					<child>
+					  <object class="ttk.Entry" id="Entry_OricSpriteWidth">
+						<property name="text" translatable="yes">12</property>
+						<property name="width">4</property>
+						<property name="state">disabled</property>
+						<layout>
+						  <property name="column">0</property>
+                          <property name="padx">250</property>						  
+                          <property name="pady">5</property>
+						  <property name="propagate">True</property>
+						  <property name="row">1</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>
+					</child>
+					<child>
+					  <object class="ttk.Label" id="Label_OricSpriteHeight">
+						<property name="text" translatable="yes">Height=</property>
+						<layout>
+						  <property name="column">0</property>
+                          <property name="padx">280</property>						  
+                          <property name="pady">5</property>
+						  <property name="propagate">True</property>
+						  <property name="row">1</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>
+					</child>
+					<child>
+					  <object class="ttk.Entry" id="Entry_OricSpriteHeight">
+						<property name="text" translatable="yes">0</property>
+						<property name="width">4</property>
+						<layout>
+						  <property name="column">0</property>
+                          <property name="padx">330</property>						  
+                          <property name="pady">5</property>
+						  <property name="propagate">True</property>
+						  <property name="row">1</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>	
+					</child>					
                   </object>
                 </child>
                 <child>
@@ -954,7 +1315,8 @@
                         <property name="width">53</property>
                         <layout>
                           <property name="column">0</property>
-                          <property name="propagate">True</property>
+						  <property name="pady">2</property>						  
+						  <property name="propagate">True</property>
                           <property name="row">0</property>
                           <property name="sticky">nw</property>
                         </layout>

@@ -1,9 +1,9 @@
 
 ;;; source file for CC65 "remake" compiler
-	.include "chipper.s"
-	.global _musicData
+	.include "soundbs.mac"
+	.global musicptr
 	.rodata
-_musicData:
+musicptr:
 	.word CHANNEL_0, CHANNEL_1, CHANNEL_2, CHANNEL_3
 
 PATTERN_LENGTH   .set  1280
@@ -70,10 +70,7 @@ WAVEENV_9:
 
 
 PATTERN_00:
-	INSTR2 $24,$40,$b5,127,127
-	SET_VOLENV 3
-	PLAY2 133,$5e,255
-	DELAY 1025
+	DELAY 1280
 RETURN
 
 

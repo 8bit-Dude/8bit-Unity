@@ -29,24 +29,27 @@ from PIL import Image
 
 input = sys.argv[1]
 output = sys.argv[2]
+height = int(sys.argv[3])
 
 #################################
 # Read source bitmap and palette
 img1 = Image.open(input)
 pixdata = list(img1.getdata())
-print "Superposed Frames: %i" % (max(pixdata))
+colors = max(pixdata)
+print "Number of Colors: %i" % (colors)
 
 ################################
 # Convert pixel data to buffers 
-block = 8*13
+block = 8*height
 frames = len(pixdata) / block
-numBytes = (2*frames*13)
+numBytes = (colors*frames*height)
 sprdata = [chr(0)] * numBytes
 for v in range(1,max(pixdata)+1):
     for f in range(frames):
         for i in range(0, block, 8):
-            sprdata[(v-1)*frames*13+f*13+i/8] = chr(((pixdata[f*block+i+7]==v)<<0) + ((pixdata[f*block+i+6]==v)<<1) + ((pixdata[f*block+i+5]==v)<<2) + ((pixdata[f*block+i+4]==v)<<3)
-                                                  + ((pixdata[f*block+i+3]==v)<<4) + ((pixdata[f*block+i+2]==v)<<5) + ((pixdata[f*block+i+1]==v)<<6) + ((pixdata[f*block+i+0]==v)<<7))
+            sprdata[(v-1)*frames*height+f*height+i/8] = \
+                chr(((pixdata[f*block+i+7]==v)<<0) + ((pixdata[f*block+i+6]==v)<<1) + ((pixdata[f*block+i+5]==v)<<2) + ((pixdata[f*block+i+4]==v)<<3)
+                  + ((pixdata[f*block+i+3]==v)<<4) + ((pixdata[f*block+i+2]==v)<<5) + ((pixdata[f*block+i+1]==v)<<6) + ((pixdata[f*block+i+0]==v)<<7))
 
 ###########################
 # Write output binary file

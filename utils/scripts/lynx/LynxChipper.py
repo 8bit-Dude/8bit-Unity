@@ -28,14 +28,14 @@ import sys
 
 input = sys.argv[1]
 output = sys.argv[2]
+flag = sys.argv[3]
 
 try:
     # Slightly modify ASM file output by Chipper
     with open(input, "rt") as fin:
         with open(output, "wt") as fout:
             for line in fin:
-                line = line.replace('soundbs.mac', 'chipper.s')
-                line = line.replace('musicptr', '_musicData')
+                line = line.replace('musicptr', flag)
                 fout.write(line)
                 
 except:
