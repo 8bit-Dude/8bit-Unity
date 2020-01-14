@@ -1,9 +1,4 @@
 /*
- *	API of the "8bit-Unity" SDK for CC65
- *	All functions are cross-platform for the Apple IIe, Atari XL/XE, and C64/C128
- *	
- *	Last modified: 2019/05/05
- *	
  * Copyright (c) 2019 Anthony Beaucamp.
  *
  * This software is provided 'as-is', without any express or implied warranty.
@@ -27,16 +22,26 @@
  *   4. The names of this software and/or it's copyright holders may not be
  *   used to endorse or promote products derived from this software without
  *   specific prior written permission.
- *
  */
 
 #include "hub.h"
 #include "unity.h"
 
-unsigned char joyState[4];
+#define ADAPTOR_PASE 0
+#define ADAPTOR_HUB  1
 
+unsigned char InitPaseIJK(void);
+unsigned char GetPaseIJK(unsigned char);	// see JOY.s
 unsigned char GetKey(unsigned char);		// see keyboard.s
-unsigned char GetJoyAdaptor(unsigned char);	// see JOY.s
+
+unsigned char joyAdaptor = ADAPTOR_PASE;
+
+void InitJoy(void)
+{
+	// Check if 8bit-Hub connected (otherwise assume PASE/IJK interface)
+	if (hubState[0] == COM_ERR_OFFLINE) { InitHub(); }
+	if (hubState[0] != COM_ERR_OFFLINE) { joyAdaptor = ADAPTOR_HUB; }
+}
 
 unsigned char GetJoy(unsigned char joy)
 {
@@ -58,18 +63,13 @@ unsigned char GetJoy(unsigned char joy)
 		if (GetKey(1+8*7)) { state -= JOY_RIGHT; } // L
 		if (GetKey(5+8*7)) { state -= JOY_BTN1;  } // RETURN
 		return state;
-	case 2:
-		state = GetJoyAdaptor(0);	// Joy #2:  ALTAI/PASE/IJK Left
-		return state;
-	case 3:
-		state = GetJoyAdaptor(1);	// Joy #3:  ALTAI/PASE/IJK Right
-		return state;
 	default:
-		// Get state from HUB
-		UpdateHub(0);
-		if (hubState[0] < COM_ERR_TRUNCAT) {
-			joyState[joy-4] = hubState[joy-3];
+		if (joyAdaptor) {			// Joy #3-#4: 8bit-Hub
+			UpdateHub(0);			
+			return hubState[joy-1];
+		} else {					// Joy #3-#4: ALTAI/PASE/IJK
+			state = GetPaseIJK(joy-2);
+			return state;
 		}
-		return joyState[joy];
 	}
 }

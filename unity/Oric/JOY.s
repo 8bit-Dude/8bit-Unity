@@ -24,8 +24,8 @@
 ;   specific prior written permission.
 ;
 
-	.export _InitJoy
-	.export _GetJoyAdaptor
+	.export _InitPaseIJK
+	.export _GetPaseIJK
 	
 via_ddra =	$0303
 via_ddrb =	$0302
@@ -35,10 +35,10 @@ via_portb =	$0300
 	.segment	"CODE"	
 		
 ;------------------------------------------
-; unsigned char __near__ _InitJoy ()
+; unsigned char __near__ _InitPaseIJK ()
 ; -----------------------------------------
 
-.proc _InitJoy: near
+.proc _InitPaseIJK: near
 	ldx #%10110111		;Ensure Printer Strobe is set to Output
 	stx via_ddrb
 	ldx #%00000000		;Set Strobe Low
@@ -56,10 +56,10 @@ via_portb =	$0300
 .endproc
 	
 ; ------------------------------------------------
-; unsigned char __near__ _GetJoyAdaptor (unsigned char)
+; unsigned char __near__ _GetPaseIJK (unsigned char)
 ; ------------------------------------------------
 
-.proc _GetJoyAdaptor: near
+.proc _GetPaseIJK: near
 	ldx #%00000000		;Set Strobe Low
 	stx via_portb
 	ldx #%11000000		;Set Top two bits of PortA to Output and rest as Input

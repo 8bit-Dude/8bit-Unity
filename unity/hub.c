@@ -40,12 +40,13 @@
   clock_t recvClock;
 #else
   #define HUB_REFRESH_RATE 3	// every 3 clock cycles
+unsigned char tick;
 #endif
 
 unsigned char hubState[5] = { COM_ERR_OFFLINE, 255, 255, 80, 100 };
-unsigned char sendLen = 0, sendHub[192];
-unsigned char recvLen = 0, recvHub[192];
-unsigned char countID = 0; sendID = 0; recvID = 0, tick;
+unsigned char sendID = 0, sendLen = 0, sendHub[192];
+unsigned char recvID = 0, recvLen = 0, recvHub[192];
+unsigned char countID = 0;
 clock_t hubClock = 0;
 
 unsigned char NextID(void) 
@@ -64,8 +65,8 @@ void SendByte(unsigned char value)
 		
 #elif defined __ATMOS__
 	POKE(0x0301, value);		// Write 1 Byte to Printer Port
-	POKE(0x0300, 175);			// Send STROBE signal (falling pulse)
-	tick++; tick++; tick++; 
+	POKE(0x0300, 175);			// Send STROBE (falling signal)
+	tick++; tick++; tick++; 	// Wait 3 cycles
 	POKE(0x0300, 255);			// Reset STROBE
 #endif
 }

@@ -126,10 +126,6 @@
 	}
 #endif
 
-#ifdef __APPLE2__
-  #pragma code-name("LC")
-#endif
-
 void LoadMusic(const char* filename, unsigned int address)
 {
 #if defined __ATMOS__
@@ -240,6 +236,10 @@ void EngineSFX(int channel, int vel)
 	abcpitch(channel, freq);
 #endif
 }
+
+#ifdef __APPLE2__
+  #pragma code-name("LC")
+#endif
 
 void BleepSFX(unsigned char tone) 
 {
