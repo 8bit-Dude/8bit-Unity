@@ -32,37 +32,38 @@
 ; void __near__ SpriteCopy (void)
 ;	Copy a series of evenly spaced blocks
 ;	Zero Page Data:
-;		$00: Number of blocks
-;		$01: Number of bytes per block
-;		$02: 16 bit address of 1st source block
-;		$04: 16 bit address of 1st target block
-;		$06: Offset between source blocks
-;		$07: Offset between target blocks
+;		$b0: Number of blocks
+;		$b1: Number of bytes per block
+;		$b2: 16 bit address of 1st source block
+;		$b4: 16 bit address of 1st target block
+;		$b6: Offset between source blocks
+;		$b7: Offset between target blocks
 ; ---------------------------------------------------------------	
 
 .proc _SpriteCopy: near
-	ldx $00			; X loop: Number of blocks (ZP$00)
+	ldx $b0			; X loop: Number of blocks (ZP$b0)
 loopx: 
-	ldy $01			; Y loop: Number of bytes per block (ZP$01)
+	ldy $b1			; Y loop: Number of bytes per block (ZP$b1)
 loopy:	
-	lda ($02),y		; Copy 1 byte from source (ZP$02,y) to target (ZP$04,y)
-	sta ($04),y
+	lda ($b2),y		; Copy 1 byte from source (ZP$b2,y) to target (ZP$b4,y)
+	sta ($b4),y
 	dey				; Iterate Y loop
 	bne loopy
 	clc
-	lda $02			; Set address of next source block
-	adc $06			; Add block offset (ZP$06)
-	sta $02	
+	lda $b2			; Update address of next source block
+	adc $b6			; Add block offset (ZP$b6)
+	sta $b2	
 	bcc nocarry1	; Check if carry to high byte
-	inc $03
+	inc $b3
 nocarry1:
 	clc
-	lda $04			; Set address of next target block
-	adc $07			; Add block offset (ZP$07)
-	sta $04	
+	lda $b4			; Update address of next target block
+	adc $b7			; Add block offset (ZP$b7)
+	sta $b4	
 	bcc nocarry2	; Check if carry to higher byte
-	inc $05
+	inc $b5
 nocarry2:
 	dex				; Iterate X loop
 	bne loopx
+	rts
 .endproc

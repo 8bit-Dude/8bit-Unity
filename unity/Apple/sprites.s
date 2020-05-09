@@ -189,4 +189,5 @@ nocarry2:
 	inc $ed			; Increment Y-Line offset in DHR Table
 	dex				; Iterate X loop
 	bne loopX	
+	rts
 .endproc

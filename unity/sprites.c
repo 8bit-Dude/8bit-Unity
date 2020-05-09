@@ -39,7 +39,7 @@
 	// Sprite data
 	#define sprWIDTH 4	// Byte width of sprite (7 pixels)
 	unsigned char sprX[SPRITE_NUM], sprY[SPRITE_NUM];	 // Screen coordinates
-	unsigned char sprEN[SPRITE_NUM], sprCOL[SPRITE_NUM]; // Enable and Collision status
+	unsigned char sprEN[SPRITE_NUM], sprCOLLI[SPRITE_NUM]; // Enable and Collision status
 	unsigned char sprXO[SPRITE_NUM];   // Byte offset within DHR line
 	unsigned char* sprBG[SPRITE_NUM];  // Sprite background
     unsigned int sprBLOCK;	// Size of sprite offset block (4 blocks)
@@ -87,17 +87,17 @@
 // Atmos specific init function
 #elif defined __ATMOS__	
 	#define sprWIDTH 2	// Byte width of sprite (12 pixels)
-	unsigned char sprX[SPRITE_NUM], sprY[SPRITE_NUM];	 // Screen coordinates
-	unsigned char sprEN[SPRITE_NUM], sprCOL[SPRITE_NUM]; // Enable and Collision status
-	unsigned char sprROWS, inkVAL, *sprBG[SPRITE_NUM];
-	unsigned int scrPTR, colPTR, sprBLOCK;	// Size of sprite offset block (4 blocks)
+	unsigned char sprX[SPRITE_NUM], sprY[SPRITE_NUM];	   // Screen coordinates
+	unsigned char sprEN[SPRITE_NUM], sprCOLLI[SPRITE_NUM]; // Enable Flag, Collision status
+	unsigned char sprROWS, *sprBG[SPRITE_NUM];  		   // Height of Sprite (rows), Pointer to background backup
+	unsigned int  scrPtr[SPRITE_NUM], sprBLOCK, sprCOLOR;  // Screen pointers, Size of sprite offset block (4 blocks), Color vector
 	extern unsigned char ink1[20];	// see bitmap.c
 	void InitSprites(unsigned char frames, unsigned char cols, unsigned char rows, unsigned char *spriteColors)
 	{			
 		// Load sprite sheet and assigned colors
 		unsigned char i;
 		SedoricRead("sprites.dat", (void*)SPRITERAM);
-		colPTR = spriteColors; sprROWS = rows;
+		sprCOLOR = spriteColors; sprROWS = rows;
 		sprBLOCK = frames*sprROWS*sprWIDTH;
 		
 		// Assign memory for sprite background
@@ -123,10 +123,10 @@
 // Lynx specific init function
 #elif defined __LYNX__	
 	// declare RO and TGI data
-	unsigned char sprX[SPRITE_NUM], sprY[SPRITE_NUM];	 // Screen coordinates
-	unsigned char sprEN[SPRITE_NUM], sprCOL[SPRITE_NUM]; // Enable and Collision status
-	unsigned char sprCOLS, sprROWS;					     // Sprite dimensions
-	SCB_REHV_PAL sprTGI[SPRITE_NUM];					 // Frame data
+	unsigned char sprX[SPRITE_NUM], sprY[SPRITE_NUM];	   // Screen coordinates
+	unsigned char sprEN[SPRITE_NUM], sprCOLLI[SPRITE_NUM]; // Enable and Collision status
+	unsigned char sprCOLS, sprROWS;					       // Sprite dimensions
+	SCB_REHV_PAL sprTGI[SPRITE_NUM];					   // Frame data
 	extern unsigned int spriteData[]; 
 	void InitSprites(unsigned char frames, unsigned char cols, unsigned char rows, unsigned char *spriteColors)
 	{
@@ -156,7 +156,7 @@ void RecolorSprite(unsigned char index, unsigned char number, unsigned char colo
 #if defined __ATARI__
 	flickerColor[index] = color;
 #elif defined __ATMOS__
-	POKE(colPTR+index, color);
+	POKE(sprCOLOR+index, color);
 #elif defined __CBM__
 	POKE(53287+index, color);
 #elif defined __LYNX__
@@ -235,15 +235,14 @@ void LocateSprite(unsigned int x, unsigned int y)
 
 // Oric specific background redrawing function
 #if defined __ATMOS__
-
   void __fastcall__ SpriteCopy(void);	// (see Oric/utils.s)
   void RestoreSprBG(unsigned char index)
   {
 	// Restore sprite background
-	POKE(0x00, sprROWS); POKE(0x01, 4);					// Number of: blocks / bytes per block
-	POKEW(0x02, sprBG[index] - 1);						// Address of first source block (-1)
-	POKEW(0x04, BITMAPRAM + sprY[index]*40 + sprX[index] - 1);	// Address of first target block (-1)
-	POKE(0x06, 4); POKE(0x07, 40); 						// Offset between: source blocks / target blocks
+	POKE(0xb0, sprROWS); POKE(0xb1, 4);		// Number of: blocks / bytes per block
+	POKEW(0xb2, sprBG[index]-1);			// Address of first source block (-1)
+	POKEW(0xb4, scrPtr[index]-1);			// Address of first target block (-1)
+	POKE(0xb6, 4); POKE(0xb7, 40); 			// Offset between: source blocks / target blocks
 	SpriteCopy();
   }
 #endif
@@ -259,7 +258,7 @@ void LocateSprite(unsigned int x, unsigned int y)
   #endif					
 	
 	// Check for collisions
-	sprCOL[index] = 0;
+	sprCOLLI[index] = 0;
 	for (i=0; i<SPRITE_NUM; i++) {
 		// Should this sprite be checked?
 		if (i == index) { continue; }
@@ -272,8 +271,8 @@ void LocateSprite(unsigned int x, unsigned int y)
 			dX = sprXO[i] - xO;
 			if (dX < 2 || dX>254) {
 				// Apply collision
-				sprCOL[index] |= 1 << i;
-				sprCOL[i] |= 1 << index;
+				sprCOLLI[index] |= 1 << i;
+				sprCOLLI[i] |= 1 << index;
 				RestoreSprBG(i);
 			}
 		}
@@ -283,8 +282,8 @@ void LocateSprite(unsigned int x, unsigned int y)
 			if (dX < 4 || dX>252) {	// Including INK bytes
 				// Check narrower collision sector
 				if (dX < 2 || dX>254) {	// Not including INK bytes
-					sprCOL[index] |= 1 << i;
-					sprCOL[i] |= 1 << index;
+					sprCOLLI[index] |= 1 << i;
+					sprCOLLI[i] |= 1 << index;
 				}					
 			
 				// Define X overlap
@@ -318,8 +317,8 @@ void LocateSprite(unsigned int x, unsigned int y)
 			dX = sprX[i] - spriteX;
 			if (dX < (sprCOLS-3) || dX>(256-(sprCOLS-3))) {
 				// Apply collision
-				sprCOL[index] |= 1 << i;
-				sprCOL[i] |= 1 << index;
+				sprCOLLI[index] |= 1 << i;
+				sprCOLLI[i] |= 1 << index;
 			}				
 		}
 	#endif					
@@ -374,42 +373,45 @@ void SetSprite(unsigned char index, unsigned char frame)
 	flickerFrame[index] = SPRITERAM + frame*flickerRows;
 	
 #elif defined __ATMOS__
-	unsigned char i;
-	unsigned int addr;
+	unsigned char i, inkVAL;
+	unsigned int sprPtr, inkPtr;
 	
 	// Check frame block (left or right)
-	addr = SPRITERAM + frame*sprROWS*2;
-	if (spriteX%2) { addr += sprBLOCK; }
+	sprPtr = SPRITERAM + frame*sprROWS*2;
+	if (spriteX%2) { sprPtr += sprBLOCK; }
 	spriteX /= 2;
 
 	// Offset from centre of sprite
 	if (spriteX > 0) { spriteX -= 1; }
 	spriteY -= sprROWS/2;
-
+	
 	// Restore old background?
 	if (sprEN[index]) { RestoreSprBG(index); }
 	
+	// Compute new memory address
+	scrPtr[index] = BITMAPRAM + spriteY*40 + spriteX;
+	
 	// Backup new background
-	POKE(0x00, sprROWS); POKE(0x01, 4);					// Number of: blocks / bytes per block
-	POKEW(0x02, BITMAPRAM + spriteY*40 + spriteX - 1);	// Address of first source block (-1)
-	POKEW(0x04, sprBG[index] - 1);						// Address of first target block (-1)
-	POKE(0x06, 40); POKE(0x07, 4); 						// Offset between: source lines / target lines
+	POKE(0xb0, sprROWS); POKE(0xb1, 4);				// Number of: blocks / bytes per block
+	POKEW(0xb2, scrPtr[index]-1);						// Address of first source block (-1)
+	POKEW(0xb4, sprBG[index]-1);						// Address of first target block (-1)
+	POKE(0xb6, 40); POKE(0xb7, 4); 						// Offset between: source lines / target lines
 	SpriteCopy();	
 	
-	// Draw sprite frame
-	POKE(0x00, sprROWS); POKE(0x01, 2);					// Number of: blocks / bytes per block
-	POKEW(0x02, addr - 1);								// Address of first source block
-	POKEW(0x04, BITMAPRAM + spriteY*40 + spriteX);		// Address of first target block
-	POKE(0x06, 2); POKE(0x07, 40); 						// Offset between: source lines / target lines
-	SpriteCopy();	
+	// Draw new sprite frame
+	POKE(0xb0, sprROWS); POKE(0xb1, 2);				// Number of: blocks / bytes per block
+	POKEW(0xb2, sprPtr-1);							// Address of first source block (-1)
+	POKEW(0xb4, scrPtr[index]);						// Address of first target block (-1)
+	POKE(0xb6, 2); POKE(0xb7, 40); 					// Offset between: source lines / target lines	
+	SpriteCopy();		
 	
 	// Adjust ink on even lines
-	scrPTR = BITMAPRAM + (spriteY + spriteY%2)*40 + spriteX;
-	inkVAL = ink1[PEEK(colPTR+index)];
+	inkPtr = scrPtr[index] + (spriteY%2)*40;
+	inkVAL = ink1[PEEK(sprCOLOR+index)];
 	for (i=0; i<sprROWS/2; i++) {
-		POKE(scrPTR, inkVAL); scrPTR+=3;	// Set Sprite INK
-		POKE(scrPTR, 3); scrPTR+=77;		// Reset AIC INK (yellow)
-	}	
+		POKE(inkPtr, inkVAL); inkPtr+=3;	// Set Sprite INK
+		POKE(inkPtr, 3); inkPtr+=77;		// Reset AIC INK (yellow)
+	}		
 	
 	// Check collisions with other sprites
 	SpriteCollisions(index);

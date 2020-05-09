@@ -64,9 +64,6 @@
     #include "Lynx/platform.h"	
 #endif
 
-// Useful functions
-#define MIN(a,b) (a>b ? b : a)
-
 // Colors for printing
 extern unsigned char inkColor, paperColor;
 #if defined __ATMOS__
@@ -144,6 +141,8 @@ extern unsigned char pixelX, pixelY;
 #endif
 
 // Math functions (see math.s)
+#define MIN(a,b) (a>b ? b : a)
+#define MAX(a,b) (a>b ? a : b)
 #define DOT(a,b) (a[0]*b[0]+a[1]*b[1])
 unsigned char atan2(unsigned char y, unsigned char x);
 
@@ -210,8 +209,8 @@ void RecolorSprite(unsigned char index, unsigned char number, unsigned char colo
 #elif defined __CBM__
   #define COLLISIONS(i) (PEEK(53278))		// On C64, all collisions are contained within a single register
 #else
-  extern unsigned char sprCOL[SPRITE_NUM];
-  #define COLLISIONS(i) (sprCOL[i])
+  extern unsigned char sprCOLLI[SPRITE_NUM];
+  #define COLLISIONS(i) (sprCOLLI[i])
 #endif
 #define COLLIDING(collisions,i) ((collisions >> i) & 1) 
 
