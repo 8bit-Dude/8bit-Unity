@@ -47,7 +47,7 @@
 	void InitSprites(unsigned char frames, unsigned char cols, unsigned char rows, unsigned char *spriteColors)
 	{			
 		// Set sprite rows, frames and resulting block size (there are 4 offset blocks for each sprite)
-		int i;
+		unsigned char i;
 		sprROWS = rows;
 		sprBLOCK = frames*sprROWS*sprWIDTH;
 		for (i=0; i<SPRITE_NUM; i++) {
