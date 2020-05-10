@@ -434,7 +434,7 @@ void Explosion(unsigned int x, unsigned int y)
 		if (grub->health) {
 			xOff = grub->x; yOff = grub->y;
 			sqDist = ((xOff-x)*(xOff-x)+(yOff-y)*(yOff-y));
-			if (sqDist<144) {
+			if (sqDist<162) {
 				if (grub->health > 34) { grub->health -= 34; } else {grub->health = 0; }
 				if (!grub->health) {
 					grub->keyFrame = KEYFRAME_DEAD;
@@ -524,9 +524,9 @@ void ProcessProj(Proj *proj)
 				#endif
 					continue;
 				}
-				// Check if we hit the ground
+				// Check if we hit the ground or another grub
 				LocatePixel(x, y);
-				if (GetPixel() != SKY) {
+				if (GetPixel() != SKY || (COLLISIONS(proj->index) && !COLLISIONS(proj->owner))) {
 					// Destroy proj. and process explosion
 					proj->state = PROJ_NULL;
 					DisableSprite(proj->index);
@@ -620,7 +620,7 @@ int main(void)
 		}			
 		
 		// Process input on selected grub?
-		if (clock()-gameClock > (CLK_TCK/10)) {
+		if (clock()-gameClock > (TCK_PER_SEC/10)) {
 			gameClock = clock();
 			grub = &grubs[curGrub];
 			proj = &projs[0];
