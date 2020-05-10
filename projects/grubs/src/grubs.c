@@ -526,7 +526,7 @@ void ProcessProj(Proj *proj)
 				}
 				// Check if we hit the ground or another grub
 				LocatePixel(x, y);
-				if (GetPixel() != SKY || (COLLISIONS(proj->index) && !COLLISIONS(proj->owner))) {
+				if (GetPixel() != SKY) { // || (COLLISIONS(proj->index) && !COLLISIONS(proj->owner))) {
 					// Destroy proj. and process explosion
 					proj->state = PROJ_NULL;
 					DisableSprite(proj->index);
