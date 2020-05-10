@@ -35,8 +35,8 @@
  */
  
 // Memory Map
-#define SPRITERAM  (0x7800)	// 7800-7fff (location of sprite frames)
-#define MUSICRAM   (0x8000) // 8000-8fff (compressed music data)
+#define SPRITERAM  (0x8000)	// 8000-87ff (location of sprite frames)
+#define MUSICRAM   (0x8800) // 8800-8fff (compressed music data)
 #define MUSICBUF   (0x9000) // 9000-9fff (music buffer used by player)
 #define BITMAPRAM  (0xA000) // A000-Bfff (address where bitmaps are loaded)
 
@@ -51,13 +51,14 @@
 
 // Bitmap Palette
 #define BLACK   0
-#define MGREEN	1
 #define GREEN	1
+#define MGREEN	1
 #define DGREEN	2
 #define CYAN	3
 #define LGREEN	4
 #define AIC		4
 #define GREY	5
+#define BLUE	6
 #define MBLUE	6
 #define DBLUE	7
 #define LBLUE 	8

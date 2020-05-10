@@ -140,7 +140,7 @@ void RecvHub(unsigned char timeOut)
 #elif defined __ATMOS__	
 	__asm__("sei");		// Disable interrupts
 	SendByte(85);		// Send read code
-	POKE(0x0303, 0);	// Open Port A for listening
+	POKE(0x0303, 0);	// Set Port A as Input
 	i = PEEK(0x0301);   // Reset ORA
 #endif
 	
@@ -170,7 +170,7 @@ void RecvHub(unsigned char timeOut)
 	if (!RecvByte(&footer)) { hubState[0] = COM_ERR_TRUNCAT; return; }
 		
 #if defined __ATMOS__	
-	POKE(0x0303, 255);	// Close port A
+	POKE(0x0303, 255);	// Set port A as Output
 	__asm__("cli");		// Resume interrupts	
 #endif
 
@@ -224,6 +224,9 @@ void RecvHub(unsigned char timeOut)
 
 void InitHub()
 {
+	// Set port A as Output
+	POKE(0x0303, 255);
+	
 	// Send reset command
 	recvID = 0; sendID = 0;
 	recvLen = 0; sendLen = 0;
