@@ -25,7 +25,7 @@
 ;
 
 	.export _DHRLine
-	.export _SpriteCopy
+	.export _Blit
 
 	.segment	"DATA"
 		
@@ -100,7 +100,7 @@ _mainAuxTog: .res 1
 .endproc	
 	
 ; ---------------------------------------------------------------
-; void __near__ SpriteCopy (void)
+; void __near__ Blit (void)
 ;	Copy sprite to DHR memory (optionally backup the screen)
 ;	Zero Page Data:
 ;		$eb: Number of rows
@@ -112,7 +112,7 @@ _mainAuxTog: .res 1
 ;		$fc: 16 bit address of DHR line (generated from offsets)
 ; ---------------------------------------------------------------	
 
-.proc _SpriteCopy: near
+.proc _Blit: near
 
 	; Init Main/Aux Toggle
 	lda #0

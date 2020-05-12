@@ -196,7 +196,7 @@ void LocateSprite(unsigned int x, unsigned int y)
 // Apple II specific background redrawing function
 #if defined __APPLE2__
   unsigned char xO, yO, xptr, yptr, *bgPTR;
-  void __fastcall__ SpriteCopy(void);	// (see Apple/sprites.s)
+  void __fastcall__ Blit(void);	// (see Apple/sprites.s)
   unsigned int DHRLine(unsigned char y);
   void RestoreSprBG(unsigned char index)
   {
@@ -205,7 +205,7 @@ void LocateSprite(unsigned int x, unsigned int y)
 	  POKE(0xED, sprY[index]);		// DHR Offset Y
 	  POKEW(0xEE, 0);				// Address of Backup
 	  POKEW(0xFA, sprBG[index]);	// Address of Data
-	  SpriteCopy();
+	  Blit();
   }
   void RestoreSprLine(unsigned char x, unsigned char y)
   {
@@ -235,7 +235,7 @@ void LocateSprite(unsigned int x, unsigned int y)
 
 // Oric specific background redrawing function
 #if defined __ATMOS__
-  void __fastcall__ SpriteCopy(void);	// (see Oric/utils.s)
+  void __fastcall__ Blit(void);	// (see Oric/utils.s)
   void RestoreSprBG(unsigned char index)
   {
 	// Restore sprite background
@@ -243,7 +243,7 @@ void LocateSprite(unsigned int x, unsigned int y)
 	POKEW(0xb2, sprBG[index]-1);			// Address of first source block (-1)
 	POKEW(0xb4, scrPtr[index]-1);			// Address of first target block (-1)
 	POKE(0xb6, 4); POKE(0xb7, 40); 			// Offset between: source blocks / target blocks
-	SpriteCopy();
+	Blit();
   }
 #endif
 
@@ -359,7 +359,7 @@ void SetSprite(unsigned char index, unsigned char frame)
 	POKE(0xED, spriteY);			// DHR Offset Y
 	POKEW(0xEE, sprBG[index]);		// Address of Backup
 	POKEW(0xFA, SPRITERAM+addr);	// Address of Data
-	SpriteCopy();
+	Blit();
 
 	// Set sprite information
 	sprXO[index] = xO;
@@ -396,14 +396,14 @@ void SetSprite(unsigned char index, unsigned char frame)
 	POKEW(0xb2, scrPtr[index]-1);			// Address of first source block (-1)
 	POKEW(0xb4, sprBG[index]-1);			// Address of first target block (-1)
 	POKE(0xb6, 40); POKE(0xb7, 4); 			// Offset between: source lines / target lines
-	SpriteCopy();	
+	Blit();	
 	
 	// Draw new sprite frame
 	POKE(0xb0, sprROWS); POKE(0xb1, 2);		// Number of: blocks / bytes per block
 	POKEW(0xb2, sprPtr-1);					// Address of first source block (-1)
 	POKEW(0xb4, scrPtr[index]);				// Address of first target block (-1)
 	POKE(0xb6, 2); POKE(0xb7, 40); 			// Offset between: source lines / target lines	
-	SpriteCopy();		
+	Blit();		
 	
 	// Adjust ink on even lines
 	inkPtr = scrPtr[index] + (spriteY%2)*40;
