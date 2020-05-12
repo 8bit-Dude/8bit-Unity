@@ -412,11 +412,36 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Compilation
+            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t apple2 -I unity unity/bitmap.c\n')
+            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t apple2 -I unity unity/geom2d.c\n')
+            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t apple2 -I unity unity/network.c\n')
+            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t apple2 -I unity unity/sfx.c\n')
+            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t apple2 -I unity unity/sprites.c\n')
+            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t apple2 -I unity unity/Apple/CLOCK.c\n')
+            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t apple2 -I unity unity/Apple/DHR.c\n\n')
+            
+            fp.write('utils\\cc65\\bin\\ca65 unity/bitmap.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/chars.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/geom2d.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/math.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/network.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/sfx.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/sprites.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/Apple/blit.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/Apple/CLOCK.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/Apple/DUET.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/Apple/DHR.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/Apple/JOY.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/Apple/MOCKING.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/Apple/PADDLE.s\n\n')
+            
+            fp.write('utils\\cc65\\bin\\ar65 r build/apple/unity.lib unity/bitmap.o unity/chars.o unity/geom2d.o unity/math.o unity/network.o unity/sfx.o unity/sprites.o unity/Apple/blit.o unity/Apple/CLOCK.o unity/Apple/DHR.o unity/Apple/DUET.o unity/Apple/JOY.o unity/Apple/MOCKING.o unity/Apple/PADDLE.o\n\n')
+            
             comp = 'utils\\cc65\\bin\\cl65 -o build/apple/' + diskname.lower() + '.bin -Cl -O -t apple2 -C unity/Apple/apple2e.cfg -I unity '
             for item in code:
                 comp += item
                 comp += ' '
-            fp.write(comp + 'unity/bitmap.c unity/chars.s unity/math.s unity/network.c unity/sfx.c unity/sprites.c unity/Apple/CLOCK.c unity/Apple/DHR.c unity/Apple/DUET.s unity/Apple/JOY.s unity/Apple/MOCKING.s unity/Apple/PADDLE.s unity/Apple/sprites.s unity/IP65/ip65.lib unity/IP65/ip65_apple2.lib\n')
+            fp.write(comp + 'build/apple/unity.lib unity/IP65/ip65.lib unity/IP65/ip65_apple2.lib\n\n')
             
             # Compression
             cmd = 'utils\\scripts\\exomizer sfx $0803 -t162 -Di_load_addr=$0803 build/apple/' + diskname.lower() + '.bin@$0803,4'
@@ -476,31 +501,45 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Compilation
+            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atarixl -I unity unity/bitmap.c\n')
+            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atarixl -I unity unity/geom2d.c\n')
+            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atarixl -I unity unity/network.c\n')
+            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atarixl -I unity unity/sfx.c\n')
+            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atarixl -I unity unity/sprites.c\n\n')
+            
+            fp.write('utils\\cc65\\bin\\ca65 unity/bitmap.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/chars.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/geom2d.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/math.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/network.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/sfx.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/sprites.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/Atari/blit.s\n')
+                        
+            fp.write('utils\\cc65\\bin\\ar65 r build/atari/unity.lib unity/bitmap.o unity/chars.o unity/geom2d.o unity/math.o unity/network.o unity/sfx.o unity/sprites.o unity/Atari/blit.o\n\n')
+            
             if len(self.Checkbutton_AtariNoText.state()):
                 configFile = 'atarixl-notext.cfg'
             else:
                 configFile = 'atarixl.cfg'
-            comp = 'utils\\cc65\\bin\\cl65 -o build/atari/program.bin -Cl -O -t atarixl -C unity/Atari/' + configFile + ' -I unity '
+            comp = 'utils\\cc65\\bin\\cl65 -o build/atari/' + diskname.lower() + '.bin -Cl -O -t atarixl -C unity/Atari/' + configFile + ' -I unity '
             for item in code:
                 comp += item
                 comp += ' '
-            fp.write(comp + 'unity/bitmap.c unity/chars.s unity/math.s unity/network.c unity/sfx.c unity/sprites.c unity/Atari/POKEY.s unity/Atari/sprites.s unity/IP65/ip65.lib unity/IP65/ip65_atarixl.lib\n')
+            fp.write(comp + 'unity/Atari/POKEY.s build/atari/unity.lib unity/IP65/ip65.lib unity/IP65/ip65_atarixl.lib\n\n')
+            
             fp.write('utils\\cc65\\bin\\cl65 -t atarixl -C atari-asm.cfg -o build/atari/basicoff.bin unity/Atari/BASICOFF.s\n')
             fp.write('utils\\scripts\\atari\\mads.exe -o:build/atari/dli.bin unity/Atari/DLI.a65\n')
-            fp.write('utils\\scripts\\atari\\mads.exe -o:build/atari/rmt.bin unity/Atari/RMT.a65\n')
+            fp.write('utils\\scripts\\atari\\mads.exe -o:build/atari/rmt.bin unity/Atari/RMT.a65\n\n')
 
             # Merging
-            cmd = 'utils\\py27\\python utils\\scripts\\atari\\AtariMerge.py build/atari/autorun build/atari/basicoff.bin build/atari/program.bin build/atari/dli.bin build/atari/rmt.bin'
+            cmd = 'utils\\py27\\python utils\\scripts\\atari\\AtariMerge.py build/atari/autorun build/atari/basicoff.bin build/atari/' + diskname.lower() + '.bin build/atari/dli.bin build/atari/rmt.bin'
             if len(music) > 0:    
                 cmd += ' ' + music[0]
             if len(sprites) > 0:
                 cmd += ' build/atari/sprites.dat'
             cmd += '\n'                
             fp.write(cmd)
-            
-            # Clean-up
-            fp.write('del build\\atari\\*.bin /F /Q\n')
-            fp.write('del build\\atari\\*.dat /F /Q\n')
 
             # Info
             fp.write('\necho DONE!\n\n')
@@ -545,11 +584,30 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
             
             # Compilation
+            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t c64 -I unity unity/bitmap.c\n')
+            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t c64 -I unity unity/geom2d.c\n')
+            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t c64 -I unity unity/network.c\n')
+            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t c64 -I unity unity/sfx.c\n')
+            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t c64 -I unity unity/sprites.c\n\n')
+            
+            fp.write('utils\\cc65\\bin\\ca65 unity/bitmap.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/chars.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/geom2d.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/math.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/network.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/sfx.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/sprites.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/C64/JOY.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/C64/ROM.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/C64/SID.s\n\n')
+                        
+            fp.write('utils\\cc65\\bin\\ar65 r build/c64/unity.lib unity/bitmap.o unity/chars.o unity/geom2d.o unity/math.o unity/network.o unity/sfx.o unity/sprites.o unity/C64/JOY.o unity/C64/ROM.o unity/C64/SID.o\n\n')
+                        
             comp = 'utils\\cc65\\bin\\cl65 -o build/c64/' + diskname.lower() + '.bin -Cl -O -t c64 -C unity/C64/c64.cfg -I unity '
             for item in code:
                 comp += item
                 comp += ' '
-            fp.write(comp + 'unity/bitmap.c unity/chars.s unity/math.s unity/network.c unity/sfx.c unity/sprites.c unity/C64/JOY.s unity/c64/ROM.s unity/C64/SID.s unity/IP65/ip65.lib unity/IP65/ip65_c64.lib\n')
+            fp.write(comp + 'build/c64/unity.lib unity/IP65/ip65.lib unity/IP65/ip65_c64.lib\n\n')
             
             # Compression
             cmd = 'utils\\scripts\\exomizer.exe sfx 2061 build/c64/' + diskname.lower() + '.bin'
@@ -730,10 +788,33 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Compilation
+            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t lynx -I unity unity/bitmap.c\n')
+            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t lynx -I unity unity/geom2d.c\n')
+            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t lynx -I unity unity/hub.c\n')
+            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t lynx -I unity unity/network.c\n')
+            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t lynx -I unity unity/sfx.c\n')
+            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t lynx -I unity unity/sprites.c\n')
+            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t lynx -I unity unity/Lynx/display.c\n')
+            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t lynx -I unity unity/Lynx/joysticks.c\n\n')
+            
+            fp.write('utils\\cc65\\bin\\ca65 unity/bitmap.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/chars.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/geom2d.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/hub.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/math.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/network.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/sfx.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/sprites.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/Lynx/display.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/Lynx/header.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/Lynx/joysticks.s\n\n')
+                        
+            fp.write('utils\\cc65\\bin\\ar65 r build/lynx/unity.lib unity/bitmap.o unity/chars.o unity/geom2d.o unity/hub.o unity/math.o unity/network.o unity/sfx.o unity/sprites.o unity/Lynx/display.o unity/Lynx/header.o unity/Lynx/joysticks.o\n\n')
+            
             comp = 'utils\\cc65\\bin\\cl65 -o build/' + diskname.lower() + '-lynx.lnx -Cl -O -t lynx -C build/lynx/lynx.cfg -I unity '
             for item in code:
                 comp += (item + ' ')
-            fp.write(comp + 'unity/bitmap.c unity/chars.s unity/hub.c unity/math.s unity/network.c unity/sprites.c unity/sfx.c unity/Lynx/display.c unity/Lynx/header.s unity/Lynx/joysticks.c unity/Lynx/sfx.s build/lynx/directory.asm build/lynx/gfxdata.asm build/lynx/musicdata.asm\n')
+            fp.write(comp + 'unity/Lynx/sfx.s build/lynx/directory.asm build/lynx/gfxdata.asm build/lynx/musicdata.asm build/lynx/unity.lib\n')
             
             # Info
             fp.write('\necho DONE!\n\n')
@@ -780,17 +861,41 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Compilation
-            comp = 'utils\\cc65\\bin\\cl65 -o build/oric/launch.bin -Cl -O -t atmos -C unity/Oric/oric.cfg -I unity '
+            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atmos -I unity unity/bitmap.c\n')
+            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atmos -I unity unity/geom2d.c\n')
+            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atmos -I unity unity/hub.c\n')
+            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atmos -I unity unity/network.c\n')
+            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atmos -I unity unity/sfx.c\n')
+            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atmos -I unity unity/sprites.c\n')
+            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atmos -I unity unity/Oric/files.c\n')
+            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atmos -I unity unity/Oric/joysticks.c\n\n')
+            
+            fp.write('utils\\cc65\\bin\\ca65 unity/bitmap.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/chars.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/geom2d.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/hub.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/math.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/network.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/sfx.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/sprites.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/Oric/blit.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/Oric/files.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/Oric/joysticks.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/Oric/JOY.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/Oric/keyboard.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/Oric/libsedoric.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/Oric/MYM.s\n\n')
+                        
+            fp.write('utils\\cc65\\bin\\ar65 r build/oric/unity.lib unity/bitmap.o unity/chars.o unity/geom2d.o unity/hub.o unity/math.o unity/network.o unity/sfx.o unity/sprites.o unity/Oric/blit.o unity/Oric/files.o unity/Oric/joysticks.o unity/Oric/JOY.o unity/Oric/keyboard.o unity/Oric/libsedoric.o unity/Oric/MYM.o\n\n')
+                
+            comp = 'utils\\cc65\\bin\\cl65 -o build/oric/' + diskname.lower() + '.bin -Cl -O -t atmos -C unity/Oric/oric.cfg -I unity '
             for item in code:
                 comp += item
                 comp += ' '
-            fp.write(comp + 'unity/bitmap.c unity/chars.s unity/hub.c unity/math.s unity/network.c unity/sfx.c unity/sprites.c unity/Oric/files.c unity/Oric/JOY.s unity/Oric/joysticks.c unity/Oric/keyboard.s unity/Oric/libsedoric.s unity/Oric/MYM.s unity/Oric/sprites.s \n')
+            fp.write(comp + 'build/oric/unity.lib\n\n')
 
             # Fix header
-            fp.write('utils\\scripts\\oric\\header.exe build/oric/launch.bin build/oric/launch.com $0501\n')
-            
-            # Clean-up
-            fp.write('del build\\oric\\*.bin /F /Q\n')
+            fp.write('utils\\scripts\\oric\\header.exe build/oric/' + diskname.lower() + '.bin build/oric/launch.com $0501\n\n')
             
             # Info
             fp.write('\necho DONE!\n\n')
