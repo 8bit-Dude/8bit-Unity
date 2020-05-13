@@ -42,7 +42,7 @@
     unsigned int  frameBLOCK;	// Size of sprite offset block (4 blocks)
 	unsigned char sprX[SPRITE_NUM], sprY[SPRITE_NUM];	 // Screen coordinates
 	unsigned char sprEN[SPRITE_NUM], sprCOLLI[SPRITE_NUM]; // Enable and Collision status
-	unsigned char sprXO[SPRITE_NUM];  // Byte offset within DHR line
+	unsigned char sprXDHR[SPRITE_NUM];  // Byte offset within DHR line
 	unsigned char*sprBG[SPRITE_NUM];  // Sprite background
 	unsigned char sprROWS[SPRITE_NUM];  // Sprite dimensions used in algorithms
 	void InitSprites(unsigned char frames, unsigned char cols, unsigned char rows, unsigned char *spriteColors)
@@ -213,13 +213,14 @@ void LocateSprite(unsigned int x, unsigned int y)
 
 // Apple II specific background redrawing function
 #if defined __APPLE2__
-  unsigned char xO, yO, xptr, yptr, *bgPTR;
-  void __fastcall__ Blit(void);	// (see Apple/sprites.s)
+  unsigned char xDHR, yDHR, xptr, yptr, *bgPTR;
+  void __fastcall__ Blit(void);	// (see Apple/blit.s)
   unsigned int DHRLine(unsigned char y);
   void RestoreSprBG(unsigned char index)
   {
+	  POKE(0xE3, 2);				// Number of bytes per block (x2 for MAIN/AUX)
 	  POKE(0xEB, sprROWS[index]);	// Number of blocks
-	  POKE(0xEC, sprXO[index]);		// DHR Offset X
+	  POKE(0xEC, sprXDHR[index]);	// DHR Offset X
 	  POKE(0xED, sprY[index]);		// DHR Offset Y
 	  POKEW(0xEE, 0);				// Address of Backup
 	  POKEW(0xFA, sprBG[index]);	// Address of Data
@@ -231,12 +232,12 @@ void LocateSprite(unsigned int x, unsigned int y)
 	  unsigned char i;
 	  for (i=0; i<SPRITE_NUM; i++) {
 		  if (sprEN[i]) {
-			  xO = x-sprX[i];
-			  yO = y-sprY[i];
-			  if (xO<7 && yO<sprROWS[i]) {
-				  xptr = sprXO[i];
-				  yptr = sprY[i]+yO;
-				  bgPTR = sprBG[i]+yO*frameWIDTH;				  
+			  xDHR = x-sprX[i];
+			  yDHR = y-sprY[i];
+			  if (xDHR<7 && yDHR<sprROWS[i]) {
+				  xptr = sprXDHR[i];
+				  yptr = sprY[i]+yDHR;
+				  bgPTR = sprBG[i]+yDHR*frameWIDTH;				  
 				  dhrptr = DHRLine(yptr) + xptr;
 				  *dhraux = 0;
 				  dhrptr[0] = bgPTR[0];
@@ -253,7 +254,7 @@ void LocateSprite(unsigned int x, unsigned int y)
 
 // Oric specific background redrawing function
 #if defined __ATMOS__
-  void __fastcall__ Blit(void);	// (see Oric/utils.s)
+  void __fastcall__ Blit(void);	// (see Oric/blit.s)
   void RestoreSprBG(unsigned char index)
   {
 	// Restore sprite background
@@ -287,7 +288,7 @@ void LocateSprite(unsigned int x, unsigned int y)
 	#if defined __APPLE2__
 		rows = MAX(sprROWS[index], sprROWS[i]);
 		if (dY < rows || dY>(256-rows)) {
-			dX = sprXO[i] - xO;
+			dX = sprXDHR[i] - xDHR;
 			if (dX < 2 || dX>254) {
 				// Apply collision
 				sprCOLLI[index] |= 1 << i;
@@ -357,10 +358,10 @@ void SetSprite(unsigned char index, unsigned char frame)
 	spriteY -= rows/2;
 	
 	// Compute sprite slots
-	xO = (2*spriteX)/7;
+	xDHR = (2*spriteX)/7;
 
 	// Select the correct offset block (4 offset blocks per 7 pixels)
-	if (xO%2) {
+	if (xDHR%2) {
 		addr = frame*frameROWS*frameWIDTH + 2*frameBLOCK;
 		if (spriteX%7 > 5) { addr += frameBLOCK; }
 	} else {
@@ -375,15 +376,16 @@ void SetSprite(unsigned char index, unsigned char frame)
 	SpriteCollisions(index);	
 		
 	// Backup new background and draw sprite
+	POKE(0xE3, 2);				    // Number of bytes per block (x2 for MAIN/AUX)	
 	POKE(0xEB, rows);				// Number of blocks
-	POKE(0xEC, xO);					// DHR Offset X
+	POKE(0xEC, xDHR);				// DHR Offset X
 	POKE(0xED, spriteY);			// DHR Offset Y
 	POKEW(0xEE, sprBG[index]);		// Address of Backup
 	POKEW(0xFA, SPRITERAM+addr);	// Address of Data
 	Blit();
 
 	// Set sprite information
-	sprXO[index] = xO;
+	sprXDHR[index] = xDHR;
 	sprX[index] = spriteX;
 	sprY[index] = spriteY;
 	sprEN[index] = 1;	

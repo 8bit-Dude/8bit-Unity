@@ -64,21 +64,22 @@
     #include "Lynx/platform.h"	
 #endif
 
-// Colors for printing
-extern unsigned char inkColor, paperColor;
-#if defined __ATMOS__
-  void SetInk(unsigned char col, unsigned char row);
-#endif
-
-// Bitmap functions (see bitmap.c)
+// Bitmap base functions (see bitmap.c)
 void InitBitmap(void);
 void EnterBitmapMode(void);
 void ExitBitmapMode(void);
 void ClearBitmap(void);
 void LoadBitmap(char *filename);
-void LocatePixel(unsigned int x, unsigned int y);
 unsigned char GetPixel(void);
 void SetPixel(unsigned char color);
+void LocatePixel(unsigned int x, unsigned int y);
+extern unsigned char pixelX, pixelY; // (see LocatePixel())
+
+// Bitmap printing functions (see bitmap.c)
+extern unsigned char inkColor, paperColor;
+#if defined __ATMOS__
+  void SetInk(unsigned char col, unsigned char row);
+#endif
 void DrawPanel(unsigned char colBeg, unsigned char rowBeg, unsigned char colEnd, unsigned char rowEnd);
 void PrintChr(unsigned char col, unsigned char row, const char *chr);
 void PrintNum(unsigned char col, unsigned char row, unsigned int num);
@@ -89,8 +90,10 @@ void InputStr(unsigned char col, unsigned char row, char *buffer, unsigned char 
 unsigned char InputUpdate(unsigned char col, unsigned char row, char *buffer, unsigned char len, unsigned char key);
 const char *GetChr(unsigned char chr);
 
-// Screen coordinates of current pixel (see LocatePixel())
-extern unsigned char pixelX, pixelY;
+// Bitmap fragments functions (see fragments.c)
+void LoadFragment(unsigned char** fragment, char *filename, unsigned char width, unsigned char height);
+void GetFragment(unsigned char** fragment, unsigned char xBeg, unsigned char yBeg, unsigned char xEnd, unsigned char yEnd);
+void SetFragment(unsigned char* fragment, unsigned char xBeg, unsigned char yBeg, unsigned char xEnd, unsigned char yEnd);
 
 // C64 specific functions (see C64/ROM.s)
 #ifdef __CBM__
