@@ -140,9 +140,16 @@ extern unsigned char pixelX, pixelY;
   #endif
 #endif
 
+// Geometry functions
+unsigned char IntersectSegments(signed int s1x1, signed int s1y1, signed int s1x2, signed int s1y2,
+							    signed int s2x1, signed int s2y1, signed int s2x2, signed int s2y2,
+								signed int *ix,  signed int *iy);
+
 // Math functions (see math.s)
 #define MIN(a,b) (a>b ? b : a)
 #define MAX(a,b) (a>b ? a : b)
+#define ABS(a)   (a<0 ? -a : a)
+#define SIGN(a)  (a<0 ? -1 : 1)
 #define DOT(a,b) (a[0]*b[0]+a[1]*b[1])
 unsigned char atan2(unsigned char y, unsigned char x);
 
@@ -164,6 +171,9 @@ unsigned int RecvUDP(unsigned int timeOut);				// Fetch UDP packet (within time-
 #if defined __APPLE2__
   extern unsigned char sfxOutput;	// 0 = Speaker, 1 = Mockingboard (Slot 4)
   void InitMocking(void);
+#elif defined __CBM__
+  extern unsigned int sidInitAddr;	// SID init (default: $0906)
+  extern unsigned int sidPlayAddr;	// SID play (default: $0803)
 #endif
 void LoadMusic(const char* filename, unsigned int address);
 void PlayMusic(unsigned int address);
@@ -194,6 +204,10 @@ void DisableSprite(signed char index);
 void LocateSprite(unsigned int x, unsigned int y);
 void SetSprite(unsigned char index, unsigned char frame);
 void RecolorSprite(unsigned char index, unsigned char number, unsigned char color);
+#if defined __CBM__
+  void DoubleHeightSprite(unsigned char index, unsigned char onoff);
+  void DoubleWidthSprite(unsigned char index, unsigned char onoff);
+#endif
 
 // Screen coordinates of current sprite (see LocateSprite())
 #if defined __CBM__

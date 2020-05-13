@@ -26,8 +26,14 @@
 
 	.export _PlayMusic
 	.export _StopMusic
+	
+	.export _sidInitAddr
+	.export _sidPlayAddr
 
 	.segment "CODE"
+	
+_sidInitAddr: .byte $09,03		
+_sidPlayAddr: .byte $08,06		
 
 ; ---------------------------------------------------------------
 ; void __near__ _PlayMusic (unsigned int address)
@@ -36,24 +42,39 @@
 
 .proc _PlayMusic: near
 		; set JSR addresses
-;		stx checkSID+2
-		stx initSID+2
-		stx InterruptSID+2
+		;lda _sidInitAddr
+		;sta  checkSID+3
+		;lda _sidInitAddr+1
+		;sta  checkSID+2
 		
-;checkSID:
-;		; check SID actually exists
-;		lda $0048
-;		cmp #0
-;		beq skipSID
+checkSID:
+		; check SID actually exists
+		;clc
+		;lda $0903
+		;cmp #$A0
+		;bne skipSID
+
+copyAddr:
+		; set JSR addresses
+		lda _sidInitAddr
+		sta  initSID+2
+		lda _sidInitAddr+1
+		sta  initSID+1
+		
+		lda _sidPlayAddr
+		sta  interruptSID+2
+		lda _sidPlayAddr+1
+		sta  interruptSID+1		
+		
 
 initSID:
-		; init code (00 replaced by low-byte of SID address)
-		jsr $0048
+		; init code	(default address is $0903)
+		jsr $0903
 		
         ; set IRQ pointer in $314/$315
         sei
-        lda #<InterruptSID
-        ldx #>InterruptSID
+        lda #<interruptSID
+        ldx #>interruptSID
         sta $314
         stx $315
         cli
@@ -103,9 +124,9 @@ rst2:
 .endproc 
 
 
-InterruptSID:
-		; interrupt code (00 replaced by low-byte of SID address)
-        jsr $0021
+interruptSID:
+		; interrupt code (default address is $0806)
+        jsr $0806
 		
 		; do the normal interrupt service routine		
         jmp $EA31 
