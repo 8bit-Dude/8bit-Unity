@@ -120,7 +120,7 @@ extern unsigned char pixelX, pixelY;
 #define MOUSE_RIGHT 128
 
 // Joystick functions
-#if (defined __CBM__) || (defined __ATMOS__)
+#if (defined __ATMOS__) || (defined __CBM__)
   #define JOY_MAX 4
   void InitJoy(void);
   unsigned char GetJoy(unsigned char);
@@ -204,7 +204,9 @@ void DisableSprite(signed char index);
 void LocateSprite(unsigned int x, unsigned int y);
 void SetSprite(unsigned char index, unsigned char frame);
 void RecolorSprite(unsigned char index, unsigned char number, unsigned char color);
-#if defined __CBM__
+#if (defined __ATMOS__) || (defined __APPLE2__)
+  void CropSprite(unsigned char index, unsigned char rows);
+#elif defined __CBM__
   void DoubleHeightSprite(unsigned char index, unsigned char onoff);
   void DoubleWidthSprite(unsigned char index, unsigned char onoff);
 #endif

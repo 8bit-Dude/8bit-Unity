@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Anthony Beaucamp.
+ * Copyright (c) 2020 Anthony Beaucamp.
  *
  * This software is provided 'as-is', without any express or implied warranty.
  * In no event will the authors be held liable for any damages arising from
