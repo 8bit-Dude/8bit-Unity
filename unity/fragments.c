@@ -49,6 +49,8 @@ void LoadFragment(unsigned char** fragment, char *filename, unsigned char w, uns
 	size = (w*h*2)/4;
   #elif defined __ATMOS__
 	size = (w*h*2)/3;
+  #elif defined __C64__
+	size = (w*h*10)/32;
   #endif
 
 	// Allocate fragment memory	
@@ -75,13 +77,17 @@ void GetFragment(unsigned char** fragment, unsigned char x, unsigned char y, uns
 #elif defined __ATMOS__
 	unsigned int size = (w*h*2)/3;
 	unsigned int addr;
+#elif defined __C64__
+	unsigned char i, bytes;
+	unsigned int size = (w*h*10)/32;
+	unsigned int addr;
 #elif defined __LYNX__
 	unsigned char i, bytes = w/2;
 	unsigned int size = (w*h)/2;
 	unsigned int addr;
 #endif
 
-	// Allocate fragment memory	
+	// Allocate memory for bitmap fragment
 	*fragment = (unsigned char*)malloc(size);
 
 #if defined __APPLE2__
@@ -105,7 +111,7 @@ void GetFragment(unsigned char** fragment, unsigned char x, unsigned char y, uns
 		addr += bytes;
 	}
 #elif defined __ATMOS__
-	// Blit data from Graphic memory
+	// Blit data from bitmap memory
 	addr = BITMAPRAM + y*80 + x/3 + 1;
 	POKE(0xb0, 2*h); 			// Number of lines
 	POKE(0xb1, w/3);			// Bytes per line
@@ -114,8 +120,27 @@ void GetFragment(unsigned char** fragment, unsigned char x, unsigned char y, uns
 	POKE(0xb6, 40); 			// Offset between source lines
 	POKE(0xb7, w/3); 			// Offset between target lines
 	Blit();	
+#elif defined __C64__
+	// Copy data to bitmap, color and screen memory
+	addr = *fragment;	
+	bytes = (w*8)/4;
+	DisableRom();
+	for (i=0; i<h; i+=8) {
+		memcpy((char*)addr, (char*)(BITMAPRAM+40*((y+i)&248)+((y+i)&7)+((x*2)&504)), bytes);
+		addr += bytes;
+	}
+	bytes = w/4;
+	for (i=0; i<h; i+=8) {
+		memcpy((char*)addr, (char*)(SCREENRAM+40*(y+i)/8+x/4), bytes);
+		addr += bytes;
+	}
+	for (i=0; i<h; i+=8) {
+		memcpy((char*)addr, (char*)(COLORRAM+40*(y+i)/8+x/4), bytes);
+		addr += bytes;
+	}
+	EnableRom();
 #elif defined __LYNX__
-	// Copy data to graphic memory
+	// Copy data to bitmap memory
 	addr = *fragment;	
 	for (i=0; i<h; ++i) {
 		memcpy((char*)addr, (char*)(BITMAPRAM+(y+i)*82+x/2+1), bytes);
@@ -136,7 +161,7 @@ void SetFragment(unsigned char* fragment, unsigned char x, unsigned char y, unsi
 	POKEW(0xFA, fragment);	// Address for copying Input > DHR
 	Blit();
 #elif defined __ATARI__
-	// Copy data to double buffer
+	// Copy data to double bitmap buffers
 	unsigned char i, bytes = w/4;
 	unsigned int addr = fragment;	
 	for (i=0; i<h; ++i) {
@@ -148,7 +173,7 @@ void SetFragment(unsigned char* fragment, unsigned char x, unsigned char y, unsi
 		addr += bytes;
 	}
 #elif defined __ATMOS__
-	// Blit data to graphic memory
+	// Blit data to bitmap memory
 	unsigned int addr = BITMAPRAM + y*80 + x/3 + 1;
 	POKE(0xb0, 2*h); 			// Number of lines
 	POKE(0xb1, w/3);			// Bytes per line
@@ -157,13 +182,35 @@ void SetFragment(unsigned char* fragment, unsigned char x, unsigned char y, unsi
 	POKE(0xb6, w/3); 			// Offset between source lines
 	POKE(0xb7, 40); 			// Offset between target lines
 	Blit();	
+#elif defined __C64__
+	// Copy data to bitmap, color and screen memory
+	unsigned char i, bytes;
+	unsigned int addr = fragment;	
+	bytes = (w*8)/4;
+	DisableRom();
+	for (i=0; i<h; i+=8) {
+		memcpy((char*)(BITMAPRAM+40*((y+i)&248)+((y+i)&7)+((x*2)&504)), (char*)addr, bytes);
+		addr += bytes;
+	}
+	bytes = w/4;
+	for (i=0; i<h; i+=8) {
+		memcpy((char*)(SCREENRAM+40*(y+i)/8+x/4), (char*)addr, bytes);
+		addr += bytes;
+	}
+	for (i=0; i<h; i+=8) {
+		memcpy((char*)(COLORRAM+40*(y+i)/8+x/4), (char*)addr, bytes);
+		addr += bytes;
+	}
+	EnableRom();
 #elif defined __LYNX__
-	// Copy data to graphic memory
+	// Copy data to bitmap memory
 	unsigned char i, bytes = w/2;
 	unsigned int addr = fragment;	
 	for (i=0; i<h; ++i) {
 		memcpy((char*)(BITMAPRAM+(y+i)*82+x/2+1), (char*)addr, bytes);
 		addr += bytes;
 	}
+	// Auto-refresh screen
+	UpdateDisplay();
 #endif
 }
