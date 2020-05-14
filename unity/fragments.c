@@ -31,31 +31,43 @@
 
 void __fastcall__ Blit(void);
 
-void LoadFragment(unsigned char** fragment, char *filename, unsigned char width, unsigned char height) 
+void LoadFragment(unsigned char** fragment, char *filename, unsigned char w, unsigned char h) 
 {
 	// Compute Byte Size
+#ifndef __ATMOS__
 	FILE* fp;
+#endif
 	unsigned int size;
 #if defined __APPLE2__
-	size = (height*width*4)/7;
+	size = (w*h*4)/7;
 #elif defined __ATARI__
-	size = (height*width*2)/4;
+	size = (w*h*2)/4;
+#elif defined __ATMOS__
+	size = (w*h*2)/3;
 #endif
+
 	// Allocate fragment memory	
 	*fragment = (unsigned char*)malloc(size);
-	
-	// Open Fragment File
+
+	// Read Fragment File
+#if defined __ATMOS__
+	SedoricRead(filename, *fragment);
+#else
 	fp = fopen(filename, "rb");
 	fread(*fragment, 1, size, fp);
+#endif
 }
 
-void GetFragment(unsigned char** fragment, unsigned char xBeg, unsigned char yBeg, unsigned char xEnd, unsigned char yEnd)
+void GetFragment(unsigned char** fragment, unsigned char x, unsigned char y, unsigned char w, unsigned char h)
 {
 #if defined __APPLE2__
-	unsigned int size = ((yEnd-yBeg)*(xEnd-xBeg)*4)/7;
+	unsigned int size = (w*h*4)/7;
 #elif defined __ATARI__
-	unsigned char i, bytes = (xEnd-xBeg)/4;
-	unsigned int size = ((yEnd-yBeg)*(xEnd-xBeg)*2)/4;
+	unsigned char i, bytes = w/4;
+	unsigned int size = (w*h*2)/4;
+	unsigned int addr;
+#elif defined __ATMOS__
+	unsigned int size = (w*h*2)/3;
 	unsigned int addr;
 #endif
 
@@ -64,55 +76,70 @@ void GetFragment(unsigned char** fragment, unsigned char xBeg, unsigned char yBe
 
 #if defined __APPLE2__
 	// Blit data from DHR memory
-	POKE(0xE3, 2*(xEnd-xBeg)/7);// Number of bytes per block (x2 for MAIN/AUX)	
-	POKE(0xEB, yEnd-yBeg);		// Number of blocks
-	POKE(0xEC, (2*xBeg)/7);		// DHR Offset X
-	POKE(0xED, yBeg);			// DHR Offset Y
-	POKEW(0xEE, fragment);		// Address of Output
-	POKEW(0xFA, 0);				// Address of Input
+	POKE(0xE3, 2*w/7);		// Bytes per line (x2 for MAIN/AUX)	
+	POKE(0xEB, h);			// Number of lines
+	POKE(0xEC, 2*x/7);		// DHR Offset X
+	POKE(0xED, y);			// DHR Offset Y
+	POKEW(0xEE, *fragment);	// Address of Output
+	POKEW(0xFA, 0);			// Address of Input
 	Blit();
 #elif defined __ATARI__
 	// Copy data from double buffer
 	addr = *fragment;
-	for (i=yBeg; i<yEnd; ++i) {
-		memcpy((char*)addr, (char*)(BITMAPRAM1+i*40+xBeg/4), bytes);
+	for (i=0; i<h; ++i) {
+		memcpy((char*)addr, (char*)(BITMAPRAM1+(y+i)*40+x/4), bytes);
 		addr += bytes;
 	}
-	for (i=yBeg; i<yEnd; ++i) {
-		memcpy((char*)addr, (char*)(BITMAPRAM2+i*40+xBeg/4), bytes);
+	for (i=0; i<h; ++i) {
+		memcpy((char*)addr, (char*)(BITMAPRAM2+(y+i)*40+x/4), bytes);
 		addr += bytes;
 	}
+#elif defined __ATMOS__
+	// Blit data from Graphic memory
+	addr = BITMAPRAM + y*80 + x/3 + 1;
+	POKE(0xb0, 2*h); 			// Number of lines
+	POKE(0xb1, w/3);			// Bytes per line
+	POKEW(0xb2, addr-1);		// Address of source (-1)
+	POKEW(0xb4, *fragment-1);	// Address of target (-1)
+	POKE(0xb6, 40); 			// Offset between source lines
+	POKE(0xb7, w/3); 			// Offset between target lines
+	Blit();	
 #endif
 }
 
-void SetFragment(unsigned char* fragment, unsigned char xBeg, unsigned char yBeg, unsigned char xEnd, unsigned char yEnd)
+void SetFragment(unsigned char* fragment, unsigned char x, unsigned char y, unsigned char w, unsigned char h)
 {
 #if defined __APPLE2__
 	// Blit data to DHR memory
-	POKE(0xE3, 2*(xEnd-xBeg)/7);// Number of bytes per block (x2 for MAIN/AUX)	
-	POKE(0xEB, yEnd-yBeg);		// Number of blocks
-	POKE(0xEC, (2*xBeg)/7);		// DHR Offset X
-	POKE(0xED, yBeg);			// DHR Offset Y
-	POKEW(0xEE, 0);				// Address of Output
-	POKEW(0xFA, fragment);		// Address of Input
+	POKE(0xE3, 2*w/7);		// Bytes per line (x2 for MAIN/AUX)	
+	POKE(0xEB, h);			// Number of lines
+	POKE(0xEC, 2*x/7);		// DHR Offset X
+	POKE(0xED, y);			// DHR Offset Y
+	POKEW(0xEE, 0);			// Address for copying DHR > Output
+	POKEW(0xFA, fragment);	// Address for copying Input > DHR
 	Blit();
 #elif defined __ATARI__
-	unsigned char i, bytes = (xEnd-xBeg)/4;
+	unsigned char i, bytes = w/4;
 	unsigned int addr = fragment;
 	
 	// Copy data to double buffer
-	for (i=yBeg; i<yEnd; ++i) {
-		memcpy((char*)(BITMAPRAM1+i*40+xBeg/4), (char*)addr, bytes);
+	for (i=0; i<h; ++i) {
+		memcpy((char*)(BITMAPRAM1+(y+i)*40+x/4), (char*)addr, bytes);
 		addr += bytes;
 	}
-	for (i=yBeg; i<yEnd; ++i) {
-		memcpy((char*)(BITMAPRAM2+i*40+xBeg/4), (char*)addr, bytes);
+	for (i=0; i<h; ++i) {
+		memcpy((char*)(BITMAPRAM2+(y+i)*40+x/4), (char*)addr, bytes);
 		addr += bytes;
 	}
-#endif
-
-#if defined DEBUG_FRAG	// Add visual markers around fragments
-	LocatePixel(xBeg, yBeg); SetPixel(BLACK);
-	LocatePixel(xEnd, yEnd); SetPixel(BLACK);
+#elif defined __ATMOS__
+	// Blit data to Graphic memory
+	unsigned int addr = BITMAPRAM + y*80 + x/3 + 1;
+	POKE(0xb0, 2*h); 			// Number of lines
+	POKE(0xb1, w/3);			// Bytes per line
+	POKEW(0xb2, fragment-1);	// Address of source (-1)
+	POKEW(0xb4, addr-1);		// Address of target (-1)
+	POKE(0xb6, w/3); 			// Offset between source lines
+	POKE(0xb7, 40); 			// Offset between target lines
+	Blit();	
 #endif
 }

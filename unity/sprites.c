@@ -218,12 +218,12 @@ void LocateSprite(unsigned int x, unsigned int y)
   unsigned int DHRLine(unsigned char y);
   void RestoreSprBG(unsigned char index)
   {
-	  POKE(0xE3, 2);				// Number of bytes per block (x2 for MAIN/AUX)
-	  POKE(0xEB, sprROWS[index]);	// Number of blocks
+	  POKE(0xE3, 2);				// Bytes per line (x2 for MAIN/AUX)	
+	  POKE(0xEB, sprROWS[index]);	// Number of lines
 	  POKE(0xEC, sprXDHR[index]);	// DHR Offset X
 	  POKE(0xED, sprY[index]);		// DHR Offset Y
-	  POKEW(0xEE, 0);				// Address of Backup
-	  POKEW(0xFA, sprBG[index]);	// Address of Data
+	  POKEW(0xEE, 0);				// Address for copying DHR > Output
+	  POKEW(0xFA, sprBG[index]);	// Address for copying Input > DHR
 	  Blit();
   }
   void RestoreSprLine(unsigned char x, unsigned char y)
@@ -258,10 +258,12 @@ void LocateSprite(unsigned int x, unsigned int y)
   void RestoreSprBG(unsigned char index)
   {
 	// Restore sprite background
-	POKE(0xb0, sprROWS[index]); POKE(0xb1, 4);	// Number of: blocks / bytes per block
-	POKEW(0xb2, sprBG[index]-1);				// Address of first source block (-1)
-	POKEW(0xb4, scrPtr[index]-1);				// Address of first target block (-1)
-	POKE(0xb6, 4); POKE(0xb7, 40); 				// Offset between: source blocks / target blocks
+	POKE(0xb0, sprROWS[index]); 	// Number of lines
+	POKE(0xb1, 4);					// Bytes per line
+	POKEW(0xb2, sprBG[index]-1);	// Address of source (-1)
+	POKEW(0xb4, scrPtr[index]-1);	// Address of target (-1)
+	POKE(0xb6, 4); 					// Offset between source lines
+	POKE(0xb7, 40); 				// Offset between target lines
 	Blit();
   }
 #endif
@@ -376,12 +378,12 @@ void SetSprite(unsigned char index, unsigned char frame)
 	SpriteCollisions(index);	
 		
 	// Backup new background and draw sprite
-	POKE(0xE3, 2);				    // Number of bytes per block (x2 for MAIN/AUX)	
-	POKE(0xEB, rows);				// Number of blocks
+	POKE(0xE3, 2);				    // Bytes per line (x2 for MAIN/AUX)
+	POKE(0xEB, rows);				// Number of lines
 	POKE(0xEC, xDHR);				// DHR Offset X
 	POKE(0xED, spriteY);			// DHR Offset Y
-	POKEW(0xEE, sprBG[index]);		// Address of Backup
-	POKEW(0xFA, SPRITERAM+addr);	// Address of Data
+	POKEW(0xEE, sprBG[index]);		// Address for copying DHR > Output
+	POKEW(0xFA, SPRITERAM+addr);	// Address for copying Input > DHR
 	Blit();
 
 	// Set sprite information
@@ -416,17 +418,21 @@ void SetSprite(unsigned char index, unsigned char frame)
 	scrPtr[index] = BITMAPRAM + spriteY*40 + spriteX;
 	
 	// Backup new background
-	POKE(0xb0, frameROWS); POKE(0xb1, 4);	// Number of: blocks / bytes per block
-	POKEW(0xb2, scrPtr[index]-1);			// Address of first source block (-1)
-	POKEW(0xb4, sprBG[index]-1);			// Address of first target block (-1)
-	POKE(0xb6, 40); POKE(0xb7, 4); 			// Offset between: source lines / target lines
+	POKE(0xb0, frameROWS); 			// Number of lines
+	POKE(0xb1, 4);					// Bytes per line
+	POKEW(0xb2, scrPtr[index]-1);	// Address of source (-1)
+	POKEW(0xb4, sprBG[index]-1);	// Address of target (-1)
+	POKE(0xb6, 40); 				// Offset between source lines
+	POKE(0xb7, 4); 					// Offset between target lines
 	Blit();	
 	
 	// Draw new sprite frame
-	POKE(0xb0, rows); POKE(0xb1, 2);		// Number of: blocks / bytes per block
-	POKEW(0xb2, sprPtr-1);					// Address of first source block (-1)
-	POKEW(0xb4, scrPtr[index]);				// Address of first target block (-1)
-	POKE(0xb6, 2); POKE(0xb7, 40); 			// Offset between: source lines / target lines	
+	POKE(0xb0, rows); 				// Number of lines
+	POKE(0xb1, 2);					// Bytes per line
+	POKEW(0xb2, sprPtr-1);			// Address of source (-1)
+	POKEW(0xb4, scrPtr[index]);		// Address of target (-1)
+	POKE(0xb6, 2);					// Offset between source lines
+	POKE(0xb7, 40); 				// Offset between target lines
 	Blit();		
 	
 	// Adjust ink on even lines
