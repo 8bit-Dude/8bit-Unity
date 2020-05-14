@@ -455,7 +455,7 @@ void LoadBitmap(char *filename)
 {
 #if defined __ATMOS__
 	// Load directly to bitmap ram
-	SedoricRead(filename, (void*)(BITMAPRAM));
+	FileRead(filename, (void*)(BITMAPRAM));
 #elif defined __LYNX__
 	// Load from CART file system
 	unsigned char i;

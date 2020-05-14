@@ -129,7 +129,7 @@
 void LoadMusic(const char* filename, unsigned int address)
 {
 #if defined __ATMOS__
-	SedoricRead(filename, address);
+	FileRead(filename, address);
 #endif
 }
 

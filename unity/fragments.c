@@ -26,35 +26,41 @@
  
 #include "unity.h"
 
-// Debugging flags
-//#define DEBUG_FRAG
-
-void __fastcall__ Blit(void);
+#if (defined __APPLE2__) || (defined __ATMOS__)
+  void __fastcall__ Blit(void);
+#endif
 
 void LoadFragment(unsigned char** fragment, char *filename, unsigned char w, unsigned char h) 
 {
-	// Compute Byte Size
-#ifndef __ATMOS__
-	FILE* fp;
-#endif
+#if defined __LYNX__
+	// Lynx: data is already in RO segment
+	*fragment = FileRead(filename);
+#else
+	// Other: Need to load data from disk
 	unsigned int size;
-#if defined __APPLE2__
+  #ifndef __ATMOS__
+	FILE* fp;
+  #endif
+	
+	// Compute Byte Size	
+  #if defined __APPLE2__
 	size = (w*h*4)/7;
-#elif defined __ATARI__
+  #elif defined __ATARI__
 	size = (w*h*2)/4;
-#elif defined __ATMOS__
+  #elif defined __ATMOS__
 	size = (w*h*2)/3;
-#endif
+  #endif
 
 	// Allocate fragment memory	
 	*fragment = (unsigned char*)malloc(size);
 
 	// Read Fragment File
-#if defined __ATMOS__
-	SedoricRead(filename, *fragment);
-#else
+  #if defined __ATMOS__
+	FileRead(filename, *fragment);
+  #else
 	fp = fopen(filename, "rb");
 	fread(*fragment, 1, size, fp);
+  #endif
 #endif
 }
 
@@ -68,6 +74,10 @@ void GetFragment(unsigned char** fragment, unsigned char x, unsigned char y, uns
 	unsigned int addr;
 #elif defined __ATMOS__
 	unsigned int size = (w*h*2)/3;
+	unsigned int addr;
+#elif defined __LYNX__
+	unsigned char i, bytes = w/2;
+	unsigned int size = (w*h)/2;
 	unsigned int addr;
 #endif
 
@@ -104,6 +114,13 @@ void GetFragment(unsigned char** fragment, unsigned char x, unsigned char y, uns
 	POKE(0xb6, 40); 			// Offset between source lines
 	POKE(0xb7, w/3); 			// Offset between target lines
 	Blit();	
+#elif defined __LYNX__
+	// Copy data to graphic memory
+	addr = *fragment;	
+	for (i=0; i<h; ++i) {
+		memcpy((char*)addr, (char*)(BITMAPRAM+(y+i)*82+x/2+1), bytes);
+		addr += bytes;
+	}
 #endif
 }
 
@@ -119,10 +136,9 @@ void SetFragment(unsigned char* fragment, unsigned char x, unsigned char y, unsi
 	POKEW(0xFA, fragment);	// Address for copying Input > DHR
 	Blit();
 #elif defined __ATARI__
-	unsigned char i, bytes = w/4;
-	unsigned int addr = fragment;
-	
 	// Copy data to double buffer
+	unsigned char i, bytes = w/4;
+	unsigned int addr = fragment;	
 	for (i=0; i<h; ++i) {
 		memcpy((char*)(BITMAPRAM1+(y+i)*40+x/4), (char*)addr, bytes);
 		addr += bytes;
@@ -132,7 +148,7 @@ void SetFragment(unsigned char* fragment, unsigned char x, unsigned char y, unsi
 		addr += bytes;
 	}
 #elif defined __ATMOS__
-	// Blit data to Graphic memory
+	// Blit data to graphic memory
 	unsigned int addr = BITMAPRAM + y*80 + x/3 + 1;
 	POKE(0xb0, 2*h); 			// Number of lines
 	POKE(0xb1, w/3);			// Bytes per line
@@ -141,5 +157,13 @@ void SetFragment(unsigned char* fragment, unsigned char x, unsigned char y, unsi
 	POKE(0xb6, w/3); 			// Offset between source lines
 	POKE(0xb7, 40); 			// Offset between target lines
 	Blit();	
+#elif defined __LYNX__
+	// Copy data to graphic memory
+	unsigned char i, bytes = w/2;
+	unsigned int addr = fragment;	
+	for (i=0; i<h; ++i) {
+		memcpy((char*)(BITMAPRAM+(y+i)*82+x/2+1), (char*)addr, bytes);
+		addr += bytes;
+	}
 #endif
 }

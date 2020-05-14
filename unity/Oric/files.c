@@ -37,7 +37,7 @@ extern void* sed_end;
 extern unsigned int sed_size;
 extern int sed_err;
 
-int SedoricWrite(const char* fname, void* buf, int len) 
+int FileWrite(const char* fname, void* buf, int len) 
 {
     extern void __fastcall__ sed_savefile(void);
     sed_fname = fname;
@@ -48,7 +48,7 @@ int SedoricWrite(const char* fname, void* buf, int len)
     return sed_err;
 }
 
-int SedoricRead(const char* fname, void* buf)
+int FileRead(const char* fname, void* buf)
 {
 	extern void __fastcall__ sed_loadfile(void);
     sed_fname = fname;

@@ -77,8 +77,6 @@
 // Clock
 #define TCK_PER_SEC	CLK_TCK
 
-// Workaround for file reading
-#if defined __ATMOS__
-  int SedoricWrite(const char* fname, void* buf, int len);
-  int SedoricRead(const char* fname, void* buf);
-#endif
+// Workaround for file reading/writing
+int FileRead(const char* fname, void* buf);
+int FileWrite(const char* fname, void* buf, int len);

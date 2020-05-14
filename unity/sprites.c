@@ -105,7 +105,7 @@
 	{			
 		// Load sprite sheet
 		unsigned char i;
-		SedoricRead("sprites.dat", (void*)SPRITERAM);
+		FileRead("sprites.dat", (void*)SPRITERAM);
 		
 		// Assign frame info and sprite colors
 		frameROWS = rows;
