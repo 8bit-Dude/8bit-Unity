@@ -743,6 +743,7 @@ class Application:
         with open("../../build/"+diskname+"-lynx.bat", "wb") as fp:
             # Info
             fp.write('echo off\n\n')
+            fp.write('setlocal enableextensions enabledelayedexpansion\n\n')
             fp.write('mkdir lynx\n')           
             fp.write('cd lynx\n')
             fp.write('del *.* /F /Q\n\n')
@@ -769,14 +770,14 @@ class Application:
                                             ' -a' + str(spriteWidth/2).zfill(3) + str(spriteHeight/2).zfill(3) + ' sprites.bmp\n')
                 if spriteFrames == 1: 
                     fp.write('ren sprites.spr sprites000000.spr\n')
-            fp.write('set NUMFILES=' + str(len(shared)) + '\n')
-            fp.write('set SHAREDNAME= \n')
-            fp.write('set SHAREDDATA= \n')
+            fp.write('set /a NUMFILES=' + str(len(shared)) + '\n')
+            fp.write('set SHAREDNAME=\n')
+            fp.write('set SHAREDDATA=\n')
             if len(chunks) > 0:
                 fp.write('..\\..\\utils\\py27\\python ..\\..\\utils\\scripts\\ProcessChunks.py lynx ../../' + chunks[0] + ' ../../build/lynx/\n')
-                fp.write('for /f "tokens=*" %%A in (chunks.lst) do set /a "NUMFILES=%NUMFILES%+1"\n')
-                fp.write('for /f "tokens=*" %%A in (chunks.lst) do set SHAREDNAME=%SHAREDNAME%_%%~nAName,\n')
-                fp.write('for /f "tokens=*" %%A in (chunks.lst) do set SHAREDDATA=%SHAREDDATA%_%%~nAData,\n')          
+                fp.write('for /f "tokens=*" %%A in (chunks.lst) do set /a NUMFILES+=1\n')
+                fp.write('for /f "tokens=*" %%A in (chunks.lst) do set SHAREDNAME=!SHAREDNAME!_%%~nAName,\n')
+                fp.write('for /f "tokens=*" %%A in (chunks.lst) do set SHAREDDATA=!SHAREDDATA!_%%~nAData,\n')          
                          
             # Clean-up
             fp.write('del *.png /F /Q\n')
