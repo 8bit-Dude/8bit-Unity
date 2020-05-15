@@ -101,13 +101,14 @@ _mainAuxTog: .res 1
 	
 ; ---------------------------------------------------------------
 ; void __near__ Blit (void)
-;	Copy sprite to DHR memory (optionally backup the screen)
+;	Fast copy data between PROGRAM and DHR memory
 ;	Zero Page Data:
+;		$e3: Number of bytes per row
 ;		$eb: Number of rows
 ;		$ec: DHR offset X
 ;		$ed: DHR offset Y
-;		$ee: 16 bit address of Backup (optional)
-;		$fa: 16 bit address of Sprite
+;		$ee: 16 bit output address (optional)
+;		$fa: 16 bit input address (optional)
 ;
 ;		$fc: 16 bit address of DHR line (generated from offsets)
 ; ---------------------------------------------------------------	
@@ -120,7 +121,7 @@ _mainAuxTog: .res 1
 
 	; X loop: Number of lines
 	ldx $eb
-loopX:
+loopRow:
 	; Copy from DHR Tables (with Line Offset Y and Byte Offset X) to $fc/$fd
 	ldy $ed				; Y offset within table
 	lda _dhrLinesHI,y
@@ -137,57 +138,59 @@ branchMain:
 	sta $c054		; Switch to MAIN memory
 switchDone:
 	
-	; Copy 2 bytes from screen to backup	
+	; Copy 2 bytes from DHR to ouput	
+screen2output:
 	lda $ef
-	beq source2screen	; If high-byte is zero, then skip
-screen2backup:
-	ldy #0			; Y loop: Copy 2 bytes
+	beq input2screen  ; If high-byte is zero, then skip
+	ldy #0			; Y loop: Copy ? bytes (see $e3)
 loopCopy1:
 	lda ($fc),y		; Copy 1 byte
 	sta ($ee),y
 	iny				; Iterate Y loop
-	cpy #2
+	cpy $e3
 	bne loopCopy1
+incAddress1:
+	clc				; Increment address of output block
+	lda $ee			
+	adc $e3			; Move ? bytes (see $e3)
+	sta $ee	
+	bcc nocarry1	; Check if carry to high-byte
+	inc $ef
+nocarry1:
 	
-	; Copy 2 bytes from source to screen
-source2screen:	
-	ldy #0			; Y loop: Copy 2 bytes
+	; Copy 2 bytes from input to DHR
+input2screen:	
+	lda $fb
+	beq toggleBlocks  ; If high-byte is zero, then skip	
+	ldy #0			; Y loop: Copy ? bytes (see $e3)
 loopCopy2:
 	lda ($fa),y		; Copy 1 byte
 	sta ($fc),y
 	iny				; Iterate Y loop
-	cpy #2
+	cpy $e3
 	bne loopCopy2
-
-	; Increment address of source block
-	clc
+incAddress2:
+	clc				; Increment address of input block
 	lda $fa			
-	adc #2			; Move 2 bytes
+	adc $e3			; Move ? bytes (see $e3)
 	sta $fa	
-	bcc nocarry1	; Check if carry to high byte
+	bcc nocarry2	; Check if carry to high byte
 	inc $fb
-nocarry1:
-	
-	; Increment address of backup block
-	lda $ef
-	beq nocarry2	; If high-byte is zero, then skip
-	clc
-	lda $ee			
-	adc #2			; Move 2 bytes
-	sta $ee	
-	bcc nocarry2	; Check if carry to high-byte
-	inc $ef
 nocarry2:
-
+	
+toggleBlocks:
 	; Process Main Block?
 	lda _mainAuxTog
+	clc
 	eor #1
 	sta _mainAuxTog
 	bne branchMain
 
+nextRow:
 	; Move to next row
 	inc $ed			; Increment Y-Line offset in DHR Table
+	clc
 	dex				; Iterate X loop
-	bne loopX	
+	bne loopRow	
 	rts
 .endproc

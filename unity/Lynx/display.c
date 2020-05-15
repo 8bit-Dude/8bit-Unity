@@ -28,7 +28,7 @@
 
 // See bitmap.c and sprites.c
 extern SCB_REHV_PAL sprTGI[SPRITE_NUM];
-extern unsigned char sprEN[SPRITE_NUM];
+extern unsigned char sprDrawn[SPRITE_NUM];
 
 // GFX Data
 extern unsigned int cursorData, keybrdData;	 
@@ -136,7 +136,7 @@ void UpdateDisplay(void)
 	tgi_sprite(&bitmapTGI);
 	for (j=0; j<SPRITE_NUM; j++) {
 		i = (SPRITE_NUM-1) - j;
-		if (sprEN[i]) { 
+		if (sprDrawn[i]) { 
 			tgi_sprite(&sprTGI[i]);
 		}
 	}

@@ -228,8 +228,8 @@ void RecolorSprite(unsigned char index, unsigned char number, unsigned char colo
 #elif defined __CBM__
   #define COLLISIONS(i) (PEEK(53278))		// On C64, all collisions are contained within a single register
 #else
-  extern unsigned char sprCOLLI[SPRITE_NUM];
-  #define COLLISIONS(i) (sprCOLLI[i])
+  extern unsigned char sprCollision[SPRITE_NUM];
+  #define COLLISIONS(i) (sprCollision[i])
 #endif
 #define COLLIDING(collisions,i) ((collisions >> i) & 1) 
 

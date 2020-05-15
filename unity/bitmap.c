@@ -282,21 +282,21 @@ unsigned char GetPixel()
 	unsigned int addr;
 	unsigned char i, pX, pY, xO, yO, occlusion = 0;
 	unsigned char byte1, byte2, shift, color = 0;
-	extern unsigned char sprEN[SPRITE_NUM];
+	extern unsigned char sprDrawn[SPRITE_NUM];
+	extern unsigned char* sprBG[SPRITE_NUM];
 	extern unsigned char sprX[SPRITE_NUM];
 	extern unsigned char sprY[SPRITE_NUM];
-	extern unsigned char* sprBG[SPRITE_NUM];
-	extern unsigned char sprROWS;
+	extern unsigned char frameROWS;
 
 	// Scale to sprite coordinates
 	pX = pixelX/3; pY = pixelY*2;
 	
 	// Check for sprite occlusion
 	for (i=0; i<SPRITE_NUM; i++) {
-		if (sprEN[i]) {
+		if (sprDrawn[i]) {
 			xO = pX - sprX[i];
 			yO = pY - sprY[i];
-			if (xO<3 && yO<sprROWS) {
+			if (xO<3 && yO<frameROWS) {
 				addr = sprBG[i]+yO*4+xO;
 				byte1 = PEEK(addr);
 				byte2 = PEEK(addr+4);	
