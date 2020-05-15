@@ -90,10 +90,10 @@ void InputStr(unsigned char col, unsigned char row, char *buffer, unsigned char 
 unsigned char InputUpdate(unsigned char col, unsigned char row, char *buffer, unsigned char len, unsigned char key);
 const char *GetChr(unsigned char chr);
 
-// Bitmap fragments functions (see fragments.c)
-void LoadFragment(unsigned char** fragment, char *filename, unsigned char w, unsigned char h);
-void GetFragment(unsigned char** fragment, unsigned char x, unsigned char y, unsigned char w, unsigned char h);
-void SetFragment(unsigned char* fragment, unsigned char x, unsigned char y, unsigned char w, unsigned char h);
+// Bitmap chunks functions (see chunks.c)
+void LoadChunk(unsigned char** chunk, char *filename, unsigned char w, unsigned char h);
+void GetChunk(unsigned char** chunk, unsigned char x, unsigned char y, unsigned char w, unsigned char h);
+void SetChunk(unsigned char* chunk, unsigned char x, unsigned char y, unsigned char w, unsigned char h);
 
 // C64 specific functions (see C64/ROM.s)
 #ifdef __CBM__

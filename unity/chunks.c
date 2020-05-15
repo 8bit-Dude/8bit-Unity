@@ -30,11 +30,11 @@
   void __fastcall__ Blit(void);
 #endif
 
-void LoadFragment(unsigned char** fragment, char *filename, unsigned char w, unsigned char h) 
+void LoadChunk(unsigned char** chunk, char *filename, unsigned char w, unsigned char h) 
 {
 #if defined __LYNX__
 	// Lynx: data is already in RO segment
-	*fragment = FileRead(filename);
+	*chunk = FileRead(filename);
 #else
 	// Other: Need to load data from disk
 	unsigned int size;
@@ -53,20 +53,20 @@ void LoadFragment(unsigned char** fragment, char *filename, unsigned char w, uns
 	size = (w*h*10)/32;
   #endif
 
-	// Allocate fragment memory	
-	*fragment = (unsigned char*)malloc(size);
+	// Allocate chunk memory	
+	*chunk = (unsigned char*)malloc(size);
 
-	// Read Fragment File
+	// Read Chunk File
   #if defined __ATMOS__
-	FileRead(filename, *fragment);
+	FileRead(filename, *chunk);
   #else
 	fp = fopen(filename, "rb");
-	fread(*fragment, 1, size, fp);
+	fread(*chunk, 1, size, fp);
   #endif
 #endif
 }
 
-void GetFragment(unsigned char** fragment, unsigned char x, unsigned char y, unsigned char w, unsigned char h)
+void GetChunk(unsigned char** chunk, unsigned char x, unsigned char y, unsigned char w, unsigned char h)
 {
 #if defined __APPLE2__
 	unsigned int size = (w*h*4)/7;
@@ -87,8 +87,8 @@ void GetFragment(unsigned char** fragment, unsigned char x, unsigned char y, uns
 	unsigned int addr;
 #endif
 
-	// Allocate memory for bitmap fragment
-	*fragment = (unsigned char*)malloc(size);
+	// Allocate memory for bitmap chunk
+	*chunk = (unsigned char*)malloc(size);
 
 #if defined __APPLE2__
 	// Blit data from DHR memory
@@ -96,12 +96,12 @@ void GetFragment(unsigned char** fragment, unsigned char x, unsigned char y, uns
 	POKE(0xEB, h);			// Number of lines
 	POKE(0xEC, 2*x/7);		// DHR Offset X
 	POKE(0xED, y);			// DHR Offset Y
-	POKEW(0xEE, *fragment);	// Address of Output
+	POKEW(0xEE, *chunk);	// Address of Output
 	POKEW(0xFA, 0);			// Address of Input
 	Blit();
 #elif defined __ATARI__
 	// Copy data from double buffer
-	addr = *fragment;
+	addr = *chunk;
 	for (i=0; i<h; ++i) {
 		memcpy((char*)addr, (char*)(BITMAPRAM1+(y+i)*40+x/4), bytes);
 		addr += bytes;
@@ -116,13 +116,13 @@ void GetFragment(unsigned char** fragment, unsigned char x, unsigned char y, uns
 	POKE(0xb0, 2*h); 			// Number of lines
 	POKE(0xb1, w/3);			// Bytes per line
 	POKEW(0xb2, addr-1);		// Address of source (-1)
-	POKEW(0xb4, *fragment-1);	// Address of target (-1)
+	POKEW(0xb4, *chunk-1);	// Address of target (-1)
 	POKE(0xb6, 40); 			// Offset between source lines
 	POKE(0xb7, w/3); 			// Offset between target lines
 	Blit();	
 #elif defined __C64__
 	// Copy data to bitmap, color and screen memory
-	addr = *fragment;	
+	addr = *chunk;	
 	bytes = (w*8)/4;
 	DisableRom();
 	for (i=0; i<h; i+=8) {
@@ -141,7 +141,7 @@ void GetFragment(unsigned char** fragment, unsigned char x, unsigned char y, uns
 	EnableRom();
 #elif defined __LYNX__
 	// Copy data to bitmap memory
-	addr = *fragment;	
+	addr = *chunk;	
 	for (i=0; i<h; ++i) {
 		memcpy((char*)addr, (char*)(BITMAPRAM+(y+i)*82+x/2+1), bytes);
 		addr += bytes;
@@ -149,7 +149,7 @@ void GetFragment(unsigned char** fragment, unsigned char x, unsigned char y, uns
 #endif
 }
 
-void SetFragment(unsigned char* fragment, unsigned char x, unsigned char y, unsigned char w, unsigned char h)
+void SetChunk(unsigned char* chunk, unsigned char x, unsigned char y, unsigned char w, unsigned char h)
 {
 #if defined __APPLE2__
 	// Blit data to DHR memory
@@ -158,12 +158,12 @@ void SetFragment(unsigned char* fragment, unsigned char x, unsigned char y, unsi
 	POKE(0xEC, 2*x/7);		// DHR Offset X
 	POKE(0xED, y);			// DHR Offset Y
 	POKEW(0xEE, 0);			// Address for copying DHR > Output
-	POKEW(0xFA, fragment);	// Address for copying Input > DHR
+	POKEW(0xFA, chunk);	// Address for copying Input > DHR
 	Blit();
 #elif defined __ATARI__
 	// Copy data to double bitmap buffers
 	unsigned char i, bytes = w/4;
-	unsigned int addr = fragment;	
+	unsigned int addr = chunk;	
 	for (i=0; i<h; ++i) {
 		memcpy((char*)(BITMAPRAM1+(y+i)*40+x/4), (char*)addr, bytes);
 		addr += bytes;
@@ -177,7 +177,7 @@ void SetFragment(unsigned char* fragment, unsigned char x, unsigned char y, unsi
 	unsigned int addr = BITMAPRAM + y*80 + x/3 + 1;
 	POKE(0xb0, 2*h); 			// Number of lines
 	POKE(0xb1, w/3);			// Bytes per line
-	POKEW(0xb2, fragment-1);	// Address of source (-1)
+	POKEW(0xb2, chunk-1);	// Address of source (-1)
 	POKEW(0xb4, addr-1);		// Address of target (-1)
 	POKE(0xb6, w/3); 			// Offset between source lines
 	POKE(0xb7, 40); 			// Offset between target lines
@@ -185,7 +185,7 @@ void SetFragment(unsigned char* fragment, unsigned char x, unsigned char y, unsi
 #elif defined __C64__
 	// Copy data to bitmap, color and screen memory
 	unsigned char i, bytes;
-	unsigned int addr = fragment;	
+	unsigned int addr = chunk;	
 	bytes = (w*8)/4;
 	DisableRom();
 	for (i=0; i<h; i+=8) {
@@ -205,7 +205,7 @@ void SetFragment(unsigned char* fragment, unsigned char x, unsigned char y, unsi
 #elif defined __LYNX__
 	// Copy data to bitmap memory
 	unsigned char i, bytes = w/2;
-	unsigned int addr = fragment;	
+	unsigned int addr = chunk;	
 	for (i=0; i<h; ++i) {
 		memcpy((char*)(BITMAPRAM+(y+i)*82+x/2+1), (char*)addr, bytes);
 		addr += bytes;
