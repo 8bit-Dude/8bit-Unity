@@ -4,7 +4,7 @@
     <child>
       <object class="ttk.Notebook" id="Notebook_Assets">
         <property name="height">370</property>
-        <property name="width">400</property>
+        <property name="width">450</property>
         <layout>
           <property name="column">0</property>
           <property name="propagate">True</property>
@@ -18,7 +18,7 @@
               <object class="tk.Frame" id="Frame_Apple">
                 <property name="height">500</property>
                 <property name="padx">10</property>
-                <property name="width">400</property>
+                <property name="width">450</property>
                 <layout>
                   <property name="column">0</property>
                   <property name="propagate">True</property>
@@ -36,7 +36,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_AppleBitmap">
                         <property name="height">6</property>
-                        <property name="width">62</property>
+                        <property name="width">70</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -89,7 +89,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_AppleSprites">
                         <property name="height">1</property>
-                        <property name="width">62</property>
+                        <property name="width">70</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -197,10 +197,10 @@
                   </object>
                 </child>
                 <child>
-                  <object class="tk.LabelFrame" id="LabelFrame_AppleMusic">
+                  <object class="tk.LabelFrame" id="LabelFrame_AppleChunks">
                     <property name="height">200</property>
-                    <property name="text" translatable="yes">Music</property>
-                    <property name="width">200</property>
+                    <property name="text" translatable="yes">Chunks</property>
+                    <property name="width">100</property>
                     <layout>
                       <property name="column">0</property>
                       <property name="pady">240</property>
@@ -209,9 +209,50 @@
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
+                      <object class="tk.Listbox" id="Listbox_AppleChunks">
+                        <property name="height">1</property>
+                        <property name="width">34</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="propagate">True</property>
+                          <property name="row">0</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Button" id="Button_AppleChunksSel">
+                        <property name="command">AppleChunksSel</property>
+                        <property name="text" translatable="yes">Select File</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">25</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.LabelFrame" id="LabelFrame_AppleMusic">
+                    <property name="height">200</property>
+                    <property name="text" translatable="yes">Music</property>
+                    <property name="width">100</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="padx">215</property>
+                      <property name="pady">240</property>
+                      <property name="propagate">True</property>
+                      <property name="row">0</property>
+                      <property name="sticky">nw</property>
+                    </layout>
+                    <child>
                       <object class="tk.Listbox" id="Listbox_AppleMusic">
                         <property name="height">1</property>
-                        <property name="width">62</property>
+                        <property name="width">34</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -252,8 +293,8 @@
                       <object class="tk.Label" id="Label_AppleOptions">
                         <property name="height">1</property>
                         <property name="height">1</property>
-                        <property name="text" translatable="yes">No particular options for Apple...</property>
-                        <property name="width">53</property>
+                        <property name="text" translatable="yes">No options for Apple...</property>
+                        <property name="width">59</property>
                         <layout>
                           <property name="column">0</property>
 					      <property name="pady">2</property>
@@ -276,7 +317,7 @@
               <object class="tk.Frame" id="Frame_Atari">
                 <property name="height">500</property>
                 <property name="padx">10</property>
-                <property name="width">400</property>
+                <property name="width">450</property>
                 <layout>
                   <property name="column">0</property>
                   <property name="propagate">True</property>
@@ -294,7 +335,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_AtariBitmap">
                         <property name="height">6</property>
-                        <property name="width">62</property>
+                        <property name="width">70</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -347,7 +388,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_AtariSprites">
                         <property name="height">1</property>
-                        <property name="width">62</property>
+                        <property name="width">70</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -455,10 +496,10 @@
                   </object>
                 </child>
                 <child>
-                  <object class="tk.LabelFrame" id="LabelFrame_AtariMusic">
+                  <object class="tk.LabelFrame" id="LabelFrame_AtariChunks">
                     <property name="height">200</property>
-                    <property name="text" translatable="yes">Music</property>
-                    <property name="width">200</property>
+                    <property name="text" translatable="yes">Chunks</property>
+                    <property name="width">100</property>
                     <layout>
                       <property name="column">0</property>
                       <property name="pady">240</property>
@@ -467,9 +508,50 @@
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
+                      <object class="tk.Listbox" id="Listbox_AtariChunks">
+                        <property name="height">1</property>
+                        <property name="width">34</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="propagate">True</property>
+                          <property name="row">0</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Button" id="Button_AtariChunksSel">
+                        <property name="command">AtariChunksSel</property>
+                        <property name="text" translatable="yes">Select File</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">25</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.LabelFrame" id="LabelFrame_AtariMusic">
+                    <property name="height">200</property>
+                    <property name="text" translatable="yes">Music</property>
+                    <property name="width">100</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="padx">215</property>
+                      <property name="pady">240</property>
+                      <property name="propagate">True</property>
+                      <property name="row">0</property>
+                      <property name="sticky">nw</property>
+                    </layout>
+                    <child>
                       <object class="tk.Listbox" id="Listbox_AtariMusic">
                         <property name="height">1</property>
-                        <property name="width">62</property>
+                        <property name="width">34</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -561,7 +643,7 @@
               <object class="tk.Frame" id="Frame_C64">
                 <property name="height">500</property>
                 <property name="padx">10</property>
-                <property name="width">400</property>
+                <property name="width">450</property>
                 <layout>
                   <property name="column">0</property>
                   <property name="propagate">True</property>
@@ -579,7 +661,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_C64Bitmap">
                         <property name="height">6</property>
-                        <property name="width">62</property>
+                        <property name="width">70</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -632,7 +714,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_C64Sprites">
                         <property name="height">1</property>
-                        <property name="width">62</property>
+                        <property name="width">70</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -741,10 +823,10 @@
                   </object>
                 </child>
                 <child>
-                  <object class="tk.LabelFrame" id="LabelFrame_C64Music">
+                  <object class="tk.LabelFrame" id="LabelFrame_C64Chunks">
                     <property name="height">200</property>
-                    <property name="text" translatable="yes">Music</property>
-                    <property name="width">200</property>
+                    <property name="text" translatable="yes">Chunks</property>
+                    <property name="width">100</property>
                     <layout>
                       <property name="column">0</property>
                       <property name="pady">240</property>
@@ -753,9 +835,50 @@
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
+                      <object class="tk.Listbox" id="Listbox_C64Chunks">
+                        <property name="height">1</property>
+                        <property name="width">34</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="propagate">True</property>
+                          <property name="row">0</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Button" id="Button_C64ChunksSel">
+                        <property name="command">C64ChunksSel</property>
+                        <property name="text" translatable="yes">Select File</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">25</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.LabelFrame" id="LabelFrame_C64Music">
+                    <property name="height">200</property>
+                    <property name="text" translatable="yes">Music</property>
+                    <property name="width">100</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="padx">215</property>
+                      <property name="pady">240</property>
+                      <property name="propagate">True</property>
+                      <property name="row">0</property>
+                      <property name="sticky">nw</property>
+                    </layout>
+                    <child>
                       <object class="tk.Listbox" id="Listbox_C64Music">
                         <property name="height">1</property>
-                        <property name="width">62</property>
+                        <property name="width">34</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -796,8 +919,8 @@
                       <object class="tk.Label" id="Label_C64Options">
                         <property name="height">1</property>
                         <property name="height">1</property>
-                        <property name="text" translatable="yes">No particular options for C64...</property>
-                        <property name="width">53</property>
+                        <property name="text" translatable="yes">No options for C64...</property>
+                        <property name="width">59</property>
                         <layout>
                           <property name="column">0</property>
 						  <property name="pady">2</property>						  
@@ -820,7 +943,7 @@
               <object class="tk.Frame" id="Frame_Lynx">
                 <property name="height">500</property>
                 <property name="padx">10</property>
-                <property name="width">400</property>
+                <property name="width">450</property>
                 <layout>
                   <property name="column">0</property>
                   <property name="propagate">True</property>
@@ -838,7 +961,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_LynxBitmap">
                         <property name="height">6</property>
-                        <property name="width">62</property>
+                        <property name="width">70</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -891,7 +1014,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_LynxSprites">
                         <property name="height">1</property>
-                        <property name="width">62</property>
+                        <property name="width">70</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -998,10 +1121,10 @@
                   </object>
                 </child>
                 <child>
-                  <object class="tk.LabelFrame" id="LabelFrame_LynxMusic">
+                  <object class="tk.LabelFrame" id="LabelFrame_LynxChunks">
                     <property name="height">200</property>
-                    <property name="text" translatable="yes">Music</property>
-                    <property name="width">200</property>
+                    <property name="text" translatable="yes">Chunks</property>
+                    <property name="width">100</property>
                     <layout>
                       <property name="column">0</property>
                       <property name="pady">240</property>
@@ -1010,9 +1133,50 @@
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
+                      <object class="tk.Listbox" id="Listbox_LynxChunks">
+                        <property name="height">1</property>
+                        <property name="width">34</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="propagate">True</property>
+                          <property name="row">0</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Button" id="Button_LynxChunksSel">
+                        <property name="command">LynxChunksSel</property>
+                        <property name="text" translatable="yes">Select File</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">25</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.LabelFrame" id="LabelFrame_LynxMusic">
+                    <property name="height">200</property>
+                    <property name="text" translatable="yes">Music</property>
+                    <property name="width">100</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="padx">215</property>
+                      <property name="pady">240</property>
+                      <property name="propagate">True</property>
+                      <property name="row">0</property>
+                      <property name="sticky">nw</property>
+                    </layout>
+                    <child>
                       <object class="tk.Listbox" id="Listbox_LynxMusic">
                         <property name="height">1</property>
-                        <property name="width">62</property>
+                        <property name="width">34</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -1053,8 +1217,8 @@
                       <object class="tk.Label" id="Label_C64Options">
                         <property name="height">1</property>
                         <property name="height">1</property>
-                        <property name="text" translatable="yes">No particular options for Lynx...</property>
-                        <property name="width">53</property>
+                        <property name="text" translatable="yes">No options for Lynx...</property>
+                        <property name="width">59</property>
                         <layout>
                           <property name="column">0</property>
 						  <property name="pady">2</property>						  
@@ -1077,7 +1241,7 @@
               <object class="tk.Frame" id="Frame_Oric">
                 <property name="height">500</property>
                 <property name="padx">10</property>
-                <property name="width">400</property>
+                <property name="width">450</property>
                 <layout>
                   <property name="column">0</property>
                   <property name="propagate">True</property>
@@ -1095,7 +1259,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_OricBitmap">
                         <property name="height">6</property>
-                        <property name="width">62</property>
+                        <property name="width">70</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -1148,7 +1312,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_OricSprites">
                         <property name="height">1</property>
-                        <property name="width">62</property>
+                        <property name="width">70</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -1256,10 +1420,10 @@
                   </object>
                 </child>
                 <child>
-                  <object class="tk.LabelFrame" id="LabelFrame_OricMusic">
+                  <object class="tk.LabelFrame" id="LabelFrame_OricChunks">
                     <property name="height">200</property>
-                    <property name="text" translatable="yes">Music</property>
-                    <property name="width">200</property>
+                    <property name="text" translatable="yes">Chunks</property>
+                    <property name="width">100</property>
                     <layout>
                       <property name="column">0</property>
                       <property name="pady">240</property>
@@ -1268,9 +1432,50 @@
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
+                      <object class="tk.Listbox" id="Listbox_OricChunks">
+                        <property name="height">1</property>
+                        <property name="width">34</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="propagate">True</property>
+                          <property name="row">0</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Button" id="Button_OricChunksSel">
+                        <property name="command">OricChunksSel</property>
+                        <property name="text" translatable="yes">Select File</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">25</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.LabelFrame" id="LabelFrame_OricMusic">
+                    <property name="height">200</property>
+                    <property name="text" translatable="yes">Music</property>
+                    <property name="width">100</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="padx">215</property>
+                      <property name="pady">240</property>
+                      <property name="propagate">True</property>
+                      <property name="row">0</property>
+                      <property name="sticky">nw</property>
+                    </layout>
+                    <child>
                       <object class="tk.Listbox" id="Listbox_OricMusic">
                         <property name="height">1</property>
-                        <property name="width">62</property>
+                        <property name="width">34</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -1311,8 +1516,8 @@
                       <object class="tk.Label" id="Label_OricOptions">
                         <property name="height">1</property>
                         <property name="height">1</property>
-                        <property name="text" translatable="yes">No particular options for Oric...</property>
-                        <property name="width">53</property>
+                        <property name="text" translatable="yes">No options for Oric...</property>
+                        <property name="width">59</property>
                         <layout>
                           <property name="column">0</property>
 						  <property name="pady">2</property>						  
@@ -1335,7 +1540,7 @@
               <object class="tk.Frame" id="Frame_Shared">
                 <property name="height">500</property>
                 <property name="padx">10</property>
-                <property name="width">400</property>
+                <property name="width">450</property>
                 <layout>
                   <property name="column">0</property>
                   <property name="propagate">True</property>
@@ -1353,7 +1558,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_Shared">
                         <property name="height">15</property>
-                        <property name="width">62</property>
+                        <property name="width">70</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -1403,6 +1608,7 @@
         <property name="text" translatable="yes">Code</property>
         <layout>
           <property name="column">0</property>
+          <property name="padx">10</property>
           <property name="pady">5</property>
           <property name="propagate">True</property>
           <property name="row">1</property>
@@ -1411,7 +1617,7 @@
         <child>
           <object class="tk.Listbox" id="Listbox_Code">
             <property name="height">4</property>
-            <property name="width">65</property>
+            <property name="width">70</property>
             <layout>
               <property name="column">0</property>
               <property name="propagate">True</property>
