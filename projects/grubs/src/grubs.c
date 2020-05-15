@@ -45,7 +45,7 @@
 	#define SKY 		CYAN
 	#define HEALTH_HIGH GREEN
 	#define GRND_OFFST	4
-#elif defined __ATMOS__
+#elif defined __ORIC__
 	#define KEY_NEXT	KEY_SP
 	#define SKY 		BLACK
 	#define HEALTH_HIGH MGREEN
@@ -88,19 +88,19 @@ unsigned char *names[4] = { "SAM", "JOE", "TOM", "LUC" };
 #if defined __APPLE2__
 	#define spriteCols   7
 	#define spriteRows   13
-	unsigned char spriteColors[] = { };	//  Colors are pre-assigned in the sprite sheet
+	unsigned char spriteColors[] = { };	 // Colors are pre-assigned in the sprite sheet
 #elif defined __ATARI__
 	#define spriteCols   8
 	#define spriteRows   13
-	unsigned char spriteColors[] = {0x2a, 0x2a, 0x2a, 0x2a, 0x14, 0x10, 0x10, 0x10, 0x10, 0x10};
-#elif defined __ATMOS__
+	unsigned char spriteColors[] = { 0x2a, 0x2a, 0x2a, 0x2a, 0x14, 0x10, 0x10, 0x10, 0x10, 0x10};
+#elif defined __ORIC__
 	#define spriteCols   12
 	#define spriteRows   13
-	unsigned char spriteColors[] = {GREEN, GREEN, GREEN, GREEN, RED};
+	unsigned char spriteColors[] = { AIC, AIC, AIC, AIC, AIC, AIC, AIC, AIC };  // AIC color for faster drawing!
 #elif defined __CBM__
 	#define spriteCols   12
 	#define spriteRows   21
-	unsigned char spriteColors[] = {0, 0, 0, 0, PINK, PINK, PINK, PINK, RED, WHITE};
+	unsigned char spriteColors[] = { 0, 0, 0, 0, PINK, PINK, PINK, PINK, RED, WHITE};
 #elif defined __LYNX__
 	#define spriteCols   7
 	#define spriteRows   11
@@ -233,7 +233,7 @@ void DrawGrub(Grub *grub)
 void ProcessGrub(Grub *grub, signed char xMove, signed char yMove)
 {
 	signed char yOffset;
-#if (defined __APPLE2__) || (defined __ATMOS__)
+#if (defined __APPLE2__) || (defined __ORIC__)
 	unsigned char i, collisions;
 #endif	
 	// Process motion
@@ -302,7 +302,7 @@ void ProcessGrub(Grub *grub, signed char xMove, signed char yMove)
 	grub->motionFrame = (grub->motionFrame+1) % grub->numFrames;
 	DrawGrub(grub);
 	
-#if (defined __APPLE2__) || (defined __ATMOS__)
+#if (defined __APPLE2__) || (defined __ORIC__)
 	// Manually redraw colliding sprites
 	collisions = COLLISIONS(grub->index);
 	for (i=0; i<MAX_GRUBS; i++) {

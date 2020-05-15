@@ -64,7 +64,7 @@ unsigned char inkColor, paperColor;
 #endif
 
 // Oric specific variables & functions
-#if defined __ATMOS__
+#if defined __ORIC__
   // INK attributes for characters
   unsigned char ink1[20] = { 0, 2, 3, 6, 3, 7, 5, 4, 7, 2, 7, 1, 3, 1, 1, 7, 5, 5, 5, 5 };
   unsigned char ink2[20] = { 0, 3, 3, 6, 6, 6, 6, 4, 6, 6, 6, 7, 7, 1, 3, 7, 4, 6, 7, 5 };
@@ -113,7 +113,7 @@ void InitBitmap()
 	POKE(PALETTERAM+1, 0x24);
 	POKE(PALETTERAM+2, 0x86);
 	POKE(PALETTERAM+3, 0xd8);
-#elif defined __ATMOS__
+#elif defined __ORIC__
 	// Switch to Hires mode
 	if PEEK((char*)0xC800) {
 		asm("jsr $EC33");	// Atmos (ROM 1.1)
@@ -216,7 +216,7 @@ void LocatePixel(unsigned int x, unsigned int y)
 #elif defined __ATARI__	// INP Mode: 160 x 200
 	pixelX = x/2;
 	pixelY = y;
-#elif defined __ATMOS__	// AIC Mode: 117 x 100
+#elif defined __ORIC__	// AIC Mode: 117 x 100
 	pixelX = (x*117)/320+3;	
 	pixelY = y/2;
 #elif defined __CBM__	// MLC Mode: 160 x 200
@@ -278,7 +278,7 @@ unsigned char GetPixel()
 	RestoreSprLine(pixelX,pixelY);
 	SetDHRPointer(pixelX,pixelY);
 	return GetDHRColor();
-#elif defined __ATMOS__
+#elif defined __ORIC__
 	unsigned int addr;
 	unsigned char i, pX, pY, xO, yO, occlusion = 0;
 	unsigned char byte1, byte2, shift, color = 0;
@@ -383,7 +383,7 @@ void SetPixel(unsigned char color)
 	// Use DHR routines
 	SetDHRPointer(pixelX,pixelY);
 	SetDHRColor(color);	
-#elif defined __ATMOS__
+#elif defined __ORIC__
 	unsigned int offset;
 	unsigned char byte1, byte2, shift;
 	
@@ -453,7 +453,7 @@ void SetPixel(unsigned char color)
 // Load bitmap from file
 void LoadBitmap(char *filename) 
 {
-#if defined __ATMOS__
+#if defined __ORIC__
 	// Load directly to bitmap ram
 	FileRead(filename, (void*)(BITMAPRAM));
 #elif defined __LYNX__
@@ -519,7 +519,7 @@ void ClearBitmap()
 #elif defined __ATARI__
 	bzero((char*)BITMAPRAM1, 8000);
 	bzero((char*)BITMAPRAM2, 8000);
-#elif defined __ATMOS__
+#elif defined __ORIC__
 	// reset pixels and set AIC Paper/Ink
 	unsigned char y;
 	memset((char*)BITMAPRAM, 64, 8000);	
@@ -594,7 +594,7 @@ void DrawPanel(unsigned char colBeg, unsigned char rowBeg, unsigned char colEnd,
 		*dhrmain = 0;
 		bzero(dhrptr, span);
 	}
-#elif defined __ATMOS__
+#elif defined __ORIC__
 	for (j=rowBeg*8; j<rowEnd*8; ++j) {
 		memset((char*)(BITMAPRAM+40*j+colBeg+1), 64, span);
 	}
@@ -661,7 +661,7 @@ void PrintLogo(unsigned char col, unsigned char row, unsigned char index)
 		POKE(addr1+i*40, logos[index][i]);
 		POKE(addr2+i*40, logos[index][i]);
 	}
-#elif defined __ATMOS__
+#elif defined __ORIC__
 	unsigned char logos[6][8] = { {0,0,0,12,18,16,23,12}, 	// C64: (0,0,1,1,0,0) (0,1,0,0,1,0) (0,1,0,0,0,0) (0,1,0,1,1,1) (0,0,1,1,0,0)
 								  {0,0,0,12,18,30,18,18}, 	// ATR: (0,0,1,1,0,0) (0,1,0,0,1,0) (0,1,1,1,1,0) (0,1,0,0,1,0) (0,1,0,0,1,0)
 								  {0,0,0, 2,12,30,30,12}, 	// APP: (0,0,0,0,1,0) (0,0,1,1,0,0) (0,1,1,1,1,0) (0,1,1,1,1,0) (0,0,1,1,0,0)
@@ -788,7 +788,7 @@ void PrintChr(unsigned char col, unsigned char row, const char *chr)
 		POKE((char*)addr1+7*40, bgByte2);
 		POKE((char*)addr2+7*40, bgByte1);
 	}
-#elif defined __ATMOS__
+#elif defined __ORIC__
 	// Set Character inside 6*8 cell
 	unsigned char i;
 	unsigned char a0,a2,a4,b,blank;
@@ -915,7 +915,7 @@ void PrintBuffer(char *buffer)
 		memcpy((char*)BITMAPRAM1+i*40, (char*)BITMAPRAM1+i*40+len, (CHR_COLS-len));
 		memcpy((char*)BITMAPRAM2+i*40, (char*)BITMAPRAM2+i*40+len, (CHR_COLS-len));
 	}
-#elif defined __ATMOS__
+#elif defined __ORIC__
 	// Copy bitmap RAM
 	for (i=0; i<8; ++i) {
 		memcpy((char*)BITMAPRAM+1+i*40, (char*)BITMAPRAM+1+i*40+len, (CHR_COLS-len));
@@ -961,7 +961,7 @@ unsigned char InputUpdate(unsigned char col, unsigned char row, char *buffer, un
 		curlen = strlen(buffer);
 		
 		// Process Letter keys
-#if (defined __ATARI__) || (defined __ATMOS__)
+#if (defined __ATARI__) || (defined __ORIC__)
 		if (key == 32 | key == 33 | (key > 38 & key < 59) | key == 63 | key == 92 | key == 95 | (key > 96 & key < 123)) {	// Atari/Oric
 #else
 		if (key == 32 | key == 33 | (key > 38 & key < 59) | key == 63 | (key > 64 & key < 91) | key == 92 | key == 95) {	// Apple/C64

@@ -10,7 +10,7 @@
 	#define RACE_MARK GREY
 	#define RACE_WALL BROWN
 	#define SPR2_SLOT 5
-#elif defined __ATMOS__
+#elif defined __ORIC__
 	#define RACE_ROAD BLACK
 	#define RACE_MARK LGREEN
 	#define RACE_WALL PURPLE
@@ -29,7 +29,7 @@
 
 // Physics parameters
 int tck4, accRate, decRate, jmpTCK;
-#if defined __ATMOS__
+#if defined __ORIC__
   char rotRate = 2;
 #else
   char rotRate = 3;
@@ -72,7 +72,7 @@ void GameReset()
 		#elif defined __ATARI__
 			spriteX = cars[i].x2/16 + 45; 
 			spriteY = cars[i].y2/8 + 26;		
-		#elif defined __ATMOS__
+		#elif defined __ORIC__
 			spriteX = cars[i].x2/32;	
 			spriteY = cars[i].y2/8;			
 		#elif defined __CBM__
@@ -181,7 +181,7 @@ void GameInit(const char* map)
             if (controlIndex[i]) {
 				slot = (i+1)*8;
                 inkColor = inkColors[i]; 
-			#if defined __ATMOS__
+			#if defined __ORIC__
 				SetInk(slot-1, CHR_ROWS-1);
 			#endif					
 				PrintChr(slot+1, CHR_ROWS-1, &charDigit[(i+1)*3]);
@@ -219,7 +219,7 @@ unsigned char GameRace()
 	#if defined __ATARI__ 
 		RecolorSprite(i, 0, 0x08);
 		SetSprite(i, 16);
-	#elif defined __ATMOS__ 
+	#elif defined __ORIC__ 
 		RecolorSprite(i, 0, AIC);
 		SetSprite(i, 16);
 	#elif defined __CBM__
@@ -247,7 +247,7 @@ unsigned char GameRace()
 #endif	
 
     // Red light
-#if defined __ATMOS__ 
+#if defined __ORIC__ 
 	LocateSprite(132, 24);	
 	RecolorSprite(4, 0, RED);
 	SetSprite(4, 16);
@@ -263,7 +263,7 @@ unsigned char GameRace()
     sleep(1);
 
     // Orange light	
-#if defined __ATMOS__ 
+#if defined __ORIC__ 
 	LocateSprite(156, 24);	
 	RecolorSprite(5, 0, RED);
 	SetSprite(5, 16);	
@@ -279,7 +279,7 @@ unsigned char GameRace()
     sleep(1);
 
     // Green light
-#if defined __ATMOS__ 
+#if defined __ORIC__ 
 	LocateSprite(180, 24);	
 	RecolorSprite(6, 0, GREEN);
 	SetSprite(6, 16);	
@@ -520,7 +520,7 @@ char GameLoop()
 						iAng2 = LerpAngle(iAng2, car->ang3, 2*rotRate*steps);
                     }
                 }
-			#if (defined __APPLE2__) || (defined __ATMOS__)		// Simplified physics on slower systems...
+			#if (defined __APPLE2__) || (defined __ORIC__)		// Simplified physics on slower systems...
 				// Constrain angle range
 				if (iAng2 > 360) { iAng2 -= 360; } else if (iAng2 < 0) { iAng2 += 360; }
 				iAng1 = iAng2;
@@ -553,7 +553,7 @@ char GameLoop()
 				iSin = sin[iDir];
 			
 				// Compute next position
-			#if defined __ATMOS__
+			#if defined __ORIC__
 				iTmp = steps * iVel / 16;
 				iX += car->impx + ( iTmp * iCos ) / TCK_PER_SEC;
 				iY += car->impy - ( iTmp * iSin ) / TCK_PER_SEC;
@@ -578,7 +578,7 @@ char GameLoop()
 			#elif defined __ATARI__
 				spriteX = iX/16 + 45; 
 				spriteY = iY/8 + 26;
-			#elif defined __ATMOS__
+			#elif defined __ORIC__
 				spriteX = iX/32;	
 				spriteY = iY/8;							
 			#elif defined __CBM__					

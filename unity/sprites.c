@@ -89,7 +89,7 @@
 		SetupFlickerDLI();
 	}
 // Atmos specific init function
-#elif defined __ATMOS__	
+#elif defined __ORIC__	
 	#define frameWIDTH 2	// Byte width of sprite (12 pixels)
 	unsigned char frameROWS;
 	unsigned int  frameBLOCK;	// Size of sprite offset block (4 blocks), 
@@ -165,7 +165,7 @@ void RecolorSprite(unsigned char index, unsigned char number, unsigned char colo
 {
 #if defined __ATARI__
 	flickerColor[index] = color;
-#elif defined __ATMOS__
+#elif defined __ORIC__
 	POKE(sprCOLOR+index, color);
 #elif defined __CBM__
 	POKE(53287+index, color);
@@ -191,7 +191,7 @@ void LocateSprite(unsigned int x, unsigned int y)
 #elif defined __ATARI__
 	spriteX = x/2 + 45;
 	spriteY = y + 24;
-#elif defined __ATMOS__
+#elif defined __ORIC__
 	spriteX = x/4;	
 	spriteY = y;
 #elif defined __CBM__
@@ -245,7 +245,7 @@ void LocateSprite(unsigned int x, unsigned int y)
 #endif
 
 // Oric specific background redrawing function
-#if defined __ATMOS__
+#if defined __ORIC__
   void __fastcall__ Blit(void);	// (see Oric/blit.s)
   void RestoreSprBG(unsigned char index)
   {
@@ -261,11 +261,11 @@ void LocateSprite(unsigned int x, unsigned int y)
 #endif
 
 
-#if (defined __APPLE2__) || (defined __ATMOS__)  || (defined __LYNX__)
+#if (defined __APPLE2__) || (defined __ORIC__)  || (defined __LYNX__)
   void SpriteCollisions(unsigned char index)
   {
 	unsigned char i, dX, dY, rows;
-  #if defined __ATMOS__	
+  #if defined __ORIC__	
 	unsigned char x1, x2, y1, y2;
 	unsigned int bgPTR1, bgPTR2;
   #endif					
@@ -290,7 +290,7 @@ void LocateSprite(unsigned int x, unsigned int y)
 				RestoreSprBG(i);
 			}
 		}
-	#elif defined __ATMOS__
+	#elif defined __ORIC__
 		rows = MAX(sprROWS[index], sprROWS[i]);
 		if (dY < rows || dY>(256-rows)) {
 			dX = sprX[i] - spriteX;		
@@ -392,7 +392,7 @@ void SetSprite(unsigned char index, unsigned char frame)
 	flickerY[index] = spriteY;
 	flickerFrame[index] = SPRITERAM + frame*flickerRows;
 	
-#elif defined __ATMOS__
+#elif defined __ORIC__
 	unsigned char i, inkVAL;
 	unsigned int sprPtr, inkPtr;
 	unsigned char rows = sprROWS[index];
@@ -494,7 +494,7 @@ void EnableSprite(signed char index)
 	} else {
 		flickerMask[index-5] |= 2;
 	}
-#elif (defined __APPLE2__) || (defined __ATMOS__)
+#elif (defined __APPLE2__) || (defined __ORIC__)
 	// Allocate memory for background
 	if (!sprBG[index]) {
 		sprBG[index] = (unsigned char*)malloc(4*frameROWS);	// Byte length of 1 sprite
@@ -503,7 +503,7 @@ void EnableSprite(signed char index)
 #endif
 }
 
-#if (defined __APPLE2__) || (defined __ATMOS__)
+#if (defined __APPLE2__) || (defined __ORIC__)
   void EraseSprite(signed char index) {
 	if (sprBG[index]) {
 		if (sprDrawn[index]) RestoreSprBG(index); 
@@ -530,7 +530,7 @@ void DisableSprite(signed char index)
 		bzero(PMGRAM+768+((index+1)%5)*256,0x100); // Clear PMG slot
 	#else
 		// Soft sprites: Restore background if neccessary
-	  #if (defined __APPLE2__) || (defined __ATMOS__)
+	  #if (defined __APPLE2__) || (defined __ORIC__)
 		EraseSprite(index);
 	  #endif
 		sprDrawn[index] = 0;
@@ -546,7 +546,7 @@ void DisableSprite(signed char index)
 	#else
 		// Soft sprites: Restore background if necessary
 		for (index=0; index<SPRITE_NUM; index++) {
-		#if (defined __APPLE2__) || (defined __ATMOS__)
+		#if (defined __APPLE2__) || (defined __ORIC__)
 			EraseSprite(index);
 		#endif
 			sprDrawn[index] = 0;

@@ -17,7 +17,7 @@ int DemoGFX(void)
 	EnterBitmapMode();
 	
 	// Draw palette (Method #1: set pixel coordinates directly using global variables pixelX & pixelY)
-#if defined __ATMOS__
+#if defined __ORIC__
 	palette = 19;
 #else	
 	palette = 16;
@@ -43,7 +43,7 @@ int DemoGFX(void)
 	paperColor = BLACK;
 	for (i=1; i<textRows; i++) {
 		inkColor = i;
-	#if defined __ATMOS__
+	#if defined __ORIC__
 		SetInk(14, i+1);
 	#endif
 		PrintStr(15,i+1,"8BIT-UNITY");

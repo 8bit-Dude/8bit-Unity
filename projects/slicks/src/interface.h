@@ -19,7 +19,7 @@
 	#define PAPER_HIGHLT YELLOW
 	#define PAPER_SCORES BLACK
 	#define ROW_SCORES   8
-#elif defined __ATMOS__
+#elif defined __ORIC__
 	#define INK_LAPS   	 RED
 	#define INK_TAB		 GREEN
 	#define INK_HIGHLT	 BLACK
@@ -131,7 +131,7 @@ void PrintScores()
 		s = ROW_SCORES+2*i+1;
 		if (j >= 0) {
 			inkColor = inkColors[j];
-		#if defined __ATMOS__
+		#if defined __ORIC__
 			SetInk(17, s);
 		#endif			
 			if (gameMode == MODE_ONLINE) {
@@ -141,13 +141,13 @@ void PrintScores()
 			}
 			PrintStr(18, s, string);
 			inkColor = WHITE;
-		#if defined __ATMOS__
+		#if defined __ORIC__
 			SetInk(22, s);
 		#endif			
 			PrintChr(23, s, charHyphen);
 			PrintNum(24, s, i+1);
 			PrintChr(25, s, charHyphen);
-		#if defined __ATMOS__
+		#if defined __ORIC__
 			inkColor = AIC;
 			SetInk(26, s);
 		#endif			
@@ -159,7 +159,7 @@ void PrintScores()
 		#elif defined __ATARI__
 			spriteX = 105; 
 			spriteY = s*8+30;
-		#elif defined __ATMOS__
+		#elif defined __ORIC__
 			spriteX = 30;	
 			spriteY = s*8+3;
 		#elif defined __CBM__	
@@ -190,7 +190,7 @@ void PrintScores()
 static char chatBG[320];
 #elif defined __ATARI__
 static char chatBG[320];
-#elif defined __ATMOS__
+#elif defined __ORIC__
 static char chatBG[160];
 #elif defined __CBM__
 static char chatBG[180];
@@ -217,7 +217,7 @@ void BackupChatRow()
 		memcpy(&chatBG[0]+i*20,   (char*)(BITMAPRAM1+320*ROW_CHAT+i*40), 20);
 		memcpy(&chatBG[160]+i*20, (char*)(BITMAPRAM2+320*ROW_CHAT+i*40), 20);
 	}	
-#elif defined __ATMOS__
+#elif defined __ORIC__
 	unsigned char i;
 	for (i=0; i<8; ++i) {
 		memcpy(&chatBG[0]+i*20, (char*)(BITMAPRAM+1+320*ROW_CHAT+i*40), 20);
@@ -252,7 +252,7 @@ void RedrawChatRow()
 		memcpy((char*)(BITMAPRAM1+320*ROW_CHAT+i*40), &chatBG[0]+i*20, 20);
 		memcpy((char*)(BITMAPRAM2+320*ROW_CHAT+i*40), &chatBG[0]+i*20+160, 20);
 	}	
-#elif defined __ATMOS__
+#elif defined __ORIC__
 	unsigned char i;
 	for (i=0; i<8; ++i) {
 		memcpy((char*)(BITMAPRAM+1+320*ROW_CHAT+i*40), &chatBG[0]+i*20, 20);
@@ -413,7 +413,7 @@ void SpriteAnimation(unsigned char index, unsigned char frame)
 #elif defined __ATARI__
 	spriteX = 145+index*13; 
 	spriteY = 40;
-#elif defined __ATMOS__
+#elif defined __ORIC__
 	spriteX = 48+index*8;
 	spriteY = 16;	
 #elif defined __CBM__

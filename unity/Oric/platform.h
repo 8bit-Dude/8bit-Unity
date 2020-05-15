@@ -33,6 +33,9 @@
  *		* Christian Groessler for helping optimize the memory maps on Commodore and Atari
  *		* Bill Buckels for his Apple II Double Hi-Res bitmap code
  */
+
+// Alias
+#define __ORIC__
  
 // Memory Map
 #define SPRITERAM  (0x8000)	// 8000-87ff (location of sprite frames)

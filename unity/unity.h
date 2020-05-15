@@ -77,7 +77,7 @@ extern unsigned char pixelX, pixelY; // (see LocatePixel())
 
 // Bitmap printing functions (see bitmap.c)
 extern unsigned char inkColor, paperColor;
-#if defined __ATMOS__
+#if defined __ORIC__
   void SetInk(unsigned char col, unsigned char row);
 #endif
 void DrawPanel(unsigned char colBeg, unsigned char rowBeg, unsigned char colEnd, unsigned char rowEnd);
@@ -123,7 +123,7 @@ void SetChunk(unsigned char* chunk, unsigned char x, unsigned char y, unsigned c
 #define MOUSE_RIGHT 128
 
 // Joystick functions
-#if (defined __ATMOS__) || (defined __CBM__)
+#if (defined __ORIC__) || (defined __CBM__)
   #define JOY_MAX 4
   void InitJoy(void);
   unsigned char GetJoy(unsigned char);
@@ -194,7 +194,7 @@ void BumpSFX(void);
   #define SPRITE_NUM 8
 #elif defined __ATARI__
   #define SPRITE_NUM 10
-#elif defined __ATMOS__
+#elif defined __ORIC__
   #define SPRITE_NUM 8
 #elif defined __CBM__
   #define SPRITE_NUM 8
@@ -207,7 +207,7 @@ void DisableSprite(signed char index);
 void LocateSprite(unsigned int x, unsigned int y);
 void SetSprite(unsigned char index, unsigned char frame);
 void RecolorSprite(unsigned char index, unsigned char number, unsigned char color);
-#if (defined __ATMOS__) || (defined __APPLE2__)
+#if (defined __ORIC__) || (defined __APPLE2__)
   void CropSprite(unsigned char index, unsigned char rows);
 #elif defined __CBM__
   void DoubleHeightSprite(unsigned char index, unsigned char onoff);

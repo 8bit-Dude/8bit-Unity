@@ -3,7 +3,7 @@
 
 extern const char keyNext, pressKeyMsg[];
 
-#if defined __ATMOS__
+#if defined __ORIC__
 	const char* joyList[] = { "WASD+CTR", "IJKL+RET", "PASE/HUB 1", "PASE/HUB 2" };
 #elif defined __LYNX__
 	const char* joyList[] = { "JOY 1", "HUB 1", "HUB 2" };

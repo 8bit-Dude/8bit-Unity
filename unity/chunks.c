@@ -26,7 +26,7 @@
  
 #include "unity.h"
 
-#if (defined __APPLE2__) || (defined __ATMOS__)
+#if (defined __APPLE2__) || (defined __ORIC__)
   void __fastcall__ Blit(void);
 #endif
 
@@ -38,7 +38,7 @@ void LoadChunk(unsigned char** chunk, char *filename, unsigned char w, unsigned 
 #else
 	// Other: Need to load data from disk
 	unsigned int size;
-  #ifndef __ATMOS__
+  #ifndef __ORIC__
 	FILE* fp;
   #endif
 	
@@ -47,7 +47,7 @@ void LoadChunk(unsigned char** chunk, char *filename, unsigned char w, unsigned 
 	size = (w*h*4)/7;
   #elif defined __ATARI__
 	size = (w*h*2)/4;
-  #elif defined __ATMOS__
+  #elif defined __ORIC__
 	size = (w*h*2)/3;
   #elif defined __C64__
 	size = (w*h*10)/32;
@@ -57,7 +57,7 @@ void LoadChunk(unsigned char** chunk, char *filename, unsigned char w, unsigned 
 	*chunk = (unsigned char*)malloc(size);
 
 	// Read Chunk File
-  #if defined __ATMOS__
+  #if defined __ORIC__
 	FileRead(filename, *chunk);
   #else
 	fp = fopen(filename, "rb");
@@ -74,7 +74,7 @@ void GetChunk(unsigned char** chunk, unsigned char x, unsigned char y, unsigned 
 	unsigned char i, bytes = w/4;
 	unsigned int size = (w*h*2)/4;
 	unsigned int addr;
-#elif defined __ATMOS__
+#elif defined __ORIC__
 	unsigned int size = (w*h*2)/3;
 	unsigned int addr;
 #elif defined __C64__
@@ -110,7 +110,7 @@ void GetChunk(unsigned char** chunk, unsigned char x, unsigned char y, unsigned 
 		memcpy((char*)addr, (char*)(BITMAPRAM2+(y+i)*40+x/4), bytes);
 		addr += bytes;
 	}
-#elif defined __ATMOS__
+#elif defined __ORIC__
 	// Blit data from bitmap memory
 	addr = BITMAPRAM + y*80 + x/3 + 1;
 	POKE(0xb0, 2*h); 			// Number of lines
@@ -172,7 +172,7 @@ void SetChunk(unsigned char* chunk, unsigned char x, unsigned char y, unsigned c
 		memcpy((char*)(BITMAPRAM2+(y+i)*40+x/4), (char*)addr, bytes);
 		addr += bytes;
 	}
-#elif defined __ATMOS__
+#elif defined __ORIC__
 	// Blit data to bitmap memory
 	unsigned int addr = BITMAPRAM + y*80 + x/3 + 1;
 	POKE(0xb0, 2*h); 			// Number of lines

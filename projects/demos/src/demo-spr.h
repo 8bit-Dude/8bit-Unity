@@ -18,7 +18,7 @@ extern const char keyNext;
 	unsigned char spriteColors[] = {0x88, 0x28, 0xba, 0xee, 0x00,   // 0-4: 1st color (car body)
 									0x08, 0x08, 0x08, 0x08, 0x00 };	// 5-8: 2nd color (car tires) Refer to atari palette in docs
 	unsigned char inkColors[] = { BLUE, RED, GREEN, YELLOW };		// P1, P2, P3, P4
-#elif defined __ATMOS__
+#elif defined __ORIC__
 	#define spriteFrames 16
 	#define spriteCols   12
 	#define spriteRows   6
@@ -71,13 +71,13 @@ int DemoSPR(void)
 	for (i=0; i<4; i++) {
 		slot = 8*(i+1);
 		inkColor = inkColors[i];
-	#if defined __ATMOS__
+	#if defined __ORIC__
 		SetInk(slot-1, CHR_ROWS-1);
 	#endif		
 		PrintLogo(slot+4, CHR_ROWS-1, i);
 		PrintNum(slot+2, CHR_ROWS-1, i+1);
 		PrintStr(slot, CHR_ROWS-1, "CAR");
-	#if defined __ATMOS__
+	#if defined __ORIC__
 		inkColor = AIC;
 		SetInk(slot+5, CHR_ROWS-1);
 	#endif		

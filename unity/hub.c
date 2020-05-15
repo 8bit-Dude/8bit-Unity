@@ -63,7 +63,7 @@ void SendByte(unsigned char value)
 	while (ser_put(value) != SER_ERR_OK) ;	// Send byte
 	while (ser_get(&ch) != SER_ERR_OK) ;	// Read byte (sent to oneself)
 		
-#elif defined __ATMOS__
+#elif defined __ORIC__
 	POKE(0x0301, value);		// Write 1 Byte to Printer Port
 	POKE(0x0300, 175);			// Send STROBE (falling signal)
 	tick++; tick++; tick++; 	// Wait 3 cycles
@@ -80,7 +80,7 @@ unsigned char RecvByte(unsigned char* value)
 	}
 	return 1;
 			
-#elif defined __ATMOS__	
+#elif defined __ORIC__	
 	unsigned char i = 255;
 	while (1) {  // Countdown i to 0
 		if (PEEK(0x030d)&2) { break; }	// Look for CA1 signal
@@ -95,7 +95,7 @@ unsigned char RecvByte(unsigned char* value)
 void SendHub()
 {
 	unsigned char i, checksum, packetLen;
-#if defined __ATMOS__	
+#if defined __ORIC__	
 	__asm__("sei");	// Disable interrupts
 #elif defined __LYNX__	
 	while (ser_get(&i) == SER_ERR_OK) ; // Clear UART Buffer
@@ -124,7 +124,7 @@ void SendHub()
 	// Send footer
 	SendByte(checksum);			
 	
-#if defined __ATMOS__	
+#if defined __ORIC__	
 	__asm__("cli");	// Enable interrupts
 #endif
 }
@@ -137,7 +137,7 @@ void RecvHub(unsigned char timeOut)
 #if defined __LYNX__
 	recvClock = clock();	// Set clock
 	recvTimeOut = timeOut;	// Set timeout
-#elif defined __ATMOS__	
+#elif defined __ORIC__	
 	__asm__("sei");		// Disable interrupts
 	SendByte(85);		// Send read code
 	POKE(0x0303, 0);	// Set Port A as Input
@@ -169,7 +169,7 @@ void RecvHub(unsigned char timeOut)
 	// Get footer
 	if (!RecvByte(&footer)) { hubState[0] = COM_ERR_TRUNCAT; return; }
 		
-#if defined __ATMOS__	
+#if defined __ORIC__	
 	POKE(0x0303, 255);	// Set port A as Output
 	__asm__("cli");		// Resume interrupts	
 #endif

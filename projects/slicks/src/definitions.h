@@ -59,7 +59,7 @@ unsigned char lapGoal;
 	#define spriteRows   10
 	unsigned char spriteColors[] = {0x74, 0x24, 0xa6, 0xdc, 0x00, 0x22, 0x22, 0x22, 0x22, 0x22 };	// Refer to atari palette in docs
 	unsigned char inkColors[] = { BLUE, RED, GREEN, YELLOW, WHITE };		// P1, P2, P3, P4, SERVER INFO
-#elif defined __ATMOS__
+#elif defined __ORIC__
 	#define spriteFrames 17
 	#define spriteCols   12
 	#define spriteRows   6
@@ -100,7 +100,7 @@ unsigned char controlIndex[MAX_PLAYERS] = { 3, 2, 0, 0 };
 #elif defined __ATARI__
 	#define LEN_CONTROL 8
 	const char* controlList[LEN_CONTROL] = { "NONE", "CPU EASY", "CPU HARD", "JOY 1", "JOY 2", "HUB 1", "HUB 2", "NETWORK" };
-#elif defined __ATMOS__
+#elif defined __ORIC__
 	#define LEN_CONTROL 8
 	const char* controlList[LEN_CONTROL] = { "NONE", "CPU EASY", "CPU HARD", "A,D,CTRL", "J,L,RET", "PASE/HUB 1", "PASE/HUB 2", "NETWORK" };
 #elif defined __CBM__

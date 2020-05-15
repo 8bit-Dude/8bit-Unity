@@ -59,7 +59,7 @@
     #define DISABLE_NOISE_B (0x10)
     #define DISABLE_NOISE_C (0x20)
 	#define DISABLE_ALL		(0x3f)
-#elif defined __ATMOS__
+#elif defined __ORIC__
 	void ResetChannels(void) {
 		// Play 7,0,0: enable channels 1/2/3 (with no enveloppe)
 		POKEW(0x02E1, 7);
@@ -128,7 +128,7 @@
 
 void LoadMusic(const char* filename, unsigned int address)
 {
-#if defined __ATMOS__
+#if defined __ORIC__
 	FileRead(filename, address);
 #endif
 }
@@ -150,7 +150,7 @@ void InitSFX()
 	POKE((char*)0xD208,0);  // AUDCTL
 	POKE((char*)0xD20F,3);
 	SetupSFX();	// VBI for SFX samples
-#elif defined __ATMOS__
+#elif defined __ORIC__
 	ResetChannels();
 #endif
 }
@@ -165,7 +165,7 @@ void StopSFX()
 	POKE((char*)(0xD202), 0);
 	POKE((char*)(0xD204), 0);
 	POKE((char*)(0xD208), 0);
-#elif defined __ATMOS__
+#elif defined __ORIC__
 	// Play 0,0,0: disable channels 1/2/3
 	POKEW(0x02E1, 0);
 	POKEW(0x02E3, 0);
@@ -216,7 +216,7 @@ void EngineSFX(int channel, int vel)
 		while (tone) { (tone--); }
 		POKE(0xc030,0);
 	}	
-#elif defined __ATMOS__
+#elif defined __ORIC__
 	vel = vel/20 + 1;
 	POKEW(0x02E1, channel%2+2);
 	POKEW(0x02E3, vel/12);
@@ -275,7 +275,7 @@ void BleepSFX(unsigned char tone)
 			repeat--;
 		}
 	}
-#elif defined __ATMOS__
+#elif defined __ORIC__
 	PlaySFX(tone/4+12, 1000);
 	ResetChannels();	
 #elif defined __LYNX__	
@@ -306,7 +306,7 @@ void BumpSFX()
 	sampleCount = 16;
 	sampleFreq = 255;
 	sampleCtrl = 232;
-#elif defined __ATMOS__
+#elif defined __ORIC__
 	PlaySFX(16, 100);
 	ResetChannels();	
 #elif defined __LYNX__	
