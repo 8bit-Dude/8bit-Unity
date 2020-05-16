@@ -143,10 +143,13 @@ void SetChunk(unsigned char* chunk, unsigned char x, unsigned char y, unsigned c
   #endif
 #endif
 
-// Geometry functions
-unsigned char IntersectSegments(signed int s1x1, signed int s1y1, signed int s1x2, signed int s1y2,
-							    signed int s2x1, signed int s2y1, signed int s2x2, signed int s2y2,
-								signed int *ix,  signed int *iy);
+// 2D geometry functions
+unsigned char IntersectSegments(signed int seg1X1, signed int seg1Y1, signed int seg1X2, signed int seg1Y2,
+							    signed int seg2X1, signed int seg2Y1, signed int seg2X2, signed int seg2Y2,
+								signed int *intX,  signed int *intY);
+unsigned char IntersectSegmentPolygon(signed int segX1, signed int segY1, signed int segX2, signed int segY2, 
+									  unsigned char vN, signed int *vX, signed int *vY, signed int *intX, signed int *intY);								
+unsigned char PointInsidePolygon(signed int pX, signed int pY, unsigned char vN, signed int *vX, signed int *vY);
 
 // Math functions (see math.s)
 #define MIN(a,b) (a>b ? b : a)

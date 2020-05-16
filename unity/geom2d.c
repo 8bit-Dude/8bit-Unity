@@ -26,25 +26,25 @@
  
 #define BASE_DECIMALS 100 
 
-unsigned char IntersectSegments(signed int s1x1, signed int s1y1, signed int s1x2, signed int s1y2,
-							    signed int s2x1, signed int s2y1, signed int s2x2, signed int s2y2,
-								signed int *ix,  signed int *iy)
+unsigned char IntersectSegments(signed int seg1X1, signed int seg1Y1, signed int seg1X2, signed int seg1Y2,
+							    signed int seg2X1, signed int seg2Y1, signed int seg2X2, signed int seg2Y2,
+								signed int *intX,  signed int *intY)
 {
-    signed long deltas1x, deltas1y, deltas2x, deltas2y;
+    signed long delta1X, delta1Y, delta2X, delta2Y;
 	signed long denom, numer1, numer2, ratio1, ratio2;
 
-	deltas1x = s1x2 - s1x1; 
-	deltas1y = s1y2 - s1y1; 
-	deltas2x = s2x2 - s2x1; 
-	deltas2y = s2y2 - s2y1; 
+	delta1X = seg1X2 - seg1X1; 
+	delta1Y = seg1Y2 - seg1Y1; 
+	delta2X = seg2X2 - seg2X1; 
+	delta2Y = seg2Y2 - seg2Y1; 
 	
-	denom = (deltas1x * deltas2y) - (deltas1y * deltas2x);
+	denom = (delta1X * delta2Y) - (delta1Y * delta2X);
 
     // Segments are parallel 
     if (denom == 0) return 0;
 
-    numer1 = ((s1y1 - s2y1) * deltas2x) - ((s1x1 - s2x1) * deltas2y);
-    numer2 = ((s1y1 - s2y1) * deltas1x) - ((s1x1 - s2x1) * deltas1y);
+    numer1 = ((seg1Y1 - seg2Y1) * delta2X) - ((seg1X1 - seg2X1) * delta2Y);
+    numer2 = ((seg1Y1 - seg2Y1) * delta1X) - ((seg1X1 - seg2X1) * delta1Y);
 
     ratio1 = (BASE_DECIMALS*numer1) / denom;
 	if (ratio1 < 0 || ratio1 > BASE_DECIMALS) return 0;
@@ -53,7 +53,48 @@ unsigned char IntersectSegments(signed int s1x1, signed int s1y1, signed int s1x
     if (ratio2 < 0 || ratio2 > BASE_DECIMALS) return 0;
 
     // Find intersection point
-    *ix = s1x1 + (ratio1 * deltas1x)/BASE_DECIMALS;
-    *iy = s1y1 + (ratio1 * deltas1y)/BASE_DECIMALS;
+    *intX = seg1X1 + (ratio1 * delta1X)/BASE_DECIMALS;
+    *intY = seg1Y1 + (ratio1 * delta1Y)/BASE_DECIMALS;
     return 1;
+}
+
+// Find intersection point with polygon that is nearest to first point of segment
+unsigned char IntersectSegmentPolygon(signed int segX1, signed int segY1, signed int segX2, signed int segY2, 
+									  unsigned char vN, signed int *vX, signed int *vY, signed int *intX, signed int *intY)
+{
+	unsigned char i, count = 0;
+	signed int tmpX, tmpY; 
+	signed long deltaX, deltaY, tmpD, dist = 999999999;
+	
+	for (i=1; i<vN; i++) {
+		if (IntersectSegments(segX1, segY1, segX2, segY2, vX[i-1], vY[i-1], vX[i], vY[i], &tmpX, &tmpY)) {
+			// Now compute distance to first point
+			count += 1;
+			deltaX = segX1 - tmpX; 
+			deltaY = segY1 - tmpY; 
+			tmpD = deltaX * deltaX + deltaY * deltaY;
+			if (tmpD < dist) {
+				*intX = tmpX;
+				*intY = tmpY;
+				dist = tmpD;
+			}
+		}
+	}
+	return count;
+}
+
+
+unsigned char PointInsidePolygon(signed int pX, signed int pY, unsigned char vN, signed int *vX, signed int *vY)
+{
+	unsigned char i, j, inside = 0;
+	signed long casting;
+	for (i = 0, j = vN-1; i < vN; j = i++) {
+		if ((vY[i]>pY) != (vY[j]>pY)) {
+			casting  = vX[j]-vX[i];
+			casting *= pY-vY[i];
+			casting /= vY[j]-vY[i];
+			if (pX < vX[i]+casting) inside = !inside;
+		}
+	}
+	return inside;
 }
