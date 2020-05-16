@@ -1,19 +1,8 @@
 #
 # Process Chunk definition file
 #
-# Format: Platform, Input, Output, Coords
-#
-#	Platform: 'apple', 'atari', 'c64', 'oric', or 'lynx'
-#   Input:    'file.png' input image (with correct size and palette for platform)
-#	Output:	  'file.dat' output containing the chunk data
-# 	Coords:   [X, Y, W, H] on PNG file
-#
-# 	Coordinates restrictions:
-#   	Apple:  X/W must be multiples of 7 (e.g. 0,7,14,21...) |              No restrictions
-#   	Atari:  X/W must be multiples of 4 (e.g. 0,4,8,12... ) |              No restrictions
-#   	C64:    X/W must be multiples of 4 (e.g. 0,4,8,12... ) |  Y/H must be multiples of 8  (e.g. 0,8,16,24...)
-#   	Oric:   X/W must be multiples of 3 (e.g. 0,3,6,9...)   |  Y/H must be multiples of 2  (e.g. 0,2,4,6...)  
-#   	Lynx:   X/W must be multiples of 2 (e.g. 0,2,4,6... )  |              No restrictions
+# Output file contains 4 byte header for chunk position and dimension (X, Y, W, H) 
+# followed by platform specific graphic data
 #
  
 import io, os, struct, sys
@@ -25,6 +14,8 @@ from math import sqrt
 def ExportApple(filename, coords, pixdata):
 
     # Process in blocks of 7 pixels > 4 bytes
+    imgWidth  = (coords[2]-coords[0])
+    imgHeight = (coords[3]-coords[1]) 
     blocks = []
     for i in range(len(pixdata)/7):
         block = [0,0,0,0]
@@ -50,8 +41,12 @@ def ExportApple(filename, coords, pixdata):
         blocks.append(block)
 
     # Write to file line-by-line
-    output = io.open(filename, 'wb')
     blocksPerLine = (coords[2]-coords[0])/7
+    output = io.open(filename, 'wb')
+    output.write(chr(coords[0]))
+    output.write(chr(coords[1]))
+    output.write(chr(imgWidth))
+    output.write(chr(imgHeight))
     i = 0
     while i < len(blocks):
         # Write MAIN data
@@ -102,6 +97,10 @@ def ExportAtari(filename, coords, pixdata):
     ########################
     # Write output INP file
     output = io.open(filename, 'wb')
+    output.write(chr(coords[0]))
+    output.write(chr(coords[1]))
+    output.write(chr(imgWidth))
+    output.write(chr(imgHeight))
     output.write(''.join(buoutput))
     output.write(''.join(buf2))
     output.close()
@@ -184,6 +183,10 @@ def ExportC64(filename, coords, pixdata, paldata):
     ########################
     # Write output INP file
     output = io.open(filename, 'wb')
+    output.write(chr(coords[0]))
+    output.write(chr(coords[1]))
+    output.write(chr(imgWidth))
+    output.write(chr(imgHeight))
     output.write(''.join(bmp))
     output.write(''.join(scr))
     output.write(''.join(col))
@@ -210,6 +213,10 @@ def ExportLynx(filename, coords, pixdata):
             
     # Write output file
     output = io.open(filename, 'wb')
+    output.write(chr(coords[0]))
+    output.write(chr(coords[1]))
+    output.write(chr(imgWidth))
+    output.write(chr(imgHeight))
     output.write(''.join(buffer))
     output.close()    
     
@@ -305,7 +312,11 @@ def ExportOric(filename, coords, pixdata, paldata):
                 
     #################
     # Write DAT file
-    output = io.open(filename, 'wb')	
+    output = io.open(filename, 'wb')
+    output.write(chr(coords[0]))
+    output.write(chr(coords[1]))
+    output.write(chr(imgWidth))
+    output.write(chr(imgHeight))
     output.write(''.join(buffer))
     output.close()
     

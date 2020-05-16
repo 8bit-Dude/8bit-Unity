@@ -76,7 +76,7 @@ void LocatePixel(unsigned int x, unsigned int y);
 extern unsigned char pixelX, pixelY; // (see LocatePixel())
 
 // Bitmap chunks functions (see chunks.c)
-void LoadChunk(unsigned char** chunk, char *filename, unsigned char w, unsigned char h);
+void LoadChunk(unsigned char** chunk, char *filename);
 void GetChunk(unsigned char** chunk, unsigned char x, unsigned char y, unsigned char w, unsigned char h);
 void SetChunk(unsigned char* chunk, unsigned char x, unsigned char y, unsigned char w, unsigned char h);
 

@@ -30,78 +30,84 @@
   void __fastcall__ Blit(void);
 #endif
 
-void LoadChunk(unsigned char** chunk, char *filename, unsigned char w, unsigned char h) 
+#if (defined __ORIC__)
+  unsigned char buffer[1024];
+#else
+  unsigned char buffer[6];
+#endif
+
+unsigned int ChunkSize(unsigned char w, unsigned char h)
+{
+#if defined __APPLE2__
+	return 4+(w*h*4)/7;
+#elif defined __ATARI__
+	return 4+(w*h*2)/4;
+#elif defined __ORIC__
+	return 4+(w*h*2)/3;
+#elif defined __C64__
+	return 4+(w*h*10)/32;
+#elif defined __LYNX__
+	return 4+(w*h)/2;
+#endif	
+}
+
+void LoadChunk(unsigned char** chunk, char *filename) 
 {
 #if defined __LYNX__
 	// Lynx: data is already in RO segment
 	*chunk = FileRead(filename);
-#else
-	// Other: Need to load data from disk
+#elif defined __ORIC__
+	// Block read chunk file (TODO: implement header reading, to get rid of buffer)
 	unsigned int size;
-  #ifndef __ORIC__
-	FILE* fp;
-  #endif
-	
-	// Compute Byte Size	
-  #if defined __APPLE2__
-	size = (w*h*4)/7;
-  #elif defined __ATARI__
-	size = (w*h*2)/4;
-  #elif defined __ORIC__
-	size = (w*h*2)/3;
-  #elif defined __C64__
-	size = (w*h*10)/32;
-  #endif
-
-	// Allocate chunk memory	
+	size = FileRead(filename, buffer);
 	*chunk = (unsigned char*)malloc(size);
-
-	// Read Chunk File
-  #if defined __ORIC__
-	FileRead(filename, *chunk);
-  #else
-	fp = fopen(filename, "rb");
-	fread(*chunk, 1, size, fp);
-  #endif
+	memcpy(*chunk, buffer, size);
+#else 
+	// Read header into buffer
+	unsigned int size;
+	FILE* fp = fopen(filename, "rb");
+	fread(buffer, 1, 4, fp);
+	
+	// Compute chunk size and allocate memory
+	size = ChunkSize(buffer[2], buffer[3]);
+	*chunk = (unsigned char*)malloc(size);
+	memcpy(*chunk, buffer, 4);	
+	fread(*chunk+4, 1, size-4, fp);
+	fclose(fp);
 #endif
 }
 
 void GetChunk(unsigned char** chunk, unsigned char x, unsigned char y, unsigned char w, unsigned char h)
 {
 #if defined __APPLE2__
-	unsigned int size = (w*h*4)/7;
+	unsigned char bytes = 2*w/7;
 #elif defined __ATARI__
 	unsigned char i, bytes = w/4;
-	unsigned int size = (w*h*2)/4;
-	unsigned int addr;
-#elif defined __ORIC__
-	unsigned int size = (w*h*2)/3;
-	unsigned int addr;
 #elif defined __C64__
-	unsigned char i, bytes;
-	unsigned int size = (w*h*10)/32;
-	unsigned int addr;
+	unsigned char i, bytes = (w*8)/4;
 #elif defined __LYNX__
 	unsigned char i, bytes = w/2;
-	unsigned int size = (w*h)/2;
-	unsigned int addr;
+#elif defined __ORIC__
+	unsigned char bytes = w/3;
 #endif
+	unsigned int addr;
 
 	// Allocate memory for bitmap chunk
+	unsigned int size = ChunkSize(w,h);
 	*chunk = (unsigned char*)malloc(size);
 
 #if defined __APPLE2__
 	// Blit data from DHR memory
-	POKE(0xE3, 2*w/7);		// Bytes per line (x2 for MAIN/AUX)	
+	POKE(0xE3, bytes);		// Bytes per line (x2 for MAIN/AUX)	
 	POKE(0xEB, h);			// Number of lines
 	POKE(0xEC, 2*x/7);		// DHR Offset X
 	POKE(0xED, y);			// DHR Offset Y
-	POKEW(0xEE, *chunk);	// Address of Output
+	POKEW(0xEE, *chunk+4);	// Address of Output
 	POKEW(0xFA, 0);			// Address of Input
 	Blit();
 #elif defined __ATARI__
 	// Copy data from double buffer
-	addr = *chunk;
+	addr = *chunk+4;
 	for (i=0; i<h; ++i) {
 		memcpy((char*)addr, (char*)(BITMAPRAM1+(y+i)*40+x/4), bytes);
 		addr += bytes;
@@ -113,17 +119,16 @@ void GetChunk(unsigned char** chunk, unsigned char x, unsigned char y, unsigned 
 #elif defined __ORIC__
 	// Blit data from bitmap memory
 	addr = BITMAPRAM + y*80 + x/3 + 1;
-	POKE(0xb0, 2*h); 			// Number of lines
-	POKE(0xb1, w/3);			// Bytes per line
-	POKEW(0xb2, addr-1);		// Address of source (-1)
-	POKEW(0xb4, *chunk-1);	// Address of target (-1)
-	POKE(0xb6, 40); 			// Offset between source lines
-	POKE(0xb7, w/3); 			// Offset between target lines
+	POKE(0xb0, 2*h); 		// Number of lines
+	POKE(0xb1, bytes);		// Bytes per line
+	POKEW(0xb2, addr-1);	// Address of source (-1)
+	POKEW(0xb4, *chunk+3);	// Address of target (-1)
+	POKE(0xb6, 40); 		// Offset between source lines
+	POKE(0xb7, w/3); 		// Offset between target lines
 	Blit();	
 #elif defined __C64__
 	// Copy data to bitmap, color and screen memory
-	addr = *chunk;	
-	bytes = (w*8)/4;
+	addr = *chunk+4;	
 	DisableRom();
 	for (i=0; i<h; i+=8) {
 		memcpy((char*)addr, (char*)(BITMAPRAM+40*((y+i)&248)+((y+i)&7)+((x*2)&504)), bytes);
@@ -141,7 +146,7 @@ void GetChunk(unsigned char** chunk, unsigned char x, unsigned char y, unsigned 
 	EnableRom();
 #elif defined __LYNX__
 	// Copy data to bitmap memory
-	addr = *chunk;	
+	addr = *chunk+4;	
 	for (i=0; i<h; ++i) {
 		memcpy((char*)addr, (char*)(BITMAPRAM+(y+i)*82+x/2+1), bytes);
 		addr += bytes;
@@ -158,12 +163,12 @@ void SetChunk(unsigned char* chunk, unsigned char x, unsigned char y, unsigned c
 	POKE(0xEC, 2*x/7);		// DHR Offset X
 	POKE(0xED, y);			// DHR Offset Y
 	POKEW(0xEE, 0);			// Address for copying DHR > Output
-	POKEW(0xFA, chunk);	// Address for copying Input > DHR
+	POKEW(0xFA, chunk+4);	// Address for copying Input > DHR
 	Blit();
 #elif defined __ATARI__
 	// Copy data to double bitmap buffers
 	unsigned char i, bytes = w/4;
-	unsigned int addr = chunk;	
+	unsigned int addr = chunk+4;	
 	for (i=0; i<h; ++i) {
 		memcpy((char*)(BITMAPRAM1+(y+i)*40+x/4), (char*)addr, bytes);
 		addr += bytes;
@@ -177,7 +182,7 @@ void SetChunk(unsigned char* chunk, unsigned char x, unsigned char y, unsigned c
 	unsigned int addr = BITMAPRAM + y*80 + x/3 + 1;
 	POKE(0xb0, 2*h); 			// Number of lines
 	POKE(0xb1, w/3);			// Bytes per line
-	POKEW(0xb2, chunk-1);	// Address of source (-1)
+	POKEW(0xb2, chunk+3);	// Address of source (-1)
 	POKEW(0xb4, addr-1);		// Address of target (-1)
 	POKE(0xb6, w/3); 			// Offset between source lines
 	POKE(0xb7, 40); 			// Offset between target lines
@@ -185,7 +190,7 @@ void SetChunk(unsigned char* chunk, unsigned char x, unsigned char y, unsigned c
 #elif defined __C64__
 	// Copy data to bitmap, color and screen memory
 	unsigned char i, bytes;
-	unsigned int addr = chunk;	
+	unsigned int addr = chunk+4;	
 	bytes = (w*8)/4;
 	DisableRom();
 	for (i=0; i<h; i+=8) {
@@ -205,7 +210,7 @@ void SetChunk(unsigned char* chunk, unsigned char x, unsigned char y, unsigned c
 #elif defined __LYNX__
 	// Copy data to bitmap memory
 	unsigned char i, bytes = w/2;
-	unsigned int addr = chunk;	
+	unsigned int addr = chunk+4;	
 	for (i=0; i<h; ++i) {
 		memcpy((char*)(BITMAPRAM+(y+i)*82+x/2+1), (char*)addr, bytes);
 		addr += bytes;
