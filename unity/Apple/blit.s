@@ -138,7 +138,7 @@ branchMain:
 	sta $c054		; Switch to MAIN memory
 switchDone:
 	
-	; Copy 2 bytes from DHR to ouput	
+	; Copy bytes from DHR to ouput	
 screen2output:
 	lda $ef
 	beq input2screen  ; If high-byte is zero, then skip
@@ -158,7 +158,7 @@ incAddress1:
 	inc $ef
 nocarry1:
 	
-	; Copy 2 bytes from input to DHR
+	; Copy bytes from input to DHR
 input2screen:	
 	lda $fb
 	beq toggleBlocks  ; If high-byte is zero, then skip	
@@ -180,8 +180,8 @@ nocarry2:
 	
 toggleBlocks:
 	; Process Main Block?
-	lda _mainAuxTog
 	clc
+	lda _mainAuxTog
 	eor #1
 	sta _mainAuxTog
 	bne branchMain

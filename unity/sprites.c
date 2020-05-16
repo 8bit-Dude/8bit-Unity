@@ -96,7 +96,7 @@
 	unsigned char sprX[SPRITE_NUM], sprY[SPRITE_NUM];	   // Screen coordinates
 	unsigned char sprDrawn[SPRITE_NUM], sprCollision[SPRITE_NUM]; // Enable Flag, Collision status
 	unsigned char sprROWS[SPRITE_NUM], *sprBG[SPRITE_NUM]; // Height of Sprite (rows), Pointer to background backup
-	unsigned int  scrPtr[SPRITE_NUM], sprCOLOR;  // Screen pointers, Color vector
+	unsigned int  scrAddr[SPRITE_NUM], sprCOLOR;  // Screen address, Color vector
 	extern unsigned char ink1[20];	// see bitmap.c
 	void InitSprites(unsigned char frames, unsigned char cols, unsigned char rows, unsigned char *spriteColors)
 	{			
@@ -253,7 +253,7 @@ void LocateSprite(unsigned int x, unsigned int y)
 	POKE(0xb0, sprROWS[index]); 	// Number of lines
 	POKE(0xb1, 4);					// Bytes per line
 	POKEW(0xb2, sprBG[index]-1);	// Address of source (-1)
-	POKEW(0xb4, scrPtr[index]-1);	// Address of target (-1)
+	POKEW(0xb4, scrAddr[index]-1);	// Address of target (-1)
 	POKE(0xb6, 4); 					// Offset between source lines
 	POKE(0xb7, 40); 				// Offset between target lines
 	Blit();
@@ -344,7 +344,7 @@ void LocateSprite(unsigned int x, unsigned int y)
 void SetSprite(unsigned char index, unsigned char frame)
 {
 #if defined __APPLE2__
-	unsigned int addr;
+	unsigned int frameAddr;
 	unsigned char rows = sprROWS[index];
 	
 	// Offset from centre of sprite
@@ -355,12 +355,17 @@ void SetSprite(unsigned char index, unsigned char frame)
 	xDHR = (2*spriteX)/7;
 
 	// Select the correct offset block (4 offset blocks per 7 pixels)
+	frameAddr = SPRITERAM + frame*frameROWS*frameWIDTH;
 	if (xDHR%2) {
-		addr = frame*frameROWS*frameWIDTH + 2*frameBLOCK;
-		if (spriteX%7 > 5) { addr += frameBLOCK; }
+		if (spriteX%7 > 5) { 
+			frameAddr += 3*frameBLOCK; 
+		} else {
+			frameAddr += 2*frameBLOCK;
+		}
 	} else {
-		addr = frame*frameROWS*frameWIDTH;
-		if (spriteX%7 > 3) { addr += frameBLOCK; }
+		if (spriteX%7 > 3) { 
+			frameAddr += frameBLOCK; 
+		}
 	}
 	
 	// Check that sprite was enabled
@@ -373,12 +378,12 @@ void SetSprite(unsigned char index, unsigned char frame)
 	SpriteCollisions(index);	
 		
 	// Backup new background and draw sprite
-	POKE(0xE3, 2);				    // Bytes per line (x2 for MAIN/AUX)
-	POKE(0xEB, rows);				// Number of lines
-	POKE(0xEC, xDHR);				// DHR Offset X
-	POKE(0xED, spriteY);			// DHR Offset Y
-	POKEW(0xEE, sprBG[index]);		// Address for copying DHR > Output
-	POKEW(0xFA, SPRITERAM+addr);	// Address for copying Input > DHR
+	POKE(0xE3, 2);				// Bytes per line (x2 for MAIN/AUX)
+	POKE(0xEB, rows);			// Number of lines
+	POKE(0xEC, xDHR);			// DHR Offset X
+	POKE(0xED, spriteY);		// DHR Offset Y
+	POKEW(0xEE, sprBG[index]);	// Address for copying DHR > Output
+	POKEW(0xFA, frameAddr);		// Address for copying Input > DHR
 	Blit();
 
 	// Set sprite information
@@ -394,12 +399,12 @@ void SetSprite(unsigned char index, unsigned char frame)
 	
 #elif defined __ORIC__
 	unsigned char i, inkVAL;
-	unsigned int sprPtr, inkPtr;
+	unsigned int frameAddr, inkAddr;
 	unsigned char rows = sprROWS[index];
 	
 	// Check frame block (left or right)
-	sprPtr = SPRITERAM + frame*frameROWS*2;
-	if (spriteX%2) { sprPtr += frameBLOCK; }
+	frameAddr = SPRITERAM + frame*frameROWS*2;
+	if (spriteX%2) { frameAddr += frameBLOCK; }
 	spriteX /= 2;
 
 	// Offset from centre of sprite
@@ -413,12 +418,12 @@ void SetSprite(unsigned char index, unsigned char frame)
 	if (sprDrawn[index]) RestoreSprBG(index);
 	
 	// Compute new memory address
-	scrPtr[index] = BITMAPRAM + spriteY*40 + spriteX;
+	scrAddr[index] = BITMAPRAM + spriteY*40 + spriteX;
 	
 	// Backup new background
 	POKE(0xb0, frameROWS); 			// Number of lines
 	POKE(0xb1, 4);					// Bytes per line
-	POKEW(0xb2, scrPtr[index]-1);	// Address of source (-1)
+	POKEW(0xb2, scrAddr[index]-1);	// Address of source (-1)
 	POKEW(0xb4, sprBG[index]-1);	// Address of target (-1)
 	POKE(0xb6, 40); 				// Offset between source lines
 	POKE(0xb7, 4); 					// Offset between target lines
@@ -427,19 +432,19 @@ void SetSprite(unsigned char index, unsigned char frame)
 	// Draw new sprite frame
 	POKE(0xb0, rows); 				// Number of lines
 	POKE(0xb1, 2);					// Bytes per line
-	POKEW(0xb2, sprPtr-1);			// Address of source (-1)
-	POKEW(0xb4, scrPtr[index]);		// Address of target (-1)
+	POKEW(0xb2, frameAddr-1);		// Address of source (-1)
+	POKEW(0xb4, scrAddr[index]);	// Address of target (-1)
 	POKE(0xb6, 2);					// Offset between source lines
 	POKE(0xb7, 40); 				// Offset between target lines
 	Blit();		
 	
 	// Adjust ink on even lines
 	if (PEEK(sprCOLOR+index) != AIC) {
-		inkPtr = scrPtr[index] + (spriteY%2)*40;
+		inkAddr = scrAddr[index] + (spriteY%2)*40;
 		inkVAL = ink1[PEEK(sprCOLOR+index)];
 		for (i=0; i<rows/2; i++) {
-			POKE(inkPtr, inkVAL); inkPtr+=3;	// Set Sprite INK
-			POKE(inkPtr, 3); inkPtr+=77;		// Reset AIC INK (yellow)
+			POKE(inkAddr, inkVAL); inkAddr+=3;	// Set Sprite INK
+			POKE(inkAddr, 3); inkAddr+=77;		// Reset AIC INK (yellow)
 		}		
 	}
 	
