@@ -80,7 +80,7 @@ extern unsigned char inkColor, paperColor;
 #if defined __ORIC__
   void SetInk(unsigned char col, unsigned char row);
 #endif
-void DrawPanel(unsigned char colBeg, unsigned char rowBeg, unsigned char colEnd, unsigned char rowEnd);
+void PrintBlanks(unsigned char colBeg, unsigned char rowBeg, unsigned char colEnd, unsigned char rowEnd);
 void PrintChr(unsigned char col, unsigned char row, const char *chr);
 void PrintNum(unsigned char col, unsigned char row, unsigned int num);
 void PrintStr(unsigned char col, unsigned char row, const char *buffer);

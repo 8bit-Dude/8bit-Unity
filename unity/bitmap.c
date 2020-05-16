@@ -564,7 +564,7 @@ void PrintNum(unsigned char col, unsigned char row, unsigned int num)
 }
 
 // Draw panel using the background color
-void DrawPanel(unsigned char colBeg, unsigned char rowBeg, unsigned char colEnd, unsigned char rowEnd)
+void PrintBlanks(unsigned char colBeg, unsigned char rowBeg, unsigned char colEnd, unsigned char rowEnd)
 {
 	// Black-out menu area
 	unsigned char j;
@@ -954,7 +954,7 @@ unsigned char InputUpdate(unsigned char col, unsigned char row, char *buffer, un
 	// Was a new key received?
 	if (!key) {
 		// Initialize input field
-		DrawPanel(col, row, col+len, row);
+		PrintBlanks(col, row, col+len, row);
 		PrintStr(col, row, buffer);
 	} else {
 		// Check current length of input
