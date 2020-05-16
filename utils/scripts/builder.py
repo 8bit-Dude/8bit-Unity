@@ -479,6 +479,7 @@ class Application:
             fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t apple2 -I unity unity/chunks.c\n')
             fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t apple2 -I unity unity/geom2d.c\n')
             fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t apple2 -I unity unity/network.c\n')
+            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t apple2 -I unity unity/print.c\n')
             fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t apple2 -I unity unity/sfx.c\n')
             fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t apple2 -I unity unity/sprites.c\n')
             fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t apple2 -I unity unity/Apple/CLOCK.c\n')
@@ -490,6 +491,7 @@ class Application:
             fp.write('utils\\cc65\\bin\\ca65 unity/geom2d.s\n')
             fp.write('utils\\cc65\\bin\\ca65 unity/math.s\n')
             fp.write('utils\\cc65\\bin\\ca65 unity/network.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/print.s\n')
             fp.write('utils\\cc65\\bin\\ca65 unity/sfx.s\n')
             fp.write('utils\\cc65\\bin\\ca65 unity/sprites.s\n')
             fp.write('utils\\cc65\\bin\\ca65 unity/Apple/blit.s\n')
@@ -500,7 +502,7 @@ class Application:
             fp.write('utils\\cc65\\bin\\ca65 unity/Apple/MOCKING.s\n')
             fp.write('utils\\cc65\\bin\\ca65 unity/Apple/PADDLE.s\n\n')
             
-            fp.write('utils\\cc65\\bin\\ar65 r build/apple/unity.lib unity/bitmap.o unity/chars.o unity/chunks.o unity/geom2d.o unity/math.o unity/network.o unity/sfx.o unity/sprites.o unity/Apple/blit.o unity/Apple/CLOCK.o unity/Apple/DHR.o unity/Apple/DUET.o unity/Apple/JOY.o unity/Apple/MOCKING.o unity/Apple/PADDLE.o\n\n')
+            fp.write('utils\\cc65\\bin\\ar65 r build/apple/unity.lib unity/bitmap.o unity/chars.o unity/chunks.o unity/geom2d.o unity/math.o unity/network.o unity/print.o unity/sfx.o unity/sprites.o unity/Apple/blit.o unity/Apple/CLOCK.o unity/Apple/DHR.o unity/Apple/DUET.o unity/Apple/JOY.o unity/Apple/MOCKING.o unity/Apple/PADDLE.o\n\n')
             
             comp = 'utils\\cc65\\bin\\cl65 -o build/apple/' + diskname.lower() + '.bin -Cl -O -t apple2 -C unity/Apple/apple2e.cfg -I unity '
             for item in code:
@@ -575,6 +577,7 @@ class Application:
             fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atarixl -I unity unity/chunks.c\n')
             fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atarixl -I unity unity/geom2d.c\n')
             fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atarixl -I unity unity/network.c\n')
+            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atarixl -I unity unity/print.c\n')
             fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atarixl -I unity unity/sfx.c\n')
             fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atarixl -I unity unity/sprites.c\n\n')
             
@@ -584,11 +587,12 @@ class Application:
             fp.write('utils\\cc65\\bin\\ca65 unity/geom2d.s\n')
             fp.write('utils\\cc65\\bin\\ca65 unity/math.s\n')
             fp.write('utils\\cc65\\bin\\ca65 unity/network.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/print.s\n')
             fp.write('utils\\cc65\\bin\\ca65 unity/sfx.s\n')
             fp.write('utils\\cc65\\bin\\ca65 unity/sprites.s\n')
             fp.write('utils\\cc65\\bin\\ca65 unity/Atari/blit.s\n')
                         
-            fp.write('utils\\cc65\\bin\\ar65 r build/atari/unity.lib unity/bitmap.o unity/chars.o unity/chunks.o unity/geom2d.o unity/math.o unity/network.o unity/sfx.o unity/sprites.o unity/Atari/blit.o\n\n')
+            fp.write('utils\\cc65\\bin\\ar65 r build/atari/unity.lib unity/bitmap.o unity/chars.o unity/chunks.o unity/geom2d.o unity/math.o unity/network.o unity/print.o unity/sfx.o unity/sprites.o unity/Atari/blit.o\n\n')
             
             if len(self.Checkbutton_AtariNoText.state()):
                 configFile = 'atarixl-notext.cfg'
@@ -647,6 +651,7 @@ class Application:
         with open("../../build/"+diskname+"-c64.bat", "wb") as fp:
             # Info
             fp.write('echo off\n\n')
+            fp.write('setlocal enableextensions enabledelayedexpansion\n\n')
             fp.write('mkdir c64\n')            
             fp.write('cd ..\n\n')            
             fp.write('del build\\c64\\*.* /F /Q\n\n')
@@ -678,6 +683,7 @@ class Application:
             fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t c64 -I unity unity/chunks.c\n')
             fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t c64 -I unity unity/geom2d.c\n')
             fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t c64 -I unity unity/network.c\n')
+            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t c64 -I unity unity/print.c\n')
             fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t c64 -I unity unity/sfx.c\n')
             fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t c64 -I unity unity/sprites.c\n')
             fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t c64 -I unity unity/C64/display.c\n\n')
@@ -688,6 +694,7 @@ class Application:
             fp.write('utils\\cc65\\bin\\ca65 unity/geom2d.s\n')
             fp.write('utils\\cc65\\bin\\ca65 unity/math.s\n')
             fp.write('utils\\cc65\\bin\\ca65 unity/network.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/print.s\n')
             fp.write('utils\\cc65\\bin\\ca65 unity/sfx.s\n')
             fp.write('utils\\cc65\\bin\\ca65 unity/sprites.s\n')
             fp.write('utils\\cc65\\bin\\ca65 unity/C64/display.s\n')
@@ -695,7 +702,7 @@ class Application:
             fp.write('utils\\cc65\\bin\\ca65 unity/C64/ROM.s\n')
             fp.write('utils\\cc65\\bin\\ca65 unity/C64/SID.s\n\n')
                         
-            fp.write('utils\\cc65\\bin\\ar65 r build/c64/unity.lib unity/bitmap.o unity/chars.o unity/chunks.o unity/geom2d.o unity/math.o unity/network.o unity/sfx.o unity/sprites.o unity/C64/display.o unity/C64/JOY.o unity/C64/ROM.o unity/C64/SID.o\n\n')
+            fp.write('utils\\cc65\\bin\\ar65 r build/c64/unity.lib unity/bitmap.o unity/chars.o unity/chunks.o unity/geom2d.o unity/math.o unity/network.o unity/print.o unity/sfx.o unity/sprites.o unity/C64/display.o unity/C64/JOY.o unity/C64/ROM.o unity/C64/SID.o\n\n')
                         
             comp = 'utils\\cc65\\bin\\cl65 -o build/c64/' + diskname.lower() + '.bin -Cl -O -t c64 -C unity/C64/c64.cfg -I unity '
             for item in code:
@@ -723,7 +730,7 @@ class Application:
                 fp.write('-write build/c64/' + FileBase(item, '-c64.png') + '.map ' + FileBase(item, '-c64.png') + '.map ')                
             for item in shared:
                 fp.write('-write ' + item + ' ' + FileBase(item, '') + ' ')                
-            fp.write('\nfor /f "tokens=*" %%A in (build\c64\chunks.lst) do set C1541=%C1541%-write %%A %%~nxA \n')
+            fp.write('\nfor /f "tokens=*" %%A in (build\c64\chunks.lst) do set C1541=!C1541!-write %%A %%~nxA \n')
             fp.write('%C1541%\n')
                
             # Info
@@ -902,6 +909,7 @@ class Application:
             fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t lynx -I unity unity/geom2d.c\n')
             fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t lynx -I unity unity/hub.c\n')
             fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t lynx -I unity unity/network.c\n')
+            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t lynx -I unity unity/print.c\n')
             fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t lynx -I unity unity/sfx.c\n')
             fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t lynx -I unity unity/sprites.c\n')
             fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t lynx -I unity unity/Lynx/display.c\n')
@@ -915,6 +923,7 @@ class Application:
             fp.write('utils\\cc65\\bin\\ca65 unity/hub.s\n')
             fp.write('utils\\cc65\\bin\\ca65 unity/math.s\n')
             fp.write('utils\\cc65\\bin\\ca65 unity/network.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/print.s\n')
             fp.write('utils\\cc65\\bin\\ca65 unity/sfx.s\n')
             fp.write('utils\\cc65\\bin\\ca65 unity/sprites.s\n')
             fp.write('utils\\cc65\\bin\\ca65 unity/Lynx/display.s\n')
@@ -922,7 +931,7 @@ class Application:
             fp.write('utils\\cc65\\bin\\ca65 unity/Lynx/header.s\n')
             fp.write('utils\\cc65\\bin\\ca65 unity/Lynx/joysticks.s\n\n')
                         
-            fp.write('utils\\cc65\\bin\\ar65 r build/lynx/unity.lib unity/bitmap.o unity/chars.o unity/chunks.o unity/geom2d.o unity/hub.o unity/math.o unity/network.o unity/sfx.o unity/sprites.o unity/Lynx/display.o unity/Lynx/files.o unity/Lynx/header.o unity/Lynx/joysticks.o\n\n')
+            fp.write('utils\\cc65\\bin\\ar65 r build/lynx/unity.lib unity/bitmap.o unity/chars.o unity/chunks.o unity/geom2d.o unity/hub.o unity/math.o unity/network.o unity/print.o unity/sfx.o unity/sprites.o unity/Lynx/display.o unity/Lynx/files.o unity/Lynx/header.o unity/Lynx/joysticks.o\n\n')
             
             comp = 'utils\\cc65\\bin\\cl65 -o build/' + diskname.lower() + '-lynx.lnx -Cl -O -t lynx -C build/lynx/lynx.cfg -I unity '
             for item in code:
@@ -947,6 +956,7 @@ class Application:
         with open("../../build/"+diskname+"-oric.bat", "wb") as fp:
             # Info
             fp.write('echo off\n\n')
+            fp.write('setlocal enableextensions enabledelayedexpansion\n\n')
             fp.write('mkdir oric\n')            
             fp.write('cd ..\n\n')            
             fp.write('del build\\oric\\*.* /F /Q\n\n')
@@ -980,6 +990,7 @@ class Application:
             fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atmos -I unity unity/geom2d.c\n')
             fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atmos -I unity unity/hub.c\n')
             fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atmos -I unity unity/network.c\n')
+            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atmos -I unity unity/print.c\n')
             fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atmos -I unity unity/sfx.c\n')
             fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atmos -I unity unity/sprites.c\n')
             fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atmos -I unity unity/Oric/files.c\n')
@@ -992,6 +1003,7 @@ class Application:
             fp.write('utils\\cc65\\bin\\ca65 unity/hub.s\n')
             fp.write('utils\\cc65\\bin\\ca65 unity/math.s\n')
             fp.write('utils\\cc65\\bin\\ca65 unity/network.s\n')
+            fp.write('utils\\cc65\\bin\\ca65 unity/print.s\n')
             fp.write('utils\\cc65\\bin\\ca65 unity/sfx.s\n')
             fp.write('utils\\cc65\\bin\\ca65 unity/sprites.s\n')
             fp.write('utils\\cc65\\bin\\ca65 unity/Oric/blit.s\n')
@@ -1002,7 +1014,7 @@ class Application:
             fp.write('utils\\cc65\\bin\\ca65 unity/Oric/libsedoric.s\n')
             fp.write('utils\\cc65\\bin\\ca65 unity/Oric/MYM.s\n\n')
                         
-            fp.write('utils\\cc65\\bin\\ar65 r build/oric/unity.lib unity/bitmap.o unity/chars.o unity/chunks.o unity/geom2d.o unity/hub.o unity/math.o unity/network.o unity/sfx.o unity/sprites.o unity/Oric/blit.o unity/Oric/files.o unity/Oric/joysticks.o unity/Oric/JOY.o unity/Oric/keyboard.o unity/Oric/libsedoric.o unity/Oric/MYM.o\n\n')
+            fp.write('utils\\cc65\\bin\\ar65 r build/oric/unity.lib unity/bitmap.o unity/chars.o unity/chunks.o unity/geom2d.o unity/hub.o unity/math.o unity/network.o unity/print.o unity/sfx.o unity/sprites.o unity/Oric/blit.o unity/Oric/files.o unity/Oric/joysticks.o unity/Oric/JOY.o unity/Oric/keyboard.o unity/Oric/libsedoric.o unity/Oric/MYM.o\n\n')
                 
             comp = 'utils\\cc65\\bin\\cl65 -o build/oric/' + diskname.lower() + '.bin -Cl -O -t atmos -C unity/Oric/oric.cfg -I unity '
             for item in code:
@@ -1029,7 +1041,7 @@ class Application:
                 cmd += ' build/oric/music.dat'
             fp.write(cmd + '\n')
             if len(chunks) > 0:
-                fp.write('for /f "tokens=*" %%A in (build\oric\chunks.lst) do set TAP2DSK=%TAP2DSK% %%A\n')
+                fp.write('for /f "tokens=*" %%A in (build\oric\chunks.lst) do set TAP2DSK=!TAP2DSK! %%A\n')
             fp.write('set TAP2DSK=%TAP2DSK% build/' + diskname + '-oric.dsk\n')
             fp.write('%TAP2DSK%\n')
             fp.write('utils\\scripts\\oric\\old2mfm.exe build/' + diskname + '-oric.dsk\n')

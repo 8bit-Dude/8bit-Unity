@@ -64,7 +64,7 @@
     #include "Lynx/platform.h"	
 #endif
 
-// Bitmap base functions (see bitmap.c)
+// Bitmap functions (see bitmap.c)
 void InitBitmap(void);
 void EnterBitmapMode(void);
 void ExitBitmapMode(void);
@@ -74,21 +74,6 @@ unsigned char GetPixel(void);
 void SetPixel(unsigned char color);
 void LocatePixel(unsigned int x, unsigned int y);
 extern unsigned char pixelX, pixelY; // (see LocatePixel())
-
-// Bitmap printing functions (see bitmap.c)
-extern unsigned char inkColor, paperColor;
-#if defined __ORIC__
-  void SetInk(unsigned char col, unsigned char row);
-#endif
-void PrintBlanks(unsigned char colBeg, unsigned char rowBeg, unsigned char colEnd, unsigned char rowEnd);
-void PrintChr(unsigned char col, unsigned char row, const char *chr);
-void PrintNum(unsigned char col, unsigned char row, unsigned int num);
-void PrintStr(unsigned char col, unsigned char row, const char *buffer);
-void PrintLogo(unsigned char col, unsigned char row, unsigned char index);
-void PrintBuffer(char *buffer);
-void InputStr(unsigned char col, unsigned char row, char *buffer, unsigned char len);
-unsigned char InputUpdate(unsigned char col, unsigned char row, char *buffer, unsigned char len, unsigned char key);
-const char *GetChr(unsigned char chr);
 
 // Bitmap chunks functions (see chunks.c)
 void LoadChunk(unsigned char** chunk, char *filename, unsigned char w, unsigned char h);
@@ -110,6 +95,21 @@ void SetChunk(unsigned char* chunk, unsigned char x, unsigned char y, unsigned c
   unsigned char GetKeyboardOverlay(void); 
   unsigned char KeyboardOverlayHit(void); 
 #endif
+
+// Printing functions (see print.c)
+extern unsigned char inkColor, paperColor;
+#if defined __ORIC__
+  void SetInk(unsigned char col, unsigned char row);
+#endif
+void PrintBlanks(unsigned char colBeg, unsigned char rowBeg, unsigned char colEnd, unsigned char rowEnd);
+void PrintChr(unsigned char col, unsigned char row, const char *chr);
+void PrintNum(unsigned char col, unsigned char row, unsigned int num);
+void PrintStr(unsigned char col, unsigned char row, const char *buffer);
+void PrintLogo(unsigned char col, unsigned char row, unsigned char index);
+void PrintBuffer(char *buffer);
+void InputStr(unsigned char col, unsigned char row, char *buffer, unsigned char len);
+unsigned char InputUpdate(unsigned char col, unsigned char row, char *buffer, unsigned char len, unsigned char key);
+const char *GetChr(unsigned char chr);
 
 // Joystick/Mouse definitions
 #define JOY_UP      1
