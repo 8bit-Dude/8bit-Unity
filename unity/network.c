@@ -29,10 +29,6 @@
 
 //#define DEBUG_NET
 
-#ifdef __APPLE2__
-  #pragma code-name("LC")
-#endif
-
 #ifdef __ATARIXL__
   #pragma code-name("SHADOW_RAM")
 #endif
@@ -114,6 +110,10 @@ void InitUDP(unsigned char ip1, unsigned char ip2, unsigned char ip3, unsigned c
 	}
 #endif
 }
+
+#ifdef __APPLE2__
+  #pragma code-name("LC")
+#endif
 
 void SendUDP(unsigned char* buffer, unsigned char length) 
 {

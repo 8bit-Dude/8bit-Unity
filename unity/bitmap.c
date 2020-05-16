@@ -49,31 +49,6 @@
   struct ser_params comLynx = { SER_BAUD_62500, SER_BITS_8, SER_STOP_1, SER_PAR_SPACE, SER_HS_NONE };  							
 #endif
 
-// Oric specific variables & functions
-#if defined __ORIC__
-  // INK attributes for characters
-  unsigned char ink1[20] = { 0, 2, 3, 6, 3, 7, 5, 4, 7, 2, 7, 1, 3, 1, 1, 7, 5, 5, 5, 5 };
-  unsigned char ink2[20] = { 0, 3, 3, 6, 6, 6, 6, 4, 6, 6, 6, 7, 7, 1, 3, 7, 4, 6, 7, 5 };
-  void SetInk(unsigned char col, unsigned char row)
-  {
-	// Set INK attributes
-	unsigned char i, line1, line2;
-	unsigned int addr;
-	addr = BITMAPRAM + row*320 + (col+1);
-	if (paperColor != 0) {
-		line1 = ink1[paperColor];
-		line2 = ink2[paperColor];
-	} else {
-		line1 = ink1[inkColor];
-		line2 = ink2[inkColor];
-	}
-	for (i=0; i<4; ++i) {
-		POKE((char*)addr+i*80, line1);
-		POKE((char*)addr+i*80+40, line2);
-	}
-  }
-#endif
-
 // C64 specific variables & functions
 #ifdef __CBM__
   int vicconf[3];
