@@ -501,6 +501,16 @@ class Application:
             fp.write('utils\\cc65\\bin\\ca65 unity/Apple/JOY.s\n')
             fp.write('utils\\cc65\\bin\\ca65 unity/Apple/MOCKING.s\n')
             fp.write('utils\\cc65\\bin\\ca65 unity/Apple/PADDLE.s\n\n')
+
+            fp.write('del unity\\bitmap.s\n')
+            fp.write('del unity\\chunks.s\n')
+            fp.write('del unity\\geom2d.s\n')
+            fp.write('del unity\\network.s\n')
+            fp.write('del unity\\print.s\n')
+            fp.write('del unity\\sfx.s\n')
+            fp.write('del unity\\sprites.s\n')
+            fp.write('del unity\\Apple\\CLOCK.s\n')
+            fp.write('del unity\\Apple\\DHR.s\n\n')
             
             fp.write('utils\\cc65\\bin\\ar65 r build/apple/unity.lib unity/bitmap.o unity/chars.o unity/chunks.o unity/geom2d.o unity/math.o unity/network.o unity/print.o unity/sfx.o unity/sprites.o unity/Apple/blit.o unity/Apple/CLOCK.o unity/Apple/DHR.o unity/Apple/DUET.o unity/Apple/JOY.o unity/Apple/MOCKING.o unity/Apple/PADDLE.o\n\n')
             
@@ -591,7 +601,15 @@ class Application:
             fp.write('utils\\cc65\\bin\\ca65 unity/sfx.s\n')
             fp.write('utils\\cc65\\bin\\ca65 unity/sprites.s\n')
             fp.write('utils\\cc65\\bin\\ca65 unity/Atari/blit.s\n')
-                        
+
+            fp.write('del unity\\bitmap.s\n')
+            fp.write('del unity\\chunks.s\n')
+            fp.write('del unity\\geom2d.s\n')
+            fp.write('del unity\\network.s\n')
+            fp.write('del unity\\print.s\n')
+            fp.write('del unity\\sfx.s\n')
+            fp.write('del unity\\sprites.s\n\n')
+            
             fp.write('utils\\cc65\\bin\\ar65 r build/atari/unity.lib unity/bitmap.o unity/chars.o unity/chunks.o unity/geom2d.o unity/math.o unity/network.o unity/print.o unity/sfx.o unity/sprites.o unity/Atari/blit.o\n\n')
             
             if len(self.Checkbutton_AtariNoText.state()):
@@ -701,6 +719,15 @@ class Application:
             fp.write('utils\\cc65\\bin\\ca65 unity/C64/JOY.s\n')
             fp.write('utils\\cc65\\bin\\ca65 unity/C64/ROM.s\n')
             fp.write('utils\\cc65\\bin\\ca65 unity/C64/SID.s\n\n')
+
+            fp.write('del unity\\bitmap.s\n')
+            fp.write('del unity\\chunks.s\n')
+            fp.write('del unity\\geom2d.s\n')
+            fp.write('del unity\\network.s\n')
+            fp.write('del unity\\print.s\n')
+            fp.write('del unity\\sfx.s\n')
+            fp.write('del unity\\sprites.s\n')
+            fp.write('del unity\\C64\\display.s\n\n')
                         
             fp.write('utils\\cc65\\bin\\ar65 r build/c64/unity.lib unity/bitmap.o unity/chars.o unity/chunks.o unity/geom2d.o unity/math.o unity/network.o unity/print.o unity/sfx.o unity/sprites.o unity/C64/display.o unity/C64/JOY.o unity/C64/ROM.o unity/C64/SID.o\n\n')
                         
@@ -931,6 +958,18 @@ class Application:
             fp.write('utils\\cc65\\bin\\ca65 unity/Lynx/header.s\n')
             fp.write('utils\\cc65\\bin\\ca65 unity/Lynx/joysticks.s\n\n')
                         
+            fp.write('del unity\\bitmap.s\n')
+            fp.write('del unity\\chunks.s\n')
+            fp.write('del unity\\geom2d.s\n')
+            fp.write('del unity\\hub.s\n')
+            fp.write('del unity\\network.s\n')
+            fp.write('del unity\\print.s\n')
+            fp.write('del unity\\sfx.s\n')
+            fp.write('del unity\\sprites.s\n')
+            fp.write('del unity\\Lynx\\display.s\n')
+            fp.write('del unity\\Lynx\\files.s\n')
+            fp.write('del unity\\Lynx\\joysticks.s\n\n')
+            
             fp.write('utils\\cc65\\bin\\ar65 r build/lynx/unity.lib unity/bitmap.o unity/chars.o unity/chunks.o unity/geom2d.o unity/hub.o unity/math.o unity/network.o unity/print.o unity/sfx.o unity/sprites.o unity/Lynx/display.o unity/Lynx/files.o unity/Lynx/header.o unity/Lynx/joysticks.o\n\n')
             
             comp = 'utils\\cc65\\bin\\cl65 -o build/' + diskname.lower() + '-lynx.lnx -Cl -O -t lynx -C build/lynx/lynx.cfg -I unity '
@@ -1013,6 +1052,17 @@ class Application:
             fp.write('utils\\cc65\\bin\\ca65 unity/Oric/keyboard.s\n')
             fp.write('utils\\cc65\\bin\\ca65 unity/Oric/libsedoric.s\n')
             fp.write('utils\\cc65\\bin\\ca65 unity/Oric/MYM.s\n\n')
+            
+            fp.write('del unity\\bitmap.s\n')
+            fp.write('del unity\\chunks.s\n')
+            fp.write('del unity\\geom2d.s\n')
+            fp.write('del unity\\hub.s\n')
+            fp.write('del unity\\network.s\n')
+            fp.write('del unity\\print.s\n')
+            fp.write('del unity\\sfx.s\n')
+            fp.write('del unity\\sprites.s\n')            
+            fp.write('del unity\\Oric\\files.s\n')            
+            fp.write('del unity\\Oric\\joysticks.s\n\n')            
                         
             fp.write('utils\\cc65\\bin\\ar65 r build/oric/unity.lib unity/bitmap.o unity/chars.o unity/chunks.o unity/geom2d.o unity/hub.o unity/math.o unity/network.o unity/print.o unity/sfx.o unity/sprites.o unity/Oric/blit.o unity/Oric/files.o unity/Oric/joysticks.o unity/Oric/JOY.o unity/Oric/keyboard.o unity/Oric/libsedoric.o unity/Oric/MYM.o\n\n')
                 
