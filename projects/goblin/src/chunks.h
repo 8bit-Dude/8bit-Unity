@@ -24,7 +24,7 @@ void GrabSceneChunk(Chunk* grab, Chunk* template)
 // Draw graphic chunk to screen
 void DrawSceneChunk(Chunk* chunk)
 {
-	SetChunk(chunk->data, chunk->x, chunk->y, chunk->w, chunk->h);
+	SetChunk(chunk->data, chunk->x, chunk->y);
 #if defined __LYNX__
 	UpdateDisplay(); // Refresh Lynx screen
 #endif		

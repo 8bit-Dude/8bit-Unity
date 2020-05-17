@@ -6,7 +6,7 @@ void Wait(unsigned char ticks)
 	clock_t animClock = clock();
 	while (clock()<animClock+ticks) { 
 	#ifdef __APPLE2__
-		tick(); 
+		wait(1); clk += 10;  // Manually update clock on Apple 2
 	#endif
 	} 
 }
