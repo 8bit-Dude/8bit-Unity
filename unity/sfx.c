@@ -41,10 +41,11 @@
 	// Apple specific functions (see Apple/DUET.s and Apple/MOCKING.S)
 	unsigned char sfxOutput = 255;
 	unsigned char DetectMocking(void);
-	void PlaySpeaker(unsigned int address);
+	void InitMocking(void);
+	void StopMocking(void);
 	void PlayMocking(unsigned int address);		
 	void SFXMocking(unsigned int address);
-	void StopMocking();
+	void PlaySpeaker(unsigned int address);
 	
 	// Wrapper functions (for speaker / mocking)
 	void PlayMusic(unsigned int address) {
