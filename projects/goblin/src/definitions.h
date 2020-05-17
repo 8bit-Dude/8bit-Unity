@@ -43,6 +43,7 @@
 	#define spriteCols   12
 	#define spriteRows   24
 	unsigned char spriteColors[] = { AIC, AIC, AIC, AIC, AIC, AIC, AIC, AIC };  // AIC color for faster drawing!
+	unsigned char multiColorDef[] = { GREY, 8, GREEN, 16, BLUE, 24 };	// Multicolor definition { color, row, ... color, lastrow }
 #elif defined __CBM__
 	#define spriteCols   12
 	#define spriteRows   21

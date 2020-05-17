@@ -172,6 +172,7 @@ int main(void)
 	EnableSprite(4);  // Unit #1 (extra color)
 #elif defined __ORIC__
 	CropSprite(0,8);  // Mouse cursor only occupies half frame
+	MultiColorSprite(1, multiColorDef);	// Make sprite 1 multi-colored
 #elif defined __CBM__ 
 	EnableSprite(2);  // Unit #1 (extra color)	
 	EnableSprite(3);  // Unit #1 (extra color)
