@@ -179,13 +179,6 @@ unsigned int RecvUDP(unsigned int timeOut);				// Fetch UDP packet (within time-
 // C64:   SID track (see C64/SID.s)
 // Lynx:  Chipper   (see Lynx/CHIPPER.s)
 // Oric:  YM track  (see Oric/MYM.s)
-#if defined __APPLE2__
-  extern unsigned char sfxOutput;	// 0 = Speaker, 1 = Mockingboard (Slot 4)
-  void InitMocking(void);
-#elif defined __CBM__
-  extern unsigned int sidInitAddr;	// SID init (default: $0906)
-  extern unsigned int sidPlayAddr;	// SID play (default: $0803)
-#endif
 void LoadMusic(const char* filename, unsigned int address);
 void PlayMusic(unsigned int address);
 void StopMusic(void);

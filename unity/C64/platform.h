@@ -39,7 +39,7 @@
 #define SCREENLOC  0
 #define BITMAPLOC  8
 #define SPRITELOC  28
-#define MUSICRAM   (0xb000) 								 // B000-BFFF (SID sound track: ALSO EDIT SID.S WHEN CHANGING THIS VALUE!)
+#define MUSICRAM   (0x0801) 								 // 0800-17FF (SID sound track: ALSO EDIT SID.S WHEN CHANGING THIS VALUE!)
 #define SCREENRAM  (VIDEOBANK * 0x4000 + SCREENLOC * 0x0400) // C000-C3FF (char data)
 #define COLORRAM   (0xd800) 								 // D800-DBFF (color data; fixed location)
 #define BITMAPRAM  (VIDEOBANK * 0x4000 + BITMAPLOC * 0x0400) // E000-FFFF (bitmap data)
@@ -64,8 +64,9 @@
 #define GREEN  	5
 #define BLUE   	6
 #define YELLOW 	7
-#define ORANGE 	8
+#define LBROWN 	8
 #define BROWN 	9
+#define ORANGE 	10
 #define PINK 	10
 #define DGREY   11	
 #define MGREY 	12
@@ -76,3 +77,7 @@
 
 // Clock
 #define TCK_PER_SEC	CLK_TCK
+
+// SID player customization
+extern unsigned int sidInitAddr;	// SID init (default: $0906)
+extern unsigned int sidPlayAddr;	// SID play (default: $0803)

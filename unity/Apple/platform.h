@@ -36,8 +36,8 @@
  
 // Memory Map
 #define BITMAPRAM  (0x2000)
-#define MUSICRAM   (0xa800) // A800-AAFF (electric duet track loaded here)
-#define SPRITERAM  (0xab00)	// AB00-BEFF (sprites.app loaded here)
+#define SPRITERAM  (0xa800)	// A800-BBFF (sprites.app loaded here)
+#define MUSICRAM   (0xbc00) // BC00-BEFF (electric duet track loaded here)
 
 // Character Mode
 #define CHR_COLS 40
@@ -77,7 +77,7 @@ unsigned char GetDHRColor(void);
 
 // Workaround for missing clock (see CLOCK.c)
 #define TCK_PER_SEC	59
-void tick(void);
+void wait(unsigned char ticks);
 clock_t clock(void);
 unsigned sleep(unsigned seconds);
 extern clock_t clk;	
