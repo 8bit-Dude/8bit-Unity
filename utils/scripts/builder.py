@@ -805,14 +805,14 @@ class Application:
                                             ' -a' + str(spriteWidth/2).zfill(3) + str(spriteHeight/2).zfill(3) + ' sprites.bmp\n')
                 if spriteFrames == 1: 
                     fp.write('ren sprites.spr sprites000000.spr\n')
-            fp.write('set /a NUMFILES=' + str(len(shared)) + '\n')
-            fp.write('set SHAREDNAME=\n')
-            fp.write('set SHAREDDATA=\n')
+            fp.write('set /a FILENUM=' + str(len(shared)) + '\n')
+            fp.write('set FILENAMES=\n')
+            fp.write('set FILEDATAS=\n')
             if len(chunks) > 0:
                 fp.write('..\\..\\utils\\py27\\python ..\\..\\utils\\scripts\\ProcessChunks.py lynx ../../' + chunks[0] + ' ../../build/lynx/\n')
-                fp.write('for /f "tokens=*" %%A in (chunks.lst) do set /a NUMFILES+=1\n')
-                fp.write('for /f "tokens=*" %%A in (chunks.lst) do set SHAREDNAME=!SHAREDNAME!_%%~nAName,\n')
-                fp.write('for /f "tokens=*" %%A in (chunks.lst) do set SHAREDDATA=!SHAREDDATA!_%%~nAData,\n')          
+                fp.write('for /f "tokens=*" %%A in (chunks.lst) do set /a FILENUM+=1\n')
+                fp.write('for /f "tokens=*" %%A in (chunks.lst) do set FILENAMES=!FILENAMES!_%%~nAName,\n')
+                fp.write('for /f "tokens=*" %%A in (chunks.lst) do set FILEDATAS=!FILEDATAS!_%%~nAData,\n')          
                          
             # Clean-up
             fp.write('del *.png /F /Q\n')
@@ -830,19 +830,18 @@ class Application:
             # Generate declare file for read-only data
             fp.write('@echo .global _bitmapNum  >  gfxdata.asm\n')
             fp.write('@echo .global _spriteNum  >> gfxdata.asm\n')
-            fp.write('@echo .global _sharedNum  >> gfxdata.asm\n')
+            fp.write('@echo .global _fileNum  >> gfxdata.asm\n')
             fp.write('@echo .global _bitmapName >> gfxdata.asm\n')
-            fp.write('@echo .global _chunkData  >> gfxdata.asm\n')
             fp.write('@echo .global _cursorData >> gfxdata.asm\n')
             fp.write('@echo .global _keybrdData >> gfxdata.asm\n')
             fp.write('@echo .global _spriteData >> gfxdata.asm\n')
-            fp.write('@echo .global _sharedName >> gfxdata.asm\n')
-            fp.write('@echo .global _sharedData >> gfxdata.asm\n')
+            fp.write('@echo .global _fileNames >> gfxdata.asm\n')
+            fp.write('@echo .global _fileDatas >> gfxdata.asm\n')
             
             # Quantity of assets
             fp.write('@echo _bitmapNum: .byte ' + str(len(bitmaps)) + ' >> gfxdata.asm\n')            
             fp.write('@echo _spriteNum: .byte ' + self.entry_LynxSpriteFrames.get() + ' >> gfxdata.asm\n')            
-            fp.write('@echo _sharedNum: .byte %NUMFILES% >> gfxdata.asm\n')  
+            fp.write('@echo _fileNum: .byte %FILENUM% >> gfxdata.asm\n')  
 
             # Keybard Binary Data
             fp.write('@echo .segment "RODATA" >> gfxdata.asm\n')
@@ -886,33 +885,39 @@ class Application:
                     
             # List of Shared Filenames and Data
             if len(shared) > 0 or len(chunks) > 0:             
-                fp.write('@echo _sharedName: .addr ')
+                fp.write('@echo _fileNames: .addr ')
                 for i in range(len(shared)):
                     if i > 0:
                         fp.write(', ')                
                     fp.write('_shrName' + str(i).zfill(2))
-                fp.write(' %SHAREDNAME:~0,-1% >> gfxdata.asm\n')
+                if len(chunks) > 0:
+                    fp.write(' %FILENAMES:~0,-1%')
+                fp.write(' >> gfxdata.asm\n')
+                    
                 for i in range(len(shared)):
                     fb = FileBase(shared[i], '')
                     fp.write('@echo _shrName' + str(i).zfill(2) + ': .byte "' + fb + '",0 >> gfxdata.asm\n')
                 if len(chunks) > 0:
                     fp.write('for /f "tokens=*" %%A in (chunks.lst) do @echo _%%~nAName: .byte "%%~nxA",0 >> gfxdata.asm\n')
             
-                fp.write('@echo _sharedData: .addr ')
+                fp.write('@echo _fileDatas: .addr ')
                 for i in range(len(shared)):
                     if i > 0:
                         fp.write(', ')                
                     fp.write('_shrData' + str(i).zfill(2))
-                fp.write(' %SHAREDDATA:~0,-1% >> gfxdata.asm\n')
+                if len(chunks) > 0:
+                    fp.write(' %FILEDATAS:~0,-1%')
+                fp.write(' >> gfxdata.asm\n')
+                    
                 for i in range(len(shared)):
                     fb = FileBase(shared[i], '')
                     fp.write('@echo _shrData' + str(i).zfill(2) + ': .incbin "' + fb + '" >> gfxdata.asm\n')
                 if len(chunks) > 0:
                     fp.write('for /f "tokens=*" %%A in (chunks.lst) do @echo _%%~nAData: .incbin "%%~nxA" >> gfxdata.asm\n')
             else:
-                fp.write('@echo _sharedName: .addr _dummyName >> gfxdata.asm\n')
+                fp.write('@echo _fileNames: .addr _dummyName >> gfxdata.asm\n')
                 fp.write('@echo _dummyName: .byte 0 >> gfxdata.asm\n')
-                fp.write('@echo _sharedData: .addr _dummyAddr >> gfxdata.asm\n')
+                fp.write('@echo _fileDatas: .addr _dummyAddr >> gfxdata.asm\n')
                 fp.write('@echo _dummyAddr: .byte 0 >> gfxdata.asm\n')
                     
             # Done, return to base folder
