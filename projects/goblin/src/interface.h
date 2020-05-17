@@ -1,6 +1,19 @@
 
 #include "chunks.h"
 
+// Print label in lower-left panel
+void PrintInteract(unsigned char item, unsigned char *label)
+{
+	if (item != 255) {		
+		PrintStr(0, CHR_ROWS-2, "use");
+		PrintStr(4, CHR_ROWS-2, items[item].label);
+		PrintStr(5+strlen(items[item].label), CHR_ROWS-2, "on");
+		PrintStr(8+strlen(items[item].label), CHR_ROWS-2, label);
+	} else {
+		PrintStr(0, CHR_ROWS-2, label);
+	}
+}
+
 // Print message in lower-left panel
 void PrintMessage(unsigned char *msg)
 {
@@ -8,7 +21,7 @@ void PrintMessage(unsigned char *msg)
 	unsigned char col = 0, row = CHR_ROWS-2;
 	
 	// Reset panel
-	DrawPanel(0, CHR_ROWS-2, CHR_COLS-8, CHR_ROWS-1);
+	PrintBlanks(0, CHR_ROWS-2, CHR_COLS-9, CHR_ROWS-1);
 	
 	// Print message across two lines, by taking into account line feed '\n'
 	while (msg[i] != '\0') {

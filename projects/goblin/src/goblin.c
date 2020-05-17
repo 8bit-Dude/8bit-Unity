@@ -1,21 +1,22 @@
 
 #include "scene.h"
 
-void RunScene(void)
+void GameLoop(void)
 {
 	unsigned char joy, test;
-	unsigned char sceneSearch, sceneIndex = 255, sceneInteract = 255;
+	unsigned char sceneSearch, sceneIndex = 255, sceneInteract = 255, sceneItem = 255;
 	unsigned char mouseL = 0, mouseMotion = 0, mouseAction = 0;
 	unsigned int mouseX = 160, mouseY = 100;
+	unsigned int clickX = 160, clickY = 100;
 	unsigned int goalX = 180, goalY = 130;	
-	unsigned char unit1Frame = frameWaitLeft, waitFrame = frameWaitLeft;
-	unsigned int unit1X = 180, unit1Y = 130;	
+	unsigned char unitFrame = frameWaitLeft, waitFrame = frameWaitLeft;
+	unsigned int unitX = 180, unitY = 130;	
 	signed int interX, interY, deltaX, deltaY;
 	clock_t gameClock = clock();
 	
 	while (1) {
 	#if defined __APPLE2__
-		tick();	// Simulate clock on Apple 2
+		tick();			// Simulate clock on Apple 2
 	#elif defined __LYNX__
 		UpdateDisplay(); // Refresh Lynx screen
 	#endif		
@@ -23,10 +24,10 @@ void RunScene(void)
 		mouseMotion = 0;
 		joy = GetJoy(0);
 		if (joy != 255) { mouseMotion = 1; }
-		if (!(joy & JOY_UP))    { mouseY -= 2; if (mouseY > 200) mouseY = 0; }
-		if (!(joy & JOY_DOWN))  { mouseY += 2; if (mouseY > 200) mouseY = 200; }
-		if (!(joy & JOY_LEFT))  { mouseX -= 2; if (mouseX > 320) mouseX = 0; }
-		if (!(joy & JOY_RIGHT)) { mouseX += 2; if (mouseX > 320) mouseX = 320; }
+		if (!(joy & JOY_UP))    { mouseY -= mouseStep; if (mouseY > 200) mouseY = 0; }
+		if (!(joy & JOY_DOWN))  { mouseY += mouseStep; if (mouseY > 200) mouseY = 200; }
+		if (!(joy & JOY_LEFT))  { mouseX -= mouseStep; if (mouseX > 320) mouseX = 0; }
+		if (!(joy & JOY_RIGHT)) { mouseX += mouseStep; if (mouseX > 320) mouseX = 320; }
 		if (!(joy & JOY_BTN1))  { mouseL = 1; } else { mouseL = 0; mouseAction = 0; }
 		
 		// Search scene
@@ -35,9 +36,9 @@ void RunScene(void)
 			if (sceneSearch != sceneIndex) {
 				sceneIndex = sceneSearch;
 				if (sceneIndex == 255) {
-					DrawPanel(0, CHR_ROWS-2, CHR_COLS-8, CHR_ROWS-1);
+					PrintBlanks(0, CHR_ROWS-2, CHR_COLS-9, CHR_ROWS-2);
 				} else {
-					PrintStr(0, CHR_ROWS-2, interacts[sceneIndex].label);
+					PrintInteract(sceneItem, interacts[sceneIndex].label);
 				}
 			}
 		}
@@ -55,66 +56,92 @@ void RunScene(void)
 			UpdateDisplay(); // Refresh Lynx screen
 		#endif
 		
-			// Compute goal coordinates
-			test = IntersectSegmentPolygon(unit1X, unit1Y, mouseX, mouseY, MAX_POLYGON, polygonX, polygonY, &interX, &interY);
-			if (test && (unit1X != interX || unit1Y != interY)) { 	// Check that we are not stuck on a polygon segment
-				goalX = interX;
-				goalY = interY;
-			} else {
-				// Move directly to mouse cursor (if in allowed area, and not crossing other parts of polygon)
-				if (test < 2 && PointInsidePolygon(mouseX, mouseY, MAX_POLYGON, polygonX, polygonY)) {
-					goalX = mouseX;
-					goalY = mouseY;
+			// Is mouse cursor in inventory area?
+			if (mouseY > INVENTORY_Y) {
+				sceneItem = SelectItem(mouseX, mouseY);
+				if (sceneItem != 255) {
+					PrintInteract(sceneItem, "\0");
+				} else {
+					PrintBlanks(0, CHR_ROWS-2, CHR_COLS-9, CHR_ROWS-2);
 				}
-			}
+			} else {
+				// Get click coordinates
+				if (sceneIndex == 255) {
+					clickX = mouseX;
+					clickY = mouseY;
+				} else { 
+					clickX = interacts[sceneIndex].cx;
+					clickY = interacts[sceneIndex].cy;
+				}
 			
-			// Save index, for interaction when we reach position
-			sceneInteract = sceneIndex;
+				// Compute goal coordinates
+				test = IntersectSegmentPolygon(unitX, unitY, clickX, clickY, MAX_POLYGON, polygonX, polygonY, &interX, &interY);
+				if (test && (unitX != interX || unitY != interY)) { 	// Check that we are not stuck on a polygon segment
+					goalX = interX;
+					goalY = interY;
+				} else {
+					// Move directly to mouse cursor (if in allowed area, and not crossing other parts of polygon)
+					if (test < 2 && PointInsidePolygon(clickX, clickY, MAX_POLYGON, polygonX, polygonY)) {
+						goalX = clickX;
+						goalY = clickY;
+					}
+				}
+				
+				// Save index, for interaction when we reach position
+				sceneInteract = sceneIndex;
+			}
 		}
 				
 		// Process unit motion
-		if (clock()>gameClock+5) {
+		if (clock()>gameClock+unitTicks) {
 			gameClock = clock();
-			deltaX = goalX - unit1X;
-			deltaY = goalY - unit1Y;
+			deltaX = goalX - unitX;
+			deltaY = goalY - unitY;
 			if (deltaX || deltaY) {
 				// Move in steps of 3 max.
-				unit1X += SIGN(deltaX) * MIN(ABS(deltaX),3); 
-				unit1Y += SIGN(deltaY) * MIN(ABS(deltaY),3);
-				if (unit1X > 320) unit1X = 0;
-				if (unit1Y > 200) unit1Y = 0;
+				unitX += SIGN(deltaX) * MIN(ABS(deltaX), unitStep); 
+				unitY += SIGN(deltaY) * MIN(ABS(deltaY), unitStep);
+				if (unitX > 320) unitX = 0;
+				if (unitY > 200) unitY = 0;
 				
 				// Update frame number
 				if (deltaX > 0) {
-					if (unit1Frame < frameWalkRightBeg) unit1Frame = frameWalkRightBeg;
-					unit1Frame += 1; if (unit1Frame > frameWalkRightEnd) unit1Frame = frameWalkRightBeg;
+					if (unitFrame < frameWalkRightBeg) unitFrame = frameWalkRightBeg;
+					unitFrame += 1; if (unitFrame > frameWalkRightEnd) unitFrame = frameWalkRightBeg;
 					waitFrame = frameWaitRight;
 				} else {
-					if (unit1Frame > frameWalkLeftEnd) { unit1Frame = frameWalkLeftBeg; }
-					unit1Frame += 1; if (unit1Frame > frameWalkLeftEnd) unit1Frame = frameWalkLeftBeg;
+					if (unitFrame > frameWalkLeftEnd) { unitFrame = frameWalkLeftBeg; }
+					unitFrame += 1; if (unitFrame > frameWalkLeftEnd) unitFrame = frameWalkLeftBeg;
 					waitFrame = frameWaitLeft;
 				}
 			} else {
 				// Process trigger (if any) and set wait frame
 				if (sceneInteract != 255) {
-					ProcessInteract(sceneInteract);
+					ProcessInteract(sceneInteract, sceneItem, unitX, unitY);
 					sceneInteract = 255;
+					sceneItem = 255;
 				}
-				unit1Frame = waitFrame;
+				unitFrame = waitFrame;
 			}
 		}
 	
 		// Set sprites
 		LocateSprite(mouseX+4, mouseY+4);
 		SetSprite(0, mouseL);
-		LocateSprite(unit1X, unit1Y-10);
-	#if (defined __ATARI__) || (defined __CBM__)
-		SetSprite(1, unit1Frame);		// Unit color #1
-		SetSprite(2, unit1Frame+14);	// Unit color #2
-		SetSprite(3, unit1Frame+28);	// Unit color #3
-		SetSprite(4, unit1Frame+42);	// Unit color #4
+	#if (defined __CBM__) 
+		LocateSprite(unitX, unitY-20);
+	#elif (defined __ATARI__)
+		LocateSprite(unitX, unitY-16);
 	#else
-		SetSprite(1, unit1Frame);
+		LocateSprite(unitX, unitY-10);
+	#endif
+	#if (defined __ATARI__) || (defined __CBM__)
+		SetSprite(1, unitFrame);		// Unit color #1
+		SetSprite(2, unitFrame+14);	// Unit color #2
+		SetSprite(3, unitFrame+28);	// Unit color #3
+		SetSprite(4, unitFrame+42);	// Unit color #4
+	#else
+		SetSprite(1, unitFrame);
 	#endif
 	}	
 }
@@ -138,7 +165,7 @@ int main(void)
 	EnableSprite(0);  // Mouse cursor
 	EnableSprite(1);  // Unit #1
 #if defined __APPLE2__
-	CropSprite(0,12); // Mouse cursor only occupies half frame
+	CropSprite(0,8); // Mouse cursor only occupies third of frame
 #elif defined __ATARI__
 	EnableSprite(2);  // Unit #1 (extra color)
 	EnableSprite(3);  // Unit #1 (extra color)
@@ -163,8 +190,7 @@ int main(void)
 	
 	// Init and Run Scene
 	InitScene();
-	PrintInventory();
-	RunScene();
+	GameLoop();
 	
 	// Black-out screen and clear key
 	DisableSprite(-1);	// "-1" disables all sprites

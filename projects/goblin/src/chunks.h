@@ -2,17 +2,23 @@
 #include "definitions.h"
 
 // Load graphic chunk from file
-void LoadSceneChunk(Chunk* chunk, unsigned char x, unsigned char y, unsigned char w, unsigned char h, char* filename)
+void LoadSceneChunk(Chunk* chunk, char* filename)
 {
-	chunk->x = x; chunk->y = y; chunk->w = w; chunk->h = h;
-	LoadChunk(&chunk->data, filename, chunk->w, chunk->h);
+	LoadChunk(&chunk->data, filename);
+	chunk->x = chunk->data[0]; 
+	chunk->y = chunk->data[1]; 
+	chunk->w = chunk->data[2]; 
+	chunk->h = chunk->data[3];
 }
 
 // Grab graphic chunk from screen
-void GrabSceneChunk(Chunk* chunk, unsigned char x, unsigned char y, unsigned char w, unsigned char h)
+void GrabSceneChunk(Chunk* grab, Chunk* template)
 {
-	chunk->x = x; chunk->y = y; chunk->w = w; chunk->h = h;
-	GetChunk(&chunk->data, chunk->x, chunk->y, chunk->w, chunk->h);
+	grab->x = template->x; 
+	grab->y = template->y; 
+	grab->w = template->w; 
+	grab->h = template->h;
+	GetChunk(&grab->data, grab->x, grab->y, grab->w, grab->h);
 }
 
 // Draw graphic chunk to screen
