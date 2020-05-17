@@ -164,7 +164,7 @@ unsigned int RecvUDP(unsigned int timeOut)
 		// Check time-out
 		if (clock() - timer >= timeOut) { return 0; }	
 	#if defined __APPLE2__
-		tick();
+		wait(1);
 	#endif
 	}
 #endif

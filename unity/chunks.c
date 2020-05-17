@@ -24,6 +24,16 @@
  *   specific prior written permission.
  */
  
+ /*
+								Note coordinate restrictions on each platform:
+	---------------------------------------------------------------------------------------------------------
+	Apple:  X/W must be multiples of 7 (e.g. 0,7,14,21...) |              No restrictions
+	Atari:  X/W must be multiples of 4 (e.g. 0,4,8,12... ) |              No restrictions
+	C64:    X/W must be multiples of 4 (e.g. 0,4,8,12... ) |  Y/H must be multiples of 8  (e.g. 0,8,16,24...)
+	Lynx:   X/W must be multiples of 2 (e.g. 0,2,4,6... )  |              No restrictions
+	Oric:   X/W must be multiples of 3 (e.g. 0,3,6,9...)   |  Y/H must be multiples of 2  (e.g. 0,2,4,6...) 
+ */
+ 
 #include "unity.h"
 
 #if (defined __APPLE2__) || (defined __ORIC__)
@@ -79,6 +89,7 @@ void LoadChunk(unsigned char** chunk, char *filename)
 
 void GetChunk(unsigned char** chunk, unsigned char x, unsigned char y, unsigned char w, unsigned char h)
 {
+	// Initialize block size
 #if defined __APPLE2__
 	unsigned char bytes = 2*w/7;
 #elif defined __ATARI__
@@ -95,6 +106,10 @@ void GetChunk(unsigned char** chunk, unsigned char x, unsigned char y, unsigned 
 	// Allocate memory for bitmap chunk
 	unsigned int size = ChunkSize(w,h);
 	*chunk = (unsigned char*)malloc(size);
+	POKE(*chunk+0, x);
+	POKE(*chunk+1, y);
+	POKE(*chunk+2, w);
+	POKE(*chunk+3, h);
 
 #if defined __APPLE2__
 	// Blit data from DHR memory
@@ -105,6 +120,7 @@ void GetChunk(unsigned char** chunk, unsigned char x, unsigned char y, unsigned 
 	POKEW(0xEE, *chunk+4);	// Address of Output
 	POKEW(0xFA, 0);			// Address of Input
 	Blit();
+	
 #elif defined __ATARI__
 	// Copy data from double buffer
 	addr = *chunk+4;
@@ -126,6 +142,7 @@ void GetChunk(unsigned char** chunk, unsigned char x, unsigned char y, unsigned 
 	POKE(0xb6, 40); 		// Offset between source lines
 	POKE(0xb7, w/3); 		// Offset between target lines
 	Blit();	
+	
 #elif defined __C64__
 	// Copy data to bitmap, color and screen memory
 	addr = *chunk+4;	
@@ -144,6 +161,7 @@ void GetChunk(unsigned char** chunk, unsigned char x, unsigned char y, unsigned 
 		addr += bytes;
 	}
 	EnableRom();
+	
 #elif defined __LYNX__
 	// Copy data to bitmap memory
 	addr = *chunk+4;	
@@ -154,8 +172,10 @@ void GetChunk(unsigned char** chunk, unsigned char x, unsigned char y, unsigned 
 #endif
 }
 
-void SetChunk(unsigned char* chunk, unsigned char x, unsigned char y, unsigned char w, unsigned char h)
+void SetChunk(unsigned char* chunk, unsigned char x, unsigned char y)
 {
+	unsigned char w = chunk[2];
+	unsigned char h = chunk[3];
 #if defined __APPLE2__
 	// Blit data to DHR memory
 	POKE(0xE3, 2*w/7);		// Bytes per line (x2 for MAIN/AUX)	

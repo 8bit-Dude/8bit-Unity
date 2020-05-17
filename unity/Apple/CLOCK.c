@@ -31,11 +31,11 @@
 
 clock_t clk;
 
-// Wait for 1 clock tick
-void tick()
+// Wait for X clock ticks
+void wait(unsigned char ticks)
 {
 	unsigned int i = 0;
-	while (i<220) { i++; }
+	while (i<220*ticks) { i++; }
 	clk += 1;		
 }
 

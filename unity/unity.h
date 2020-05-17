@@ -76,9 +76,14 @@ void LocatePixel(unsigned int x, unsigned int y);
 extern unsigned char pixelX, pixelY; // (see LocatePixel())
 
 // Bitmap chunks functions (see chunks.c)
-void LoadChunk(unsigned char** chunk, char *filename);
+// 	Apple:  X/W must be multiples of 7 (e.g. 0,7,14,21...) |              No restrictions
+//	Atari:  X/W must be multiples of 4 (e.g. 0,4,8,12... ) |              No restrictions
+//	C64:    X/W must be multiples of 4 (e.g. 0,4,8,12... ) |  Y/H must be multiples of 8  (e.g. 0,8,16,24...)
+//	Lynx:   X/W must be multiples of 2 (e.g. 0,2,4,6... )  |              No restrictions
+//	Oric:   X/W must be multiples of 3 (e.g. 0,3,6,9...)   |  Y/H must be multiples of 2  (e.g. 0,2,4,6...) 
 void GetChunk(unsigned char** chunk, unsigned char x, unsigned char y, unsigned char w, unsigned char h);
-void SetChunk(unsigned char* chunk, unsigned char x, unsigned char y, unsigned char w, unsigned char h);
+void SetChunk(unsigned char* chunk, unsigned char x, unsigned char y);
+void LoadChunk(unsigned char** chunk, char *filename);
 
 // C64 specific functions (see C64/ROM.s)
 #ifdef __CBM__
