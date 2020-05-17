@@ -31,27 +31,22 @@
 #define HEALTH_LOW RED
 #define HEALTH_MED ORANGE
 #if defined __APPLE2__
-	#define KEY_NEXT	KEY_SP
 	#define SKY 		LBLUE
 	#define HEALTH_HIGH LGREEN
 	#define GRND_OFFST	7
 #elif defined __ATARI__
-	#define KEY_NEXT	KEY_SP
 	#define SKY 		BLUE
 	#define HEALTH_HIGH GREEN
 	#define GRND_OFFST	4
 #elif defined __CBM__
-	#define KEY_NEXT	KEY_SP
 	#define SKY 		CYAN
 	#define HEALTH_HIGH GREEN
 	#define GRND_OFFST	4
 #elif defined __ORIC__
-	#define KEY_NEXT	KEY_SP
 	#define SKY 		BLACK
 	#define HEALTH_HIGH MGREEN
 	#define GRND_OFFST	5
 #elif defined __LYNX__
-	#define KEY_NEXT	49
 	#define SKY 		LBLUE
 	#define HEALTH_HIGH GREEN
 	#define GRND_OFFST	7
@@ -569,8 +564,8 @@ void SplashScreen(void)
 	PrintStr(CHR_COLS-13, CHR_ROWS-3, "BY 8BIT-DUDE");		
 	PrintStr(CHR_COLS-12, CHR_ROWS-2,  "2019/09/18");
 
-	// Wait until 'SPACE' is pressed
-	while (!kbhit () || cgetc () != KEY_NEXT) {	
+	// Wait until key is pressed
+	while (!kbhit()) {	
 	#if defined __LYNX__
 		UpdateDisplay(); // Refresh Lynx screen
 	#endif

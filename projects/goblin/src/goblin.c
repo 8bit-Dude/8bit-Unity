@@ -146,6 +146,32 @@ void GameLoop(void)
 	}	
 }
 
+void SplashScreen(void)
+{
+	// Load and show banner
+	ExitBitmapMode();
+	LoadBitmap("banner.map");
+	EnterBitmapMode();
+	
+	// Show credit/build
+	pixelX = 0; pixelY = 0;
+	paperColor = GetPixel(); 
+	inkColor = WHITE; 
+	PrintStr(CHR_COLS-11, CHR_ROWS-4, "TECH DEMO");		
+	PrintStr(CHR_COLS-12, CHR_ROWS-3, "BY 8BIT-DUDE");		
+	PrintStr(CHR_COLS-11, CHR_ROWS-2,  "2020/05/17");
+	PlayMusic(MUSICRAM);
+
+	// Wait until key is pressed
+	while (!kbhit()) {	
+	#if defined __APPLE2__
+		PlayMusic(0);
+	#elif defined __LYNX__
+		UpdateDisplay(); // Refresh Lynx screen
+	#endif
+	}	
+}
+
 int main(void) 
 {
 	// Set text mode colors
@@ -156,10 +182,6 @@ int main(void)
 	InitSFX();
 	InitBitmap();
 	InitSprites(spriteFrames, spriteCols, spriteRows, spriteColors);
-
-	// Clear and show bitmap
-	LoadBitmap("scene1.map");
-	EnterBitmapMode();
 	
 	// Enable sprites
 	EnableSprite(0);  // Mouse cursor
@@ -184,10 +206,17 @@ int main(void)
 #endif	
 
 	// Load and play music
-#ifndef __APPLE2__
 	LoadMusic("music.dat", MUSICRAM);
+	
+	// Show Splash Screen
+	SplashScreen();
+	ExitBitmapMode();
+	StopMusic();
+
+	// Clear and show bitmap
+	LoadBitmap("scene1.map");
+	EnterBitmapMode();
 	PlayMusic(MUSICRAM);
-#endif
 	
 	// Init and Run Scene
 	InitScene();
