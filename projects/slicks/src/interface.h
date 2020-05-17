@@ -123,7 +123,7 @@ void PrintScores()
 	// Create blank area
 	DisableSprite(-1);
 	paperColor = PAPER_SCORES;
-	DrawPanel(13,ROW_SCORES,26,ROW_SCORES+8);
+	PrintBlanks(13,ROW_SCORES,26,ROW_SCORES+8);
 	
 	// Print results and wait
 	for (i=0; i<MAX_PLAYERS; ++i) {
@@ -438,7 +438,7 @@ void LynxCursorFlicker()
 	cursorClock = clock();
 	
 	// Reset Column and show Cursor
-	DrawPanel(MENU_CMIN, MENU_RMIN+2, MENU_CMIN+1, MENU_RMAX);
+	PrintBlanks(MENU_CMIN, MENU_RMIN+2, MENU_CMIN+1, MENU_RMAX);
 	if (cursorFlick) {
 		inkColor = YELLOW;
 		PrintChr(MENU_CMIN+0, cursorRow, &charHyphen[0]);
@@ -546,7 +546,7 @@ void MenuPlayer(unsigned char i)
 {	
 	// Clear previous
 	unsigned char row = MENU_RMIN+2+i;
-	DrawPanel(MENU_CMIN+6, row, MENU_CMAX, row);
+	PrintBlanks(MENU_CMIN+6, row, MENU_CMAX, row);
 	
 	// Print Characters
 	inkColor = INK_HIGHLT; paperColor = PAPER_HIGHLT;
@@ -561,7 +561,7 @@ void MenuPlayer(unsigned char i)
 void MenuMap()
 {
 	// Clear previous
-	DrawPanel(MENU_CMIN+7, MENU_RMIN+7, MENU_CMAX, MENU_RMIN+7);
+	PrintBlanks(MENU_CMIN+7, MENU_RMIN+7, MENU_CMAX, MENU_RMIN+7);
 	
 	// Print Characters
 	inkColor = INK_HIGHLT; paperColor = PAPER_HIGHLT;
@@ -604,25 +604,6 @@ void MenuGFX()
 }
 #endif
 
-#if defined __APPLE2__
-// Sub-function of GameMenu()
-void MenuSFX()
-{
-	// Clear previous
-	PrintStr(MENU_CMIN+7, MENU_RMIN+11, "   ");
-	
-	// GFX mode selection
-	inkColor = INK_HIGHLT; paperColor = PAPER_HIGHLT;
-	PrintStr(MENU_CMIN+2, MENU_RMIN+11, "S");
-	inkColor = WHITE; paperColor = BLACK;
-	if (sfxOutput) {
-		PrintStr(MENU_CMIN+3, MENU_RMIN+11, "FX: MOCKING");				
-	} else {
-		PrintStr(MENU_CMIN+3, MENU_RMIN+11, "FX: SPEAKER");
-	}	
-}
-#endif
-
 // Main menu function
 void GameMenu()
 {
@@ -643,7 +624,7 @@ void GameMenu()
 	// Show menu options
 	while (1) {
 		// Make Black Panel Area
-		DrawPanel(MENU_CMIN, MENU_RMIN, MENU_CMAX, MENU_RMAX);
+		PrintBlanks(MENU_CMIN, MENU_RMIN, MENU_CMAX, MENU_RMAX);
 	
 		// Display TAB keys
 		inkColor = INK_HIGHLT; paperColor = PAPER_HIGHLT;
@@ -669,9 +650,7 @@ void GameMenu()
 			MenuLaps();
 
 			// Platform specific menus
-		#if defined __APPLE2__			
-			MenuSFX();
-		#elif defined __ATARI__			
+		#if defined __ATARI__			
 			MenuGFX();
 		#endif		
 
@@ -709,14 +688,7 @@ void GameMenu()
 					if (lapIndex >= LEN_LAPS) { lapIndex = 0; }
 					MenuLaps();
 				}
-			#if defined __APPLE2__
-				// Switch GFX Mode
-				if (lastchar == KEY_S) {
-					sfxOutput = !sfxOutput;
-					if (sfxOutput) { InitMocking(); }
-					MenuSFX();
-				}
-			#elif defined __ATARI__
+			#if defined __ATARI__
 				// Switch GFX Mode
 				if (lastchar == KEY_G) { 
 					POKE(BLENDTOG, PEEK(BLENDTOG) ^ 2);
@@ -780,14 +752,14 @@ void GameMenu()
 				}
 				if (networkReady & i>=0 & i<13) {
 					// Black-out server list
-					DrawPanel(MENU_CMIN, MENU_RMIN+2, MENU_CMAX, MENU_RMAX);
+					PrintBlanks(MENU_CMIN, MENU_RMIN+2, MENU_CMAX, MENU_RMAX);
 					if (MenuLogin(i)) {
 						// Start game
 						return;
 					} else {
 						// Redraw server list
 						sleep(2);
-						DrawPanel(22,6,38,19);
+						PrintBlanks(22,6,38,19);
 						MenuServers();
 					}
 				}				
