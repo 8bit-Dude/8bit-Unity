@@ -36,20 +36,29 @@
 	extern unsigned char sampleCount;
 	extern unsigned char sampleFreq;
 	extern unsigned char sampleCtrl;
+	
 #elif defined __APPLE2__
 	// Apple specific functions (see Apple/DUET.s and Apple/MOCKING.S)
-	unsigned char sfxOutput = 0;
-	void SFXMocking(unsigned int address);
-	void PlayMocking(unsigned int address);		
-	void StopMocking();		
+	unsigned char sfxOutput = 255;
+	unsigned char DetectMocking(void);
 	void PlaySpeaker(unsigned int address);
+	void PlayMocking(unsigned int address);		
+	void SFXMocking(unsigned int address);
+	void StopMocking();
+	
 	// Wrapper functions (for speaker / mocking)
-	void PlayMusic(unsigned int address) { 
-		if (sfxOutput) { PlayMocking(address); } else { PlaySpeaker(address); } 
+	void PlayMusic(unsigned int address) {
+		if (sfxOutput == 255) {
+			sfxOutput = DetectMocking();
+			if (sfxOutput == 1) InitMocking();
+		}
+		if (sfxOutput) PlayMocking(address); else PlaySpeaker(address);
 	}
+	
 	void StopMusic() { 
 		if (sfxOutput) { StopMocking(); }
 	}
+	
 	// Mockingboards sounds:        TONE A  	TONE B	    TONE C	 NOISE  MASKS   AMP A, B, C     ENV LO, HI, TYPE
 	unsigned char sfxData[14] = { 0x00, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0xFF, 0x0F, 0x0F, 0x0F, 0x00, 0x00, 0x00 }; 
     #define DISABLE_TONE_A  (0x01)
@@ -59,6 +68,7 @@
     #define DISABLE_NOISE_B (0x10)
     #define DISABLE_NOISE_C (0x20)
 	#define DISABLE_ALL		(0x3f)
+	
 #elif defined __ORIC__
 	void ResetChannels(void) {
 		// Play 7,0,0: enable channels 1/2/3 (with no enveloppe)
@@ -71,6 +81,7 @@
 			asm("jsr $F421");	// Oric-1 (ROM 1.0)
 		}		
 	}
+	
 	void PlaySFX(unsigned char tone, unsigned int enveloppe) {
 		// Music 1,octave,note,0: set the tone (volume 0 allows changing the enveloppe)
 		POKEW(0x02E1, 1);
@@ -94,6 +105,7 @@
 			asm("jsr $F421");	// Oric-1 (ROM 1.0)
 		}		
 	}
+	
 #elif defined __LYNX__
 	// ABCmusic functions (see lynx/sfx.s)
 	extern unsigned char abctimers[4];	// Timers of musics channels
@@ -157,7 +169,9 @@ void InitSFX()
 
 void StopSFX() 
 {
-#if defined __CBM__	
+#if defined __APPLE2__
+	if (sfxOutput) StopMocking();
+#elif defined __CBM__	
 	StopMusic();
 #elif defined __ATARI__
 	StopMusic();

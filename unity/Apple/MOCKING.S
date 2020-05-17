@@ -27,6 +27,7 @@
 ;				Mockingboard Demo (COPYRIGHT Steve Nickolas, Michael Pohoreski)
 ;
 
+	.export _DetectMocking
 	.export _InitMocking
 	.export _PlayMocking
 	.export _StopMocking
@@ -40,6 +41,9 @@ ADDR6522        = $C400      ; *** Default Mockingboard to slot 4 ***
 ; Left Speaker
 MOCK1_OR_B      = ADDR6522+0 ; OR Register B
 MOCK1_OR_A      = ADDR6522+1 ; OR Register A
+
+; LOW ORDER COUNTER
+LOWORDER_COUNT  = ADDR6522+4 ; Used for detection
 
 ; 6522 Commands          DIR BC1 BC0
 _6522_RESET      = $0   ; 0   0   0
@@ -67,19 +71,52 @@ OCTAVE:   .byte 1
 TEMPO:    .byte 8
 TEMP:     .byte 0
 
+
+; ---------------------------------------------------------------
+; void __near__ _DetectMocking () 	
+; ---------------------------------------------------------------
+
+; Look for mocking board in slot 4
+.proc _DetectMocking: near	
+
+	ldx	#02	; 2 tries?
+	
+mb4_check_cycle_loop:
+	lda	LOWORDER_COUNT	; timer 6522 (low order counter)
+						; count down
+	sta	TEMP			; 3 cycles
+	lda	LOWORDER_COUNT	; + 5 cycles = 8 cycles
+						; between the two accesses to the timer
+	sec
+	sbc	TEMP			; subtract to see if we had 8 cycles
+	cmp	#$f8			; -8
+	bne	mb4_not_in_this_slot
+	dex					; decrement, try one more time
+	bne	mb4_check_cycle_loop	; loop detection
+	
+done_mb4_detected:
+	lda #01				; Mockingboard found (X=1)
+	rts					; return
+
+mb4_not_in_this_slot:
+	lda	#00
+	rts
+	
+.endproc
+
 ; ---------------------------------------------------------------
 ; void __near__ _InitMocking ()
 ; ---------------------------------------------------------------
 
 .proc _InitMocking: near	
 
-		  LDA #$FF
-          STA $C403
-          STA $C483
-          LDA #$07
-          STA $C402
-          STA $C482
-          RTS
+	LDA #$FF
+	STA $C403
+	STA $C483
+	LDA #$07
+	STA $C402
+	STA $C482
+	RTS
 		  
 .endproc
 
@@ -89,13 +126,13 @@ TEMP:     .byte 0
 
 .proc _StopMocking: near	
 
-          LDA #$00
-          STA $C400
-          STA $C480
-          LDA #$04
-          STA $C400
-          STA $C480
-          RTS
+	LDA #$00
+	STA $C400
+	STA $C480
+	LDA #$04
+	STA $C400
+	STA $C480
+	RTS
   
 .endproc
 	
@@ -105,140 +142,155 @@ TEMP:     .byte 0
 
 .proc _PlayMocking: near	
 
-		  ; Check high byte: if not 0 set address, otherwise play music
-		  CPX #$00
-		  BEQ play
+	; Check high byte: if not 0 set address, otherwise play music
+	CPX #$00
+	BEQ play
 
-		  ; Setup address (and back it up)
-		  STA $1E
-		  STA $AAFE
-		  STX $1F
-		  STX $AAFF
-		  JSR RESET
-		  RTS
+	; Setup address (and back it up)
+	STA $1E
+	STA $AAFE
+	STX $1F
+	STX $AAFF
+	JSR RESET
+	RTS
 		
 ; Electric Duet Player Setup
-play:     JSR RESET
-          JSR ENACHN
-          JMP LOOP
+play:     
+	JSR RESET
+	JSR ENACHN
+	JMP LOOP
 
 SETVOL:
-NEXT:     LDA SONG
-          CLC
-          ADC #$03
-          STA SONG
-          BCC LOOP
-          INC SONG+1
-LOOP:     LDY #$00
-          LDA (SONG),Y
-          CMP #$01
-          BEQ SETVOL
-          BPL SETNOTE    ;SET DURATION
+NEXT:     
+	LDA SONG
+	CLC
+	ADC #$03
+	STA SONG
+	BCC LOOP
+	INC SONG+1
+LOOP:     
+	LDY #$00
+	LDA (SONG),Y
+	CMP #$01
+	BEQ SETVOL
+	BPL SETNOTE    ;SET DURATION
 END:      
 ;-- Check Key Interrupt --
-		  LDA $C000
-		  CMP #$80
-		  BCS exit
+	LDA $C000
+	CMP #$80
+	BCS exit
 ;--- Loop track ---
-		  LDA $AAFE
-		  STA $1E
-		  LDA $AAFF
-		  STA $1F
-          JMP play
+	LDA $AAFE
+	STA $1E
+	LDA $AAFF
+	STA $1F
+	JMP play
 ;--- Exit playback ---
 exit:
-		  JSR RESET
-		  RTS		  		  
+	JSR RESET
+	RTS		  		  
 ;-------------------
 		  
-SETNOTE:  STA DURATION
-          LDA #LEFTCHN
-SEND:     STA CHN
-          STA $C401
-          JSR SETREG1
-          INY
-          LDA (SONG),Y
-          ;BEQ SKIP       ;IF 0 KEEP LTTSA (Modified: Reset LTTSA!)
-          JSR CONVFREQ
-SKIP:     LDA TONE
-          STA $C401
-          JSR WRDATA1
-          INC CHN
-          LDA CHN
-          STA $C401
-          JSR SETREG1
-          LDA TONE+1
-          STA $C401
-          JSR WRDATA1
-          LDA #RIGHTCHN
-          STA CHN
-          CPY #$02
-          BNE SEND
-          LDX DURATION
-W1:       LDY TEMPO
-W2:       DEC TEMP
-          BNE W2
-          DEY
-          BNE W2
-          DEX
-          BNE W1
-          BIT $C000
-          BMI END
-          JMP NEXT
+SETNOTE:  
+	STA DURATION
+    LDA #LEFTCHN
+SEND:     
+	STA CHN
+	STA $C401
+	JSR SETREG1
+	INY
+	LDA (SONG),Y
+	;BEQ SKIP       ;IF 0 KEEP LTTSA (Modified: Reset LTTSA!)
+	JSR CONVFREQ
+SKIP:     
+	LDA TONE
+	STA $C401
+	JSR WRDATA1
+	INC CHN
+	LDA CHN
+	STA $C401
+	JSR SETREG1
+	LDA TONE+1
+	STA $C401
+	JSR WRDATA1
+	LDA #RIGHTCHN
+	STA CHN
+	CPY #$02
+	BNE SEND
+	LDX DURATION
+W1:      
+	LDY TEMPO
+W2:       
+	DEC TEMP
+	BNE W2
+	DEY
+	BNE W2
+	DEX
+	BNE W1
+	BIT $C000
+	BMI END
+	JMP NEXT
 
-CONVFREQ: LDX OCTAVE
-          INX
-          PHA
-          LDA #$00
-          STA TONE+1
-          PLA
-DECOCT:   DEX
-          BMI LOBYTE
-          ASL
-          ROL TONE+1
-          JMP DECOCT
-LOBYTE:   STA TONE
-          RTS
+CONVFREQ: 
+	LDX OCTAVE
+	INX
+	PHA
+	LDA #$00
+	STA TONE+1
+	PLA
+DECOCT:   
+	DEX
+	BMI LOBYTE
+	ASL
+	ROL TONE+1
+	JMP DECOCT
+LOBYTE:   
+	STA TONE
+	RTS
 		  
-RESET:    LDA #$00
-          STA $C400
-          STA $C480
-          LDA #$04
-          STA $C400
-          STA $C480
-          RTS
+RESET:    
+	LDA #$00
+	STA $C400
+	STA $C480
+	LDA #$04
+	STA $C400
+	STA $C480
+	RTS
 
-SETREG1:  LDA #$07
-          STA $C400
-          LDA #$04
-          STA $C400
-          RTS
+SETREG1:  
+	LDA #$07
+	STA $C400
+	LDA #$04
+	STA $C400
+	RTS
 
-WRDATA1:  LDA #$06
-          STA $C400
-          LDA #$04
-          STA $C400
-          RTS
+WRDATA1:  
+	LDA #$06
+	STA $C400
+	LDA #$04
+	STA $C400
+	RTS
 
-ENACHN:   LDA #ENAREG
-          STA $C401
-          JSR SETREG1
-          LDA #%00111100
-          STA $C401
-          JSR WRDATA1
-          LDA #VOL_A
-          STA $C401
-          JSR SETREG1
-          LDA #$0F
-          STA $C401
-          JSR WRDATA1
-          LDA #VOL_B
-          STA $C401
-          JSR SETREG1
-          LDA #$0F
-          STA $C401
-          JSR WRDATA1
-          RTS  
+ENACHN:   
+	LDA #ENAREG
+	STA $C401
+	JSR SETREG1
+	LDA #%00111100
+	STA $C401
+	JSR WRDATA1
+	LDA #VOL_A
+	STA $C401
+	JSR SETREG1
+	LDA #$0F
+	STA $C401
+	JSR WRDATA1
+	LDA #VOL_B
+	STA $C401
+	JSR SETREG1
+	LDA #$0F
+	STA $C401
+	JSR WRDATA1
+	RTS  
 .endproc
 			
 ; ---------------------------------------------------------------
