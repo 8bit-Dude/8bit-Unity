@@ -208,11 +208,14 @@ void DisableSprite(signed char index);
 void LocateSprite(unsigned int x, unsigned int y);
 void SetSprite(unsigned char index, unsigned char frame);
 void RecolorSprite(unsigned char index, unsigned char number, unsigned char color);
-#if (defined __ORIC__) || (defined __APPLE2__)
+#if defined __APPLE2__
   void CropSprite(unsigned char index, unsigned char rows);
 #elif defined __CBM__
   void DoubleHeightSprite(unsigned char index, unsigned char onoff);
   void DoubleWidthSprite(unsigned char index, unsigned char onoff);
+#elif defined __ORIC__
+  void CropSprite(unsigned char index, unsigned char rows);
+  void MultiColorSprite(unsigned char index, unsigned char* multiColorDef);
 #endif
 
 // Screen coordinates of current sprite (see LocateSprite())

@@ -41,7 +41,7 @@
 #endif
 
 #if (defined __ORIC__)
-  unsigned char buffer[1024];
+  unsigned char buffer[512];
 #else
   unsigned char buffer[6];
 #endif

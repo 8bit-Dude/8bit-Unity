@@ -97,6 +97,7 @@
 	unsigned char sprDrawn[SPRITE_NUM], sprCollision[SPRITE_NUM]; // Enable Flag, Collision status
 	unsigned char sprROWS[SPRITE_NUM], *sprBG[SPRITE_NUM]; // Height of Sprite (rows), Pointer to background backup
 	unsigned int  scrAddr[SPRITE_NUM], sprCOLOR;  // Screen address, Color vector
+	unsigned char* sprMULTICOLOR[SPRITE_NUM];
 	extern unsigned char ink1[20];	// see bitmap.c
 	void InitSprites(unsigned char frames, unsigned char cols, unsigned char rows, unsigned char *spriteColors)
 	{			
@@ -114,6 +115,11 @@
 	{
 		// Only partially draw this sprite
 		sprROWS[index] = rows;
+	}
+	void MultiColorSprite(unsigned char index, unsigned char* multiColorDef)
+	{
+		// Assign multicolor definition to sprite { color, row, ... color, lastrow }
+		sprMULTICOLOR[index] = multiColorDef;
 	}
 // C64 specific init function
 #elif defined __CBM__
@@ -398,7 +404,7 @@ void SetSprite(unsigned char index, unsigned char frame)
 	flickerFrame[index] = SPRITERAM + frame*flickerRows;
 	
 #elif defined __ORIC__
-	unsigned char i, inkVAL;
+	unsigned char i, inkVAL, inkMUL;
 	unsigned int frameAddr, inkAddr;
 	unsigned char rows = sprROWS[index];
 	
@@ -439,10 +445,19 @@ void SetSprite(unsigned char index, unsigned char frame)
 	Blit();		
 	
 	// Adjust ink on even lines
-	if (PEEK(sprCOLOR+index) != AIC) {
+	if (sprMULTICOLOR[index] || PEEK(sprCOLOR+index) != AIC) {
 		inkAddr = scrAddr[index] + (spriteY%2)*40;
-		inkVAL = ink1[PEEK(sprCOLOR+index)];
+		if (sprMULTICOLOR[index]) {
+			inkVAL = ink1[PEEK(sprMULTICOLOR[index])];
+			inkMUL = 1;
+		} else {
+			inkVAL = ink1[PEEK(sprCOLOR+index)];
+		}
 		for (i=0; i<rows/2; i++) {
+			if (sprMULTICOLOR[index] && i*2 > PEEK(sprMULTICOLOR[index]+inkMUL)) {
+				inkVAL = ink1[PEEK(sprMULTICOLOR[index]+inkMUL+1)];
+				inkMUL += 2;
+			}
 			POKE(inkAddr, inkVAL); inkAddr+=3;	// Set Sprite INK
 			POKE(inkAddr, 3); inkAddr+=77;		// Reset AIC INK (yellow)
 		}		
