@@ -94,7 +94,7 @@ int DemoSPR(void)
 	// Repeat until 'SPACE' is pressed
 	while (!kbhit () || cgetc () != keyNext) {
 	#if defined __APPLE2__
-		tick();	// Simulate clock on Apple 2
+		clk += 1;  // Manually update clock on Apple 2
 	#elif defined __LYNX__
 		UpdateDisplay(); // Refresh Lynx screen
 	#endif
