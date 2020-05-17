@@ -109,8 +109,12 @@ void PrintBlanks(unsigned char colBeg, unsigned char rowBeg, unsigned char colEn
 	// Extend loops to last col/row
 	rowEnd++; colEnd++;	
 	
+	// Make sure columns are even
+	colBeg -= colBeg%2;
+	colEnd += colEnd%2;
+	
 	// Create sample block at top-left (to encode color info)
-	x = (colBeg - colBeg%2)*7;
+	x = (7*colBeg)/2;
 	y = rowBeg*8;
 	for (i=0; i<7; ++i) {
 		SetDHRPointer(x+i, y);
@@ -123,8 +127,8 @@ void PrintBlanks(unsigned char colBeg, unsigned char rowBeg, unsigned char colEn
 	*dhrmain = 0; dataMain = PEEKW(dhrptr);
 	
 	// Compute column range (can only copy across evenly numbered columns)
-	col1 = (colBeg - colBeg%2)/2;
-	col2 = (colEnd + colEnd%2)/2;
+	col1 = colBeg/2;
+	col2 = colEnd/2;
 
 	// Copy block across the rest of DHR memory
 	for (y=rowBeg*8; y<rowEnd*8; ++y) {
