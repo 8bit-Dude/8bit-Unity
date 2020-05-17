@@ -458,7 +458,7 @@ void Explosion(unsigned int x, unsigned int y)
 		}
 		while (clock()-gameClock < 8) { 
 		#if defined __APPLE2__
-			tick();	// Virtual clock on Apple
+			clk += 1;  // Manually update clock on Apple 2
 		#elif defined __LYNX__
 			UpdateDisplay(); // Refresh Lynx screen
 		#endif
@@ -609,7 +609,7 @@ int main(void)
 	projClock = clock();	
 	while (1) {
 	#if defined __APPLE2__
-		tick();	// Simulate clock on Apple 2
+		clk += 1;  // Manually update clock on Apple 2
 	#elif defined __LYNX__
 		UpdateDisplay(); // Refresh Lynx screen
 	#endif
