@@ -686,11 +686,12 @@ class Application:
             # Music
             if len(music) > 0: 
                 fp.write('utils\\scripts\\c64\\sidreloc.exe -v -z 30-ff -p 08 ' + music[0] + ' build/c64/processed.sid\n')
-                fp.write('if not exist build/c64/processed.sid (\n')
+                fp.write('if exist build/c64/processed.sid (\n')
+                fp.write('    utils\\scripts\\c64\\psid64.exe -n build/c64/processed.sid\n')
+                fp.write(') else (\n')
                 fp.write('    echo Relocation impossible, using the original file instead...\n')
-                fp.write('    cp ' + music[0] + ' build/c64/processed.sid\n')
+                fp.write('    cp ' + music[0] + ' build/c64/processed.prg\n')
                 fp.write(')\n')
-                fp.write('utils\\scripts\\c64\\psid64.exe -n build/c64/processed.sid\n')
 
             # Info
             fp.write('\necho DONE!\n\n')
@@ -908,6 +909,11 @@ class Application:
                     fp.write('@echo _shrData' + str(i).zfill(2) + ': .incbin "' + fb + '" >> gfxdata.asm\n')
                 if len(chunks) > 0:
                     fp.write('for /f "tokens=*" %%A in (chunks.lst) do @echo _%%~nAData: .incbin "%%~nxA" >> gfxdata.asm\n')
+            else:
+                fp.write('@echo _sharedName: .addr _dummyName >> gfxdata.asm\n')
+                fp.write('@echo _dummyName: .byte 0 >> gfxdata.asm\n')
+                fp.write('@echo _sharedData: .addr _dummyAddr >> gfxdata.asm\n')
+                fp.write('@echo _dummyAddr: .byte 0 >> gfxdata.asm\n')
                     
             # Done, return to base folder
             fp.write('\n')

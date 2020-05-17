@@ -1,6 +1,20 @@
 #
 # Process Chunk definition file
 #
+# Usage: Input, Output, Coords
+#
+#   Input:    'file.png' input image (with correct size and palette for platform)
+#	Output:	  'file.dat' output containing the chunk data
+# 	Coords:   [X, Y, W, H] on PNG file
+#
+# 	Coordinates restrictions:
+#   	Apple:  X/W must be multiples of 7 (e.g. 0,7,14,21...) |              No restrictions
+#   	Atari:  X/W must be multiples of 4 (e.g. 0,4,8,12... ) |              No restrictions
+#   	C64:    X/W must be multiples of 4 (e.g. 0,4,8,12... ) |  Y/H must be multiples of 8  (e.g. 0,8,16,24...)
+#   	Lynx:   X/W must be multiples of 2 (e.g. 0,2,4,6... )  |              No restrictions
+#   	Oric:   X/W must be multiples of 3 (e.g. 0,3,6,9...)   |  Y/H must be multiples of 2  (e.g. 0,2,4,6...)  
+#
+#
 # Output file contains 4 byte header for chunk position and dimension (X, Y, W, H) 
 # followed by platform specific graphic data
 #
