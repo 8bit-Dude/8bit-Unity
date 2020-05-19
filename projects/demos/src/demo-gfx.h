@@ -37,14 +37,16 @@ int DemoGFX(void)
 	// Print text (global variables inkColor & paperColor are assigned directly)
 #if defined __LYNX__
 	textRows = 12;
-#else
+#elif defined __ORIC__
+	textRows = 19;
+#else 
 	textRows = 16;
 #endif		
 	paperColor = BLACK;
 	for (i=1; i<textRows; i++) {
 		inkColor = i;
 	#if defined __ORIC__
-		SetInk(14, i+1);
+		SetAttributes(-1, i+1, inkColor);
 	#endif
 		PrintStr(15,i+1,"8BIT-UNITY");
 	}

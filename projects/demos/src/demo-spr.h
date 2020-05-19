@@ -22,8 +22,8 @@ extern const char keyNext;
 	#define spriteFrames 16
 	#define spriteCols   12
 	#define spriteRows   6
-	unsigned char spriteColors[] = { CYAN, MBLUE, LGREEN, GREY };	// Matching more or less with above
-	unsigned char inkColors[] = { CYAN, MBLUE, LGREEN, GREY };		// P1, P2, P3, P4
+	unsigned char spriteColors[] = { SPR_CYAN, SPR_MAGENTA, SPR_GREEN, SPR_WHITE };	// Matching more or less with above
+	unsigned char inkColors[] = { CYAN, LPURPLE, LGREEN, GREY };		// P1, P2, P3, P4
 #elif defined __CBM__
 	#define spriteFrames 16
 	#define spriteCols   12
@@ -66,21 +66,22 @@ int DemoSPR(void)
 	// Print some extra info
 	paperColor = GREY; 
 	inkColor = BLACK; 
+#if defined __ORIC__
+	SetAttributes(-1, CHR_ROWS-1, paperColor);
+	SetAttributes( 7, CHR_ROWS-1, AIC); // Always reset attributes after a string!
+#endif			
 	PrintStr(0, CHR_ROWS-1, "STADIUM");	
 	paperColor = BLACK; 
 	for (i=0; i<4; i++) {
 		slot = 8*(i+1);
 		inkColor = inkColors[i];
 	#if defined __ORIC__
-		SetInk(slot-1, CHR_ROWS-1);
+		SetAttributes(slot-1, CHR_ROWS-1, inkColor);
+		SetAttributes(slot+5, CHR_ROWS-1, AIC);	// Always reset attributes after a string!
 	#endif		
 		PrintLogo(slot+4, CHR_ROWS-1, i);
 		PrintNum(slot+2, CHR_ROWS-1, i+1);
 		PrintStr(slot, CHR_ROWS-1, "CAR");
-	#if defined __ORIC__
-		inkColor = AIC;
-		SetInk(slot+5, CHR_ROWS-1);
-	#endif		
 	}
 
 	// Enable sprites
