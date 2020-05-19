@@ -52,21 +52,15 @@
 // Oric specific variables & functions
 #if defined __ORIC__
   // INK attributes for characters
-  unsigned char ink1[20] = { 0, 2, 3, 6, 3, 7, 5, 4, 7, 2, 7, 1, 3, 1, 1, 7, 5, 5, 5, 5 };
-  unsigned char ink2[20] = { 0, 3, 3, 6, 6, 6, 6, 4, 6, 6, 6, 7, 7, 1, 3, 7, 4, 6, 7, 5 };
-  void SetInk(unsigned char col, unsigned char row)
+  unsigned char ink1[20] = { 0, 3, 3, 6, 3, 7, 4, 4, 7, 4, 7, 2, 3, 1, 3, 7, 5, 5, 7, 5 };
+  unsigned char ink2[20] = { 0, 2, 3, 6, 6, 6, 6, 4, 6, 6, 6, 1, 7, 1, 1, 7, 7, 6, 1, 5 };
+  void SetAttributes(signed char col, unsigned char row, unsigned char color)
   {
-	// Set INK attributes
 	unsigned char i, line1, line2;
 	unsigned int addr;
 	addr = BITMAPRAM + row*320 + (col+1);
-	if (paperColor != 0) {
-		line1 = ink1[paperColor];
-		line2 = ink2[paperColor];
-	} else {
-		line1 = ink1[inkColor];
-		line2 = ink2[inkColor];
-	}
+	line1 = ink1[color];
+	line2 = ink2[color];
 	for (i=0; i<4; ++i) {
 		POKE((char*)addr+i*80, line1);
 		POKE((char*)addr+i*80+40, line2);
@@ -140,11 +134,13 @@ void PrintBlanks(unsigned char colBeg, unsigned char rowBeg, unsigned char colEn
 		}
 	}
 #elif defined __ORIC__
-	// TODO: Implement panel drawing in color! (now only black)
+	// Fill with 0s (papercolor) or 1s (inkcolor)
+	unsigned char value;
 	rowEnd++;
 	span = colEnd-colBeg+1;
+	if (paperColor) value = 127; else value = 64;
 	for (y=rowBeg*8; y<rowEnd*8; ++y) {
-		memset((char*)(BITMAPRAM+40*y+colBeg+1), 64, span);
+		memset((char*)(BITMAPRAM+40*y+colBeg+1), value, span);
 	}
 #elif defined __CBM__
 	rowEnd++;
@@ -495,9 +491,9 @@ void PrintBuffer(char *buffer)
 	for (i=0; i<8; ++i) {
 		memcpy((char*)BITMAPRAM+1+i*40, (char*)BITMAPRAM+1+i*40+len, (CHR_COLS-len));
 	}
-	// Check for ink changes
+	// Apply ink change
 	if (buffer[0] == '^') {
-		SetInk(CHR_COLS-len, 0);
+		SetAttributes(CHR_COLS-len, 0, inkColor);
 		buffer = &buffer[1];
 	}
 #elif defined __APPLE2__

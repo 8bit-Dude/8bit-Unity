@@ -104,7 +104,7 @@ void LoadChunk(unsigned char** chunk, char *filename);
 // Printing functions (see print.c)
 extern unsigned char inkColor, paperColor;
 #if defined __ORIC__
-  void SetInk(unsigned char col, unsigned char row);
+  void SetAttributes(signed char col, unsigned char row, unsigned char color);
 #endif
 void PrintBlanks(unsigned char colBeg, unsigned char rowBeg, unsigned char colEnd, unsigned char rowEnd);
 void PrintChr(unsigned char col, unsigned char row, const char *chr);

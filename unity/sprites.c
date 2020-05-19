@@ -445,17 +445,17 @@ void SetSprite(unsigned char index, unsigned char frame)
 	Blit();		
 	
 	// Adjust ink on even lines
-	if (sprMULTICOLOR[index] || PEEK(sprCOLOR+index) != AIC) {
+	if (sprMULTICOLOR[index] || PEEK(sprCOLOR+index) != SPR_AIC) {
 		inkAddr = scrAddr[index] + (spriteY%2)*40;
 		if (sprMULTICOLOR[index]) {
-			inkVAL = ink1[PEEK(sprMULTICOLOR[index])];
+			inkVAL = PEEK(sprMULTICOLOR[index]);
 			inkMUL = 1;
 		} else {
-			inkVAL = ink1[PEEK(sprCOLOR+index)];
+			inkVAL = PEEK(sprCOLOR+index);
 		}
 		for (i=0; i<rows/2; i++) {
 			if (sprMULTICOLOR[index] && i*2 > PEEK(sprMULTICOLOR[index]+inkMUL)) {
-				inkVAL = ink1[PEEK(sprMULTICOLOR[index]+inkMUL+1)];
+				inkVAL = PEEK(sprMULTICOLOR[index]+inkMUL+1);
 				inkMUL += 2;
 			}
 			POKE(inkAddr, inkVAL); inkAddr+=3;	// Set Sprite INK
