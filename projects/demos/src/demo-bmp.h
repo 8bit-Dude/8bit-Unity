@@ -16,7 +16,7 @@ int DemoBMP(void)
 #elif defined __LYNX__
 	unsigned char coords[3][4] = { { 12, 3, 30, 20 }, {  64, 3, 30, 20 }, {116, 3, 30, 20} };
 #elif defined __ORIC__
-	unsigned char coords[3][4] = { {  9, 2, 24, 21 }, {  48, 2, 24, 21 }, { 87, 2, 24, 21} };
+	unsigned char coords[3][4] = { { 18, 4, 48, 42 }, {  96, 4, 48, 42 }, {174, 4, 48, 42} };
 #endif
 	clock_t time = clock();
 	

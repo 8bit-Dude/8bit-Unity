@@ -15,6 +15,10 @@
   #define mouseStep 3	// Apple soft sprites cause slow animation...
   #define unitStep  4
   #define unitTicks 3
+#elif defined __ORIC__
+  #define mouseStep 3
+  #define unitStep  3
+  #define unitTicks 5
 #else
   #define mouseStep 2
   #define unitStep  3
@@ -61,15 +65,6 @@
 									 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef }; // Default palette	
 #endif
 
-// Graphic chunk structure 
-typedef struct {
-	unsigned char x, y, w, h;	// Position and size
-	unsigned char* data;		// Chunk data
-} Chunk;
-
-#define MAX_CHUNK 6
-Chunk chunks[MAX_CHUNK];
-
 // Scene interactable flags
 #define INACTIVE 0
 #define ACTIVE   1
@@ -79,12 +74,9 @@ Chunk chunks[MAX_CHUNK];
 typedef struct {
 	unsigned int x, y, r;	// Mouse detection circle
 	unsigned int cx, cy;  // Mouse click coordinates
-	char  flags;
-	char* label;	
-	char* question;	
-	char* answer;	
-	Chunk* chunk1;	
-	Chunk* chunk2;
+	unsigned char flags;
+	unsigned char *label, *question, *answer;	
+	unsigned char *chunk1, *chunk2;
 } Interact;
 
 #define MAX_INTERACT 6

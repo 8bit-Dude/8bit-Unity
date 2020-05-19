@@ -64,7 +64,7 @@ void ProcessInteract(unsigned char index, unsigned char item, unsigned char x, u
 			PopItem(item);
 			interacts[4].flags |= PICKABLE;
 			interacts[4].chunk1 = 0;
-			interacts[4].chunk2 = &chunks[3];
+			interacts[4].chunk2 = chunks[3];
 			interacts[4].answer = 0;
 			inkColor = RED;
 			PrintMessage("Just what I need for my thirst!\nWould you like some sausage?");
@@ -85,14 +85,14 @@ void ProcessInteract(unsigned char index, unsigned char item, unsigned char x, u
 		// Process answer/chunk#1 (if any)
 		if (interact->answer || interact->chunk1) {
 			inkColor = RED;
-			if (interact->chunk1) DrawSceneChunk(interact->chunk1);
+			if (interact->chunk1) DrawChunk(interact->chunk1);
 			if (interact->answer) PrintMessage(interact->answer);
 			Wait(120);
 		}
 		
 		// Process graphic chunk #2 (if any)
 		if (interact->chunk2) {
-			if (interact->chunk2) DrawSceneChunk(interact->chunk2);
+			if (interact->chunk2) DrawChunk(interact->chunk2);
 		}	
 		
 		// Process pickable item
@@ -122,24 +122,27 @@ unsigned char SearchScene(signed int searchX, signed int searchY)
 	}
 	return 255;
 }
-		
+
 // Initialize scene animations
 void InitScene()
 {	
 	// Prepare graphic chunks
-	LoadSceneChunk(&chunks[0], "chunk0.dat");	// Load Notable animation
-	LoadSceneChunk(&chunks[1], "chunk1.dat");	// Load Old men animation
-	LoadSceneChunk(&chunks[2], "chunk2.dat");	// Load Bottle removed
-	LoadSceneChunk(&chunks[3], "chunk3.dat");	// Load Sausage removed
-	GrabSceneChunk(&chunks[4], &chunks[0]);		// Grab Notable bakground
-	GrabSceneChunk(&chunks[5], &chunks[1]);		// Grab Old men background
+	LoadChunk(&chunks[0], "chunk0.dat");	// Load Notable animation
+	LoadChunk(&chunks[1], "chunk1.dat");	// Load Old men animation
+	LoadChunk(&chunks[2], "chunk2.dat");	// Load Bottle removed
+	LoadChunk(&chunks[3], "chunk3.dat");	// Load Sausage removed
+	GrabChunkBG(&chunks[4], chunks[0]);		// Grab Notable bakground
+	GrabChunkBG(&chunks[5], chunks[1]);		// Grab Old men background
+#if (defined __ORIC__)
+	chunks[2][3] = 11;	// For some reason, the last line corrupts the screen...
+#endif
 
 	// Assign graphic chunks to interactables
-	interacts[1].chunk1 = &chunks[1];
-	interacts[1].chunk2 = &chunks[5];
-	interacts[2].chunk2 = &chunks[2];
-	interacts[4].chunk1 = &chunks[0];
-	interacts[4].chunk2 = &chunks[4];
+	interacts[1].chunk1 = chunks[1];
+	interacts[1].chunk2 = chunks[5];
+	interacts[2].chunk2 = chunks[2];
+	interacts[4].chunk1 = chunks[0];
+	interacts[4].chunk2 = chunks[4];
 
 	// Assign ink/paper colors
 	inkColor = WHITE;
