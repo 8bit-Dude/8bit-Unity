@@ -31,7 +31,7 @@
 	Atari:  X/W must be multiples of 4 (e.g. 0,4,8,12... ) |              No restrictions
 	C64:    X/W must be multiples of 4 (e.g. 0,4,8,12... ) |  Y/H must be multiples of 8  (e.g. 0,8,16,24...)
 	Lynx:   X/W must be multiples of 2 (e.g. 0,2,4,6... )  |              No restrictions
-	Oric:   X/W must be multiples of 3 (e.g. 0,3,6,9...)   |  Y/H must be multiples of 2  (e.g. 0,2,4,6...) 
+   	Oric:   X/W must be multiples of 6 (e.g. 0,6,12,18...) |  			  No restrictions
  */
  
 #include "unity.h"
@@ -53,7 +53,7 @@ unsigned int ChunkSize(unsigned char w, unsigned char h)
 #elif defined __ATARI__
 	return 4+(w*h*2)/4;
 #elif defined __ORIC__
-	return 4+(w*h*2)/3;
+	return 4+(w*h)/6;
 #elif defined __C64__
 	return 4+(w*h*10)/32;
 #elif defined __LYNX__
@@ -89,21 +89,11 @@ void LoadChunk(unsigned char** chunk, char *filename)
 
 void GetChunk(unsigned char** chunk, unsigned char x, unsigned char y, unsigned char w, unsigned char h)
 {
-	// Initialize block size
-#if defined __APPLE2__
-	unsigned char bytes = 2*w/7;
-#elif defined __ATARI__
-	unsigned char i, bytes = w/4;
-#elif defined __C64__
-	unsigned char i, bytes = (w*8)/4;
-#elif defined __LYNX__
-	unsigned char i, bytes = w/2;
-#elif defined __ORIC__
-	unsigned char bytes = w/3;
-#endif
-	unsigned int addr;
-
 	// Allocate memory for bitmap chunk
+#if (defined __ATARI__) || (defined __C64__) || (defined __LYNX__) || (defined __ORIC__)
+	unsigned char i, bytes;
+	unsigned int addr;
+#endif
 	unsigned int size = ChunkSize(w,h);
 	*chunk = (unsigned char*)malloc(size);
 	POKE(*chunk+0, x);
@@ -113,7 +103,7 @@ void GetChunk(unsigned char** chunk, unsigned char x, unsigned char y, unsigned 
 
 #if defined __APPLE2__
 	// Blit data from DHR memory
-	POKE(0xE3, bytes);		// Bytes per line (x2 for MAIN/AUX)	
+	POKE(0xE3, 2*w/7);		// Bytes per line (x2 for MAIN/AUX)	
 	POKE(0xEB, h);			// Number of lines
 	POKE(0xEC, 2*x/7);		// DHR Offset X
 	POKE(0xED, y);			// DHR Offset Y
@@ -123,6 +113,7 @@ void GetChunk(unsigned char** chunk, unsigned char x, unsigned char y, unsigned 
 	
 #elif defined __ATARI__
 	// Copy data from double buffer
+	bytes = w/4;
 	addr = *chunk+4;
 	for (i=0; i<h; ++i) {
 		memcpy((char*)addr, (char*)(BITMAPRAM1+(y+i)*40+x/4), bytes);
@@ -134,17 +125,18 @@ void GetChunk(unsigned char** chunk, unsigned char x, unsigned char y, unsigned 
 	}
 #elif defined __ORIC__
 	// Blit data from bitmap memory
-	addr = BITMAPRAM + y*80 + x/3 + 1;
-	POKE(0xb0, 2*h); 		// Number of lines
-	POKE(0xb1, bytes);		// Bytes per line
+	addr = BITMAPRAM + y*40 + x/6;
+	POKE(0xb0, h); 			// Number of lines
+	POKE(0xb1, w/6);		// Bytes per line
 	POKEW(0xb2, addr-1);	// Address of source (-1)
 	POKEW(0xb4, *chunk+3);	// Address of target (-1)
 	POKE(0xb6, 40); 		// Offset between source lines
-	POKE(0xb7, w/3); 		// Offset between target lines
+	POKE(0xb7, w/6); 		// Offset between target lines
 	Blit();	
 	
 #elif defined __C64__
 	// Copy data to bitmap, color and screen memory
+	bytes = (w*8)/4;
 	addr = *chunk+4;	
 	DisableRom();
 	for (i=0; i<h; i+=8) {
@@ -164,6 +156,7 @@ void GetChunk(unsigned char** chunk, unsigned char x, unsigned char y, unsigned 
 	
 #elif defined __LYNX__
 	// Copy data to bitmap memory
+	bytes = w/2;
 	addr = *chunk+4;	
 	for (i=0; i<h; ++i) {
 		memcpy((char*)addr, (char*)(BITMAPRAM+(y+i)*82+x/2+1), bytes);
@@ -199,13 +192,13 @@ void SetChunk(unsigned char* chunk, unsigned char x, unsigned char y)
 	}
 #elif defined __ORIC__
 	// Blit data to bitmap memory
-	unsigned int addr = BITMAPRAM + y*80 + x/3 + 1;
-	POKE(0xb0, 2*h); 			// Number of lines
-	POKE(0xb1, w/3);			// Bytes per line
+	unsigned int addr = BITMAPRAM + y*40 + x/6;
+	POKE(0xb0, h); 			// Number of lines
+	POKE(0xb1, w/6);		// Bytes per line
 	POKEW(0xb2, chunk+3);	// Address of source (-1)
-	POKEW(0xb4, addr-1);		// Address of target (-1)
-	POKE(0xb6, w/3); 			// Offset between source lines
-	POKE(0xb7, 40); 			// Offset between target lines
+	POKEW(0xb4, addr-1);	// Address of target (-1)
+	POKE(0xb6, w/6); 		// Offset between source lines
+	POKE(0xb7, 40); 		// Offset between target lines
 	Blit();	
 #elif defined __C64__
 	// Copy data to bitmap, color and screen memory
