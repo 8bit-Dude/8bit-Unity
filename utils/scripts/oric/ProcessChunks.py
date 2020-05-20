@@ -12,6 +12,8 @@ lines = script.readlines()
 script.close()
 
 listing = open(outfolder+'chunks.lst', "w")
+sourceindex = 0;
+sources = dict()
 
 for line in lines:
     # Skip comments
@@ -50,11 +52,17 @@ for line in lines:
     coords = [int(s) for s in line[offset1:offset2].split(',')]
 
     # Convert file to oric graphic
-    print os.getcwd()
-    subprocess.call(["luajit.exe", "PictOric.lua", dithering, infile, outfile])
+    if infile in sources:    
+        sourcefile = sources[infile]
+    else:
+        sourcefile = outfolder + "/source" + str(sourceindex) + ".dat"
+        sourcefile = sourcefile.replace('//','/')
+        sourceindex += 1
+        subprocess.call(["luajit.exe", "PictOric.lua", dithering, infile, sourcefile])
+        sources[infile] = sourcefile
 
     # Read the entire image
-    f1 = io.open(outfile, 'rb')
+    f1 = io.open(sourcefile, 'rb')
     data = f1.read()
     f1.close()
     

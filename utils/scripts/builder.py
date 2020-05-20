@@ -146,6 +146,7 @@ class Application:
         self.entry_OricSpriteFrames = self.builder.get_object('Entry_OricSpriteFrames')
         self.entry_OricSpriteWidth = self.builder.get_object('Entry_OricSpriteWidth')
         self.entry_OricSpriteHeight = self.builder.get_object('Entry_OricSpriteHeight')
+        self.entry_OricDithering = self.builder.get_object('Entry_OricDithering')
         
         self.listbox_Shared = self.builder.get_object('Listbox_Shared')
         self.listbox_Code = self.builder.get_object('Listbox_Code')
@@ -161,7 +162,8 @@ class Application:
                          self.entry_AtariSpriteFrames, self.entry_AtariSpriteWidth, self.entry_AtariSpriteHeight, 
                          self.entry_C64SpriteFrames, self.entry_C64SpriteWidth, self.entry_C64SpriteHeight, 
                          self.entry_LynxSpriteFrames, self.entry_LynxSpriteWidth, self.entry_LynxSpriteHeight, 
-                         self.entry_OricSpriteFrames, self.entry_OricSpriteWidth, self.entry_OricSpriteHeight ]
+                         self.entry_OricSpriteFrames, self.entry_OricSpriteWidth, self.entry_OricSpriteHeight,
+                         self.entry_OricDithering ]
         self.listboxes = [ self.listbox_Code, 
                            self.listbox_AppleBitmap, self.listbox_AppleSprites, self.listbox_AppleMusic,
                            self.listbox_AtariBitmap, self.listbox_AtariSprites, self.listbox_AtariMusic,
@@ -1012,23 +1014,27 @@ class Application:
             fp.write('del build\\oric\\*.* /F /Q\n\n')
             fp.write('echo --------------- CONVERT ASSETS ---------------  \n\n')
             
-            # Process Shared / Bitmaps / Sprites
-            for item in shared:
-                filebase = FileBase(item, '')
-                fp.write('utils\\scripts\\oric\\header -a0 ' + item + ' build/oric/' + filebase + ' $A000\n')
+            # Process Bitmaps / Chunks / Sprites / Shared
+            fp.write('cd utils\\scripts\\oric\n')
             for item in bitmaps:
                 filebase = FileBase(item, '-oric.png')
-                fp.write('utils\\py27\\python utils\\scripts\\oric\\OricBitmap.py ' + item + ' build/oric/' + filebase + '.dat 19\n')
-                fp.write('utils\\scripts\\oric\\header -a0 build/oric/' + filebase + '.dat build/oric/' + filebase + '.map $A000\n')
+                #fp.write('utils\\py27\\python utils\\scripts\\oric\\OricBitmap.py ' + item + ' build/oric/' + filebase + '.dat 19\n')  OLD CONVERTOR
+                fp.write('luajit PictOric.lua ' + self.entry_OricDithering.get() + ' ../../../' + item + ' ../../../build/oric/' + filebase + '.dat\n')
+                fp.write('header -a0 ../../../build/oric/' + filebase + '.dat ../../../build/oric/' + filebase + '.map $A000\n')
+            if len(chunks) > 0:
+                #fp.write('utils\\py27\\python utils\\scripts\\ProcessChunks.py oric ' + chunks[0] + ' build/oric/\n')  OLD CONVERTOR
+                fp.write('..\\..\\py27\\python ProcessChunks.py ' + self.entry_OricDithering.get() + ' ../../../' + chunks[0] + ' ../../../build/oric/\n')
+                fp.write('for /f "tokens=*" %%A in (..\\..\\..\\build\\oric\\chunks.lst) do header -a0 ../../../%%A ../../../%%A $8000\n')
+            fp.write('cd ..\\..\\..\n')
             if len(sprites) > 0:
                 fp.write('utils\\py27\\python utils\\scripts\\oric\\OricSprites.py ' + sprites[0] + ' build/oric/sprites.dat\n')
                 fp.write('utils\\scripts\\oric\\header -a0 build/oric/sprites.dat build/oric/sprites.dat $7800\n')
-            if len(chunks) > 0:
-                fp.write('utils\\py27\\python utils\\scripts\\ProcessChunks.py oric ' + chunks[0] + ' build/oric/\n')
-                fp.write('for /f "tokens=*" %%A in (build\\oric\\chunks.lst) do utils\\scripts\\oric\\header -a0 %%A %%A $8000\n')
             if len(music) > 0:
                 fp.write('utils\\scripts\\oric\\ym2mym ' + music[0] + ' build/oric/music.dat\n')
                 fp.write('utils\\scripts\\oric\\header -h1 -a0 build/oric/music.dat build/oric/music.dat $8000\n')
+            for item in shared:
+                filebase = FileBase(item, '')
+                fp.write('utils\\scripts\\oric\\header -a0 ' + item + ' build/oric/' + filebase + ' $A000\n')
                 
             # Info
             fp.write('\necho DONE!\n\n')

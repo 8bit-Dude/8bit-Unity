@@ -30,26 +30,49 @@ from PIL import Image
 input = sys.argv[1]
 output = sys.argv[2]
 
-#################################
-# Read source bitmap and correct indices
 img1 = Image.open(input)
-pixdata = list(img1.getdata())
-for i in range(len(pixdata)):
-    if pixdata[i] == 1: 
-        pixdata[i] = 2
-        continue
-    if pixdata[i] == 2: 
-        pixdata[i] = 1
-        continue
+rawdata = list(img1.getdata())
 
-################################
-# Convert pixel data to buffers 
+###################################
+# Split into 4 colors layers
+layers = 0
+layerdata = []
+while (layers+3) <= max(rawdata):
+    pixdata = []
+    
+    # Transcribe unique colors to different layers
+    for i in range(len(rawdata)):
+        # Transparent or shared color?
+        if (rawdata[i] in [0,1]): 
+            color = rawdata[i]
+        elif (rawdata[i] == 2): 
+            color = 3        
+        # Is it the unique color of layer?
+        elif (rawdata[i] == layers+3): 
+            color = 2
+        # Otherwise use transparent
+        else:
+            color = 0
+        pixdata.append(color)
+        
+    # Add to layer data
+    layerdata.append(pixdata)
+    layers += 1
+
+####################################
+# Convert 4bit pixel data to buffers 
 block = 12*21
-frames = len(pixdata) / block
-sprdata = [chr(0)] * (frames*64)
-for f in range(frames):
-    for i in range(0, block, 4):
-        sprdata[f*64+i/4] = chr((pixdata[f*block+i+3]) + (pixdata[f*block+i+2]<<2) + (pixdata[f*block+i+1]<<4) + (pixdata[f*block+i]<<6))
+frames = len(rawdata)/block
+layersize = frames*64
+sprdata = [chr(0)] * (layers*layersize)
+for layer in range(layers):
+    for frame in range(frames):
+        for i in range(0, block, 4):
+            sprdata[layer*layersize+frame*64+i/4] = \
+                        chr((layerdata[layer][frame*block+i+3]<<0) + 
+                            (layerdata[layer][frame*block+i+2]<<2) + 
+                            (layerdata[layer][frame*block+i+1]<<4) + 
+                            (layerdata[layer][frame*block+i]  <<6))
 
 ###########################
 # Write output binary file

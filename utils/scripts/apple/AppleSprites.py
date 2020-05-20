@@ -61,9 +61,9 @@ pixdata = list(img1.getdata())
 # Create sprite file
 f1 = io.open(output, 'wb')
 
-# Write load address ($AB00)
-f1.write(chr(0));
-f1.write(chr(171));
+# Write load address ($A800)
+f1.write(chr(0x00));
+f1.write(chr(0xa8));
 
 # Process in blocks of 7 pixels > 4 bytes
 for i in range(len(pixdata)/7):

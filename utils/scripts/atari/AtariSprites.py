@@ -44,20 +44,22 @@ block = 8*height
 frames = len(pixdata) / block
 numBytes = (colors*frames*height)
 sprdata = [chr(0)] * numBytes
-for v in range(1,max(pixdata)+1):
-    for f in range(frames):
+for color in range(1,max(pixdata)+1):
+    for frame in range(frames):
         for i in range(0, block, 8):
-            sprdata[(v-1)*frames*height+f*height+i/8] = \
-                chr(((pixdata[f*block+i+7]==v)<<0) + ((pixdata[f*block+i+6]==v)<<1) + ((pixdata[f*block+i+5]==v)<<2) + ((pixdata[f*block+i+4]==v)<<3)
-                  + ((pixdata[f*block+i+3]==v)<<4) + ((pixdata[f*block+i+2]==v)<<5) + ((pixdata[f*block+i+1]==v)<<6) + ((pixdata[f*block+i+0]==v)<<7))
+            sprdata[(color-1)*frames*height+frame*height+i/8] = \
+                chr(((pixdata[frame*block+i+7]==color)<<0) + ((pixdata[frame*block+i+6]==color)<<1) + 
+                    ((pixdata[frame*block+i+5]==color)<<2) + ((pixdata[frame*block+i+4]==color)<<3) + 
+                    ((pixdata[frame*block+i+3]==color)<<4) + ((pixdata[frame*block+i+2]==color)<<5) + 
+                    ((pixdata[frame*block+i+1]==color)<<6) + ((pixdata[frame*block+i+0]==color)<<7))
 
 ###########################
 # Write output binary file
 f2 = io.open(output, 'wb')
 begLow = chr(0x00)
-begHig = chr(0x97)
-endLow = chr((0x9700+numBytes-1)%256)
-endHig = chr((0x9700+numBytes-1)/256)
+begHig = chr(0x90)
+endLow = chr((0x9000+numBytes-1)%256)
+endHig = chr((0x9000+numBytes-1)/256)
 f2.write(''.join([chr(0xff),chr(0xff),begLow,begHig,endLow,endHig]))
 f2.write(''.join(sprdata))
 f2.close()
