@@ -1,13 +1,10 @@
 
 #include "definitions.h"
 
-#define MAX_CHUNK 6
-unsigned char* chunks[MAX_CHUNK];
-
 // Grab graphic chunk from screen
-void GrabChunkBG(unsigned char** grab, unsigned char* template)
+void GrabBackground(unsigned char** bcgr, unsigned char* anim)
 {
-	GetChunk(grab, template[0], template[1], template[2], template[3]);
+	GetChunk(bcgr, anim[0], anim[1], anim[2], anim[3]);
 }
 
 // Draw graphic chunk to screen

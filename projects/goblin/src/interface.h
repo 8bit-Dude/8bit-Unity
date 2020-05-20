@@ -56,3 +56,37 @@ void PrintInventory(void)
 	}
 	inkColor = WHITE;
 }
+
+// Draw mouse pointer
+void DrawPointer(unsigned int x, unsigned int y, unsigned char pressed) 
+{
+#if defined __ATARI__
+	LocateSprite(x+4, y);
+#else		
+	LocateSprite(x+4, y+4);
+#endif	
+	SetSprite(0, pressed);
+#if defined __LYNX__
+	UpdateDisplay(); // Refresh Lynx screen
+#endif
+}
+
+// Draw player unit
+void DrawUnit(unsigned int x, unsigned int y, unsigned char frame) 
+{
+#if (defined __CBM__) 
+	LocateSprite(x, y-20);
+#elif (defined __ATARI__)
+	LocateSprite(x, y-16);
+#else
+	LocateSprite(x, y-10);
+#endif
+#if (defined __ATARI__) || (defined __CBM__)
+	SetSprite(1, frame);	// Unit color #1
+	SetSprite(2, frame+14);	// Unit color #2
+	SetSprite(3, frame+28);	// Unit color #3
+	SetSprite(4, frame+42);	// Unit color #4
+#else
+	SetSprite(1, frame);
+#endif
+}

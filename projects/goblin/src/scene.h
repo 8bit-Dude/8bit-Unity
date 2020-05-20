@@ -2,13 +2,16 @@
 #include "interface.h"
 
 void Wait(unsigned char ticks) 
-{
+{	
 	clock_t animClock = clock();
+#ifdef __ORIC__
+	ticks *= 2;	// Clock runs faster on the Oric
+#endif
 	while (clock()<animClock+ticks) { 
 	#ifdef __APPLE2__
 		wait(1); clk += 10;  // Manually update clock on Apple 2
 	#endif
-	} 
+	}
 }
 
 // Manage inventory
@@ -45,29 +48,42 @@ unsigned char SelectItem(unsigned int x, unsigned int y)
 }
 
 // Process interactable object
-void ProcessInteract(unsigned char index, unsigned char item, unsigned char x, unsigned char y)
+unsigned char ProcessInteract(unsigned char index, unsigned char item, unsigned int unitX, unsigned int unitY)
 {
 	signed int deltaX, deltaY;
 	Interact* interact = &interacts[index];
 	
 	// Check if we are close enough?
-	deltaX = interact->x; deltaX = ABS(deltaX-x); 
-	deltaY = interact->y; deltaY = ABS(deltaY-y);
-	if (deltaX > 30 || deltaY > 25) return;
+	deltaX = interact->x; deltaX = ABS(deltaX-unitX); 
+	deltaY = interact->y; deltaY = ABS(deltaY-unitY);
+	if (deltaX > 30 || deltaY > 25) return 0;
 	
 	if (item != 255) {
 		// Use item on interact
 		if (!strcmp(items[item].label, "Flower") && (index < 2)) {
 			inkColor = RED;
 			PrintMessage("No, thank you...");
-		} else if (!strcmp(items[item].label, "Bottle") && (index < 1)) {
+		} else if (!strcmp(items[item].label, "Bottle") && (index < 2)) {
+			if (index == 1) {
+				inkColor = RED;
+				PrintMessage("We are not thirsty...\nWe are hungry!!");
+				Wait(60);
+			} else {
+				PopItem(item);
+				interacts[4].flags |= PICKABLE;
+				interacts[4].chunk1 = 0;
+				interacts[4].chunk2 = chunkAnim[3];	 // Sausage removed
+				interacts[4].answer = 0;
+				inkColor = RED;
+				PrintMessage("Just what I need in this heat!\nWould you like some sausage?");
+				Wait(60);
+			}
+		} else if (!strcmp(items[item].label, "Sausage") && (index == 1)) {
 			PopItem(item);
-			interacts[4].flags |= PICKABLE;
-			interacts[4].chunk1 = 0;
-			interacts[4].chunk2 = chunks[3];
-			interacts[4].answer = 0;
+			interacts[6].flags |= ACTIVE;  // Fountain interactable
 			inkColor = RED;
-			PrintMessage("Just what I need for my thirst!\nWould you like some sausage?");
+			interacts[1].answer = "Thank you kind sir!\nGo right, to the fountain.\0";
+			PrintMessage(interacts[1].answer);
 			Wait(60);
 		} else {
 			inkColor = YELLOW;
@@ -85,9 +101,27 @@ void ProcessInteract(unsigned char index, unsigned char item, unsigned char x, u
 		// Process answer/chunk#1 (if any)
 		if (interact->answer || interact->chunk1) {
 			inkColor = RED;
-			if (interact->chunk1) DrawChunk(interact->chunk1);
-			if (interact->answer) PrintMessage(interact->answer);
-			Wait(120);
+			if (index == 5) {
+				// Jump animation
+				BleepSFX(64);
+				DrawUnit(unitX, unitY-10, frameWalkLeftBeg);
+				DrawChunk(interact->chunk1);
+				Wait(10);
+				DrawUnit(unitX, unitY-20, frameWalkLeftBeg);
+				Wait(10);
+				DrawUnit(unitX, unitY-25, frameWalkLeftBeg);
+				Wait(10);
+				DrawUnit(unitX, unitY-20, frameWalkLeftBeg);
+				Wait(10);
+				DrawChunk(interact->chunk2);
+				DrawUnit(unitX, unitY-10, frameWalkLeftBeg);
+				Wait(10);
+				DrawUnit(unitX, unitY, frameWalkLeftBeg);
+			} else {
+				if (interact->chunk1) DrawChunk(interact->chunk1);
+				if (interact->answer) PrintMessage(interact->answer);
+				Wait(120);
+			}
 		}
 		
 		// Process graphic chunk #2 (if any)
@@ -102,21 +136,27 @@ void ProcessInteract(unsigned char index, unsigned char item, unsigned char x, u
 		}
 	}
 	
+	// Check is quest is completed
+	if (index == 6) return 1;
+	
 	// Clean-up
 	PrintMessage("\0");
 	inkColor = WHITE;
+	return 0;
 }
 
 // Search for interactable object under the mouse cursor
-unsigned char SearchScene(signed int searchX, signed int searchY) 
+unsigned char SearchScene(unsigned int searchX, unsigned int searchY) 
 {
 	unsigned char i;
+	signed int deltaX, deltaY;
 	Interact* interact;
 	for (i=0; i<MAX_INTERACT; i++) {
 		interact = &interacts[i];
 		if (!interact->flags) continue;
-		if (((searchX - interact->x) * (searchX - interact->x) + 
-		     (searchY - interact->y) * (searchY - interact->y) ) < (interact->r * interact->r)) {
+		deltaX = searchX - interact->x;
+		deltaY = searchY - interact->y;
+		if ( (deltaX * deltaX + deltaY * deltaY) < (interact->r * interact->r) ) {
 			return i;
 		}
 	}
@@ -126,25 +166,43 @@ unsigned char SearchScene(signed int searchX, signed int searchY)
 // Initialize scene animations
 void InitScene()
 {	
-	// Prepare graphic chunks
-	LoadChunk(&chunks[0], "chunk0.dat");	// Load Notable animation
-	LoadChunk(&chunks[1], "chunk1.dat");	// Load Old men animation
-	LoadChunk(&chunks[2], "chunk2.dat");	// Load Bottle removed
-	LoadChunk(&chunks[3], "chunk3.dat");	// Load Sausage removed
-	GrabChunkBG(&chunks[4], chunks[0]);		// Grab Notable bakground
-	GrabChunkBG(&chunks[5], chunks[1]);		// Grab Old men background
+	// Load bitmap
+	ExitBitmapMode();
+	LoadBitmap("scene1.map");
+	EnterBitmapMode();
+
+	// Prepare graphic animations
+	LoadChunk(&chunkAnim[0], "chunk0.dat");	 // Load Notable animation
+	LoadChunk(&chunkAnim[1], "chunk1.dat");	 // Load Old men animation
+	LoadChunk(&chunkAnim[2], "chunk2.dat");	 // Load Bottle removed
+	LoadChunk(&chunkAnim[3], "chunk3.dat");	 // Load Sausage removed
+	LoadChunk(&chunkAnim[4], "chunk4.dat");	 // Switch animation
 #if (defined __ORIC__)
-	chunks[2][3] = 11;	// For some reason, the last line corrupts the screen...
+	chunkAnim[2][3] = 11;	// For some reason, the last line corrupts the screen...
 #endif
 
-	// Assign graphic chunks to interactables
-	interacts[1].chunk1 = chunks[1];
-	interacts[1].chunk2 = chunks[5];
-	interacts[2].chunk2 = chunks[2];
-	interacts[4].chunk1 = chunks[0];
-	interacts[4].chunk2 = chunks[4];
+	// Grab background of some animations
+	GrabBackground(&chunkBcgr[0], chunkAnim[0]);  // Grab Notable bakground
+	GrabBackground(&chunkBcgr[1], chunkAnim[1]);  // Grab Old men background
+	GrabBackground(&chunkBcgr[2], chunkAnim[4]);  // Grab Switch background
 
+	// Assign animations to interactables
+	interacts[1].chunk1 = chunkAnim[1];	 // Old men speaking
+	interacts[1].chunk2 = chunkBcgr[1];
+	interacts[2].chunk2 = chunkAnim[2];  // Bottle removed
+	interacts[4].chunk1 = chunkAnim[0];  // Sausage attack
+	interacts[4].chunk2 = chunkBcgr[0];
+	interacts[5].chunk1 = chunkAnim[4];  // Swith animation
+	interacts[5].chunk2 = chunkBcgr[2];
+	
 	// Assign ink/paper colors
-	inkColor = WHITE;
+#if (defined __ORIC__)
 	paperColor = ORANGE;
+	SetAttributes(-1, CHR_ROWS-2, paperColor);
+	SetAttributes(-1, CHR_ROWS-1, paperColor);
+	PrintBlanks(0, CHR_ROWS-2, CHR_COLS-1, CHR_ROWS-1);	
+#else	
+	paperColor = ORANGE;
+	inkColor = WHITE;
+#endif	
 }

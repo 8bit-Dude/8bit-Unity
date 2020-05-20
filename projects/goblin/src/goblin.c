@@ -17,8 +17,6 @@ void GameLoop(void)
 	while (1) {
 	#if defined __APPLE2__
 		clk += 1;  // Manually update clock on Apple 2
-	#elif defined __LYNX__
-		UpdateDisplay(); // Refresh Lynx screen
 	#endif		
 		// Move cursor
 		mouseMotion = 0;
@@ -29,6 +27,9 @@ void GameLoop(void)
 		if (!(joy & JOY_LEFT))  { mouseX -= mouseStep; if (mouseX > 320) mouseX = 0; }
 		if (!(joy & JOY_RIGHT)) { mouseX += mouseStep; if (mouseX > 320) mouseX = 320; }
 		if (!(joy & JOY_BTN1))  { mouseL = 1; } else { mouseL = 0; mouseAction = 0; }
+		
+		// Update mouse pointer
+		DrawPointer(mouseX, mouseY, mouseL);
 		
 		// Search scene
 		if (mouseMotion) {
@@ -48,14 +49,7 @@ void GameLoop(void)
 	 		// Record action
 			mouseAction = 1;
 			BumpSFX();
-			
-	 		// Update mouse cursor
-			LocateSprite(mouseX+4, mouseY+4);
-			SetSprite(0, mouseL);
-		#if defined __LYNX__
-			UpdateDisplay(); // Refresh Lynx screen
-		#endif
-		
+					
 			// Is mouse cursor in inventory area?
 			if (mouseY > INVENTORY_Y) {
 				sceneItem = SelectItem(mouseX, mouseY);
@@ -117,49 +111,36 @@ void GameLoop(void)
 			} else {
 				// Process trigger (if any) and set wait frame
 				if (sceneInteract != 255) {
-					ProcessInteract(sceneInteract, sceneItem, unitX, unitY);
+					if (ProcessInteract(sceneInteract, sceneItem, unitX, unitY)) return;
 					sceneInteract = 255;
 					sceneItem = 255;
 				}
 				unitFrame = waitFrame;
 			}
+			DrawUnit(unitX, unitY, unitFrame);
 		}
-	
-		// Set sprites
-		LocateSprite(mouseX+4, mouseY+4);
-		SetSprite(0, mouseL);
-	#if (defined __CBM__) 
-		LocateSprite(unitX, unitY-20);
-	#elif (defined __ATARI__)
-		LocateSprite(unitX, unitY-16);
-	#else
-		LocateSprite(unitX, unitY-10);
-	#endif
-	#if (defined __ATARI__) || (defined __CBM__)
-		SetSprite(1, unitFrame);		// Unit color #1
-		SetSprite(2, unitFrame+14);	// Unit color #2
-		SetSprite(3, unitFrame+28);	// Unit color #3
-		SetSprite(4, unitFrame+42);	// Unit color #4
-	#else
-		SetSprite(1, unitFrame);
-	#endif
 	}	
 }
 
 void SplashScreen(void)
 {
 	// Load and show banner
-	ExitBitmapMode();
+	ExitBitmapMode();	
 	LoadBitmap("banner.map");
 	EnterBitmapMode();
 	
 	// Show credit/build
+#if (defined __ORIC__)
+	inkColor = AIC;
+	PrintBlanks(CHR_COLS-12, CHR_ROWS-4, CHR_COLS-1, CHR_ROWS-2);
+#else		
 	pixelX = 0; pixelY = 0;
 	paperColor = GetPixel(); 
 	inkColor = WHITE; 
+#endif
 	PrintStr(CHR_COLS-11, CHR_ROWS-4, "TECH DEMO");		
 	PrintStr(CHR_COLS-12, CHR_ROWS-3, "BY 8BIT-DUDE");		
-	PrintStr(CHR_COLS-11, CHR_ROWS-2,  "2020/05/17");
+	PrintStr(CHR_COLS-11, CHR_ROWS-2,  "2020/05/20");
 	PlayMusic(MUSICRAM);
 
 	// Wait until key is pressed
@@ -170,6 +151,9 @@ void SplashScreen(void)
 		UpdateDisplay(); // Refresh Lynx screen
 	#endif
 	}	
+	
+	// Stop splash music
+	StopMusic();	
 }
 
 int main(void) 
@@ -205,22 +189,19 @@ int main(void)
 	DoubleHeightSprite(4, 1);
 #endif	
 
-	// Load and play music
+	// Load music
 	LoadMusic("music.dat", MUSICRAM);
 	
-	// Show Splash Screen
+	// Show splash screen
 	SplashScreen();
-	ExitBitmapMode();
-	StopMusic();
 
-	// Clear and show bitmap
-	LoadBitmap("scene1.map");
-	EnterBitmapMode();
-	PlayMusic(MUSICRAM);
-	
-	// Init and Run Scene
+	// Prepare scene
 	InitScene();
+	
+	// Run game loop
+	PlayMusic(MUSICRAM);
 	GameLoop();
+	StopMusic();
 	
 	// Black-out screen and clear key
 	DisableSprite(-1);	// "-1" disables all sprites

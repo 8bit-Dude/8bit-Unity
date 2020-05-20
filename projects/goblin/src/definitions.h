@@ -13,12 +13,12 @@
 // Motion parameters
 #if defined __APPLE2__
   #define mouseStep 3	// Apple soft sprites cause slow animation...
-  #define unitStep  4
+  #define unitStep  3
   #define unitTicks 3
 #elif defined __ORIC__
   #define mouseStep 3
   #define unitStep  3
-  #define unitTicks 5
+  #define unitTicks 6
 #else
   #define mouseStep 2
   #define unitStep  3
@@ -46,8 +46,8 @@
 #elif defined __ORIC__
 	#define spriteCols   12
 	#define spriteRows   24
-	unsigned char spriteColors[] = { AIC, AIC, AIC, AIC, AIC, AIC, AIC, AIC };  // AIC color for faster drawing!
-	unsigned char multiColorDef[] = { GREY, 8, GREEN, 16, BLUE, 24 };	// Multicolor definition { color, row, ... color, lastrow }
+	unsigned char spriteColors[] = { SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC };  // AIC color allows faster drawing!
+	unsigned char multiColorDef[] = { SPR_WHITE, 8, SPR_GREEN, 14, SPR_MAGENTA, 24 };	// Multicolor definition { color, row, ... color, lastrow }
 #elif defined __CBM__
 	#define spriteCols   12
 	#define spriteRows   21
@@ -65,6 +65,10 @@
 									 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef }; // Default palette	
 #endif
 
+// Chunks for scene animation
+unsigned char* chunkAnim[6];
+unsigned char* chunkBcgr[3];
+
 // Scene interactable flags
 #define INACTIVE 0
 #define ACTIVE   1
@@ -79,15 +83,16 @@ typedef struct {
 	unsigned char *chunk1, *chunk2;
 } Interact;
 
-#define MAX_INTERACT 6
+#define MAX_INTERACT 7
 Interact interacts[MAX_INTERACT] = 
-	{ {  55,  81, 15,  90,  93, 	ACTIVE,		 "Notable", "Dear sir, you look powerful. Can\nyou please help with my quest?\0", "Go away, I am busy!\0", 0, 0 },
-	  { 222,  66, 15, 194,  86, 	ACTIVE,		 "Old Men", "Hey, villagers, do you know\nthe house of the lord Tazaar?\0", "It's at the end of the village,\nthe house with the fountain...\0", 0, 0 },
-	  { 260,  70,  7, 240,  94, ACTIVE|PICKABLE, "Bottle",  0, 0, 0, 0 },
-	  { 230, 134, 10, 208, 141, ACTIVE|PICKABLE, "Flower",  0, 0, 0, 0 },
-	  {  69,  60,  7,  94,  93, 	ACTIVE, 	 "Sausage", 0, "Don't touch that!", 0, 0 },
-	  {  32,  77,  5,  18, 101, 	ACTIVE,		 "Switch",  0, 0, 0, 0 } };
-	  
+	{ {  55,  81, 15,  90,  93, 	ACTIVE,		 "Notable",  "Dear sir, you look powerful.\nPlease help me with my quest?\0", "Go away, I am busy!\0", 0, 0 },
+	  { 222,  66, 15, 194,  86, 	ACTIVE,		 "Old Men",  "Hey villagers, do you know\nthe house of lord Tazaar?\0", "We are hungry!! But the\nnotable keeps all the food.", 0, 0 },
+	  { 260,  70,  7, 240,  94, ACTIVE|PICKABLE, "Bottle",   0, 0, 0, 0 },
+	  { 230, 134, 10, 208, 141, ACTIVE|PICKABLE, "Flower",   0, 0, 0, 0 },
+	  {  69,  60,  7,  94,  93, 	ACTIVE, 	 "Sausage",  0, "Hey, don't touch that!", 0, 0 },
+	  {  32,  77,  5,  18, 101, 	ACTIVE,		 "Switch",   0, 0, 0, 0 },
+	  { 300, 170, 30, 300, 170,    INACTIVE,	 "Fountain", 0, "Well done little goblin!\nThe tech-demo ends here!", 0, 0 } };
+  
 // Player inventory
 typedef struct {
 	char col, row;
