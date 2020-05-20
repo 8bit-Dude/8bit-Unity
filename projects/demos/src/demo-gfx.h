@@ -29,7 +29,11 @@ int DemoGFX(void)
 			for (i=0; i<blockW; i++) {
 				pixelY = row;
 				pixelX = (color)*blockW + i;
+			#if defined __ORIC__
+				SetPixel(color+1);	// Don't show black (only space for 19 colors)
+			#else	
 				SetPixel(color);
+			#endif
 			}
 		}
 	}
