@@ -46,6 +46,7 @@
 	.export _sed_end
 	.export _sed_size
 	.export _sed_err
+	.export _sed_command
 	.export _sed_savefile
 	.export _sed_loadfile
 	.export _cls
@@ -62,6 +63,7 @@ _sed_end: .byte 0,0
 _sed_size: .byte 0,0
 _sed_err: .byte 0,0
 savebuf_zp: .res 256
+
 
 _sed_savefile:
 	tya
@@ -177,3 +179,20 @@ L_150_loop:
 _cls:
 	jmp $ccce
 	
+	
+_sed_command:	; invoke a SEDORIC command using black magic
+	ldy #$0        
+loop1:            ; copy command string to #35..#84
+	lda _sed_fname,y
+	sta $35,y
+	iny
+	ora #$0
+	bne loop1
+
+	sta $ea         ; update the line start pointer
+	lda #$35
+	sta $e9
+
+	jsr $00e2       ; get next token
+	;jsr $02f5       ; call the ! command handler
+	rts

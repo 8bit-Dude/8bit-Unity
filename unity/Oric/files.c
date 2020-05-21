@@ -37,22 +37,23 @@ extern void* sed_end;
 extern unsigned int sed_size;
 extern int sed_err;
 
+extern void __fastcall__ sed_savefile(void);
+extern void __fastcall__ sed_loadfile(void);
+extern void __fastcall__ sed_command(void);	
+
 int FileWrite(const char* fname, void* buf, int len) 
 {
-    extern void __fastcall__ sed_savefile(void);
     sed_fname = fname;
     sed_begin = buf;
     sed_end = (char*)sed_begin+len;
-    sed_size = len;
-    sed_savefile();    
+    sed_savefile();  	
     return sed_err;
 }
 
 int FileRead(const char* fname, void* buf)
 {
-	extern void __fastcall__ sed_loadfile(void);
     sed_fname = fname;
     sed_begin = buf;
     sed_loadfile();
-    return sed_err;
+    return sed_size;
 }

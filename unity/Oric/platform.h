@@ -56,7 +56,7 @@
 #define BLACK   0
 #define GREEN	1
 #define MGREEN	1
-#define DGREEN	2
+#define YELLOW	2
 #define CYAN	3
 #define LGREEN	4
 #define AIC		4
@@ -66,16 +66,27 @@
 #define DBLUE	7
 #define LBLUE 	8
 #define AQUA    9
-#define GREY2	10
+#define LGREY	10
 #define BROWN	11
-#define YELLOW	12
+#define GREY2	12
 #define RED		13
 #define ORANGE  14
 #define WHITE   15
-#define DPINK   16
+#define PINK    16
 #define LPURPLE 17
 #define LPINK   18
+#define LRED    18
 #define PURPLE  19
+
+// Sprite Palette
+#define SPR_AIC		3
+#define SPR_RED		1
+#define SPR_GREEN	2
+#define SPR_YELLOW	3
+#define SPR_BLUE	4
+#define SPR_MAGENTA 5
+#define SPR_CYAN  	6
+#define SPR_WHITE  	7
 
 // Clock
 #define TCK_PER_SEC	CLK_TCK

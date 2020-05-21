@@ -267,7 +267,7 @@ void LocatePixel(unsigned int x, unsigned int y)
 #elif defined __ATARI__	// INP Mode: 160 x 200
 	pixelX = x/2;
 	pixelY = y;
-#elif defined __ORIC__	// AIC Mode: 117 x 100
+#elif defined __ORIC__	// AIC Mode: 117 x 100 equivalent pixels
 	pixelX = (x*117)/320+3;	
 	pixelY = y/2;
 #elif defined __CBM__	// MLC Mode: 160 x 200
