@@ -2,6 +2,14 @@
 // 8bit-Unity SDK
 #include "unity.h"
 
+// *** Platform specific HACKS ***
+#if defined __CBM__
+	#undef  MUSICRAM
+	#define MUSICRAM (0x1000)  // This SID file is located at $1000 instead of usual $0800
+	//sidInitAddr = 0x1048;	
+	//sidPlayAddr = 0x1021;
+#endif			
+
 // Platform dependent definitions
 #if defined __CBM__
 	#define KEY_START 	CH_F1
@@ -63,8 +71,8 @@ unsigned char lapGoal;
 	#define spriteFrames 17
 	#define spriteCols   12
 	#define spriteRows   6
-	unsigned char spriteColors[] = { CYAN, MBLUE, LGREEN, GREY, AIC, AIC, AIC, AIC };	
-	unsigned char inkColors[] = { CYAN, MBLUE, LGREEN, GREY, WHITE };		// P1, P2, P3, P4, SERVER INFO
+	unsigned char spriteColors[] = { SPR_CYAN, SPR_MAGENTA, SPR_GREEN, SPR_WHITE, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC };	
+	unsigned char inkColors[] = { CYAN, LPURPLE, LGREEN, GREY, WHITE };		// P1, P2, P3, P4, SERVER INFO
 #elif defined __CBM__
 	#define spriteFrames 18
 	#define spriteCols   12

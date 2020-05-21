@@ -182,7 +182,7 @@ void GameInit(const char* map)
 				slot = (i+1)*8;
                 inkColor = inkColors[i]; 
 			#if defined __ORIC__
-				SetInk(slot-1, CHR_ROWS-1);
+				SetAttributes(slot-1, CHR_ROWS-1, inkColor);
 			#endif					
 				PrintChr(slot+1, CHR_ROWS-1, &charDigit[(i+1)*3]);
                 PrintChr(slot, CHR_ROWS-1, &charLetter[15*3]);

@@ -22,7 +22,7 @@ extern const char keyNext;
 	#define spriteFrames 16
 	#define spriteCols   12
 	#define spriteRows   6
-	unsigned char spriteColors[] = { SPR_CYAN, SPR_MAGENTA, SPR_GREEN, SPR_WHITE };	// Matching more or less with above
+	unsigned char spriteColors[] = { SPR_CYAN, SPR_MAGENTA, SPR_GREEN, SPR_WHITE, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC };	// Matching more or less with above
 	unsigned char inkColors[] = { CYAN, LPURPLE, LGREEN, GREY };		// P1, P2, P3, P4
 #elif defined __CBM__
 	#define spriteFrames 16

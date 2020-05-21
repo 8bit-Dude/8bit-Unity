@@ -16,18 +16,21 @@ int main (void)
 	InitSprites(spriteFrames, spriteCols, spriteRows, spriteColors);	// see definitions.h
 
 	// Load Sound Track
+#ifndef __CBM__
 	LoadMusic("music.dat", MUSICRAM);
-	
+#endif	
 	// Main Loop
 	while (1) {
         // Load menu screen
-	#if defined __APPLE2__	
+	#if defined __APPLE2__
 		CheckFileExists("menu.map");
 	#endif
         LoadBitmap("menu.map");
 		
 		// Show menu
+	#ifndef __CBM__
 		PlayMusic(MUSICRAM);
+	#endif	
 		EnterBitmapMode();
 		GameMenu(); 
 		DisableSprite(-1);

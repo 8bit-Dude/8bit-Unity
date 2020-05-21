@@ -88,7 +88,9 @@ void PrintScores()
 	
 	// Play the background music
 	StopSFX();
+#ifndef __CBM__
 	PlayMusic(MUSICRAM);
+#endif	
 	
 	// Compute scores
 	for (i=0; i<MAX_PLAYERS; ++i) {
@@ -132,7 +134,7 @@ void PrintScores()
 		if (j >= 0) {
 			inkColor = inkColors[j];
 		#if defined __ORIC__
-			SetInk(17, s);
+			SetAttributes(17, s, inkColor);
 		#endif			
 			if (gameMode == MODE_ONLINE) {
 				string = svUsers[j];
@@ -142,14 +144,13 @@ void PrintScores()
 			PrintStr(18, s, string);
 			inkColor = WHITE;
 		#if defined __ORIC__
-			SetInk(22, s);
+			SetAttributes(22, s, inkColor);
 		#endif			
 			PrintChr(23, s, charHyphen);
 			PrintNum(24, s, i+1);
 			PrintChr(25, s, charHyphen);
 		#if defined __ORIC__
-			inkColor = AIC;
-			SetInk(26, s);
+			SetAttributes(26, s, AIC);
 		#endif			
 			f = 0;
 		#if defined __APPLE2__
