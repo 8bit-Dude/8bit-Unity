@@ -41,7 +41,8 @@ try:
         # Process in blocks of 3x1 pixels (encoded as 6x2)
         for x in range(0,39):
             # Find most frequent colour in block
-            block = pixdata[y*117+x*3:y*117+x*3+3]
+            location = y*2*240+x*6+6
+            block = [pixdata[location], pixdata[location+2], pixdata[location+4]]
             gcount = []
             for i in block:
                 for g in range(len(groups)):

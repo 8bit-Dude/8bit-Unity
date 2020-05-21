@@ -147,6 +147,7 @@ class Application:
         self.entry_OricSpriteWidth = self.builder.get_object('Entry_OricSpriteWidth')
         self.entry_OricSpriteHeight = self.builder.get_object('Entry_OricSpriteHeight')
         self.entry_OricDithering = self.builder.get_object('Entry_OricDithering')
+        self.combobox_OricImageQuality = self.builder.get_object('Combobox_OricImageQuality')
         
         self.listbox_Shared = self.builder.get_object('Listbox_Shared')
         self.listbox_Code = self.builder.get_object('Listbox_Code')
@@ -155,14 +156,15 @@ class Application:
         # Set some defaults
         self.Checkbutton_AtariNoText.state(['!selected'])
         self.Combobox_AtariDiskSize.current(0)
+        self.combobox_OricImageQuality.current(1)
 
         # Make lists of various GUI inputs (adding new inputs to the end of each list will guarantee backward compatibility)
         self.entries = [ self.entry_Disk, 
                          self.entry_AppleSpriteFrames, self.entry_AppleSpriteWidth, self.entry_AppleSpriteHeight, 
                          self.entry_AtariSpriteFrames, self.entry_AtariSpriteWidth, self.entry_AtariSpriteHeight, 
-                         self.entry_C64SpriteFrames, self.entry_C64SpriteWidth, self.entry_C64SpriteHeight, 
-                         self.entry_LynxSpriteFrames, self.entry_LynxSpriteWidth, self.entry_LynxSpriteHeight, 
-                         self.entry_OricSpriteFrames, self.entry_OricSpriteWidth, self.entry_OricSpriteHeight,
+                         self.entry_C64SpriteFrames,   self.entry_C64SpriteWidth,   self.entry_C64SpriteHeight, 
+                         self.entry_LynxSpriteFrames,  self.entry_LynxSpriteWidth,  self.entry_LynxSpriteHeight, 
+                         self.entry_OricSpriteFrames,  self.entry_OricSpriteWidth,  self.entry_OricSpriteHeight,
                          self.entry_OricDithering ]
         self.listboxes = [ self.listbox_Code, 
                            self.listbox_AppleBitmap, self.listbox_AppleSprites, self.listbox_AppleMusic,
@@ -174,7 +176,7 @@ class Application:
                            self.listbox_AppleChunks, self.listbox_AtariChunks,  self.listbox_C64Chunks,
                            self.listbox_LynxChunks,  self.listbox_OricChunks ]
         self.checkbuttons = [ self.Checkbutton_AtariNoText ]
-        self.comboboxes = [ self.Combobox_AtariDiskSize ]
+        self.comboboxes = [ self.Combobox_AtariDiskSize, self.combobox_OricImageQuality ]
                        
     def FileNew(self):
         # Reset all fields
@@ -1018,12 +1020,13 @@ class Application:
             fp.write('cd utils\\scripts\\oric\n')
             for item in bitmaps:
                 filebase = FileBase(item, '-oric.png')
-                #fp.write('utils\\py27\\python utils\\scripts\\oric\\OricBitmap.py ' + item + ' build/oric/' + filebase + '.dat 19\n')  OLD CONVERTOR
-                fp.write('luajit PictOric.lua ' + self.entry_OricDithering.get() + ' ../../../' + item + ' ../../../build/oric/' + filebase + '.dat\n')
+                if self.combobox_OricImageQuality.get() == 'Hires(Noisy)':
+                    fp.write('luajit PictOric.lua ' + self.entry_OricDithering.get() + ' ../../../' + item + ' ../../../build/oric/' + filebase + '.dat\n')
+                else:
+                    fp.write('..\\..\\py27\\python OricBitmap.py ../../../' + item + ' ../../../build/oric/' + filebase + '.dat\n')
                 fp.write('header -a0 ../../../build/oric/' + filebase + '.dat ../../../build/oric/' + filebase + '.map $A000\n')
             if len(chunks) > 0:
-                #fp.write('utils\\py27\\python utils\\scripts\\ProcessChunks.py oric ' + chunks[0] + ' build/oric/\n')  OLD CONVERTOR
-                fp.write('..\\..\\py27\\python ProcessChunks.py ' + self.entry_OricDithering.get() + ' ../../../' + chunks[0] + ' ../../../build/oric/\n')
+                fp.write('..\\..\\py27\\python ProcessChunks.py ' + self.combobox_OricImageQuality.get() + ' ' + self.entry_OricDithering.get() + ' ../../../' + chunks[0] + ' ../../../build/oric/\n')
                 fp.write('for /f "tokens=*" %%A in (..\\..\\..\\build\\oric\\chunks.lst) do header -a0 ../../../%%A ../../../%%A $8000\n')
             fp.write('cd ..\\..\\..\n')
             if len(sprites) > 0:
