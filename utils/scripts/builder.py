@@ -478,50 +478,29 @@ class Application:
             fp.write('\necho DONE!\n\n')
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
-            # Compilation
-            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t apple2 -I unity unity/bitmap.c\n')
-            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t apple2 -I unity unity/chunks.c\n')
-            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t apple2 -I unity unity/geom2d.c\n')
-            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t apple2 -I unity unity/network.c\n')
-            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t apple2 -I unity unity/print.c\n')
-            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t apple2 -I unity unity/sfx.c\n')
-            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t apple2 -I unity unity/sprites.c\n')
-            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t apple2 -I unity unity/Apple/CLOCK.c\n')
-            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t apple2 -I unity unity/Apple/DHR.c\n\n')
-            
-            fp.write('utils\\cc65\\bin\\ca65 unity/bitmap.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/chars.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/chunks.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/geom2d.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/math.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/network.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/print.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/sfx.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/sprites.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/Apple/blit.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/Apple/CLOCK.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/Apple/DUET.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/Apple/DHR.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/Apple/JOY.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/Apple/MOCKING.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/Apple/PADDLE.s\n\n')
+            # Build Unity Library
+            CList = ['bitmap.c', 'chunks.c', 'geom2d.c', 'network.c', 'print.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Apple\\CLOCK.c', 'Apple\\DHR.c']
+            SList = ['chars.s', 'math.s', 'Apple\\blit.s', 'Apple\\DUET.s', 'Apple\\JOY.s', 'Apple\\MOCKING.s', 'Apple\\PADDLE.s']
+                         
+            for file in CList:
+                fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t apple2 -I unity unity\\' + file + '\n')
+                fp.write('utils\\cc65\\bin\\ca65 unity\\' + file[0:-2] + '.s\n')
+                fp.write('del unity\\' + file[0:-2] + '.s\n')
 
-            fp.write('del unity\\bitmap.s\n')
-            fp.write('del unity\\chunks.s\n')
-            fp.write('del unity\\geom2d.s\n')
-            fp.write('del unity\\network.s\n')
-            fp.write('del unity\\print.s\n')
-            fp.write('del unity\\sfx.s\n')
-            fp.write('del unity\\sprites.s\n')
-            fp.write('del unity\\Apple\\CLOCK.s\n')
-            fp.write('del unity\\Apple\\DHR.s\n\n')
+            for file in SList:            
+                fp.write('utils\\cc65\\bin\\ca65 unity\\' + file + '\n')
             
-            fp.write('utils\\cc65\\bin\\ar65 r build/apple/unity.lib unity/bitmap.o unity/chars.o unity/chunks.o unity/geom2d.o unity/math.o unity/network.o unity/print.o unity/sfx.o unity/sprites.o unity/Apple/blit.o unity/Apple/CLOCK.o unity/Apple/DHR.o unity/Apple/DUET.o unity/Apple/JOY.o unity/Apple/MOCKING.o unity/Apple/PADDLE.o\n\n')
+            fp.write('utils\\cc65\\bin\\ar65 r build/apple/unity.lib ')
+            for file in CList:
+                fp.write('unity\\' + file[0:-2] + '.o ')
+            for file in SList:            
+                fp.write('unity\\' + file[0:-2] + '.o ')
+            fp.write('\n')
             
+            # Compilation
             comp = 'utils\\cc65\\bin\\cl65 -o build/apple/' + diskname.lower() + '.bin -Cl -O -t apple2 -C unity/Apple/apple2e.cfg -I unity '
             for item in code:
-                comp += item
-                comp += ' '
+                comp += item + ' '
             fp.write(comp + 'build/apple/unity.lib unity/IP65/ip65.lib unity/IP65/ip65_apple2.lib\n\n')
             
             # Compression
@@ -586,36 +565,26 @@ class Application:
             fp.write('\necho DONE!\n\n')
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
-            # Compilation
-            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atarixl -I unity unity/bitmap.c\n')
-            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atarixl -I unity unity/chunks.c\n')
-            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atarixl -I unity unity/geom2d.c\n')
-            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atarixl -I unity unity/network.c\n')
-            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atarixl -I unity unity/print.c\n')
-            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atarixl -I unity unity/sfx.c\n')
-            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atarixl -I unity unity/sprites.c\n\n')
-            
-            fp.write('utils\\cc65\\bin\\ca65 unity/bitmap.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/chars.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/chunks.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/geom2d.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/math.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/network.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/print.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/sfx.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/sprites.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/Atari/blit.s\n')
+            # Build Unity Library
+            CList = ['bitmap.c', 'chunks.c', 'geom2d.c', 'network.c', 'print.c', 'sfx.c', 'sprites.c', 'widgets.c']
+            SList = ['chars.s', 'math.s', 'Atari/blit.s']
+                         
+            for file in CList:
+                fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atarixl -I unity unity\\' + file + '\n')
+                fp.write('utils\\cc65\\bin\\ca65 unity\\' + file[0:-2] + '.s\n')
+                fp.write('del unity\\' + file[0:-2] + '.s\n')
 
-            fp.write('del unity\\bitmap.s\n')
-            fp.write('del unity\\chunks.s\n')
-            fp.write('del unity\\geom2d.s\n')
-            fp.write('del unity\\network.s\n')
-            fp.write('del unity\\print.s\n')
-            fp.write('del unity\\sfx.s\n')
-            fp.write('del unity\\sprites.s\n\n')
+            for file in SList:            
+                fp.write('utils\\cc65\\bin\\ca65 unity\\' + file + '\n')
             
-            fp.write('utils\\cc65\\bin\\ar65 r build/atari/unity.lib unity/bitmap.o unity/chars.o unity/chunks.o unity/geom2d.o unity/math.o unity/network.o unity/print.o unity/sfx.o unity/sprites.o unity/Atari/blit.o\n\n')
+            fp.write('utils\\cc65\\bin\\ar65 r build/atari/unity.lib ')
+            for file in CList:
+                fp.write('unity\\' + file[0:-2] + '.o ')
+            for file in SList:            
+                fp.write('unity\\' + file[0:-2] + '.o ')
+            fp.write('\n')
             
+            # Compilation
             if len(self.Checkbutton_AtariNoText.state()):
                 configFile = 'atarixl-notext.cfg'
             else:
@@ -700,42 +669,27 @@ class Application:
             # Info
             fp.write('\necho DONE!\n\n')
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
-            
-            # Compilation
-            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t c64 -I unity unity/bitmap.c\n')
-            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t c64 -I unity unity/chunks.c\n')
-            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t c64 -I unity unity/geom2d.c\n')
-            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t c64 -I unity unity/network.c\n')
-            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t c64 -I unity unity/print.c\n')
-            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t c64 -I unity unity/sfx.c\n')
-            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t c64 -I unity unity/sprites.c\n')
-            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t c64 -I unity unity/C64/display.c\n\n')
-            
-            fp.write('utils\\cc65\\bin\\ca65 unity/bitmap.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/chars.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/chunks.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/geom2d.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/math.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/network.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/print.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/sfx.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/sprites.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/C64/display.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/C64/JOY.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/C64/ROM.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/C64/SID.s\n\n')
 
-            fp.write('del unity\\bitmap.s\n')
-            fp.write('del unity\\chunks.s\n')
-            fp.write('del unity\\geom2d.s\n')
-            fp.write('del unity\\network.s\n')
-            fp.write('del unity\\print.s\n')
-            fp.write('del unity\\sfx.s\n')
-            fp.write('del unity\\sprites.s\n')
-            fp.write('del unity\\C64\\display.s\n\n')
-                        
-            fp.write('utils\\cc65\\bin\\ar65 r build/c64/unity.lib unity/bitmap.o unity/chars.o unity/chunks.o unity/geom2d.o unity/math.o unity/network.o unity/print.o unity/sfx.o unity/sprites.o unity/C64/display.o unity/C64/JOY.o unity/C64/ROM.o unity/C64/SID.o\n\n')
-                        
+            # Build Unity Library
+            CList = ['bitmap.c', 'chunks.c', 'geom2d.c', 'network.c', 'print.c', 'sfx.c', 'sprites.c', 'widgets.c', 'C64\\display.c']
+            SList = ['chars.s', 'math.s', 'C64\\JOY.s', 'C64\\ROM.s', 'C64\\SID.s']
+                         
+            for file in CList:
+                fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t c64 -I unity unity\\' + file + '\n')
+                fp.write('utils\\cc65\\bin\\ca65 unity\\' + file[0:-2] + '.s\n')
+                fp.write('del unity\\' + file[0:-2] + '.s\n')
+
+            for file in SList:            
+                fp.write('utils\\cc65\\bin\\ca65 unity\\' + file + '\n')
+            
+            fp.write('utils\\cc65\\bin\\ar65 r build/c64/unity.lib ')
+            for file in CList:
+                fp.write('unity\\' + file[0:-2] + '.o ')
+            for file in SList:            
+                fp.write('unity\\' + file[0:-2] + '.o ')
+            fp.write('\n')
+            
+            # Compilation                        
             comp = 'utils\\cc65\\bin\\cl65 -o build/c64/' + diskname.lower() + '.bin -Cl -O -t c64 -C unity/C64/c64.cfg -I unity '
             for item in code:
                 comp += item
@@ -945,48 +899,26 @@ class Application:
             fp.write('\necho DONE!\n\n')
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
-            # Compilation
-            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t lynx -I unity unity/bitmap.c\n')
-            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t lynx -I unity unity/chunks.c\n')
-            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t lynx -I unity unity/geom2d.c\n')
-            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t lynx -I unity unity/hub.c\n')
-            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t lynx -I unity unity/network.c\n')
-            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t lynx -I unity unity/print.c\n')
-            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t lynx -I unity unity/sfx.c\n')
-            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t lynx -I unity unity/sprites.c\n')
-            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t lynx -I unity unity/Lynx/display.c\n')
-            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t lynx -I unity unity/Lynx/files.c\n')
-            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t lynx -I unity unity/Lynx/joysticks.c\n\n')
+            # Build Unity Library
+            CList = ['bitmap.c', 'chunks.c', 'geom2d.c', 'hub.c', 'network.c', 'print.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Lynx\\display.c', 'Lynx\\files.c', 'Lynx\\joysticks.c']
+            SList = ['chars.s', 'math.s', 'Lynx\\header.s']
+                         
+            for file in CList:
+                fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t lynx -I unity unity\\' + file + '\n')
+                fp.write('utils\\cc65\\bin\\ca65 unity\\' + file[0:-2] + '.s\n')
+                fp.write('del unity\\' + file[0:-2] + '.s\n')
+
+            for file in SList:            
+                fp.write('utils\\cc65\\bin\\ca65 unity\\' + file + '\n')
             
-            fp.write('utils\\cc65\\bin\\ca65 unity/bitmap.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/chars.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/chunks.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/geom2d.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/hub.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/math.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/network.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/print.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/sfx.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/sprites.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/Lynx/display.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/Lynx/files.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/Lynx/header.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/Lynx/joysticks.s\n\n')
-                        
-            fp.write('del unity\\bitmap.s\n')
-            fp.write('del unity\\chunks.s\n')
-            fp.write('del unity\\geom2d.s\n')
-            fp.write('del unity\\hub.s\n')
-            fp.write('del unity\\network.s\n')
-            fp.write('del unity\\print.s\n')
-            fp.write('del unity\\sfx.s\n')
-            fp.write('del unity\\sprites.s\n')
-            fp.write('del unity\\Lynx\\display.s\n')
-            fp.write('del unity\\Lynx\\files.s\n')
-            fp.write('del unity\\Lynx\\joysticks.s\n\n')
+            fp.write('utils\\cc65\\bin\\ar65 r build/lynx/unity.lib ')
+            for file in CList:
+                fp.write('unity\\' + file[0:-2] + '.o ')
+            for file in SList:            
+                fp.write('unity\\' + file[0:-2] + '.o ')
+            fp.write('\n')
             
-            fp.write('utils\\cc65\\bin\\ar65 r build/lynx/unity.lib unity/bitmap.o unity/chars.o unity/chunks.o unity/geom2d.o unity/hub.o unity/math.o unity/network.o unity/print.o unity/sfx.o unity/sprites.o unity/Lynx/display.o unity/Lynx/files.o unity/Lynx/header.o unity/Lynx/joysticks.o\n\n')
-            
+            # Compilation 
             comp = 'utils\\cc65\\bin\\cl65 -o build/' + diskname.lower() + '-lynx.lnx -Cl -O -t lynx -C build/lynx/lynx.cfg -I unity '
             for item in code:
                 comp += (item + ' ')
@@ -1043,49 +975,26 @@ class Application:
             fp.write('\necho DONE!\n\n')
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
-            # Compilation
-            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atmos -I unity unity/bitmap.c\n')
-            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atmos -I unity unity/chunks.c\n')
-            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atmos -I unity unity/geom2d.c\n')
-            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atmos -I unity unity/hub.c\n')
-            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atmos -I unity unity/network.c\n')
-            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atmos -I unity unity/print.c\n')
-            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atmos -I unity unity/sfx.c\n')
-            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atmos -I unity unity/sprites.c\n')
-            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atmos -I unity unity/Oric/files.c\n')
-            fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atmos -I unity unity/Oric/joysticks.c\n\n')
+            # Build Unity Library
+            CList = ['bitmap.c', 'chunks.c', 'geom2d.c', 'hub.c', 'network.c', 'print.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Oric\\files.c', 'Oric\\joysticks.c']
+            SList = ['chars.s', 'math.s', 'Oric\\blit.s', 'Oric\\JOY.s', 'Oric\\keyboard.s', 'Oric\\libsedoric.s', 'Oric\\MYM.s']
+                         
+            for file in CList:
+                fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atmos -I unity unity\\' + file + '\n')
+                fp.write('utils\\cc65\\bin\\ca65 unity\\' + file[0:-2] + '.s\n')
+                fp.write('del unity\\' + file[0:-2] + '.s\n')
+
+            for file in SList:            
+                fp.write('utils\\cc65\\bin\\ca65 unity\\' + file + '\n')
             
-            fp.write('utils\\cc65\\bin\\ca65 unity/bitmap.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/chars.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/chunks.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/geom2d.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/hub.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/math.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/network.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/print.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/sfx.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/sprites.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/Oric/blit.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/Oric/files.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/Oric/joysticks.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/Oric/JOY.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/Oric/keyboard.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/Oric/libsedoric.s\n')
-            fp.write('utils\\cc65\\bin\\ca65 unity/Oric/MYM.s\n\n')
+            fp.write('utils\\cc65\\bin\\ar65 r build/oric/unity.lib ')
+            for file in CList:
+                fp.write('unity\\' + file[0:-2] + '.o ')
+            for file in SList:            
+                fp.write('unity\\' + file[0:-2] + '.o ')
+            fp.write('\n')
             
-            fp.write('del unity\\bitmap.s\n')
-            fp.write('del unity\\chunks.s\n')
-            fp.write('del unity\\geom2d.s\n')
-            fp.write('del unity\\hub.s\n')
-            fp.write('del unity\\network.s\n')
-            fp.write('del unity\\print.s\n')
-            fp.write('del unity\\sfx.s\n')
-            fp.write('del unity\\sprites.s\n')            
-            fp.write('del unity\\Oric\\files.s\n')            
-            fp.write('del unity\\Oric\\joysticks.s\n\n')            
-                        
-            fp.write('utils\\cc65\\bin\\ar65 r build/oric/unity.lib unity/bitmap.o unity/chars.o unity/chunks.o unity/geom2d.o unity/hub.o unity/math.o unity/network.o unity/print.o unity/sfx.o unity/sprites.o unity/Oric/blit.o unity/Oric/files.o unity/Oric/joysticks.o unity/Oric/JOY.o unity/Oric/keyboard.o unity/Oric/libsedoric.o unity/Oric/MYM.o\n\n')
-                
+            # Compilation 
             comp = 'utils\\cc65\\bin\\cl65 -o build/oric/' + diskname.lower() + '.bin -Cl -O -t atmos -C unity/Oric/oric.cfg -I unity '
             for item in code:
                 comp += item
