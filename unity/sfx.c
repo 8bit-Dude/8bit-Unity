@@ -146,14 +146,25 @@ void LoadMusic(const char* filename, unsigned int address)
 	FileRead(filename, address);
 #elif defined __LYNX__
 	musicData = (chipper_t*)FileRead(filename);
-#elif defined __APPLE2__
+#else
 	FILE* fp;
+	unsigned int loadaddr;
+
+	// Try to open file
 	fp = fopen(filename, "rb");	
 	if (!fp) return;
-	
-	// Consume two bytes of header then read data
+
+  #if defined __ATARI__
+	// Consume 6 bytes of header
 	fgetc(fp); fgetc(fp); 
-	fread((char*)(address), 1, 8000, fp);
+	fread((char*)&loadaddr, 1, 2, fp);
+	fgetc(fp); fgetc(fp); 
+  #else
+	// Just get load address
+	fread((char*)&loadaddr, 1, 2, fp);
+  #endif
+	// Read actual data
+	fread((char*)loadaddr, 1, 8000, fp);
 #endif
 }
 
