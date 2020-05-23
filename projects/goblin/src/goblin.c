@@ -125,8 +125,7 @@ void GameLoop(void)
 void SplashScreen(void)
 {
 	// Load and show banner
-	ExitBitmapMode();	
-	LoadBitmap("banner.map");
+	LoadBitmap("banner.img");
 	EnterBitmapMode();
 	
 	// Show credit/build

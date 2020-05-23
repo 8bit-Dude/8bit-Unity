@@ -151,7 +151,7 @@ void GameInit(const char* map)
 	// Copy Filename into Buffer
 	len = strlen(map);
 	memcpy(&buffer[0], map, len);
-	memcpy(&buffer[len], ".map", 4);
+	memcpy(&buffer[len], ".img", 4);
 	buffer[len+4] = 0;
 	
 	// Load Bitmap and backup chat row

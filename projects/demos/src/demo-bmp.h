@@ -25,7 +25,7 @@ int DemoBMP(void)
 	
 	// Prepare bitmap
 	InitBitmap();
-	LoadBitmap("banner.map");
+	LoadBitmap("banner.img");
 	EnterBitmapMode();
 	
 	// Grab graphic chunks

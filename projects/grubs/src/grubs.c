@@ -554,7 +554,7 @@ void SplashScreen(void)
 {
 	// Load and show banner
 	ExitBitmapMode();
-	LoadBitmap("banner.map");
+	LoadBitmap("banner.img");
 	EnterBitmapMode();
 	
 	// Show credit/build
@@ -592,7 +592,7 @@ int main(void)
 		
 	// Load and show playfield
 	ExitBitmapMode();
-	LoadBitmap("pumpkins.map");
+	LoadBitmap("pumpkins.img");
 	EnterBitmapMode();
 
 	// Setup grubs/projectiles

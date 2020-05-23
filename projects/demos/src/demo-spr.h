@@ -60,7 +60,7 @@ int DemoSPR(void)
 	InitSprites(spriteFrames, spriteCols, spriteRows, spriteColors);
 	
 	// Load and show bitmap
-	LoadBitmap("stadium.map");
+	LoadBitmap("stadium.img");
 	EnterBitmapMode();
 	
 	// Print some extra info

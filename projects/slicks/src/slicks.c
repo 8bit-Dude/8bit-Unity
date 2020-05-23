@@ -23,9 +23,9 @@ int main (void)
 	while (1) {
         // Load menu screen
 	#if defined __APPLE2__
-		CheckFileExists("menu.map");
+		CheckFileExists("menu.img");
 	#endif
-        LoadBitmap("menu.map");
+        LoadBitmap("menu.img");
 		
 		// Show menu
 	#ifndef __CBM__

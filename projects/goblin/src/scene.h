@@ -168,15 +168,15 @@ void InitScene()
 {	
 	// Load bitmap
 	ExitBitmapMode();
-	LoadBitmap("scene1.map");
+	LoadBitmap("scene1.img");
 	EnterBitmapMode();
 
 	// Prepare graphic animations
-	LoadChunk(&chunkAnim[0], "chunk0.dat");	 // Load Notable animation
-	LoadChunk(&chunkAnim[1], "chunk1.dat");	 // Load Old men animation
-	LoadChunk(&chunkAnim[2], "chunk2.dat");	 // Load Bottle removed
-	LoadChunk(&chunkAnim[3], "chunk3.dat");	 // Load Sausage removed
-	LoadChunk(&chunkAnim[4], "chunk4.dat");	 // Switch animation
+	LoadChunk(&chunkAnim[0], "notable.chk"); // Load Notable animation
+	LoadChunk(&chunkAnim[1], "oldmen.chk");	 // Load Old men animation
+	LoadChunk(&chunkAnim[2], "bottle.chk");	 // Load Bottle removed
+	LoadChunk(&chunkAnim[3], "sausage.chk"); // Load Sausage removed
+	LoadChunk(&chunkAnim[4], "switch.chk");	 // Switch animation
 #if (defined __ORIC__)
 	chunkAnim[2][3] = 11;	// For some reason, the last line corrupts the screen...
 #endif
