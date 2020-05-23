@@ -507,8 +507,6 @@ class Application:
             cmd = 'utils\\scripts\\exomizer sfx $0803 -t162 -Di_load_addr=$0803 build/apple/' + diskname.lower() + '.bin@$0803,4'
             if len(sprites) > 0:
                 cmd += ' build/apple/sprites.dat'
-            if len(music) > 0:    
-                cmd += ' ' + music[0]
             cmd += ' -o build/apple/loader\n'
             fp.write(cmd)
 
@@ -519,12 +517,14 @@ class Application:
             # Disk builder
             fp.write('copy utils\\scripts\\apple\\AppleProDOS190.dsk build\\' + diskname + '-apple.do\n')
             fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander.jar -cc65 build/' + diskname + '-apple.do LOADER bin 0x0803 < build/apple/loader\n')
-            for item in shared:
-                fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander.jar -p build/' + diskname + '-apple.do ' + FileBase(item, '').upper() + ' bin < ' + item + '\n')
-            for item in bitmaps:
-                fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander.jar -p build/' + diskname + '-apple.do ' + FileBase(item, '-apple.png').upper() + '.MAP bin < build/apple/' + FileBase(item, '-apple.png') + '.map\n')
             if len(chunks) > 0:
                 fp.write('for /f "tokens=*" %%A in (build\\apple\\chunks.lst) do utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander.jar -p build/' + diskname + '-apple.do %%~nxA bin < %%A \n')
+            for item in shared:
+                fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander.jar -p build/' + diskname + '-apple.do ' + FileBase(item, '').upper() + ' bin < ' + item + '\n')
+            for item in music:
+                fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander.jar -p build/' + diskname + '-apple.do ' + FileBase(item, '-apple.m').upper() + '.MUS bin < ' +item + '\n')
+            for item in bitmaps:
+                fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander.jar -p build/' + diskname + '-apple.do ' + FileBase(item, '-apple.png').upper() + '.MAP bin < build/apple/' + FileBase(item, '-apple.png') + '.map\n')
             
             # Info
             fp.write('\necho DONE\n')
