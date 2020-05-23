@@ -190,7 +190,7 @@ int main(void)
 #endif	
 
 	// Load music
-	LoadMusic("music.dat", MUSICRAM);
+	LoadMusic("goblin.mus", MUSICRAM);
 	
 	// Show splash screen
 	SplashScreen();

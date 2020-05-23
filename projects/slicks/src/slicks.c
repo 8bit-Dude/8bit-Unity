@@ -17,7 +17,7 @@ int main (void)
 
 	// Load Sound Track
 #ifndef __CBM__
-	LoadMusic("music.dat", MUSICRAM);
+	LoadMusic("speednik.mus", MUSICRAM);
 #endif	
 	// Main Loop
 	while (1) {
