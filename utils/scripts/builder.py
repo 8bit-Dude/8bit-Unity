@@ -298,13 +298,15 @@ class Application:
             filename = filename.replace(self.cwd, '')
             self.listbox_AppleChunks.delete(0, END)
             self.listbox_AppleChunks.insert(END, filename)            
-        
-    def AppleMusicSel(self):
+
+    def AppleMusicAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Music Track", filetypes = (("DUET M files","*.m"),)) 
         if filename is not '':
             filename = filename.replace(self.cwd, '')
-            self.listbox_AppleMusic.delete(0, END)
             self.listbox_AppleMusic.insert(END, filename)
+
+    def AppleMusicRem(self):
+        self.listbox_AppleMusic.delete(0, ACTIVE)
             
     def AtariBitmapAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Bitmap", filetypes = (("PNG files","*.png"),)) 
@@ -329,13 +331,15 @@ class Application:
             self.listbox_AtariChunks.delete(0, END)
             self.listbox_AtariChunks.insert(END, filename)            
         
-    def AtariMusicSel(self):
+    def AtariMusicAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Music Track", filetypes = (("RMT files","*.rmt"),)) 
         if filename is not '':
             filename = filename.replace(self.cwd, '')
-            self.listbox_AtariMusic.delete(0, END)
-            self.listbox_AtariMusic.insert(END, filename)     
+            self.listbox_AtariMusic.insert(END, filename)
 
+    def AtariMusicRem(self):
+        self.listbox_AtariMusic.delete(0, ACTIVE)
+    
     def C64BitmapAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Bitmap", filetypes = (("PNG files","*.png"),)) 
         if filename is not '':
@@ -359,13 +363,15 @@ class Application:
             self.listbox_C64Chunks.delete(0, END)
             self.listbox_C64Chunks.insert(END, filename)            
         
-    def C64MusicSel(self):
+    def C64MusicAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Music Track", filetypes = (("SID files","*.sid"),)) 
         if filename is not '':
             filename = filename.replace(self.cwd, '')
-            self.listbox_C64Music.delete(0, END)
-            self.listbox_C64Music.insert(END, filename) 
+            self.listbox_C64Music.insert(END, filename)
 
+    def C64MusicRem(self):
+        self.listbox_C64Music.delete(0, ACTIVE)        
+        
     def LynxBitmapAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Bitmap", filetypes = (("PNG files","*.png"),)) 
         if filename is not '':
@@ -389,13 +395,15 @@ class Application:
             self.listbox_LynxChunks.delete(0, END)
             self.listbox_LynxChunks.insert(END, filename)            
         
-    def LynxMusicSel(self):
+    def LynxMusicAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Music Track", filetypes = (("Chipper files","*.asm"),)) 
         if filename is not '':
             filename = filename.replace(self.cwd, '')
-            self.listbox_LynxMusic.delete(0, END)
-            self.listbox_LynxMusic.insert(END, filename)             
+            self.listbox_LynxMusic.insert(END, filename)
 
+    def LynxMusicRem(self):
+        self.listbox_LynxMusic.delete(0, ACTIVE) 
+    
     def OricBitmapAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Bitmap", filetypes = (("PNG files","*.png"),)) 
         if filename is not '':
@@ -419,13 +427,15 @@ class Application:
             self.listbox_OricChunks.delete(0, END)
             self.listbox_OricChunks.insert(END, filename)            
         
-    def OricMusicSel(self):
+    def OricMusicAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Music Track", filetypes = (("YM files","*.ym"),)) 
         if filename is not '':
             filename = filename.replace(self.cwd, '')
-            self.listbox_OricMusic.delete(0, END)
-            self.listbox_OricMusic.insert(END, filename)                   
+            self.listbox_OricMusic.insert(END, filename)
 
+    def OricMusicRem(self):
+        self.listbox_OricMusic.delete(0, ACTIVE) 
+        
     def SharedAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Asset File", filetypes = (("All files","*.*"),)) 
         if filename is not '':
