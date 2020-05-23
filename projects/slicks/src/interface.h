@@ -44,15 +44,15 @@
 
 // Platform specific panel location/size
 #if defined __LYNX__
-	#define MENU_CMIN 22
-	#define MENU_CMAX 38
-	#define MENU_RMIN  2
-	#define MENU_RMAX 16
+	#define MENU_COL 22
+	#define MENU_ROW  2
+	#define MENU_WID 17
+	#define MENU_HEI 15
 #else
-	#define MENU_CMIN 22
-	#define MENU_CMAX 38
-	#define MENU_RMIN  4
-	#define MENU_RMAX 19
+	#define MENU_COL 22
+	#define MENU_ROW  4
+	#define MENU_WID 17
+	#define MENU_HEI 16
 #endif
 
 // Other definitions
@@ -125,7 +125,7 @@ void PrintScores()
 	// Create blank area
 	DisableSprite(-1);
 	paperColor = PAPER_SCORES;
-	PrintBlanks(13,ROW_SCORES,26,ROW_SCORES+8);
+	PrintBlanks(13,ROW_SCORES,14,9);
 	
 	// Print results and wait
 	for (i=0; i<MAX_PLAYERS; ++i) {
@@ -315,7 +315,7 @@ void MenuServers()
 	char buffer[16];
 	
 	// Show action message
-	PrintStr(MENU_CMIN+2, MENU_RMIN+6, "FETCH LIST...");				
+	PrintStr(MENU_COL+2, MENU_ROW+6, "FETCH LIST...");				
 	serversLoaded = 0;
 	
 	// Flush Net Queue
@@ -329,10 +329,10 @@ void MenuServers()
 	// Check server response
 	if (!packet) {
 		// Timeout error
-		PrintStr(MENU_CMIN+2, MENU_RMIN+7, "ERROR: TIMEOUT");
+		PrintStr(MENU_COL+2, MENU_ROW+7, "ERROR: TIMEOUT");
 	} else if (PEEK(packet) != 1) {
 		// Unexpected error
-		PrintStr(MENU_CMIN+0, MENU_RMIN+7, "ERROR: CORRUPTION");
+		PrintStr(MENU_COL+0, MENU_ROW+7, "ERROR: CORRUPTION");
 	} else {
 		// Show server list				
 		n = PEEK(++packet);
@@ -342,14 +342,14 @@ void MenuServers()
 			k = 0;
 		#ifndef __LYNX__	
 			inkColor = INK_HIGHLT; paperColor = PAPER_HIGHLT;			
-			PrintChr(MENU_CMIN+0, (MENU_RMIN+2)+j, &charDigit[(j+1)*3]);
+			PrintChr(MENU_COL+0, (MENU_ROW+2)+j, &charDigit[(j+1)*3]);
 		#endif
 			while (PEEK(++packet) != 10 && PEEK(packet) !=0) {
 				buffer[k++] = PEEK(packet);
 			}
 			buffer[k] = 0;
 			inkColor = WHITE; paperColor = BLACK;
-			PrintStr(MENU_CMIN+2, (MENU_RMIN+2)+j, &buffer[0]);
+			PrintStr(MENU_COL+2, (MENU_ROW+2)+j, &buffer[0]);
 			j++;
 		}
 		serversLoaded = 1;
@@ -364,36 +364,36 @@ unsigned char MenuLogin(unsigned char serverIndex)
 	SetKeyboardOverlay(13,70);
 #endif	
 	// Prompt for authentication
-	PrintStr(MENU_CMIN+2, MENU_RMIN+2, "PLEASE LOGIN");
-	PrintStr(MENU_CMIN+1, MENU_RMIN+4, "USER:");
-	PrintStr(MENU_CMIN+1, MENU_RMIN+6, "PASS:");
-	PrintStr(MENU_CMIN+2, MENU_RMIN+8, "REGISTER AT");
-	PrintStr(MENU_CMIN+1, MENU_RMIN+9, "8BIT-SLICKS.COM");
-	InputStr(MENU_CMIN+6, MENU_RMIN+4, &clUser[0], 4);
-	PrintChr(MENU_CMIN+6+strlen(clUser), MENU_RMIN+4, &charBlank[0]);
-	InputStr(MENU_CMIN+6, MENU_RMIN+6, &clPass[0], 10);	
-	PrintChr(MENU_CMIN+6+strlen(clPass), MENU_RMIN+6, &charBlank[0]);
+	PrintStr(MENU_COL+2, MENU_ROW+2, "PLEASE LOGIN");
+	PrintStr(MENU_COL+1, MENU_ROW+4, "USER:");
+	PrintStr(MENU_COL+1, MENU_ROW+6, "PASS:");
+	PrintStr(MENU_COL+2, MENU_ROW+8, "REGISTER AT");
+	PrintStr(MENU_COL+1, MENU_ROW+9, "8BIT-SLICKS.COM");
+	InputStr(MENU_COL+6, MENU_ROW+4, &clUser[0], 4);
+	PrintChr(MENU_COL+6+strlen(clUser), MENU_ROW+4, &charBlank[0]);
+	InputStr(MENU_COL+6, MENU_ROW+6, &clPass[0], 10);	
+	PrintChr(MENU_COL+6+strlen(clPass), MENU_ROW+6, &charBlank[0]);
 
 	// Show action message
 	inkColor = YELLOW;
-	PrintStr(MENU_CMIN+2, MENU_RMIN+12, "CONNECTING...");			
+	PrintStr(MENU_COL+2, MENU_ROW+12, "CONNECTING...");			
 	res = ClientJoin(serverIndex);
 	inkColor = WHITE;
 	if (res == ERR_MESSAGE) {
 		// Server error
-		PrintStr(MENU_CMIN+1, MENU_RMIN+13, (char*)(packet+1));
+		PrintStr(MENU_COL+1, MENU_ROW+13, (char*)(packet+1));
 		return 0;
 	} else if (res == ERR_TIMEOUT) {
 		// Timeout error
-		PrintStr(MENU_CMIN+1, MENU_RMIN+13, "ERROR: TIMEOUT");					
+		PrintStr(MENU_COL+1, MENU_ROW+13, "ERROR: TIMEOUT");					
 		return 0;
 	} else if (res == ERR_CORRUPT) {
 		// Unexpected error
-		PrintStr(MENU_CMIN+1, MENU_RMIN+13, "ERROR: CORRUPTION");
+		PrintStr(MENU_COL+1, MENU_ROW+13, "ERROR: CORRUPTION");
 		return 0;
 	} else {
 		// All good
-		PrintStr(MENU_CMIN+2, MENU_RMIN+13, "OK");
+		PrintStr(MENU_COL+2, MENU_ROW+13, "OK");
 		gameMap = svMap;
 		gameStep = svStep;
 		return 1;
@@ -429,7 +429,7 @@ void SpriteAnimation(unsigned char index, unsigned char frame)
 
 #if defined __LYNX__
 unsigned char cursorJoy, cursorKey, cursorPressed;
-unsigned char cursorFlick, cursorRow = MENU_RMIN+2;
+unsigned char cursorFlick, cursorRow = MENU_ROW+2;
 clock_t cursorClock;
 
 void LynxCursorFlicker()
@@ -439,11 +439,11 @@ void LynxCursorFlicker()
 	cursorClock = clock();
 	
 	// Reset Column and show Cursor
-	PrintBlanks(MENU_CMIN, MENU_RMIN+2, MENU_CMIN+1, MENU_RMAX);
+	PrintBlanks(MENU_COL, MENU_ROW+2, 2, MENU_HEI-2);
 	if (cursorFlick) {
 		inkColor = YELLOW;
-		PrintChr(MENU_CMIN+0, cursorRow, &charHyphen[0]);
-		PrintChr(MENU_CMIN+1, cursorRow, &charBracket[3]);
+		PrintChr(MENU_COL+0, cursorRow, &charHyphen[0]);
+		PrintChr(MENU_COL+1, cursorRow, &charBracket[3]);
 		inkColor = WHITE;
 	}
 	cursorFlick = !cursorFlick;
@@ -465,43 +465,43 @@ void LynxCursorControl()
 	
 	// Process next event
 	if (!(cursorJoy & JOY_LEFT)) { 
-		     if (gameMode == MODE_INFO)   { cursorKey = KEY_O; cursorRow = MENU_RMIN+2; }
-		else if (gameMode == MODE_ONLINE) { cursorKey = KEY_L; cursorRow = MENU_RMIN+2; }
+		     if (gameMode == MODE_INFO)   { cursorKey = KEY_O; cursorRow = MENU_ROW+2; }
+		else if (gameMode == MODE_ONLINE) { cursorKey = KEY_L; cursorRow = MENU_ROW+2; }
 	}	
 	if (!(cursorJoy & JOY_RIGHT)) { 
-		     if (gameMode == MODE_LOCAL)  { cursorKey = KEY_O; cursorRow = MENU_RMIN+2; }
-		else if (gameMode == MODE_ONLINE) { cursorKey = KEY_I; cursorRow = MENU_RMIN+2; }
+		     if (gameMode == MODE_LOCAL)  { cursorKey = KEY_O; cursorRow = MENU_ROW+2; }
+		else if (gameMode == MODE_ONLINE) { cursorKey = KEY_I; cursorRow = MENU_ROW+2; }
 	}	
 	if (!(cursorJoy & JOY_UP)) { 
 		cursorRow -= 1; 
 		if (gameMode == MODE_LOCAL) {
-			     if (cursorRow  < MENU_RMIN+2)  { cursorRow = MENU_RMIN+2; }			
-			else if (cursorRow == MENU_RMIN+6)  { cursorRow = MENU_RMIN+5; }			
-			else if (cursorRow == MENU_RMIN+8)  { cursorRow = MENU_RMIN+7; }			
-			else if (cursorRow == MENU_RMIN+10) { cursorRow = MENU_RMIN+9; }			
+			     if (cursorRow  < MENU_ROW+2)  { cursorRow = MENU_ROW+2; }			
+			else if (cursorRow == MENU_ROW+6)  { cursorRow = MENU_ROW+5; }			
+			else if (cursorRow == MENU_ROW+8)  { cursorRow = MENU_ROW+7; }			
+			else if (cursorRow == MENU_ROW+10) { cursorRow = MENU_ROW+9; }			
 		} else {
-				 if (cursorRow  < MENU_RMIN+2)  { cursorRow = MENU_RMIN+2; }		
+				 if (cursorRow  < MENU_ROW+2)  { cursorRow = MENU_ROW+2; }		
 		}
 	}
 	if (!(cursorJoy & JOY_DOWN)) { 
 		cursorRow += 1; 
 		if (gameMode == MODE_LOCAL) {
-			     if (cursorRow  > MENU_RMIN+11) { cursorRow = MENU_RMIN+11; }
-			else if (cursorRow == MENU_RMIN+10) { cursorRow = MENU_RMIN+11; }
-			else if (cursorRow == MENU_RMIN+8)  { cursorRow = MENU_RMIN+9; }			
-			else if (cursorRow == MENU_RMIN+6)  { cursorRow = MENU_RMIN+7; }			
+			     if (cursorRow  > MENU_ROW+11) { cursorRow = MENU_ROW+11; }
+			else if (cursorRow == MENU_ROW+10) { cursorRow = MENU_ROW+11; }
+			else if (cursorRow == MENU_ROW+8)  { cursorRow = MENU_ROW+9; }			
+			else if (cursorRow == MENU_ROW+6)  { cursorRow = MENU_ROW+7; }			
 		} else {
-			     if (cursorRow  > MENU_RMIN+13) { cursorRow = MENU_RMIN+13; }
+			     if (cursorRow  > MENU_ROW+13) { cursorRow = MENU_ROW+13; }
 		}
 	}
 	if (!(cursorJoy & JOY_BTN1)) { 
 		if (gameMode == MODE_LOCAL) {
-			     if (cursorRow == MENU_RMIN+11) { cursorKey = KEY_SP; }
-			else if (cursorRow == MENU_RMIN+9)  { cursorKey = KEY_L; }
-			else if (cursorRow == MENU_RMIN+7)  { cursorKey = KEY_M; }
-			else if (cursorRow >= MENU_RMIN+2)  { cursorKey = 49 + (cursorRow-(MENU_RMIN+2)); }
+			     if (cursorRow == MENU_ROW+11) { cursorKey = KEY_SP; }
+			else if (cursorRow == MENU_ROW+9)  { cursorKey = KEY_L; }
+			else if (cursorRow == MENU_ROW+7)  { cursorKey = KEY_M; }
+			else if (cursorRow >= MENU_ROW+2)  { cursorKey = 49 + (cursorRow-(MENU_ROW+2)); }
 		} else {
-			cursorKey = 49 + (cursorRow-(MENU_RMIN+2));
+			cursorKey = 49 + (cursorRow-(MENU_ROW+2));
 		}
 	}
 }
@@ -546,44 +546,44 @@ unsigned char MenuWait()
 void MenuPlayer(unsigned char i)
 {	
 	// Clear previous
-	unsigned char row = MENU_RMIN+2+i;
-	PrintBlanks(MENU_CMIN+6, row, MENU_CMAX, row);
+	unsigned char row = MENU_ROW+2+i;
+	PrintBlanks(MENU_COL+6, row, MENU_WID-6, 1);
 	
 	// Print Characters
 	inkColor = INK_HIGHLT; paperColor = PAPER_HIGHLT;
-	PrintNum(MENU_CMIN+3, row, i+1);
+	PrintNum(MENU_COL+3, row, i+1);
 	inkColor = WHITE; paperColor = BLACK;
-	PrintStr(MENU_CMIN+2, row, "P");
-	PrintStr(MENU_CMIN+4, row, ":");
-	PrintStr(MENU_CMIN+6, row, controlList[controlIndex[i]]);	
+	PrintStr(MENU_COL+2, row, "P");
+	PrintStr(MENU_COL+4, row, ":");
+	PrintStr(MENU_COL+6, row, controlList[controlIndex[i]]);	
 }
 
 // Sub-function of GameMenu()
 void MenuMap()
 {
 	// Clear previous
-	PrintBlanks(MENU_CMIN+7, MENU_RMIN+7, MENU_CMAX, MENU_RMIN+7);
+	PrintBlanks(MENU_COL+7, MENU_ROW+7, MENU_WID-7, 1);
 	
 	// Print Characters
 	inkColor = INK_HIGHLT; paperColor = PAPER_HIGHLT;
-	PrintStr(MENU_CMIN+2, MENU_RMIN+7, "M");
+	PrintStr(MENU_COL+2, MENU_ROW+7, "M");
 	inkColor = WHITE; paperColor = BLACK;
-	PrintStr(MENU_CMIN+3, MENU_RMIN+7, "AP:");
-	PrintStr(MENU_CMIN+7, MENU_RMIN+7, mapList[gameMap]);	
+	PrintStr(MENU_COL+3, MENU_ROW+7, "AP:");
+	PrintStr(MENU_COL+7, MENU_ROW+7, mapList[gameMap]);	
 }
 
 // Sub-function of GameMenu()
 void MenuLaps()
 {
 	// Clear previous
-	PrintStr(MENU_CMIN+7, MENU_RMIN+9, "  ");
+	PrintStr(MENU_COL+7, MENU_ROW+9, "  ");
 	
 	// Print Characters
 	inkColor = INK_HIGHLT; paperColor = PAPER_HIGHLT;
-	PrintStr(MENU_CMIN+2, MENU_RMIN+9, "L");
+	PrintStr(MENU_COL+2, MENU_ROW+9, "L");
 	inkColor = WHITE; paperColor = BLACK;
-	PrintStr(MENU_CMIN+3, MENU_RMIN+9, "AP:");
-	PrintNum(MENU_CMIN+7, MENU_RMIN+9, lapNumber[lapIndex]);
+	PrintStr(MENU_COL+3, MENU_ROW+9, "AP:");
+	PrintNum(MENU_COL+7, MENU_ROW+9, lapNumber[lapIndex]);
 }
 
 #if defined __ATARI__
@@ -591,16 +591,16 @@ void MenuLaps()
 void MenuGFX()
 {
 	// Clear previous
-	PrintStr(MENU_CMIN+7, MENU_RMIN+11, "   ");
+	PrintStr(MENU_COL+7, MENU_ROW+11, "   ");
 	
 	// GFX mode selection
 	inkColor = INK_HIGHLT; paperColor = PAPER_HIGHLT;
-	PrintStr(MENU_CMIN+2, MENU_RMIN+11, "G");
+	PrintStr(MENU_COL+2, MENU_ROW+11, "G");
 	inkColor = WHITE; paperColor = BLACK;
 	if (PEEK(BLENDTOG) & 2) {
-		PrintStr(MENU_CMIN+3, MENU_RMIN+11, "FX: OFF  ");				
+		PrintStr(MENU_COL+3, MENU_ROW+11, "FX: OFF  ");				
 	} else {
-		PrintStr(MENU_CMIN+3, MENU_RMIN+11, "FX: BLEND");				
+		PrintStr(MENU_COL+3, MENU_ROW+11, "FX: BLEND");				
 	}	
 }
 #endif
@@ -620,30 +620,30 @@ void GameMenu()
 		
 	// Show version, credits, and start music
 	inkColor = WHITE; paperColor = BLACK;
-	PrintStr(MENU_CMIN, CHR_ROWS-2, buildInfo);	
+	PrintStr(MENU_COL, CHR_ROWS-2, buildInfo);	
 	
 	// Show menu options
 	while (1) {
 		// Make Black Panel Area
-		PrintBlanks(MENU_CMIN, MENU_RMIN, MENU_CMAX, MENU_RMAX);
+		PrintBlanks(MENU_COL, MENU_ROW, MENU_WID, MENU_HEI);
 	
 		// Display TAB keys
 		inkColor = INK_HIGHLT; paperColor = PAPER_HIGHLT;
-		PrintStr(MENU_CMIN+0,  MENU_RMIN, "L");
-		PrintStr(MENU_CMIN+6,  MENU_RMIN, "O");
-		PrintStr(MENU_CMIN+13, MENU_RMIN, "I");
+		PrintStr(MENU_COL+0,  MENU_ROW, "L");
+		PrintStr(MENU_COL+6,  MENU_ROW, "O");
+		PrintStr(MENU_COL+13, MENU_ROW, "I");
 
 		// Display LOCAL menu
 		if (gameMode == MODE_LOCAL) {            
 			// Display menu options
 			inkColor = INK_TAB; paperColor = BLACK;
 		#if defined __LYNX__			
-			PrintStr(MENU_CMIN+0,  MENU_RMIN, "L");			
+			PrintStr(MENU_COL+0,  MENU_ROW, "L");			
 		#endif
-			PrintStr(MENU_CMIN+1,  MENU_RMIN, "OCAL");
+			PrintStr(MENU_COL+1,  MENU_ROW, "OCAL");
 			inkColor = WHITE; 
-			PrintStr(MENU_CMIN+7,  MENU_RMIN, "NLINE");
-			PrintStr(MENU_CMIN+14, MENU_RMIN, "NFO");
+			PrintStr(MENU_COL+7,  MENU_ROW, "NLINE");
+			PrintStr(MENU_COL+14, MENU_ROW, "NFO");
 			
 			// Display game info
 			for (i=0; i<MAX_PLAYERS; ++i) { MenuPlayer(i); }
@@ -657,12 +657,12 @@ void GameMenu()
 
 			// Race launcher
 		#if defined __LYNX__
-			PrintStr(MENU_CMIN+2, MENU_RMIN+11, "RACE!");				
+			PrintStr(MENU_COL+2, MENU_ROW+11, "RACE!");				
 		#else
 			inkColor = INK_HIGHLT; paperColor = PAPER_HIGHLT;
-			PrintStr(MENU_CMIN+2, MENU_RMIN+13, "SPACE");
+			PrintStr(MENU_COL+2, MENU_ROW+13, "SPACE");
 			inkColor = WHITE; paperColor = BLACK;
-			PrintStr(MENU_CMIN+7, MENU_RMIN+13, ": RACE!");				
+			PrintStr(MENU_COL+7, MENU_ROW+13, ": RACE!");				
 		#endif		
 
 			// Process user input
@@ -708,27 +708,27 @@ void GameMenu()
 			// Display menu options
 			inkColor = INK_TAB; paperColor = BLACK;	
 		#if defined __LYNX__			
-			PrintStr(MENU_CMIN+6, MENU_RMIN, "O");
+			PrintStr(MENU_COL+6, MENU_ROW, "O");
 		#endif
-			PrintStr(MENU_CMIN+7, MENU_RMIN, "NLINE");
+			PrintStr(MENU_COL+7, MENU_ROW, "NLINE");
 			inkColor = WHITE;
-			PrintStr(MENU_CMIN+1, MENU_RMIN, "OCAL");
-			PrintStr(MENU_CMIN+14, MENU_RMIN, "NFO");
+			PrintStr(MENU_COL+1, MENU_ROW, "OCAL");
+			PrintStr(MENU_COL+14, MENU_ROW, "NFO");
 
 			// Is network ready?
 			if (!networkReady) {
 				// Init network
-				PrintStr(MENU_CMIN+2, MENU_RMIN+2, "INIT NETWORK...");
+				PrintStr(MENU_COL+2, MENU_ROW+2, "INIT NETWORK...");
 				i = InitNetwork();
 				if (i == ADAPTOR_ERR) {
-					PrintStr(MENU_CMIN+4, MENU_RMIN+3, "ADAPTOR ERROR");
+					PrintStr(MENU_COL+4, MENU_ROW+3, "ADAPTOR ERROR");
 					
 				} else if (i == DHCP_ERR) {
-					PrintStr(MENU_CMIN+4, MENU_RMIN+3, "DHCP ERROR");
+					PrintStr(MENU_COL+4, MENU_ROW+3, "DHCP ERROR");
 				
 				} else {
-					PrintStr(MENU_CMIN+4, MENU_RMIN+3, "ADAPTOR OK!");
-					PrintStr(MENU_CMIN+4, MENU_RMIN+4, "DHCP OK!");
+					PrintStr(MENU_COL+4, MENU_ROW+3, "ADAPTOR OK!");
+					PrintStr(MENU_COL+4, MENU_ROW+4, "DHCP OK!");
 
 					// Setup UDP settings (svIP, svPort, clPort)
 					InitUDP(199, 47, 196, 106, 5000+clock()%16, 5000+clock()%256);
@@ -753,14 +753,14 @@ void GameMenu()
 				}
 				if (networkReady & i>=0 & i<13) {
 					// Black-out server list
-					PrintBlanks(MENU_CMIN, MENU_RMIN+2, MENU_CMAX, MENU_RMAX);
+					PrintBlanks(MENU_COL, MENU_ROW+2, MENU_WID, MENU_HEI-2);
 					if (MenuLogin(i)) {
 						// Start game
 						return;
 					} else {
 						// Redraw server list
 						sleep(2);
-						PrintBlanks(22,6,38,19);
+						PrintBlanks(MENU_COL, MENU_ROW+2, MENU_WID, MENU_HEI-2);
 						MenuServers();
 					}
 				}				
@@ -784,20 +784,20 @@ void GameMenu()
 			// Display menu options
 			inkColor = INK_TAB; paperColor = BLACK;
 		#if defined __LYNX__			
-			PrintStr(MENU_CMIN+13, MENU_RMIN, "I");			
+			PrintStr(MENU_COL+13, MENU_ROW, "I");			
 		#endif			
-			PrintStr(MENU_CMIN+14, MENU_RMIN, "NFO");
+			PrintStr(MENU_COL+14, MENU_ROW, "NFO");
 			inkColor = WHITE; 
-			PrintStr(MENU_CMIN+1,  MENU_RMIN, "OCAL");
-			PrintStr(MENU_CMIN+7,  MENU_RMIN, "NLINE");
+			PrintStr(MENU_COL+1,  MENU_ROW, "OCAL");
+			PrintStr(MENU_COL+7,  MENU_ROW, "NLINE");
           
-            PrintStr(MENU_CMIN+5, MENU_RMIN+2,  "CREDITS");
-            PrintStr(MENU_CMIN+0, MENU_RMIN+4,  "CODE/GFX:");
-            PrintStr(MENU_CMIN+1, MENU_RMIN+5,  "ANTHONY BEAUCAMP");
-            PrintStr(MENU_CMIN+0, MENU_RMIN+7,  "MUSIC:");
-            PrintStr(MENU_CMIN+1, MENU_RMIN+8,  "ANDREW FISHER");
-            PrintStr(MENU_CMIN+0, MENU_RMIN+10, "ORIGINAL IDEA:");
-            PrintStr(MENU_CMIN+1, MENU_RMIN+11, "TIMO KAUPPINEN");            
+            PrintStr(MENU_COL+5, MENU_ROW+2,  "CREDITS");
+            PrintStr(MENU_COL+0, MENU_ROW+4,  "CODE/GFX:");
+            PrintStr(MENU_COL+1, MENU_ROW+5,  "ANTHONY BEAUCAMP");
+            PrintStr(MENU_COL+0, MENU_ROW+7,  "MUSIC:");
+            PrintStr(MENU_COL+1, MENU_ROW+8,  "ANDREW FISHER");
+            PrintStr(MENU_COL+0, MENU_ROW+10, "ORIGINAL IDEA:");
+            PrintStr(MENU_COL+1, MENU_ROW+11, "TIMO KAUPPINEN");            
             
 			// Process user input
 			while (1) { 

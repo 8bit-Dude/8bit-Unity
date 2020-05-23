@@ -21,7 +21,7 @@ void PrintMessage(unsigned char *msg)
 	unsigned char col = 0, row = CHR_ROWS-2;
 	
 	// Reset panel
-	PrintBlanks(0, CHR_ROWS-2, CHR_COLS-9, CHR_ROWS-1);
+	PrintBlanks(0, CHR_ROWS-2, CHR_COLS-8, 2);
 	
 	// Print message across two lines, by taking into account line feed '\n'
 	while (msg[i] != '\0') {

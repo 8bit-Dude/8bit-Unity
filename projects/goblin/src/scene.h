@@ -200,7 +200,7 @@ void InitScene()
 	paperColor = ORANGE;
 	SetAttributes(-1, CHR_ROWS-2, paperColor);
 	SetAttributes(-1, CHR_ROWS-1, paperColor);
-	PrintBlanks(0, CHR_ROWS-2, CHR_COLS-1, CHR_ROWS-1);	
+	PrintBlanks(0, CHR_ROWS-2, CHR_COLS, 2);	
 #else	
 	paperColor = ORANGE;
 	inkColor = WHITE;
