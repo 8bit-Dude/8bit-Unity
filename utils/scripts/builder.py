@@ -676,7 +676,7 @@ class Application:
                 fp.write('    utils\\scripts\\c64\\psid64.exe -n build/c64/' + fb + '.sid\n')
                 fp.write(') else (\n')
                 fp.write('    echo Relocation impossible, using the original file instead...\n')
-                fp.write('    cp ' + item + ' build/c64/' + fb + '.prg\n')
+                fp.write('    copy ' + item.replace('/', '\\') + ' build\\c64\\' + fb + '.prg\n')
                 fp.write(')\n')
 
             # Info
