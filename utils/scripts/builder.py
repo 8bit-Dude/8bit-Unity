@@ -561,6 +561,10 @@ class Application:
             for item in shared:
                 fp.write('copy ' + item.replace('/','\\') + ' build\\atari\n')
 
+            # Music Data
+            for item in music:
+                fp.write('copy ' + item.replace('/','\\') + ' build\\atari\\' + FileBase(item, '-atari.rmt') + '.mus\n')
+
             # Info
             fp.write('\necho DONE!\n\n')
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
@@ -601,8 +605,6 @@ class Application:
 
             # Merging
             cmd = 'utils\\py27\\python utils\\scripts\\atari\\AtariMerge.py build/atari/autorun build/atari/basicoff.bin build/atari/' + diskname.lower() + '.bin build/atari/dli.bin build/atari/rmt.bin'
-            if len(music) > 0:    
-                cmd += ' ' + music[0]
             if len(sprites) > 0:
                 cmd += ' build/atari/sprites.dat'
             cmd += '\n'                
@@ -657,13 +659,14 @@ class Application:
                 fp.write('utils\\py27\\python utils\\scripts\\ProcessChunks.py c64 ' + chunks[0] + ' build/c64/\n\n')
                 
             # Music
-            if len(music) > 0: 
-                fp.write('utils\\scripts\\c64\\sidreloc.exe -v -z 30-ff -p 08 ' + music[0] + ' build/c64/processed.sid\n')
-                fp.write('if exist build/c64/processed.sid (\n')
-                fp.write('    utils\\scripts\\c64\\psid64.exe -n build/c64/processed.sid\n')
+            for item in music:
+                fb = FileBase(item, '-c64.sid')
+                fp.write('utils\\scripts\\c64\\sidreloc.exe -v -z 30-ff -p 08 ' + item + ' build/c64/' + fb + '.sid\n')
+                fp.write('if exist build/c64/' + fb + '.sid (\n')
+                fp.write('    utils\\scripts\\c64\\psid64.exe -n build/c64/' + fb + '.sid\n')
                 fp.write(') else (\n')
                 fp.write('    echo Relocation impossible, using the original file instead...\n')
-                fp.write('    cp ' + music[0] + ' build/c64/processed.prg\n')
+                fp.write('    cp ' + item + ' build/c64/' + fb + '.prg\n')
                 fp.write(')\n')
 
             # Info
@@ -700,8 +703,6 @@ class Application:
             cmd = 'utils\\scripts\\exomizer.exe sfx $180d build/c64/' + diskname.lower() + '.bin'
             if len(sprites) > 0:
                 cmd += ' build/c64/sprites.dat'
-            if len(music) > 0: 
-                cmd += ' build/c64/processed.prg'
             cmd += ' -o build/c64/loader.prg\n'
             fp.write(cmd)
 
@@ -713,7 +714,11 @@ class Application:
             fp.write('set C1541=utils\\scripts\\c64\\c1541 -format loader,666 d64 build/' + diskname + '-c64.d64 -attach build/' + diskname + '-c64.d64 ')
             fp.write('-write build/c64/loader.prg loader.prg ')
             for item in bitmaps:
-                fp.write('-write build/c64/' + FileBase(item, '-c64.png') + '.map ' + FileBase(item, '-c64.png') + '.map ')                
+                fb = FileBase(item, '-c64.png')
+                fp.write('-write build/c64/' + fb + '.map ' + fb + '.map ')                
+            for item in music:
+                fb = FileBase(item, '-c64.sid')
+                fp.write('-write build/c64/' + fb + '.prg ' + fb + '.mus ')              
             for item in shared:
                 fp.write('-write ' + item + ' ' + FileBase(item, '') + ' ')                
             fp.write('\nfor /f "tokens=*" %%A in (build\c64\chunks.lst) do set C1541=!C1541!-write %%A %%~nxA \n')
