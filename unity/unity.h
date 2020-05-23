@@ -36,6 +36,7 @@
 
 // CC65 includes
 #include <conio.h>
+#include <dirent.h>
 #include <peekpoke.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -106,7 +107,7 @@ extern unsigned char inkColor, paperColor;
 #if defined __ORIC__
   void SetAttributes(signed char col, unsigned char row, unsigned char color);
 #endif
-void PrintBlanks(unsigned char colBeg, unsigned char rowBeg, unsigned char colEnd, unsigned char rowEnd);
+void PrintBlanks(unsigned char col, unsigned char row, unsigned char width, unsigned char height);
 void PrintChr(unsigned char col, unsigned char row, const char *chr);
 void PrintNum(unsigned char col, unsigned char row, unsigned int num);
 void PrintStr(unsigned char col, unsigned char row, const char *buffer);
@@ -236,6 +237,26 @@ void RecolorSprite(unsigned char index, unsigned char number, unsigned char colo
   #define COLLISIONS(i) (sprCollision[i])
 #endif
 #define COLLIDING(collisions,i) ((collisions >> i) & 1) 
+
+// Widget handling functions
+#ifndef CALLDEF
+#define CALLDEF
+typedef struct {
+	unsigned char x1, x2, y1, y2;
+	unsigned char id, type, *label;
+	unsigned int next;
+} callback;
+#endif
+#define CALLTYPE_ICON  	 1
+#define CALLTYPE_BUTTON  2
+#define CALLTYPE_LISTBOX 3
+void Button(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char* label);
+void ListBox(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char* title, unsigned char* labels[], unsigned char len);
+void Panel(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char* title);
+callback* CheckCallbacks(unsigned int x, unsigned int y);
+callback* PushCallback(unsigned int col, unsigned int row, unsigned int width, unsigned int height, unsigned char type, unsigned char* label);
+void PopCallback(callback* call);
+void ClearCallbacks(void);
 
 // 8bit-Hub support (see http://www.8bit-unity.com/8bit-Hub)
 #if defined __HUB__
