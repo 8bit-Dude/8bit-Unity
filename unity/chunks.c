@@ -43,7 +43,7 @@
 #if (defined __ORIC__)
   unsigned char buffer[512];
 #else
-  unsigned char buffer[6];
+  unsigned char buffer[4];
 #endif
 
 unsigned int ChunkSize(unsigned char w, unsigned char h)

@@ -75,41 +75,39 @@
 unsigned char inkColor, paperColor;
 
 // Rapidly fill memory area with blank characters
-void PrintBlanks(unsigned char colBeg, unsigned char rowBeg, unsigned char colEnd, unsigned char rowEnd)
+void PrintBlanks(unsigned char col, unsigned char row, unsigned char width, unsigned char height)
 {
 	// Black-out menu area
-	unsigned char y;
-	unsigned int span;
+	unsigned char i=0;
 #if defined __ATARI__
-	rowEnd++;
-	span = colEnd-colBeg+1;
+	unsigned int addr1, addr2;
 	paperColor1 = paperColor%4;
 	paperColor2 = paperColor/4;
+	addr1 = BITMAPRAM1+row*(8*40)+col;
+	addr2 = BITMAPRAM2+row*(8*40)+col;
 	bgByte1 = BYTE4(paperColor1,paperColor2,paperColor1,paperColor2);
 	bgByte2 = BYTE4(paperColor2,paperColor1,paperColor2,paperColor1);
-	for (y=rowBeg*8; y<rowEnd*8; ++y) {
-		if (y%2) {
-			memset((char*)(BITMAPRAM1+y*40+colBeg), bgByte2, span);
-			memset((char*)(BITMAPRAM2+y*40+colBeg), bgByte1, span);
+	while (i<height*8) {
+		if (i%2) {
+			memset((char*)addr1, bgByte2, width);
+			memset((char*)addr2, bgByte1, width);
 		} else {
-			memset((char*)(BITMAPRAM1+y*40+colBeg), bgByte1, span);
-			memset((char*)(BITMAPRAM2+y*40+colBeg), bgByte2, span);
+			memset((char*)addr1, bgByte1, width);
+			memset((char*)addr2, bgByte2, width);
 		}
+		addr1 += 40; addr2 += 40; ++i;
 	}	
 #elif defined __APPLE2__
-	unsigned char i, x, col1, col2;
+	unsigned char x, y;
 	unsigned int dataAux, dataMain;
 	
-	// Extend loops to last col/row
-	rowEnd++; colEnd++;	
-	
-	// Make sure columns are even
-	colBeg -= colBeg%2;
-	colEnd += colEnd%2;
+	// Make sure columns start and end on full 7 pixel blocks
+	col = (col-col%2)/2;
+	width = (width+width%2)/2;
 	
 	// Create sample block at top-left (to encode color info)
-	x = (7*colBeg)/2;
-	y = rowBeg*8;
+	x = 7*col;
+	y = row*8;
 	for (i=0; i<7; ++i) {
 		SetDHRPointer(x+i, y);
 		SetDHRColor(paperColor);
@@ -119,15 +117,11 @@ void PrintBlanks(unsigned char colBeg, unsigned char rowBeg, unsigned char colEn
 	SetDHRPointer(x, y);
 	*dhraux = 0;  dataAux = PEEKW(dhrptr);
 	*dhrmain = 0; dataMain = PEEKW(dhrptr);
-	
-	// Compute column range (can only copy across evenly numbered columns)
-	col1 = colBeg/2;
-	col2 = colEnd/2;
 
 	// Copy block across the rest of DHR memory
-	for (y=rowBeg*8; y<rowEnd*8; ++y) {
+	for (y=row*8; y<(row+height)*8; ++y) {
 		SetDHRPointer(x, y);
-		for (i=col1; i<col2; ++i) {
+		for (i=0; i<width; ++i) {
 			*dhraux = 0;  POKEW(dhrptr, dataAux);
 			*dhrmain = 0; POKEW(dhrptr, dataMain);
 			dhrptr += 2;
@@ -135,26 +129,32 @@ void PrintBlanks(unsigned char colBeg, unsigned char rowBeg, unsigned char colEn
 	}
 #elif defined __ORIC__
 	// Fill with 0s (papercolor) or 1s (inkcolor)
+	unsigned int addr;
 	unsigned char value;
-	rowEnd++;
-	span = colEnd-colBeg+1;
+	addr = BITMAPRAM+row*8*40+col+1;
 	if (paperColor) value = 127; else value = 64;
-	for (y=rowBeg*8; y<rowEnd*8; ++y) {
-		memset((char*)(BITMAPRAM+40*y+colBeg+1), value, span);
+	while (i<height*8) {
+		memset((char*)addr, value, width);
+		addr += 40; ++i;
 	}
 #elif defined __CBM__
-	rowEnd++;
-	span = colEnd-colBeg+1;
-	for (y=rowBeg; y<rowEnd; ++y) {
-		memset((char*)(BITMAPRAM+320*y+colBeg*8), pow2, span*8);
-		memset((char*)(SCREENRAM+40*y+colBeg), paperColor, span);		
+	unsigned int addr1, addr2;
+	addr1 = BITMAPRAM+row*8*40+col*8;
+	addr2 = SCREENRAM+row*40+col;
+	while (i<height) {
+		memset((char*)addr1, pow2, width*8);
+		memset((char*)addr2, paperColor, width);		
+		addr1 += 320; addr2 += 40; i++;
 	}	
 #elif defined __LYNX__
-	rowEnd++;
-	span = colEnd-colBeg+1;
-	for (y=rowBeg*6; y<rowEnd*6; ++y) {
-		memset(BITMAPRAM+y*82+colBeg*2+1, (paperColor << 4) | paperColor, span*2);
-	}	
+	unsigned int addr;
+	unsigned char value;
+	addr = BITMAPRAM+row*6*82+col*2+1;
+	value = (paperColor << 4) | paperColor;
+	while (i<height*6) {
+		memset((char*)addr, value, width*2);
+		addr += 82; ++i;
+	}
 	if (autoRefresh) { UpdateDisplay(); }
 #endif
 }
@@ -525,7 +525,7 @@ unsigned char InputUpdate(unsigned char col, unsigned char row, char *buffer, un
 	// Was a new key received?
 	if (!key) {
 		// Initialize input field
-		PrintBlanks(col, row, col+len, row);
+		PrintBlanks(col, row, len+1, 1);
 		PrintStr(col, row, buffer);
 	} else {
 		// Check current length of input
