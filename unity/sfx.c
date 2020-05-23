@@ -146,6 +146,14 @@ void LoadMusic(const char* filename, unsigned int address)
 	FileRead(filename, address);
 #elif defined __LYNX__
 	musicData = (chipper_t*)FileRead(filename);
+#elif defined __APPLE2__
+	FILE* fp;
+	fp = fopen(filename, "rb");	
+	if (!fp) return;
+	
+	// Consume two bytes of header then read data
+	fgetc(fp); fgetc(fp); 
+	fread((char*)(address), 1, 8000, fp);
 #endif
 }
 
