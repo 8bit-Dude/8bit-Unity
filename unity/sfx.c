@@ -123,15 +123,16 @@
 		unsigned char *chan2;
 		unsigned char *chan3;
 	} chipper_t;	
-	extern chipper_t musicData;
 	
 	// Play and Stop music
+	chipper_t* musicData;
 	void PlayMusic(unsigned int address) { 
+		if (!musicData) return;
 		lynx_snd_pause();
-		lynx_snd_play(0, musicData.chan0);
-		lynx_snd_play(1, musicData.chan1);
-		lynx_snd_play(2, musicData.chan2);
-		lynx_snd_play(3, musicData.chan3);
+		lynx_snd_play(0, musicData->chan0);
+		lynx_snd_play(1, musicData->chan1);
+		lynx_snd_play(2, musicData->chan2);
+		lynx_snd_play(3, musicData->chan3);
 		lynx_snd_continue();
 	}
 	void StopMusic() { 
@@ -143,6 +144,8 @@ void LoadMusic(const char* filename, unsigned int address)
 {
 #if defined __ORIC__
 	FileRead(filename, address);
+#elif defined __LYNX__
+	musicData = (chipper_t*)FileRead(filename);
 #endif
 }
 

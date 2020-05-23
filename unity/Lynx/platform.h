@@ -77,4 +77,5 @@
 #define TCK_PER_SEC	60
 
 // Workaround for file reading
+unsigned char* ReadDir(void);
 unsigned char* FileRead(const char* filename);
