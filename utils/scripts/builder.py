@@ -468,7 +468,7 @@ class Application:
             
             # Bitmaps / Sprites
             for item in bitmaps:
-                fp.write('utils\\py27\\python utils\\scripts\\apple\\AppleBitmap.py ' + item + ' build/apple/' + FileBase(item, '-apple.png') + '.map\n')
+                fp.write('utils\\py27\\python utils\\scripts\\apple\\AppleBitmap.py ' + item + ' build/apple/' + FileBase(item, '-apple.png') + '.img\n')
             if len(sprites) > 0:
                 fp.write('utils\\py27\\python utils\\scripts\\apple\\AppleSprites.py ' + sprites[0] + ' build/apple/sprites.dat\n')
             if len(chunks) > 0:
@@ -524,7 +524,7 @@ class Application:
             for item in music:
                 fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander.jar -p build/' + diskname + '-apple.do ' + FileBase(item, '-apple.m').upper() + '.MUS bin < ' +item + '\n')
             for item in bitmaps:
-                fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander.jar -p build/' + diskname + '-apple.do ' + FileBase(item, '-apple.png').upper() + '.MAP bin < build/apple/' + FileBase(item, '-apple.png') + '.map\n')
+                fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander.jar -p build/' + diskname + '-apple.do ' + FileBase(item, '-apple.png').upper() + '.IMG bin < build/apple/' + FileBase(item, '-apple.png') + '.img\n')
             
             # Info
             fp.write('\necho DONE\n')
@@ -550,7 +550,7 @@ class Application:
             
             # Bitmaps / Sprites
             for item in bitmaps:
-                fp.write('utils\\py27\\python utils\\scripts\\atari\\AtariBitmap.py ' + item + ' build/atari/' + FileBase(item, '-atari.png') + '.map\n')
+                fp.write('utils\\py27\\python utils\\scripts\\atari\\AtariBitmap.py ' + item + ' build/atari/' + FileBase(item, '-atari.png') + '.img\n')
             if len(sprites) > 0:
                 spriteHeight = int(self.entry_AtariSpriteHeight.get())
                 fp.write('utils\\py27\\python utils\\scripts\\atari\\AtariSprites.py ' + sprites[0] + ' build/atari/sprites.dat ' + str(spriteHeight) + '\n')
@@ -652,7 +652,7 @@ class Application:
             
             # Bitmaps / Sprites
             for item in bitmaps:
-                fp.write('utils\\py27\\python utils\\scripts\\c64\\C64Bitmap.py ' + item + ' build/c64/' + FileBase(item, '-c64.png') + '.map\n')
+                fp.write('utils\\py27\\python utils\\scripts\\c64\\C64Bitmap.py ' + item + ' build/c64/' + FileBase(item, '-c64.png') + '.img\n')
             if len(sprites) > 0:
                 fp.write('utils\\py27\\python utils\\scripts\\c64\\C64Sprites.py ' + sprites[0] + ' build/c64/sprites.dat\n')
             if len(chunks) > 0:
@@ -715,7 +715,7 @@ class Application:
             fp.write('-write build/c64/loader.prg loader.prg ')
             for item in bitmaps:
                 fb = FileBase(item, '-c64.png')
-                fp.write('-write build/c64/' + fb + '.map ' + fb + '.map ')                
+                fp.write('-write build/c64/' + fb + '.img ' + fb + '.img ')                
             for item in music:
                 fb = FileBase(item, '-c64.sid')
                 fp.write('-write build/c64/' + fb + '.prg ' + fb + '.mus ')              
@@ -830,7 +830,7 @@ class Application:
                 # Write list of Bitmaps
                 for i in range(len(bitmaps)):
                     fb = FileBase(bitmaps[i], '-lynx.png')
-                    fp.write('@echo _bmpName' + str(i).zfill(2) + ': .byte "' + fb + '.map",0 >> data.asm\n')
+                    fp.write('@echo _bmpName' + str(i).zfill(2) + ': .byte "' + fb + '.img",0 >> data.asm\n')
 
                 # Write list of Musics
                 for i in range(len(music)):
@@ -979,7 +979,7 @@ class Application:
                     fp.write('luajit PictOric.lua ' + self.entry_OricDithering.get() + ' ../../../' + item + ' ../../../build/oric/' + filebase + '.dat\n')
                 else:
                     fp.write('..\\..\\py27\\python OricBitmap.py ../../../' + item + ' ../../../build/oric/' + filebase + '.dat\n')
-                fp.write('header -a0 ../../../build/oric/' + filebase + '.dat ../../../build/oric/' + filebase + '.map $A000\n')
+                fp.write('header -a0 ../../../build/oric/' + filebase + '.dat ../../../build/oric/' + filebase + '.img $A000\n')
             if len(chunks) > 0:
                 fp.write('..\\..\\py27\\python ProcessChunks.py ' + self.combobox_OricImageQuality.get() + ' ' + self.entry_OricDithering.get() + ' ../../../' + chunks[0] + ' ../../../build/oric/\n')
                 fp.write('for /f "tokens=*" %%A in (..\\..\\..\\build\\oric\\chunks.lst) do header -a0 ../../../%%A ../../../%%A $8000\n')
@@ -1039,7 +1039,7 @@ class Application:
             for item in shared:
                 cmd += ' build/oric/' + FileBase(item, '')
             for item in bitmaps:
-                cmd += ' build/oric/' + FileBase(item, '-oric.png') + '.map'
+                cmd += ' build/oric/' + FileBase(item, '-oric.png') + '.img'
             for item in music:
                 filebase = FileBase(item, '-oric.ym')
                 cmd += ' build/oric/' + filebase + '.mus'
