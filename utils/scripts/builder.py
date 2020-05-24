@@ -793,7 +793,7 @@ class Application:
             fp.write('copy ..\\..\\unity\\Lynx\\chipper.s soundbs.mac\n')    
             for i in range(len(music)):
                 fp.write('..\\..\\utils\\py27\\python ../../utils/scripts/lynx/LynxChipper.py ../../' + music[i] + ' music' + str(i).zfill(2) + '.asm _musData' + str(i).zfill(2) + '\n')
-                         
+                
             # Clean-up
             fp.write('del *.png /F /Q\n')
             fp.write('del *.bmp /F /Q\n')
@@ -806,9 +806,24 @@ class Application:
                     fb = FileBase(item, '')
                     fp.write('copy ..\\..\\' + item.replace('/', '\\') + ' ' + fb + '\n')
                 fp.write('\n')
+                
+            # Get Size of various files
+            filelist = ''
+            for i in range(len(bitmaps)):
+                fb = FileBase(bitmaps[i], '-lynx.png')
+                filelist += fb + '.spr,'
+            for i in range(len(music)):
+                filelist += 'music' + str(i).zfill(2) + '.asm,'
+            for item in shared:
+                fb = FileBase(item, '')
+                filelist += fb + ','
+            fp.write('set FILESIZES=\n')
+            fp.write('for %%I in (' + filelist[0:-1] + ') do set FILESIZES=!FILESIZES!%%~zI,\n\n')
+            fp.write('for /f "tokens=*" %%A in (chunks.lst) do set FILESIZES=!FILESIZES!%%~zA,\n') 
 
             # Generate declare file for read-only data
             fp.write('@echo .global _fileNum  >> data.asm\n')
+            fp.write('@echo .global _fileSizes >> data.asm\n')
             fp.write('@echo .global _fileNames >> data.asm\n')
             fp.write('@echo .global _fileDatas >> data.asm\n')
             fp.write('@echo .global _spriteNum  >> data.asm\n')
@@ -817,11 +832,12 @@ class Application:
             fp.write('@echo .global _keybrdData >> data.asm\n')
             fp.write('@echo ; >> data.asm\n')
             
-            # Quantity of assets
+            # Num and sizes of files
             fp.write('@echo .segment "RODATA" >> data.asm\n')
             fp.write('@echo _fileNum: .byte %FILENUM% >> data.asm\n')  
-            
-            # List of Filenames
+            fp.write('@echo _fileSizes: .word %FILESIZES:~0,-1% >> data.asm\n')
+
+            # List of file names and data
             if len(bitmaps) > 0 or len(music) > 0 or len(shared) > 0 or len(chunks) > 0:
                 # Declare all Bitmap, Shared and Chunk files
                 fp.write('@echo _fileNames: .addr ')
