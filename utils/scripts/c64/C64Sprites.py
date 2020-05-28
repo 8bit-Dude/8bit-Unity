@@ -30,25 +30,38 @@ from PIL import Image
 input = sys.argv[1]
 output = sys.argv[2]
 
+#################################
+# Read source bitmap and palette
 img1 = Image.open(input)
 rawdata = list(img1.getdata())
+colors = max(rawdata)
+print "Sprite sheet size: {%i,%i}; Number of colors: %i" % (img1.size[0], img1.size[1], colors)
 
-###################################
+################################
+# Rearrange into 12 * 21 blocks
+griddata = []
+for row in range(0, img1.size[1], 21):
+    for col in range(0, img1.size[0], 12):
+        for j in range(0, 21):        
+            for i in range(0, 12):
+                griddata.append(rawdata[(row+j)*img1.size[0]+col+i])
+
+#############################
 # Split into 4 colors layers
 layers = 0
 layerdata = []
-while (layers+3) <= max(rawdata):
+while (layers+3) <= max(griddata):
     pixdata = []
     
     # Transcribe unique colors to different layers
-    for i in range(len(rawdata)):
+    for i in range(len(griddata)):
         # Transparent or shared color?
-        if (rawdata[i] in [0,1]): 
-            color = rawdata[i]
-        elif (rawdata[i] == 2): 
+        if (griddata[i] in [0,1]): 
+            color = griddata[i]
+        elif (griddata[i] == 2): 
             color = 3        
         # Is it the unique color of layer?
-        elif (rawdata[i] == layers+3): 
+        elif (griddata[i] == layers+3): 
             color = 2
         # Otherwise use transparent
         else:
@@ -62,7 +75,7 @@ while (layers+3) <= max(rawdata):
 ####################################
 # Convert 4bit pixel data to buffers 
 block = 12*21
-frames = len(rawdata)/block
+frames = len(griddata)/block
 layersize = frames*64
 sprdata = [chr(0)] * (layers*layersize)
 for layer in range(layers):

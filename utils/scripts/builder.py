@@ -684,7 +684,7 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Build Unity Library
-            CList = ['bitmap.c', 'chunks.c', 'geom2d.c', 'network.c', 'print.c', 'sfx.c', 'sprites.c', 'widgets.c', 'C64\\display.c']
+            CList = ['bitmap.c', 'chunks.c', 'geom2d.c', 'network.c', 'print.c', 'sfx.c', 'sprites.c', 'widgets.c']
             SList = ['chars.s', 'math.s', 'C64\\JOY.s', 'C64\\ROM.s', 'C64\\SID.s']
                          
             for file in CList:

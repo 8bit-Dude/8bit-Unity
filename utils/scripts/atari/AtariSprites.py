@@ -34,9 +34,18 @@ height = int(sys.argv[3])
 #################################
 # Read source bitmap and palette
 img1 = Image.open(input)
-pixdata = list(img1.getdata())
-colors = max(pixdata)
-print "Number of Colors: %i" % (colors)
+rawdata = list(img1.getdata())
+colors = max(rawdata)
+print "Sprite sheet size: {%i,%i}; Number of colors: %i" % (img1.size[0], img1.size[1], colors)
+
+###################################
+# Rearrange into 8 * Height blocks
+pixdata = []
+for row in range(0, img1.size[1], height):
+    for col in range(0, img1.size[0], 8):
+        for j in range(0, height):        
+            for i in range(0, 8):
+                pixdata.append(rawdata[(row+j)*img1.size[0]+col+i])
 
 ################################
 # Convert pixel data to buffers 
@@ -44,7 +53,7 @@ block = 8*height
 frames = len(pixdata) / block
 numBytes = (colors*frames*height)
 sprdata = [chr(0)] * numBytes
-for color in range(1,max(pixdata)+1):
+for color in range(1,colors+1):
     for frame in range(frames):
         for i in range(0, block, 8):
             sprdata[(color-1)*frames*height+frame*height+i/8] = \
