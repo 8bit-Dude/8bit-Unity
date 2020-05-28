@@ -62,20 +62,22 @@
 #elif defined __ATARI__	
 	// Sprite flicker data (see DLI.a65)
 	void SetupFlickerDLI(void);
-	extern unsigned int flickerFrame[10];
-	extern unsigned char flickerMask[5], flickerX[10], flickerY[10], flickerColor[10], flickerRows;
+	unsigned char sprYOffset;
+	extern unsigned int sprFrame[10];
+	extern unsigned char sprRows, sprMask[5], sprX[10], sprY[10], sprColor[10];
 	void InitSprites(unsigned char frames, unsigned char cols, unsigned char rows, unsigned char *spriteColors)
 	{			
 		// Reset Sprite Mask, Frames, Colors and Rows
 		unsigned char i;
 		for (i=0; i<5; i++) {
-			flickerMask[i] = 0;
+			sprMask[i] = 0;
 		}
 		for (i=0; i<10; i++) {
-			flickerFrame[i] = 0;
-			flickerColor[i] = spriteColors[i];
+			sprFrame[i] = 0;
+			sprColor[i] = spriteColors[i];
 		}
-		flickerRows = rows;
+		sprRows = rows;
+		sprYOffset = rows/2;
 
 		// Clear all PMG memory
 		bzero(PMGRAM+768,0x500);
@@ -87,6 +89,12 @@
 		
 		// Setup flicker DLI
 		SetupFlickerDLI();
+	}
+	void DoubleHeightSprite(unsigned char index, unsigned char onoff)
+	{
+		extern unsigned char doubleHeight[10];
+		doubleHeight[index] = onoff;
+		if (onoff) sprYOffset = sprRows; else sprYOffset = sprRows/2;
 	}
 // Atmos specific init function
 #elif defined __ORIC__	
@@ -136,6 +144,22 @@
 		// Set to multicolor code
 		POKE(53276, 255);			
 	}	
+	void DoubleHeightSprite(unsigned char index, unsigned char onoff)
+	{
+		if (onoff) {
+			POKE(0xD017, PEEK(0xD017) |  (1 << index));
+		} else {
+			POKE(0xD017, PEEK(0xD017) & !(1 << index));
+		}
+	}
+	void DoubleWidthSprite(unsigned char index, unsigned char onoff)
+	{
+		if (onoff) {
+			POKE(0xD01D, PEEK(0xD01D) |  (1 << index));
+		} else {
+			POKE(0xD01D, PEEK(0xD01D) & !(1 << index));
+		}
+	}	
 // Lynx specific init function
 #elif defined __LYNX__	
 	// declare RO and TGI data
@@ -165,12 +189,19 @@
 			}
 		}
 	}
+	void ScaleSprite(unsigned char index, unsigned int xPercent, unsigned int yPercent)
+	{
+		SCB_REHV_PAL *scb;
+		scb = &sprTGI[index];
+		scb->hsize = xPercent;
+		scb->vsize = yPercent;
+	}
 #endif
 
 void RecolorSprite(unsigned char index, unsigned char number, unsigned char color)
 {
 #if defined __ATARI__
-	flickerColor[index] = color;
+	sprColor[index] = color;
 #elif defined __ORIC__
 	POKE(sprCOLOR+index, color);
 #elif defined __CBM__
@@ -399,9 +430,9 @@ void SetSprite(unsigned char index, unsigned char frame)
 	sprDrawn[index] = 1;	
 	
 #elif defined __ATARI__
-	flickerX[index] = spriteX;
-	flickerY[index] = spriteY;
-	flickerFrame[index] = SPRITERAM + frame*flickerRows;
+	sprX[index] = spriteX;
+	sprY[index] = spriteY-sprYOffset;
+	sprFrame[index] = SPRITERAM + frame*sprRows;
 	
 #elif defined __ORIC__
 	unsigned char i, inkVAL, inkMUL;
@@ -510,9 +541,9 @@ void EnableSprite(signed char index)
 #elif defined __ATARI__
 	// Set bit in flicker mask	
 	if (index<5) { 
-		flickerMask[index] |= 1;
+		sprMask[index] |= 1;
 	} else {
-		flickerMask[index-5] |= 2;
+		sprMask[index-5] |= 2;
 	}
 #elif (defined __APPLE2__) || (defined __ORIC__)
 	// Allocate memory for background
@@ -543,9 +574,9 @@ void DisableSprite(signed char index)
 	#elif defined __ATARI__
 		// Set bit in flicker mask	
 		if (index<5) { 
-			flickerMask[index] &= ~1;
+			sprMask[index] &= ~1;
 		} else {
-			flickerMask[index-5] &= ~2;
+			sprMask[index-5] &= ~2;
 		}
 		bzero(PMGRAM+768+((index+1)%5)*256,0x100); // Clear PMG slot
 	#else
@@ -561,7 +592,7 @@ void DisableSprite(signed char index)
 		// Reset sprite register
 		POKE(53269, 0);
 	#elif defined __ATARI__
-		bzero(flickerMask, 5);	 // Clear flicker mask
+		bzero(sprMask, 5);	 // Clear flicker mask
 		bzero(PMGRAM+768,0x500); // Clear PMG memory
 	#else
 		// Soft sprites: Restore background if necessary

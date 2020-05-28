@@ -211,9 +211,13 @@ void SetSprite(unsigned char index, unsigned char frame);
 void RecolorSprite(unsigned char index, unsigned char number, unsigned char color);
 #if defined __APPLE2__
   void CropSprite(unsigned char index, unsigned char rows);
+#elif defined __ATARI__
+  void DoubleHeightSprite(unsigned char index, unsigned char onoff);
 #elif defined __CBM__
   void DoubleHeightSprite(unsigned char index, unsigned char onoff);
   void DoubleWidthSprite(unsigned char index, unsigned char onoff);
+#elif defined __LYNX__
+  void ScaleSprite(unsigned char index, unsigned int xPercent, unsigned int yPercent);
 #elif defined __ORIC__
   void CropSprite(unsigned char index, unsigned char rows);
   void MultiColorSprite(unsigned char index, unsigned char* multiColorDef);
