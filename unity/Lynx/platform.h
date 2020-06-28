@@ -1,10 +1,5 @@
 /*
- *	API of the "8bit-Unity" SDK for CC65
- *	All functions are cross-platform for the Apple IIe, Atari XL/XE, and C64/C128
- *	
- *	Last modified: 2019/07/12
- *	
- * Copyright (c) 2019 Anthony Beaucamp.
+ * Copyright (c) 2018 Anthony Beaucamp.
  *
  * This software is provided 'as-is', without any express or implied warranty.
  * In no event will the authors be held liable for any damages arising from
@@ -27,11 +22,6 @@
  *   4. The names of this software and/or it's copyright holders may not be
  *   used to endorse or promote products derived from this software without
  *   specific prior written permission.
- *
- *	Credits: 
- *		* Oliver Schmidt for his IP65 network interface
- *		* Christian Groessler for helping optimize the memory maps on Commodore and Atari
- *		* Bill Buckels for his Apple II Double Hi-Res bitmap code
  */
  
 #include <lynx.h>
@@ -39,8 +29,8 @@
 #include <tgi.h>
 
 // Memory Map
-#define BITMAPRAM  (0x9F8B)
-#define MUSICRAM   (0x0000)
+#define BITMAPRAM  (0x8F8B)
+#define MUSICRAM   (0xB038)
 
 // Character Mode
 #define CHR_COLS 40
@@ -77,5 +67,5 @@
 #define TCK_PER_SEC	60
 
 // Workaround for file reading
-unsigned char* ReadDir(void);
+unsigned char FileLoad(const char* filename);
 unsigned char* FileRead(const char* filename);

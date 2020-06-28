@@ -116,23 +116,15 @@
 	extern void __fastcall__ abcintegrate(unsigned char chan, unsigned char val); // legal values 0..1
 	extern void __fastcall__ abcvolume(unsigned char chan, unsigned char val);	  // legal values 0..127
 
-	// Need this struct to point to the seperate channels of music
-	typedef struct {
-		unsigned char *chan0;
-		unsigned char *chan1;
-		unsigned char *chan2;
-		unsigned char *chan3;
-	} chipper_t;	
-	
 	// Play and Stop music
-	chipper_t* musicData;
 	void PlayMusic(unsigned int address) { 
-		if (!musicData) return;
+	unsigned char i = 0;
 		lynx_snd_pause();
-		lynx_snd_play(0, musicData->chan0);
-		lynx_snd_play(1, musicData->chan1);
-		lynx_snd_play(2, musicData->chan2);
-		lynx_snd_play(3, musicData->chan3);
+		while (i<4) {
+			if PEEKW(address) lynx_snd_play(i, PEEKW(address));
+			address += 2;
+			++i;
+		}
 		lynx_snd_continue();
 	}
 	void StopMusic() { 
@@ -143,9 +135,11 @@
 void LoadMusic(const char* filename, unsigned int address)
 {
 #if defined __ORIC__
+	// Load from File
 	FileRead(filename, address);
 #elif defined __LYNX__
-	musicData = (chipper_t*)FileRead(filename);
+	// Load from CART file system
+	FileLoad(filename);
 #else
 	FILE* fp;
 	unsigned int loadaddr;
@@ -266,6 +260,7 @@ void EngineSFX(int channel, int vel)
 	}
 #elif defined __LYNX__
 	unsigned char freq = (160-vel/6)+channel*5;
+	channel = (channel%2)+2;
 	abctaps(channel, 60);
 	abcoctave(channel, 2);
 	abcvolume(channel, 20);
@@ -312,12 +307,12 @@ void BleepSFX(unsigned char tone)
 	PlaySFX(tone/4+12, 1000);
 	ResetChannels();	
 #elif defined __LYNX__	
-	abctaps(3, 7);
-	abcoctave(3, 2);
-	abcvolume(3, 60);
-	abcintegrate(3, 1);
-	abcpitch(3, 255-tone);
-	abctimers[3] = 15;
+	abctaps(2, 7);
+	abcoctave(2, 2);
+	abcvolume(2, 60);
+	abcintegrate(2, 1);
+	abcpitch(2, 255-tone);
+	abctimers[2] = 15;
 #endif
 }
 
@@ -343,11 +338,11 @@ void BumpSFX()
 	PlaySFX(16, 100);
 	ResetChannels();	
 #elif defined __LYNX__	
-	abctaps(3, 7);
-	abcoctave(3, 4);
-	abcvolume(3, 80);
-	abcintegrate(3, 1);
-	abcpitch(3, 192);
-	abctimers[3] = 10;
+	abctaps(1, 7);
+	abcoctave(1, 4);
+	abcvolume(1, 80);
+	abcintegrate(1, 1);
+	abcpitch(1, 192);
+	abctimers[1] = 10;
 #endif
 }
