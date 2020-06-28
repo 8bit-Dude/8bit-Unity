@@ -1,6 +1,17 @@
 
 #include "game.h"
 
+#if defined __LYNX__
+const char *musicList[4] = {"chase.mus","driven.mus","stroll.mus","whirlwnd.mus"};
+unsigned char musicSel = 0;
+void NextMusic() {
+	// Select next music track
+	LoadMusic(musicList[musicSel], MUSICRAM);
+	if (++musicSel > 3) musicSel = 0;
+	PlayMusic(MUSICRAM);
+}
+#endif
+
 int main (void) 
 {
 	unsigned char carryon;
@@ -15,10 +26,6 @@ int main (void)
 	InitBitmap();
 	InitSprites(spriteFrames, spriteCols, spriteRows, spriteColors);	// see definitions.h
 
-	// Load Sound Track
-#ifndef __CBM__
-	LoadMusic("speednik.mus", MUSICRAM);
-#endif	
 	// Main Loop
 	while (1) {
         // Load menu screen
@@ -29,6 +36,7 @@ int main (void)
 		
 		// Show menu
 	#ifndef __CBM__
+		LoadMusic("speednik.mus", MUSICRAM);
 		PlayMusic(MUSICRAM);
 	#endif	
 		EnterBitmapMode();
@@ -44,6 +52,9 @@ int main (void)
 
 			// Run game
 			InitSFX();
+		#ifdef __LYNX__
+			NextMusic();
+		#endif	
 			EnterBitmapMode();
 			carryon = GameLoop();
 			DisableSprite(-1);

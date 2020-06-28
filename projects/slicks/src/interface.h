@@ -38,7 +38,7 @@
 	#define INK_TAB		 YELLOW	
 	#define INK_HIGHLT	 WHITE
 	#define PAPER_HIGHLT BLACK
-	#define PAPER_SCORES BLACK
+	#define PAPER_SCORES DGREEN
 	#define ROW_SCORES   4
 #endif
 
@@ -88,6 +88,10 @@ void PrintScores()
 	
 	// Play the background music
 	StopSFX();
+#ifdef __LYNX__
+	StopMusic();
+	LoadMusic("speednik.mus", MUSICRAM);
+#endif		
 #ifndef __CBM__
 	PlayMusic(MUSICRAM);
 #endif	
