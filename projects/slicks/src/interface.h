@@ -773,7 +773,7 @@ void GameMenu()
 				if (lastchar == KEY_L) {
                     // Reset controls
                     controlIndex[0] = 3;
-                    controlIndex[1] = 2;
+                    controlIndex[1] = 1;
                     controlIndex[2] = 0;
                     controlIndex[3] = 0;                    
                     gameMode = MODE_LOCAL; 
@@ -800,8 +800,14 @@ void GameMenu()
             PrintStr(MENU_COL+1, MENU_ROW+5,  "ANTHONY BEAUCAMP");
             PrintStr(MENU_COL+0, MENU_ROW+7,  "MUSIC:");
             PrintStr(MENU_COL+1, MENU_ROW+8,  "ANDREW FISHER");
+		#if defined __LYNX__			
+            PrintStr(MENU_COL+1, MENU_ROW+9,  "CARL FORHAN");
+            PrintStr(MENU_COL+0, MENU_ROW+11, "ORIGINAL IDEA:");
+            PrintStr(MENU_COL+1, MENU_ROW+12, "TIMO KAUPPINEN");            
+		#else
             PrintStr(MENU_COL+0, MENU_ROW+10, "ORIGINAL IDEA:");
             PrintStr(MENU_COL+1, MENU_ROW+11, "TIMO KAUPPINEN");            
+		#endif			
             
 			// Process user input
 			while (1) { 

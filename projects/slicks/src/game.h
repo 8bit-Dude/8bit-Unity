@@ -36,7 +36,7 @@ int tck4, accRate, decRate, jmpTCK;
 #endif
 const char rotMax[3] = { 4, 5, 2};
 const int velMin = 200;
-const int velMax[3] = { 500, 600, 600 };
+const int velMax[3] = { 450, 600, 600 };
 const int velRamp = 800;
 
 // Fast tables for cos/sin

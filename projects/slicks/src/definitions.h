@@ -101,7 +101,7 @@ const char *mapList[LEN_MAPS] = {"arizona","arto","cramp","freeway","gta","islan
 unsigned char lapNumber[LEN_LAPS] = { 5, 10, 20, 50 };
 
 // List of controller types
-unsigned char controlIndex[MAX_PLAYERS] = { 3, 2, 0, 0 };
+unsigned char controlIndex[MAX_PLAYERS] = { 3, 1, 0, 0 };
 #if defined __APPLE2__
 	#define LEN_CONTROL 8
 	const char* controlList[LEN_CONTROL] = { "NONE", "CPU EASY", "CPU HARD", "PADDLE 1", "PADDLE 2", "PADDLE 3", "PADDLE 4", "NETWORK" };
