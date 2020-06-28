@@ -792,7 +792,7 @@ class Application:
             # Copy Chipper sfx and music data
             fp.write('copy ..\\..\\unity\\Lynx\\chipper.s soundbs.mac\n')    
             for i in range(len(music)):
-                fp.write('..\\..\\utils\\py27\\python ../../utils/scripts/lynx/LynxChipper.py ../../' + music[i] + ' music' + str(i).zfill(2) + '.asm _musData' + str(i).zfill(2) + '\n')
+                fp.write('..\\..\\utils\\py27\\python ../../utils/scripts/lynx/LynxChipper.py ../../' + music[i] + ' music' + str(i).zfill(2) + '.asm _musData' + str(i).zfill(2) + ' MUS' + str(i) + 'DATA"\n')
                 
             # Clean-up
             fp.write('del *.png /F /Q\n')
@@ -891,13 +891,13 @@ class Application:
                     fb = FileBase(bitmaps[i], '-lynx.png')
                     fp.write('@echo .segment "BMP' + str(i) + 'DATA" >> data.asm\n')
                     fp.write('@echo _bmpData' + str(i).zfill(2) + ': .incbin "' + fb + '.spr" >> data.asm\n')                    
-                fp.write('@echo .segment "RODATA" >> data.asm\n')
 
                 # Link list of musics
                 for i in range(len(music)):
                     fp.write('@echo .import _musData' + str(i).zfill(2) + ' >> data.asm\n')
                     
                 # Link list of shared
+                fp.write('@echo .segment "RODATA" >> data.asm\n')
                 for i in range(len(shared)):
                     fb = FileBase(shared[i], '')
                     fp.write('@echo _shrData' + str(i).zfill(2) + ': .incbin "' + fb + '" >> data.asm\n')
@@ -939,8 +939,8 @@ class Application:
             fp.write('\n')            
 
             # Generate config and directory Files
-            fp.write('utils\\py27\\python utils/scripts/lynx/LynxConfig.py unity/Lynx/lynx.cfg build/lynx/lynx.cfg ' + str(len(bitmaps)) + '\n')
-            fp.write('utils\\py27\\python utils/scripts/lynx/LynxDirectory.py unity/Lynx/directory.s build/lynx/directory.asm ' + str(len(bitmaps)) + '\n')
+            fp.write('utils\\py27\\python utils/scripts/lynx/LynxConfig.py unity/Lynx/lynx.cfg build/lynx/lynx.cfg ' + str(len(bitmaps)) + ' ' + str(len(music)) + '\n')
+            fp.write('utils\\py27\\python utils/scripts/lynx/LynxDirectory.py unity/Lynx/directory.s build/lynx/directory.asm ' + str(len(bitmaps)) + ' ' + str(len(music)) + '\n')
                         
             # Info
             fp.write('\necho DONE!\n\n')

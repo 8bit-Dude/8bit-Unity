@@ -28,14 +28,16 @@ import sys
 
 input = sys.argv[1]
 output = sys.argv[2]
-flag = sys.argv[3]
+flag1 = sys.argv[3]
+flag2 = sys.argv[4]
 
 try:
     # Slightly modify ASM file output by Chipper
     with open(input, "rt") as fin:
         with open(output, "wt") as fout:
             for line in fin:
-                line = line.replace('musicptr', flag)
+                line = line.replace('musicptr', flag1)
+                line = line.replace('.rodata', '.segment "'+flag2+'"')
                 fout.write(line)
                 
 except:

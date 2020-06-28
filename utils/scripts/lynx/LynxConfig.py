@@ -28,7 +28,8 @@ import sys
 
 input = sys.argv[1]
 output = sys.argv[2]
-num = sys.argv[3]
+bmpNum = int(sys.argv[3])
+musNum = int(sys.argv[4])
 
 try:
     # Add bitmap assets to Config file
@@ -36,14 +37,18 @@ try:
         with open(output, "wt") as fout:
             for line in fin:
                 if 'size = 1*8' in line:
-                    line = line.replace('1*8', str(1+int(num)) + '*8')
+                    line = line.replace('1*8', str(1+bmpNum+musNum) + '*8')
                 fout.write(line)
                 if 'size = __MAINSIZE__' in line:
-                    for i in range(int(num)):
+                    for i in range(bmpNum):
                         fout.write('	BMP' + str(i) + ':	file = %O, define = yes, start = $0200 + __MAINSIZE__ + __STACKSIZE__, size = __BMPSIZE__;\n')
+                    for i in range(musNum):
+                        fout.write('	MUS' + str(i) + ':	file = %O, define = yes, start = $0200 + __MAINSIZE__ + __STACKSIZE__ + __BMPSIZE__, size = __MUSSIZE__;\n')
                 if 'BSS:       load = MAIN' in line:
-                    for i in range(int(num)):
+                    for i in range(bmpNum):
                         fout.write('	BMP' + str(i) + 'DATA:  load = BMP' + str(i) + ',	  type = rw,  define = yes;\n')
+                    for i in range(musNum):
+                        fout.write('	MUS' + str(i) + 'DATA:  load = MUS' + str(i) + ',	  type = rw,  define = yes;\n')
                 
 except:
     print 'Error: cannot generate Lynx config file'
