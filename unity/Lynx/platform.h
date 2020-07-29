@@ -29,8 +29,9 @@
 #include <tgi.h>
 
 // Memory Map
-#define BITMAPRAM  (0x8F8B)
-#define MUSICRAM   (0xB038)
+#define SHAREDRAM  (0x988B)
+#define MUSICRAM   (0x998B)
+#define BITMAPRAM  (0x9F8B)
 
 // Character Mode
 #define CHR_COLS 40
@@ -68,4 +69,3 @@
 
 // Workaround for file reading
 unsigned char FileLoad(const char* filename);
-unsigned char* FileRead(const char* filename);

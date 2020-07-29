@@ -91,7 +91,7 @@ void InitBitmap()
 	
 	// Install drivers (and set interrupts)
 	tgi_install(tgi_static_stddrv); // Screen driver
-	tgi_init();
+	tgi_init(); tgi_clear();
 	tgi_setframerate(TCK_PER_SEC);
 	ser_install(lynx_comlynx_ser);		// Comlynx driver
 	lynx_snd_init(); 

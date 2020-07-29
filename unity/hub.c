@@ -43,7 +43,7 @@
 unsigned char tick;
 #endif
 
-unsigned char hubState[5] = { COM_ERR_OFFLINE, 255, 255, 80, 100 };
+unsigned char hubState[7] = { COM_ERR_OFFLINE, 255, 255, 255, 255, 80, 100 };
 unsigned char sendID = 0, sendLen = 0, sendHub[192];
 unsigned char recvID = 0, recvLen = 0, recvHub[192];
 unsigned char countID = 0;
@@ -154,7 +154,7 @@ void RecvHub(unsigned char timeOut)
 	if (!RecvByte(&ID)) { hubState[0] = COM_ERR_TRUNCAT; return; }
 	
 	// Read joystick/mouse data
-	for (i=1; i<5; i++) {
+	for (i=1; i<7; i++) {
 		if (!RecvByte(&hubState[i])) { hubState[0] = COM_ERR_TRUNCAT; return; }
 	}
 
@@ -176,7 +176,7 @@ void RecvHub(unsigned char timeOut)
 
 	// Verify checkum
 	checksum = ID;
-	for (i=1; i<5; i++) { checksum += hubState[i]; }
+	for (i=1; i<7; i++) { checksum += hubState[i]; }
 	for (i=0; i<len; i++) { checksum += recvHub[i]; }
 	if (footer != checksum) { 
 		hubState[0] = COM_ERR_CORRUPT; 
@@ -213,7 +213,7 @@ void RecvHub(unsigned char timeOut)
 #if defined DEBUG_HUB
 	PrintNum(0,10,header); PrintNum(4,10,ID); 
 	PrintNum(8,10,len); PrintNum(12,10,footer);
-	for (i=1; i<5; i++) {
+	for (i=1; i<7; i++) {
 		PrintNum(4*(i-1),11,hubState[i]);
 	}	
 	for (i=0; i<len; i++) {

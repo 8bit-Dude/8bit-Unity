@@ -214,24 +214,24 @@ void StopSFX()
 #endif
 }
 
-void EngineSFX(int channel, int vel)
+void EngineSFX(unsigned int channel, unsigned int rpm)
 {
 #if defined __CBM__	
-	unsigned int freq = 4*vel+(channel*5+200);
+	unsigned int freq = 4*rpm+(channel*5+200);
 	if (channel%2) {
 		SID.v2.freq = freq;	
 	} else {
 		SID.v1.freq = freq;	
 	}
 #elif defined __ATARI__
-	unsigned char freq = (200-vel/4)+channel*5;
+	unsigned char freq = (200-rpm/4)+channel*5;
 	POKE((char*)(0xD200+2*channel), freq);
 	POKE((char*)(0xD201+2*channel), 16*2+8);
 #elif defined __APPLE2__	
 	unsigned char tone;
 	if (sfxOutput) {
 		// Mocking board sound
-		tone = (252-vel/4);
+		tone = (252-rpm/4);
 		if (channel%2) {
 			sfxData[7] &= ~(DISABLE_TONE_B);
 			sfxData[2] = tone;
@@ -243,15 +243,15 @@ void EngineSFX(int channel, int vel)
 	} else {
 		// Speaker clicks
 		POKE(0xc030,0);
-		tone = (600-vel)/60; 
+		tone = (600-rpm)/60; 
 		while (tone) { (tone--); }
 		POKE(0xc030,0);
 	}	
 #elif defined __ORIC__
-	vel = vel/20 + 1;
+	rpm = rpm/20 + 1;
 	POKEW(0x02E1, channel%2+2);
-	POKEW(0x02E3, vel/12);
-	POKEW(0x02E5, vel%12);
+	POKEW(0x02E3, rpm/12);
+	POKEW(0x02E5, rpm%12);
 	POKEW(0x02E7, 0x09);
 	if PEEK((char*)0xC800) {
 		asm("jsr $FC18");	// Atmos (ROM 1.1)
@@ -259,13 +259,27 @@ void EngineSFX(int channel, int vel)
 		asm("jsr $F424");	// Oric-1 (ROM 1.0)
 	}
 #elif defined __LYNX__
-	unsigned char freq = (160-vel/6)+channel*5;
+	unsigned char freq = (160-rpm/6)+channel*5;
 	channel = (channel%2)+2;
 	abctaps(channel, 60);
 	abcoctave(channel, 2);
 	abcvolume(channel, 20);
 	abcintegrate(channel, 0);
 	abcpitch(channel, freq);
+#endif
+}
+
+void ScreechSFX(unsigned char channel, unsigned char pitch)
+{
+#if defined __LYNX__
+	channel = (channel%2)+2;
+	abctaps(channel, 107);
+	abcoctave(channel, 2);
+	abcvolume(channel, 30);
+	abcintegrate(channel, 1);
+	abcpitch(channel, 255-pitch);
+#else
+	EngineSFX(channel, pitch*3);
 #endif
 }
 

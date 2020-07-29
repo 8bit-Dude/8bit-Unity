@@ -64,12 +64,18 @@ unsigned int ChunkSize(unsigned char w, unsigned char h)
 void LoadChunk(unsigned char** chunk, char *filename) 
 {
 #if defined __LYNX__
-	// Lynx: data is already in RO segment
-	*chunk = FileRead(filename);
+	// Lynx: load chunk into Shared RAM
+	unsigned char *buffer = (unsigned char*)SHAREDRAM;
+	unsigned int size;
+	FileLoad(filename);	
+	
+	// Compute chunk size and allocate memory
+	size = ChunkSize(buffer[2], buffer[3]);
+	*chunk = (unsigned char*)malloc(size);
+	memcpy(*chunk, buffer, size);	
 #elif defined __ORIC__
 	// Block read chunk file (TODO: implement header reading, to get rid of buffer)
-	unsigned int size;
-	size = FileRead(filename, buffer);
+	unsigned int size = FileRead(filename, buffer);
 	*chunk = (unsigned char*)malloc(size);
 	memcpy(*chunk, buffer, size);
 #else 

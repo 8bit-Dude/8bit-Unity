@@ -32,6 +32,7 @@
  *		* Oliver Schmidt for his IP65 network interface
  *		* Christian Groessler for helping optimize the memory maps on Commodore and Atari
  *		* Bill Buckels for his Apple II Double Hi-Res bitmap code
+ *		* Karri Kaksonen for his many contributions on the Lynx
  */
 
 // CC65 includes
@@ -134,7 +135,7 @@ const char *GetChr(unsigned char chr);
   void InitJoy(void);
   unsigned char GetJoy(unsigned char);
 #elif (defined __LYNX__)
-  #define JOY_MAX 3
+  #define JOY_MAX 4
   #define InitJoy() (PEEK(0))	// Dummy function
   unsigned char GetJoy(unsigned char);
 #else
@@ -187,9 +188,10 @@ void StopMusic(void);
 // SFX functions (see sfx.c)
 void InitSFX(void);
 void StopSFX(void);
-void EngineSFX(int channel, int vel);
 void BleepSFX(unsigned char tone);
 void BumpSFX(void);
+void EngineSFX(unsigned int channel, unsigned int rpm);
+void ScreechSFX(unsigned char channel, unsigned char pitch);
 
 // Sprite handling functions
 #if defined __APPLE2__
@@ -269,5 +271,5 @@ void ClearCallbacks(void);
   void UpdateHub(unsigned char timeout);
   extern unsigned char recvLen, recvHub[192];
   extern unsigned char sendLen, sendHub[192];
-  extern unsigned char hubState[5];
+  extern unsigned char hubState[7];
 #endif
