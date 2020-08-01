@@ -26,17 +26,22 @@
  
 #include "../unity.h"
 
+// See suzy.s
+void __fastcall__ SuzyDraw(void* data);
+void __fastcall__ SuzyUpdate(void);
+unsigned char __fastcall__ SuzyBusy(void);
+
 // See bitmap.c and sprites.c
-extern SCB_REHV_PAL sprTGI[SPRITE_NUM];
+extern SCB_REHV_PAL sprSCB[SPRITE_NUM];
 extern unsigned char sprDrawn[SPRITE_NUM];
 
 // GFX Data
 extern unsigned int cursorData, keybrdData;	 
-SCB_REHV_PAL bitmapTGI =  { BPP_4 | TYPE_BACKNONCOLL, REHV | LITERAL, 0, 0, (char*)BITMAPRAM, 0, 0, 
+SCB_REHV_PAL bitmapSCB =  { BPP_4 | TYPE_BACKNONCOLL, REHV | LITERAL, 0, 0, (char*)BITMAPRAM, 0, 0, 
 						  0x0100, 0x0100, { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef } };
-SCB_REHV_PAL cursorTGI =  { BPP_4 | TYPE_NONCOLL, REHV | LITERAL, 0, 0, (char*)&cursorData, 0, 0, 
+SCB_REHV_PAL cursorSCB =  { BPP_4 | TYPE_NONCOLL, REHV | LITERAL, 0, 0, (char*)&cursorData, 0, 0, 
 						    0x0100, 0x0100, { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef } };							
-SCB_REHV_PAL keybrdTGI =  { BPP_4 | TYPE_NONCOLL, REHV | LITERAL, 0, 0, (char*)&keybrdData, 0, 0, 
+SCB_REHV_PAL keybrdSCB =  { BPP_4 | TYPE_NONCOLL, REHV | LITERAL, 0, 0, (char*)&keybrdData, 0, 0, 
 						    0x0100, 0x0100, { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef } };							
 
 // Workaround for missing char printing (including palette remapping)
@@ -79,8 +84,8 @@ void HideKeyboardOverlay() {
 	keybrdShow = 0;
 }
 void SetKeyboardOverlay(unsigned char x, unsigned char y) {
-	keybrdTGI.hpos = x;
-	keybrdTGI.vpos = y;
+	keybrdSCB.hpos = x;
+	keybrdSCB.vpos = y;
 }
 unsigned char GetKeyboardOverlay() {
 	unsigned char val = keybrdVal;
@@ -114,13 +119,13 @@ void UpdateKeyboardOverlay() {
 	}
 	
 	// Draw keyboard and cursor
-	tgi_sprite(&keybrdTGI);
+	SuzyDraw(&keybrdSCB);
 	if (clock()-keybrdClock > 40) { 
 		keybrdClock = clock();	 
 	} else if (clock()-keybrdClock > 20) {
-		cursorTGI.hpos = (keybrdTGI.hpos+1) + keybrdCol*4;
-		cursorTGI.vpos = (keybrdTGI.vpos+1) + keybrdRow*6;
-		tgi_sprite(&cursorTGI);
+		cursorSCB.hpos = (keybrdSCB.hpos+1) + keybrdCol*4;
+		cursorSCB.vpos = (keybrdSCB.vpos+1) + keybrdRow*6;
+		SuzyDraw(&cursorSCB);
 	}	
 }
 
@@ -130,20 +135,18 @@ void UpdateDisplay(void)
 	unsigned char i, j;
 
 	// Wait for previous drawing to complete
-	while (tgi_busy()) {}
+	while (SuzyBusy()) {}
 	
 	// Send bitmap then sprites (in reverse order) to Suzy
-	tgi_sprite(&bitmapTGI);
+	SuzyDraw(&bitmapSCB);
 	for (j=0; j<SPRITE_NUM; j++) {
 		i = (SPRITE_NUM-1) - j;
-		if (sprDrawn[i]) { 
-			tgi_sprite(&sprTGI[i]);
-		}
+		if (sprDrawn[i]) SuzyDraw(&sprSCB[i]);
 	}
 	
 	// Draw soft keyboard?
 	UpdateKeyboardOverlay();
 	
 	// Switch buffer frame
-	tgi_updatedisplay();
+	SuzyUpdate();
 }

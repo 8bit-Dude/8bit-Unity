@@ -29,8 +29,8 @@
 #include <tgi.h>
 
 // Memory Map
-#define SHAREDRAM  (0x988B)
-#define MUSICRAM   (0x998B)
+#define SHAREDRAM  (0x918B)
+#define MUSICRAM   (0x938B)
 #define BITMAPRAM  (0x9F8B)
 
 // Character Mode

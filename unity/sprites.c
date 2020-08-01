@@ -162,11 +162,11 @@
 	}	
 // Lynx specific init function
 #elif defined __LYNX__	
-	// declare RO and TGI data
-	unsigned char sprX[SPRITE_NUM], sprY[SPRITE_NUM];	   // Screen coordinates
+	// declare RO and SCB data
+	unsigned char sprX[SPRITE_NUM], sprY[SPRITE_NUM];	// Screen coordinates
 	unsigned char sprDrawn[SPRITE_NUM], sprCollision[SPRITE_NUM]; // Enable and Collision status
-	unsigned char sprCOLS, sprROWS;					       // Sprite dimensions
-	SCB_REHV_PAL sprTGI[SPRITE_NUM];					   // Frame data
+	unsigned char sprCOLS, sprROWS;					    // Sprite dimensions
+	SCB_REHV_PAL sprSCB[SPRITE_NUM];					// Frame data
 	extern unsigned int spriteData[]; 
 	void InitSprites(unsigned char frames, unsigned char cols, unsigned char rows, unsigned char *spriteColors)
 	{
@@ -174,7 +174,7 @@
 		SCB_REHV_PAL *scb;
 		sprCOLS = cols; sprROWS = rows;		
 		for (i=0; i<SPRITE_NUM; i++) {
-			scb = &sprTGI[i];
+			scb = &sprSCB[i];
 			scb->sprctl0 = BPP_4 | TYPE_NONCOLL;
 			scb->sprctl1 = REHV | LITERAL;
 			scb->sprcoll = 0;
@@ -192,7 +192,7 @@
 	void ScaleSprite(unsigned char index, unsigned int xPercent, unsigned int yPercent)
 	{
 		SCB_REHV_PAL *scb;
-		scb = &sprTGI[index];
+		scb = &sprSCB[index];
 		scb->hsize = xPercent;
 		scb->vsize = yPercent;
 	}
@@ -207,7 +207,7 @@ void RecolorSprite(unsigned char index, unsigned char number, unsigned char colo
 #elif defined __CBM__
 	POKE(53287+index, color);
 #elif defined __LYNX__
-	sprTGI[index].penpal[number] = color;
+	sprSCB[index].penpal[number] = color;
 #endif
 }
 
@@ -518,7 +518,7 @@ void SetSprite(unsigned char index, unsigned char frame)
 #elif defined __LYNX__
 	// Set sprite data for Suzy
 	SCB_REHV_PAL *scb;
-	scb = &sprTGI[index];
+	scb = &sprSCB[index];
 	scb->data = spriteData[frame];
 	scb->hpos = spriteX;
 	scb->vpos = spriteY;

@@ -45,6 +45,7 @@
   static int palette[] =  { 0x01ca, 0x03b4, 0x08c4, 0x0cc3, 0x0c53, 0x0822, 0x0552, 0x0527, 
 							0x075e, 0x0e0f, 0x09af, 0x034d, 0x0248, 0x0fff, 0x0888, 0x0000 };
   struct ser_params comLynx = { SER_BAUD_62500, SER_BITS_8, SER_STOP_1, SER_PAR_SPACE, SER_HS_NONE };  							
+  void __fastcall__ SuzyInit(void);
 #endif
 
 // C64 specific variables & functions
@@ -90,9 +91,7 @@ void InitBitmap()
 	if (videoInit) { return; }
 	
 	// Install drivers (and set interrupts)
-	tgi_install(tgi_static_stddrv); // Screen driver
-	tgi_init(); tgi_clear();
-	tgi_setframerate(TCK_PER_SEC);
+	SuzyInit();
 	ser_install(lynx_comlynx_ser);		// Comlynx driver
 	lynx_snd_init(); 
 	__asm__("cli");
@@ -105,7 +104,6 @@ void InitBitmap()
 	}
 	
 	// Set flag
-	while (tgi_busy()) {}
 	videoInit = 1;
 #endif	
 }
