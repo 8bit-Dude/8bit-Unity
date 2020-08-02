@@ -29,7 +29,7 @@
 #include <tgi.h>
 
 // Memory Map
-#define SHAREDRAM  (0x918B)
+#define SHAREDRAM  (0x8F8B)
 #define MUSICRAM   (0x938B)
 #define BITMAPRAM  (0x9F8B)
 
@@ -67,5 +67,5 @@
 // Clock
 #define TCK_PER_SEC	60
 
-// Workaround for file reading
+// Workaround for file reading (see files.c)
 unsigned char FileLoad(const char* filename);
