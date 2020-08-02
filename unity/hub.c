@@ -36,6 +36,7 @@
 #if defined __LYNX__
   #include <serial.h>
   #define HUB_REFRESH_RATE 3	// every 3 clock cycles
+  struct ser_params comLynx = { SER_BAUD_62500, SER_BITS_8, SER_STOP_1, SER_PAR_SPACE, SER_HS_NONE };  							  
   unsigned char recvTimeOut;
   clock_t recvClock;
 #else
@@ -224,9 +225,14 @@ void RecvHub(unsigned char timeOut)
 
 void InitHub()
 {
+#if defined __ORIC__
 	// Set port A as Output
 	POKE(0x0303, 255);
-	
+#elif defined __LYNX__
+	// Setup Comlynx Interrupt
+	ser_install(lynx_comlynx_ser);
+	ser_open(&comLynx);
+#endif		
 	// Send reset command
 	recvID = 0; sendID = 0;
 	recvLen = 0; sendLen = 0;

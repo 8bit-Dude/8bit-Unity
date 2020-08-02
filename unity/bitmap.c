@@ -44,7 +44,6 @@
   unsigned char videoInit = 0;	 
   static int palette[] =  { 0x01ca, 0x03b4, 0x08c4, 0x0cc3, 0x0c53, 0x0822, 0x0552, 0x0527, 
 							0x075e, 0x0e0f, 0x09af, 0x034d, 0x0248, 0x0fff, 0x0888, 0x0000 };
-  struct ser_params comLynx = { SER_BAUD_62500, SER_BITS_8, SER_STOP_1, SER_PAR_SPACE, SER_HS_NONE };  							
   void __fastcall__ SuzyInit(void);
 #endif
 
@@ -92,10 +91,8 @@ void InitBitmap()
 	
 	// Install drivers (and set interrupts)
 	SuzyInit();
-	ser_install(lynx_comlynx_ser);		// Comlynx driver
-	lynx_snd_init(); 
-	__asm__("cli");
-	ser_open(&comLynx);
+	lynx_snd_init(); 	
+	__asm__("cli");	
 	
 	// Reset palette
 	for (i=0; i<16; i++) {

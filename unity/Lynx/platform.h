@@ -67,5 +67,5 @@
 // Clock
 #define TCK_PER_SEC	60
 
-// Workaround for file reading (see files.c)
+// Workaround for reading files from ROM (see files.c)
 unsigned char FileLoad(const char* filename);
