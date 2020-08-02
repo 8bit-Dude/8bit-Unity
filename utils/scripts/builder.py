@@ -822,7 +822,6 @@ class Application:
             fp.write('@echo .global _fileNum  >> data.asm\n')
             fp.write('@echo .global _fileSizes >> data.asm\n')
             fp.write('@echo .global _fileNames >> data.asm\n')
-            fp.write('@echo .global _fileDatas >> data.asm\n')
             fp.write('@echo .global _spriteNum  >> data.asm\n')
             fp.write('@echo .global _spriteData >> data.asm\n')
             fp.write('@echo .global _cursorData >> data.asm\n')
@@ -832,11 +831,11 @@ class Application:
             # Num and sizes of files
             fp.write('@echo .segment "RODATA" >> data.asm\n')
             fp.write('@echo _fileNum: .byte %FILENUM% >> data.asm\n')  
-            fp.write('@echo _fileSizes: .word %FILESIZES:~0,-1% >> data.asm\n')
 
             # List of file names and data
             if len(bitmaps) > 0 or len(music) > 0 or len(shared) > 0 or len(chunks) > 0:
                 # Declare all Bitmap, Shared and Chunk files
+                fp.write('@echo _fileSizes: .word %FILESIZES:~0,-1% >> data.asm\n')
                 fp.write('@echo _fileNames: .addr ')
                 for i in range(len(bitmaps)):
                     if i > 0:
@@ -894,10 +893,9 @@ class Application:
                     fp.write('for /f "tokens=*" %%A in (chunks.lst) do @echo .segment "SHK!IND!DATA" >> data.asm && @echo _shkData!IND!: .incbin "%%~nxA" >> data.asm && set /a IND+=1\n')
                     
             else:
+                fp.write('@echo _fileSizes: .word 0 >> data.asm\n')
                 fp.write('@echo _fileNames: .addr _dummyName >> data.asm\n')
                 fp.write('@echo _dummyName: .byte 0 >> data.asm\n')
-                fp.write('@echo _fileDatas: .addr _dummyAddr >> data.asm\n')
-                fp.write('@echo _dummyAddr: .byte 0 >> data.asm\n')
             fp.write('@echo ; >> data.asm\n')
             
             # List of Sprite Binary Data 
