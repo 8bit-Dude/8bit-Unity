@@ -780,14 +780,11 @@ class Application:
                     fp.write('ren sprites.spr sprites000000.spr\n')
                     
             # Convert Chunk Data
-            fp.write('set /a FILENUM=' + str(len(bitmaps)+len(music)+len(shared)) + '\n')
-            fp.write('set CHUNKNAMES=\n')
-            fp.write('set CHUNKDATAS=\n')
+            fp.write('set /a CHUNKNUM=0\n')
             if len(chunks) > 0:
                 fp.write('..\\..\\utils\\py27\\python ..\\..\\utils\\scripts\\ProcessChunks.py lynx ../../' + chunks[0] + ' ../../build/lynx/\n')
-                fp.write('for /f "tokens=*" %%A in (chunks.lst) do set /a FILENUM+=1\n')
-                fp.write('for /f "tokens=*" %%A in (chunks.lst) do set CHUNKNAMES=!CHUNKNAMES!_%%~nAName,\n')
-                fp.write('for /f "tokens=*" %%A in (chunks.lst) do set CHUNKDATAS=!CHUNKDATAS!_%%~nAData,\n') 
+                fp.write('for /f "tokens=*" %%A in (chunks.lst) do set CHUNKNAMES=!CHUNKNAMES!_shkName!CHUNKNUM!,&&set /a CHUNKNUM+=1\n')
+            fp.write('set /a FILENUM=!CHUNKNUM!+' + str(len(bitmaps)+len(music)+len(shared)) + '\n')
 
             # Copy Chipper sfx and music data
             fp.write('copy ..\\..\\unity\\Lynx\\chipper.s soundbs.mac\n')    
@@ -843,14 +840,14 @@ class Application:
                 fp.write('@echo _fileNames: .addr ')
                 for i in range(len(bitmaps)):
                     if i > 0:
-                        fp.write(', ')
+                        fp.write(',')
                     fp.write('_bmpName' + str(i).zfill(2))
                 for i in range(len(music)):
-                    fp.write(', '); fp.write('_musName' + str(i).zfill(2))
+                    fp.write(','); fp.write('_musName' + str(i).zfill(2))
                 for i in range(len(shared)):
-                    fp.write(', '); fp.write('_shrName' + str(i).zfill(2))
+                    fp.write(','); fp.write('_shrName' + str(i).zfill(2))
                 if len(chunks) > 0:
-                    fp.write(', '); fp.write('%CHUNKNAMES:~0,-1%')
+                    fp.write(','); fp.write('%CHUNKNAMES:~0,-1%')
                 fp.write(' >> data.asm\n')
 
                 # Write list of Bitmaps
@@ -868,25 +865,13 @@ class Application:
                     fb = FileBase(shared[i], '')
                     fp.write('@echo _shrName' + str(i).zfill(2) + ': .byte "' + fb + '",0 >> data.asm\n')
                     
-                # Write list of Chunks
+                # Write list of Chunks                
                 if len(chunks) > 0:
-                    fp.write('for /f "tokens=*" %%A in (chunks.lst) do @echo _%%~nAName: .byte "%%~nxA",0 >> data.asm\n')
-            
-                # Declare all Bitmap, Shared, and Chunk datas
-                fp.write('@echo _fileDatas: .addr ')
-                for i in range(len(bitmaps)):
-                    if i > 0:
-                        fp.write(', '); 
-                    fp.write('_bmpData' + str(i).zfill(2))
-                for i in range(len(music)):
-                    fp.write(', '); fp.write('_musData' + str(i).zfill(2))
-                for i in range(len(shared)):
-                    fp.write(', '); fp.write('_shrData' + str(i).zfill(2))
-                if len(chunks) > 0:
-                    fp.write(', '); fp.write('%CHUNKDATAS:~0,-1%')
-                fp.write(' >> data.asm\n')
+                    fp.write('set /a IND=0\n')
+                    fp.write('for /f "tokens=*" %%A in (chunks.lst) do @echo _shkName!IND!: .byte "%%~nxA",0 >> data.asm && set /a IND+=1\n')
 
                 # Link list of bitmaps
+                fp.write('@echo ; >> data.asm\n')
                 for i in range(len(bitmaps)):
                     fb = FileBase(bitmaps[i], '-lynx.png')
                     fp.write('@echo .segment "BMP' + str(i) + 'DATA" >> data.asm\n')
@@ -894,17 +879,19 @@ class Application:
 
                 # Link list of musics
                 for i in range(len(music)):
+                    fp.write('@echo .segment "MUS' + str(i) + 'DATA" >> data.asm\n')
                     fp.write('@echo .import _musData' + str(i).zfill(2) + ' >> data.asm\n')
                     
                 # Link list of shared
-                fp.write('@echo .segment "RODATA" >> data.asm\n')
                 for i in range(len(shared)):
                     fb = FileBase(shared[i], '')
+                    fp.write('@echo .segment "SHR' + str(i) + 'DATA" >> data.asm\n')
                     fp.write('@echo _shrData' + str(i).zfill(2) + ': .incbin "' + fb + '" >> data.asm\n')
                     
                 # Link list of chunks
                 if len(chunks) > 0:
-                    fp.write('for /f "tokens=*" %%A in (chunks.lst) do @echo _%%~nAData: .incbin "%%~nxA" >> data.asm\n')
+                    fp.write('set /a IND=0\n')
+                    fp.write('for /f "tokens=*" %%A in (chunks.lst) do @echo .segment "SHK!IND!DATA" >> data.asm && @echo _shkData!IND!: .incbin "%%~nxA" >> data.asm && set /a IND+=1\n')
                     
             else:
                 fp.write('@echo _fileNames: .addr _dummyName >> data.asm\n')
@@ -914,6 +901,7 @@ class Application:
             fp.write('@echo ; >> data.asm\n')
             
             # List of Sprite Binary Data 
+            fp.write('@echo .segment "RODATA" >> data.asm\n')                
             fp.write('@echo _spriteNum: .byte ' + self.entry_LynxSpriteFrames.get() + ' >> data.asm\n')            
             if len(sprites) > 0:            
                 fp.write('@echo _spriteData: .addr ')    
@@ -936,11 +924,11 @@ class Application:
             fp.write('\n')
             fp.write('cd ..\n')
             fp.write('cd ..\n')
-            fp.write('\n')            
+            fp.write('\n')
 
             # Generate config and directory Files
-            fp.write('utils\\py27\\python utils/scripts/lynx/LynxConfig.py unity/Lynx/lynx.cfg build/lynx/lynx.cfg ' + str(len(bitmaps)) + ' ' + str(len(music)) + '\n')
-            fp.write('utils\\py27\\python utils/scripts/lynx/LynxDirectory.py unity/Lynx/directory.s build/lynx/directory.asm ' + str(len(bitmaps)) + ' ' + str(len(music)) + '\n')
+            fp.write('utils\\py27\\python utils/scripts/lynx/LynxConfig.py unity/Lynx/lynx.cfg build/lynx/lynx.cfg ' + str(len(bitmaps)) + ' ' + str(len(music)) + ' ' + str(len(shared)) + ' %CHUNKNUM%\n')
+            fp.write('utils\\py27\\python utils/scripts/lynx/LynxDirectory.py unity/Lynx/directory.s build/lynx/directory.asm ' + str(len(bitmaps)) + ' ' + str(len(music)) + ' ' + str(len(shared)) + ' %CHUNKNUM%\n')
                         
             # Info
             fp.write('\necho DONE!\n\n')
@@ -948,15 +936,15 @@ class Application:
 
             # Build Unity Library
             CList = ['bitmap.c', 'chunks.c', 'geom2d.c', 'hub.c', 'network.c', 'print.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Lynx\\display.c', 'Lynx\\files.c', 'Lynx\\joysticks.c']
-            SList = ['chars.s', 'math.s', 'Lynx\\header.s']
+            SList = ['chars.s', 'math.s', 'Lynx\\header.s', 'Lynx\\suzy.s']
                          
             for file in CList:
                 fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t lynx -I unity unity\\' + file + '\n')
-                fp.write('utils\\cc65\\bin\\ca65 unity\\' + file[0:-2] + '.s\n')
+                fp.write('utils\\cc65\\bin\\ca65 --cpu 65SC02 unity\\' + file[0:-2] + '.s\n')
                 fp.write('del unity\\' + file[0:-2] + '.s\n')
 
             for file in SList:            
-                fp.write('utils\\cc65\\bin\\ca65 unity\\' + file + '\n')
+                fp.write('utils\\cc65\\bin\\ca65 --cpu 65SC02 unity\\' + file + '\n')
             
             fp.write('utils\\cc65\\bin\\ar65 r build/lynx/unity.lib ')
             for file in CList:

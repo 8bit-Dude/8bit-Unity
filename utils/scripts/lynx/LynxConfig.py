@@ -30,25 +30,38 @@ input = sys.argv[1]
 output = sys.argv[2]
 bmpNum = int(sys.argv[3])
 musNum = int(sys.argv[4])
+shrNum = int(sys.argv[5])
+shkNum = int(sys.argv[6])
 
 try:
     # Add bitmap assets to Config file
     with open(input, "rt") as fin:
         with open(output, "wt") as fout:
             for line in fin:
+            
                 if 'size = 1*8' in line:
-                    line = line.replace('1*8', str(1+bmpNum+musNum) + '*8')
+                    line = line.replace('1*8', str(1+bmpNum+musNum+shrNum+shkNum) + '*8')
                 fout.write(line)
+                
                 if 'size = __MAINSIZE__' in line:
                     for i in range(bmpNum):
-                        fout.write('	BMP' + str(i) + ':	file = %O, define = yes, start = $0200 + __MAINSIZE__ + __STACKSIZE__, size = __BMPSIZE__;\n')
+                        fout.write('	BMP' + str(i) + ':	file = %O, define = yes, start = $C038 - __BMPSIZE__, size = __BMPSIZE__;\n')
                     for i in range(musNum):
-                        fout.write('	MUS' + str(i) + ':	file = %O, define = yes, start = $0200 + __MAINSIZE__ + __STACKSIZE__ + __BMPSIZE__, size = __MUSSIZE__;\n')
+                        fout.write('	MUS' + str(i) + ':	file = %O, define = yes, start = $C038 - __BMPSIZE__ - __MUSSIZE__, size = __MUSSIZE__;\n')
+                    for i in range(shrNum):
+                        fout.write('	SHR' + str(i) + ':	file = %O, define = yes, start = $C038 - __BMPSIZE__ - __MUSSIZE__ - __FILSIZE__, size = __FILSIZE__;\n')
+                    for i in range(shkNum):
+                        fout.write('	SHK' + str(i) + ':	file = %O, define = yes, start = $C038 - __BMPSIZE__ - __MUSSIZE__ - __FILSIZE__, size = __FILSIZE__;\n')
+                        
                 if 'BSS:       load = MAIN' in line:
                     for i in range(bmpNum):
                         fout.write('	BMP' + str(i) + 'DATA:  load = BMP' + str(i) + ',	  type = rw,  define = yes;\n')
                     for i in range(musNum):
                         fout.write('	MUS' + str(i) + 'DATA:  load = MUS' + str(i) + ',	  type = rw,  define = yes;\n')
+                    for i in range(shrNum):
+                        fout.write('	SHR' + str(i) + 'DATA:  load = SHR' + str(i) + ',	  type = rw,  define = yes;\n')
+                    for i in range(shkNum):
+                        fout.write('	SHK' + str(i) + 'DATA:  load = SHK' + str(i) + ',	  type = rw,  define = yes;\n')
                 
 except:
     print 'Error: cannot generate Lynx config file'
