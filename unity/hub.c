@@ -35,25 +35,34 @@
 
 #if defined __LYNX__
   #include <serial.h>
-  #define HUB_REFRESH_RATE 3	// every 3 clock cycles
   struct ser_params comLynx = { SER_BAUD_62500, SER_BITS_8, SER_STOP_1, SER_PAR_SPACE, SER_HS_NONE };  							  
   unsigned char recvTimeOut;
   clock_t recvClock;
 #else
-  #define HUB_REFRESH_RATE 3	// every 3 clock cycles
-unsigned char tick;
+  unsigned char tick;
 #endif
 
 unsigned char hubState[7] = { COM_ERR_OFFLINE, 255, 255, 255, 255, 80, 100 };
-unsigned char sendID = 0, sendLen = 0, sendHub[192];
-unsigned char recvID = 0, recvLen = 0, recvHub[192];
+unsigned char sendID = 0, sendLen = 0, sendHub[256];
+unsigned char recvID = 0, recvLen = 0, recvHub[256];
 unsigned char countID = 0;
-clock_t hubClock = 0;
 
-unsigned char NextID(void) 
+unsigned char QueueHub(unsigned char packetCmd, unsigned char* packetBuffer, unsigned char packetLen)
 {
+	unsigned char i;
+	
+	// Check if there is enough space in buffer
+	if (packetLen > 255-sendLen)
+		return 0;
+	
+	// Add to send buffer
 	if (++countID > 15) { countID = 1; }
-	return countID;
+	sendHub[sendLen++] = countID;	
+	sendHub[sendLen++] = packetLen+1;
+	sendHub[sendLen++] = packetCmd;
+	for (i=0; i<packetLen; i++) 
+		sendHub[sendLen++] = packetBuffer[i];
+	return 1;
 }
 
 void SendByte(unsigned char value)
@@ -77,7 +86,7 @@ unsigned char RecvByte(unsigned char* value)
 	// Recv 1 byte from HUB
 #if defined __LYNX__
 	while (ser_get(value) != SER_ERR_OK) {
-		if (clock() - recvClock >  recvTimeOut) { return 0; }
+		if (clock() >  recvClock+recvTimeOut) { return 0; }
 	}
 	return 1;
 			
@@ -236,10 +245,7 @@ void InitHub()
 	// Send reset command
 	recvID = 0; sendID = 0;
 	recvLen = 0; sendLen = 0;
-	countID = 1;
-	sendHub[sendLen++] = countID;
-	sendHub[sendLen++] = 1;
-	sendHub[sendLen++] = HUB_SYS_RESET;
+	QueueHub(HUB_SYS_RESET, 0, 0);
 	SendHub();	
 	RecvHub(10);
 }
@@ -250,11 +256,11 @@ void UpdateHub(unsigned char timeout)
 	if (hubState[0] == COM_ERR_OFFLINE) {
 		InitHub();
 	} else {
-		// Check refresh rate
-		if (clock() - hubClock < HUB_REFRESH_RATE) { return; }
-		hubClock = clock();
-		RecvHub(timeout);
+		// Restrict update rate (to prevent COM port flooding)
+		while (clock() < recvClock+HUB_REFRESH_RATE)
+			if (clock() > recvClock+timeout) { return; }
 		SendHub();
+		RecvHub(timeout);
 	}
 #if defined DEBUG_HUB
 	PrintStr(0, CHR_ROWS-1, "LN ");

@@ -166,15 +166,6 @@ unsigned char PointInsidePolygon(signed int pX, signed int pY, unsigned char vN,
 #define DOT(a,b) (a[0]*b[0]+a[1]*b[1])
 unsigned char atan2(unsigned char y, unsigned char x);
 
-// Network functions (see network.c)
-#define NETWORK_OK  0
-#define ADAPTOR_ERR 1
-#define DHCP_ERR    2
-unsigned char InitNetwork(void);							// Initialize network interface and get IP from DHCP
-void InitUDP(unsigned char ip1, unsigned char ip2, unsigned char ip3, unsigned char ip4, unsigned int svPort, unsigned int clPort);	// Setup UDP connection
-void SendUDP(unsigned char* buffer, unsigned char length);  // Send UDP packet (of specified length)
-unsigned int RecvUDP(unsigned int timeOut);				// Fetch UDP packet (within time-out period)
-
 // Music functions
 // Apple: ElectricDuet (see Apple/DUET.s) 
 // Atari: RMT track (see Atari/POKEY.s)
@@ -264,12 +255,41 @@ callback* PushCallback(unsigned int col, unsigned int row, unsigned int width, u
 void PopCallback(callback* call);
 void ClearCallbacks(void);
 
+// Network functions (see net-init.c, net-udp.c, net-tcp.c, net-web.c)
+#define NETWORK_OK  0
+#define ADAPTOR_ERR 1
+#define DHCP_ERR    2
+unsigned char InitNetwork(void);							// Initialize network adapter
+
+void SlotTCP(unsigned char slot);							// Set TCP slot (0~15)
+void OpenTCP(unsigned char ip1, unsigned char ip2, 			// Open connection on current TCP slot (local port allocated automatically)
+			 unsigned char ip3, unsigned char ip4, 
+			 unsigned int svPort);
+void CloseTCP(void);										// Close current TCP slot
+void SendTCP(unsigned char* buffer, unsigned char length);  // Send contents of buffer on current TCP slot
+unsigned int RecvTCP(unsigned int timeOut);					// Check all slots for incoming TCP packet (within time-out period)
+
+void SlotUDP(unsigned char slot);							// Set UDP slot (0~15)
+void OpenUDP(unsigned char ip1, unsigned char ip2, 			// Open connection on current UDP slot (local port allocated on clPort)
+			 unsigned char ip3, unsigned char ip4, 
+			 unsigned int svPort, unsigned int clPort);
+void CloseUDP(void);										// Close current UDP slot
+void SendUDP(unsigned char* buffer, unsigned char length);  // Send contents of buffer on current UDP slot
+unsigned int RecvUDP(unsigned int timeOut);					// Check all slots for incoming UDP packet (within time-out period)
+
+void OpenWEB(unsigned int port, unsigned int timeOut);		// Start WEB server on specified port (time-out in millisecs)
+void CloseWEB(void);										// Close WEB server
+void HeaderWEB(unsigned char* buffer, unsigned char length);// Header of reply to current WEB client
+void BodyWEB(unsigned char* buffer, unsigned char length);  // Body of reply to current WEB client
+void SendWEB(void);											// Send reply to current WEB client
+unsigned int RecvWEB(unsigned int timeOut);					// Check WEB server for incoming packet (within time-out period)
+
 // 8bit-Hub support (see http://www.8bit-unity.com/8bit-Hub)
 #if defined __HUB__
   void InitHub(void);
-  unsigned char NextID(void);
   void UpdateHub(unsigned char timeout);
-  extern unsigned char recvLen, recvHub[192];
-  extern unsigned char sendLen, sendHub[192];
+  unsigned char QueueHub(unsigned char packetCmd, unsigned char* packetBuffer, unsigned char packetLen);
+  extern unsigned char recvLen, recvHub[256];
+  extern unsigned char sendLen, sendHub[256];
   extern unsigned char hubState[7];
 #endif

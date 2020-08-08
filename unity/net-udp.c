@@ -23,11 +23,11 @@
  *   used to endorse or promote products derived from this software without
  *   specific prior written permission.
  */
-
-#include "hub.h"
+ 
 #include "unity.h"
+#include "hub.h"
 
-//#define DEBUG_NET
+//#define DEBUG_UDP
 
 #ifdef __ATARIXL__
   #pragma code-name("SHADOW_RAM")
@@ -44,52 +44,39 @@
   unsigned char __fastcall__ udp_send(const unsigned char* buf, unsigned int len, unsigned long dest,  unsigned int dest_port, unsigned int src_port);
   unsigned char __fastcall__ udp_add_listener(unsigned int port, void (*callback)(void));
   unsigned char __fastcall__ udp_remove_listener(unsigned int port);
-  unsigned char ip65_init(void);
   unsigned char ip65_process(void);
-  unsigned char dhcp_init(void);
 #endif
 
-unsigned char InitNetwork(void)
+void SlotUDP(unsigned char slot)
 {
 #ifdef __HUB__
-	// Detect if HUB is connected
-	clock_t timer = clock();
-	while ((clock()-timer) < 2*TCK_PER_SEC) { 
-		if (hubState[0] == COM_ERR_OK) { return NETWORK_OK; }
-		UpdateHub(5);
-	}
-	return ADAPTOR_ERR;
+	QueueHub(HUB_UDP_SLOT, &slot, 1);
 #else
-	// Init IP65 and DHCP
-	if (ip65_init()) { return ADAPTOR_ERR; }
-	if (dhcp_init()) { return DHCP_ERR; }
-	return NETWORK_OK;
 #endif
 }
 
 #ifndef __HUB__
-void PacketReceived(void)
+void PacketUDP(void)
 {
 	udp_recv_packet = &udp_recv_buf[0];
 }
 #endif
 
-void InitUDP(unsigned char ip1, unsigned char ip2, unsigned char ip3, unsigned char ip4, unsigned int svPort, unsigned int clPort)
+void OpenUDP(unsigned char ip1, unsigned char ip2, unsigned char ip3, unsigned char ip4, unsigned int svPort, unsigned int clPort)
 {
 #ifdef __HUB__
 	// Ask HUB to set up connection
 	clock_t timer;
-	sendHub[sendLen++] = NextID();
-	sendHub[sendLen++] = 9;
-	sendHub[sendLen++] = HUB_UDP_INIT;
-	sendHub[sendLen++] = ip1;
-	sendHub[sendLen++] = ip2;
-	sendHub[sendLen++] = ip3;
-	sendHub[sendLen++] = ip4;
-	sendHub[sendLen++] = svPort & 0xFF;
-	sendHub[sendLen++] = svPort >> 8;	
-	sendHub[sendLen++] = clPort & 0xFF;
-	sendHub[sendLen++] = clPort >> 8;
+	unsigned char buffer[6];
+	buffer[0] = ip1;
+	buffer[1] = ip2;
+	buffer[2] = ip3;
+	buffer[3] = ip4;
+	buffer[4] = svPort & 0xFF;
+	buffer[5] = svPort >> 8;	
+	buffer[6] = clPort & 0xFF;
+	buffer[7] = clPort >> 8;	
+	QueueHub(HUB_UDP_OPEN, buffer, 8);
 	
 	// Wait while HUB sets-up connection
 	timer = clock();
@@ -102,12 +89,20 @@ void InitUDP(unsigned char ip1, unsigned char ip2, unsigned char ip3, unsigned c
 	udp_send_ip = EncodeIP(ip1,ip2,ip3,ip4);
 	udp_send_port = svPort;
 	udp_recv_port = clPort;
-	if (!udp_add_listener(clPort, PacketReceived)) {
+	if (!udp_add_listener(clPort, PacketUDP)) {
 		// Send dummy packet, as first one is always lost!
 		dummy[0] = 0;
 		SendUDP(dummy, 1);
 		RecvUDP(2*TCK_PER_SEC);
 	}
+#endif
+}
+
+void CloseUDP()
+{
+#ifdef __HUB__
+	QueueHub(HUB_UDP_CLOSE, 0, 0);
+#else
 #endif
 }
 
@@ -118,13 +113,7 @@ void InitUDP(unsigned char ip1, unsigned char ip2, unsigned char ip3, unsigned c
 void SendUDP(unsigned char* buffer, unsigned char length) 
 {
 #ifdef __HUB__
-	unsigned char i;
-	sendHub[sendLen++] = NextID();	
-	sendHub[sendLen++] = length+1;
-	sendHub[sendLen++] = HUB_UDP_SEND;
-	for (i=0; i<length; i++) {
-		sendHub[sendLen++] = buffer[i];
-	}
+	QueueHub(HUB_UDP_SEND, buffer, length);
 #else
 	udp_send(buffer, length, udp_send_ip, udp_send_port, udp_recv_port);
 #endif
@@ -138,12 +127,12 @@ unsigned int RecvUDP(unsigned int timeOut)
 	while (1) {
 		// Check if we received packet
 		if (recvLen && recvHub[0] == HUB_UDP_RECV) { 
-		#if defined DEBUG_NET
+		#if defined DEBUG_UDP
 			PrintStr(0, 13, "UDP:");
 			PrintNum(5, 13, recvLen);
 		#endif		
 			recvLen = 0;  // Clear packet
-			return &recvHub[1]; 
+			return &recvHub[2]; 
 		}		
 		
 		// Inquire next packet
