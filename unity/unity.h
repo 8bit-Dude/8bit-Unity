@@ -260,6 +260,7 @@ void ClearCallbacks(void);
 #define ADAPTOR_ERR 1
 #define DHCP_ERR    2
 unsigned char InitNetwork(void);							// Initialize network adapter
+unsigned char GetLocalIP(unsigned char* ip);				// Fetch local IP
 
 void SlotTCP(unsigned char slot);							// Set TCP slot (0~15)
 void OpenTCP(unsigned char ip1, unsigned char ip2, 			// Open connection on current TCP slot (local port allocated automatically)

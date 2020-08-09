@@ -46,6 +46,7 @@
 
 // HUB Commands
 #define HUB_SYS_RESET     1
+#define HUB_SYS_IP		  2
 #define HUB_DIR_LS       10
 #define HUB_DIR_MK       11
 #define HUB_DIR_RM       12

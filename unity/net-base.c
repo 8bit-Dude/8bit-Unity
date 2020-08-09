@@ -34,7 +34,7 @@
 #ifndef __HUB__
   // Use IP65 library
   unsigned char ip65_init(void);
-  unsigned char dhcp_init(void);
+  unsigned char dhcp_init(void); 
 #endif
 
 unsigned char InitNetwork(void)
@@ -52,5 +52,28 @@ unsigned char InitNetwork(void)
 	if (ip65_init()) { return ADAPTOR_ERR; }
 	if (dhcp_init()) { return DHCP_ERR; }
 	return NETWORK_OK;
+#endif
+}
+
+unsigned char GetLocalIP(unsigned char* ip)
+{
+#ifdef __HUB__
+	// Check if data was received from Hub
+	clock_t timer = clock();
+	QueueHub(HUB_SYS_IP, 0, 0);
+	while (1) {
+		// Inquire next packet
+		UpdateHub(5);	
+
+		// Check if we received packet
+		if (recvLen && recvHub[0] == HUB_SYS_IP) { 
+			recvLen = 0;  // Clear packet
+			memcpy(ip, &recvHub[2], recvHub[1]);
+			return 1; 
+		}		
+		
+		// Check time-out
+		if ((clock() - timer) >= 20) { return 0; }	
+	}
 #endif
 }
