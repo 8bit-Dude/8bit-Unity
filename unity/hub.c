@@ -35,9 +35,10 @@
 
 #if defined __LYNX__
   #include <serial.h>
-  struct ser_params comLynx = { SER_BAUD_62500, SER_BITS_8, SER_STOP_1, SER_PAR_SPACE, SER_HS_NONE };  							  
-  unsigned char recvTimeOut;
-  clock_t recvClock;
+  unsigned char __fastcall__ SerialOpen(void* data); // See serial.s
+  unsigned char __fastcall__ SerialGet(unsigned char* data);
+  unsigned char __fastcall__ SerialPut(unsigned char data);
+  struct ser_params comLynx = { SER_BAUD_62500, SER_BITS_8, SER_STOP_1, SER_PAR_SPACE, SER_HS_NONE };							  
 #else
   unsigned char tick;
 #endif
@@ -45,7 +46,8 @@
 unsigned char hubState[7] = { COM_ERR_OFFLINE, 255, 255, 255, 255, 80, 100 };
 unsigned char sendID = 0, sendLen = 0, sendHub[256];
 unsigned char recvID = 0, recvLen = 0, recvHub[256];
-unsigned char countID = 0;
+unsigned char recvTimeOut, countID = 0;
+clock_t recvClock;
 
 unsigned char QueueHub(unsigned char packetCmd, unsigned char* packetBuffer, unsigned char packetLen)
 {
@@ -70,8 +72,8 @@ void SendByte(unsigned char value)
 	// Send 1 byte to HUB
 #if defined __LYNX__	
 	unsigned char ch;
-	while (ser_put(value) != SER_ERR_OK) ;	// Send byte
-	while (ser_get(&ch) != SER_ERR_OK) ;	// Read byte (sent to oneself)
+	while (SerialPut(value) != SER_ERR_OK) ;	// Send byte
+	while (SerialGet(&ch) != SER_ERR_OK) ;	// Read byte (sent to oneself)
 		
 #elif defined __ORIC__
 	POKE(0x0301, value);		// Write 1 Byte to Printer Port
@@ -85,7 +87,7 @@ unsigned char RecvByte(unsigned char* value)
 {
 	// Recv 1 byte from HUB
 #if defined __LYNX__
-	while (ser_get(value) != SER_ERR_OK) {
+	while (SerialGet(value) != SER_ERR_OK) {
 		if (clock() >  recvClock+recvTimeOut) { return 0; }
 	}
 	return 1;
@@ -108,7 +110,7 @@ void SendHub()
 #if defined __ORIC__	
 	__asm__("sei");	// Disable interrupts
 #elif defined __LYNX__	
-	while (ser_get(&i) == SER_ERR_OK) ; // Clear UART Buffer
+	while (SerialGet(&i) == SER_ERR_OK) ; // Clear UART Buffer
 #endif
 
 	// Send Header
@@ -238,9 +240,8 @@ void InitHub()
 	// Set port A as Output
 	POKE(0x0303, 255);
 #elif defined __LYNX__
-	// Setup Comlynx Interrupt
-	ser_install(lynx_comlynx_ser);
-	ser_open(&comLynx);
+	// Setup Comlynx interface
+	SerialOpen(&comLynx);
 #endif		
 	// Send reset command
 	recvID = 0; sendID = 0;

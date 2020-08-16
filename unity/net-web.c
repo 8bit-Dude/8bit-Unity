@@ -62,6 +62,7 @@ void OpenWEB(unsigned int port, unsigned int timeOut)
 void CloseWEB()
 {
 #ifdef __HUB__
+	while (sendLen) UpdateHub(10);
 	QueueHub(HUB_WEB_CLOSE, 0, 0);
 	UpdateHub(10); // Send immediately
 #else

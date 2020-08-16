@@ -31,6 +31,9 @@ void __fastcall__ SuzyDraw(void* data);
 void __fastcall__ SuzyUpdate(void);
 unsigned char __fastcall__ SuzyBusy(void);
 
+// Toggle for automatic screen refresh in LoadBitmap(), PrintStr(), PrintNum() or PrintBlanks()
+unsigned char autoRefresh = 1;
+
 // See bitmap.c and sprites.c
 extern SCB_REHV_PAL sprSCB[SPRITE_NUM];
 extern unsigned char sprDrawn[SPRITE_NUM];

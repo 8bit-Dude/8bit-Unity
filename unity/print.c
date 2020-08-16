@@ -45,10 +45,6 @@
   unsigned char pow2 = (2 | 2<<2 | 2<<4 | 2<<6);
 #endif
 
-#ifdef __LYNX__   
-  unsigned char autoRefresh = 1;	// Allows auto-refresh of the display when PrintStr(), PrintNum() or PrintBlanks() are used
-#endif
-
 // Oric specific variables & functions
 #if defined __ORIC__
   // INK attributes for characters

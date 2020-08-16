@@ -25,8 +25,6 @@
  */
  
 #include <lynx.h>
-#include <serial.h>
-#include <tgi.h>
 
 // Memory Map
 #define SHAREDRAM  (0x8D8B)
@@ -66,6 +64,9 @@
 
 // Clock
 #define TCK_PER_SEC	60
+
+// Toggle for automatic screen refresh in LoadBitmap(), PrintStr(), PrintNum() or PrintBlanks()
+extern unsigned char autoRefresh;
 
 // Workaround for reading files from ROM (see files.c)
 unsigned int FileLoad(const char* filename);

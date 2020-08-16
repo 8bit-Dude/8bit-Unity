@@ -198,7 +198,8 @@ void LoadBitmap(char *filename)
 	FileRead(filename, (void*)(BITMAPRAM));
 #elif defined __LYNX__
 	// Load from CART file system
-	if (FileLoad(filename)) UpdateDisplay();	
+	if (FileLoad(filename) && autoRefresh) 
+		UpdateDisplay();	
 #else	
 	// Open Map File
 	FILE* fp;

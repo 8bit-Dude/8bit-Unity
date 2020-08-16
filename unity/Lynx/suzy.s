@@ -1,5 +1,5 @@
 ;
-; Copyright (c) 2019 Anthony Beaucamp.
+; Copyright (c) 2020 Anthony Beaucamp.
 ;
 ; This software is provided 'as-is', without any express or implied warranty.
 ; In no event will the authors be held liable for any damages arising from
@@ -23,9 +23,7 @@
 ;   used to endorse or promote products derived from this software without
 ;   specific prior written permission.
 ;
-; Adapted from the abcmusic library by Karri Kaksonen, 02.02.2019
-;
-; The macro package is by Bjoern Spruck. Taken from Chipper.
+; Adapted from TGI driver by Karri Kaksonen
 ;
 
 	.include "lynx.inc"
