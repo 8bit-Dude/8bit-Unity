@@ -52,22 +52,60 @@ unsigned char mouseC = 0;
 unsigned int mouseX = 160;
 unsigned int mouseY = 100;
 
-
 void UpdateMouse()
 {
 	unsigned char joy;
 	
 	// Read mouse state from joystick
 	joy = GetJoy(0);
-	if (joy & JOY_UP)    { mouseY+=2; if (mouseY>200) {mouseY = 200;} }
-	if (joy & JOY_DOWN)  { mouseY-=2; if (mouseY>200) {mouseY = 0;} }
-	if (joy & JOY_LEFT)  { mouseX+=2; if (mouseX>320) {mouseX = 320;} }
-	if (joy & JOY_RIGHT) { mouseX-=2; if (mouseX>320) {mouseX = 0;} }
+	if (joy & JOY_UP)    { mouseY+=3; if (mouseY>200) {mouseY = 200;} }
+	if (joy & JOY_DOWN)  { mouseY-=3; if (mouseY>200) {mouseY = 0;} }
+	if (joy & JOY_LEFT)  { mouseX+=3; if (mouseX>320) {mouseX = 320;} }
+	if (joy & JOY_RIGHT) { mouseX-=3; if (mouseX>320) {mouseX = 0;} }
 	if (joy & JOY_BTN1)  { mouseL = 0; } else { mouseL = 1; } 
 	
 	// Update 
-	LocateSprite(mouseX, mouseY);
+	LocateSprite(mouseX+4, mouseY+4);
 	if (mouseL) SetSprite(0, 1); else SetSprite(0, 0);
+}
+
+unsigned char inputMode, inputCol, inputRow;
+unsigned char inputBuffer[8];
+
+#if defined __LYNX__ 
+	#define kbhit KeyboardOverlayHit
+	#define cgetc GetKeyboardOverlay
+#endif
+
+void SetInput(callback* call) 
+{
+	inputMode = 1;
+	inputCol = call->colBeg;
+	inputRow = call->rowBeg;
+	inputBuffer[0] = 0;
+#if defined __LYNX__ 
+	ShowKeyboardOverlay();
+	DisableSprite(0);
+	cgetc();
+#endif
+}
+
+void UpdateInput()
+{
+	unsigned char lastKey;
+	if (kbhit()) {
+		lastKey = cgetc();
+		if (inputMode) {
+			paperColor = WHITE; inkColor = BLACK;
+			if (InputUpdate(inputCol, inputRow, inputBuffer, 8, lastKey)) {
+				inputMode = 0;
+			#if defined __LYNX__
+				HideKeyboardOverlay();	
+				EnableSprite(0);			
+			#endif		
+			}			
+		}
+	}
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -148,16 +186,13 @@ void ClearScreen()
 
 void DrawTaskBar()
 {
-	paperColor = WHITE; 
-	inkColor = BLACK; 
+	paperColor = WHITE; inkColor = BLACK; 
 #if (defined __ORIC__)
 	SetAttributes(-1, CHR_ROWS-1, paperColor);
 #endif
 	PrintBlanks(0, CHR_ROWS-1, CHR_COLS, 1);
 	paperColor = BLACK; inkColor = WHITE;
-	PrintStr(0, CHR_ROWS-1, "HOME");		
-	paperColor = WHITE; inkColor = BLACK;	
-	home = PushCallback(0, CHR_ROWS-1, 4, 1, CALLTYPE_ICON, "HOME");	
+	home = Button(0, CHR_ROWS-1, 4, 1, "HOME");	
 }
 
 void HomeScreen(void)
@@ -184,6 +219,7 @@ void HomeScreen(void)
 	
 	// Add Taskbar
 	DrawTaskBar();	
+	paperColor = WHITE; inkColor = BLACK; 
 	PrintStr(21, CHR_ROWS-1, "8BIT-OS 2020/08/01");		
 }
 
@@ -256,6 +292,7 @@ void FilesScreen(void)
 	ClearScreen();
 	
 	// Create list for display
+	inkColor = BLACK;
 	for (i=0; i< fileNum; i++) {
 		// Allocate string for name + size
 		fileList[i] = malloc(17);
@@ -309,15 +346,13 @@ void BitmapCallback(callback* call)
 	DrawTaskBar();
 	
 	// Display file name
+	paperColor = WHITE; inkColor = BLACK; 
 	PrintStr(14, CHR_ROWS-1, fileNames[fileSel]);		
 	
 	// Add Controllers
 	paperColor = BLACK; inkColor = WHITE;
-	PrintStr( 10, CHR_ROWS-1, " ( ");		
-	bPrev = PushCallback( 10, CHR_ROWS-1, 3, 1, CALLTYPE_ICON, "bp");	
-	PrintStr( 27, CHR_ROWS-1, " ) ");		
-	bNext = PushCallback( 27, CHR_ROWS-1, 3, 1, CALLTYPE_ICON, "bn");	
-	paperColor = WHITE; inkColor = BLACK;	
+	bPrev = Button(10, CHR_ROWS-1, 3, 1, " ( ");	
+	bNext = Button(27, CHR_ROWS-1, 3, 1, " ) ");	
 }
 
 void BitmapScreen(void)
@@ -344,8 +379,28 @@ void MusicScreen(void)
 
 ///////////////////////////////////////////////////////////////////
 
+char chatUser[8], chatPass[8], chatLogged;
+callback *callUser, *callPass, *callLogin, *callRegis;
+
 void ChatCallback(callback* call)
 {
+	// Check if input box?
+	if (call->type == CALLTYPE_INPUT) { 
+		SetInput(call);
+	} else 
+	if (call == callLogin) {
+		// Setup TCP connection on slot #0
+		OpenTCP(199, 47, 196, 106, 1999);
+		
+		// Send TCP packet
+		SendTCP("Testing 123", 12);
+	}
+}
+
+void ChatPacket(unsigned int packet)
+{
+	// Print back echoed packet
+	PrintStr(0, 0, (char*)(packet));
 }
 
 void ChatScreen(void)
@@ -353,6 +408,20 @@ void ChatScreen(void)
 	// Clear screen
 	ClearScreen();
 	
+	// Login screen?
+	if (!chatLogged) {
+		paperColor = DESK_COLOR; inkColor = BLACK;	
+		Panel(10, 3, CHR_COLS-20, 8, "");	
+		PrintStr(13, 5, "User:");
+		PrintStr(13, 7, "Pass:");
+		paperColor = WHITE; inkColor = BLACK;	
+		callUser = Input(18, 5, 9, 1, "");
+		callPass = Input(18, 7, 9, 1, "");		
+		paperColor = BLACK; inkColor = WHITE;	
+		callLogin = Button(12, 9, 7, 1, " Login ");
+		callRegis = Button(20, 9, 7, 1, " Regis ");
+	}
+
 	// Add Taskbar
 	DrawTaskBar();		
 }
@@ -362,8 +431,10 @@ void ChatScreen(void)
 int main (void)
 {
 	callback* call;
-	clock_t timer = clock();
 	unsigned char app;
+	unsigned char netState;
+	unsigned int netPacket;	
+	clock_t timer = clock();
 	
 	// Set text mode colors
     textcolor(COLOR_WHITE);
@@ -376,6 +447,12 @@ int main (void)
 	InitSprites(spriteFrames, spriteCols, spriteRows, spriteColors);
 	EnableSprite(0);
 	GetFileList();
+	
+	// Try to init network
+	netState = InitNetwork();
+	if (!netState) {
+		SlotTCP(0); 
+	}
 	
 	// Load chunks of various apps
 	LoadChunk(&appChunk[APP_FILES],  "files.chk");
@@ -390,17 +467,32 @@ int main (void)
 	// Main loop
 	while (1) {
 		if (clock() > timer) {
-			// Update timer
+			// Update timer and interface
 			timer = clock();
-			
-			// Update mouse cursor
 			UpdateMouse();
+			UpdateInput();
+			
+			// Check for packets
+			if (!netState) {
+				netPacket = RecvTCP(1);
+				if (netPacket) {
+					// Callbacks from Apps
+					switch (app) {
+					case APP_CHAT:
+						ChatPacket(netPacket);
+						break;								
+					}
+				}
+			}
+
 			
 			// Check callbacks
 			if (mouseL) {
-				if (!mouseC) {
-					call = CheckCallbacks(mouseX, mouseY);
-					if (call) {												
+				if (!mouseC && !inputMode) {
+					call = CheckCallbacks((mouseX*CHR_COLS)/320, (mouseY*CHR_ROWS)/200);
+					if (call) {
+						//PrintStr(0,0,call->label);
+						
 						// Callbacks to Apps
 						if (call == home) {
 							app = APP_HOME;
