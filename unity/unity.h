@@ -239,19 +239,21 @@ void RecolorSprite(unsigned char index, unsigned char number, unsigned char colo
 #ifndef CALLDEF
 #define CALLDEF
 typedef struct {
-	unsigned char x1, x2, y1, y2;
+	unsigned char colBeg, colEnd, rowBeg, rowEnd;
 	unsigned char id, type, *label;
 	unsigned int next;
 } callback;
 #endif
 #define CALLTYPE_ICON  	 1
 #define CALLTYPE_BUTTON  2
-#define CALLTYPE_LISTBOX 3
-void Button(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char* label);
+#define CALLTYPE_INPUT   3
+#define CALLTYPE_LISTBOX 4
+callback* Button(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char* label);
+callback* Input(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char* label);
 void ListBox(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char* title, unsigned char* labels[], unsigned char len);
 void Panel(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char* title);
-callback* CheckCallbacks(unsigned int x, unsigned int y);
-callback* PushCallback(unsigned int col, unsigned int row, unsigned int width, unsigned int height, unsigned char type, unsigned char* label);
+callback* PushCallback(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char type, unsigned char* label);
+callback* CheckCallbacks(unsigned char col, unsigned char row);
 void PopCallback(callback* call);
 void ClearCallbacks(void);
 

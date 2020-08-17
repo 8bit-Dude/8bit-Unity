@@ -108,7 +108,7 @@ unsigned int RecvTCP(unsigned int timeOut)
 		UpdateHub(MIN(5,timeOut));	
 
 		// Check time-out
-		if ((clock() - timer) >= timeOut) { return 0; }	
+		if (clock() >= timer+timeOut) { return 0; }	
 	}
 #else
 #endif

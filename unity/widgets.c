@@ -38,7 +38,7 @@ unsigned int ColToX(unsigned char col)
 	return (col*35)/10;
 #elif defined __ATARI__	// INP Mode: 160 x 200
 	return col*4;
-#elif defined __ORIC__	// AIC Mode: 117 x 100 equilabelent pixels
+#elif defined __ORIC__	// AIC Mode: 117 x 100 equivalent pixels
 	return col*3-3;	
 #elif defined __CBM__	// MLC Mode: 160 x 200
 	return col*4;
@@ -53,7 +53,7 @@ unsigned int RowToY(unsigned char row)
 	return row*8;
 #elif defined __ATARI__	// INP Mode: 160 x 200
 	return row*8;
-#elif defined __ORIC__	// AIC Mode: 117 x 100 equilabelent pixels
+#elif defined __ORIC__	// AIC Mode: 117 x 100 equivalent pixels
 	return row*4;
 #elif defined __CBM__	// MLC Mode: 160 x 200
 	return row*8;
@@ -65,29 +65,29 @@ unsigned int RowToY(unsigned char row)
 //////////////////////////////////
 /// Callback management functions
 
-callback* CheckCallbacks(unsigned int x, unsigned int y)
+callback* CheckCallbacks(unsigned char col, unsigned char row)
 {
 	callback* call = callHead;
 		
 	// Check coordinates overlaps callback?
 	while (call) {
-		if (call->x1<x && x<call->x2 && call->y1<y && y<call->y2) return call;
+		if (call->colBeg<=col && col<call->colEnd && call->rowBeg<=row && row<call->rowEnd) return call;
 		call = (callback*)call->next;
 	}
 	return 0;
 }
 
-callback* PushCallback(unsigned int col, unsigned int row, unsigned int width, unsigned int height, unsigned char type, unsigned char* label)
+callback* PushCallback(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char type, unsigned char* label)
 {
 	callback* callTail = callHead;
 	callback* call;
 	
 	// Register callback
 	call = malloc(sizeof(callback));
-	call->x1 = ((col)*320)/CHR_COLS;
-	call->x2 = ((col+width)*320)/CHR_COLS;		
-	call->y1 = ((row)*200)/CHR_ROWS;
-	call->y2 = ((row+height)*200)/CHR_ROWS;
+	call->colBeg = col;
+	call->colEnd = (col+width);		
+	call->rowBeg = row;
+	call->rowEnd = (row+height);
 	call->id = countId++;
 	call->type = type;
 	call->label = label;	
@@ -140,13 +140,22 @@ void ClearCallbacks()
 ////////////////////////////
 // Widget Drawing Functions
 
-void Button(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char* label)
+callback* Button(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char* label)
 {
 	// Print Button
 	PrintStr(col, row, label);	
 
 	// Register Callback
-	PushCallback(col, row, width, height, CALLTYPE_BUTTON, label);
+	return PushCallback(col, row, width, height, CALLTYPE_BUTTON, label);
+}
+
+callback* Input(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char* label)
+{
+	// Clear Field Area
+	PrintBlanks(col, row, width, height);
+
+	// Register Callback
+	return PushCallback(col, row, width, height, CALLTYPE_INPUT, label);
 }
 
 void Panel(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char* title)
