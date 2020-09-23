@@ -122,39 +122,29 @@ void SendUDP(unsigned char* buffer, unsigned char length)
 unsigned int RecvUDP(unsigned int timeOut)
 {	
 #ifdef __HUB__
-	// Check if data was received from Hub
+	// Wait until data is received from Hub
 	clock_t timer = clock();
-	while (1) {
-		// Check if we received packet
-		if (recvLen && recvHub[0] == HUB_UDP_RECV) { 
-		#if defined DEBUG_UDP
-			PrintStr(0, 13, "UDP:");
-			PrintNum(5, 13, recvLen);
-		#endif		
-			recvLen = 0;  // Clear packet
-			return &recvHub[2]; 
-		}		
-		
-		// Inquire next packet
-		UpdateHub(MIN(5,timeOut));	
-
-		// Check time-out
-		if ((clock() - timer) >= timeOut) { return 0; }	
+	while (!recvLen || recvHub[0] != HUB_UDP_RECV) {
+		if (clock() > timer+timeOut) return 0;
+		UpdateHub(timeOut);	
 	}
+#if defined DEBUG_UDP
+	PrintStr(0, 13, "UDP:");
+	PrintNum(5, 13, recvLen);
+#endif		
+	recvLen = 0;  // Clear packet
+	return &recvHub[2]; 	
 #else
 	// Try to process UDP
 	clock_t timer = clock();
 	udp_recv_packet = 0;
-	while (1) {
-		// Check if we received packet
+	while (!udp_recv_packet) {
+		if (clock() > timer+timeOut) return 0;
 		ip65_process();
-		if (udp_recv_packet) { return udp_recv_packet; }
-		
-		// Check time-out
-		if (clock() - timer >= timeOut) { return 0; }	
 	#if defined __APPLE2__
 		wait(1);
 	#endif
 	}
+	return udp_recv_packet;	
 #endif
 }

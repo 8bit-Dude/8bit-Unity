@@ -107,25 +107,18 @@ void SendWEB()
 unsigned int RecvWEB(unsigned int timeOut)
 {	
 #ifdef __HUB__
-	// Check if data was received from Hub
+	// Wait until data is received from Hub
 	clock_t timer = clock();
-	while (1) {
-		// Check if we received packet
-		if (recvLen && recvHub[0] == HUB_WEB_RECV) { 
-		#if defined DEBUG_WEB
-			PrintStr(0, 13, "WEB:");
-			PrintNum(5, 13, recvLen);
-		#endif		
-			recvLen = 0;  // Clear packet
-			return &recvHub[2]; 
-		}		
-		
-		// Inquire next packet
+	while (!recvLen || recvHub[0] != HUB_WEB_RECV) {
+		if (clock() > timer+timeOut) return 0;
 		UpdateHub(timeOut);	
-
-		// Check time-out
-		if ((clock() - timer) >= timeOut) { return 0; }	
 	}
+#if defined DEBUG_WEB
+	PrintStr(0, 13, "WEB:");
+	PrintNum(5, 13, recvLen);
+#endif		
+	recvLen = 0;  // Clear packet
+	return &recvHub[2]; 
 #else
 #endif
 }

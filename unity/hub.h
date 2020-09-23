@@ -36,7 +36,6 @@
 
 #define HUB_REFRESH_RATE  3	// every 3 clock cycles
 
-
 // HUB Status Flags
 #define COM_ERR_OK        0
 #define COM_ERR_OFFLINE   1
@@ -45,17 +44,18 @@
 #define COM_ERR_CORRUPT   4
 
 // HUB Commands
+#define HUB_SYS_ERROR     0
 #define HUB_SYS_RESET     1
-#define HUB_SYS_IP		  2
+#define HUB_SYS_IP        5
 #define HUB_DIR_LS       10
 #define HUB_DIR_MK       11
 #define HUB_DIR_RM       12
 #define HUB_DIR_CD       13
-#define HUB_FIL_OPEN     21
-#define HUB_FIL_SEEK     22
-#define HUB_FIL_READ     23
-#define HUB_FIL_WRITE    24
-#define HUB_FIL_CLOSE    25
+#define HUB_FILE_OPEN    21
+#define HUB_FILE_SEEK    22
+#define HUB_FILE_READ    23
+#define HUB_FILE_WRITE   24
+#define HUB_FILE_CLOSE   25
 #define HUB_UDP_OPEN     30
 #define HUB_UDP_RECV     31
 #define HUB_UDP_SEND     32
@@ -70,5 +70,7 @@
 #define HUB_WEB_RECV     51
 #define HUB_WEB_HEADER   52
 #define HUB_WEB_BODY     53
-#define HUB_WEB_SEND   	 54
+#define HUB_WEB_SEND     54
 #define HUB_WEB_CLOSE    55
+#define HUB_HTTP_GET     60
+#define HUB_HTTP_READ    61

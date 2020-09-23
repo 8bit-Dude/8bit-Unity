@@ -91,25 +91,18 @@ void SendTCP(unsigned char* buffer, unsigned char length)
 unsigned int RecvTCP(unsigned int timeOut)
 {	
 #ifdef __HUB__
-	// Check if data was received from Hub
+	// Wait until data is received from Hub
 	clock_t timer = clock();
-	while (1) {
-		// Check if we received packet
-		if (recvLen && recvHub[0] == HUB_TCP_RECV) { 
-		#if defined DEBUG_TCP
-			PrintStr(0, 13, "TCP:");
-			PrintNum(5, 13, recvLen);
-		#endif		
-			recvLen = 0;  // Clear packet
-			return &recvHub[2]; 
-		}		
-		
-		// Inquire next packet
-		UpdateHub(MIN(5,timeOut));	
-
-		// Check time-out
-		if (clock() >= timer+timeOut) { return 0; }	
+	while (!recvLen || recvHub[0] != HUB_TCP_RECV) {
+		if (clock() > timer+timeOut) return 0;
+		UpdateHub(timeOut);	
 	}
+#if defined DEBUG_TCP
+	PrintStr(0, 13, "TCP:");
+	PrintNum(5, 13, recvLen);
+#endif		
+	recvLen = 0;  // Clear packet
+	return &recvHub[2]; 
 #else
 #endif
 }

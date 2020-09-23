@@ -46,7 +46,7 @@
 unsigned char hubState[7] = { COM_ERR_OFFLINE, 255, 255, 255, 255, 80, 100 };
 unsigned char sendID = 0, sendLen = 0, sendHub[256];
 unsigned char recvID = 0, recvLen = 0, recvHub[256];
-unsigned char recvTimeOut, countID = 0;
+unsigned char recvTimeOut, packetID = 0;
 clock_t recvClock;
 
 unsigned char QueueHub(unsigned char packetCmd, unsigned char* packetBuffer, unsigned char packetLen)
@@ -58,8 +58,8 @@ unsigned char QueueHub(unsigned char packetCmd, unsigned char* packetBuffer, uns
 		return 0;
 	
 	// Add to send buffer
-	if (++countID > 15) { countID = 1; }
-	sendHub[sendLen++] = countID;	
+	if (++packetID > 15) { packetID = 1; }
+	sendHub[sendLen++] = packetID;	
 	sendHub[sendLen++] = packetLen+1;
 	sendHub[sendLen++] = packetCmd;
 	for (i=0; i<packetLen; i++) 
@@ -76,7 +76,7 @@ void SendByte(unsigned char value)
 	while (SerialGet(&ch) != SER_ERR_OK) ;	// Read byte (sent to oneself)
 		
 #elif defined __ORIC__
-	POKE(0x0301, value);		// Write 1 Byte to Printer Port
+	POKE(0x0301, value);		// Write byte to Printer Port
 	POKE(0x0300, 175);			// Send STROBE (falling signal)
 	tick++; tick++; tick++; 	// Wait 3 cycles
 	POKE(0x0300, 255);			// Reset STROBE
@@ -95,7 +95,7 @@ unsigned char RecvByte(unsigned char* value)
 #elif defined __ORIC__	
 	unsigned char i = 255;
 	while (1) {  // Countdown i to 0
-		if (PEEK(0x030d)&2) { break; }	// Look for CA1 signal
+		if (PEEK(0x030d)&2) { break; }	// Look for ACKNOW signal on CA1
 		if (!i--) { return 0; }	
 	}
 	*value = PEEK(0x0301);
@@ -103,15 +103,9 @@ unsigned char RecvByte(unsigned char* value)
 #endif
 }
 
-
 void SendHub()
 {
 	unsigned char i, checksum, packetLen;
-#if defined __ORIC__	
-	__asm__("sei");	// Disable interrupts
-#elif defined __LYNX__	
-	while (SerialGet(&i) == SER_ERR_OK) ; // Clear UART Buffer
-#endif
 
 	// Send Header
 	SendByte(170);
@@ -134,27 +128,19 @@ void SendHub()
 	}
 	
 	// Send footer
-	SendByte(checksum);			
-	
-#if defined __ORIC__	
-	__asm__("cli");	// Enable interrupts
-#endif
+	SendByte(checksum);
 }
 
-void RecvHub(unsigned char timeOut) 
+void RecvHub() 
 {
 	unsigned char i, len, ID, packetLen;
 	unsigned char header, footer, checksum;
-		
-#if defined __LYNX__
-	recvClock = clock();	// Set clock
-	recvTimeOut = timeOut;	// Set timeout
-#elif defined __ORIC__	
-	__asm__("sei");		// Disable interrupts
-	SendByte(85);		// Send read code
-	POKE(0x0303, 0);	// Set Port A as Input
-	i = PEEK(0x0301);   // Reset ORA
-#endif
+
+#if defined __ORIC__
+	SendByte(85);
+	POKE(0x0303, 0);		// Set Port A as Input
+	i = PEEK(0x0301);   	// Reset ORA
+#endif	
 	
 	// Check header
 	if (!RecvByte(&header) || header != 170) {
@@ -180,11 +166,6 @@ void RecvHub(unsigned char timeOut)
 
 	// Get footer
 	if (!RecvByte(&footer)) { hubState[0] = COM_ERR_TRUNCAT; return; }
-		
-#if defined __ORIC__	
-	POKE(0x0303, 255);	// Set port A as Output
-	__asm__("cli");		// Resume interrupts	
-#endif
 
 	// Verify checkum
 	checksum = ID;
@@ -234,35 +215,45 @@ void RecvHub(unsigned char timeOut)
 #endif	
 }
 
-void InitHub()
-{
-#if defined __ORIC__
-	// Set port A as Output
-	POKE(0x0303, 255);
-#elif defined __LYNX__
-	// Setup Comlynx interface
-	SerialOpen(&comLynx);
-#endif		
-	// Send reset command
-	recvID = 0; sendID = 0;
-	recvLen = 0; sendLen = 0;
-	QueueHub(HUB_SYS_RESET, 0, 0);
-	SendHub();	
-	RecvHub(10);
-}
-
-void UpdateHub(unsigned char timeout) 
+void UpdateHub(unsigned char timeOut) 
 {			
-	// Check hub was already initialized?
+	unsigned char i;
+	clock_t updateClock;
+
+	// Was hub already initialized?
 	if (hubState[0] == COM_ERR_OFFLINE) {
-		InitHub();
-	} else {
-		// Restrict update rate (to prevent COM port flooding)
-		while (clock() < recvClock+HUB_REFRESH_RATE)
-			if (clock() > recvClock+timeout) { return; }
-		SendHub();
-		RecvHub(timeout);
-	}
+	#if defined __LYNX__
+		// Setup Comlynx interface
+		SerialOpen(&comLynx);
+	#endif
+		// Send Reset command
+		recvID = 0; sendID = 0;
+		recvLen = 0; sendLen = 0;
+		QueueHub(HUB_SYS_RESET, 0, 0);
+		timeOut = 10;
+	} 
+	
+	// Restrict update rate (to prevent COM port flooding)
+	updateClock = clock();
+	while (clock() < recvClock+HUB_REFRESH_RATE)
+		if (clock() > updateClock+timeOut) { return; }
+	if (timeOut<1) timeOut = 1;	// Give min. time out
+	recvTimeOut = timeOut;		// Set timeout
+	recvClock = clock();		// Set clock
+	
+	// Send/Receive Packet
+#if defined __LYNX__	
+	while (SerialGet(&i) == SER_ERR_OK) ; // Clear UART Buffer
+#elif defined __ORIC__	
+	__asm__("sei");		// Disable interrupts
+#endif	
+	SendHub();
+	RecvHub();
+#if defined __ORIC__	
+	POKE(0x0303, 255);	// Set port A as Output
+	__asm__("cli");		// Resume interrupts	
+#endif
+
 #if defined DEBUG_HUB
 	PrintStr(0, CHR_ROWS-1, "LN ");
 	PrintNum(2, CHR_ROWS-1, sendLen);	

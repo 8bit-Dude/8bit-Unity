@@ -39,7 +39,7 @@ unsigned char joyAdaptor = ADAPTOR_PASE;
 void InitJoy(void)
 {
 	// Check if 8bit-Hub connected (otherwise assume PASE/IJK interface)
-	if (hubState[0] == COM_ERR_OFFLINE) { InitHub(); }
+	if (hubState[0] == COM_ERR_OFFLINE) { UpdateHub(0); }
 	if (hubState[0] != COM_ERR_OFFLINE) { joyAdaptor = ADAPTOR_HUB; }
 }
 

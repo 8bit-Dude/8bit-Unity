@@ -61,11 +61,11 @@
 #define LGREEN	4
 #define AIC		4
 #define GREY	5
-#define BLUE	6
-#define MBLUE	6
+#define AQUA    6
 #define DBLUE	7
 #define LBLUE 	8
-#define AQUA    9
+#define BLUE	9
+#define MBLUE	9
 #define LGREY	10
 #define BROWN	11
 #define GREY2	12
