@@ -1,10 +1,10 @@
 
 #include "demo-hlo.h"
 #include "demo-joy.h"
-#include "demo-gfx.h"
+#include "demo-net.h"
 #include "demo-bmp.h"
+#include "demo-gfx.h"
 #include "demo-spr.h"
-#include "demo-udp.h"
 
 #ifdef __LYNX__
 	const char pressKeyMsg[] = " - press OPTION 1 - ";
@@ -24,10 +24,10 @@ int main (void)
 	// Run all demos
 	DemoHLO();
 	DemoJOY();
-	DemoGFX();
+	DemoNET();
 	DemoBMP();
+	DemoGFX();
 	DemoSPR();
-	DemoUDP();
 	
     // Done
     return EXIT_SUCCESS;
