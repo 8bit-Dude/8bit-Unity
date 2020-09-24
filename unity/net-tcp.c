@@ -35,6 +35,16 @@
 
 #ifndef __HUB__
   // Use IP65 library
+  #define EncodeIP(a,b,c,d) (a+b*256+c*65536+d*16777216)
+  unsigned int tcp_recv_packet;
+  unsigned char __fastcall__ tcp_connect(unsigned long dest, unsigned int dest_port, void (*callback)(const unsigned char* buf, int len));
+  unsigned char __fastcall__ tcp_send(const unsigned char* buf, unsigned int len);
+  unsigned char tcp_close(void);
+  unsigned char ip65_process(void);
+  void __fastcall__ PacketTCP(const unsigned char* buf, int len)  
+  {
+	  tcp_recv_packet = buf;
+  }
 #endif
 
 void SlotTCP(unsigned char slot)
@@ -65,6 +75,8 @@ void OpenTCP(unsigned char ip1, unsigned char ip2, unsigned char ip3, unsigned c
 		UpdateHub(5);
 	}
 #else
+	unsigned long svIp = EncodeIP(ip1,ip2,ip3,ip4);
+	tcp_connect(svIp, svPort, PacketTCP);
 #endif
 }
 
@@ -73,18 +85,16 @@ void CloseTCP()
 #ifdef __HUB__
 	QueueHub(HUB_TCP_CLOSE, 0, 0);
 #else
+	tcp_close();
 #endif
 }
-
-#ifdef __APPLE2__
-  #pragma code-name("LC")
-#endif
 
 void SendTCP(unsigned char* buffer, unsigned char length) 
 {
 #ifdef __HUB__
 	QueueHub(HUB_TCP_SEND, buffer, length);
 #else
+	tcp_send(buffer, length);
 #endif
 }
 
@@ -104,5 +114,16 @@ unsigned int RecvTCP(unsigned int timeOut)
 	recvLen = 0;  // Clear packet
 	return &recvHub[2]; 
 #else
+	// Try to process UDP
+	clock_t timer = clock();
+	tcp_recv_packet = 0;
+	while (!tcp_recv_packet) {
+		if (clock() > timer+timeOut) return 0;
+		ip65_process();
+	#if defined __APPLE2__
+		wait(1);
+	#endif
+	}
+	return tcp_recv_packet;	
 #endif
 }

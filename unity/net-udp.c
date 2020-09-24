@@ -45,6 +45,10 @@
   unsigned char __fastcall__ udp_add_listener(unsigned int port, void (*callback)(void));
   unsigned char __fastcall__ udp_remove_listener(unsigned int port);
   unsigned char ip65_process(void);
+  void PacketUDP(void)
+  {
+	udp_recv_packet = &udp_recv_buf[0];
+  }  
 #endif
 
 void SlotUDP(unsigned char slot)
@@ -54,13 +58,6 @@ void SlotUDP(unsigned char slot)
 #else
 #endif
 }
-
-#ifndef __HUB__
-void PacketUDP(void)
-{
-	udp_recv_packet = &udp_recv_buf[0];
-}
-#endif
 
 void OpenUDP(unsigned char ip1, unsigned char ip2, unsigned char ip3, unsigned char ip4, unsigned int svPort, unsigned int clPort)
 {
@@ -105,10 +102,6 @@ void CloseUDP()
 #else
 #endif
 }
-
-#ifdef __APPLE2__
-  #pragma code-name("LC")
-#endif
 
 void SendUDP(unsigned char* buffer, unsigned char length) 
 {

@@ -69,10 +69,6 @@ void CloseWEB()
 #endif
 }
 
-#ifdef __APPLE2__
-  #pragma code-name("LC")
-#endif
-
 void HeaderWEB(unsigned char* buffer, unsigned char length) 
 {
 #ifdef __HUB__
