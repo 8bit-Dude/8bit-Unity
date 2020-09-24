@@ -26,12 +26,21 @@ int main (void)
 	unsigned char i, state, type, ip[16];
 	unsigned int counter, fraction, size;
 	unsigned int packet, requests;
+#if defined __ORIC__
+	unsigned char buffer[0x0600];
+#endif	
 	
 	// Load resources
 	for (i=0; i<6; i++) {
+	#if defined __ORIC__
+		jpgSize[i] = FileRead(jpgName[i], buffer);	
+		jpgData[i] = (unsigned char*)malloc(jpgSize[i]);
+		memcpy(jpgData[i], (unsigned char*)buffer, jpgSize[i]);
+	#elif defined __LYNX__
 		jpgSize[i] = FileLoad(jpgName[i]);	
 		jpgData[i] = (unsigned char*)malloc(jpgSize[i]);
 		memcpy(jpgData[i], (unsigned char*)SHAREDRAM, jpgSize[i]);
+	#endif	
 	}
 	
 	// Set text mode colors
@@ -43,18 +52,14 @@ int main (void)
 	clrscr();
 	
 	// Display interface
-	gotoxy (10, 2);
-	cprintf("Web Server:");
-	gotoxy (8, 4);
-	cprintf("----------------------");		
-	gotoxy (0, 6);
-	cprintf("Last Req:");		
-	gotoxy (0, 8);
-	cprintf("Requests served: 0");		
+	gotoxy(10, 2); cprintf("Web Server:");
+	gotoxy(8, 4);  cprintf("----------------------");		
+	gotoxy(0, 6);  cprintf("Last Req:");		
+	gotoxy(0, 8);  cprintf("Requests served: 0");		
 	
 	// Init network and listen on UDP port 5000
 	state = InitNetwork();
-	gotoxy (22, 2);
+	gotoxy(22, 2);
 	if (state == ADAPTOR_ERR) {
 		cprintf("Adaptor ERROR");
 		while (1) {}
@@ -68,10 +73,8 @@ int main (void)
 
 	// Show local IP
 	GetLocalIP(ip);
-	gotoxy (12, 3);
-	cprintf("IP: ");
-	gotoxy (16, 3);
-	cprintf(ip);
+	gotoxy(12, 3); cprintf("IP: ");
+	gotoxy(16, 3); cprintf(ip);
 	
 	// Setup Web Server on port 80 (with 3000 ms time-out)
 	OpenWEB(80, 3000);
@@ -125,9 +128,9 @@ int main (void)
 			SendWEB();
 			
 			// Update stats
-			PrintBlanks(10, 6, 30, 1);
-			PrintStr(10, 6, packet);
-			PrintNum(17, 8, ++requests);
+			gotoxy(10, 6); cprintf("                              ");
+			gotoxy(10, 6); cprintf(packet);
+			gotoxy(17, 8); cprintf("%u", ++requests);
 		}
 	}
 	
