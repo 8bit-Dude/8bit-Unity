@@ -256,7 +256,7 @@ void LocatePixel(unsigned int x, unsigned int y)
 	pixelX = x/2;
 	pixelY = y;
 #elif defined __ORIC__	// AIC Mode: 117 x 100 equivalent pixels
-	pixelX = (x*117)/320+3;	
+	pixelX = (x*117)/320;	
 	pixelY = y/2;
 #elif defined __CBM__	// MLC Mode: 160 x 200
 	pixelX = x/2;
@@ -327,14 +327,14 @@ unsigned char GetPixel()
 	extern unsigned char sprY[SPRITE_NUM];
 	extern unsigned char frameROWS;
 
-	// Scale to sprite coordinates
+	// Scale to block coordinates (6x2)
 	pX = pixelX/3; pY = pixelY*2;
 	
 	// Check for sprite occlusion
 	for (i=0; i<SPRITE_NUM; i++) {
 		if (sprDrawn[i]) {
-			xO = pX - sprX[i];
-			yO = pY - sprY[i];
+			xO = pX - (sprX[i]+6);
+			yO = pY - (sprY[i]+sprROWS[index]/2);
 			if (xO<3 && yO<frameROWS) {
 				addr = sprBG[i]+yO*4+xO;
 				byte1 = PEEK(addr);

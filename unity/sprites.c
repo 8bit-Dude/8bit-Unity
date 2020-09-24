@@ -385,7 +385,7 @@ void SetSprite(unsigned char index, unsigned char frame)
 	unsigned char rows = sprROWS[index];
 	
 	// Offset from centre of sprite
-	if (spriteX > 2) { spriteX -= 3; }
+	if (spriteX > 5) { spriteX -= 6; }
 	spriteY -= rows/2;
 	
 	// Compute sprite slots
