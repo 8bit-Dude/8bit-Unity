@@ -328,13 +328,13 @@ unsigned char GetPixel()
 	extern unsigned char frameROWS;
 
 	// Scale to block coordinates (6x2)
-	pX = pixelX/3; pY = pixelY*2;
+	pX = pixelX/3+1; pY = pixelY*2;
 	
 	// Check for sprite occlusion
 	for (i=0; i<SPRITE_NUM; i++) {
 		if (sprDrawn[i]) {
-			xO = pX - (sprX[i]+6);
-			yO = pY - (sprY[i]+sprROWS[index]/2);
+			xO = pX - (sprX[i]);
+			yO = pY - (sprY[i]);
 			if (xO<3 && yO<frameROWS) {
 				addr = sprBG[i]+yO*4+xO;
 				byte1 = PEEK(addr);
@@ -347,7 +347,7 @@ unsigned char GetPixel()
 	
 	// Get 2 bytes from Bitmap RAM (interlaced lines)
 	if (!occlusion) {
-		addr = (char*)BITMAPRAM + pY*40 + (pX+1);		
+		addr = (char*)BITMAPRAM + pY*40 + pX;		
 		byte1 = PEEK(addr);
 		byte2 = PEEK(addr+40);	
 	}
