@@ -44,7 +44,7 @@ unsigned char InitNetwork(void)
 	clock_t timer = clock();
 	while ((clock()-timer) < 2*TCK_PER_SEC) { 
 		if (hubState[0] == COM_ERR_OK) { return NETWORK_OK; }
-		UpdateHub(5);
+		UpdateHub();
 	}
 	return ADAPTOR_ERR;
 #else
@@ -63,7 +63,7 @@ unsigned char GetLocalIP(unsigned char* ip)
 	QueueHub(HUB_SYS_IP, 0, 0);
 	while (1) {
 		// Inquire next packet
-		UpdateHub(5);	
+		UpdateHub();	
 
 		// Check if we received packet
 		if (recvLen && recvHub[0] == HUB_SYS_IP) { 

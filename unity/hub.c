@@ -46,8 +46,7 @@
 unsigned char hubState[7] = { COM_ERR_OFFLINE, 255, 255, 255, 255, 80, 100 };
 unsigned char sendID = 0, sendLen = 0, sendHub[256];
 unsigned char recvID = 0, recvLen = 0, recvHub[256];
-unsigned char recvTimeOut, packetID = 0;
-clock_t recvClock;
+unsigned char packetID = 0;
 
 unsigned char QueueHub(unsigned char packetCmd, unsigned char* packetBuffer, unsigned char packetLen)
 {
@@ -72,11 +71,10 @@ void SendByte(unsigned char value)
 	// Send 1 byte to HUB
 #if defined __LYNX__	
 	unsigned char ch;
-	while (SerialPut(value) != SER_ERR_OK) ;	// Send byte
-	while (SerialGet(&ch) != SER_ERR_OK) ;	// Read byte (sent to oneself)
-		
+	while (SerialPut(value) != SER_ERR_OK) ; // Send byte
+	while (SerialGet(&ch) != SER_ERR_OK) ;	 // Read byte (sent to oneself)	
 #elif defined __ORIC__
-	POKE(0x0301, value);		// Write byte to Printer Port
+	POKE(0x0301, value);		// Write to Printer Port
 	POKE(0x0300, 175);			// Send STROBE (falling signal)
 	tick++; tick++; tick++; 	// Wait 3 cycles
 	POKE(0x0300, 255);			// Reset STROBE
@@ -86,21 +84,16 @@ void SendByte(unsigned char value)
 unsigned char RecvByte(unsigned char* value)
 {
 	// Recv 1 byte from HUB
-#if defined __LYNX__
-	while (SerialGet(value) != SER_ERR_OK) {
-		if (clock() >  recvClock+recvTimeOut) { return 0; }
-	}
-	return 1;
-			
-#elif defined __ORIC__	
 	unsigned char i = 255;
 	while (1) {  // Countdown i to 0
-		if (PEEK(0x030d)&2) { break; }	// Look for ACKNOW signal on CA1
-		if (!i--) { return 0; }	
+	#if defined __LYNX__
+		if (SerialGet(value) == SER_ERR_OK) { break; }			// Look for incoming byte
+	#elif defined __ORIC__	
+		if (PEEK(0x030d)&2) { *value = PEEK(0x0301); break; }	// Look for ACKNOW on CA1 then read Printer Port
+	#endif
+		if (!i--) return 0;
 	}
-	*value = PEEK(0x0301);
 	return 1;
-#endif
 }
 
 void SendHub()
@@ -215,31 +208,29 @@ void RecvHub()
 #endif	
 }
 
-void UpdateHub(unsigned char timeOut) 
+clock_t updateClock;
+
+void UpdateHub() 
 {			
 	unsigned char i;
-	clock_t updateClock;
+	
+	// Throttle requests to respect refresh rate
+	if (clock() < updateClock+HUB_REFRESH_RATE)
+		return;
+	updateClock = clock();
 
 	// Was hub already initialized?
 	if (hubState[0] == COM_ERR_OFFLINE) {
-	#if defined __LYNX__
-		// Setup Comlynx interface
-		SerialOpen(&comLynx);
-	#endif
-		// Send Reset command
-		recvID = 0; sendID = 0;
-		recvLen = 0; sendLen = 0;
-		QueueHub(HUB_SYS_RESET, 0, 0);
-		timeOut = 10;
+		// Send reset command
+		if (sendHub[0] != HUB_SYS_RESET) {
+			recvID = 0; sendID = 0;
+			recvLen = 0; sendLen = 0;
+			QueueHub(HUB_SYS_RESET, 0, 0);
+		#if defined __LYNX__			
+			SerialOpen(&comLynx);  // Setup Comlynx interface
+		#endif
+		}
 	} 
-	
-	// Restrict update rate (to prevent COM port flooding)
-	updateClock = clock();
-	while (clock() < recvClock+HUB_REFRESH_RATE)
-		if (clock() > updateClock+timeOut) { return; }
-	if (timeOut<1) timeOut = 1;	// Give min. time out
-	recvTimeOut = timeOut;		// Set timeout
-	recvClock = clock();		// Set clock
 	
 	// Send/Receive Packet
 #if defined __LYNX__	

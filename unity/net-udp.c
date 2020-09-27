@@ -77,9 +77,8 @@ void OpenUDP(unsigned char ip1, unsigned char ip2, unsigned char ip3, unsigned c
 	
 	// Wait while HUB sets-up connection
 	timer = clock();
-	while ((clock()-timer) < 2*TCK_PER_SEC) {
-		UpdateHub(5);
-	}
+	while ((clock()-timer) < 2*TCK_PER_SEC)
+		UpdateHub();
 #else
 	// Set-up UDP params and listener
 	unsigned char dummy[1];
@@ -116,10 +115,10 @@ unsigned int RecvUDP(unsigned int timeOut)
 {	
 #ifdef __HUB__
 	// Wait until data is received from Hub
-	clock_t timer = clock();
+	clock_t timer = clock()+timeOut;
 	while (!recvLen || recvHub[0] != HUB_UDP_RECV) {
-		if (clock() > timer+timeOut) return 0;
-		UpdateHub(timeOut);	
+		if (clock() > timer) return 0;
+		UpdateHub();	
 	}
 #if defined DEBUG_UDP
 	PrintStr(0, 13, "UDP:");
@@ -129,10 +128,10 @@ unsigned int RecvUDP(unsigned int timeOut)
 	return &recvHub[2]; 	
 #else
 	// Try to process UDP
-	clock_t timer = clock();
+	clock_t timer = clock()+timeOut;
 	udp_recv_packet = 0;
 	while (!udp_recv_packet) {
-		if (clock() > timer+timeOut) return 0;
+		if (clock() > timer) return 0;
 		ip65_process();
 	#if defined __APPLE2__
 		wait(1);

@@ -71,9 +71,8 @@ void OpenTCP(unsigned char ip1, unsigned char ip2, unsigned char ip3, unsigned c
 	
 	// Wait while HUB sets-up connection
 	timer = clock();
-	while ((clock()-timer) < 2*TCK_PER_SEC) {
-		UpdateHub(5);
-	}
+	while ((clock()-timer) < 2*TCK_PER_SEC)
+		UpdateHub();
 #else
 	unsigned long svIp = EncodeIP(ip1,ip2,ip3,ip4);
 	tcp_connect(svIp, svPort, PacketTCP);
@@ -102,10 +101,10 @@ unsigned int RecvTCP(unsigned int timeOut)
 {	
 #ifdef __HUB__
 	// Wait until data is received from Hub
-	clock_t timer = clock();
+	clock_t timer = clock()+timeOut;
 	while (!recvLen || recvHub[0] != HUB_TCP_RECV) {
-		if (clock() > timer+timeOut) return 0;
-		UpdateHub(timeOut);	
+		if (clock() > timer) return 0;
+		UpdateHub();	
 	}
 #if defined DEBUG_TCP
 	PrintStr(0, 13, "TCP:");
@@ -115,10 +114,10 @@ unsigned int RecvTCP(unsigned int timeOut)
 	return &recvHub[2]; 
 #else
 	// Try to process UDP
-	clock_t timer = clock();
+	clock_t timer = clock()+timeOut;
 	tcp_recv_packet = 0;
 	while (!tcp_recv_packet) {
-		if (clock() > timer+timeOut) return 0;
+		if (clock() > timer) return 0;
 		ip65_process();
 	#if defined __APPLE2__
 		wait(1);

@@ -54,7 +54,7 @@ void OpenWEB(unsigned int port, unsigned int timeOut)
 	// Wait while HUB sets-up connection
 	timer = clock();
 	while ((clock()-timer) < 2*TCK_PER_SEC)
-		UpdateHub(10);
+		UpdateHub();
 #else
 #endif
 }
@@ -62,9 +62,9 @@ void OpenWEB(unsigned int port, unsigned int timeOut)
 void CloseWEB()
 {
 #ifdef __HUB__
-	while (sendLen) UpdateHub(10);
+	while (sendLen) UpdateHub();
 	QueueHub(HUB_WEB_CLOSE, 0, 0);
-	UpdateHub(10); // Send immediately
+	UpdateHub(); // Send immediately
 #else
 #endif
 }
@@ -72,9 +72,9 @@ void CloseWEB()
 void HeaderWEB(unsigned char* buffer, unsigned char length) 
 {
 #ifdef __HUB__
-	while (sendLen) UpdateHub(10);
+	while (sendLen) UpdateHub();
 	QueueHub(HUB_WEB_HEADER, buffer, length);
-	UpdateHub(10); // Send immediately
+	UpdateHub(); // Send immediately
 #else
 #endif
 }
@@ -82,9 +82,9 @@ void HeaderWEB(unsigned char* buffer, unsigned char length)
 void BodyWEB(unsigned char* buffer, unsigned char length) 
 {
 #ifdef __HUB__
-	while (sendLen) UpdateHub(10);
+	while (sendLen) UpdateHub();
 	QueueHub(HUB_WEB_BODY, buffer, length);
-	UpdateHub(10); // Send immediately
+	UpdateHub(); // Send immediately
 #else
 #endif
 }
@@ -93,9 +93,9 @@ void SendWEB()
 {
 #ifdef __HUB__
 	// Flush Hub Queue
-	while (sendLen) UpdateHub(0);
+	while (sendLen) UpdateHub();
 	QueueHub(HUB_WEB_SEND, 0, 0);
-	UpdateHub(10); // Send immediately
+	UpdateHub(); // Send immediately
 #else
 #endif
 }
@@ -104,10 +104,10 @@ unsigned int RecvWEB(unsigned int timeOut)
 {	
 #ifdef __HUB__
 	// Wait until data is received from Hub
-	clock_t timer = clock();
+	clock_t timer = clock()+timeOut;
 	while (!recvLen || recvHub[0] != HUB_WEB_RECV) {
-		if (clock() > timer+timeOut) return 0;
-		UpdateHub(timeOut);	
+		if (clock() > timer) return 0;
+		UpdateHub();	
 	}
 #if defined DEBUG_WEB
 	PrintStr(0, 13, "WEB:");

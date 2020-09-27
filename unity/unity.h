@@ -289,8 +289,7 @@ unsigned int RecvWEB(unsigned int timeOut);					// Check WEB server for incoming
 
 // 8bit-Hub support (see http://www.8bit-unity.com/8bit-Hub)
 #if defined __HUB__
-  void InitHub(void);
-  void UpdateHub(unsigned char timeout);
+  void UpdateHub(void);
   unsigned char QueueHub(unsigned char packetCmd, unsigned char* packetBuffer, unsigned char packetLen);
   extern unsigned char recvLen, recvHub[256];
   extern unsigned char sendLen, sendHub[256];
