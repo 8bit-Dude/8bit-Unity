@@ -489,7 +489,7 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Build Unity Library
-            CList = ['bitmap.c', 'chunks.c', 'geom2d.c', 'network.c', 'print.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Apple\\CLOCK.c', 'Apple\\DHR.c']
+            CList = ['bitmap.c', 'chunks.c', 'geom2d.c', 'net-base.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'print.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Apple\\CLOCK.c', 'Apple\\DHR.c']
             SList = ['chars.s', 'math.s', 'Apple\\blit.s', 'Apple\\DUET.s', 'Apple\\JOY.s', 'Apple\\MOCKING.s', 'Apple\\PADDLE.s']
                          
             for file in CList:
@@ -511,7 +511,7 @@ class Application:
             comp = 'utils\\cc65\\bin\\cl65 -o build/apple/' + diskname.lower() + '.bin -Cl -O -t apple2 -C unity/Apple/apple2e.cfg -I unity '
             for item in code:
                 comp += item + ' '
-            fp.write(comp + 'build/apple/unity.lib unity/IP65/ip65.lib unity/IP65/ip65_apple2.lib\n\n')
+            fp.write(comp + 'build/apple/unity.lib unity/IP65/ip65_tcp.lib unity/IP65/ip65_apple2.lib\n\n')
             
             # Compression
             cmd = 'utils\\scripts\\exomizer sfx $0803 -t162 -Di_load_addr=$0803 build/apple/' + diskname.lower() + '.bin@$0803,4'
@@ -580,7 +580,7 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Build Unity Library
-            CList = ['bitmap.c', 'chunks.c', 'geom2d.c', 'network.c', 'print.c', 'sfx.c', 'sprites.c', 'widgets.c']
+            CList = ['bitmap.c', 'chunks.c', 'geom2d.c', 'net-base.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'print.c', 'sfx.c', 'sprites.c', 'widgets.c']
             SList = ['chars.s', 'math.s', 'Atari/blit.s']
                          
             for file in CList:
@@ -607,7 +607,7 @@ class Application:
             for item in code:
                 comp += item
                 comp += ' '
-            fp.write(comp + 'unity/Atari/POKEY.s build/atari/unity.lib unity/IP65/ip65.lib unity/IP65/ip65_atarixl.lib\n\n')
+            fp.write(comp + 'unity/Atari/POKEY.s build/atari/unity.lib unity/IP65/ip65_tcp.lib unity/IP65/ip65_atarixl.lib\n\n')
             
             fp.write('utils\\cc65\\bin\\cl65 -t atarixl -C atari-asm.cfg -o build/atari/basicoff.bin unity/Atari/BASICOFF.s\n')
             fp.write('utils\\scripts\\atari\\mads.exe -o:build/atari/dli.bin unity/Atari/DLI.a65\n')
@@ -684,7 +684,7 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Build Unity Library
-            CList = ['bitmap.c', 'chunks.c', 'geom2d.c', 'network.c', 'print.c', 'sfx.c', 'sprites.c', 'widgets.c']
+            CList = ['bitmap.c', 'chunks.c', 'geom2d.c', 'net-base.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'print.c', 'sfx.c', 'sprites.c', 'widgets.c']
             SList = ['chars.s', 'math.s', 'C64\\JOY.s', 'C64\\ROM.s', 'C64\\SID.s']
                          
             for file in CList:
@@ -707,7 +707,7 @@ class Application:
             for item in code:
                 comp += item
                 comp += ' '
-            fp.write(comp + 'build/c64/unity.lib unity/IP65/ip65.lib unity/IP65/ip65_c64.lib\n\n')
+            fp.write(comp + 'build/c64/unity.lib unity/IP65/ip65_tcp.lib unity/IP65/ip65_c64.lib\n\n')
             
             # Compression
             cmd = 'utils\\scripts\\exomizer.exe sfx $180d build/c64/' + diskname.lower() + '.bin'
@@ -837,16 +837,27 @@ class Application:
                 # Declare all Bitmap, Shared and Chunk files
                 fp.write('@echo _fileSizes: .word %FILESIZES:~0,-1% >> data.asm\n')
                 fp.write('@echo _fileNames: .addr ')
+                counter = 0
                 for i in range(len(bitmaps)):
-                    if i > 0:
+                    if counter > 0:
                         fp.write(',')
                     fp.write('_bmpName' + str(i).zfill(2))
+                    counter += 1
                 for i in range(len(music)):
-                    fp.write(','); fp.write('_musName' + str(i).zfill(2))
+                    if counter > 0:
+                        fp.write(',')
+                    fp.write('_musName' + str(i).zfill(2))
+                    counter += 1
                 for i in range(len(shared)):
-                    fp.write(','); fp.write('_shrName' + str(i).zfill(2))
+                    if counter > 0:
+                        fp.write(',')
+                    fp.write('_shrName' + str(i).zfill(2))
+                    counter += 1
                 if len(chunks) > 0:
-                    fp.write(','); fp.write('%CHUNKNAMES:~0,-1%')
+                    if counter > 0:
+                        fp.write(',')
+                    fp.write('%CHUNKNAMES:~0,-1%')
+                    counter += 1
                 fp.write(' >> data.asm\n')
 
                 # Write list of Bitmaps
@@ -933,8 +944,8 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Build Unity Library
-            CList = ['bitmap.c', 'chunks.c', 'geom2d.c', 'hub.c', 'network.c', 'print.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Lynx\\display.c', 'Lynx\\files.c', 'Lynx\\joysticks.c']
-            SList = ['chars.s', 'math.s', 'Lynx\\header.s', 'Lynx\\suzy.s']
+            CList = ['bitmap.c', 'chunks.c', 'geom2d.c', 'hub.c', 'net-base.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'print.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Lynx\\display.c', 'Lynx\\files.c', 'Lynx\\joysticks.c']
+            SList = ['chars.s', 'math.s', 'Lynx\\header.s', 'Lynx\\serial.s', 'Lynx\\suzy.s']
                          
             for file in CList:
                 fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t lynx -I unity unity\\' + file + '\n')
@@ -1012,7 +1023,7 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Build Unity Library
-            CList = ['bitmap.c', 'chunks.c', 'geom2d.c', 'hub.c', 'network.c', 'print.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Oric\\files.c', 'Oric\\joysticks.c']
+            CList = ['bitmap.c', 'chunks.c', 'geom2d.c', 'hub.c', 'net-base.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'print.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Oric\\files.c', 'Oric\\joysticks.c']
             SList = ['chars.s', 'math.s', 'Oric\\blit.s', 'Oric\\JOY.s', 'Oric\\keyboard.s', 'Oric\\libsedoric.s', 'Oric\\MYM.s']
                          
             for file in CList:
@@ -1067,7 +1078,7 @@ class Application:
             fp.write('pause\n\n')
             
             # Start emulator?
-            fp.write('cd "utils\emulators\Oricutron-1.3"\n')
+            fp.write('cd "utils\emulators\Oricutron-1.2-Hub"\n')
             fp.write('oricutron.exe -d "..\\..\\..\\build\\' + diskname + '-oric.dsk"\n')            
    
         # Done!
