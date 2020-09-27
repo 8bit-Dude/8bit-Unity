@@ -40,15 +40,12 @@
   unsigned int udp_send_port;
   unsigned int udp_recv_port;
   unsigned int udp_recv_packet;
-  extern unsigned char udp_recv_buf[192];   // Buffer with data received (length hard-coded in IP65)
+  extern unsigned char udp_recv_buf[256];   // Buffer with data received (length hard-coded in IP65)
+  void PacketUDP(void) { udp_recv_packet = &udp_recv_buf[0]; }  
   unsigned char __fastcall__ udp_send(const unsigned char* buf, unsigned int len, unsigned long dest,  unsigned int dest_port, unsigned int src_port);
   unsigned char __fastcall__ udp_add_listener(unsigned int port, void (*callback)(void));
   unsigned char __fastcall__ udp_remove_listener(unsigned int port);
   unsigned char ip65_process(void);
-  void PacketUDP(void)
-  {
-	udp_recv_packet = &udp_recv_buf[0];
-  }  
 #endif
 
 void SlotUDP(unsigned char slot)
