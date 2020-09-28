@@ -27,8 +27,6 @@
 #include "unity.h"
 #include "hub.h"
 
-//#define DEBUG_TCP
-
 #ifdef __ATARIXL__
   #pragma code-name("SHADOW_RAM")
 #endif
@@ -36,7 +34,7 @@
 #ifndef __HUB__
   // Use IP65 library
   #define EncodeIP(a,b,c,d) (a+b*256+c*65536+d*16777216)
-  unsigned int tcp_recv_packet;
+  unsigned char* tcp_recv_packet;
   void __fastcall__ PacketTCP(const unsigned char* buf, int len) { tcp_recv_packet = buf; }
   unsigned char __fastcall__ tcp_connect(unsigned long dest, unsigned int dest_port, void (*callback)(const unsigned char* buf, int len));
   unsigned char __fastcall__ tcp_send(const unsigned char* buf, unsigned int len);
@@ -94,7 +92,7 @@ void SendTCP(unsigned char* buffer, unsigned char length)
 #endif
 }
 
-unsigned int RecvTCP(unsigned int timeOut)
+unsigned char* RecvTCP(unsigned int timeOut)
 {	
 #ifdef __HUB__
 	// Wait until data is received from Hub
@@ -103,17 +101,13 @@ unsigned int RecvTCP(unsigned int timeOut)
 		if (clock() > timer) return 0;
 		UpdateHub();	
 	}
-#if defined DEBUG_TCP
-	PrintStr(0, 13, "TCP:");
-	PrintNum(5, 13, recvLen);
-#endif		
 	recvLen = 0;  // Clear packet
 	return &recvHub[2]; 
 #else
 	// Try to process UDP
 	clock_t timer = clock()+timeOut;
-	tcp_recv_packet = 0;
-	while (!tcp_recv_packet) {
+	*tcp_recv_packet = 0;
+	while (!*tcp_recv_packet) {
 		if (clock() > timer) return 0;
 		ip65_process();
 	#if defined __APPLE2__

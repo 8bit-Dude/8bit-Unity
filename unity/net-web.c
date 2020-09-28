@@ -27,8 +27,6 @@
 #include "unity.h"
 #include "hub.h"
 
-//#define DEBUG_WEB
-
 #ifdef __ATARIXL__
   #pragma code-name("SHADOW_RAM")
 #endif
@@ -100,7 +98,7 @@ void SendWEB()
 #endif
 }
 
-unsigned int RecvWEB(unsigned int timeOut)
+unsigned char* RecvWEB(unsigned int timeOut)
 {	
 #ifdef __HUB__
 	// Wait until data is received from Hub
@@ -109,10 +107,6 @@ unsigned int RecvWEB(unsigned int timeOut)
 		if (clock() > timer) return 0;
 		UpdateHub();	
 	}
-#if defined DEBUG_WEB
-	PrintStr(0, 13, "WEB:");
-	PrintNum(5, 13, recvLen);
-#endif		
 	recvLen = 0;  // Clear packet
 	return &recvHub[2]; 
 #else

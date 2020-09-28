@@ -30,7 +30,8 @@
 // Debugging flags
 //#define DEBUG_HUB
 #if defined DEBUG_HUB
-  unsigned char ok, hd, tr, cu, cmd = 4;
+  clock_t tic, toc;
+  unsigned char ok, hd, tr, co;
 #endif  
 
 #if defined __LYNX__
@@ -39,7 +40,7 @@
   unsigned char __fastcall__ SerialGet(unsigned char* data);
   unsigned char __fastcall__ SerialPut(unsigned char data);
   struct ser_params comLynx = { SER_BAUD_62500, SER_BITS_8, SER_STOP_1, SER_PAR_SPACE, SER_HS_NONE };							  
-#else
+#elif defined __ORIC__
   unsigned char tick;
 #endif
 
@@ -87,9 +88,9 @@ unsigned char RecvByte(unsigned char* value)
 	unsigned char i = 255;
 	while (1) {  // Countdown i to 0
 	#if defined __LYNX__
-		if (SerialGet(value) == SER_ERR_OK) { break; }			// Look for incoming byte
+		if (SerialGet(value) == SER_ERR_OK) { break; }			// Look for incoming byte on ComLynx Port
 	#elif defined __ORIC__	
-		if (PEEK(0x030d)&2) { *value = PEEK(0x0301); break; }	// Look for ACKNOW on CA1 then read Printer Port
+		if (PEEK(0x030d)&2) { *value = PEEK(0x0301); break; } 	// Look for ACKNOW on CA1 then read Printer Port
 	#endif
 		if (!i--) return 0;
 	}
@@ -185,27 +186,12 @@ void RecvHub()
 		}
 		
 		// Check ID against last packet received
-		if ((ID & 0xf0) != (recvID & 0xf0)) {
-			// Accept packet
-			if (len) {
-				recvLen = len;
-			}
-		}
+		if (len && ((ID & 0xf0) != (recvID & 0xf0)))
+			recvLen = len;
 		
 		// Update ID
 		recvID = ID;
 	}
-	
-#if defined DEBUG_HUB
-	PrintNum(0,10,header); PrintNum(4,10,ID); 
-	PrintNum(8,10,len); PrintNum(12,10,footer);
-	for (i=1; i<7; i++) {
-		PrintNum(4*(i-1),11,hubState[i]);
-	}	
-	for (i=0; i<len; i++) {
-		PrintNum(4*(i%10),12+i/10,recvHub[i]);
-	}	
-#endif	
 }
 
 clock_t updateClock;
@@ -231,7 +217,9 @@ void UpdateHub()
 		#endif
 		}
 	} 
-	
+#if defined DEBUG_HUB
+	tic = clock();
+#endif	
 	// Send/Receive Packet
 #if defined __LYNX__	
 	while (SerialGet(&i) == SER_ERR_OK) ; // Clear UART Buffer
@@ -240,17 +228,18 @@ void UpdateHub()
 #endif	
 	SendHub();
 	RecvHub();
-#if defined __ORIC__	
+#if defined __ORIC__
 	POKE(0x0303, 255);	// Set port A as Output
 	__asm__("cli");		// Resume interrupts	
 #endif
 
 #if defined DEBUG_HUB
-	PrintStr(0, CHR_ROWS-1, "LN ");
-	PrintNum(2, CHR_ROWS-1, sendLen);	
-	     if (hubState[0] == COM_ERR_OK)      { ok+=1; PrintStr( 5, CHR_ROWS-1, "OK"); PrintNum( 7, CHR_ROWS-1, ok); }	
- 	else if (hubState[0] == COM_ERR_HEADER)  { hd+=1; PrintStr(10, CHR_ROWS-1, "HD"); PrintNum(12, CHR_ROWS-1, hd); }	
- 	else if (hubState[0] == COM_ERR_TRUNCAT) { tr+=1; PrintStr(15, CHR_ROWS-1, "TR"); PrintNum(17, CHR_ROWS-1, tr); } 
- 	else if (hubState[0] == COM_ERR_CORRUPT) { cu+=1; PrintStr(20, CHR_ROWS-1, "CU"); PrintNum(22, CHR_ROWS-1, cu); }
+	toc = clock();
+	 if (hubState[0] == COM_ERR_OK)      { gotoxy(0, CHR_ROWS-1); cprintf("TC%lu  ", toc-tic); 
+									       gotoxy(6, CHR_ROWS-1); cprintf("LN%u  ", recvLen);	
+									       ok+=1; gotoxy(12, CHR_ROWS-1); cprintf("OK%u  ", ok); }
+else if (hubState[0] == COM_ERR_HEADER)  { hd+=1; gotoxy(18, CHR_ROWS-1); cprintf("HD%u", hd); }	
+else if (hubState[0] == COM_ERR_TRUNCAT) { tr+=1; gotoxy(24, CHR_ROWS-1); cprintf("TR%u", tr); } 
+else if (hubState[0] == COM_ERR_CORRUPT) { co+=1; gotoxy(30, CHR_ROWS-1); cprintf("CO%u", co); }	
 #endif
 }

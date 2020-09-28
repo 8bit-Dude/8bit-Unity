@@ -270,7 +270,7 @@ void OpenTCP(unsigned char ip1, unsigned char ip2, 			// Open connection on curr
 			 unsigned int svPort);
 void CloseTCP(void);										// Close current TCP slot
 void SendTCP(unsigned char* buffer, unsigned char length);  // Send contents of buffer on current TCP slot
-unsigned int RecvTCP(unsigned int timeOut);					// Check all slots for incoming TCP packet (within time-out period)
+unsigned char* RecvTCP(unsigned int timeOut);				// Check all slots for incoming TCP packet (within time-out period)
 
 void SlotUDP(unsigned char slot);							// Set UDP slot (0~15)
 void OpenUDP(unsigned char ip1, unsigned char ip2, 			// Open connection on current UDP slot (local port allocated on clPort)
@@ -278,14 +278,14 @@ void OpenUDP(unsigned char ip1, unsigned char ip2, 			// Open connection on curr
 			 unsigned int svPort, unsigned int clPort);
 void CloseUDP(void);										// Close current UDP slot
 void SendUDP(unsigned char* buffer, unsigned char length);  // Send contents of buffer on current UDP slot
-unsigned int RecvUDP(unsigned int timeOut);					// Check all slots for incoming UDP packet (within time-out period)
+unsigned char* RecvUDP(unsigned int timeOut);				// Check all slots for incoming UDP packet (within time-out period)
 
 void OpenWEB(unsigned int port, unsigned int timeOut);		// Start WEB server on specified port (time-out in millisecs)
 void CloseWEB(void);										// Close WEB server
 void HeaderWEB(unsigned char* buffer, unsigned char length);// Header of reply to current WEB client
 void BodyWEB(unsigned char* buffer, unsigned char length);  // Body of reply to current WEB client
 void SendWEB(void);											// Send reply to current WEB client
-unsigned int RecvWEB(unsigned int timeOut);					// Check WEB server for incoming packet (within time-out period)
+unsigned char* RecvWEB(unsigned int timeOut);				// Check WEB server for incoming packet (within time-out period)
 
 // 8bit-Hub support (see http://www.8bit-unity.com/8bit-Hub)
 #if defined __HUB__
