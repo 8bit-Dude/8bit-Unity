@@ -58,11 +58,11 @@ _joy4:
 ;---------------------------------------
 
 .proc _InitJoy: near
-        lda #%10000000          ; cia 2 port B Data-Direction
-        sta USERPORT_DDR        ; bit 7: out    bit 6-0: in
-        lda #0
-        sta USERPORT_DATA       ; output zero at PB7
-		rts
+    lda #%10000000          ; cia 2 port B Data-Direction
+    sta USERPORT_DDR        ; bit 7: out    bit 6-0: in
+    lda #0
+    sta USERPORT_DATA       ; output zero at PB7
+	rts
 .endproc
 
 ;---------------------------------------

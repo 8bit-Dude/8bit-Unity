@@ -69,6 +69,11 @@ void gotoxy(unsigned char col, unsigned char row) {
 }
 int cprintf (const char* format, ...) {
 	PrintStr(chrCol, chrRow, format);
+	chrCol += strlen(format);
+	while (chrCol > 39) {
+		chrCol -= 40;
+		chrRow++;
+	}
 }
 
 // Soft keyboard functions

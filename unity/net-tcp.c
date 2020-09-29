@@ -35,7 +35,7 @@
   // Use IP65 library
   #define EncodeIP(a,b,c,d) (a+b*256+c*65536+d*16777216)
   unsigned char* tcp_recv_packet;
-  void __fastcall__ PacketTCP(const unsigned char* buf, int len) { tcp_recv_packet = buf; }
+  void __fastcall__ PacketTCP(const unsigned char* buf, int len) { tcp_recv_packet = (unsigned char*)buf; }
   unsigned char __fastcall__ tcp_connect(unsigned long dest, unsigned int dest_port, void (*callback)(const unsigned char* buf, int len));
   unsigned char __fastcall__ tcp_send(const unsigned char* buf, unsigned int len);
   unsigned char tcp_close(void);

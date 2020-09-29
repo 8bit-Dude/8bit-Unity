@@ -27,6 +27,7 @@
 	.include  "apple2.inc"
 	
 	.export _GetPaddle
+	.export _GetButton
 	
 PREAD = $FB1E   ; Read paddle in X, return AD conv. value in Y
 
@@ -46,5 +47,21 @@ PREAD = $FB1E   ; Read paddle in X, return AD conv. value in Y
 	tya
 	ldx     #$00
 	bit     $C080           ; Switch in LC bank 2 for R/O
+	rts
+.endproc	
+
+; ---------------------------------------------------------------
+; unsigned char __near__ _GetButton (unsigned char)
+; ---------------------------------------------------------------		
+	
+.proc _GetButton: near
+	tax
+	lda     $C061,x
+	cmp 	#128
+	beq 	on
+	lda		0
+	rts
+on:
+	lda		1
 	rts
 .endproc	

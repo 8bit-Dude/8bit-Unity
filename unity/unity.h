@@ -125,29 +125,22 @@ const char *GetChr(unsigned char chr);
 #define JOY_RIGHT   8
 #define JOY_BTN1    16
 #define JOY_BTN2    32
-#define MOUSE_LEFT  64
-#define MOUSE_MIDDL 64
-#define MOUSE_RIGHT 128
+#define MOU_LEFT    1
+#define MOU_MIDDLE  2
+#define MOU_RIGHT   4
+#if (defined __CBM__) || (defined __LYNX__) || (defined __ORIC__)
+  #define JOY_MAX 4
+#elif (defined __APPLE2__) || (defined __ATARI__)
+  #define JOY_MAX 2
+#endif
 
 // Joystick functions
-#if (defined __ORIC__) || (defined __CBM__)
-  #define JOY_MAX 4
-  void InitJoy(void);
-  unsigned char GetJoy(unsigned char);
-#elif (defined __LYNX__)
-  #define JOY_MAX 4
-  #define InitJoy() (PEEK(0))	// Dummy function
-  unsigned char GetJoy(unsigned char);
-#else
-  #define JOY_MAX 2
-  #define InitJoy() (PEEK(0))	// Dummy function
-  #if defined __ATARI__
-    #define GetJoy(i) (PEEK(0x0278+i)+(PEEK(0x0284+i)<<4))
-  #else if defined __APPLE2__
-    unsigned char GetJoy(unsigned char);		
-    unsigned char GetPaddle(unsigned char);
-    #define GetButton(i) (PEEK(0xC061+i)>127)
-  #endif
+void InitJoy(void);
+unsigned char GetJoy(unsigned char);
+unsigned char* GetMouse(void);
+#if defined __APPLE2__
+  unsigned char GetPaddle(unsigned char);
+  unsigned char GetButton(unsigned char);
 #endif
 
 // 2D geometry functions

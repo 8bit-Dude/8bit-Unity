@@ -28,12 +28,21 @@
 
 	.import	pusha	
 	
+	.export _InitJoy
 	.export _GetJoy	
 	
 PREAD = $FB1E   ; Read paddle in X, return AD conv. value in Y
 THRESHOLD = 32  ; Deviation from center triggering movement
 
 	.segment "LOWCODE"	
+	
+; ---------------------------------------------------------------
+; void __near__ _InitJoy (void)
+; ---------------------------------------------------------------		
+
+.proc _InitJoy: near
+	rts
+.endproc	
 	
 ; ---------------------------------------------------------------
 ; unsigned char __near__ _GetJoy (unsigned char)
