@@ -256,7 +256,8 @@ void ClearCallbacks(void);
 #define DHCP_ERR    2
 unsigned char InitNetwork(void);							// Initialize network adapter
 unsigned char GetLocalIP(unsigned char* ip);				// Fetch local IP
-
+void GetHTTP(unsigned char* url);									// Request HTTP file
+unsigned char* ReadHTTP(unsigned char size, unsigned int timeOut);	// Read chunk of HTTP file
 void SlotTCP(unsigned char slot);							// Set TCP slot (0~15)
 void OpenTCP(unsigned char ip1, unsigned char ip2, 			// Open connection on current TCP slot (local port allocated automatically)
 			 unsigned char ip3, unsigned char ip4, 
