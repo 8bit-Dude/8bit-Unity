@@ -128,10 +128,12 @@ const char *GetChr(unsigned char chr);
 #define MOU_LEFT    1
 #define MOU_MIDDLE  2
 #define MOU_RIGHT   4
-#if (defined __CBM__) || (defined __LYNX__) || (defined __ORIC__)
-  #define JOY_MAX 4
-#elif (defined __APPLE2__) || (defined __ATARI__)
+#if (defined __APPLE2__) || (defined __ATARI__)
   #define JOY_MAX 2
+#elif (defined __CBM__) || (defined __LYNX__)
+  #define JOY_MAX 4
+#elif (defined __ORIC__)
+  #define JOY_MAX 5	
 #endif
 
 // Joystick functions

@@ -33,26 +33,19 @@
 
 #ifndef __HUB__
   // Use IP65 library
-#else
-  // Use 8bit-Hub functions
 #endif
 
 void OpenWEB(unsigned int port, unsigned int timeOut)
 {
 #ifdef __HUB__
 	// Ask HUB to set up connection
-	clock_t timer;
 	unsigned char buffer[4];
 	buffer[0] = port & 0xFF;
 	buffer[1] = port >> 8;	
 	buffer[2] = timeOut & 0xFF;
 	buffer[3] = timeOut >> 8;	
 	QueueHub(HUB_WEB_OPEN, buffer, 4);
-	
-	// Wait while HUB sets-up connection
-	timer = clock();
-	while ((clock()-timer) < 2*TCK_PER_SEC)
-		UpdateHub();
+	UpdateHub();
 #else
 #endif
 }
@@ -110,5 +103,6 @@ unsigned char* RecvWEB(unsigned int timeOut)
 	recvLen = 0;  // Clear packet
 	return &recvHub[2]; 
 #else
+	return 0;
 #endif
 }

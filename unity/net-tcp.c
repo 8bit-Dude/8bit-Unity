@@ -46,6 +46,7 @@ void SlotTCP(unsigned char slot)
 {
 #ifdef __HUB__
 	QueueHub(HUB_TCP_SLOT, &slot, 1);
+	UpdateHub();		
 #else
 #endif
 }
@@ -54,7 +55,6 @@ void OpenTCP(unsigned char ip1, unsigned char ip2, unsigned char ip3, unsigned c
 {
 #ifdef __HUB__
 	// Ask HUB to set up connection
-	clock_t timer;
 	unsigned char buffer[6];
 	buffer[0] = ip1;
 	buffer[1] = ip2;
@@ -63,11 +63,7 @@ void OpenTCP(unsigned char ip1, unsigned char ip2, unsigned char ip3, unsigned c
 	buffer[4] = svPort & 0xFF;
 	buffer[5] = svPort >> 8;	
 	QueueHub(HUB_TCP_OPEN, buffer, 6);	
-	
-	// Wait while HUB sets-up connection
-	timer = clock();
-	while ((clock()-timer) < 2*TCK_PER_SEC)
-		UpdateHub();
+	UpdateHub();
 #else
 	unsigned long svIp = EncodeIP(ip1,ip2,ip3,ip4);
 	tcp_connect(svIp, svPort, PacketTCP);
@@ -78,6 +74,7 @@ void CloseTCP()
 {
 #ifdef __HUB__
 	QueueHub(HUB_TCP_CLOSE, 0, 0);
+	UpdateHub();
 #else
 	tcp_close();
 #endif
@@ -94,9 +91,9 @@ void SendTCP(unsigned char* buffer, unsigned char length)
 
 unsigned char* RecvTCP(unsigned int timeOut)
 {	
+	clock_t timer = clock()+timeOut;
 #ifdef __HUB__
 	// Wait until data is received from Hub
-	clock_t timer = clock()+timeOut;
 	while (!recvLen || recvHub[0] != HUB_TCP_RECV) {
 		if (clock() > timer) return 0;
 		UpdateHub();	
@@ -104,8 +101,7 @@ unsigned char* RecvTCP(unsigned int timeOut)
 	recvLen = 0;  // Clear packet
 	return &recvHub[2]; 
 #else
-	// Try to process UDP
-	clock_t timer = clock()+timeOut;
+	// Process IP65 until receiving packet
 	*tcp_recv_packet = 0;
 	while (!*tcp_recv_packet) {
 		if (clock() > timer) return 0;

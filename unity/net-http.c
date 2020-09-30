@@ -38,6 +38,7 @@ void GetHTTP(unsigned char* url)
 {
 #ifdef __HUB__
 	QueueHub(HUB_HTTP_GET, url, strlen(url));	
+	UpdateHub();
 #else
 #endif
 }
@@ -55,5 +56,6 @@ unsigned char* ReadHTTP(unsigned char size, unsigned int timeOut)
 	recvLen = 0;  // Clear packet
 	return &recvHub[2]; 
 #else
+	return 0;
 #endif
 }

@@ -50,6 +50,7 @@ void SlotUDP(unsigned char slot)
 {
 #ifdef __HUB__
 	QueueHub(HUB_UDP_SLOT, &slot, 1);
+	UpdateHub();	
 #else
 #endif
 }
@@ -58,7 +59,6 @@ void OpenUDP(unsigned char ip1, unsigned char ip2, unsigned char ip3, unsigned c
 {
 #ifdef __HUB__
 	// Ask HUB to set up connection
-	clock_t timer;
 	unsigned char buffer[6];
 	buffer[0] = ip1;
 	buffer[1] = ip2;
@@ -69,11 +69,7 @@ void OpenUDP(unsigned char ip1, unsigned char ip2, unsigned char ip3, unsigned c
 	buffer[6] = clPort & 0xFF;
 	buffer[7] = clPort >> 8;	
 	QueueHub(HUB_UDP_OPEN, buffer, 8);
-	
-	// Wait while HUB sets-up connection
-	timer = clock();
-	while ((clock()-timer) < 2*TCK_PER_SEC)
-		UpdateHub();
+	UpdateHub();
 #else
 	// Set-up UDP params and listener
 	unsigned char dummy[1];
@@ -93,6 +89,7 @@ void CloseUDP()
 {
 #ifdef __HUB__
 	QueueHub(HUB_UDP_CLOSE, 0, 0);
+	UpdateHub();	
 #else
 #endif
 }
@@ -108,9 +105,9 @@ void SendUDP(unsigned char* buffer, unsigned char length)
 
 unsigned char* RecvUDP(unsigned int timeOut)
 {	
+	clock_t timer = clock()+timeOut;
 #ifdef __HUB__
 	// Wait until data is received from Hub
-	clock_t timer = clock()+timeOut;
 	while (!recvLen || recvHub[0] != HUB_UDP_RECV) {
 		if (clock() > timer) return 0;
 		UpdateHub();	
@@ -118,8 +115,7 @@ unsigned char* RecvUDP(unsigned int timeOut)
 	recvLen = 0;  // Clear packet
 	return &recvHub[2]; 	
 #else
-	// Try to process UDP
-	clock_t timer = clock()+timeOut;
+	// Process IP65 until receiving packet
 	*udp_recv_packet = 0;
 	while (!*udp_recv_packet) {
 		if (clock() > timer) return 0;
