@@ -13,7 +13,7 @@ extern const char keyNext, pressKeyMsg[];
 
 int DemoJOY(void) 
 {
-	unsigned char i, joy, state[11];
+	unsigned char i, *mou, joy, state[11], value[6];
 	
 	// Clear screen
 	clrscr();
@@ -24,16 +24,22 @@ int DemoJOY(void)
 	// Print header
 	gotoxy (8, 2);
 	cprintf(pressKeyMsg);	
+	gotoxy (7, 4);
+	cprintf("MOUSE");	
 	for (i=0; i<JOY_MAX; i++) {
-		gotoxy (7, 4+2*i);
+		gotoxy (7, 6+2*i);
 		cprintf(joyList[i]);
 	}
 	
 	// Display joystick actions until 'SPACE' is pressed
 	while (!kbhit () || cgetc () != keyNext) {
-	#if defined __LYNX__
-		UpdateDisplay(); // Refresh Lynx screen
-	#endif
+		// Display mouse state
+		mou = GetMouse();
+		gotoxy (17, 4); sprintf(value, "%u  ", mou[0], value); cprintf(value);
+		gotoxy (22, 4); sprintf(value, "%u  ", mou[1], value); cprintf(value);
+		gotoxy (27, 4); sprintf(value, "%u  ", mou[2], value); cprintf(value);
+			
+		// Display joystick states
 		for (i=0; i<JOY_MAX; i++) {
 			joy = GetJoy(i);
 			memset(state, ' ', 10);
@@ -42,9 +48,12 @@ int DemoJOY(void)
 			if (joy & JOY_LEFT)  { state[4] = 'L'; }
 			if (joy & JOY_RIGHT) { state[6] = 'R'; }
 			if (joy & JOY_BTN1)  { state[8] = 'F'; }
-			gotoxy (19, 4+2*i);
+			gotoxy (19, 6+2*i);
 			cprintf(state);
 		}
+	#if defined __LYNX__
+		UpdateDisplay(); // Refresh Lynx screen
+	#endif
 	}
 	
     // Done

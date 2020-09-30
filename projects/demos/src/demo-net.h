@@ -1,12 +1,12 @@
 
 #include "unity.h"
 
-unsigned char message[] = "8bit-Unity is easy!"; //Messages can be up-to 256 bytes long (this string is NULL ended for printing convenience)
+unsigned char message[] = "PACKET RECEIVED"; //Messages can be up-to 256 bytes long (this string is NULL ended for printing convenience)
 
 int DemoNET(void)
 {
 	unsigned char state, line;
-	unsigned int packet;
+	unsigned char* packet;
 	
 	// Clear screen
 	clrscr();
@@ -28,54 +28,62 @@ int DemoNET(void)
 	} else {
 		gotoxy (0, line++);
 		cprintf("ADAPTOR AND DHCP OK!");
-
-		///////////////////////////////////////////////////////
-		// Setup UDP connection on slot #0
-		SlotUDP(0); OpenUDP(199, 47, 196, 106, 1234, 4321);
 		
-		// Send UDP packet
-		SendUDP(message, 20);
+		///////////////////////////////////////////////////////
+		// Setup connection to TCP echo server
+		SlotTCP(0); OpenTCP(199, 47, 196, 106, 1234);
+		
+		// Send TCP packet
+		SendTCP(message, 16);
 
 		// Fetch server response
 		gotoxy (0, line);
-		cprintf("UDP Packet:");
-		packet = RecvUDP(3*TCK_PER_SEC); // Allow some time-out
-		gotoxy (12, line++);
-		if (!packet) {
-			// No answer from server... :-(
+		cprintf(" TCP:");
+		packet = RecvTCP(3*TCK_PER_SEC); // Allow some time-out
+		gotoxy (6, line++);
+		if (!(int)packet)
 			cprintf("TIMEOUT");			
-		} else {
-			// Print back echoed packet
-			cprintf((char*)(packet));
-		}
+		else
+			cprintf(packet);
+
+		// Close connection
+		CloseTCP();		
+
+		///////////////////////////////////////////////////////
+		// Setup connection to UDP echo server
+		SlotUDP(0); OpenUDP(199, 47, 196, 106, 1234, 4321);
+		
+		// Send UDP packet
+		SendUDP(message, 16);
+
+		// Fetch server response
+		gotoxy (0, line);
+		cprintf(" UDP:");
+		packet = RecvUDP(3*TCK_PER_SEC); // Allow some time-out
+		gotoxy (6, line++);
+		if (!(int)packet)
+			cprintf("TIMEOUT");			
+		else 
+			cprintf(packet);
 
 		// Close connection
 		CloseUDP();
 		
 		///////////////////////////////////////////////////////
-		// Setup TCP connection on slot #0
-		SlotTCP(0); OpenTCP(199, 47, 196, 106, 1234);
-		
-		// Send TCP packet
-		SendTCP(message, 20);
+		// Setup request to HTTP server
+		GetHTTP("http://8bit-unity.com/test.txt");
 
 		// Fetch server response
 		gotoxy (0, line);
-		cprintf("TCP Packet:");
-		packet = RecvTCP(3*TCK_PER_SEC); // Allow some time-out
-		gotoxy (12, line++);
-		if (!packet) {
-			// No answer from server... :-(
+		cprintf("HTTP:");
+		packet = ReadHTTP(16, 3*TCK_PER_SEC); // Allow some time-out
+		gotoxy (6, line++);
+		if (!(int)packet)
 			cprintf("TIMEOUT");			
-		} else {
-			// Print back echoed packet
-			cprintf((char*)(packet));
-		}
-
-		// Close connection
-		CloseTCP();
+		else
+			cprintf(packet);		
 	}
-		
+	
 	// Just show next page message
 	gotoxy (0, line++);
 	cprintf(pressKeyMsg);
