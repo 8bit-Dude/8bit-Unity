@@ -217,7 +217,7 @@ void StopSFX()
 void EngineSFX(unsigned int channel, unsigned int rpm)
 {
 #if defined __CBM__	
-	unsigned int freq = 4*rpm+(channel*5+200);
+	unsigned int freq = 3*rpm+(channel*5+200);
 	if (channel%2) {
 		SID.v2.freq = freq;	
 	} else {
@@ -259,7 +259,7 @@ void EngineSFX(unsigned int channel, unsigned int rpm)
 		asm("jsr $F424");	// Oric-1 (ROM 1.0)
 	}
 #elif defined __LYNX__
-	unsigned char freq = (160-rpm/6)+channel*5;
+	unsigned char freq = (180-rpm/6)+channel*5;
 	channel = (channel%2)+2;
 	abctaps(channel, 60);
 	abcoctave(channel, 2);
