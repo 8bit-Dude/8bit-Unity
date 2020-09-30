@@ -83,10 +83,12 @@ _joy4:
 	
 joy1:
 	lda 56321
+	and #%11011111          ; disable bit 5
 	rts
 
 joy2:
 	lda 56320
+	and #%11011111          ; disable bit 5
 	rts
 	
 joy3:

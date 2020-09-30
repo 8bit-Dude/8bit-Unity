@@ -40,9 +40,10 @@ unsigned char* GetMouse(void)
 	UpdateHub();
 	mouseState[0] = hubState[5];
 	mouseState[1] = hubState[6];
-	mouseState[3] = !(hubState[1] & 64) | 
-					!(hubState[1] & 128) << 1 |
-					!(hubState[2] & 64)  << 2;
+	mouseState[2] = 255;
+	if (!(hubState[1] & 64))  mouseState[2] &= ~MOU_LEFT;
+	if (!(hubState[1] & 128)) mouseState[2] &= ~MOU_RIGHT;
+	if (!(hubState[2] & 64))  mouseState[2] &= ~MOU_MIDDLE;
 #endif	
 	return mouseState;
 }
@@ -68,8 +69,8 @@ void InitJoy(void)
 {
 #if defined __ORIC__
 	// Check if 8bit-Hub connected (otherwise assume PASE/IJK interface)
-	if (hubState[0] == COM_ERR_OFFLINE) { UpdateHub(); }
-	if (hubState[0] != COM_ERR_OFFLINE) { joyAdaptor = ADAPTOR_HUB; }
+	if (hubState[0] == COM_ERR_OFFLINE) UpdateHub();
+	if (hubState[0] != COM_ERR_OFFLINE) joyAdaptor = ADAPTOR_HUB;
 #else
 	return;
 #endif
