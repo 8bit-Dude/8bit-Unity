@@ -13,7 +13,7 @@ extern const char keyNext, pressKeyMsg[];
 
 int DemoJOY(void) 
 {
-	unsigned char i, *mou, joy, state[11], value[6];
+	unsigned char i, *mou, joy, state[12];
 	
 	// Clear screen
 	clrscr();
@@ -35,19 +35,24 @@ int DemoJOY(void)
 	while (!kbhit () || cgetc () != keyNext) {
 		// Display mouse state
 		mou = GetMouse();
-		gotoxy (17, 4); sprintf(value, "%u  ", mou[0], value); cprintf(value);
-		gotoxy (22, 4); sprintf(value, "%u  ", mou[1], value); cprintf(value);
-		gotoxy (27, 4); sprintf(value, "%u  ", mou[2], value); cprintf(value);
+		gotoxy (18, 4); sprintf(state, "%u  ", mou[0], state); cprintf(state);
+		gotoxy (23, 4); sprintf(state, "%u  ", mou[1], state); cprintf(state);
+		strcpy(state, "   ");
+		if (mou[2] & MOU_LEFT)   state[0] = 'L';
+		if (mou[2] & MOU_MIDDLE) state[1] = 'M';
+		if (mou[2] & MOU_RIGHT)  state[2] = 'R';
+		gotoxy (28, 4); cprintf(state);
 			
 		// Display joystick states
 		for (i=0; i<JOY_MAX; i++) {
 			joy = GetJoy(i);
-			memset(state, ' ', 10);
-			if (joy & JOY_UP)    { state[0] = 'U'; }
-			if (joy & JOY_DOWN)  { state[2] = 'D'; }
-			if (joy & JOY_LEFT)  { state[4] = 'L'; }
-			if (joy & JOY_RIGHT) { state[6] = 'R'; }
-			if (joy & JOY_BTN1)  { state[8] = 'F'; }
+			memset(state, ' ', 11);
+			if (joy & JOY_UP)    state[0] = 'U';
+			if (joy & JOY_DOWN)  state[2] = 'D';
+			if (joy & JOY_LEFT)  state[4] = 'L';
+			if (joy & JOY_RIGHT) state[6] = 'R';
+			if (joy & JOY_BTN1)  state[8] = 'A';
+			if (joy & JOY_BTN2)  state[10] = 'B';
 			gotoxy (19, 6+2*i);
 			cprintf(state);
 		}
