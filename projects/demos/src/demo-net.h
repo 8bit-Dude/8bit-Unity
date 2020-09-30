@@ -1,7 +1,7 @@
 
 #include "unity.h"
 
-unsigned char message[] = "PACKET RECEIVED"; //Messages can be up-to 256 bytes long (this string is NULL ended for printing convenience)
+unsigned char message[] = "Packet received"; //Messages can be up-to 256 bytes long (this string is NULL ended for printing convenience)
 
 int DemoNET(void)
 {
@@ -42,7 +42,7 @@ int DemoNET(void)
 		packet = RecvTCP(3*TCK_PER_SEC); // Allow some time-out
 		gotoxy (6, line++);
 		if (!(int)packet)
-			cprintf("TIMEOUT");			
+			cprintf("Timeout");			
 		else
 			cprintf(packet);
 
@@ -62,7 +62,7 @@ int DemoNET(void)
 		packet = RecvUDP(3*TCK_PER_SEC); // Allow some time-out
 		gotoxy (6, line++);
 		if (!(int)packet)
-			cprintf("TIMEOUT");			
+			cprintf("Timeout");			
 		else 
 			cprintf(packet);
 
@@ -79,7 +79,7 @@ int DemoNET(void)
 		packet = ReadHTTP(16, 3*TCK_PER_SEC); // Allow some time-out
 		gotoxy (6, line++);
 		if (!(int)packet)
-			cprintf("TIMEOUT");			
+			cprintf("Timeout");			
 		else
 			cprintf(packet);		
 	}
