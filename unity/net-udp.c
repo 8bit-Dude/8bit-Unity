@@ -80,7 +80,7 @@ void OpenUDP(unsigned char ip1, unsigned char ip2, unsigned char ip3, unsigned c
 		// Send dummy packet, as first one is always lost!
 		dummy[0] = 0;
 		SendUDP(dummy, 1);
-		RecvUDP(2*TCK_PER_SEC);
+		RecvUDP(TCK_PER_SEC);
 	}
 #endif
 }

@@ -239,14 +239,19 @@ typedef struct {
 	unsigned int next;
 } callback;
 #endif
-#define CALLTYPE_ICON  	 1
-#define CALLTYPE_BUTTON  2
-#define CALLTYPE_INPUT   3
-#define CALLTYPE_LISTBOX 4
+#define CALLTYPE_ICON  	   1
+#define CALLTYPE_BUTTON    2
+#define CALLTYPE_INPUT     3
+#define CALLTYPE_LISTBOX   4
+#define CALLTYPE_SCROLLBAR 5
+unsigned int ColToX(unsigned char col);
+unsigned int RowToY(unsigned char row);
 callback* Button(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char* label);
 callback* Input(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char* label);
 void ListBox(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char* title, unsigned char* labels[], unsigned char len);
 void Panel(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char* title);
+void Line(unsigned char x1, unsigned char x2, unsigned char y1, unsigned char y2);
+callback* ScrollBar(unsigned char col, unsigned char row, unsigned char height, unsigned char value, unsigned char* name);
 callback* PushCallback(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char type, unsigned char* label);
 callback* CheckCallbacks(unsigned char col, unsigned char row);
 void PopCallback(callback* call);

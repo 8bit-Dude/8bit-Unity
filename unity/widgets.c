@@ -149,33 +149,30 @@ callback* Button(unsigned char col, unsigned char row, unsigned char width, unsi
 	return PushCallback(col, row, width, height, CALLTYPE_BUTTON, label);
 }
 
-callback* Input(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char* label)
+callback* Input(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char* buffer)
 {
 	// Clear Field Area
 	PrintBlanks(col, row, width, height);
+	PrintStr(col, row, buffer);
 
 	// Register Callback
-	return PushCallback(col, row, width, height, CALLTYPE_INPUT, label);
+	return PushCallback(col, row, width, height, CALLTYPE_INPUT, buffer);
 }
 
 void Panel(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char* title)
 {
+	unsigned char xC, xCW, yR, yRH;
 	unsigned char ink, paper;
 	
 	// Clear area
 	PrintBlanks(col, row, width, height);
 	
 	// Create border
-	for (pixelX=ColToX(col); pixelX<ColToX(col+width); pixelX++) {
-		pixelY = RowToY(row+height)+1;
-		SetPixel(inkColor); 
-	}
-	for (pixelY=RowToY(row); pixelY<RowToY(row+height)+2; pixelY++) {
-		pixelX = ColToX(col)-1;
-		SetPixel(inkColor); 
-		pixelX = ColToX(col+width);
-		SetPixel(inkColor); 
-	}
+	xC = ColToX(col); xCW = ColToX(col+width);
+	yR = RowToY(row); yRH = RowToY(row+height); 
+	Line(xC, xCW, yRH+1, yRH+1);
+	Line(xC-1, xC-1, yR, yRH+2);
+	Line(xCW, xCW, yR, yRH+2);
 	
 	// Add Title
 	ink = inkColor; paper = paperColor;
@@ -184,7 +181,20 @@ void Panel(unsigned char col, unsigned char row, unsigned char width, unsigned c
 	PrintStr(col, row, title);	
 	inkColor = ink; paperColor = paper;
 }
- 
+
+void Line(unsigned char x1, unsigned char x2, unsigned char y1, unsigned char y2)
+{
+	if (x1 == x2) {
+		pixelX = x1;
+		for (pixelY=y1; pixelY<y2; pixelY++)
+			SetPixel(inkColor); 
+	} else {
+		pixelY = y1;
+		for (pixelX=x1; pixelX<x2; pixelX++)
+			SetPixel(inkColor); 
+	}
+}
+
 void ListBox(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char* title, unsigned char* labels[], unsigned char len)
 {
 	unsigned char i=0;	
@@ -201,4 +211,16 @@ void ListBox(unsigned char col, unsigned char row, unsigned char width, unsigned
 		i++;
 	}
  }
- 
+
+callback* ScrollBar(unsigned char col, unsigned char row, unsigned char height, unsigned char value, unsigned char* name)
+{
+	unsigned char i=0;	
+
+	// Draw scrollbar and register callback
+	PrintChr(col, row, charArrowUp);
+	while (++i<height)
+		PrintChr(col, row+i, charLineVert);
+	PrintChr(col, row+value+1, charSliderVert);
+	PrintChr(col, row+i, charArrowDown);
+	PushCallback(col, row, 1, height, CALLTYPE_SCROLLBAR, name);	
+}

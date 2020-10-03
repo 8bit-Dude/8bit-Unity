@@ -40,6 +40,14 @@
 	.export _charFwSlash
 	.export _charStar
 	.export _charUnderbar
+	.export _charArrowDown
+	.export _charArrowLeft
+	.export _charArrowRight
+	.export _charArrowUp
+	.export _charLineHorz
+	.export _charLineVert
+	.export _charSliderHorz
+	.export _charSliderVert
 
 .segment "DATA"
 
@@ -110,3 +118,19 @@ _charStar:
 	.byte %00000100, %11101110, %10100000
 _charUnderbar:
 	.byte %00000000, %00000000, %00001110
+_charArrowDown:
+	.byte %01000100, %01000100, %11101110
+_charArrowLeft:
+	.byte %00001100, %11101110, %11000000	
+_charArrowRight:
+	.byte %00000110, %11101110, %01100000
+_charArrowUp:
+	.byte %11101110, %11100100, %01000100
+_charLineHorz:
+	.byte %00000000, %11101110, %00000000
+_charLineVert:
+	.byte %01000100, %01000100, %01000100
+_charSliderHorz:
+	.byte %00000111, %11101110, %11100000
+_charSliderVert:
+	.byte %01001110, %11101110, %11100100
