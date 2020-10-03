@@ -47,30 +47,33 @@ unsigned char* appChunk[NUM_APPS];
 #endif
 
 // Mouse state
-unsigned char mouseL = 0;
-unsigned char mouseC = 0;
+unsigned char mouseMove = 1;
+unsigned char mouseButt = 0;
+unsigned char mouseLock = 0;
 unsigned int mouseX = 160;
 unsigned int mouseY = 100;
 
 void UpdateMouse()
 {
 	unsigned char joy;
+	if (!mouseMove) return;
 	
 	// Read mouse state from joystick
 	joy = GetJoy(0);
-	if (joy & JOY_UP)    { mouseY+=3; if (mouseY>200) {mouseY = 200;} }
-	if (joy & JOY_DOWN)  { mouseY-=3; if (mouseY>200) {mouseY = 0;} }
-	if (joy & JOY_LEFT)  { mouseX+=3; if (mouseX>320) {mouseX = 320;} }
-	if (joy & JOY_RIGHT) { mouseX-=3; if (mouseX>320) {mouseX = 0;} }
-	if (joy & JOY_BTN1)  { mouseL = 0; } else { mouseL = 1; } 
+	if (joy & JOY_UP)    { mouseY+=4; if (mouseY>200) {mouseY = 200;} }
+	if (joy & JOY_DOWN)  { mouseY-=4; if (mouseY>200) {mouseY = 0;} }
+	if (joy & JOY_LEFT)  { mouseX+=4; if (mouseX>320) {mouseX = 320;} }
+	if (joy & JOY_RIGHT) { mouseX-=4; if (mouseX>320) {mouseX = 0;} }
+	if (joy & JOY_BTN1)  { mouseButt = 0; } else { mouseButt = 1; } 
 	
 	// Update 
 	LocateSprite(mouseX+4, mouseY+4);
-	if (mouseL) SetSprite(0, 1); else SetSprite(0, 0);
+	if (mouseButt) SetSprite(0, 1); else SetSprite(0, 0);
 }
 
-unsigned char inputMode, inputCol, inputRow;
-unsigned char inputBuffer[8];
+///////////////////////////////////////////////////////////////////
+
+unsigned char inputMode, inputCol, inputRow, inputLen, *inputBuffer;
 
 #if defined __LYNX__ 
 	#define kbhit KeyboardOverlayHit
@@ -82,10 +85,13 @@ void SetInput(callback* call)
 	inputMode = 1;
 	inputCol = call->colBeg;
 	inputRow = call->rowBeg;
-	inputBuffer[0] = 0;
+	inputLen = call->colEnd - inputCol - 1;
+	inputBuffer = call->label;
 #if defined __LYNX__ 
+	SetKeyboardOverlay(60,70);
 	ShowKeyboardOverlay();
 	DisableSprite(0);
+	mouseMove = 0;
 	cgetc();
 #endif
 }
@@ -97,11 +103,12 @@ void UpdateInput()
 		lastKey = cgetc();
 		if (inputMode) {
 			paperColor = WHITE; inkColor = BLACK;
-			if (InputUpdate(inputCol, inputRow, inputBuffer, 8, lastKey)) {
+			if (InputUpdate(inputCol, inputRow, inputBuffer, inputLen, lastKey)) {
 				inputMode = 0;
 			#if defined __LYNX__
 				HideKeyboardOverlay();	
 				EnableSprite(0);			
+				mouseMove = 1;
 			#endif		
 			}			
 		}
@@ -207,7 +214,11 @@ void HomeScreen(void)
 	// Show Apps
 	ClearScreen();
 	for (i=1; i<NUM_APPS; i++) {
+#if (defined __LYNX__)
 		SetChunk(appChunk[i], 8+(i-1)*38, 8);
+#elif (defined __ORIC__)
+		SetChunk(appChunk[i], 12+(i-1)*54, 18);	
+#endif
 	}
 	
 	// Setup Callbacks
@@ -220,7 +231,7 @@ void HomeScreen(void)
 	// Add Taskbar
 	DrawTaskBar();	
 	paperColor = WHITE; inkColor = BLACK; 
-	PrintStr(21, CHR_ROWS-1, "8BIT-OS 2020/08/01");		
+	PrintStr(21, CHR_ROWS-1, "8BIT-OS 2020/10/03");		
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -254,9 +265,13 @@ void FileCallback(callback* call)
 	// Check file type
 	if (!strncmp(&buffer[i], ".img",4)) {
 		memcpy(frame, (char*)(BITMAPRAM), 8365);
+	#if (defined __LYNX__)
 		autoRefresh = 0;
+	#endif
 		LoadBitmap(buffer);	
+	#if (defined __LYNX__)
 		autoRefresh = 1;
+	#endif
 		for (y=0; y<51; y++) { 
 			for (x=0; x<40; x++) {
 				POKE(&frame[(y+8)*82+(x+37)+1], *(char*)(BITMAPRAM+y*164+x*2+1)); 
@@ -270,6 +285,7 @@ void FileCallback(callback* call)
 		PlayMusic(MUSICRAM);
 	} else
 	if (!strncmp((char*)&buffer[i], ".txt",4)) {
+	#if (defined __LYNX__)
 		size = FileLoad(buffer);	
 		i=0; x=18; y=1; 
 		while (i<size) {
@@ -280,6 +296,7 @@ void FileCallback(callback* call)
 				x += 1; if (x>38) { x = 18; y+=1; }
 			} i++;
 		}
+	#endif
 	}
 }
 
@@ -379,51 +396,210 @@ void MusicScreen(void)
 
 ///////////////////////////////////////////////////////////////////
 
-char chatUser[8], chatPass[8], chatLogged;
-callback *callUser, *callPass, *callLogin, *callRegis;
+#define REQ_LOGIN 	1
+#define REQ_PAGE 	2
+#define REQ_RECV 	3
+#define REQ_SEND 	4
+#define REQ_HEADER  85
+#define REQ_ERROR   170
+
+unsigned char lineX1, lineX2, lineY, chatConnected, chatLogged, chatLen;
+unsigned int chatList[4] = {0, 0, 0, 0};
+unsigned char chatRequest[138];
+unsigned char* chatUser = &chatRequest[4];
+unsigned char* chatPass = &chatRequest[14];
+unsigned char* chatBuffer = &chatRequest[24];
+
+callback *callUser, *callPass, *callLogin, *callMessage, *callSend, *callScroll;
+
+void ChatPage(unsigned int page)
+{
+	chatRequest[0] = REQ_PAGE;
+	POKEW(&chatRequest[1], page);
+	chatRequest[3] = 3;
+	SendTCP(chatRequest, 4);	
+}
+
+void ChatSend()
+{
+	// Make message length checks
+	unsigned char len;
+	len = strlen(chatBuffer);
+	if (len < 8) {
+		paperColor = DESK_COLOR; inkColor = BLACK;
+		PrintStr(10,1,"Min Length: 8 chars!"); 		
+		sleep(1); PrintBlanks(10,1, 20, 1);
+		Line(lineX1, lineX2, lineY, lineY);
+		return;
+	}
+	
+	// Send message to server
+	chatRequest[0] = REQ_SEND;
+	chatRequest[1] = strlen(chatUser);
+	chatRequest[2] = strlen(chatPass);
+	chatRequest[3] = strlen(chatBuffer);
+	SendTCP(chatRequest, 24+strlen(chatBuffer));
+	
+	// Clear previous message
+	paperColor = WHITE;
+	PrintBlanks(0,0,36,1);
+	chatBuffer[0] = 0;
+	
+	// Refresh messages
+	ChatPage(0);	
+}
+
+void ChatLogin()
+{
+	chatRequest[0] = REQ_LOGIN; 
+	chatRequest[1] = strlen(chatUser);
+	chatRequest[2] = strlen(chatPass);
+	SendTCP(chatRequest, 24);	
+}
+
+void ChatMessage(unsigned char index, unsigned char* packet)
+{
+	unsigned char i, l, line, buffer[29];
+
+	// Find message slot
+	paperColor = DESK_COLOR;
+	line = index*5+2;
+	
+	// Display user/date
+	inkColor = WHITE;
+	PrintStr(0, line, &packet[4]);
+	i = 4 + 1 + strlen(&packet[4]);
+	
+	PrintStr(0, line+1, &packet[i]);
+	i = i + 1 + strlen(&packet[i]);
+	
+	// Display message
+	inkColor = BLACK;
+	l = i + strlen(&packet[i]);
+	while (i < l) {
+		memcpy(buffer, &packet[i], 28);
+		PrintStr(CHR_COLS-29, line, buffer);
+		i += 28; line++;
+	}
+}
 
 void ChatCallback(callback* call)
 {
 	// Check if input box?
 	if (call->type == CALLTYPE_INPUT) { 
 		SetInput(call);
-	} else 
+		return;
+	} else
 	if (call == callLogin) {
-		// Setup TCP connection on slot #0
-		OpenTCP(199, 47, 196, 106, 1999);
-		
-		// Send TCP packet
-		SendTCP("Testing 123", 12);
+		ChatLogin();
+	} else
+	if (call == callSend) {
+		ChatSend();
 	}
-}
-
-void ChatPacket(unsigned int packet)
-{
-	// Print back echoed packet
-	PrintStr(0, 0, (char*)(packet));
 }
 
 void ChatScreen(void)
-{		
+{			
+	unsigned char i;
+	
 	// Clear screen
 	ClearScreen();
 	
-	// Login screen?
-	if (!chatLogged) {
-		paperColor = DESK_COLOR; inkColor = BLACK;	
-		Panel(10, 3, CHR_COLS-20, 8, "");	
-		PrintStr(13, 5, "User:");
-		PrintStr(13, 7, "Pass:");
-		paperColor = WHITE; inkColor = BLACK;	
-		callUser = Input(18, 5, 9, 1, "");
-		callPass = Input(18, 7, 9, 1, "");		
-		paperColor = BLACK; inkColor = WHITE;	
-		callLogin = Button(12, 9, 7, 1, " Login ");
-		callRegis = Button(20, 9, 7, 1, " Regis ");
+	// Setup connection to chat server and request page
+	if (!chatConnected) {
+		OpenTCP(199, 47, 196, 106, 1999);
+		chatConnected = 1;
 	}
 
+	// DEBUG
+	strcpy(chatUser, "8BIT-DUDE");
+	strcpy(chatPass, "UNI-Z33K0");
+	//strcpy(chatBuffer, "It's coming soon, keep an eye out for 8bit-Unity release 3.5.0!");
+			
+	if (!chatLogged) {
+		// Panel/Labels
+		paperColor = DESK_COLOR; inkColor = BLACK;	
+		Panel(10, 3, 19, 8, "");	
+		PrintStr(12, 5, "User:");
+		PrintStr(12, 7, "Pass:");
+		
+		// Inputs
+		paperColor = WHITE; inkColor = BLACK;	
+		callUser = Input(17, 5, 10, 1, chatUser);
+		callPass = Input(17, 7, 10, 1, chatPass);		
+		
+		// Controls
+		paperColor = BLACK; inkColor = WHITE;	
+		callLogin = Button(17, 10, 7, 1, " Login ");
+		
+	} else {
+		// Add text input, send button, and scrollbar
+		paperColor = WHITE; inkColor = BLACK;	
+		callMessage = Input(0, 0, CHR_COLS-4, 1, chatBuffer);
+	
+		paperColor = BLACK; inkColor = WHITE;	
+		callSend = Button(CHR_COLS-4, 0, 7, 1, "Send");
+		
+		paperColor = DESK_COLOR; inkColor = BLACK;	
+		callScroll = ScrollBar(CHR_COLS-1, 1, CHR_ROWS-3, 0, "chat");
+
+		// Add separators
+		lineX1 = ColToX(0)+2;
+		lineX2 = ColToX(CHR_COLS-2)+2;
+		for (i=0; i<3; i++) {
+			lineY = RowToY(5*(2-i)+1)+3;
+			Line(lineX1, lineX2, lineY, lineY);
+		}
+		
+		// Get latest page
+		ChatPage(0);		
+	}
+	
 	// Add Taskbar
 	DrawTaskBar();		
+}
+
+void ChatPacket(unsigned char *packet)
+{
+	// Process received packets
+	unsigned char i;
+	switch 	(packet[0]) {
+	case REQ_LOGIN:
+		// Check if login was OK
+		if (packet[1] == 'O') {
+			chatLogged = 1;	
+			ChatScreen();
+		} else {
+			PrintStr(10, 10, packet[1]);
+		}
+	case REQ_PAGE:
+		// Save chat list and request first message
+		chatLen = packet[4];
+		for (i=0; i<chatLen; i++)
+			chatList[i] = packet[5+2*i];
+		chatRequest[0] = REQ_RECV;			
+		chatRequest[1] = chatList[0]; 
+		chatRequest[2] = 0; 
+		chatRequest[3] = PLATFORM;		
+		SendTCP(chatRequest, 4);
+		break;
+	
+	case REQ_RECV:
+		// Check corresponding entry in list
+		i = 0;
+		while (i<4) {
+			if ((unsigned int)packet[1] == chatList[i]) break;
+			i++;
+		}
+
+		// Display message and request next entry
+		ChatMessage(i, packet);
+		if (i<chatLen-1) {
+			chatRequest[1] = chatList[i+1]; 
+			SendTCP(chatRequest, 4);
+		}
+		break;
+	}
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -433,7 +609,7 @@ int main (void)
 	callback* call;
 	unsigned char app;
 	unsigned char netState;
-	unsigned int netPacket;	
+	unsigned char *netPacket;	
 	clock_t timer = clock();
 	
 	// Set text mode colors
@@ -450,9 +626,8 @@ int main (void)
 	
 	// Try to init network
 	netState = InitNetwork();
-	if (!netState) {
+	if (!netState)
 		SlotTCP(0); 
-	}
 	
 	// Load chunks of various apps
 	LoadChunk(&appChunk[APP_FILES],  "files.chk");
@@ -475,7 +650,7 @@ int main (void)
 			// Check for packets
 			if (!netState) {
 				netPacket = RecvTCP(1);
-				if (netPacket) {
+				if ((int)netPacket) {
 					// Callbacks from Apps
 					switch (app) {
 					case APP_CHAT:
@@ -485,10 +660,9 @@ int main (void)
 				}
 			}
 
-			
 			// Check callbacks
-			if (mouseL) {
-				if (!mouseC && !inputMode) {
+			if (mouseButt) {
+				if (!mouseLock && !inputMode) {
 					call = CheckCallbacks((mouseX*CHR_COLS)/320, (mouseY*CHR_ROWS)/200);
 					if (call) {
 						//PrintStr(0,0,call->label);
@@ -531,10 +705,10 @@ int main (void)
 							}
 						}			
 					}
-					mouseC = 1;
+					mouseLock = 1;
 				}
 			} else {
-				mouseC = 0;
+				mouseLock = 0;
 			}
 		}
 		// Platform dependent actions
