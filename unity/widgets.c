@@ -27,7 +27,6 @@
 #include "unity.h"
 
 callback* callHead = NULL;
-unsigned char countId = 0;
 
 ///////////////////////////////
 // Graphical scaling functions
@@ -88,7 +87,6 @@ callback* PushCallback(unsigned char col, unsigned char row, unsigned char width
 	call->colEnd = (col+width);		
 	call->rowBeg = row;
 	call->rowEnd = (row+height);
-	call->id = countId++;
 	call->type = type;
 	call->label = label;	
 	call->next = 0;
@@ -134,7 +132,6 @@ void ClearCallbacks()
 		call = next;
 	}	
 	callHead = 0;
-	countId = 0;
 }
 
 ////////////////////////////
