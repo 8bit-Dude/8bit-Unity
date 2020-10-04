@@ -370,73 +370,108 @@ void MusicScreen(void)
 
 ///////////////////////////////////////////////////////////////////
 
+#if (defined __LYNX__)
+  #define BMP_SIZE 8365
+#elif (defined __ORIC__)
+  #define BMP_SIZE 8000
+  char text[8];	// TODO: INCREASE SPARE RAM!
+#endif
+
 unsigned char* fileList[32];
+char fname[17], frame[BMP_SIZE];
 
 void FileCallback(callback* call)
 {
-	char buffer[17];
-	char frame[8365];
-	unsigned int i, x, y, size;
+	unsigned char i;
+	unsigned int x, y, addr, end;
+	
+	// Get file name without size
+	memcpy(fname, call->label, 17);
+	i=0; while (i<17) {
+		if (fname[i] == '.') {
+			fname[i+4] = 0;
+			break;
+		} i++;
+	}
 	
 	// Display file name
 	paperColor = WHITE;
 	PrintBlanks(23, CHR_ROWS-1, 16, 1); 
-	PrintStr(23, CHR_ROWS-1, call->label);	
+	PrintStr(23, CHR_ROWS-1, fname);	
 	
 	// Reset preview area
 	paperColor = BLUE;
-	PrintBlanks(18, 1, 21, CHR_ROWS-3);
+	PrintBlanks(18, 1, CHR_COLS-19, CHR_ROWS-3);
 	
-	// Get file name without size
-	memcpy(buffer, call->label, 17);
-	i=0; while (i<17) {
-		if (buffer[i] == '.') {
-			buffer[i+4] = 0;
-			break;
-		} i++;
-	}
-
-	// Check file type
-	if (!strncmp(&buffer[i], ".img",4)) {
-		memcpy(frame, (char*)(BITMAPRAM), 8365);
+	// Preview Image File
+	if (!strncmp(&fname[i], ".img",4)) {
 	#if (defined __LYNX__)
+		// Backup current frame and load image
+		memcpy(frame, (char*)(BITMAPRAM), BMP_SIZE);
 		autoRefresh = 0;
-	#endif
-		LoadBitmap(buffer);	
-	#if (defined __LYNX__)
+		LoadBitmap(fname);	
 		autoRefresh = 1;
-	#endif
+		
+		// Copy every second col/row to backup frame
 		for (y=0; y<51; y++) { 
 			for (x=0; x<40; x++) {
 				POKE(&frame[(y+8)*82+(x+37)+1], *(char*)(BITMAPRAM+y*164+x*2+1)); 
 			}
-		}
-		memcpy((char*)(BITMAPRAM), frame, 8365);								
-	} else
-	if (!strncmp(&buffer[i], ".mus",4)) {
-		StopMusic();
-		LoadMusic(buffer, MUSICRAM);
+		}		
+		
+		// Restore backup
+		memcpy((char*)(BITMAPRAM), frame, BMP_SIZE);								
+		
+	#elif (defined __ORIC__)
+		// Load image to frame
+		FileRead(fname, frame);
+		
+		// Copy every second group of 6x2 pixels
+		for (y=0; y<100; y++) { 
+			for (x=1; x<20; x++) {
+				POKE((char*)(BITMAPRAM+y*40+x+440+19), frame[y*80+x*2]); 
+				POKE((char*)(BITMAPRAM+y*40+x+480+19), frame[y*80+x*2+40]); 
+			}
+		}		
+	#endif
+		return;
+	}
+	
+	// Preview Music File
+	if (!strncmp(&fname[i], ".mus",4)) {
+		if (playing)
+			StopMusic();
+		LoadMusic(fname, MUSICRAM);
 		PlayMusic(MUSICRAM);
-	} else
-	if (!strncmp((char*)&buffer[i], ".txt",4)) {
+		playing = 1;
+		return;
+	}
+	
+	// Preview Text File
+	if (!strncmp((char*)&fname[i], ".txt",4)) {
 	#if (defined __LYNX__)
-		size = FileLoad(buffer);	
+		addr = SHAREDRAM;
+		end = addr+FileLoad(fname);
+	#elif (defined __ORIC__)
+		FileRead(fname, text);
+		addr = (unsigned int)text;
+		end = addr+strlen(text);
+	#endif
 		i=0; x=18; y=1; 
-		while (i<size) {
-			if (*(char*)(SHAREDRAM+i) == '\n') {
+		while (addr<end) {
+			if (*(char*)(addr) == '\n') {
 				x = 18; y+=1;
 			} else {
-				PrintChr(x, y, GetChr(*(char*)(SHAREDRAM+i)));
+				PrintChr(x, y, GetChr(*(char*)(addr)));
 				x += 1; if (x>38) { x = 18; y+=1; }
-			} i++;
+			} addr++;
 		}
-	#endif
 	}
 }
 
 void FilesScreen(void)
 {			
-	unsigned char i, j, len, dest;
+	unsigned char i, j = 0, len, dest;
 	unsigned int size;
 	
 	// Clear screen
