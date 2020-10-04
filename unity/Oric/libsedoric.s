@@ -37,43 +37,39 @@
 	.importzp   tmp1, tmp2, tmp3, tmp4
 	.importzp   ptr1, ptr2, ptr3, ptr4
 	
-	.export _exvec
-	.export _dosrom
-	.export _dosflag
-	.export _doserr
+	.export _sed_size
 	.export _sed_fname
 	.export _sed_begin
 	.export _sed_end
-	.export _sed_size
 	.export _sed_err
-	.export _sed_command
+	
 	.export _sed_savefile
 	.export _sed_loadfile
-	.export _cls
+	.export _sed_savezp
+	.export _sed_loadzp
 	
-_exvec =  $02f5
-_dosrom =  $04f2
-_dosflag =  $04fc
-_doserr =  $04fd
+EXECVEC = $02f5
+DOSROM  = $04f2
+DOSERR  = $04fd
 
 .code
+_sed_size:  .byte 0,0
 _sed_fname: .byte 0,0
 _sed_begin: .byte 0,0
-_sed_end: .byte 0,0
-_sed_size: .byte 0,0
-_sed_err: .byte 0,0
+_sed_end:   .byte 0,0
+_sed_err:   .byte 0,0
 savebuf_zp: .res 256
 
 
 _sed_savefile:
 	tya
 	pha
-	jsr sed_savezp
+	jsr _sed_savezp
 	lda _sed_fname
 	sta $e9
 	lda _sed_fname+1
 	sta $ea
-	jsr _dosrom
+	jsr DOSROM
 	lda #1
 	sta $0b
 	lda #$00
@@ -100,11 +96,11 @@ _sed_savefile:
 	lda #$40
 	sta $c051
 	jsr $de0b
-	jsr _dosrom
-	jsr sed_restorezp
-	lda _doserr
+	jsr DOSROM
+	jsr _sed_loadzp
+	lda DOSERR
 	sta _sed_err
-	lda _doserr+1
+	lda DOSERR+1
 	sta _sed_err+1
 	pla
 	tay
@@ -113,12 +109,12 @@ _sed_savefile:
 _sed_loadfile:
 	tya
 	pha
-	jsr sed_savezp
+	jsr _sed_savezp
 	lda _sed_fname
 	sta $e9
 	lda _sed_fname+1
 	sta $ea
-	jsr _dosrom
+	jsr DOSROM
 	lda #1
 	sta $0b
 	lda #$00
@@ -148,51 +144,29 @@ _sed_loadfile:
 	sta _sed_size+1
 	adc _sed_begin+1
 	sta _sed_end+1
-	jsr _dosrom
-	jsr sed_restorezp
-	lda _doserr
+	jsr DOSROM
+	jsr _sed_loadzp
+	lda DOSERR
 	sta _sed_err
-	lda _doserr+1
+	lda DOSERR+1
 	sta _sed_err+1
 	pla
 	tay
 
-sed_savezp:
+_sed_savezp:
 	ldx #00
-	L_139_loop:
+save_loop:
 	lda $00,x
 	sta savebuf_zp,x
 	dex
-	bne L_139_loop
+	bne save_loop
 	rts
 
-sed_restorezp:
+_sed_loadzp:
 	ldx #00
-
-L_150_loop:
+load_loop:
 	lda savebuf_zp,x
 	sta $00,x
 	dex
-	bne L_150_loop
-	rts
-
-_cls:
-	jmp $ccce
-	
-	
-_sed_command:	; invoke a SEDORIC command using black magic
-	ldy #$0        
-loop1:            ; copy command string to #35..#84
-	lda _sed_fname,y
-	sta $35,y
-	iny
-	ora #$0
-	bne loop1
-
-	sta $ea         ; update the line start pointer
-	lda #$35
-	sta $e9
-
-	jsr $00e2       ; get next token
-	;jsr $02f5       ; call the ! command handler
+	bne load_loop
 	rts

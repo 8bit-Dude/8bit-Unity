@@ -38,7 +38,7 @@ unsigned int ColToX(unsigned char col)
 #elif defined __ATARI__	// INP Mode: 160 x 200
 	return col*4;
 #elif defined __ORIC__	// AIC Mode: 117 x 100 equivalent pixels
-	return col*3-3;	
+	return col*3;	
 #elif defined __CBM__	// MLC Mode: 160 x 200
 	return col*4;
 #elif defined __LYNX__	// STD Mode: 160 x 102

@@ -91,6 +91,7 @@
 // Clock
 #define TCK_PER_SEC	CLK_TCK
 
-// Workaround for file reading/writing
+// Using Sedoric for File Management
+void FileList(void);
 int FileRead(const char* fname, void* buf);
 int FileWrite(const char* fname, void* buf, int len);

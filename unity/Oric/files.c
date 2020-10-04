@@ -30,16 +30,54 @@
  *
  */
 
+#include <string.h>
+
 // Externals: see libsedoric.s
+extern void __fastcall__ sed_savefile(void);
+extern void __fastcall__ sed_loadfile(void);
+extern void __fastcall__ sed_savezp(void);
+extern void __fastcall__ sed_loadzp(void);
+
+extern unsigned int sed_size;
 extern const char* sed_fname;
 extern void* sed_begin;
 extern void* sed_end;
-extern unsigned int sed_size;
 extern int sed_err;
 
-extern void __fastcall__ sed_savefile(void);
-extern void __fastcall__ sed_loadfile(void);
-extern void __fastcall__ sed_command(void);	
+unsigned char  fileNum;     
+unsigned char* fileNames[8];
+unsigned int   fileSizes[8];  
+unsigned char  fileBuffer[128];
+
+// Using Sedoric for File Management
+void FileList()
+{
+	unsigned char j, k;
+	
+	// Get raw file list from Sedoric buffer at $C310
+	sed_savezp();	  // Backup Zero Page
+	asm("jsr $04f2"); // Switch ON RAM/ROM overlay
+	asm("jsr $D451"); // Execute Sedoric DIR
+	memcpy(fileBuffer, 0xC310, 128);
+	asm("jsr $04f2"); // Switch OFF RAM/ROM overlay	
+	sed_loadzp();	  // Restore Zero Page
+	
+	// Reformat and link to list (+32 to make it lower case)
+	fileNum = 0;
+	while (fileNum<8 && fileBuffer[j]) {
+		fileNames[fileNum] = &fileBuffer[j];
+		k = j; while (fileBuffer[k] != ' ') {
+			fileBuffer[k] += 32;
+			k++;
+		}
+		fileBuffer[k++] = '.'; j += 9;
+		fileBuffer[k++] = fileBuffer[j++]+32;
+		fileBuffer[k++] = fileBuffer[j++]+32;
+		fileBuffer[k++] = fileBuffer[j]+32;
+		fileBuffer[k] = 0;
+		j = (++fileNum)*16;
+	}
+}
 
 int FileWrite(const char* fname, void* buf, int len) 
 {
