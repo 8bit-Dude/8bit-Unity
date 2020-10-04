@@ -12,8 +12,16 @@
 #define APP_CHAT   4
 #define NUM_APPS   5
 
-// App Chunks
-unsigned char* appChunk[NUM_APPS];
+// Icon definitions
+#define ICO_MUSIC  0
+#define ICO_STOP   1
+#define ICO_PLAY   2
+#define ICO_PREV   3
+#define ICO_NEXT   4
+#define NUM_ICOS   5
+
+// Icons Chunks
+unsigned char* icon[NUM_ICOS];
 
 // Mouse sprite definitions
 #define spriteFrames 2
@@ -118,6 +126,12 @@ void UpdateInput()
 ///////////////////////////////////////////////////////////////////
 
 #if defined(__LYNX__)
+  #define FIRST_FILE 1
+#elif defined(__ORIC__)
+  #define FIRST_FILE 3
+#endif
+
+#if defined(__LYNX__) || defined(__ORIC__)
 	extern unsigned char  fileNum;     
 	extern unsigned int   fileSizes[];  
 	extern unsigned char* fileNames[];
@@ -130,7 +144,10 @@ void UpdateInput()
 void GetFileList()
 {
 	// Retrieve file list
-#if defined(__APPLE2__) || defined(__ATARI__) || defined(__CBM__)
+#if defined(__ORIC__)
+	FileList();
+	
+#elif defined(__APPLE2__) || defined(__ATARI__) || defined(__CBM__)
 	DIR *dir;
 	struct dirent *dp;
 	fileNum = 0;
@@ -148,31 +165,23 @@ void GetFileList()
 #endif
 }
 
-char fileSel;
-callback *bPrev, *bNext;
-
-unsigned char SelectFile(callback* call, unsigned char* extension)
+void SelectFile(char dir, unsigned char* extension, char* fileSel)
 {
-	char dir;
 	unsigned char len;
-	
-	// Search direction
-	if (call == bPrev) {
-		dir = -1;
-	} else {
-		dir = 1;
-	}
 	
 	// Select file
 	while (1) {
-		// Move index
-		fileSel += dir;
-		if (fileSel < 0) fileSel = fileNum-1;
-		if (fileSel >= fileNum) fileSel = 0;
-		
+		// Move index (skip first file)
+		*fileSel += dir;
+		if (*fileSel < FIRST_FILE) *fileSel = fileNum-1;
+		if (*fileSel >= fileNum) *fileSel = FIRST_FILE;
+				
 		// Check file type
-		len = strlen(fileNames[fileSel]);
-		if (!strncmp(&fileNames[fileSel][len-4], extension, 4)) break;
+		len = strlen(fileNames[*fileSel]);
+				
+		// Check extensions
+		if (!strncmp(&fileNames[*fileSel][len-3], extension, 3)) 
+			break;
 	}
 }
 
@@ -211,18 +220,13 @@ void HomeScreen(void)
 	height = 8; row1 = 1; row2 = 11;
 #endif
 	
-	// Show Apps
+	// Clear screen and callbacks
 	ClearScreen();
-	for (i=1; i<NUM_APPS; i++) {
-#if (defined __LYNX__)
-		SetChunk(appChunk[i], 8+(i-1)*38, 8);
-#elif (defined __ORIC__)
-		SetChunk(appChunk[i], 12+(i-1)*54, 18);	
-#endif
-	}
 	
-	// Setup Callbacks
-	ClearCallbacks();
+	// Load Home screen
+	LoadBitmap("apps.img");
+	
+	// Setup icons callbacks
 	files  = PushCallback( 1, row1, 8, height, CALLTYPE_ICON, "FILES");
 	bitmap = PushCallback(11, row1, 8, height, CALLTYPE_ICON, "BITMAP");
 	music  = PushCallback(21, row1, 8, height, CALLTYPE_ICON, "MUSIC");
@@ -232,6 +236,136 @@ void HomeScreen(void)
 	DrawTaskBar();	
 	paperColor = WHITE; inkColor = BLACK; 
 	PrintStr(21, CHR_ROWS-1, "8BIT-OS 2020/10/03");		
+}
+
+///////////////////////////////////////////////////////////////////
+
+char bitmapSel = 127;
+callback *bPrev, *bNext;
+
+void BitmapCallback(callback* call)
+{	
+	// Search direction
+	char dir = 1;
+	if (call == bPrev)
+		dir = -1;
+
+	// Clear screen and callbacks first!
+	ClearScreen();
+	
+	// Select file, and display it
+	SelectFile(dir, "img", &bitmapSel);
+	LoadBitmap(fileNames[bitmapSel]);
+	
+	// Add Taskbar
+	DrawTaskBar();
+	
+	// Display file name
+	paperColor = WHITE; inkColor = BLACK; 
+	PrintStr(14, CHR_ROWS-1, fileNames[bitmapSel]);		
+	
+	// Add Controllers
+	paperColor = BLACK; inkColor = WHITE;
+	bPrev = Button(10, CHR_ROWS-1, 3, 1, " ( ");	
+	bNext = Button(27, CHR_ROWS-1, 3, 1, " ) ");	
+}
+
+void BitmapScreen(void)
+{		
+	BitmapCallback(0);
+}
+
+///////////////////////////////////////////////////////////////////
+
+char musicSel = 127; dir = 1; playing = 0;
+callback* mPrev, *mStop, *mPlay, *mNext;
+
+void MusicTitle()
+{
+	unsigned char* track = fileNames[musicSel];
+	
+	paperColor = BLACK; inkColor = WHITE;
+	PrintBlanks(10, 7, 20, 3); 
+	PrintStr(20-strlen(track)/2, 8, track);	
+}
+
+void MusicCallback(callback* call)
+{
+	if (call == mStop) {
+		if (playing) {
+			StopMusic();
+			playing = 0;
+			return;
+		}
+	}
+
+	if (call == mPlay) {
+		if (!playing) {
+			LoadMusic(fileNames[musicSel], MUSICRAM);
+			PlayMusic(MUSICRAM);			
+			playing = 1;
+			return;
+		}
+	}
+	
+	if (call == mPrev || call == mNext) {	
+		if (call == mPrev)
+			dir = -1;
+		else 
+			dir = 1;
+		SelectFile(dir, "mus", &musicSel);
+		MusicTitle();
+		if (playing) {
+			StopMusic();
+			LoadMusic(fileNames[musicSel], MUSICRAM);
+			PlayMusic(MUSICRAM);
+		}			
+	}
+}
+
+#if (defined __LYNX__)
+  #define MUS_COL  65
+  #define MUS_ROW  8
+  #define ICO_COL1 28
+  #define ICO_COL2 58
+  #define ICO_COL3 88
+  #define ICO_COL4 118
+  #define ICO_ROW  66
+#elif (defined __ORIC__)
+  #define MUS_COL  114
+  #define MUS_ROW  8
+  #define ICO_COL1 42
+  #define ICO_COL2 84
+  #define ICO_COL3 126
+  #define ICO_COL4 168
+  #define ICO_ROW  88
+#endif
+
+void MusicScreen(void)
+{		
+	// Clear screen and callbacks
+	ClearScreen();
+	
+	// Select file?
+	if (musicSel == 127)
+		SelectFile(1, "mus", &musicSel);
+
+	// Show music icon and name
+	SetChunk(icon[ICO_MUSIC], MUS_COL, MUS_ROW);
+	MusicTitle();
+	
+	// Create callback for player buttons
+	SetChunk(icon[ICO_PREV], ICO_COL1, ICO_ROW);
+	SetChunk(icon[ICO_STOP], ICO_COL2, ICO_ROW);
+	SetChunk(icon[ICO_PLAY], ICO_COL3, ICO_ROW);
+	SetChunk(icon[ICO_NEXT], ICO_COL4, ICO_ROW);
+	mPrev = PushCallback( 7, 11, 4, 3, CALLTYPE_ICON, "PREV");
+	mStop = PushCallback(14, 11, 4, 3, CALLTYPE_ICON, "STOP");
+	mPlay = PushCallback(21, 11, 4, 3, CALLTYPE_ICON, "PLAY");
+	mNext = PushCallback(28, 11, 4, 3, CALLTYPE_ICON, "NEXT");	
+	
+	// Add Taskbar
+	DrawTaskBar();		
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -302,7 +436,7 @@ void FileCallback(callback* call)
 
 void FilesScreen(void)
 {			
-	unsigned char i, dest;
+	unsigned char i, j, len, dest;
 	unsigned int size;
 	
 	// Clear screen
@@ -310,14 +444,19 @@ void FilesScreen(void)
 	
 	// Create list for display
 	inkColor = BLACK;
-	for (i=0; i< fileNum; i++) {
+	for (i=FIRST_FILE; i< fileNum; i++) {
+		// Check extensions
+		len = strlen(fileNames[i]);
+		if (!strncmp(&fileNames[i][len-3], "chk", 3))
+			continue;
+		
 		// Allocate string for name + size
-		fileList[i] = malloc(17);
-		memset(fileList[i], 32, 15);
-		fileList[i][16] = 0;
+		fileList[j] = malloc(17);
+		memset(fileList[j], 32, 15);
+		fileList[j][16] = 0;
 		
 		// Copy over name + size
-		memcpy(fileList[i], fileNames[i], strlen(fileNames[i]));
+		memcpy(fileList[j], fileNames[i], len);
 		size = fileSizes[i];
 		if (size<1000) {
 			if (size < 10) {
@@ -327,7 +466,7 @@ void FilesScreen(void)
 			} else if (size < 1000) {
 				dest = 13;
 			}
-			itoa(size, &fileList[i][dest], 10);			
+			itoa(size, &fileList[j][dest], 10);			
 		} else {
 			size /= 1000;
 			if (size < 10) {
@@ -335,60 +474,17 @@ void FilesScreen(void)
 			} else {
 				dest = 13;
 			}
-			itoa(size, &fileList[i][dest], 10);			
-			fileList[i][15] = 'k';
+			itoa(size, &fileList[j][dest], 10);			
+			fileList[j][15] = 'k';
 		}
+		
+		// Increment counters
+		j++;
 	}
 
 	// List directory
-	ListBox(1, 0, 16, CHR_ROWS-2, "Files", fileList, fileNum);
+	ListBox(1, 0, 16, CHR_ROWS-2, "Files", fileList, j);
 	Panel(18, 0, CHR_COLS-19, CHR_ROWS-2, "Preview");	
-	
-	// Add Taskbar
-	DrawTaskBar();		
-}
-
-///////////////////////////////////////////////////////////////////
-
-void BitmapCallback(callback* call)
-{	
-	// Clear screen and callbacks first!
-	ClearScreen();
-	
-	// Select file, and display it
-	SelectFile(call, ".img");
-	LoadBitmap(fileNames[fileSel]);
-	
-	// Add Taskbar
-	DrawTaskBar();
-	
-	// Display file name
-	paperColor = WHITE; inkColor = BLACK; 
-	PrintStr(14, CHR_ROWS-1, fileNames[fileSel]);		
-	
-	// Add Controllers
-	paperColor = BLACK; inkColor = WHITE;
-	bPrev = Button(10, CHR_ROWS-1, 3, 1, " ( ");	
-	bNext = Button(27, CHR_ROWS-1, 3, 1, " ) ");	
-}
-
-void BitmapScreen(void)
-{		
-	BitmapCallback(0);
-}
-
-///////////////////////////////////////////////////////////////////
-
-void MusicCallback(callback* call)
-{
-	SelectFile(call, ".mus");
-}
-
-void MusicScreen(void)
-{		
-	// Clear screen and show music chunk
-	ClearScreen();
-	SetChunk(appChunk[APP_MUSIC], 65, 20);
 	
 	// Add Taskbar
 	DrawTaskBar();		
@@ -485,37 +581,35 @@ void ChatMessage(unsigned char index, unsigned char* packet)
 
 void ChatCallback(callback* call)
 {
-	// Check if input box?
-	if (call->type == CALLTYPE_INPUT) { 
-		SetInput(call);
-		return;
-	} else
 	if (call == callLogin) {
 		ChatLogin();
-	} else
+		return;
+	}
+	
 	if (call == callSend) {
 		ChatSend();
+		return;
 	}
 }
 
 void ChatScreen(void)
 {			
 	unsigned char i;
+
+	// DEBUG
+	strcpy(chatUser, "8BIT-DUDE");
+	strcpy(chatPass, "UNI-Z33K0");	
 	
 	// Clear screen
 	ClearScreen();
 	
-	// Setup connection to chat server and request page
+	// Setup connection to chat server?
 	if (!chatConnected) {
 		OpenTCP(199, 47, 196, 106, 1999);
 		chatConnected = 1;
 	}
-
-	// DEBUG
-	strcpy(chatUser, "8BIT-DUDE");
-	strcpy(chatPass, "UNI-Z33K0");
-	//strcpy(chatBuffer, "It's coming soon, keep an eye out for 8bit-Unity release 3.5.0!");
-			
+	
+	// Login and Message screen?		
 	if (!chatLogged) {
 		// Panel/Labels
 		paperColor = DESK_COLOR; inkColor = BLACK;	
@@ -524,7 +618,7 @@ void ChatScreen(void)
 		PrintStr(12, 7, "Pass:");
 		
 		// Inputs
-		paperColor = WHITE; inkColor = BLACK;	
+		paperColor = WHITE;
 		callUser = Input(17, 5, 10, 1, chatUser);
 		callPass = Input(17, 7, 10, 1, chatPass);		
 		
@@ -534,13 +628,13 @@ void ChatScreen(void)
 		
 	} else {
 		// Add text input, send button, and scrollbar
-		paperColor = WHITE; inkColor = BLACK;	
-		callMessage = Input(0, 0, CHR_COLS-4, 1, chatBuffer);
-	
 		paperColor = BLACK; inkColor = WHITE;	
 		callSend = Button(CHR_COLS-4, 0, 7, 1, "Send");
 		
-		paperColor = DESK_COLOR; inkColor = BLACK;	
+		paperColor = WHITE; inkColor = BLACK;	
+		callMessage = Input(0, 0, CHR_COLS-4, 1, chatBuffer);
+			
+		paperColor = DESK_COLOR;
 		callScroll = ScrollBar(CHR_COLS-1, 1, CHR_ROWS-3, 0, "chat");
 
 		// Add separators
@@ -604,40 +698,110 @@ void ChatPacket(unsigned char *packet)
 
 ///////////////////////////////////////////////////////////////////
 
+unsigned char app = APP_HOME;
+
+void ProcessCallback(callback* call)
+{
+	// Handle input boxes here
+	if (call->type == CALLTYPE_INPUT) { 
+		SetInput(call);
+		return;
+	} 
+		
+	// Callbacks to Apps
+	if (call == home) {
+		app = APP_HOME;
+		HomeScreen();
+		return;
+	}
+	
+	if (call == files) {
+		app = APP_FILES;
+		FilesScreen();
+		return;
+	}
+	
+	if (call == bitmap) {
+		app = APP_BITMAP;
+		BitmapScreen();
+		return;
+	}
+	
+	if (call == music) {
+		app = APP_MUSIC;
+		MusicScreen();
+		return;
+	}
+	
+	if (call == chat) {
+		app = APP_CHAT;
+		ChatScreen();
+		return;
+	}
+	
+	// Callbacks from Apps
+	switch (app) {
+	case APP_FILES:
+		FileCallback(call);
+		break;
+	case APP_BITMAP:
+		BitmapCallback(call);
+		break;
+	case APP_MUSIC:
+		MusicCallback(call);
+		break;
+	case APP_CHAT:
+		ChatCallback(call);
+		break;								
+	}
+}
+
+void ProcessPacket(unsigned char* packet)
+{
+	// Packets from Apps
+	switch (app) {
+	case APP_CHAT:
+		ChatPacket(packet);
+		break;								
+	}	
+}
+
 int main (void)
 {
 	callback* call;
-	unsigned char app;
-	unsigned char netState;
-	unsigned char *netPacket;	
-	clock_t timer = clock();
-	
+	unsigned char network;
+	unsigned char *packet;
+	clock_t timer;
+
+	// Fetch File List First
+	GetFileList();
+
 	// Set text mode colors
     textcolor(COLOR_WHITE);
     bordercolor(COLOR_BLACK);
     bgcolor(COLOR_BLACK);
-	
+		
 	// Init systems
 	InitBitmap();
 	ClearBitmap();
 	InitSprites(spriteFrames, spriteCols, spriteRows, spriteColors);
-	EnableSprite(0);
-	GetFileList();
 	
 	// Try to init network
-	netState = InitNetwork();
-	if (!netState)
-		SlotTCP(0); 
+	network = InitNetwork();
+	if (!network)
+		SlotTCP(0);
 	
 	// Load chunks of various apps
-	LoadChunk(&appChunk[APP_FILES],  "files.chk");
-	LoadChunk(&appChunk[APP_BITMAP], "bitmap.chk");
-	LoadChunk(&appChunk[APP_MUSIC],  "music.chk");
-	LoadChunk(&appChunk[APP_CHAT],   "chat.chk");	
+	LoadChunk(&icon[ICO_MUSIC], "music.chk");	
+	LoadChunk(&icon[ICO_STOP],  "stop.chk");	
+	LoadChunk(&icon[ICO_PLAY],  "play.chk");	
+	LoadChunk(&icon[ICO_PREV],  "prev.chk");	
+	LoadChunk(&icon[ICO_NEXT],  "next.chk");	
 
 	// Enter bitmap mode
 	HomeScreen();
 	EnterBitmapMode();
+	EnableSprite(0);
 
 	// Main loop
 	while (1) {
@@ -648,15 +812,16 @@ int main (void)
 			UpdateInput();
 			
 			// Check for packets
-			if (!netState) {
-				netPacket = RecvTCP(1);
-				if ((int)netPacket) {
-					// Callbacks from Apps
-					switch (app) {
-					case APP_CHAT:
-						ChatPacket(netPacket);
-						break;								
-					}
+			if (!network) {
+				packet = RecvTCP(0);
+				if ((int)packet) {
+				#if defined(__ORIC__)
+					DisableSprite(0);
+				#endif
+					ProcessPacket(packet);
+				#if defined(__ORIC__)
+					EnableSprite(0);
+				#endif
 				}
 			}
 
@@ -665,45 +830,13 @@ int main (void)
 				if (!mouseLock && !inputMode) {
 					call = CheckCallbacks((mouseX*CHR_COLS)/320, (mouseY*CHR_ROWS)/200);
 					if (call) {
-						//PrintStr(0,0,call->label);
-						
-						// Callbacks to Apps
-						if (call == home) {
-							app = APP_HOME;
-							HomeScreen();
-						} else
-						if (call == files) {
-							app = APP_FILES;
-							FilesScreen();
-						} else
-						if (call == bitmap) {
-							app = APP_BITMAP;
-							BitmapScreen();
-						} else
-						if (call == music) {
-							app = APP_MUSIC;
-							MusicScreen();
-						} else
-						if (call == chat) {
-							app = APP_CHAT;
-							ChatScreen();
-						} else {
-							// Callbacks from Apps
-							switch (app) {
-							case APP_FILES:
-								FileCallback(call);
-								break;
-							case APP_BITMAP:
-								BitmapCallback(call);
-								break;
-							case APP_MUSIC:
-								MusicCallback(call);
-								break;
-							case APP_CHAT:
-								ChatCallback(call);
-								break;								
-							}
-						}			
+					#if defined(__ORIC__)
+						DisableSprite(0);
+					#endif
+						ProcessCallback(call);
+					#if defined(__ORIC__)
+						EnableSprite(0);
+					#endif
 					}
 					mouseLock = 1;
 				}
