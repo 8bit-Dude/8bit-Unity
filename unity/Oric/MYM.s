@@ -139,9 +139,7 @@ _PlayerRegBits:
 ; void __near__PlayMusic (void)
 ; ---------------------------------------------------------------	
 
-.proc _PlayMusic: near
-	php
-	pha
+_PlayMusic:
 	sei
 
     clc
@@ -186,25 +184,15 @@ __auto_4:
 
 	jsr _Mym_Initialize
 
-	pla
-	plp
 	rts
-.endproc
 
 ; ---------------------------------------------------------------
 ; void __near__StopMusic (void)
 ; ---------------------------------------------------------------	
-.proc _StopMusic: near
-	php
-	pha
-	sei
-	jmp restore_handler
-	rts
-.endproc
 
-; ---------------------------------------------------------------	
+_StopMusic:
+	sei	
 
-restore_handler:
 	; Restore the old handler value
 	lda jmp_old_handler+1
 __auto_5:
@@ -225,9 +213,7 @@ __auto_6:
 	lda #10
 	ldx #0
 	jsr WriteRegister
-
-	pla
-	plp
+	
 	rts	
 
 ; ---------------------------------------------------------------	
@@ -320,14 +306,6 @@ skipR:
 	PLP
 	RTS
 
-_Mym_ReInitialize:
-	sei
-	lda #0
-	sta _MusicLooped
-	jsr _Mym_Initialize
-	cli 
-	rts
-
 _Mym_Initialize:
 	; The two first bytes of the MYM music is the number of rows in the music
 	; We decrement that at each frame, and when we reach zero, time to start again.
@@ -396,23 +374,19 @@ unpack_block_loop:
 
 
 _Mym_PlayFrame:
-	;
 	; Check for end of music
 	; CountZero: $81,$0d
 	dec _MusicResetCounter+0
-	bne music_contines
+	bne music_continues
 	dec _MusicResetCounter+1
-	bne music_contines
+	bne music_continues
 music_resets:
 	lda #1
 	sta _MusicLooped
 	jsr _Mym_Initialize
 	
-music_contines:
-
-	;
+music_continues:
 	; Play a frame of 14 registers
-	;
 	lda _CurrentFrame
 	sta _auto_psg_play_read+1
 	lda #>_PlayerBuffer
@@ -669,8 +643,6 @@ player_read_new:
 	jmp player_return
 
 
-
-
 DecompressWithOffset:
 	; Read Offset (0 to 127)
 	ldx #7
@@ -715,5 +687,4 @@ __auto_write:
 	sta _PlayerRegCurrentValue
 
 	jmp player_return
-
 
