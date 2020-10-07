@@ -70,13 +70,13 @@ int DemoNET(void)
 		CloseUDP();
 		
 		///////////////////////////////////////////////////////
-		// Setup request to HTTP server
-		GetHTTP("http://8bit-unity.com/test.txt");
+		// Setup request to URL server
+		GetURL("http://8bit-unity.com/test.txt");
 
 		// Fetch server response
 		gotoxy (0, line);
-		cprintf("HTTP:");
-		packet = ReadHTTP(16, 3*TCK_PER_SEC); // Allow some time-out
+		cprintf(" URL:");
+		packet = ReadURL(16, 3*TCK_PER_SEC); // Allow some time-out
 		gotoxy (6, line++);
 		if (!(int)packet)
 			cprintf("Timeout");			
