@@ -34,22 +34,22 @@
 #ifndef __HUB__
 #endif
 
-void GetHTTP(unsigned char* url)
+void GetURL(unsigned char* url)
 {
 #ifdef __HUB__
-	QueueHub(HUB_HTTP_GET, url, strlen(url));	
+	QueueHub(HUB_URL_GET, url, strlen(url));	
 	UpdateHub();
 #else
 #endif
 }
 
-unsigned char* ReadHTTP(unsigned char size, unsigned int timeOut)
+unsigned char* ReadURL(unsigned char size, unsigned int timeOut)
 {	
 #ifdef __HUB__
 	// Wait until data is received from Hub
 	clock_t timer = clock()+timeOut;
-	QueueHub(HUB_HTTP_READ, &size, 1);	
-	while (!recvLen || recvHub[0] != HUB_HTTP_READ) {
+	QueueHub(HUB_URL_READ, &size, 1);	
+	while (!recvLen || recvHub[0] != HUB_URL_READ) {
 		if (clock() > timer) return 0;
 		UpdateHub();	
 	}

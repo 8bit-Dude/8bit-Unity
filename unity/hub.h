@@ -72,5 +72,5 @@
 #define HUB_WEB_BODY     53
 #define HUB_WEB_SEND     54
 #define HUB_WEB_CLOSE    55
-#define HUB_HTTP_GET     60
-#define HUB_HTTP_READ    61
+#define HUB_URL_GET      60
+#define HUB_URL_READ     61

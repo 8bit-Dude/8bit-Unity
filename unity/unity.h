@@ -263,8 +263,6 @@ void ClearCallbacks(void);
 #define DHCP_ERR    2
 unsigned char InitNetwork(void);							// Initialize network adapter
 unsigned char GetLocalIP(unsigned char* ip);				// Fetch local IP
-void GetHTTP(unsigned char* url);									// Request HTTP file
-unsigned char* ReadHTTP(unsigned char size, unsigned int timeOut);	// Read chunk of HTTP file
 void SlotTCP(unsigned char slot);							// Set TCP slot (0~15)
 void OpenTCP(unsigned char ip1, unsigned char ip2, 			// Open connection on current TCP slot (local port allocated automatically)
 			 unsigned char ip3, unsigned char ip4, 
@@ -281,6 +279,8 @@ void CloseUDP(void);										// Close current UDP slot
 void SendUDP(unsigned char* buffer, unsigned char length);  // Send contents of buffer on current UDP slot
 unsigned char* RecvUDP(unsigned int timeOut);				// Check all slots for incoming UDP packet (within time-out period)
 
+void GetURL(unsigned char* url);									// Request URL file
+unsigned char* ReadURL(unsigned char size, unsigned int timeOut);	// Read chunk of URL file
 void OpenWEB(unsigned int port, unsigned int timeOut);		// Start WEB server on specified port (time-out in millisecs)
 void CloseWEB(void);										// Close WEB server
 void HeaderWEB(unsigned char* buffer, unsigned char length);// Header of reply to current WEB client
