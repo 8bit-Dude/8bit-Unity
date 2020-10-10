@@ -33,10 +33,10 @@
 #include <string.h>
 
 // Externals: see libsedoric.s
-extern void __fastcall__ sed_savefile(void);
 extern void __fastcall__ sed_loadfile(void);
-extern void __fastcall__ sed_savezp(void);
+extern void __fastcall__ sed_savefile(void);
 extern void __fastcall__ sed_loadzp(void);
+extern void __fastcall__ sed_savezp(void);
 
 extern unsigned int sed_size;
 extern const char* sed_fname;
@@ -45,9 +45,9 @@ extern void* sed_end;
 extern int sed_err;
 
 unsigned char  fileNum;     
-unsigned char* fileNames[8];
-unsigned int   fileSizes[8];  
-unsigned char  fileBuffer[128];
+unsigned char* fileNames[16];
+unsigned int   fileSizes[16];  
+unsigned char  fileBuffer[256];
 
 // Using Sedoric for File Management
 void FileList()
@@ -64,8 +64,9 @@ void FileList()
 	
 	// Reformat and link to list (+32 to make it lower case)
 	fileNum = 0;
-	while (fileNum<8 && fileBuffer[j]) {
+	while (fileNum<16 && fileBuffer[j]) {
 		fileNames[fileNum] = &fileBuffer[j];
+		fileSizes[fileNum] = *(unsigned int*)&fileBuffer[j+14];
 		k = j; while (fileBuffer[k] != ' ') {
 			fileBuffer[k] += 32;
 			k++;

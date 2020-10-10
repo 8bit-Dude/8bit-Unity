@@ -43,10 +43,10 @@
 	.export _sed_end
 	.export _sed_err
 	
-	.export _sed_savefile
 	.export _sed_loadfile
-	.export _sed_savezp
+	.export _sed_savefile
 	.export _sed_loadzp
+	.export _sed_savezp
 	
 EXECVEC = $02f5
 DOSROM  = $04f2
@@ -59,52 +59,6 @@ _sed_begin: .byte 0,0
 _sed_end:   .byte 0,0
 _sed_err:   .byte 0,0
 savebuf_zp: .res 256
-
-
-_sed_savefile:
-	tya
-	pha
-	jsr _sed_savezp
-	lda _sed_fname
-	sta $e9
-	lda _sed_fname+1
-	sta $ea
-	jsr DOSROM
-	lda #1
-	sta $0b
-	lda #$00
-	sta $c018
-	clc
-	lda #$00
-	jsr $d454
-	lda _sed_begin
-	sta $c052
-	lda _sed_begin+1
-	sta $c053
-	lda _sed_end
-	sta $c054
-	lda _sed_end+1
-	sta $c055
-	lda _sed_begin
-	sta $c056
-	lda _sed_begin+1
-	sta $c057
-	lda #$00
-	sta $c04d
-	lda #$40
-	sta $c04e
-	lda #$40
-	sta $c051
-	jsr $de0b
-	jsr DOSROM
-	jsr _sed_loadzp
-	lda DOSERR
-	sta _sed_err
-	lda DOSERR+1
-	sta _sed_err+1
-	pla
-	tay
-	rts
 
 _sed_loadfile:
 	tya
@@ -131,10 +85,6 @@ _sed_loadfile:
 	lda #$40
 	sta $c04e
 	jsr $e0e5
-	lda $c052
-	sta _sed_begin
-	lda $c053
-	sta _sed_begin+1
 	clc
 	lda $c04f
 	sta _sed_size
@@ -152,14 +102,49 @@ _sed_loadfile:
 	sta _sed_err+1
 	pla
 	tay
+	rts
 
-_sed_savezp:
-	ldx #00
-save_loop:
-	lda $00,x
-	sta savebuf_zp,x
-	dex
-	bne save_loop
+_sed_savefile:
+	tya
+	pha
+	jsr _sed_savezp
+	lda _sed_fname
+	sta $e9
+	lda _sed_fname+1
+	sta $ea
+	jsr DOSROM
+	lda #1
+	sta $0b
+	lda #$00
+	sta $c018
+	clc
+	lda #$00
+	jsr $d454
+	lda _sed_begin
+	sta $c052
+	sta $c056
+	lda _sed_begin+1
+	sta $c053
+	sta $c057
+	lda _sed_end
+	sta $c054
+	lda _sed_end+1
+	sta $c055
+	lda #$00
+	sta $c04d
+	lda #$40
+	sta $c04e
+	lda #$40
+	sta $c051
+	jsr $de0b
+	jsr DOSROM
+	jsr _sed_loadzp
+	lda DOSERR
+	sta _sed_err
+	lda DOSERR+1
+	sta _sed_err+1
+	pla
+	tay
 	rts
 
 _sed_loadzp:
@@ -169,4 +154,13 @@ load_loop:
 	sta $00,x
 	dex
 	bne load_loop
+	rts
+
+_sed_savezp:
+	ldx #00
+save_loop:
+	lda $00,x
+	sta savebuf_zp,x
+	dex
+	bne save_loop
 	rts
