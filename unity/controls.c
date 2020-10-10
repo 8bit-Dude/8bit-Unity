@@ -26,6 +26,10 @@
  
 #include "unity.h"
 
+#ifdef __ATARIXL__
+  #pragma code-name("SHADOW_RAM")
+#endif
+
 #if (defined __LYNX__) || (defined __ORIC__)
   #include "hub.h"
 #endif

@@ -27,6 +27,7 @@
 ;
 
 	.include "lynx.inc"
+
 	.import __viddma: zp
 
 	.export _SuzyInit
@@ -42,11 +43,7 @@ VBLIRQ:     .byte   $60, $00, $00       ; RTS plus two dummy bytes
 
 	.segment "BSS"	
 
-DRAWPAGEL:  .res    1
-DRAWPAGEH:  .res    1
-VIEWPAGEL:  .res    1
-VIEWPAGEH:  .res    1
-
+_DrawPageAddr: .res 2
 
 ; Double buffer IRQ stuff
 DRAWPAGE:   .res    1
@@ -100,8 +97,8 @@ SWAPREQUEST:.res    1
 ; Draw in render buffer
 	sta     SCBNEXTL
 	stx     SCBNEXTH	
-	lda     DRAWPAGEL
-	ldx     DRAWPAGEH
+	lda     _DrawPageAddr
+	ldx     _DrawPageAddr+1
 	sta     VIDBASL
 	stx     VIDBASH
 	lda     #1
@@ -155,9 +152,6 @@ SETVIEWPAGE:
         ldy     #<$c038         ; page 1
         ldx     #>$c038
 @L2:
-        sty     VIEWPAGEL       ; Save viewpage for getpixel
-        stx     VIEWPAGEH
-
         lda     __viddma        ; Process flipped displays
         and     #2
         beq     @L3
@@ -188,8 +182,8 @@ SETDRAWPAGE:
         lda     #<$c038             ; page 1
         ldx     #>$c038
 @L2:
-        sta     DRAWPAGEL
-        stx     DRAWPAGEH
+        sta     _DrawPageAddr
+        stx     _DrawPageAddr+1
         rts
 
 ; ------------------------------------------------------------------------

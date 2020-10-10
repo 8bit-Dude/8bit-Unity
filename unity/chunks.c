@@ -36,6 +36,10 @@
  
 #include "unity.h"
 
+#ifdef __ATARIXL__
+  #pragma code-name("SHADOW_RAM")
+#endif
+
 #if (defined __APPLE2__) || (defined __ORIC__)
   void __fastcall__ Blit(void);
 #endif

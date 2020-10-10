@@ -235,7 +235,8 @@ void RecolorSprite(unsigned char index, unsigned char number, unsigned char colo
 #define CALLDEF
 typedef struct {
 	unsigned char colBeg, colEnd, rowBeg, rowEnd;
-	unsigned char id, type, *label;
+	unsigned char ink, paper, type, *label;
+	unsigned int data1, data2;
 	unsigned int next;
 } callback;
 #endif
@@ -251,7 +252,7 @@ callback* Input(unsigned char col, unsigned char row, unsigned char width, unsig
 void ListBox(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char* title, unsigned char* labels[], unsigned char len);
 void Panel(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char* title);
 void Line(unsigned char x1, unsigned char x2, unsigned char y1, unsigned char y2);
-callback* ScrollBar(unsigned char col, unsigned char row, unsigned char height, unsigned char value, unsigned char* name);
+callback* ScrollBar(unsigned char col, unsigned char row, unsigned char height, unsigned int value, unsigned int range);
 callback* PushCallback(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char type, unsigned char* label);
 callback* CheckCallbacks(unsigned char col, unsigned char row);
 void PopCallback(callback* call);

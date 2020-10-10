@@ -26,7 +26,13 @@
  
 #include "unity.h"
 
+#ifdef __ATARIXL__
+  #pragma code-name("SHADOW_RAM2")
+#endif
+
 callback* callHead = NULL;
+callback* callList = NULL;
+unsigned long fraction;
 
 ///////////////////////////////
 // Graphical scaling functions
@@ -61,6 +67,14 @@ unsigned int RowToY(unsigned char row)
 #endif
 }
 
+unsigned char SliderPos(callback* call)
+{
+	fraction = call->data1;
+	fraction *= (call->rowEnd - call->rowBeg - 2);
+	fraction /= call->data2;
+	return (call->rowBeg + fraction + 1);
+}
+
 //////////////////////////////////
 /// Callback management functions
 
@@ -70,7 +84,52 @@ callback* CheckCallbacks(unsigned char col, unsigned char row)
 		
 	// Check coordinates overlaps callback?
 	while (call) {
-		if (call->colBeg<=col && col<call->colEnd && call->rowBeg<=row && row<call->rowEnd) return call;
+		if (call->colBeg<=col && col<call->colEnd && call->rowBeg<=row && row<call->rowEnd) {
+			// Trigger click action (if any)
+			switch (call->type) {
+			case CALLTYPE_LISTBOX:
+				// Change highlight to new item
+				if (callList) {
+					inkColor = callList->ink;
+					paperColor = callList->paper;
+					PrintStr(callList->colBeg, callList->rowBeg, callList->label);
+				}
+				inkColor = call->paper;
+				paperColor = call->ink;
+				PrintStr(call->colBeg, call->rowBeg, call->label);
+				callList = call;
+				break;
+
+			case CALLTYPE_SCROLLBAR:
+				// Update position of slider
+				inkColor = call->ink;
+				paperColor = call->paper;
+				PrintChr(call->colBeg, SliderPos(call), charLineVert);
+				if (row == call->rowBeg) {
+					if (call->data1 > 0) 
+						call->data1--;
+				} else 
+				if (row == call->rowEnd-1) {
+					if (call->data1 < call->data2-1)
+						call->data1++;
+				} else 
+				if (row == call->rowBeg+1) {
+					call->data1 = 0;
+				} else 
+				if (row == call->rowEnd-2) {
+					call->data1 = call->data2-1;
+				} else {
+					fraction = call->data2;
+					fraction *= (row - call->rowBeg - 1);
+					fraction /= (call->rowEnd - call->rowBeg - 2);
+					call->data1 = fraction;
+				}
+				PrintChr(call->colBeg, SliderPos(call), charSliderVert);
+				break;
+				
+			}
+			return call;
+		}
 		call = (callback*)call->next;
 	}
 	return 0;
@@ -87,9 +146,11 @@ callback* PushCallback(unsigned char col, unsigned char row, unsigned char width
 	call->colEnd = (col+width);		
 	call->rowBeg = row;
 	call->rowEnd = (row+height);
-	call->type = type;
-	call->label = label;	
-	call->next = 0;
+	call->ink    = inkColor;
+	call->paper  = paperColor;
+	call->type   = type;
+	call->label  = label;	
+	call->next   = 0;
 	
 	// Add to callback queue
 	if (!callHead) {
@@ -132,6 +193,7 @@ void ClearCallbacks()
 		call = next;
 	}	
 	callHead = 0;
+	callList = NULL;
 }
 
 ////////////////////////////
@@ -207,17 +269,25 @@ void ListBox(unsigned char col, unsigned char row, unsigned char width, unsigned
 		PushCallback(col, row, width, 1, CALLTYPE_LISTBOX, elt);
 		i++;
 	}
- }
+}
 
-callback* ScrollBar(unsigned char col, unsigned char row, unsigned char height, unsigned char value, unsigned char* name)
+callback* ScrollBar(unsigned char col, unsigned char row, unsigned char height, unsigned int value, unsigned int range)
 {
+	callback* call;
 	unsigned char i=0;	
 
-	// Draw scrollbar and register callback
+	// Draw scrollbar
 	PrintChr(col, row, charArrowUp);
-	while (++i<height)
+	while (++i < (height-1))
 		PrintChr(col, row+i, charLineVert);
-	PrintChr(col, row+value+1, charSliderVert);
 	PrintChr(col, row+i, charArrowDown);
-	PushCallback(col, row, 1, height, CALLTYPE_SCROLLBAR, name);	
+	
+	// Register callback
+	call = PushCallback(col, row, 1, height, CALLTYPE_SCROLLBAR, 0);
+	call->data1 = value;
+	call->data2 = range;
+	
+	// Show slider
+	PrintChr(col, SliderPos(call), charSliderVert);
+	return call;
 }
