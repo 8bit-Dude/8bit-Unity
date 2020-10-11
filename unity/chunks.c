@@ -36,8 +36,12 @@
  
 #include "unity.h"
 
-#ifdef __ATARIXL__
-  #pragma code-name("SHADOW_RAM")
+#ifdef __APPLE2__
+  #pragma code-name("LOWCODE")
+#endif
+
+#ifdef __ATARI__
+  #pragma code-name("SHADOW_RAM2")
 #endif
 
 #if (defined __APPLE2__) || (defined __ORIC__)

@@ -27,7 +27,11 @@
 #include "unity.h"
 #include "hub.h"
 
-#ifdef __ATARIXL__
+#ifdef __APPLE2__
+  #pragma code-name("LOWCODE")
+#endif
+
+#ifdef __ATARI__
   #pragma code-name("SHADOW_RAM")
 #endif
 

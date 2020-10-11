@@ -27,7 +27,11 @@
 #include "hub.h"
 #include "unity.h"
 
-#ifdef __ATARIXL__
+#ifdef __APPLE2__
+  #pragma code-name("LOWCODE")
+#endif
+
+#ifdef __ATARI__
   #pragma code-name("SHADOW_RAM")
 #endif
 
@@ -42,8 +46,9 @@ unsigned char InitNetwork(void)
 #ifdef __HUB__
 	// Detect if HUB is connected
 	clock_t timer = clock();
-	while ((clock()-timer) < 2*TCK_PER_SEC) { 
-		if (hubState[0] == COM_ERR_OK) { return NETWORK_OK; }
+	while ((clock()-timer) < TCK_PER_SEC) { 
+		if (hubState[0] == COM_ERR_OK)
+			return NETWORK_OK;
 		UpdateHub();
 	}
 	return ADAPTOR_ERR;

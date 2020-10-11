@@ -30,8 +30,8 @@
   #pragma code-name("LC")
 #endif
 
-#ifdef __ATARIXL__
-  #pragma code-name("SHADOW_RAM")
+#ifdef __ATARI__
+  #pragma code-name("SHADOW_RAM2")
 #endif
 
 // Apple specific variables & functions
