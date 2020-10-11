@@ -30,7 +30,7 @@
 //	Last modified: 2019/05/21
 
 #ifdef __APPLE2__
-  #pragma code-name("LOWCODE")
+  #pragma code-name("LC")
 #endif
 
 // Addresses for AUX bank copying

@@ -26,6 +26,10 @@
  
 #include "unity.h"
 
+#ifdef __APPLE2__
+  #pragma code-name("LC")
+#endif
+
 #ifdef __ATARI__
   #pragma code-name("SHADOW_RAM2")
 #endif

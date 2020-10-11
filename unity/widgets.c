@@ -41,7 +41,7 @@ unsigned long fraction;
 ///////////////////////////////
 // Graphical scaling functions
 
-unsigned int ColToX(unsigned char col)
+unsigned char ColToX(unsigned char col)
 {
 #if defined __APPLE2__	// DHR Mode: 140 x 192
 	return (col*35)/10;
@@ -56,7 +56,22 @@ unsigned int ColToX(unsigned char col)
 #endif
 }
 
-unsigned int RowToY(unsigned char row)
+unsigned char XToCol(unsigned char x)
+{
+#if defined __APPLE2__	// DHR Mode: 140 x 192
+	return (x*10)/35;
+#elif defined __ATARI__	// INP Mode: 160 x 200
+	return x/4;
+#elif defined __ORIC__	// AIC Mode: 117 x 100 equivalent pixels
+	return x/3;	
+#elif defined __CBM__	// MLC Mode: 160 x 200
+	return x/4;
+#elif defined __LYNX__	// STD Mode: 160 x 102
+	return x/4;
+#endif
+}
+
+unsigned char RowToY(unsigned char row)
 {
 #if defined __APPLE2__	// DHR Mode: 140 x 192
 	return row*8;
@@ -68,6 +83,21 @@ unsigned int RowToY(unsigned char row)
 	return row*8;
 #elif defined __LYNX__	// STD Mode: 160 x 102
 	return row*6;
+#endif
+}
+
+unsigned char YToRow(unsigned char y)
+{
+#if defined __APPLE2__	// DHR Mode: 140 x 192
+	return y/8;
+#elif defined __ATARI__	// INP Mode: 160 x 200
+	return y/8;
+#elif defined __ORIC__	// AIC Mode: 117 x 100 equivalent pixels
+	return y/4;
+#elif defined __CBM__	// MLC Mode: 160 x 200
+	return y/8;
+#elif defined __LYNX__	// STD Mode: 160 x 102
+	return y/6;
 #endif
 }
 
@@ -84,20 +114,22 @@ unsigned char SliderPos(callback* call)
   #define cgetc GetKeyboardOverlay
 #endif
 
-unsigned char inputMode, inputCol, inputRow, inputLen, *inputBuffer;
+callback *inputCall; 
+unsigned char inputLen;
 
 unsigned char ProcessInput()
 {
 	unsigned char lastKey;
 
-	if (!inputMode)
+	if (!inputCall)
 		return 0;
 	
 	if (kbhit()) {
 		lastKey = cgetc();
-		paperColor = WHITE; inkColor = BLACK;
-		if (InputUpdate(inputCol, inputRow, inputBuffer, inputLen, lastKey)) {
-			inputMode = 0;
+		inkColor = inputCall->ink;
+		paperColor = inputCall->paper;		
+		if (InputUpdate(inputCall->colBeg, inputCall->rowBeg, inputCall->label, inputLen, lastKey)) {
+			inputCall = 0;
 		#if defined __LYNX__
 			HideKeyboardOverlay();	
 		#endif	
@@ -120,11 +152,8 @@ callback* CheckCallbacks(unsigned char col, unsigned char row)
 			// Trigger click action (if any)
 			switch (call->type) {
 			case CALLTYPE_INPUT:	
-				inputMode = 1;
-				inputCol = call->colBeg;
-				inputRow = call->rowBeg;
-				inputLen = call->colEnd - inputCol - 1;
-				inputBuffer = call->label;
+				inputCall = call;
+				inputLen = call->colEnd - call->colBeg - 1;
 			#if defined __LYNX__ 
 				SetKeyboardOverlay(60,70);
 				ShowKeyboardOverlay();
@@ -248,6 +277,23 @@ callback* Button(unsigned char col, unsigned char row, unsigned char width, unsi
 
 	// Register Callback
 	return PushCallback(col, row, width, height, CALLTYPE_BUTTON, label);
+}
+
+callback* Icon(unsigned char col, unsigned char row, unsigned char* chunk)
+{
+	unsigned char width, height;
+	
+	// Display chunk at desired position
+#if defined __ORIC__
+	SetChunk(chunk, 2*ColToX(col), 2*RowToY(row));
+	width = XToCol(chunk[2])/2; height = YToRow(chunk[3])/2;
+#else
+	SetChunk(chunk, ColToX(col), RowToY(row));
+	width = XToCol(chunk[2]); height = YToRow(chunk[3]);
+#endif
+	
+	// Register Callback
+	return PushCallback(col, row, width, height, CALLTYPE_ICON, "");	
 }
 
 callback* Input(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char* buffer)

@@ -245,9 +245,12 @@ typedef struct {
 #define CALLTYPE_INPUT     3
 #define CALLTYPE_LISTBOX   4
 #define CALLTYPE_SCROLLBAR 5
-unsigned int ColToX(unsigned char col);
-unsigned int RowToY(unsigned char row);
+unsigned char ColToX(unsigned char col);
+unsigned char RowToY(unsigned char row);
+unsigned char XToCol(unsigned char x);
+unsigned char YToRow(unsigned char y);
 callback* Button(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char* label);
+callback* Icon(unsigned char col, unsigned char row, unsigned char* chunk);
 callback* Input(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char* label);
 void ListBox(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char* title, unsigned char* labels[], unsigned char len);
 void Panel(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char* title);

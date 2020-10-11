@@ -25,17 +25,8 @@
 ;
 
 ;
-; Generated with ap65 v 1.00	(souce: OSDK)
+;   (Original souce: OSDK)
 ;
-
-	.setcpu     "65816"
-	.smart      on
-	.autoimport on
-	.case       on
-	
-	.importzp   sp, sreg, regsave, regbank
-	.importzp   tmp1, tmp2, tmp3, tmp4
-	.importzp   ptr1, ptr2, ptr3, ptr4
 	
 	.export _sed_size
 	.export _sed_fname

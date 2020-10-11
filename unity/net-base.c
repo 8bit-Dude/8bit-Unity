@@ -32,7 +32,7 @@
 #endif
 
 #ifdef __ATARI__
-  #pragma code-name("SHADOW_RAM")
+  #pragma code-name("SHADOW_RAM2")
 #endif
 
 #ifndef __HUB__
