@@ -32,18 +32,14 @@
 
 // Mouse state
 unsigned char* mouseState;
-unsigned char mouseMove = 1;
-unsigned char mouseLock = 0;
 
-void UpdateMouse()
+void ProcessMouse()
 {	
 	// Update mouse location
-	if (!mouseMove) 
-		return;
 	mouseState = GetMouse();
 	LocateSprite(2*mouseState[0]+4, mouseState[1]+4);
 	if (mouseState[2] & MOU_LEFT) 
-		SetSprite(0, 1); 
+		SetSprite(0, 0); 
 	else 
-		SetSprite(0, 0);
+		SetSprite(0, 1);
 }

@@ -12,60 +12,8 @@
 #include "music.h"
 #include "chat.h"
 
-///////////////////////////////////////////////////////////////////
-
-unsigned char inputMode, inputCol, inputRow, inputLen, *inputBuffer;
-
-#if defined __LYNX__ 
-	#define kbhit KeyboardOverlayHit
-	#define cgetc GetKeyboardOverlay
-#endif
-
-void SetInput(callback* call) 
-{
-	inputMode = 1;
-	inputCol = call->colBeg;
-	inputRow = call->rowBeg;
-	inputLen = call->colEnd - inputCol - 1;
-	inputBuffer = call->label;
-#if defined __LYNX__ 
-	SetKeyboardOverlay(60,70);
-	ShowKeyboardOverlay();
-	DisableSprite(0);
-	mouseMove = 0;
-	cgetc();
-#endif
-}
-
-void UpdateInput()
-{
-	unsigned char lastKey;
-	if (kbhit()) {
-		lastKey = cgetc();
-		if (inputMode) {
-			paperColor = WHITE; inkColor = BLACK;
-			if (InputUpdate(inputCol, inputRow, inputBuffer, inputLen, lastKey)) {
-				inputMode = 0;
-			#if defined __LYNX__
-				HideKeyboardOverlay();	
-				EnableSprite(0);			
-				mouseMove = 1;
-			#endif		
-			}			
-		}
-	}
-}
-
-///////////////////////////////////////////////////////////////////
-
 void ProcessCallback(callback* call)
 {
-	// Handle input boxes here
-	if (call->type == CALLTYPE_INPUT) { 
-		SetInput(call);
-		return;
-	} 
-		
 	// Callbacks to Apps
 	if (call == homeCall) { HomeScreen(); return; }
 	if (call == appCall[APP_FILES]) { appSel = APP_FILES; FilesScreen(); return; }
@@ -102,30 +50,20 @@ void ProcessPacket(unsigned char* packet)
 
 int main (void)
 {
+	clock_t timer;
 	callback* call;
 	unsigned char network;
 	unsigned char *packet;
-	clock_t timer;
+	unsigned char mouseLock = 0;	
 
 	// Set text mode colors
     textcolor(COLOR_WHITE);
     bordercolor(COLOR_BLACK);
     bgcolor(COLOR_BLACK);
 	
-	// Fetch File List First
+	// Get files and chunks
 	GetFileList();
-	
-	// Load app chunks
-	LoadChunk(&appChunk[APP_FILES], "files.chk");	
-	LoadChunk(&appChunk[APP_IMAGE], "image.chk");	
-	LoadChunk(&appChunk[APP_MUSIC], "music.chk");	
-	LoadChunk(&appChunk[APP_CHAT],  "chat.chk");	
-	
-	// Load icon chunks	
-	LoadChunk(&icoChunk[ICO_STOP],  "stop.chk");	
-	LoadChunk(&icoChunk[ICO_PLAY],  "play.chk");	
-	LoadChunk(&icoChunk[ICO_PREV],  "prev.chk");	
-	LoadChunk(&icoChunk[ICO_NEXT],  "next.chk");	
+	LoadChunks();
 
 	// Enter bitmap mode
 	InitBitmap();
@@ -147,10 +85,36 @@ int main (void)
 	// Main loop
 	while (1) {
 		if (clock() > timer) {
-			// Update timer and interface
+			// Update timer
 			timer = clock();
-			UpdateMouse();
-			UpdateInput();
+			
+			// Update Input Box (if active)
+			if (ProcessInput()) {
+				DisableSprite(0);
+			} else {
+				// Otherwise update Mouse
+				EnableSprite(0);
+				ProcessMouse();
+
+				// Check callbacks
+				if (!(mouseState[2] & MOU_LEFT)) {
+					if (!mouseLock) {
+						call = CheckCallbacks((mouseState[0]*CHR_COLS)/160, (mouseState[1]*CHR_ROWS)/200);
+						if (call) {
+						#if defined(__ORIC__)
+							DisableSprite(0);
+						#endif
+							ProcessCallback(call);
+						#if defined(__ORIC__)
+							EnableSprite(0);
+						#endif
+						}
+						mouseLock = 1;
+					}
+				} else {
+					mouseLock = 0;
+				}
+			}
 			
 			// Check for packets
 			if (network) {
@@ -164,26 +128,7 @@ int main (void)
 					EnableSprite(0);
 				#endif
 				}
-			}
-
-			// Check callbacks
-			if (mouseState[2] & MOU_LEFT) {
-				if (!mouseLock && !inputMode) {
-					call = CheckCallbacks((mouseState[0]*CHR_COLS)/160, (mouseState[1]*CHR_ROWS)/200);
-					if (call) {
-					#if defined(__ORIC__)
-						DisableSprite(0);
-					#endif
-						ProcessCallback(call);
-					#if defined(__ORIC__)
-						EnableSprite(0);
-					#endif
-					}
-					mouseLock = 1;
-				}
-			} else {
-				mouseLock = 0;
-			}
+			}			
 		}
 		// Platform dependent actions
 	#if defined __APPLE2__

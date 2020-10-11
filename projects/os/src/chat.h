@@ -14,10 +14,10 @@
 
 unsigned char lineX1, lineX2, lineY, chatConnected, chatLogged, chatLen;
 unsigned int chatList[4] = {0, 0, 0, 0};
-unsigned char chatRequest[138];
+unsigned char chatRequest[140];
 unsigned char* chatUser = &chatRequest[4];
-unsigned char* chatPass = &chatRequest[14];
-unsigned char* chatBuffer = &chatRequest[24];
+unsigned char* chatPass = &chatRequest[15];
+unsigned char* chatBuffer = &chatRequest[26];
 
 callback *callUser, *callPass, *callLogin, *callMessage, *callSend, *callScroll;
 
@@ -58,6 +58,10 @@ void ChatSend()
 	ChatPage(0);	
 }
 
+#ifdef __ATARI__
+  #pragma code-name("SHADOW_RAM2")
+#endif
+
 void ChatLogin()
 {
 	chatRequest[0] = REQ_LOGIN; 
@@ -76,8 +80,8 @@ void ChatMessage(unsigned char index, unsigned char* packet)
 	
 	// Display user/date
 	inkColor = WHITE;
-	PrintStr(0, line, &packet[4]);
-	i = 4 + 1 + strlen(&packet[4]);
+	PrintStr(0, line, &packet[3]);
+	i = 3 + 1 + strlen(&packet[3]);
 	
 	PrintStr(0, line+1, &packet[i]);
 	i = i + 1 + strlen(&packet[i]);
@@ -92,14 +96,19 @@ void ChatMessage(unsigned char index, unsigned char* packet)
 	}
 }
 
+void ChatScroll(void)
+{
+	unsigned int i;
+	paperColor = DESK_COLOR;
+	for (i=0; i<MSG_PER_PAGE; i++)
+		PrintBlanks(0, 5*i+2, CHR_COLS-1, 4);
+	ChatPage(callScroll->data1);
+}
+
 void ChatScreen(void)
 {			
 	unsigned char i;
 
-	// DEBUG
-	strcpy(chatUser, "8BIT-DUDE");
-	strcpy(chatPass, "UNI-Z33K0");	
-	
 	// Clear screen
 	ClearScreen();
 	
@@ -114,13 +123,13 @@ void ChatScreen(void)
 		// Panel/Labels
 		paperColor = DESK_COLOR; inkColor = BLACK;	
 		Panel(10, 3, 19, 8, "");	
-		PrintStr(12, 5, "User:");
-		PrintStr(12, 7, "Pass:");
+		PrintStr(11, 5, "User:");
+		PrintStr(11, 7, "Pass:");
 		
 		// Inputs
 		paperColor = WHITE;
-		callUser = Input(17, 5, 10, 1, chatUser);
-		callPass = Input(17, 7, 10, 1, chatPass);		
+		callUser = Input(16, 5, 10, 1, chatUser, 10);
+		callPass = Input(16, 7, 10, 1, chatPass, 10);		
 		
 		// Controls
 		paperColor = BLACK; inkColor = WHITE;	
@@ -131,12 +140,12 @@ void ChatScreen(void)
 		paperColor = BLACK; inkColor = WHITE;	
 		callSend = Button(CHR_COLS-4, 0, 7, 1, "Send");
 		
-		paperColor = WHITE; inkColor = BLACK;	
-		callMessage = Input(0, 0, CHR_COLS-4, 1, chatBuffer);
+		paperColor = WHITE; inkColor = BLACK;
+		callMessage = Input(0, 0, CHR_COLS-5, 1, chatBuffer, 112);
 			
 		paperColor = DESK_COLOR;
-		callScroll = ScrollBar(CHR_COLS-1, 1, CHR_ROWS-2, 0, 128);
-
+		callScroll = ScrollBar(CHR_COLS-1, 1, CHR_ROWS-2, 0, 1);
+		
 		// Add separators
 		lineX1 = ColToX(0)+2;
 		lineX2 = ColToX(CHR_COLS-2)+2;
@@ -153,14 +162,12 @@ void ChatScreen(void)
 	DrawTaskBar();		
 }
 
-#ifdef __ATARI__
-  #pragma code-name("SHADOW_RAM2")
-#endif
-
 void ChatPacket(unsigned char *packet)
 {
-	// Process received packets
 	unsigned char i;
+	unsigned int chatPages;
+	
+	// Process received packets
 	switch 	(packet[0]) {
 	case REQ_LOGIN:
 		// Check if login was OK
@@ -168,24 +175,26 @@ void ChatPacket(unsigned char *packet)
 			chatLogged = 1;	
 			ChatScreen();
 		} else {
-			PrintStr(10, 10, packet[1]);
+			PrintStr(10, 12, packet[1]);
 		}
+		break;
+		
 	case REQ_PAGE:
 		// Save chat list and request first message
-		chatLen = packet[4];
+		callScroll->data2 = packet[4];
+		chatLen = packet[6];
 		for (i=0; i<chatLen; i++)
-			chatList[i] = packet[5+2*i];
+			chatList[i] = packet[7+2*i];
 		chatRequest[0] = REQ_RECV;			
-		chatRequest[1] = chatList[0]; 
-		chatRequest[2] = 0; 
+		POKEW(&chatRequest[1], chatList[0]); 
 		chatRequest[3] = PLATFORM;		
-		SendTCP(chatRequest, 4);
+		SendTCP(chatRequest, 3);
 		break;
 	
 	case REQ_RECV:
 		// Check corresponding entry in list
 		i = 0;
-		while (i<4) {
+		while (i<MSG_PER_PAGE) {
 			if ((unsigned int)packet[1] == chatList[i]) break;
 			i++;
 		}
@@ -193,8 +202,8 @@ void ChatPacket(unsigned char *packet)
 		// Display message and request next entry
 		ChatMessage(i, packet);
 		if (i<chatLen-1) {
-			chatRequest[1] = chatList[i+1]; 
-			SendTCP(chatRequest, 4);
+			POKEW(&chatRequest[1], chatList[i+1]); 
+			SendTCP(chatRequest, 3);
 		}
 		break;
 	}
@@ -202,13 +211,19 @@ void ChatPacket(unsigned char *packet)
 
 void ChatCallback(callback* call)
 {
-	if (call == callLogin) {
-		ChatLogin();
-		return;
-	}
-	
-	if (call == callSend) {
-		ChatSend();
-		return;
+	if (!chatLogged) {
+		if (call == callLogin) {
+			ChatLogin();
+			return;
+		}
+	} else {
+		if (call == callScroll) {
+			ChatScroll();
+			return;
+		}
+		if (call == callSend) {
+			ChatSend();
+			return;
+		}
 	}
 }

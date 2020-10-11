@@ -37,4 +37,5 @@ void ImageCallback(callback* call)
 	if (call == iPrev)
 		dir = -1;
 	SelectFile(dir, imageExt, &imageSel);
+	ImageDisplay();
 }

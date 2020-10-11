@@ -6,6 +6,21 @@ unsigned char* appChunk[NUM_APPS];
 unsigned char* icoChunk[NUM_ICOS];
 char appSel = APP_HOME;
 
+void LoadChunks()
+{
+	// Load app chunks
+	LoadChunk(&appChunk[APP_FILES], "files.chk");	
+	LoadChunk(&appChunk[APP_IMAGE], "image.chk");	
+	LoadChunk(&appChunk[APP_MUSIC], "music.chk");	
+	LoadChunk(&appChunk[APP_CHAT],  "chat.chk");	
+	
+	// Load icon chunks	
+	LoadChunk(&icoChunk[ICO_STOP],  "stop.chk");	
+	LoadChunk(&icoChunk[ICO_PLAY],  "play.chk");	
+	LoadChunk(&icoChunk[ICO_PREV],  "prev.chk");	
+	LoadChunk(&icoChunk[ICO_NEXT],  "next.chk");		
+}
+
 void ClearScreen()
 {
 	unsigned char i;
@@ -33,16 +48,13 @@ void DrawTaskBar()
 
 // App icons location
 #if (defined __LYNX__)
-  #define HOME_HEIGHT 6
-  #define HOME_VSPAN  7
+  #define APP_VSPAN  7
 #else
-  #define HOME_HEIGHT 8
-  #define HOME_VSPAN  10
+  #define APP_VSPAN  10
 #endif
-  #define HOME_COL1   1
-  #define HOME_ROW1   1
-  #define HOME_WIDTH  8
-  #define HOME_HSPAN  10
+  #define APP_COL1   2
+  #define APP_ROW1   1
+  #define APP_HSPAN  10
 
 void HomeScreen(void)
 {
@@ -51,12 +63,10 @@ void HomeScreen(void)
 	// Clear screen and callbacks
 	ClearScreen();
 	
-	// Display and register APP icons
-	for (i=0; i<4; i++) {
-		chunk = appChunk[i]; SetChunk(chunk, chunk[0], chunk[1]);
-		appCall[i] = PushCallback(i*HOME_HSPAN+HOME_COL1, HOME_ROW1, HOME_WIDTH, HOME_HEIGHT, CALLTYPE_ICON, "");
-	}
-	
+	// Register App icons
+	for (i=0; i<4; i++)
+		appCall[i] = Icon(APP_COL1+i*APP_HSPAN, APP_ROW1, appChunk[i]);
+
 	// Add Taskbar
 	DrawTaskBar();	
 	paperColor = WHITE; inkColor = BLACK; 

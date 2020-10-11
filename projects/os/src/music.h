@@ -1,14 +1,12 @@
 
-char musicSel = 127; playing = 0;
+char musicSel = 127; musicPlaying = 0;
 callback* musicCall[4];
 
-#define MUS_LOGO_X      65
-#define MUS_LOGO_Y      8
-#define MUS_BUTT_COL1   7
-#define MUS_BUTT_ROW1   11
-#define MUS_BUTT_WIDTH  4
-#define MUS_BUTT_HEIGHT 3
-#define MUS_BUTT_HSPAN  7
+#define LOGO_X      65
+#define LOGO_Y      8
+#define BUTT_COL1   6
+#define BUTT_ROW1   11
+#define BUTT_HSPAN  7
 
 void MusicTitle()
 {
@@ -31,15 +29,12 @@ void MusicScreen(void)
 	ClearScreen();
 	
 	// Show music icon and name
-	SetChunk(appChunk[APP_MUSIC], MUS_LOGO_X, MUS_LOGO_Y);
+	SetChunk(appChunk[APP_MUSIC], LOGO_X, LOGO_Y);
 	MusicTitle();
 	
 	// Display and register player buttons
-	for (i=0; i<4; i++) {
-		col = i*MUS_BUTT_HSPAN+MUS_BUTT_COL1;
-		SetChunk(icoChunk[i], ColToX(col), RowToY(MUS_BUTT_ROW1));
-		musicCall[i] = PushCallback(col, MUS_BUTT_ROW1, MUS_BUTT_WIDTH, MUS_BUTT_HEIGHT, CALLTYPE_ICON, "");
-	}
+	for (i=0; i<4; i++)
+		musicCall[i] = Icon(BUTT_COL1+i*BUTT_HSPAN, BUTT_ROW1, icoChunk[i]);
 	
 	// Add Taskbar
 	DrawTaskBar();		
@@ -50,18 +45,18 @@ void MusicCallback(callback* call)
 	unsigned char dir = 1;
 	
 	if (call == musicCall[ICO_STOP]) {
-		if (playing) {
+		if (musicPlaying) {
 			StopMusic();
-			playing = 0;
+			musicPlaying = 0;
 			return;
 		}
 	}
 
 	if (call == musicCall[ICO_PLAY]) {
-		if (!playing) {
+		if (!musicPlaying) {
 			LoadMusic(fileNames[musicSel], MUSICRAM);
 			PlayMusic(MUSICRAM);			
-			playing = 1;
+			musicPlaying = 1;
 			return;
 		}
 	}
@@ -72,7 +67,7 @@ void MusicCallback(callback* call)
 			dir = -1;
 		SelectFile(dir, musicExt, &musicSel);
 		MusicTitle();
-		if (playing) {
+		if (musicPlaying) {
 			StopMusic();
 			LoadMusic(fileNames[musicSel], MUSICRAM);
 			PlayMusic(MUSICRAM);

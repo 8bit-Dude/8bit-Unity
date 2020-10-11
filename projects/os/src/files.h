@@ -100,9 +100,9 @@ void SelectFile(char dir, unsigned char* extension, char* fileSel)
   #define FILE_TYPE_X 100
   #define FILE_TYPE_Y 16
 #else
-  #define FILE_TYPE_X 200
+  #define FILE_TYPE_X 160
   #define FILE_TYPE_Y 32
-  char text[440];
+  char text[256];
 #endif
 
 char fname[17];
@@ -150,11 +150,11 @@ void FileCallback(callback* call)
 		// Create callback for player buttons
 		SetChunk(appChunk[APP_MUSIC], FILE_TYPE_X, FILE_TYPE_Y);	
 		return;		
-/*		if (playing)
+/*		if (musicPlaying)
 			StopMusic();
 		LoadMusic(fname, MUSICRAM);
 		PlayMusic(MUSICRAM);
-		playing = 1;   */
+		musicPlaying = 1;   */
 	}
 	
 	// Preview Text File
