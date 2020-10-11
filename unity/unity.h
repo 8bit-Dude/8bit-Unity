@@ -256,6 +256,7 @@ callback* ScrollBar(unsigned char col, unsigned char row, unsigned char height, 
 callback* PushCallback(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char type, unsigned char* label);
 callback* CheckCallbacks(unsigned char col, unsigned char row);
 void PopCallback(callback* call);
+unsigned char ProcessInput(void);
 void ClearCallbacks(void);
 
 // Network functions (see net-init.c, net-udp.c, net-tcp.c, net-web.c)

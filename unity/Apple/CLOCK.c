@@ -29,6 +29,10 @@
 
 #include "unity.h"
 
+#ifdef __APPLE2__
+  #pragma code-name("LC")
+#endif
+
 clock_t clk;
 
 // Wait for X clock ticks
@@ -38,10 +42,6 @@ void wait(unsigned char ticks)
 	while (i<220*ticks) { i++; }
 	clk += 1;		
 }
-
-#ifdef __APPLE2__
-  #pragma code-name("LC")
-#endif
 
 // Sleep for x seconds
 unsigned sleep(unsigned seconds)

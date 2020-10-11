@@ -69,6 +69,7 @@
 #define GREY   	9
 #define WHITE  	9
 #define BLUE   	10
+#define CYAN   	10
 #define GREEN  	11
 #define YELLOW 	15
 

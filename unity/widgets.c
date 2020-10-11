@@ -79,6 +79,34 @@ unsigned char SliderPos(callback* call)
 	return (call->rowBeg + fraction + 1);
 }
 
+#if defined __LYNX__ 
+  #define kbhit KeyboardOverlayHit
+  #define cgetc GetKeyboardOverlay
+#endif
+
+unsigned char inputMode, inputCol, inputRow, inputLen, *inputBuffer;
+
+unsigned char ProcessInput()
+{
+	unsigned char lastKey;
+
+	if (!inputMode)
+		return 0;
+	
+	if (kbhit()) {
+		lastKey = cgetc();
+		paperColor = WHITE; inkColor = BLACK;
+		if (InputUpdate(inputCol, inputRow, inputBuffer, inputLen, lastKey)) {
+			inputMode = 0;
+		#if defined __LYNX__
+			HideKeyboardOverlay();	
+		#endif	
+			return 0;		
+		}			
+	}
+	return 1;
+}
+
 //////////////////////////////////
 /// Callback management functions
 
@@ -91,6 +119,16 @@ callback* CheckCallbacks(unsigned char col, unsigned char row)
 		if (call->colBeg<=col && col<call->colEnd && call->rowBeg<=row && row<call->rowEnd) {
 			// Trigger click action (if any)
 			switch (call->type) {
+			case CALLTYPE_INPUT:	
+				inputMode = 1;
+				inputCol = call->colBeg;
+				inputRow = call->rowBeg;
+				inputLen = call->colEnd - inputCol - 1;
+				inputBuffer = call->label;
+			#if defined __LYNX__ 
+				SetKeyboardOverlay(60,70);
+				ShowKeyboardOverlay();
+			#endif									
 			case CALLTYPE_LISTBOX:
 				// Change highlight to new item
 				if (callList) {

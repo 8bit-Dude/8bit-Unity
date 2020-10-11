@@ -53,6 +53,7 @@
 #define DBLUE	1
 #define DGREEN	2
 #define BLUE	3
+#define CYAN	3
 #define BROWN	4
 #define GREY	5
 #define GREEN	6
