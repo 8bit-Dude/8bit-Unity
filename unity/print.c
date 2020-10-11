@@ -30,7 +30,7 @@
   #pragma code-name("LC")
 #endif
 
-#ifdef __ATARIXL__
+#ifdef __ATARI__
   #pragma code-name("SHADOW_RAM")
 #endif
 
@@ -68,7 +68,7 @@
 #define BYTE4(a,b,c,d) ((a<<6) | (b<<4) | (c<<2) | d)
 
 // Colors used in printing function
-unsigned char inkColor, paperColor;
+unsigned char inkColor = WHITE, paperColor = BLACK;
 
 // Rapidly fill memory area with blank characters
 void PrintBlanks(unsigned char col, unsigned char row, unsigned char width, unsigned char height)
@@ -251,16 +251,17 @@ void PrintLogo(unsigned char col, unsigned char row, unsigned char index)
 								  {0,0,0, 24,100,100,144,168},		// ORI: (0,1,2,0) (1,2,1,0) (1,2,1,0) (2,1,0,0) (2,2,2,0)
 								  {0,0,0,136,160, 32, 40,136},		// LNX: (2,0,2,0) (2,2,0,0) (0,2,0,0) (0,2,2,0) (2,0,2,0)
 								  {0,0,0,212,215,255,215,255} };	// FLP: (3,1,1,0) (3,1,1,3) (3,3,3,3) (3,1,1,3) (3,3,3,3)
-	unsigned int addr1, addr2;
+	unsigned int addr1, addr2, addr3;
 	unsigned char i;
 	
 	// Get memory addresses
-	addr1 = BITMAPRAM + 40*((row*8)&248)+((col*8)&504);
-	addr2 = SCREENRAM + row*40+col;
+	addr1 = BITMAPRAM + row*320 + col*8;
+	addr2 = SCREENRAM + row*40 + col;
+	addr3 = COLORRAM + row*40+col;
 	
 	// Set logo colors
 	POKE(addr2, GREEN << 4 | RED);
-	POKE(COLORRAM + row*40+col, BLUE);
+	POKE(addr3, BLUE);
 
 	// Set Character data
 	for (i=0; i<8; ++i) {
@@ -385,7 +386,7 @@ void PrintChr(unsigned char col, unsigned char row, const char *chr)
 	unsigned char i;
 	unsigned int addr;
 	if ((col > CHR_COLS) || (row > CHR_ROWS)) { return; }		
-	addr = BITMAPRAM + 40*((row*8)&248) + ((col*8)&504);
+	addr = BITMAPRAM + row*320 + col*8;
 	if (chr == &charBlank[0]) {
 		memset((char*)addr, pow2, 8);
 	} else {
@@ -431,8 +432,8 @@ const char *GetChr(unsigned char chr)
 	else if (chr > 192) { return &charLetter[(chr-193)*3]; }	// Upper case (C64)
 	else if (chr > 64)  { return &charLetter[(chr-65)*3]; }		// Lower case (C64)
 #else
-	else if (chr > 96)  { return &charLetter[(chr-97)*3]; }	// Lower case (Apple/Atari)
-	else if (chr > 64)  { return &charLetter[(chr-65)*3]; }	// Upper case (Apple/Atari)
+	else if (chr > 96)  { return &charLetter[(chr-97)*3]; }	// Lower case (Apple/Atari/Oric/Lynx)
+	else if (chr > 64)  { return &charLetter[(chr-65)*3]; }	// Upper case (Apple/Atari/Oric/Lynx)
 #endif
 	else if (chr == 63) { return &charQuestion[0]; }
 	else if (chr == 58) { return &charColon[0]; }
@@ -464,120 +465,109 @@ void PrintStr(unsigned char col, unsigned char row, const char *buffer)
 #endif		
 }
 
-// Rolling buffer at the top of the screen, that moves text leftward when printing
-void PrintBuffer(char *buffer)
+void CopyText(unsigned char col1, unsigned char row1, unsigned char col2, unsigned char row2, unsigned char len)
 {
-	unsigned char len, i;
-	buffer[CHR_COLS] = 0;
-	len = strlen(buffer);
 #if defined __CBM__
 	// Copy bitmap and screen ram
 	DisableRom();
-	memcpy((char*)BITMAPRAM, (char*)BITMAPRAM+len*8, (CHR_COLS-len)*8);
+	memcpy((char*)BITMAPRAM+row1*320+col1*8, (char*)BITMAPRAM+row2*320+col2*8, len*8);
 	EnableRom();
-	memcpy((char*)SCREENRAM, (char*)SCREENRAM+len, (CHR_COLS-len));
+	memcpy((char*)SCREENRAM+row1*40+col1, (char*)SCREENRAM+row2*40+col2, len);
 #elif defined __ATARI__
 	// Copy bitmap 1 and 2
+	unsigned char i;
 	for (i=0; i<8; ++i) {
-		memcpy((char*)BITMAPRAM1+i*40, (char*)BITMAPRAM1+i*40+len, (CHR_COLS-len));
-		memcpy((char*)BITMAPRAM2+i*40, (char*)BITMAPRAM2+i*40+len, (CHR_COLS-len));
+		memcpy((char*)BITMAPRAM1+row1*320+col1+i*40, (char*)BITMAPRAM1+row2*320+col2+i*40, len);
+		memcpy((char*)BITMAPRAM2+row1*320+col1+i*40, (char*)BITMAPRAM2+row2*320+col2+i*40, len);
 	}
 #elif defined __ORIC__
 	// Copy bitmap RAM
+	unsigned char i;
 	for (i=0; i<8; ++i) {
-		memcpy((char*)BITMAPRAM+1+i*40, (char*)BITMAPRAM+1+i*40+len, (CHR_COLS-len));
-	}
-	// Apply ink change
-	if (buffer[0] == '^') {
-		SetAttributes(CHR_COLS-len, 0, inkColor);
-		buffer = &buffer[1];
+		memcpy((char*)BITMAPRAM+1+row1*320+col1+i*40, (char*)BITMAPRAM+1+row2*320+col2+i*40, len);
 	}
 #elif defined __APPLE2__
 	// Always copy 7 pixels at a time!
-	len = 2*(len/2+len%2);
+	unsigned int src, dst;
+	unsigned char i, x1, y1, x2, y2;
+	col1 += col1%2; col2 += col2%2;	
+	x1 = (col1*35)/10; y1 = (row1*8);
+	x2 = (col2*35)/10; y2 = (row2*8);	
 	for (i=0; i<8; ++i) {
-		SetDHRPointer(0, i);		
+		SetDHRPointer(x1, y1+i); dst = dhrptr;
+		SetDHRPointer(x2, y2+i); src = dhrptr;
 		*dhraux = 0;
-		memcpy((char*)(dhrptr), (char*)(dhrptr+len), (CHR_COLS-len));
+		memcpy((char*)dst, (char*)src, len);
 		*dhrmain = 0;
-		memcpy((char*)(dhrptr), (char*)(dhrptr+len), (CHR_COLS-len));
+		memcpy((char*)dst, (char*)src, len);
 	}
-	if (strlen(buffer)%2) { PrintChr(CHR_COLS-1, 0, charBlank); }
 #elif defined __LYNX__
 	// Copy bitmap RAM
-	for (i=0; i<6; ++i) {	
-		memcpy((char*)BITMAPRAM+1+i*82, (char*)BITMAPRAM+1+i*82+len*2, (CHR_COLS-len)*2);
-	}
-#endif
-	// Print new message
-	PrintStr(CHR_COLS-len, 0, buffer);
+	unsigned char i;
+	for (i=0; i<6; ++i)	
+		memcpy((char*)BITMAPRAM+1+row1*(6*82)+col1*2+i*82, (char*)BITMAPRAM+1+row2*(6*82)+col2*2+i*82, len*2);
+#endif	
 }
 
 // Interactive text input function
-unsigned char InputUpdate(unsigned char col, unsigned char row, char *buffer, unsigned char len, unsigned char key)
+unsigned char InputStr(unsigned char col, unsigned char row, unsigned char width, char *buffer, unsigned char len, unsigned char key)
 {
-	unsigned char curlen;
+	unsigned char i, curlen, offset;
 	
+	// Check current length of input
+	curlen = strlen(buffer);
+	if 	(curlen < width)
+		offset = curlen;
+	else
+		offset = width;
+		
 	// Was a new key received?
 	if (!key) {
 		// Initialize input field
-		PrintBlanks(col, row, len+1, 1);
-		PrintStr(col, row, buffer);
-	} else {
-		// Check current length of input
-		curlen = strlen(buffer);
+		PrintBlanks(col, row, width+1, 1);
+		PrintStr(col, row, &buffer[curlen-offset]);
 		
+	} else {		
 		// Process Letter keys
-#if (defined __ATARI__) || (defined __ORIC__)
-		if (key == 32 | key == 33 | (key > 38 & key < 59) | key == 63 | key == 92 | key == 95 | (key > 96 & key < 123)) {	// Atari/Oric
-#else
-		if (key == 32 | key == 33 | (key > 38 & key < 59) | key == 63 | (key > 64 & key < 91) | key == 92 | key == 95) {	// Apple/C64
-#endif
-			if (curlen < len) { 
+		if (curlen < len) { 
+		#if (defined __ATARI__) || (defined __ORIC__)
+			if (key == 32 | key == 33 | (key > 38 & key < 59) | key == 63 | key == 92 | key == 95 | (key > 96 & key < 123)) {	// Atari/Oric
+		#else
+			if (key == 32 | key == 33 | (key > 38 & key < 59) | key == 63 | (key > 64 & key < 91) | key == 92 | key == 95) {	// Apple/C64/Lynx
+		#endif
 				buffer[curlen] = key;
-				buffer[curlen+1] = 0; 
-				PrintChr(col+curlen, row, GetChr(key));
+				buffer[curlen+1] = 0;
+				if (curlen >= width) {
+					CopyText(col, row, col+1, row, width-1);
+					offset--;
+				}
+				PrintChr(col+offset, row, GetChr(key));
+				offset++;
 			}
 		}
 		
 		// Process Delete key
-		if (key == CH_DEL) {
-			if (curlen > 0) {
-				buffer[curlen-1] = 0;
-				PrintChr(col+curlen, row, &charBlank[0]);
+		if (curlen > 0) {
+			if (key == CH_DEL) {
+				buffer[curlen-1] = 0;				
+				if 	(curlen > width) {
+					for (i=width-1; i>0; i--)
+						CopyText(col+i, row, col+i-1, row, 1);
+					PrintChr(col, row, GetChr(buffer[curlen-width-1]));					
+				} else {
+					PrintChr(col+offset, row, &charBlank[0]);
+					offset--;					
+				}
 			}
 		}
 
-		// Return key
-		if (key == CH_ENTER) { return 1; }
+		// Was return key pressed?
+		if (key == CH_ENTER) { 
+			return 1; 
+		}
 	}
-	
+
 	// Show cursor
-	PrintChr(col+strlen(buffer), row, &charUnderbar[0]);
+	PrintChr(col+offset, row, &charUnderbar[0]);	
 	return 0;
-}
-
-void InputStr(unsigned char col, unsigned char row, char *buffer, unsigned char len)
-{
-	// Print initial condition
-	InputUpdate(col, row, buffer, len, 0);
-
-	// Run input loop
-#if defined __LYNX__ 
-	ShowKeyboardOverlay();
-	while (1) {
-		while (!KeyboardOverlayHit()) { UpdateDisplay(); } // Refresh Lynx screen
-		if (InputUpdate(col, row, buffer, len, GetKeyboardOverlay())) {
-			HideKeyboardOverlay();
-			return; 
-		}
-	}
-#else
-	while (1) {
-		while (!kbhit()) {}
-		if (InputUpdate(col, row, buffer, len, cgetc())) { 
-			return; 
-		}
-	}
-#endif
 }

@@ -87,6 +87,7 @@ signed char keyCodes[4][13] = { { 49, 50, 51, 52, 53, 54, 55, 56, 57, 48, 45, 95
 								{ 90, 88, 67, 86, 66, 78, 77, 44, 46, 63, 47, 92, 32 } };
 void ShowKeyboardOverlay() {
 	keybrdShow = 1;
+	keybrdPressed = 1;
 }
 void HideKeyboardOverlay() {
 	keybrdShow = 0;

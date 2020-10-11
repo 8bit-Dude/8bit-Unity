@@ -113,9 +113,7 @@ void PrintChr(unsigned char col, unsigned char row, const char *chr);
 void PrintNum(unsigned char col, unsigned char row, unsigned int num);
 void PrintStr(unsigned char col, unsigned char row, const char *buffer);
 void PrintLogo(unsigned char col, unsigned char row, unsigned char index);
-void PrintBuffer(char *buffer);
-void InputStr(unsigned char col, unsigned char row, char *buffer, unsigned char len);
-unsigned char InputUpdate(unsigned char col, unsigned char row, char *buffer, unsigned char len, unsigned char key);
+unsigned char InputStr(unsigned char col, unsigned char row, unsigned char width, char *buffer, unsigned char len, unsigned char key);
 const char *GetChr(unsigned char chr);
 
 // Joystick/Mouse definitions
@@ -251,7 +249,7 @@ unsigned char XToCol(unsigned char x);
 unsigned char YToRow(unsigned char y);
 callback* Button(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char* label);
 callback* Icon(unsigned char col, unsigned char row, unsigned char* chunk);
-callback* Input(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char* label);
+callback* Input(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char* buffer, unsigned char len);
 void ListBox(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char* title, unsigned char* labels[], unsigned char len);
 void Panel(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char* title);
 void Line(unsigned char x1, unsigned char x2, unsigned char y1, unsigned char y2);

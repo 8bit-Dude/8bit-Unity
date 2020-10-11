@@ -115,20 +115,16 @@ unsigned char SliderPos(callback* call)
 #endif
 
 callback *inputCall; 
-unsigned char inputLen;
+unsigned char inputWidth;
 
 unsigned char ProcessInput()
 {
-	unsigned char lastKey;
-
 	if (!inputCall)
 		return 0;
 	
 	if (kbhit()) {
-		lastKey = cgetc();
-		inkColor = inputCall->ink;
-		paperColor = inputCall->paper;		
-		if (InputUpdate(inputCall->colBeg, inputCall->rowBeg, inputCall->label, inputLen, lastKey)) {
+		inkColor = inputCall->ink; paperColor = inputCall->paper;		
+		if (InputStr(inputCall->colBeg, inputCall->rowBeg, inputWidth, inputCall->label, inputCall->data1, cgetc())) {
 			inputCall = 0;
 		#if defined __LYNX__
 			HideKeyboardOverlay();	
@@ -153,11 +149,13 @@ callback* CheckCallbacks(unsigned char col, unsigned char row)
 			switch (call->type) {
 			case CALLTYPE_INPUT:	
 				inputCall = call;
-				inputLen = call->colEnd - call->colBeg - 1;
+				inputWidth = call->colEnd - call->colBeg;
 			#if defined __LYNX__ 
 				SetKeyboardOverlay(60,70);
 				ShowKeyboardOverlay();
-			#endif									
+			#endif		
+				break;
+				
 			case CALLTYPE_LISTBOX:
 				// Change highlight to new item
 				if (callList) {
@@ -296,14 +294,17 @@ callback* Icon(unsigned char col, unsigned char row, unsigned char* chunk)
 	return PushCallback(col, row, width, height, CALLTYPE_ICON, "");	
 }
 
-callback* Input(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char* buffer)
+callback* Input(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char* buffer, unsigned char len)
 {
+	callback* call;
+		
 	// Clear Field Area
-	PrintBlanks(col, row, width, height);
-	PrintStr(col, row, buffer);
+	InputStr(col, row, width, buffer, len, 0);
 
 	// Register Callback
-	return PushCallback(col, row, width, height, CALLTYPE_INPUT, buffer);
+	call = PushCallback(col, row, width, height, CALLTYPE_INPUT, buffer);
+	call->data1 = len;
+	return call;
 }
 
 void Panel(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char* title)
