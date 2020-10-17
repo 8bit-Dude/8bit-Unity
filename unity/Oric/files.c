@@ -29,7 +29,8 @@
  *   specific prior written permission.
  *
  */
-
+ 
+#include <stdlib.h>
 #include <string.h>
 
 // Externals: see libsedoric.s
@@ -40,41 +41,41 @@ extern void __fastcall__ sed_savezp(void);
 
 extern unsigned int sed_size;
 extern const char* sed_fname;
-extern void* sed_begin;
+extern void* sed_dest;
 extern void* sed_end;
 extern int sed_err;
 
 unsigned char  fileNum;     
 unsigned char* fileNames[16];
 unsigned int   fileSizes[16];  
-unsigned char  fileBuffer[256];
+unsigned char* fileBuffer;
 
 // Using Sedoric for File Management
 void FileList()
 {
-	unsigned char j, k;
+	unsigned char j=0, k;
 	
+	// Assign some memory to file buffer
+	fileBuffer = malloc(240);
+
 	// Get raw file list from Sedoric buffer at $C310
 	sed_savezp();	  // Backup Zero Page
 	asm("jsr $04f2"); // Switch ON RAM/ROM overlay
 	asm("jsr $D451"); // Execute Sedoric DIR
-	memcpy(fileBuffer, 0xC310, 128);
+	memcpy((char*)fileBuffer, 0xC310, 240);
 	asm("jsr $04f2"); // Switch OFF RAM/ROM overlay	
 	sed_loadzp();	  // Restore Zero Page
 	
-	// Reformat and link to list (+32 to make it lower case)
+	// Reformat and link to list
 	fileNum = 0;
-	while (fileNum<16 && fileBuffer[j]) {
+	while (fileNum<15 && fileBuffer[j]) {
 		fileNames[fileNum] = &fileBuffer[j];
 		fileSizes[fileNum] = *(unsigned int*)&fileBuffer[j+14];
-		k = j; while (fileBuffer[k] != ' ') {
-			fileBuffer[k] += 32;
-			k++;
-		}
+		k = j; while (fileBuffer[k] != ' ') k++;
 		fileBuffer[k++] = '.'; j += 9;
-		fileBuffer[k++] = fileBuffer[j++]+32;
-		fileBuffer[k++] = fileBuffer[j++]+32;
-		fileBuffer[k++] = fileBuffer[j]+32;
+		fileBuffer[k++] = fileBuffer[j++];
+		fileBuffer[k++] = fileBuffer[j++];
+		fileBuffer[k++] = fileBuffer[j];
 		fileBuffer[k] = 0;
 		j = (++fileNum)*16;
 	}
@@ -83,8 +84,8 @@ void FileList()
 int FileWrite(const char* fname, void* buf, int len) 
 {
     sed_fname = fname;
-    sed_begin = buf;
-    sed_end = (char*)sed_begin+len;
+    sed_dest = buf;
+    sed_end = (char*)sed_dest+len;
     sed_savefile();  	
     return sed_err;
 }
@@ -92,7 +93,7 @@ int FileWrite(const char* fname, void* buf, int len)
 int FileRead(const char* fname, void* buf)
 {
     sed_fname = fname;
-    sed_begin = buf;
+    sed_dest = buf;
     sed_loadfile();
     return sed_size;
 }

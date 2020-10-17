@@ -30,7 +30,7 @@
 	
 	.export _sed_size
 	.export _sed_fname
-	.export _sed_begin
+	.export _sed_dest
 	.export _sed_end
 	.export _sed_err
 	
@@ -43,13 +43,14 @@ EXECVEC = $02f5
 DOSROM  = $04f2
 DOSERR  = $04fd
 
-.code
 _sed_size:  .byte 0,0
 _sed_fname: .byte 0,0
-_sed_begin: .byte 0,0
+_sed_dest:  .byte 0,0
 _sed_end:   .byte 0,0
 _sed_err:   .byte 0,0
 savebuf_zp: .res 256
+
+.code
 
 _sed_loadfile:
 	tya
@@ -67,9 +68,9 @@ _sed_loadfile:
 	clc
 	lda #$00
 	jsr $d454
-	lda _sed_begin
+	lda _sed_dest
 	sta $c052
-	lda _sed_begin+1
+	lda _sed_dest+1
 	sta $c053
 	lda #$00
 	sta $c04d
@@ -79,11 +80,11 @@ _sed_loadfile:
 	clc
 	lda $c04f
 	sta _sed_size
-	adc _sed_begin
+	adc _sed_dest
 	sta _sed_end
 	lda $c050
 	sta _sed_size+1
-	adc _sed_begin+1
+	adc _sed_dest+1
 	sta _sed_end+1
 	jsr DOSROM
 	jsr _sed_loadzp
@@ -111,10 +112,10 @@ _sed_savefile:
 	clc
 	lda #$00
 	jsr $d454
-	lda _sed_begin
+	lda _sed_dest
 	sta $c052
 	sta $c056
-	lda _sed_begin+1
+	lda _sed_dest+1
 	sta $c053
 	sta $c057
 	lda _sed_end
