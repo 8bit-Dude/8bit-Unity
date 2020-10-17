@@ -70,7 +70,7 @@ void FileList()
 	fileNum = 0;
 	while (fileNum<15 && fileBuffer[j]) {
 		fileNames[fileNum] = &fileBuffer[j];
-		fileSizes[fileNum] = *(unsigned int*)&fileBuffer[j+14];
+		fileSizes[fileNum] = fileBuffer[j+14]*256;
 		k = j; while (fileBuffer[k] != ' ') k++;
 		fileBuffer[k++] = '.'; j += 9;
 		fileBuffer[k++] = fileBuffer[j++];

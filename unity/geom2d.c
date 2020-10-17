@@ -26,7 +26,7 @@
  
 #define BASE_DECIMALS 100 
 
-#ifdef __ATARI__
+#ifdef __ATARIXL__
   #pragma code-name("SHADOW_RAM")
 #endif
 

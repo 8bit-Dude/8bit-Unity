@@ -23,11 +23,11 @@
  *   used to endorse or promote products derived from this software without
  *   specific prior written permission.
  */
- 
+
 #include <lynx.h>
 
 // Memory Map
-#define SHAREDRAM  (0x8D8B)
+#define SHAREDRAM  (0x8F8B)
 #define MUSICRAM   (0x938B)
 #define BITMAPRAM  (0x9F8B)
 
@@ -44,6 +44,7 @@
 #define PURPLE 0
 #define DBLUE  1
 #define BLUE   2
+#define CYAN   2
 #define LBLUE  3
 #define LGREEN 4
 #define GREEN  5
@@ -69,4 +70,4 @@
 extern unsigned char autoRefresh;
 
 // Workaround for reading files from ROM (see files.c)
-unsigned int FileLoad(const char* filename);
+unsigned int FileRead(const char* filename);

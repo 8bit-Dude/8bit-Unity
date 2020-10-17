@@ -113,6 +113,7 @@ void PrintChr(unsigned char col, unsigned char row, const char *chr);
 void PrintNum(unsigned char col, unsigned char row, unsigned int num);
 void PrintStr(unsigned char col, unsigned char row, const char *buffer);
 void PrintLogo(unsigned char col, unsigned char row, unsigned char index);
+void CopyText(unsigned char col1, unsigned char row1, unsigned char col2, unsigned char row2, unsigned char len);
 unsigned char InputStr(unsigned char col, unsigned char row, unsigned char width, char *buffer, unsigned char len, unsigned char key);
 const char *GetChr(unsigned char chr);
 
@@ -165,7 +166,7 @@ unsigned char atan2(unsigned char y, unsigned char x);
 // C64:   SID track (see C64/SID.s)
 // Lynx:  Chipper   (see Lynx/CHIPPER.s)
 // Oric:  YM track  (see Oric/MYM.s)
-void LoadMusic(const char* filename, unsigned int address);
+void LoadMusic(const char* filename);
 void PlayMusic(unsigned int address);
 void StopMusic(void);
 

@@ -30,7 +30,7 @@
   #pragma code-name("LOWCODE")
 #endif
 
-#ifdef __ATARI__
+#ifdef __ATARIXL__
   #pragma code-name("SHADOW_RAM")
 #endif
 

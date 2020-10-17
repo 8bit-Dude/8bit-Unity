@@ -30,7 +30,7 @@
   #pragma code-name("LOWCODE")
 #endif
 
-#ifdef __ATARI__
+#ifdef __ATARIXL__
   #pragma code-name("SHADOW_RAM")
 #endif
 
@@ -136,14 +136,20 @@
 	}
 #endif
 
-void LoadMusic(const char* filename, unsigned int address)
+void LoadMusic(const char* filename)
 {
 #if defined __ORIC__
 	// Load from File
-	FileRead(filename, address);
+	FileRead(filename, (char*)MUSICRAM);
 #elif defined __LYNX__
 	// Load from CART file system
-	FileLoad(filename);
+	FileRead(filename);
+#elif defined __ATARI__
+	if (FileOpen(filename)) {
+		// Consume 6 bytes of header then read data
+		FileRead((char*)MUSICRAM, 6);	
+		FileRead((char*)MUSICRAM, 8000);	
+	}
 #else
 	FILE* fp;
 	unsigned int loadaddr;
@@ -152,16 +158,8 @@ void LoadMusic(const char* filename, unsigned int address)
 	fp = fopen(filename, "rb");	
 	if (!fp) return;
 
-  #if defined __ATARI__
-	// Consume 6 bytes of header
-	fgetc(fp); fgetc(fp); 
+	// Get load address and read data
 	fread((char*)&loadaddr, 1, 2, fp);
-	fgetc(fp); fgetc(fp); 
-  #else
-	// Just get load address
-	fread((char*)&loadaddr, 1, 2, fp);
-  #endif
-	// Read actual data
 	fread((char*)loadaddr, 1, 8000, fp);
 #endif
 }

@@ -30,7 +30,7 @@
   #pragma code-name("LC")
 #endif
 
-#ifdef __ATARI__
+#ifdef __ATARIXL__
   #pragma code-name("SHADOW_RAM2")
 #endif
 
@@ -198,9 +198,15 @@ void LoadBitmap(char *filename)
 	FileRead(filename, (void*)(BITMAPRAM));
 #elif defined __LYNX__
 	// Load from CART file system
-	if (FileLoad(filename) && autoRefresh) 
+	if (FileRead(filename) && autoRefresh) 
 		UpdateDisplay();	
-#else	
+#elif defined __ATARI__
+	if (FileOpen(filename)) {
+		FileRead((char*)PALETTERAM, 4);		// 4 bytes for palette
+		FileRead((char*)BITMAPRAM1, 8000);	// 8000 bytes for frame 1
+		FileRead((char*)BITMAPRAM2, 8000);	// 8000 bytes for frame 2
+	}
+#else
 	// Open Map File
 	FILE* fp;
 	fp = fopen(filename, "rb");	
@@ -218,16 +224,7 @@ void LoadBitmap(char *filename)
 	fread((char*)(COLORRAM), 1, 1000, fp);
 	
 	// 1 byte background color
-	bg = (char) fgetc(fp);	
-  #elif defined __ATARI__	
-	// 4 bytes palette ram
-	fread((char*)PALETTERAM, 1, 4, fp);
-	
-	// 8000 bytes RAM1 (color 1)
-	fread((char*)BITMAPRAM1, 1, 8000, fp);
-	
-	// 8000 bytes RAM2 (color 2)
-	fread((char*)BITMAPRAM2, 1, 8000, fp);
+	bg = (char) fgetc(fp);
   #elif defined __APPLE2__
 	// Read 8192 bytes to AUX
 	*dhraux = 0;

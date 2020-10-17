@@ -26,11 +26,7 @@
  
 #include "unity.h"
 
-#ifdef __APPLE2__
-  #pragma code-name("LC")
-#endif
-
-#ifdef __ATARI__
+#ifdef __ATARIXL__
   #pragma code-name("SHADOW_RAM2")
 #endif
 
@@ -56,10 +52,10 @@ unsigned char* GetMouse(void)
 #else
 	// Read mouse state from joystick #1
 	unsigned char joy = GetJoy(0);
-	if (joy & JOY_UP)    { mouseState[1]+=4; if (mouseState[1]>200) mouseState[1] = 200; }
-	if (joy & JOY_DOWN)  { mouseState[1]-=4; if (mouseState[1]>200) mouseState[1] = 0;   }
-	if (joy & JOY_LEFT)  { mouseState[0]+=4; if (mouseState[0]>160) mouseState[0] = 160; }
-	if (joy & JOY_RIGHT) { mouseState[0]-=4; if (mouseState[0]>160) mouseState[0] = 0;   }
+	if (joy & JOY_UP)    { mouseState[1]+=2; if (mouseState[1]>200) mouseState[1] = 200; }
+	if (joy & JOY_DOWN)  { mouseState[1]-=2; if (mouseState[1]>200) mouseState[1] = 0;   }
+	if (joy & JOY_LEFT)  { mouseState[0]+=2; if (mouseState[0]>160) mouseState[0] = 160; }
+	if (joy & JOY_RIGHT) { mouseState[0]-=2; if (mouseState[0]>160) mouseState[0] = 0;   }
 	if (joy & JOY_BTN1)  { mouseState[2] |= MOU_LEFT;  } else { mouseState[2] &= ~MOU_LEFT;  } 
 	if (joy & JOY_BTN2)  { mouseState[2] |= MOU_RIGHT; } else { mouseState[2] &= ~MOU_RIGHT; } 
 #endif	
