@@ -37,25 +37,59 @@ xBIOS_OPEN_FILE   = $0509
 xBIOS_LOAD_DATA   = $050c
 xBIOS_SET_LENGTH  = $051e	
 xBIOS_LIST_DIR    = $0512	
+xBIOS_DFLT_DEVICE = $052a
 xBIOS_GET_ENTRY   = $053c
 
 _xbios_fname:  .byte 0,0
 _xbios_dest:   .byte 0,0
 _xbios_len:    .byte 0,0
 
+; USE FOR LOADING WITH OS ROM
+PORTB = $D301
+_disable_rom:
+	lda     PORTB
+	and     #$fe
+	sta     PORTB
+	rts
+_enable_rom:
+	lda     PORTB
+	ora     #1
+	sta     PORTB
+	rts
+
+; USE FOR LOADING WITH XBIOS
+;_xbios_device: .byte 0
+;_xbios_set_device:
+;	lda _xbios_device
+;	cmp #0
+;	bne done
+;	jsr xBIOS_DFLT_DEVICE
+;	lda #1
+;	sta _xbios_device
+;done:
+;	rts
+
 _xbios_list_dir:
+	;jsr _xbios_set_device
+	jsr _enable_rom
 	jsr xBIOS_LIST_DIR
+	jsr _disable_rom
 	rts
 
 _xbios_get_entry:
+	jsr _enable_rom
 	jsr xBIOS_GET_ENTRY
+	jsr _disable_rom
 	txa
 	rts
 	
 _xbios_open_file:
+	;jsr _xbios_set_device
+	jsr _enable_rom
 	ldy _xbios_fname
 	ldx _xbios_fname+1
 	jsr xBIOS_OPEN_FILE
+	jsr _disable_rom
 	bcs not_found
 	lda #1
 	rts
@@ -64,10 +98,12 @@ not_found:
 	rts
 
 _xbios_load_data:
+	jsr _enable_rom
 	ldy _xbios_len
 	ldx _xbios_len+1
 	jsr xBIOS_SET_LENGTH
 	ldy _xbios_dest
 	ldx _xbios_dest+1
 	jsr xBIOS_LOAD_DATA
+	jsr _disable_rom
 	rts

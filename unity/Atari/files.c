@@ -33,13 +33,13 @@
 #include <peekpoke.h>
 #include <stdlib.h>
 
-// Variables containing file lists
-unsigned char fileNum;     
-unsigned char *fileNames[16];
-unsigned int  fileSizes[16];
-unsigned char *fileBuffer;     
-
 #define XBIOS_BUFFER 0x0400
+
+// Variables containing file lists
+unsigned char  fileNum;     
+unsigned char* fileNames[16];
+unsigned int   fileSizes[16];
+unsigned char* fileBuffer;     
 
 // Externals: see libsedoric.s
 extern void __fastcall__ xbios_list_dir(void);
@@ -48,19 +48,19 @@ extern unsigned char __fastcall__ xbios_open_file(void);
 extern void __fastcall__ xbios_load_data(void);
 
 extern const char* xbios_fname;
-extern const void* xbios_dest;
+extern void* xbios_dest;
 extern unsigned int xbios_len;
 
 // Using Sedoric for File Management
 void FileList(void)
 {
-	unsigned char i=0, j=0, k=0;
+	unsigned char i, j=0, k;
 
+	// Assign some memory to file buffer
+	fileBuffer = malloc(256);
+	
 	// Get file list
 	xbios_list_dir();
-	
-	// Assign some memory for file list
-	fileBuffer = malloc(256);
 	
 	// Go through xbios buffer
 	i = xbios_get_entry();
