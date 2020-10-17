@@ -1,5 +1,4 @@
 
-char imageSel = 127;
 callback *iPrev, *iNext;
 
 void ImageDisplay()
@@ -7,12 +6,12 @@ void ImageDisplay()
 	// Clear screen and callbacks first!
 	ClearScreen();
 	
-	// Select file, and display it
+	// Disable music and display bitmap
+	//PauseTrack();
 	LoadBitmap(fileNames[imageSel]);
-	
-	// Add Taskbar
 	DrawTaskBar();
-	
+	//UnpauseTrack();
+		
 	// Display file name
 	paperColor = WHITE; inkColor = BLACK; 
 	PrintStr(14, CHR_ROWS-1, fileNames[imageSel]);		

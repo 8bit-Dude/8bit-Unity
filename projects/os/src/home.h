@@ -6,6 +6,10 @@ unsigned char* appChunk[NUM_APPS];
 unsigned char* icoChunk[NUM_ICOS];
 char appSel = APP_HOME;
 
+// Media parameters
+char imageSel = 127; imageShowing = 0;
+char musicSel = 127; musicPlaying = 0;
+
 void LoadChunks()
 {
 	// Load app chunks
@@ -30,9 +34,9 @@ void ClearScreen()
 	PrintBlanks(0, 0, CHR_COLS, CHR_ROWS-1);
 	
 	// Reset callbacks
+	ClearCallbacks();
 	for (i=0; i<4; i++)
 		appCall[i] = 0;
-	ClearCallbacks();
 }
 
 void DrawTaskBar()
@@ -62,13 +66,13 @@ void HomeScreen(void)
 	
 	// Clear screen and callbacks
 	ClearScreen();
+	DrawTaskBar();	
 	
 	// Register App icons
 	for (i=0; i<4; i++)
 		appCall[i] = Icon(APP_COL1+i*APP_HSPAN, APP_ROW1, appChunk[i]);
 
-	// Add Taskbar
-	DrawTaskBar();	
+	// Add Taskbar Message
 	paperColor = WHITE; inkColor = BLACK; 
-	PrintStr(21, CHR_ROWS-1, "8BIT-OS 2020/10/03");		
+	PrintStr(21, CHR_ROWS-1, "8BIT-OS 2020/10/17");		
 }

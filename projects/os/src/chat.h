@@ -108,9 +108,10 @@ void ChatScroll(void)
 void ChatScreen(void)
 {			
 	unsigned char i;
-
+	
 	// Clear screen
 	ClearScreen();
+	DrawTaskBar();		
 	
 	// Setup connection to chat server?
 	if (!chatConnected) {
@@ -122,9 +123,10 @@ void ChatScreen(void)
 	if (!chatLogged) {
 		// Panel/Labels
 		paperColor = DESK_COLOR; inkColor = BLACK;	
-		Panel(10, 3, 19, 8, "");	
+		Panel(10, 3, 20, 9, "");	
 		PrintStr(11, 5, "User:");
 		PrintStr(11, 7, "Pass:");
+		PrintStr(11, 9, "Reg 8bit-unity.com");
 		
 		// Inputs
 		paperColor = WHITE;
@@ -133,7 +135,7 @@ void ChatScreen(void)
 		
 		// Controls
 		paperColor = BLACK; inkColor = WHITE;	
-		callLogin = Button(17, 10, 7, 1, " Login ");
+		callLogin = Button(17, 11, 7, 1, " Login ");
 		
 	} else {
 		// Add text input, send button, and scrollbar
@@ -156,10 +158,7 @@ void ChatScreen(void)
 		
 		// Get latest page
 		ChatPage(0);		
-	}
-	
-	// Add Taskbar
-	DrawTaskBar();		
+	}	
 }
 
 void ChatPacket(unsigned char *packet)

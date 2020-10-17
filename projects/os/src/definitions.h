@@ -18,12 +18,12 @@
 #define NUM_ICOS  4
 
 // Media definitions
-#if defined(__APPLE2__)
-  #define imageExt "IMG"
-  #define musicExt "MUS"
-  #define textExt  "TXT"
-#else
+#if defined(__LYNX__)
   #define imageExt "img"
   #define musicExt "mus"
   #define textExt  "txt"
+#else
+  #define imageExt "IMG"
+  #define musicExt "MUS"
+  #define textExt  "TXT"
 #endif

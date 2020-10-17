@@ -94,40 +94,34 @@ int main (void)
 			} else {
 				// Otherwise update Mouse
 				EnableSprite(0);
-				ProcessMouse();
 
 				// Check callbacks
 				if (!(mouseState[2] & MOU_LEFT)) {
 					if (!mouseLock) {
+					#if defined(__APPLE2__) || defined(__ORIC__)
+						DisableSprite(0);
+					#endif
 						call = CheckCallbacks((mouseState[0]*CHR_COLS)/160, (mouseState[1]*CHR_ROWS)/200);
-						if (call) {
-						#if defined(__ORIC__)
-							DisableSprite(0);
-						#endif
+						if (call)
 							ProcessCallback(call);
-						#if defined(__ORIC__)
-							EnableSprite(0);
-						#endif
-						}
+					#if defined(__APPLE2__) || defined(__ORIC__)
+						EnableSprite(0);
+					#endif			
 						mouseLock = 1;
 					}
 				} else {
 					mouseLock = 0;
 				}
+				
+				// Update mouse
+				ProcessMouse();				
 			}
 			
 			// Check for packets
 			if (network) {
 				packet = RecvTCP(0);
-				if ((int)packet) {
-				#if defined(__ORIC__)
-					DisableSprite(0);
-				#endif
+				if ((int)packet)
 					ProcessPacket(packet);
-				#if defined(__ORIC__)
-					EnableSprite(0);
-				#endif
-				}
 			}			
 		}
 		// Platform dependent actions
