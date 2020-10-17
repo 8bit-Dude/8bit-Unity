@@ -47,7 +47,7 @@ extern const char keyNext;
 
 int DemoSPR(void) 
 {
-	unsigned char i, slot, frame, cols;
+	unsigned char i, slot, frame;
 	unsigned int xpos, ypos, angle;
 	clock_t timer = clock();
 	
