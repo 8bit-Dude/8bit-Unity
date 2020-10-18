@@ -489,7 +489,7 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Build Unity Library
-            CList = ['bitmap.c', 'chunks.c', 'geom2d.c', 'net-base.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'print.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Apple\\CLOCK.c', 'Apple\\DHR.c']
+            CList = ['bitmap.c', 'controls.c', 'chunks.c', 'geom2d.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'print.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Apple\\CLOCK.c', 'Apple\\DHR.c']
             SList = ['chars.s', 'math.s', 'Apple\\blit.s', 'Apple\\DUET.s', 'Apple\\JOY.s', 'Apple\\MOCKING.s', 'Apple\\PADDLE.s']
                          
             for file in CList:
@@ -580,8 +580,8 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Build Unity Library
-            CList = ['bitmap.c', 'chunks.c', 'geom2d.c', 'net-base.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'print.c', 'sfx.c', 'sprites.c', 'widgets.c']
-            SList = ['chars.s', 'math.s', 'Atari/blit.s']
+            CList = ['bitmap.c', 'controls.c', 'chunks.c', 'geom2d.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'print.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Atari\\files.c']
+            SList = ['chars.s', 'math.s', 'Atari\\blit.s', 'Atari\\xbios.s']
                          
             for file in CList:
                 fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atarixl -I unity unity\\' + file + '\n')
@@ -614,7 +614,7 @@ class Application:
             fp.write('utils\\scripts\\atari\\mads.exe -o:build/atari/rmt.bin unity/Atari/RMT.a65\n\n')
 
             # Merging
-            cmd = 'utils\\py27\\python utils\\scripts\\atari\\AtariMerge.py build/atari/autorun build/atari/basicoff.bin build/atari/' + diskname.lower() + '.bin build/atari/dli.bin build/atari/rmt.bin'
+            cmd = 'utils\\py27\\python utils\\scripts\\atari\\AtariMerge.py build/atari/xautorun build/atari/basicoff.bin build/atari/' + diskname.lower() + '.bin build/atari/dli.bin build/atari/rmt.bin'
             if len(sprites) > 0:
                 cmd += ' build/atari/sprites.dat'
             cmd += '\n'                
@@ -629,13 +629,17 @@ class Application:
             fp.write('del build\\atari\\*.lib\n')
             fp.write('del build\\atari\\*.lst\n')
             fp.write('del build\\atari\\sprites.dat\n')
+            
+            # Copy xBios files
+            fp.write('copy utils\\scripts\\atari\\xbios.com build\\atari\\autorun\n')
+            fp.write('copy utils\\scripts\\atari\\xbios.cfg build\\atari\\xbios.cfg\n')
 
             # Disk builder
             if self.Combobox_AtariDiskSize.get() == '180KB':                
                 diskSize = '720'
             else:
                 diskSize = '1440'
-            fp.write('utils\\scripts\\atari\\dir2atr.exe -dm -B utils/scripts/atari/AtariXboot.obx ' + diskSize + ' build/' + diskname + '-atari.atr build\\atari\n')
+            fp.write('utils\\scripts\\atari\\dir2atr.exe -d -B utils/scripts/atari/xboot.obx ' + diskSize + ' build/' + diskname + '-atari.atr build\\atari\n')
 
             # Info
             fp.write('\necho DONE\n')
@@ -684,7 +688,7 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Build Unity Library
-            CList = ['bitmap.c', 'chunks.c', 'geom2d.c', 'net-base.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'print.c', 'sfx.c', 'sprites.c', 'widgets.c']
+            CList = ['bitmap.c', 'controls.c', 'chunks.c', 'geom2d.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'print.c', 'sfx.c', 'sprites.c', 'widgets.c', 'C64\\files.c']
             SList = ['chars.s', 'math.s', 'C64\\JOY.s', 'C64\\ROM.s', 'C64\\SID.s']
                          
             for file in CList:
@@ -944,7 +948,7 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Build Unity Library
-            CList = ['bitmap.c', 'chunks.c', 'geom2d.c', 'hub.c', 'net-base.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'print.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Lynx\\display.c', 'Lynx\\files.c', 'Lynx\\joysticks.c']
+            CList = ['bitmap.c', 'controls.c', 'chunks.c', 'geom2d.c', 'hub.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'print.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Lynx\\display.c', 'Lynx\\files.c']
             SList = ['chars.s', 'math.s', 'Lynx\\header.s', 'Lynx\\serial.s', 'Lynx\\suzy.s']
                          
             for file in CList:
@@ -1023,8 +1027,8 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Build Unity Library
-            CList = ['bitmap.c', 'chunks.c', 'geom2d.c', 'hub.c', 'net-base.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'print.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Oric\\files.c', 'Oric\\joysticks.c']
-            SList = ['chars.s', 'math.s', 'Oric\\blit.s', 'Oric\\JOY.s', 'Oric\\keyboard.s', 'Oric\\libsedoric.s', 'Oric\\MYM.s']
+            CList = ['bitmap.c', 'controls.c', 'chunks.c', 'geom2d.c', 'hub.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'print.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Oric\\files.c']
+            SList = ['chars.s', 'math.s', 'Oric\\blit.s', 'Oric\\JOY.s', 'Oric\\keyboard.s', 'Oric\\sedoric.s', 'Oric\\MYM.s']
                          
             for file in CList:
                 fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atmos -I unity unity\\' + file + '\n')
@@ -1059,13 +1063,13 @@ class Application:
             cmd = 'set TAP2DSK=utils\\scripts\\oric\\tap2dsk.exe -iLAUNCH.COM build/oric/launch.com'
             if len(sprites) > 0:
                 cmd += ' build/oric/sprites.dat'
-            for item in shared:
-                cmd += ' build/oric/' + FileBase(item, '')
             for item in bitmaps:
                 cmd += ' build/oric/' + FileBase(item, '-oric.png') + '.img'
             for item in music:
                 filebase = FileBase(item, '-oric.ym')
                 cmd += ' build/oric/' + filebase + '.mus'
+            for item in shared:
+                cmd += ' build/oric/' + FileBase(item, '')
             fp.write(cmd + '\n')
             if len(chunks) > 0:
                 fp.write('for /f "tokens=*" %%A in (build\oric\chunks.lst) do set TAP2DSK=!TAP2DSK! %%A\n')
