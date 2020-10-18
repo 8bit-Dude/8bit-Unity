@@ -32,8 +32,7 @@
 
 #include <peekpoke.h>
 #include <stdlib.h>
-
-#define XBIOS_BUFFER 0x0400
+#include <unity.h>
 
 // Variables containing file lists
 unsigned char  fileNum;     
@@ -41,76 +40,41 @@ unsigned char* fileNames[16];
 unsigned int   fileSizes[16];
 unsigned char* fileBuffer;     
 
-// Externals: see libsedoric.s
-extern void __fastcall__ xbios_list_dir(void);
-extern unsigned char __fastcall__ xbios_get_entry(void);
-extern unsigned char __fastcall__ xbios_open_file(void);
-extern void __fastcall__ xbios_load_data(void);
-
-extern const char* xbios_fname;
-extern void* xbios_dest;
-extern unsigned int xbios_len;
-
 // Using Sedoric for File Management
 void FileList(void)
 {
-	unsigned char i, j=0, k;
+	unsigned char i=0;
+	FILE* fp;
 
 	// Assign some memory to file buffer
 	fileBuffer = malloc(256);
 	
-	// Get file list
-	xbios_list_dir();
-	
-	// Go through xbios buffer
-	i = xbios_get_entry();
-	while (fileNum<16 && PEEK(XBIOS_BUFFER+i)) {
-		fileNames[fileNum] = &fileBuffer[j];
-		fileSizes[fileNum] = PEEKW(XBIOS_BUFFER-4+i) * 256;
-		k = 0;
-		while (k<8) {
-			if (PEEK(XBIOS_BUFFER+i+k) != 0x20)
-				fileBuffer[j++] = PEEK(XBIOS_BUFFER+i+k);
-			k++;
-		}
-		fileBuffer[j++] = '.';
-		while (k<11) {
-			fileBuffer[j++] = PEEK(XBIOS_BUFFER+i+k);
-			k++;
-		}
-		fileBuffer[j++] = 0;
-		i = xbios_get_entry();
+	// Open directory file, and parse it
+	fp = fopen("$", "rb");
+
+	fread(fileBuffer, 1, 0x27, fp);
+	while (fileNum<16) {
+		// Read from file (caution: sometimes data gets shited by 1 byte)
+		if (!fread(&fileBuffer[i], 1, 0x20, fp))
+			break;
+		if (fileBuffer[i] == 0x22)
+			i++;
+		
+		// Add zero termination to filename
+		fileNames[fileNum] = &fileBuffer[i];
+		while (fileBuffer[i] != 0x22)
+			i++;
+		fileBuffer[i++] = 0;
 		fileNum++;
 	}
+	fclose(fp);
 }
 
 unsigned char FileOpen(const char* fname)
 {
-	// Convert filename to XBIOS format
-	unsigned char i=0, j=0, rename[11];
-	while (i<8) {
-		if (fname[j] != '.')
-			if (fname[j] > 96)
-				rename[i++] = fname[j++]-32;
-			else
-				rename[i++] = fname[j++];
-		else
-			rename[i++] = ' ';
-	}
-	j++;
-	while (i<11) {
-		if (fname[j] > 96)
-			rename[i++] = fname[j++]-32;
-		else
-			rename[i++] = fname[j++];
-	}
-    xbios_fname = rename;
-	return xbios_open_file();
+	return 0;
 }
 
 void FileRead(void* buf, unsigned int len)
 {
-	xbios_dest = buf;
-    xbios_len  = len;
-    xbios_load_data();	
 }

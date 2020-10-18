@@ -78,6 +78,13 @@
 // Clock
 #define TCK_PER_SEC	CLK_TCK
 
-// SID player customization
+// SID player customization  (see SID.s)
 extern unsigned int sidInitAddr;	// SID init (default: $0906)
 extern unsigned int sidPlayAddr;	// SID play (default: $0803)
+
+// Rom function: use before/after accessing BITMAPRAM (see ROM.s)
+extern void __fastcall__ rom_enable(void);
+extern void __fastcall__ rom_disable(void);
+
+// File Management
+void FileList(void);

@@ -30,7 +30,7 @@
   #pragma code-name("LC")
 #endif
 
-#ifdef __ATARI__
+#ifdef __ATARIXL__
   #pragma code-name("SHADOW_RAM")
 #endif
 
@@ -430,6 +430,7 @@ const char *GetChr(unsigned char chr)
 	else if (chr == 92) { return &charBwSlash[0]; }
 #if defined __CBM__
 	else if (chr > 192) { return &charLetter[(chr-193)*3]; }	// Upper case (C64)
+	else if (chr > 96)  { return &charLetter[(chr-97)*3]; }		// Compatibility with Ascii files
 	else if (chr > 64)  { return &charLetter[(chr-65)*3]; }		// Lower case (C64)
 #else
 	else if (chr > 96)  { return &charLetter[(chr-97)*3]; }	// Lower case (Apple/Atari/Oric/Lynx)
@@ -469,9 +470,9 @@ void CopyText(unsigned char col1, unsigned char row1, unsigned char col2, unsign
 {
 #if defined __CBM__
 	// Copy bitmap and screen ram
-	DisableRom();
+	rom_disable();
 	memcpy((char*)BITMAPRAM+row1*320+col1*8, (char*)BITMAPRAM+row2*320+col2*8, len*8);
-	EnableRom();
+	rom_enable();
 	memcpy((char*)SCREENRAM+row1*40+col1, (char*)SCREENRAM+row2*40+col2, len);
 #elif defined __ATARI__
 	// Copy bitmap 1 and 2

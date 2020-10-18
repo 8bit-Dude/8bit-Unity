@@ -156,11 +156,12 @@ void GetChunk(unsigned char** chunk, unsigned char x, unsigned char y, unsigned 
 	// Copy data to bitmap, color and screen memory
 	bytes = (w*8)/4;
 	addr = *chunk+4;	
-	DisableRom();
+	rom_disable();
 	for (i=0; i<h; i+=8) {
 		memcpy((char*)addr, (char*)(BITMAPRAM+40*((y+i)&248)+((y+i)&7)+((x*2)&504)), bytes);
 		addr += bytes;
 	}
+	rom_enable();
 	bytes = w/4;
 	for (i=0; i<h; i+=8) {
 		memcpy((char*)addr, (char*)(SCREENRAM+40*(y+i)/8+x/4), bytes);
@@ -170,7 +171,6 @@ void GetChunk(unsigned char** chunk, unsigned char x, unsigned char y, unsigned 
 		memcpy((char*)addr, (char*)(COLORRAM+40*(y+i)/8+x/4), bytes);
 		addr += bytes;
 	}
-	EnableRom();
 	
 #elif defined __LYNX__
 	// Copy data to bitmap memory
@@ -223,11 +223,12 @@ void SetChunk(unsigned char* chunk, unsigned char x, unsigned char y)
 	unsigned char i, bytes;
 	unsigned int addr = chunk+4;	
 	bytes = (w*8)/4;
-	DisableRom();
+	rom_disable();
 	for (i=0; i<h; i+=8) {
 		memcpy((char*)(BITMAPRAM+40*((y+i)&248)+((y+i)&7)+((x*2)&504)), (char*)addr, bytes);
 		addr += bytes;
 	}
+	rom_enable();
 	bytes = w/4;
 	for (i=0; i<h; i+=8) {
 		memcpy((char*)(SCREENRAM+40*(y+i)/8+x/4), (char*)addr, bytes);
@@ -237,7 +238,6 @@ void SetChunk(unsigned char* chunk, unsigned char x, unsigned char y)
 		memcpy((char*)(COLORRAM+40*(y+i)/8+x/4), (char*)addr, bytes);
 		addr += bytes;
 	}
-	EnableRom();
 #elif defined __LYNX__
 	// Copy data to bitmap memory
 	unsigned char i, bytes = w/2;

@@ -347,6 +347,7 @@ void ListBox(unsigned char col, unsigned char row, unsigned char width, unsigned
 {
 	unsigned char i=0;	
 	unsigned char* elt;
+	callback* call;
 	
 	// Draw panel
 	Panel(col, row, width, height, title);
@@ -355,7 +356,8 @@ void ListBox(unsigned char col, unsigned char row, unsigned char width, unsigned
  	while (i<(height-1) && i<len && labels[i]) {
 		elt = labels[i];
 		PrintStr(col, ++row, elt);
-		PushCallback(col, row, width, 1, CALLTYPE_LISTBOX, elt);
+		call = PushCallback(col, row, width, 1, CALLTYPE_LISTBOX, elt);
+		call->data1 = i;
 		i++;
 	}
 }

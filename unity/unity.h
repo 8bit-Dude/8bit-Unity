@@ -87,12 +87,6 @@ void GetChunk(unsigned char** chunk, unsigned char x, unsigned char y, unsigned 
 void SetChunk(unsigned char* chunk, unsigned char x, unsigned char y);
 void LoadChunk(unsigned char** chunk, char *filename);
 
-// C64 specific functions (see C64/ROM.s)
-#ifdef __CBM__
-  void DisableRom();	// Disable ROM before using GetColor()
-  void EnableRom();	// Enable ROM after using GetColor()
-#endif
-
 // Lynx specific functions (see Lynx/display.c)
 #if defined __LYNX__
   void UpdateDisplay(void);

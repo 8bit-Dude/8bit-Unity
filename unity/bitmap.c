@@ -271,10 +271,10 @@ unsigned char GetPixel()
 	unsigned int addr, offset;
 	
 	// Check color index
-	DisableRom();
 	addr = BITMAPRAM + 40*(pixelY&248)+(pixelY&7)+((pixelX*2)&504);
+	rom_disable();
 	index = (PEEK(addr) >> (2*(3-(pixelX%4)))) & 3;
-	EnableRom();
+	rom_enable();
 	
 	// Is background color?
 	if (index==0) { return bg; }
@@ -387,11 +387,11 @@ void SetPixel(unsigned char color)
 	unsigned char shift;
 	
 	// Set index to 3
-	DisableRom();
 	offset = 40*(pixelY&248)+(pixelY&7)+((pixelX*2)&504);
 	shift = (2*(3-(pixelX%4)));
+	rom_disable();
 	POKE(BITMAPRAM+offset, PEEK(BITMAPRAM+offset) | 3 << shift);
-	EnableRom();
+	rom_enable();
 	
 	// Set color in COLORAM
 	offset = (pixelY/8)*40+(pixelX/4);
