@@ -29,10 +29,6 @@
 
 #include "unity.h"
 
-#ifdef __APPLE2__
-  #pragma code-name("LC")
-#endif
-
 clock_t clk;
 
 // Wait for X clock ticks
