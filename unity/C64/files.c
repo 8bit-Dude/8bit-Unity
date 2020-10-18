@@ -43,7 +43,7 @@ unsigned char* fileBuffer;
 // Using Sedoric for File Management
 void FileList(void)
 {
-	unsigned char i=0;
+	unsigned char i=0, j;
 	FILE* fp;
 
 	// Assign some memory to file buffer
@@ -51,9 +51,11 @@ void FileList(void)
 	
 	// Open directory file, and parse it
 	fp = fopen("$", "rb");
-
-	fread(fileBuffer, 1, 0x27, fp);
+	fread(fileBuffer, 1, 0x27, fp); j = 0x21;
 	while (fileNum<16) {
+		// Copy file size
+		fileSizes[fileNum] = *(int*)&fileBuffer[j]; j = i+0x1a;
+		
 		// Read from file (caution: sometimes data gets shited by 1 byte)
 		if (!fread(&fileBuffer[i], 1, 0x20, fp))
 			break;
