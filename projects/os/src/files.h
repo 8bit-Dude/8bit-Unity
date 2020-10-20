@@ -1,13 +1,7 @@
 
-#if defined(__APPLE2__)
-  unsigned char  fileNum = 0;
-  unsigned int   fileSizes[32];  
-  unsigned char* fileNames[32];
-#else
-  extern unsigned char  fileNum;     
-  extern unsigned int   fileSizes[];  
-  extern unsigned char* fileNames[];
-#endif
+extern unsigned char  fileNum;     
+extern unsigned int   fileSizes[];  
+extern unsigned char* fileNames[];
 
 unsigned char  listNum = 0;
 unsigned char* listNames[16];
@@ -18,25 +12,8 @@ void GetFileList()
 	unsigned char i, len, dest, *ext;
 	unsigned int size;
 	
-	// Retrieve file list
-#if defined(__ATARI__) || defined(__CBM__) || defined(__ORIC__)
+	// Get file list
 	FileList();
-	
-#elif defined(__APPLE2__)
-	DIR *dir;
-	struct dirent *dp;
-	if ((dir = opendir(".")) != NULL) {
-		do {
-			dp = readdir(dir);
-			if (dp != NULL) {
-				fileNames[fileNum] = malloc(strlen(dp->d_name));
-				strcpy(fileNames[fileNum], dp->d_name);
-				fileNum++;
-			}
-		} while (dp != NULL);
-		closedir(dir);
-	}
-#endif
 
 	// Build media file list
 	for (i=0; i<fileNum; i++) {

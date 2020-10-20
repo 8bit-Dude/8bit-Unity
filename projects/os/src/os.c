@@ -12,6 +12,10 @@
 #include "music.h"
 #include "chat.h"
 
+#ifdef __APPLE2__
+  #pragma code-name("LOWCODE")
+#endif
+
 void ProcessCallback(callback* call)
 {
 	// Callbacks to Apps
@@ -53,6 +57,10 @@ void ProcessPacket(unsigned char* packet)
   unsigned char packetBackup[140];
 #endif
 
+#ifdef __APPLE2__
+  #pragma code-name("CODE")
+#endif
+
 int main(void)
 {
 	clock_t timer;
@@ -80,9 +88,7 @@ int main(void)
 	EnableSprite(0);
 
 	// Try to init 
-//#ifndef __APPLE2__	
 	netConnected = !InitNetwork();
-//#endif
 	if (netConnected)
 		SlotTCP(0);
 
@@ -130,7 +136,13 @@ int main(void)
 					memcpy(packetBackup, packet, 140); packet = packetBackup;
 					CloseTCP();	OpenTCP(199, 47, 196, 106, 1999);
 				#endif
+				#if defined(__APPLE2__) || defined(__ORIC__)
+					DisableSprite(0);
+				#endif					
 					ProcessPacket(packet);
+				#if defined(__APPLE2__) || defined(__ORIC__)
+					EnableSprite(0);
+				#endif			
 				}
 			}			
 		}
