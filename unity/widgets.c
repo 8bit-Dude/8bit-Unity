@@ -36,7 +36,6 @@
 
 callback* callHead = NULL;
 callback* callList = NULL;
-unsigned long fraction;
 
 ///////////////////////////////
 // Graphical scaling functions
@@ -101,11 +100,13 @@ unsigned char YToRow(unsigned char y)
 #endif
 }
 
+unsigned long fraction;
+
 unsigned char SliderPos(callback* call)
 {
-	fraction = call->data1;
-	fraction *= (call->rowEnd - call->rowBeg - 2);
-	fraction /= call->data2;
+	fraction  = *(unsigned int*)&call->buffer[0];	
+	fraction *= call->rowEnd - call->rowBeg - 2;
+	fraction /= *(unsigned int*)&call->buffer[2]; 
 	return (call->rowBeg + fraction + 1);
 }
 
@@ -124,7 +125,7 @@ unsigned char ProcessInput()
 	
 	if (kbhit()) {
 		inkColor = inputCall->ink; paperColor = inputCall->paper;		
-		if (InputStr(inputCall->colBeg, inputCall->rowBeg, inputWidth, inputCall->label, inputCall->data1, cgetc())) {
+		if (InputStr(inputCall->colBeg, inputCall->rowBeg, inputWidth, inputCall->buffer, inputCall->value, cgetc())) {
 			inputCall = 0;
 		#if defined __LYNX__
 			HideKeyboardOverlay();	
@@ -140,7 +141,8 @@ unsigned char ProcessInput()
 
 callback* CheckCallbacks(unsigned char col, unsigned char row)
 {
-	callback* call = callHead;
+	callback *call = callHead;
+	unsigned int val, max;
 		
 	// Check coordinates overlaps callback?
 	while (call) {
@@ -161,11 +163,11 @@ callback* CheckCallbacks(unsigned char col, unsigned char row)
 				if (callList) {
 					inkColor = callList->ink;
 					paperColor = callList->paper;
-					PrintStr(callList->colBeg, callList->rowBeg, callList->label);
+					PrintStr(callList->colBeg, callList->rowBeg, callList->buffer);
 				}
 				inkColor = call->paper;
 				paperColor = call->ink;
-				PrintStr(call->colBeg, call->rowBeg, call->label);
+				PrintStr(call->colBeg, call->rowBeg, call->buffer);
 				callList = call;
 				break;
 
@@ -174,25 +176,27 @@ callback* CheckCallbacks(unsigned char col, unsigned char row)
 				inkColor = call->ink;
 				paperColor = call->paper;
 				PrintChr(call->colBeg, SliderPos(call), charLineVert);
+				val = *(unsigned int*)&call->buffer[0];
+				max = *(unsigned int*)&call->buffer[2];
 				if (row == call->rowBeg) {
-					if (call->data1 > 0) 
-						call->data1--;
+					if (val > 0) 
+						(val)--;
 				} else 
 				if (row == call->rowEnd-1) {
-					if (call->data1 < call->data2-1)
-						call->data1++;
+					if (val < max-1)
+						(val)++;
 				} else 
 				if (row == call->rowBeg+1) {
-					call->data1 = 0;
+					val = 0;
 				} else 
 				if (row == call->rowEnd-2) {
-					call->data1 = call->data2-1;
+					val = max-1;
 				} else {
-					fraction = call->data2;
-					fraction *= (row - call->rowBeg - 1);
-					fraction /= (call->rowEnd - call->rowBeg - 2);
-					call->data1 = fraction;
+					val  = max;
+					val *= row - call->rowBeg - 1;
+					val /= call->rowEnd - call->rowBeg - 2;
 				}
+				*(unsigned int*)&call->buffer[0] = val;
 				PrintChr(call->colBeg, SliderPos(call), charSliderVert);
 				break;
 				
@@ -204,7 +208,7 @@ callback* CheckCallbacks(unsigned char col, unsigned char row)
 	return 0;
 }
 
-callback* PushCallback(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char type, unsigned char* label)
+callback* PushCallback(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char type)
 {
 	callback* callTail = callHead;
 	callback* call;
@@ -217,8 +221,7 @@ callback* PushCallback(unsigned char col, unsigned char row, unsigned char width
 	call->rowEnd = (row+height);
 	call->ink    = inkColor;
 	call->paper  = paperColor;
-	call->type   = type;
-	call->label  = label;	
+	call->type   = type;	
 	call->next   = 0;
 	
 	// Add to callback queue
@@ -274,7 +277,7 @@ callback* Button(unsigned char col, unsigned char row, unsigned char width, unsi
 	PrintStr(col, row, label);	
 
 	// Register Callback
-	return PushCallback(col, row, width, height, CALLTYPE_BUTTON, label);
+	return PushCallback(col, row, width, height, CALLTYPE_BUTTON);
 }
 
 callback* Icon(unsigned char col, unsigned char row, unsigned char* chunk)
@@ -291,7 +294,7 @@ callback* Icon(unsigned char col, unsigned char row, unsigned char* chunk)
 #endif
 	
 	// Register Callback
-	return PushCallback(col, row, width, height, CALLTYPE_ICON, "");	
+	return PushCallback(col, row, width, height, CALLTYPE_ICON);	
 }
 
 callback* Input(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char* buffer, unsigned char len)
@@ -302,8 +305,9 @@ callback* Input(unsigned char col, unsigned char row, unsigned char width, unsig
 	InputStr(col, row, width, buffer, len, 0);
 
 	// Register Callback
-	call = PushCallback(col, row, width, height, CALLTYPE_INPUT, buffer);
-	call->data1 = len;
+	call = PushCallback(col, row, width, height, CALLTYPE_INPUT);
+	call->buffer = buffer;
+	call->value = len;
 	return call;
 }
 
@@ -356,13 +360,14 @@ void ListBox(unsigned char col, unsigned char row, unsigned char width, unsigned
  	while (i<(height-1) && i<len && labels[i]) {
 		elt = labels[i];
 		PrintStr(col, ++row, elt);
-		call = PushCallback(col, row, width, 1, CALLTYPE_LISTBOX, elt);
-		call->data1 = i;
+		call = PushCallback(col, row, width, 1, CALLTYPE_LISTBOX);
+		call->buffer = elt;
+		call->value = i;
 		i++;
 	}
 }
 
-callback* ScrollBar(unsigned char col, unsigned char row, unsigned char height, unsigned int value, unsigned int range)
+callback* ScrollBar(unsigned char col, unsigned char row, unsigned char height, unsigned int *range)
 {
 	callback* call;
 	unsigned char i=0;	
@@ -374,10 +379,9 @@ callback* ScrollBar(unsigned char col, unsigned char row, unsigned char height, 
 	PrintChr(col, row+i, charArrowDown);
 	
 	// Register callback
-	call = PushCallback(col, row, 1, height, CALLTYPE_SCROLLBAR, 0);
-	call->data1 = value;
-	call->data2 = range;
-	
+	call = PushCallback(col, row, 1, height, CALLTYPE_SCROLLBAR);
+	call->buffer = (unsigned char*)range;
+
 	// Show slider
 	PrintChr(col, SliderPos(call), charSliderVert);
 	return call;

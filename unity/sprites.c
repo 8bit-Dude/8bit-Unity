@@ -445,8 +445,11 @@ void SetSprite(unsigned char index, unsigned char frame)
 	spriteX /= 2;
 
 	// Offset from centre of sprite
-	if (spriteX > 0) { spriteX -= 1; }
+	if (spriteX > 0) spriteX -= 1;
 	spriteY -= rows/2;
+	
+	// Make sure we do not print on next line
+	if (spriteX > 37) spriteX = 37;
 	
 	// Check that sprite was enabled
 	if (!sprBG[index]) EnableSprite(index);
