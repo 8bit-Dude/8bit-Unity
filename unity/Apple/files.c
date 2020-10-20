@@ -26,9 +26,18 @@
 
 #include "unity.h"
 
+// Variables containing file list
 unsigned char  fileNum = 0;
 unsigned int   fileSizes[16];  
 unsigned char* fileNames[16];
+
+// Externals: see prodos.s
+/* extern void __fastcall__ prodos_open_file(void);
+extern void __fastcall__ prodos_load_data(void);
+
+extern const char* prodos_fname;
+extern void* prodos_dest;
+extern unsigned int prodos_len; */
 
 void FileList()
 {
@@ -46,3 +55,18 @@ void FileList()
 		closedir(dir);
 	}
 }
+
+/* unsigned char FileOpen(const char* fname)
+{
+	*((char*)prodos_fname-1) = strlen(fname);
+    prodos_fname = fname;
+	prodos_open_file();	
+	return 1;
+}
+
+void FileRead(void* buf, unsigned int len)
+{
+	prodos_dest = buf;
+  prodos_len  = len;
+  prodos_load_data();	
+} */

@@ -40,7 +40,7 @@ unsigned char* fileNames[16];
 unsigned int   fileSizes[16];
 unsigned char* fileBuffer;     
 
-// Using Sedoric for File Management
+// Using ROM for File Management
 void FileList(void)
 {
 	unsigned char i=0, j;

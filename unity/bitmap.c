@@ -200,6 +200,11 @@ void LoadBitmap(char *filename)
 	// Load from CART file system
 	if (FileRead(filename) && autoRefresh) 
 		UpdateDisplay();	
+/* #elif defined __APPLE2__
+	if (FileOpen(filename)) {
+		*dhraux = 0;  FileRead((char*)BITMAPRAM, 8192);	// Read 8192 bytes to AUX	
+		*dhrmain = 0; FileRead((char*)BITMAPRAM, 8192); // Read 8192 bytes to MAIN
+	} */
 #elif defined __ATARI__
 	if (FileOpen(filename)) {
 		FileRead((char*)PALETTERAM, 4);		// 4 bytes for palette

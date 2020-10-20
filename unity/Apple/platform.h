@@ -85,3 +85,5 @@ extern clock_t clk;
 
 // Using ProDos for File Management (see files.c)
 void FileList(void);
+//unsigned char FileOpen(const char* fname);
+//void FileRead(void* buf, unsigned int len);

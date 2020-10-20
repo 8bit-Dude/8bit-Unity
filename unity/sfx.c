@@ -144,6 +144,12 @@ void LoadMusic(const char* filename)
 #elif defined __LYNX__
 	// Load from CART file system
 	FileRead(filename);
+/* #elif defined __APPLE2__
+	if (FileOpen(filename)) {
+		// Consume 2 bytes of header then read data
+		FileRead((char*)MUSICRAM, 2);	
+		FileRead((char*)MUSICRAM, 8000);	
+	} */
 #elif defined __ATARI__
 	if (FileOpen(filename)) {
 		// Consume 6 bytes of header then read data

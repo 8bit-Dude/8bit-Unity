@@ -78,7 +78,7 @@ void LoadChunk(unsigned char** chunk, char *filename)
 	unsigned int size = FileRead(filename, buffer);
 	*chunk = (unsigned char*)malloc(size);
 	memcpy(*chunk, buffer, size);
-#elif defined __ATARI__
+#elif defined(__ATARI__) // || defined(__APPLE2__)
 	unsigned int size;
 	if (FileOpen(filename)) {
 		// Read header into buffer

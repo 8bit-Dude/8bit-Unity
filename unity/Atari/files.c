@@ -35,13 +35,13 @@
 
 #define XBIOS_BUFFER 0x0400
 
-// Variables containing file lists
+// Variables containing file list
 unsigned char  fileNum;     
 unsigned char* fileNames[16];
 unsigned int   fileSizes[16];
 unsigned char* fileBuffer;     
 
-// Externals: see libsedoric.s
+// Externals: see xbios.s
 extern void __fastcall__ xbios_list_dir(void);
 extern unsigned char __fastcall__ xbios_get_entry(void);
 extern unsigned char __fastcall__ xbios_open_file(void);
@@ -51,7 +51,7 @@ extern const char* xbios_fname;
 extern void* xbios_dest;
 extern unsigned int xbios_len;
 
-// Using Sedoric for File Management
+// Using XBIOS for File Management
 void FileList(void)
 {
 	unsigned char i, j=0, k;
@@ -86,7 +86,7 @@ void FileList(void)
 
 unsigned char FileOpen(const char* fname)
 {
-	// Convert filename to XBIOS format
+	// Convert filename to xbios format (FILENAMEEXT)
 	unsigned char i=0, j=0, rename[11];
 	while (i<8) {
 		if (fname[j] != '.')
