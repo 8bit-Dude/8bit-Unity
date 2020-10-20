@@ -81,6 +81,9 @@ void SelectFile(char dir, unsigned char* extension, char* fileSel)
 #elif (defined __ORIC__)
   #define PREVIEW_X 154
   #define PREVIEW_Y 16
+#elif (defined __APPLE2__)
+  #define PREVIEW_X 91
+  #define PREVIEW_Y 16
 #else
   #define PREVIEW_X 100
   #define PREVIEW_Y 16
@@ -158,7 +161,11 @@ void FileCallback(callback* call)
 	if (call->type == CALLTYPE_LISTBOX) {		
 		// Reset preview area
 		paperColor = DESK_COLOR;
+	#if (defined __APPLE2__)
+		PrintBlanks(18, 1, CHR_COLS-20, CHR_ROWS-3);
+	#else
 		PrintBlanks(18, 1, CHR_COLS-19, CHR_ROWS-3);
+	#endif
 	
 		// Clear preview callbacks
 		if (callImg) { PopCallback(callImg); callImg = 0; }

@@ -1,6 +1,8 @@
 
 #if (defined __ORIC__)
   #define LOGO_X    102
+#elif (defined __APPLE2__)
+  #define LOGO_X    56
 #else
   #define LOGO_X    65	
 #endif
@@ -16,8 +18,15 @@ void PlayTrack(char *fname)
 	if (musicPlaying)
 		StopMusic();
 	LoadMusic(fname);
-	PlayMusic(MUSICRAM);			
+	PlayMusic(MUSICRAM);
+#ifndef __APPLE2__	
 	musicPlaying = 1;
+#else
+	cgetc();
+	while (!kbhit())
+		PlayMusic(0);
+	cgetc();
+#endif
 }
 
 void PauseTrack()
