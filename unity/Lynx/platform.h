@@ -69,5 +69,6 @@
 // Toggle for automatic screen refresh in LoadBitmap(), PrintStr(), PrintNum() or PrintBlanks()
 extern unsigned char autoRefresh;
 
-// Workaround for reading files from ROM (see files.c)
+// Reading files from ROM (see files.c)
+void FileList(void);
 unsigned int FileRead(const char* filename);

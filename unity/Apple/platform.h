@@ -82,3 +82,6 @@ void wait(unsigned char ticks);
 clock_t clock(void);
 unsigned sleep(unsigned seconds);
 extern clock_t clk;	
+
+// Using ProDos for File Management (see files.c)
+void FileList(void);
