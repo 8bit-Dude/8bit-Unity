@@ -48,11 +48,15 @@ void ProcessPacket(unsigned char* packet)
 	}	
 }
 
-int main (void)
+#if defined(__APPLE2__) || defined(__CBM__)
+  // IP65 bug requires reconnection after each packet
+  unsigned char packetBackup[140];
+#endif
+
+int main(void)
 {
 	clock_t timer;
 	callback* call;
-	unsigned char network;
 	unsigned char *packet;
 	unsigned char mouseLock = 0;	
 
@@ -76,10 +80,10 @@ int main (void)
 	EnableSprite(0);
 
 	// Try to init 
-#ifndef __APPLE2__	
-	network = !InitNetwork();
-#endif
-	if (network)
+//#ifndef __APPLE2__	
+	netConnected = !InitNetwork();
+//#endif
+	if (netConnected)
 		SlotTCP(0);
 
 	// Main loop
@@ -96,12 +100,12 @@ int main (void)
 				EnableSprite(0);
 
 				// Check callbacks
-				if (!(mouseState[2] & MOU_LEFT)) {
+				if (!(mouse[2] & MOU_LEFT)) {
 					if (!mouseLock) {
 					#if defined(__APPLE2__) || defined(__ORIC__)
 						DisableSprite(0);
 					#endif
-						call = CheckCallbacks((mouseState[0]*CHR_COLS)/160, (mouseState[1]*CHR_ROWS)/200);
+						call = CheckCallbacks((mouse[0]*CHR_COLS)/160, (mouse[1]*CHR_ROWS)/200);
 						if (call)
 							ProcessCallback(call);
 					#if defined(__APPLE2__) || defined(__ORIC__)
@@ -118,10 +122,16 @@ int main (void)
 			}
 			
 			// Check for packets
-			if (network) {
+			if (netConnected) {
 				packet = RecvTCP(0);
-				if ((int)packet)
+				if ((int)packet) {
+				#if defined(__APPLE2__) || defined(__CBM__)
+					// IP65 bug requires reconnection after each packet
+					memcpy(packetBackup, packet, 140); packet = packetBackup;
+					CloseTCP();	OpenTCP(199, 47, 196, 106, 1999);
+				#endif
 					ProcessPacket(packet);
+				}
 			}			
 		}
 		// Platform dependent actions

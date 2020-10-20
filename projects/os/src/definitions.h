@@ -18,7 +18,7 @@
 #define NUM_ICOS  4
 
 // Media definitions
-#if defined(__LYNX__)
+#if defined(__CBM__) || defined(__LYNX__)
   #define imageExt "img"
   #define musicExt "mus"
   #define textExt  "txt"

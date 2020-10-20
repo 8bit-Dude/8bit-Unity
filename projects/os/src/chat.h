@@ -112,17 +112,25 @@ void ChatScreen(void)
 	// Clear screen
 	ClearScreen();
 	DrawTaskBar();		
+	paperColor = DESK_COLOR; 
+	inkColor = BLACK;	
+	
+	// Do we have net access?
+	if (!netConnected) {
+		Panel(10, 3, 20, 9, "");	
+		PrintStr(13, 7, "No internet...");	
+		return;
+	}
 	
 	// Setup connection to chat server?
 	if (!chatConnected) {
 		OpenTCP(199, 47, 196, 106, 1999);
 		chatConnected = 1;
 	}
-	
+
 	// Login and Message screen?		
 	if (!chatLogged) {
 		// Panel/Labels
-		paperColor = DESK_COLOR; inkColor = BLACK;	
 		Panel(10, 3, 20, 9, "");	
 		PrintStr(11, 5, "User:");
 		PrintStr(11, 7, "Pass:");
@@ -165,16 +173,17 @@ void ChatPacket(unsigned char *packet)
 {
 	unsigned char i;
 	unsigned int chatPages;
-	
+
 	// Process received packets
 	switch 	(packet[0]) {
 	case REQ_LOGIN:
 		// Check if login was OK
-		if (packet[1] == 'O') {
+		if (packet[1] == 0x6f) {  // Ascii code for 'o'
 			chatLogged = 1;	
 			ChatScreen();
 		} else {
-			PrintStr(10, 12, packet[1]);
+			paperColor = DESK_COLOR; inkColor = BLACK;
+			PrintStr(12, 13, &packet[1]);
 		}
 		break;
 		

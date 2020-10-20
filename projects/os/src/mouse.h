@@ -31,14 +31,14 @@
 #endif
 
 // Mouse state
-unsigned char* mouseState;
+unsigned char* mouse;
 
 void ProcessMouse()
 {	
 	// Update mouse location
-	mouseState = GetMouse();
-	LocateSprite(2*mouseState[0]+4, mouseState[1]+4);
-	if (mouseState[2] & MOU_LEFT) 
+	mouse = GetMouse();
+	LocateSprite(2*mouse[0]+4, mouse[1]+4);
+	if (mouse[2] & MOU_LEFT) 
 		SetSprite(0, 0); 
 	else 
 		SetSprite(0, 1);

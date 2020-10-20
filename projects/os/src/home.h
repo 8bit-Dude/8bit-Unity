@@ -9,7 +9,8 @@ char appSel = APP_HOME;
 // Media parameters
 char imageSel = 127; imageShowing = 0;
 char musicSel = 127; musicPlaying = 0;
-
+char netConnected = 0;
+	
 void LoadChunks()
 {
 	// Load app chunks

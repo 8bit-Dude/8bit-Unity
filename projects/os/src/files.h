@@ -1,16 +1,17 @@
 
-#if defined(__ATARI__) || defined(__LYNX__) || defined(__ORIC__)
-  extern unsigned char  fileNum;     
-  extern unsigned int   fileSizes[];  
-  extern unsigned char* fileNames[];
-#else
+#if defined(__APPLE2__)
   unsigned char  fileNum = 0;
   unsigned int   fileSizes[32];  
   unsigned char* fileNames[32];
+#else
+  extern unsigned char  fileNum;     
+  extern unsigned int   fileSizes[];  
+  extern unsigned char* fileNames[];
 #endif
 
-unsigned char  mediaNum = 0;
-unsigned char* mediaNames[32];
+unsigned char  listNum = 0;
+unsigned char* listNames[16];
+unsigned char  listIds[16];
 
 void GetFileList()
 {
@@ -18,7 +19,7 @@ void GetFileList()
 	unsigned int size;
 	
 	// Retrieve file list
-#if defined(__ATARI__) || defined(__ORIC__)
+#if defined(__ATARI__) || defined(__CBM__) || defined(__ORIC__)
 	FileList();
 	
 #elif defined(__APPLE2__)
@@ -37,7 +38,7 @@ void GetFileList()
 	}
 #endif
 
-	// Process media file list
+	// Build media file list
 	for (i=0; i<fileNum; i++) {
 		// Check for allowed file extensions
 		len = strlen(fileNames[i]);
@@ -46,12 +47,13 @@ void GetFileList()
 			continue;
 		
 		// Allocate string for name + size
-		mediaNames[mediaNum] = malloc(17);
-		memset(mediaNames[mediaNum], 32, 15);
-		mediaNames[mediaNum][16] = 0;
+		listIds[listNum] = i;
+		listNames[listNum] = malloc(17);
+		memset(listNames[listNum], 32, 15);
+		listNames[listNum][16] = 0;
 		
 		// Copy over name + size
-		memcpy(mediaNames[mediaNum], fileNames[i], len);
+		memcpy(listNames[listNum], fileNames[i], len);
 		size = fileSizes[i];
 		if (size<1000) {
 			if (size < 10) {
@@ -61,7 +63,7 @@ void GetFileList()
 			} else if (size < 1000) {
 				dest = 13;
 			}
-			itoa(size, &mediaNames[mediaNum][dest], 10);			
+			itoa(size, &listNames[listNum][dest], 10);			
 		} else {
 			size /= 1000;
 			if (size < 10) {
@@ -69,12 +71,12 @@ void GetFileList()
 			} else {
 				dest = 13;
 			}
-			itoa(size, &mediaNames[mediaNum][dest], 10);			
-			mediaNames[mediaNum][15] = 'k';
+			itoa(size, &listNames[listNum][dest], 10);			
+			listNames[listNum][15] = 'k';
 		}
 		
 		// Increment counters
-		mediaNum++;
+		listNum++;
 	}
 }
 
@@ -114,8 +116,8 @@ void SelectFile(char dir, unsigned char* extension, char* fileSel)
 #else
 	unsigned char textBuffer[256];
 #endif
-char currFile[17];
 callback *callImg, *callMus; 
+char *currFile, *currExt;
 
 void PlayTrack(char *fname);
 void PauseTrack(void);
@@ -131,6 +133,10 @@ void PreviewText(void)
 #if (defined __ATARI__)
 	if (FileOpen(currFile))
 		FileRead(textBuffer, 256);
+#elif (defined __CBM__)
+	FILE* fp = fopen(currFile, "rb");
+	fread(textBuffer, 1, 256, fp);
+	fclose(fp);
 #elif (defined __LYNX__)
 	textBuffer = (char*)SHAREDRAM;
 	bzero(SHAREDRAM, 256);
@@ -153,7 +159,7 @@ void PreviewText(void)
 		} addr++;
 	}
 }
-  
+
 void FilesScreen(void)
 {			
 	// Clear screen
@@ -162,7 +168,7 @@ void FilesScreen(void)
 
 	// Display Media files in ListBox
 	paperColor = DESK_COLOR; inkColor = BLACK;
-	ListBox(1, 0, 16, CHR_ROWS-2, "Files", mediaNames, mediaNum);
+	ListBox(1, 0, 16, CHR_ROWS-2, "Files", listNames, listNum);
 	Panel(18, 0, CHR_COLS-19, CHR_ROWS-2, "Preview");	
 	imageShowing = 0;
 }
@@ -173,39 +179,34 @@ void FileCallback(callback* call)
 	
 	// Handle listbox calls
 	if (call->type == CALLTYPE_LISTBOX) {		
+		// Reset preview area
+		paperColor = DESK_COLOR;
+		PrintBlanks(18, 1, CHR_COLS-19, CHR_ROWS-3);
+	
 		// Clear preview callbacks
 		if (callImg) { PopCallback(callImg); callImg = 0; }
 		if (callMus) { PopCallback(callMus); callMus = 0; }
 	
-		// Reset preview area
-		paperColor = DESK_COLOR;
-		PrintBlanks(18, 1, CHR_COLS-19, CHR_ROWS-3);
-
-		// Get file name without size
-		memcpy(currFile, call->label, 17);
-		i=0; while (i<17) {
-			if (currFile[i] == '.') {
-				currFile[i+4] = 0; i++;
-				break;
-			} i++;
-		}
+		// Get file name
+		currFile = (char*)fileNames[listIds[call->data1]];
+		currExt = &currFile[strlen(currFile)-3];
 		
 		// Controls for Image File
-		if (!strncmp(&currFile[i], imageExt, 3)) {
+		if (!strncmp(currExt, imageExt, 3)) {
 			SetChunk(appChunk[APP_IMAGE], PREVIEW_X, PREVIEW_Y);
 			callImg = Icon(BUTT_COL, BUTT_ROW, icoChunk[ICO_PLAY]);
 			return;
 		}
 		
 		// Controls for Music File
-		if (!strncmp(&currFile[i], musicExt, 3)) {
+		if (!strncmp(currExt, musicExt, 3)) {
 			SetChunk(appChunk[APP_MUSIC], PREVIEW_X, PREVIEW_Y);	
 			callMus = Icon(BUTT_COL, BUTT_ROW, icoChunk[ICO_PLAY]);
 			return;		
 		}
 		
 		// Preview Text File
-		if (!strncmp((char*)&currFile[i], textExt, 3)) {
+		if (!strncmp(currExt, textExt, 3)) {
 			PreviewText(); 
 			return;
 		}
