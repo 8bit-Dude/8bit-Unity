@@ -106,8 +106,8 @@ unsigned char* RecvTCP(unsigned int timeOut)
 	return &recvHub[2]; 
 #else
 	// Process IP65 until receiving packet
-	*tcp_recv_packet = 0;
-	while (!*tcp_recv_packet) {
+	tcp_recv_packet = 0;
+	while (!tcp_recv_packet) {
 		if (clock() > timer) return 0;
 		ip65_process();
 	#if defined __APPLE2__

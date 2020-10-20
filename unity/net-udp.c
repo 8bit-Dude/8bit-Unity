@@ -120,8 +120,8 @@ unsigned char* RecvUDP(unsigned int timeOut)
 	return &recvHub[2]; 	
 #else
 	// Process IP65 until receiving packet
-	*udp_recv_packet = 0;
-	while (!*udp_recv_packet) {
+	udp_recv_packet = 0;
+	while (!udp_recv_packet) {
 		if (clock() > timer) return 0;
 		ip65_process();
 	#if defined __APPLE2__
