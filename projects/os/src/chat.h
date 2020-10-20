@@ -20,11 +20,12 @@ unsigned char* chatPass = &chatRequest[15];
 unsigned char* chatBuffer = &chatRequest[26];
 
 callback *callUser, *callPass, *callLogin, *callMessage, *callSend, *callScroll;
+unsigned int scrollRange[2] = {0, 1};
 
-void ChatPage(unsigned int page)
+void ChatPage()
 {
 	chatRequest[0] = REQ_PAGE;
-	POKEW(&chatRequest[1], page);
+	POKEW(&chatRequest[1], scrollRange[0]);
 	chatRequest[3] = MSG_PER_PAGE;
 	SendTCP(chatRequest, 4);	
 }
@@ -55,7 +56,8 @@ void ChatSend()
 	chatBuffer[0] = 0;
 	
 	// Refresh messages
-	ChatPage(0);	
+	scrollRange[0] = 0;
+	ChatPage();	
 }
 
 #ifdef __ATARI__
@@ -102,7 +104,7 @@ void ChatScroll(void)
 	paperColor = DESK_COLOR;
 	for (i=0; i<MSG_PER_PAGE; i++)
 		PrintBlanks(0, 5*i+2, CHR_COLS-1, 4);
-	ChatPage(callScroll->data1);
+	ChatPage();
 }
 
 void ChatScreen(void)
@@ -154,7 +156,7 @@ void ChatScreen(void)
 		callMessage = Input(0, 0, CHR_COLS-5, 1, chatBuffer, 112);
 			
 		paperColor = DESK_COLOR;
-		callScroll = ScrollBar(CHR_COLS-1, 1, CHR_ROWS-2, 0, 1);
+		callScroll = ScrollBar(CHR_COLS-1, 1, CHR_ROWS-2, scrollRange);
 		
 		// Add separators
 		lineX1 = ColToX(0)+2;
@@ -164,8 +166,8 @@ void ChatScreen(void)
 			Line(lineX1, lineX2, lineY, lineY);
 		}
 		
-		// Get latest page
-		ChatPage(0);		
+		// Request page
+		ChatPage();		
 	}	
 }
 
@@ -189,7 +191,7 @@ void ChatPacket(unsigned char *packet)
 		
 	case REQ_PAGE:
 		// Save chat list and request first message
-		callScroll->data2 = packet[4];
+		scrollRange[1] = *(unsigned int*)&packet[4];
 		chatLen = packet[6];
 		for (i=0; i<chatLen; i++)
 			chatList[i] = packet[7+2*i];

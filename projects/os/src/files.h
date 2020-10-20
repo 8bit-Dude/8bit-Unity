@@ -188,7 +188,7 @@ void FileCallback(callback* call)
 		if (callMus) { PopCallback(callMus); callMus = 0; }
 	
 		// Get file name
-		currFile = (char*)fileNames[listIds[call->data1]];
+		currFile = (char*)fileNames[listIds[call->value]];
 		currExt = &currFile[strlen(currFile)-3];
 		
 		// Controls for Image File
@@ -222,7 +222,7 @@ void FileCallback(callback* call)
 			LoadBitmap(currFile);
 			//UnpauseTrack(); 
 			DrawTaskBar();
-			callImg = PushCallback(0, 0, CHR_COLS, CHR_ROWS, CALLTYPE_ICON, "");
+			callImg = PushCallback(0, 0, CHR_COLS, CHR_ROWS, CALLTYPE_ICON);
 			imageShowing = 1;
 		}
 	} else 
