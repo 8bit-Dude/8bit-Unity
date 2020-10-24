@@ -34,10 +34,9 @@
   #pragma code-name("SHADOW_RAM")
 #endif
 
-// Apple II specific init function
+// Platform specific function
 #if defined __APPLE2__
-	// Sprite data
-	#define frameWIDTH 4	// Byte width of sprite (7 pixels)
+	#define frameWIDTH 4		// Byte width of sprite (7 pixels)
 	unsigned char frameROWS;
     unsigned int  frameBLOCK;	// Size of sprite offset block (4 blocks)
 	unsigned char sprX[SPRITE_NUM], sprY[SPRITE_NUM];	 // Screen coordinates
@@ -45,64 +44,25 @@
 	unsigned char sprXDHR[SPRITE_NUM];  // Byte offset within DHR line
 	unsigned char*sprBG[SPRITE_NUM];  // Sprite background
 	unsigned char sprROWS[SPRITE_NUM];  // Sprite dimensions used in algorithms
-	void InitSprites(unsigned char frames, unsigned char cols, unsigned char rows, unsigned char *spriteColors)
-	{			
-		// Set sprite rows, frames and resulting block size (there are 4 offset blocks for each sprite)
-		unsigned char i;
-		FILE* fp = fopen("sprites.dat", "rb");
-		fread((char*)(SPRITERAM), 1, 2, fp);
-		fread((char*)(SPRITERAM), 1, 8000, fp);
-		fclose(fp);
-		frameROWS = rows;
-		frameBLOCK = frames*frameROWS*frameWIDTH;
-		for (i=0; i<SPRITE_NUM; i++) sprROWS[i] = frameROWS;
-	}	
-	void CropSprite(unsigned char index, unsigned char rows) 
-	{
+	void CropSprite(unsigned char index, unsigned char rows) {
 		// Only partially draw this sprite
 		sprROWS[index] = rows;
 	}	
-// Atari specific init function
+	
 #elif defined __ATARI__	
 	// Sprite flicker data (see DLI.a65)
 	void SetupFlickerDLI(void);
 	unsigned char sprYOffset;
 	extern unsigned int sprFrame[10];
 	extern unsigned char sprRows, sprMask[5], sprX[10], sprY[10], sprColor[10];
-	void InitSprites(unsigned char frames, unsigned char cols, unsigned char rows, unsigned char *spriteColors)
-	{			
-		// Reset Sprite Mask, Frames, Colors and Rows
-		unsigned char i;
-		for (i=0; i<5; i++) {
-			sprMask[i] = 0;
-		}
-		for (i=0; i<10; i++) {
-			sprFrame[i] = 0;
-			sprColor[i] = spriteColors[i];
-		}
-		sprRows = rows;
-		sprYOffset = rows/2;
-
-		// Clear all PMG memory
-		bzero(PMGRAM+768,0x500);
-		
-		// Setup ANTIC and GTIA
-		POKE(54279, PMGRAM>>8); // Tell ANTIC where the PM data is located
-		POKE(53277, 2+1);       // Tell GTIA to enable players + missile	
-		POKE(623, 32+16+1);		// Tricolor players + enable fifth player + priority  (shadow for 53275)	
-		
-		// Setup flicker DLI
-		SetupFlickerDLI();
-	}
-	void DoubleHeightSprite(unsigned char index, unsigned char onoff)
-	{
+	void DoubleHeightSprite(unsigned char index, unsigned char onoff) {
 		extern unsigned char doubleHeight[10];
 		doubleHeight[index] = onoff;
 		if (onoff) sprYOffset = sprRows; else sprYOffset = sprRows/2;
 	}
-// Atmos specific init function
+
 #elif defined __ORIC__	
-	#define frameWIDTH 2	// Byte width of sprite (12 pixels)
+	#define frameWIDTH 2		// Byte width of sprite (12 pixels)
 	unsigned char frameROWS;
 	unsigned int  frameBLOCK;	// Size of sprite offset block (4 blocks), 
 	unsigned char sprX[SPRITE_NUM], sprY[SPRITE_NUM];	   // Screen coordinates
@@ -111,96 +71,125 @@
 	unsigned int  scrAddr[SPRITE_NUM], sprCOLOR;  // Screen address, Color vector
 	unsigned char* sprMULTICOLOR[SPRITE_NUM];
 	extern unsigned char ink1[20];	// see bitmap.c
-	void InitSprites(unsigned char frames, unsigned char cols, unsigned char rows, unsigned char *spriteColors)
-	{			
-		// Load sprite sheet
-		unsigned char i;
-		FileRead("sprites.dat", (void*)SPRITERAM);
-		
-		// Assign frame info and sprite colors
-		frameROWS = rows;
-		frameBLOCK = frames*frameROWS*frameWIDTH;
-		for (i=0; i<SPRITE_NUM; i++) sprROWS[i] = rows;
-		sprCOLOR = spriteColors;
-	}
-	void CropSprite(unsigned char index, unsigned char rows) 
-	{
+	void CropSprite(unsigned char index, unsigned char rows) {
 		// Only partially draw this sprite
 		sprROWS[index] = rows;
 	}
-	void MultiColorSprite(unsigned char index, unsigned char* multiColorDef)
-	{
+	void MultiColorSprite(unsigned char index, unsigned char* multiColorDef) {
 		// Assign multicolor definition to sprite { color, row, ... color, lastrow }
 		sprMULTICOLOR[index] = multiColorDef;
 	}
-// C64 specific init function
+
 #elif defined __CBM__
-	void InitSprites(unsigned char frames, unsigned char cols, unsigned char rows, unsigned char *spriteColors)
-	{			
-		// Set sprite colors
-		unsigned int i;	
-		for (i=0; i<8; ++i) { POKE(53287+i, spriteColors[i]); }
-		
-		// Set common colors
-		POKE(53285, spriteColors[8]);
-		POKE(53286, spriteColors[9]);	
-		
-		// Set to multicolor code
-		POKE(53276, 255);			
-	}	
-	void DoubleHeightSprite(unsigned char index, unsigned char onoff)
-	{
-		if (onoff) {
+	void DoubleHeightSprite(unsigned char index, unsigned char onoff) {
+		if (onoff)
 			POKE(0xD017, PEEK(0xD017) |  (1 << index));
-		} else {
+		else
 			POKE(0xD017, PEEK(0xD017) & !(1 << index));
-		}
 	}
-	void DoubleWidthSprite(unsigned char index, unsigned char onoff)
-	{
-		if (onoff) {
+	void DoubleWidthSprite(unsigned char index, unsigned char onoff) {
+		if (onoff)
 			POKE(0xD01D, PEEK(0xD01D) |  (1 << index));
-		} else {
+		else
 			POKE(0xD01D, PEEK(0xD01D) & !(1 << index));
-		}
 	}	
-// Lynx specific init function
+
 #elif defined __LYNX__	
-	// declare RO and SCB data
 	unsigned char sprX[SPRITE_NUM], sprY[SPRITE_NUM];	// Screen coordinates
 	unsigned char sprDrawn[SPRITE_NUM], sprCollision[SPRITE_NUM]; // Enable and Collision status
 	unsigned char sprCOLS, sprROWS;					    // Sprite dimensions
 	SCB_REHV_PAL sprSCB[SPRITE_NUM];					// Frame data
 	extern unsigned int spriteData[]; 
-	void InitSprites(unsigned char frames, unsigned char cols, unsigned char rows, unsigned char *spriteColors)
-	{
-		unsigned char i,j;
-		SCB_REHV_PAL *scb;
-		sprCOLS = cols; sprROWS = rows;		
-		for (i=0; i<SPRITE_NUM; i++) {
-			scb = &sprSCB[i];
-			scb->sprctl0 = BPP_4 | TYPE_NONCOLL;
-			scb->sprctl1 = REHV | LITERAL;
-			scb->sprcoll = 0;
-			scb->next = 0;
-			scb->data = 0;
-			scb->hpos = 0;
-			scb->vpos = 0;
-			scb->hsize = 0x0100;
-			scb->vsize = 0x0100;
-			for (j=0; j<8; j++) {
-				scb->penpal[j] = spriteColors[i*8+j];
-			}
-		}
-	}
-	void ScaleSprite(unsigned char index, unsigned int xPercent, unsigned int yPercent)
-	{
+	void ScaleSprite(unsigned char index, unsigned int xPercent, unsigned int yPercent) {
 		SCB_REHV_PAL *scb;
 		scb = &sprSCB[index];
 		scb->hsize = xPercent;
 		scb->vsize = yPercent;
 	}
 #endif
+
+void InitSprites(unsigned char frames, unsigned char cols, unsigned char rows, unsigned char *spriteColors)
+{		
+#if defined __APPLE2__	
+	// Set sprite rows, frames and resulting block size (there are 4 offset blocks for each sprite)
+	unsigned char i;
+	FILE* fp = fopen("sprites.dat", "rb");
+	fread((char*)(SPRITERAM), 1, 2, fp);
+	fread((char*)(SPRITERAM), 1, 8000, fp);
+	fclose(fp);
+	frameROWS = rows;
+	frameBLOCK = frames*frameROWS*frameWIDTH;
+	for (i=0; i<SPRITE_NUM; i++) 
+		sprROWS[i] = frameROWS;
+	
+#elif defined __ATARI__	
+	// Reset Sprite Mask, Frames, Colors and Rows
+	unsigned char i;
+	for (i=0; i<5; i++)
+		sprMask[i] = 0;
+	for (i=0; i<10; i++) {
+		sprFrame[i] = 0;
+		sprColor[i] = spriteColors[i];
+	}
+	sprRows = rows;
+	sprYOffset = rows/2;
+
+	// Clear all PMG memory
+	bzero(PMGRAM+768,0x500);
+	
+	// Setup ANTIC and GTIA
+	POKE(54279, PMGRAM>>8); // Tell ANTIC where the PM data is located
+	POKE(53277, 2+1);       // Tell GTIA to enable players + missile	
+	POKE(623, 32+16+1);		// Tricolor players + enable fifth player + priority  (shadow for 53275)	
+	
+	// Setup flicker DLI
+	SetupFlickerDLI();
+	
+#elif defined __CBM__
+	// Set sprite colors
+	unsigned int i;	
+	for (i=0; i<8; ++i)
+		POKE(53287+i, spriteColors[i]);
+	
+	// Set common colors
+	POKE(53285, spriteColors[8]);
+	POKE(53286, spriteColors[9]);	
+	
+	// Set to multicolor code
+	POKE(53276, 255);
+
+#elif defined __ORIC__	
+	// Load sprite sheet
+	unsigned char i;
+	FileRead("sprites.dat", (void*)SPRITERAM);
+	
+	// Assign frame info and sprite colors
+	frameROWS = rows;
+	frameBLOCK = frames*frameROWS*frameWIDTH;
+	for (i=0; i<SPRITE_NUM; i++) 
+		sprROWS[i] = rows;
+	sprCOLOR = spriteColors;
+
+#elif defined __LYNX__	
+	unsigned char i,j;
+	SCB_REHV_PAL *scb;
+	sprCOLS = cols; sprROWS = rows;		
+	for (i=0; i<SPRITE_NUM; i++) {
+		scb = &sprSCB[i];
+		scb->sprctl0 = BPP_4 | TYPE_NONCOLL;
+		scb->sprctl1 = REHV | LITERAL;
+		scb->sprcoll = 0;
+		scb->next = 0;
+		scb->data = 0;
+		scb->hpos = 0;
+		scb->vpos = 0;
+		scb->hsize = 0x0100;
+		scb->vsize = 0x0100;
+		for (j=0; j<8; j++)
+			scb->penpal[j] = spriteColors[i*8+j];
+	}	
+#endif
+}	
 
 void RecolorSprite(unsigned char index, unsigned char number, unsigned char color)
 {
