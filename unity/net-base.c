@@ -24,21 +24,20 @@
  *   specific prior written permission.
  */
 
-#include "hub.h"
 #include "unity.h"
 
+#ifdef __HUB__
+  #include "hub.h"
+#else
+  #include "IP65/ip65.h"
+#endif
+
 #ifdef __APPLE2__
-  #pragma code-name("LOWCODE")
+  #pragma code-name("LC")
 #endif
 
 #ifdef __ATARIXL__
   #pragma code-name("SHADOW_RAM2")
-#endif
-
-#ifndef __HUB__
-  // Use IP65 library
-  unsigned char ip65_init(void);
-  unsigned char dhcp_init(void); 
 #endif
 
 unsigned char InitNetwork(void)
@@ -54,8 +53,8 @@ unsigned char InitNetwork(void)
 	return ADAPTOR_ERR;
 #else
 	// Init IP65 and DHCP
-	if (ip65_init()) { return ADAPTOR_ERR; }
-	if (dhcp_init()) { return DHCP_ERR; }
+	if (ip65_init()) return ADAPTOR_ERR;
+	if (dhcp_init()) return DHCP_ERR;
 	return NETWORK_OK;
 #endif
 }

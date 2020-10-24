@@ -44,6 +44,8 @@ _xbios_fname:  .byte 0,0
 _xbios_dest:   .byte 0,0
 _xbios_len:    .byte 0,0
 
+	.segment	"CODE"
+
 ; USE FOR LOADING WITH OS ROM
 PORTB = $D301
 _disable_rom:

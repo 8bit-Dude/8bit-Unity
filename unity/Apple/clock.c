@@ -50,9 +50,9 @@ unsigned sleep(unsigned seconds)
 	while (seconds) {
 		i = 0;
 		while (i<13200) { i++; }
+		clk += TCK_PER_SEC;
 		seconds--;
 	}
-	clk += TCK_PER_SEC;
 	return 1;
 }
 

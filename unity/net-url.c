@@ -25,14 +25,17 @@
  */
  
 #include "unity.h"
-#include "hub.h"
 
 #ifdef __APPLE2__
-  #pragma code-name("LOWCODE")
+  #pragma code-name("LC")
 #endif
 
 #ifdef __ATARIXL__
   #pragma code-name("SHADOW_RAM2")
+#endif
+
+#ifdef __HUB__
+  #include "hub.h"
 #endif
 
 #ifndef __HUB__

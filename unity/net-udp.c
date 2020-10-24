@@ -25,29 +25,25 @@
  */
  
 #include "unity.h"
-#include "hub.h"
 
 #ifdef __APPLE2__
-  #pragma code-name("LOWCODE")
+  #pragma code-name("LC")
 #endif
 
 #ifdef __ATARIXL__
   #pragma code-name("SHADOW_RAM2")
 #endif
 
-#ifndef __HUB__
-  // Use IP65 library
+#ifdef __HUB__
+  #include "hub.h"
+#else
+  #include "IP65/ip65.h"
   #define EncodeIP(a,b,c,d) (a+b*256+c*65536+d*16777216)
   unsigned long udp_send_ip;
   unsigned int udp_send_port;
   unsigned int udp_recv_port;
-  unsigned char* udp_recv_packet;
-  extern unsigned char udp_recv_buf[256];   // Buffer with data received (length hard-coded in IP65)
-  void PacketUDP(void) { udp_recv_packet = udp_recv_buf; }  
-  unsigned char __fastcall__ udp_send(const unsigned char* buf, unsigned int len, unsigned long dest,  unsigned int dest_port, unsigned int src_port);
-  unsigned char __fastcall__ udp_add_listener(unsigned int port, void (*callback)(void));
-  unsigned char __fastcall__ udp_remove_listener(unsigned int port);
-  unsigned char ip65_process(void);
+  unsigned char *udp_recv_buffer;
+  void PacketUDP(void) { udp_recv_buffer = udp_recv_buf; }  
 #endif
 
 void SlotUDP(unsigned char slot)
@@ -95,6 +91,7 @@ void CloseUDP()
 	QueueHub(HUB_UDP_CLOSE, 0, 0);
 	UpdateHub();	
 #else
+	udp_remove_listener(udp_recv_port);
 #endif
 }
 
@@ -120,14 +117,14 @@ unsigned char* RecvUDP(unsigned int timeOut)
 	return &recvHub[2]; 	
 #else
 	// Process IP65 until receiving packet
-	udp_recv_packet = 0;
-	while (!udp_recv_packet) {
+	udp_recv_buffer = 0;
+	while (!udp_recv_buffer) {
 		if (clock() > timer) return 0;
 		ip65_process();
 	#if defined __APPLE2__
 		wait(1);
 	#endif
 	}
-	return udp_recv_packet;	
+	return udp_recv_buffer;	
 #endif
 }

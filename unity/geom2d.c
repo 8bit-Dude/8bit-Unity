@@ -24,11 +24,7 @@
  *   specific prior written permission.
  */
  
-#define BASE_DECIMALS 100 
-
-#ifdef __ATARIXL__
-  #pragma code-name("SHADOW_RAM")
-#endif
+#define BASE_DECIMALS 100
 
 unsigned char IntersectSegments(signed int seg1X1, signed int seg1Y1, signed int seg1X2, signed int seg1Y2,
 							    signed int seg2X1, signed int seg2Y1, signed int seg2X2, signed int seg2Y2,

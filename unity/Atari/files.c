@@ -33,6 +33,10 @@
 #include <peekpoke.h>
 #include <stdlib.h>
 
+#ifdef __ATARIXL__
+  #pragma code-name("SHADOW_RAM2")
+#endif
+
 #define XBIOS_BUFFER 0x0400
 
 // Variables containing file list

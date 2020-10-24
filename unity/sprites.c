@@ -49,6 +49,10 @@
 	{			
 		// Set sprite rows, frames and resulting block size (there are 4 offset blocks for each sprite)
 		unsigned char i;
+		FILE* fp = fopen("sprites.dat", "rb");
+		fread((char*)(SPRITERAM), 1, 2, fp);
+		fread((char*)(SPRITERAM), 1, 8000, fp);
+		fclose(fp);
 		frameROWS = rows;
 		frameBLOCK = frames*frameROWS*frameWIDTH;
 		for (i=0; i<SPRITE_NUM; i++) sprROWS[i] = frameROWS;

@@ -27,11 +27,7 @@
 #include "unity.h"
 
 #ifdef __APPLE2__
-  #pragma code-name("LOWCODE")
-#endif
-
-#ifdef __ATARIXL__
-  #pragma code-name("SHADOW_RAM")
+  #pragma code-name("LC")
 #endif
 
 callback* callHead = NULL;
@@ -99,6 +95,10 @@ unsigned char YToRow(unsigned char y)
 	return y/6;
 #endif
 }
+
+#ifdef __ATARIXL__
+  #pragma code-name("SHADOW_RAM")
+#endif
 
 unsigned long fraction;
 

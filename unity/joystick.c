@@ -23,65 +23,26 @@
  *   used to endorse or promote products derived from this software without
  *   specific prior written permission.
  */
- 
-#include "unity.h"
 
-#ifdef __ATARIXL__
-  #pragma code-name("SHADOW_RAM2")
-#endif
+// For C64, see C64/JOY.s
+// For APPLE2, see Apple/JOY.s
+
+#include "unity.h"
 
 #if (defined __LYNX__) || (defined __ORIC__)
   #include "hub.h"
 #endif
 
-#ifdef __APPLE2__
-  #define MOU_STEP 4
-#else
-  #define MOU_STEP 2
+#ifdef __ATARIXL__
+  #pragma code-name("SHADOW_RAM2")
 #endif
-
-///////////////// MOUSE ////////////////////
-
-unsigned char mouseState[3] = {80, 100, 255};
-
-unsigned char* GetMouse(void) 
-{
-#if (defined __LYNX__) || (defined __ORIC__)
-	// Get mouse state from Hub
-	UpdateHub();
-	mouseState[0] = hubState[5];
-	mouseState[1] = hubState[6];
-	mouseState[2] = 255;
-	if (!(hubState[1] & 64))  mouseState[2] &= ~MOU_LEFT;
-	if (!(hubState[1] & 128)) mouseState[2] &= ~MOU_RIGHT;
-	if (!(hubState[2] & 64))  mouseState[2] &= ~MOU_MIDDLE;
-#else
-	// Read mouse state from joystick #1
-	unsigned char joy = GetJoy(0);
-	if (joy & JOY_UP)    { mouseState[1]+=MOU_STEP; if (mouseState[1]>200) mouseState[1] = 200; }
-	if (joy & JOY_DOWN)  { mouseState[1]-=MOU_STEP; if (mouseState[1]>200) mouseState[1] = 0;   }
-	if (joy & JOY_LEFT)  { mouseState[0]+=MOU_STEP; if (mouseState[0]>160) mouseState[0] = 160; }
-	if (joy & JOY_RIGHT) { mouseState[0]-=MOU_STEP; if (mouseState[0]>160) mouseState[0] = 0;   }
-	if (joy & JOY_BTN1)  { mouseState[2] |= MOU_LEFT;  } else { mouseState[2] &= ~MOU_LEFT;  } 
-	if (joy & JOY_BTN2)  { mouseState[2] |= MOU_RIGHT; } else { mouseState[2] &= ~MOU_RIGHT; } 
-#endif	
-	return mouseState;
-}
-
-#ifndef __CBM__
-// see C64/JOY.s
-
-#ifndef __APPLE2__
-// see Apple/JOY.s
-
-/////////////// JOYTICKS ///////////////////
 
 #if (defined __ORIC__)
   #define ADAPTOR_PASE 0
   #define ADAPTOR_HUB  1
   unsigned char joyAdaptor = ADAPTOR_PASE;
-  unsigned char InitPaseIJK(void);			// see Oric/JOY.s
-  unsigned char GetPaseIJK(unsigned char);	// see Oric/JOY.s
+  unsigned char InitPaseIJK(void);			// see Oric/paseIJK.s
+  unsigned char GetPaseIJK(unsigned char);	// see Oric/paseIJK.s
   unsigned char GetKey(unsigned char);		// see Oric/keyboard.s
 #endif
 
@@ -100,6 +61,7 @@ unsigned char GetJoy(unsigned char joy)
 {
 #if defined __ATARI__
 	return PEEK(0x0278+joy)+(PEEK(0x0284+joy)<<4);
+	
 #elif defined __LYNX__
 	// 2 input types: D-Pad (#0) or 8bit-Hub (#1,#2,#3)
 	unsigned char reg, state;
@@ -157,8 +119,3 @@ unsigned char GetJoy(unsigned char joy)
 	return state;
 #endif
 }
-
-/////////////////////////////////////////////
-
-#endif
-#endif

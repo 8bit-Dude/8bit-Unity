@@ -25,25 +25,25 @@
  */
  
 #include "unity.h"
-#include "hub.h"
 
 #ifdef __APPLE2__
-  #pragma code-name("LOWCODE")
+  #pragma code-name("LC")
 #endif
 
 #ifdef __ATARIXL__
   #pragma code-name("SHADOW_RAM2")
 #endif
 
-#ifndef __HUB__
-  // Use IP65 library
+#ifdef __HUB__
+  #include "hub.h"
+#else
+  #include "IP65/ip65.h"
   #define EncodeIP(a,b,c,d) (a+b*256+c*65536+d*16777216)
-  unsigned char* tcp_recv_packet;
-  void __fastcall__ PacketTCP(const unsigned char* buf, int len) { tcp_recv_packet = (unsigned char*)buf; }
-  unsigned char __fastcall__ tcp_connect(unsigned long dest, unsigned int dest_port, void (*callback)(const unsigned char* buf, int len));
-  unsigned char __fastcall__ tcp_send(const unsigned char* buf, unsigned int len);
-  unsigned char tcp_close(void);
-  unsigned char ip65_process(void);
+  unsigned char* tcp_recv_buffer, tcp_recv_len;
+  void __fastcall__ PacketTCP(const unsigned char* buf, int len) { 
+	tcp_recv_buffer = (unsigned char*)buf;
+	tcp_recv_len = len;	
+  }
 #endif
 
 void SlotTCP(unsigned char slot)
@@ -106,14 +106,14 @@ unsigned char* RecvTCP(unsigned int timeOut)
 	return &recvHub[2]; 
 #else
 	// Process IP65 until receiving packet
-	tcp_recv_packet = 0;
-	while (!tcp_recv_packet) {
+	tcp_recv_buffer = 0;
+	while (!tcp_recv_buffer) {
 		if (clock() > timer) return 0;
 		ip65_process();
 	#if defined __APPLE2__
 		wait(1);
 	#endif
 	}
-	return tcp_recv_packet;	
+	return tcp_recv_buffer;	
 #endif
 }

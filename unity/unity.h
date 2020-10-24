@@ -72,6 +72,8 @@ void EnterBitmapMode(void);
 void ExitBitmapMode(void);
 void ClearBitmap(void);
 void LoadBitmap(char *filename);
+
+// Bitmap pixel functions (see pixel.c)
 unsigned char GetPixel(void);
 void SetPixel(unsigned char color);
 void LocatePixel(unsigned int x, unsigned int y);
@@ -154,7 +156,7 @@ unsigned char PointInsidePolygon(signed int pX, signed int pY, unsigned char vN,
 #define DOT(a,b) (a[0]*b[0]+a[1]*b[1])
 unsigned char atan2(unsigned char y, unsigned char x);
 
-// Music functions
+// Music functions (see music.c)
 // Apple: ElectricDuet (see Apple/DUET.s) 
 // Atari: RMT track (see Atari/POKEY.s)
 // C64:   SID track (see C64/SID.s)

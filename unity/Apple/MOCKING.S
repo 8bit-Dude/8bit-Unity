@@ -28,10 +28,15 @@
 ;
 
 	.export _DetectMocking
-	.export _InitMocking
 	.export _PlayMocking
 	.export _StopMocking
 	.export _SFXMocking
+	
+	.export _hasMocking
+	
+	.segment "DATA"
+	
+_hasMocking: .byte 255
 
 	.segment "LOWCODE"	
 
@@ -95,29 +100,22 @@ mb4_check_cycle_loop:
 	bne	mb4_check_cycle_loop	; loop detection
 	
 done_mb4_detected:
-	lda #01				; Mockingboard found (X=1)
-	rts					; return
-
-mb4_not_in_this_slot:
-	lda	#00
-	rts
-	
-.endproc
-
-; ---------------------------------------------------------------
-; void __near__ _InitMocking ()
-; ---------------------------------------------------------------
-
-.proc _InitMocking: near	
-
-	LDA #$FF
+	LDA #$FF			; Init board
 	STA $C403
 	STA $C483
 	LDA #$07
 	STA $C402
 	STA $C482
-	RTS
-		  
+
+	lda #01				; Mockingboard found!
+	sta _hasMocking	
+	rts					
+
+mb4_not_in_this_slot:
+	lda	#00				; Mockingboard not found!
+	sta _hasMocking
+	rts
+	
 .endproc
 
 ; ---------------------------------------------------------------

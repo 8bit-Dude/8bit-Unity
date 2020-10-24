@@ -97,40 +97,13 @@ unsigned char RecvByte(unsigned char* value)
 	return 1;
 }
 
-void SendHub()
-{
-	unsigned char i, checksum, packetLen;
-
-	// Send Header
-	SendByte(170);
-	
-	// Send Packet ID
-	if (sendLen) { sendID = sendHub[0]; }
-	checksum = (recvID & 0xf0) + sendID;
-	SendByte(checksum);
-	
-	// Send Packet Data (if any)
-	if (sendLen) {	
-		packetLen = sendHub[1];
-		SendByte(packetLen);
-		for (i=2; i<packetLen+2; i++) {
-			SendByte(sendHub[i]); 
-			checksum += sendHub[i];
-		}
-	} else {	
-		SendByte(0); 
-	}
-	
-	// Send footer
-	SendByte(checksum);
-}
-
 void RecvHub() 
 {
 	unsigned char i, len, ID, packetLen;
 	unsigned char header, footer, checksum;
 
 #if defined __ORIC__
+	__asm__("sei");			// Disable interrupts
 	SendByte(85);
 	POKE(0x0303, 0);		// Set Port A as Input
 	i = PEEK(0x0301);   	// Reset ORA
@@ -194,6 +167,42 @@ void RecvHub()
 	}
 }
 
+void SendHub()
+{
+	unsigned char i, checksum, packetLen;
+	
+#if defined __ORIC__
+	POKE(0x0303, 255);	// Set port A as Output
+#endif	
+
+	// Send Header
+	SendByte(170);
+	
+	// Send Packet ID
+	if (sendLen) { sendID = sendHub[0]; }
+	checksum = (recvID & 0xf0) + sendID;
+	SendByte(checksum);
+	
+	// Send Packet Data (if any)
+	if (sendLen) {	
+		packetLen = sendHub[1];
+		SendByte(packetLen);
+		for (i=2; i<packetLen+2; i++) {
+			SendByte(sendHub[i]); 
+			checksum += sendHub[i];
+		}
+	} else {	
+		SendByte(0); 
+	}
+	
+	// Send footer
+	SendByte(checksum);
+	
+#if defined __ORIC__
+	__asm__("cli");		// Resume interrupts	
+#endif	
+}
+
 clock_t updateClock;
 
 void UpdateHub() 
@@ -214,24 +223,21 @@ void UpdateHub()
 			QueueHub(HUB_SYS_RESET, 0, 0);
 		#if defined __LYNX__			
 			SerialOpen(&comLynx);  // Setup Comlynx interface
-		#endif
+		#elif defined __ORIC__
+			__asm__("sei");		   // Disable interrupts
+		#endif				
+			SendHub();
 		}
 	} 
 #if defined DEBUG_HUB
 	tic = clock();
-#endif	
+#endif
 	// Send/Receive Packet
+	RecvHub();
 #if defined __LYNX__	
 	while (SerialGet(&i) == SER_ERR_OK) ; // Clear UART Buffer
-#elif defined __ORIC__	
-	__asm__("sei");		// Disable interrupts
 #endif	
 	SendHub();
-	RecvHub();
-#if defined __ORIC__
-	POKE(0x0303, 255);	// Set port A as Output
-	__asm__("cli");		// Resume interrupts	
-#endif
 
 #if defined DEBUG_HUB
 	toc = clock();

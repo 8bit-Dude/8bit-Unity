@@ -36,6 +36,10 @@
  
 #include "unity.h"
 
+#ifdef __ATARI__
+  #pragma code-name("SHADOW_RAM2")
+#endif
+
 #if (defined __APPLE2__) || (defined __ORIC__)
   void __fastcall__ Blit(void);
 #endif
@@ -78,7 +82,7 @@ void LoadChunk(unsigned char** chunk, char *filename)
 	unsigned int size = FileRead(filename, buffer);
 	*chunk = (unsigned char*)malloc(size);
 	memcpy(*chunk, buffer, size);
-#elif defined(__ATARI__) // || defined(__APPLE2__)
+#elif defined(__ATARI__) /* || defined(__APPLE2__) */
 	unsigned int size;
 	if (FileOpen(filename)) {
 		// Read header into buffer

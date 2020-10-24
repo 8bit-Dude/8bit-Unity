@@ -26,6 +26,10 @@
 
 #include "unity.h"
 
+#ifdef __APPLE2__
+  #pragma code-name("LOWCODE")
+#endif
+
 // Variables containing file list
 unsigned char  fileNum = 0;
 unsigned int   fileSizes[16];  

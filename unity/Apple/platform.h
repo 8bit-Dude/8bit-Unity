@@ -67,14 +67,22 @@
 #define YELLOW  14
 #define WHITE   15
 
+// Workaround for missing chardefs
+#define CH_DEL  0x08
+
 // Double Hi-Res functions (see DHR.c)
 extern unsigned char *dhrmain, *dhraux, *dhrptr, dhrpixel;
 void SetDHRPointer(unsigned int x, unsigned int y);
 void SetDHRColor(unsigned char color);
 unsigned char GetDHRColor(void);
 
-// Workaround for missing chardefs
-#define CH_DEL  0x08
+// Output for SFX/Music (see DUET.s, MOCKING.s)
+extern unsigned char hasMocking;	
+void DetectMocking(void);
+void StopMocking(void);
+void SFXMocking(unsigned int address);
+void PlayMocking(unsigned int address);		
+void PlaySpeaker(unsigned int address);
 
 // Workaround for missing clock (see CLOCK.c)
 #define TCK_PER_SEC	59
@@ -85,5 +93,5 @@ extern clock_t clk;
 
 // Using ProDos for File Management (see files.c)
 void FileList(void);
-//unsigned char FileOpen(const char* fname);
-//void FileRead(void* buf, unsigned int len);
+/* unsigned char FileOpen(const char* fname);
+void FileRead(void* buf, unsigned int len); */

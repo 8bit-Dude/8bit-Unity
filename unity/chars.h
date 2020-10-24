@@ -31,7 +31,7 @@
 
 // Keyboard definitions
 	#define KEY_SP		' '
-#if defined __APPLE2__ || defined __LYNX__
+#if defined(__APPLE2__) || defined(__LYNX__)
 	#define KEY_A		'A'
 	#define KEY_B		'B'
 	#define KEY_C		'C'
@@ -58,7 +58,7 @@
 	#define KEY_X		'X'
 	#define KEY_Y		'Y'
 	#define KEY_Z		'Z'
-#else
+#elif defined(__CBM__) || defined(__ATMOS__)
 	#define KEY_A		'a'	
 	#define KEY_B		'b'	
 	#define KEY_C		'c'	

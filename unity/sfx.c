@@ -27,7 +27,7 @@
 #include "unity.h"
 
 #ifdef __APPLE2__
-  #pragma code-name("LOWCODE")
+  #pragma code-name("LC")
 #endif
 
 #ifdef __ATARIXL__
@@ -41,29 +41,7 @@
 	extern unsigned char sampleFreq;
 	extern unsigned char sampleCtrl;
 	
-#elif defined __APPLE2__
-	// Apple specific functions (see Apple/DUET.s and Apple/MOCKING.S)
-	unsigned char sfxOutput = 255;
-	unsigned char DetectMocking(void);
-	void InitMocking(void);
-	void StopMocking(void);
-	void PlayMocking(unsigned int address);		
-	void SFXMocking(unsigned int address);
-	void PlaySpeaker(unsigned int address);
-	
-	// Wrapper functions (for speaker / mocking)
-	void PlayMusic(unsigned int address) {
-		if (sfxOutput == 255) {
-			sfxOutput = DetectMocking();
-			if (sfxOutput == 1) InitMocking();
-		}
-		if (sfxOutput) PlayMocking(address); else PlaySpeaker(address);
-	}
-	
-	void StopMusic() { 
-		if (sfxOutput) { StopMocking(); }
-	}
-	
+#elif defined __APPLE2__	
 	// Mockingboards sounds:        TONE A  	TONE B	    TONE C	 NOISE  MASKS   AMP A, B, C     ENV LO, HI, TYPE
 	unsigned char sfxData[14] = { 0x00, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0xFF, 0x0F, 0x0F, 0x0F, 0x00, 0x00, 0x00 }; 
     #define DISABLE_TONE_A  (0x01)
@@ -119,60 +97,14 @@
 	extern void __fastcall__ abctaps(unsigned char chan, unsigned int val);		  // legal values 0..511
 	extern void __fastcall__ abcintegrate(unsigned char chan, unsigned char val); // legal values 0..1
 	extern void __fastcall__ abcvolume(unsigned char chan, unsigned char val);	  // legal values 0..127
-
-	// Play and Stop music
-	void PlayMusic(unsigned int address) { 
-	unsigned char i = 0;
-		lynx_snd_pause();
-		while (i<4) {
-			if PEEKW(address) lynx_snd_play(i, PEEKW(address));
-			address += 2;
-			++i;
-		}
-		lynx_snd_continue();
-	}
-	void StopMusic() { 
-		lynx_snd_stop();
-	}
 #endif
-
-void LoadMusic(const char* filename)
-{
-#if defined __ORIC__
-	// Load from File
-	FileRead(filename, (char*)MUSICRAM);
-#elif defined __LYNX__
-	// Load from CART file system
-	FileRead(filename);
-/* #elif defined __APPLE2__
-	if (FileOpen(filename)) {
-		// Consume 2 bytes of header then read data
-		FileRead((char*)MUSICRAM, 2);	
-		FileRead((char*)MUSICRAM, 8000);	
-	} */
-#elif defined __ATARI__
-	if (FileOpen(filename)) {
-		// Consume 6 bytes of header then read data
-		FileRead((char*)MUSICRAM, 6);	
-		FileRead((char*)MUSICRAM, 8000);	
-	}
-#else
-	FILE* fp;
-	unsigned int loadaddr;
-
-	// Try to open file
-	fp = fopen(filename, "rb");	
-	if (!fp) return;
-
-	// Get load address and read data
-	fread((char*)&loadaddr, 1, 2, fp);
-	fread((char*)loadaddr, 1, 8000, fp);
-#endif
-}
 
 void InitSFX() 
 {
-#if defined __CBM__
+#if defined __APPLE2__
+	if (hasMocking == 255)
+		DetectMocking();
+#elif defined __CBM__
 	SID.flt_freq = 0xA000;
 	SID.flt_ctrl = 0x44;
 	SID.amp      = 0x1F;
@@ -195,7 +127,8 @@ void InitSFX()
 void StopSFX() 
 {
 #if defined __APPLE2__
-	if (sfxOutput) StopMocking();
+	if (hasMocking) 
+		StopMocking();
 #elif defined __CBM__	
 	StopMusic();
 #elif defined __ATARI__
@@ -226,18 +159,19 @@ void EngineSFX(unsigned int channel, unsigned int rpm)
 {
 #if defined __CBM__	
 	unsigned int freq = 3*rpm+(channel*5+200);
-	if (channel%2) {
+	if (channel%2)
 		SID.v2.freq = freq;	
-	} else {
+	else
 		SID.v1.freq = freq;	
-	}
+	
 #elif defined __ATARI__
 	unsigned char freq = (200-rpm/4)+channel*5;
 	POKE((char*)(0xD200+2*channel), freq);
 	POKE((char*)(0xD201+2*channel), 16*2+8);
+	
 #elif defined __APPLE2__	
 	unsigned char tone;
-	if (sfxOutput) {
+	if (hasMocking) {
 		// Mocking board sound
 		tone = (252-rpm/4);
 		if (channel%2) {
@@ -298,16 +232,18 @@ void BleepSFX(unsigned char tone)
 	SID.v3.sr   = 0x09; // sustain, release
 	SID.v3.ctrl = 0x11; // triangle wave, set attack bit
 	SID.v3.ctrl = 0x10; // release attack bit
+	
 #elif defined __ATARI__
 	sampleCount = 24;
 	sampleFreq = 255-tone;
 	sampleCtrl = 170;
+	
 #elif defined __APPLE2__
 	unsigned char interval;
 	unsigned char repeat = 64;
 	interval = 8-tone/32;
 	
-	if (sfxOutput) {
+	if (hasMocking) {
 		// Mocking board sound
 		sfxData[7] &= ~DISABLE_TONE_C;
 		sfxData[4] = 255-tone;
@@ -328,6 +264,7 @@ void BleepSFX(unsigned char tone)
 #elif defined __ORIC__
 	PlaySFX(tone/4+12, 1000);
 	ResetChannels();	
+	
 #elif defined __LYNX__	
 	abctaps(2, 7);
 	abcoctave(2, 2);
@@ -340,12 +277,12 @@ void BleepSFX(unsigned char tone)
 
 void BumpSFX() 
 {
-	// Low frequency burst
 #if defined __CBM__	
 	SID.v3.freq = 2000;
 	SID.v3.sr   = 0xA8; // sustain, release
 	SID.v3.ctrl = 0x21; // square wave, set attack bit
 	SID.v3.ctrl = 0x20; // release attack bit
+
 #elif defined __APPLE2__
 	unsigned char repeat = 8;
 	while (repeat) {
@@ -356,9 +293,11 @@ void BumpSFX()
 	sampleCount = 16;
 	sampleFreq = 255;
 	sampleCtrl = 232;
+
 #elif defined __ORIC__
 	PlaySFX(16, 100);
 	ResetChannels();	
+
 #elif defined __LYNX__	
 	abctaps(1, 7);
 	abcoctave(1, 4);
