@@ -309,7 +309,7 @@ void ProcessGrub(Grub *grub, signed char xMove, signed char yMove)
 }
 
 // Process input for selected Grub
-void ProcessInput(Grub *grub, Proj *proj)
+void ProcessControls(Grub *grub, Proj *proj)
 {
 	unsigned char joy;
 	signed char xMove = 0;
@@ -619,7 +619,7 @@ int main(void)
 			gameClock = clock();
 			grub = &grubs[curGrub];
 			proj = &projs[0];
-			ProcessInput(grub, proj);
+			ProcessControls(grub, proj);
 		}
 	}
 	
