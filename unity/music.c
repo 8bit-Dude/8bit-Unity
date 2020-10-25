@@ -28,11 +28,11 @@
 
 #ifdef __APPLE2__
   #pragma code-name("LC")
-#endif
+#endif	
 
 #ifdef __ATARIXL__
   #pragma code-name("SHADOW_RAM2")
-#endif		
+#endif	
 
 void LoadMusic(const char* filename)
 {

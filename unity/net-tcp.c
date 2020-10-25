@@ -26,14 +26,6 @@
  
 #include "unity.h"
 
-#ifdef __APPLE2__
-  #pragma code-name("LC")
-#endif
-
-#ifdef __ATARIXL__
-  #pragma code-name("SHADOW_RAM2")
-#endif
-
 #ifdef __HUB__
   #include "hub.h"
 #else
@@ -111,7 +103,7 @@ unsigned char* RecvTCP(unsigned int timeOut)
 		if (clock() > timer) return 0;
 		ip65_process();
 	#if defined __APPLE2__
-		wait(1);
+		clk++;
 	#endif
 	}
 	return tcp_recv_buffer;	

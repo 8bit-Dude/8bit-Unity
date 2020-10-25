@@ -34,7 +34,7 @@
 #include <stdlib.h>
 
 #ifdef __ATARIXL__
-  #pragma code-name("SHADOW_RAM")
+  #pragma code-name("SHADOW_RAM2")
 #endif
 
 #define XBIOS_BUFFER 0x0400

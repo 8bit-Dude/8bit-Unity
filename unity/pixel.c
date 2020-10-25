@@ -30,7 +30,7 @@
   #pragma code-name("LOWCODE")
 #endif
 
-#ifdef __ATARI__
+#ifdef __ATARIXL__
   #pragma code-name("SHADOW_RAM")
 #endif
 
@@ -98,6 +98,7 @@ unsigned char GetPixel()
 		addr = COLORRAM + offset;
 		return (PEEK(addr) & 0x0F);
 	}
+	
 #elif defined __ATARI__
 	unsigned int offset;
 	unsigned char val1, val2, shift;
@@ -114,11 +115,13 @@ unsigned char GetPixel()
 	} else {
 		return val2*4 + val1;
 	}
+	
 #elif defined __APPLE2__
 	// Use DHR routines
 	RestoreSprLine(pixelX,pixelY);
 	SetDHRPointer(pixelX,pixelY);
 	return GetDHRColor();
+	
 #elif defined __ORIC__
 	unsigned int addr;
 	unsigned char i, pX, pY, xO, yO, occlusion = 0;
@@ -174,6 +177,7 @@ unsigned char GetPixel()
 		break;	
 	}
 	return color;
+	
 #elif defined __LYNX__
 	unsigned int addr;
 	addr = BITMAPRAM + pixelY*82 + pixelX/2 + 1;
@@ -212,7 +216,7 @@ void SetPixel(unsigned char color)
 	POKE((char*)BITMAPRAM1+offset, (PEEK((char*)BITMAPRAM1+offset) & mask) | col1);
 	POKE((char*)BITMAPRAM2+offset, (PEEK((char*)BITMAPRAM2+offset) & mask) | col2);
 
-#if defined __CBM__
+#elif defined __CBM__
 	unsigned int offset;
 	unsigned char shift;
 	

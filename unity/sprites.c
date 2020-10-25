@@ -108,15 +108,31 @@
 	}
 #endif
 
-void InitSprites(unsigned char frames, unsigned char cols, unsigned char rows, unsigned char *spriteColors)
-{		
-#if defined __APPLE2__	
-	// Set sprite rows, frames and resulting block size (there are 4 offset blocks for each sprite)
-	unsigned char i;
-	FILE* fp = fopen("sprites.dat", "rb");
+void LoadSprites(unsigned char* filename)
+{
+#if defined(__APPLE2__) || defined(__CBM__)
+	FILE* fp = fopen(filename, "rb");
 	fread((char*)(SPRITERAM), 1, 2, fp);
 	fread((char*)(SPRITERAM), 1, 8000, fp);
 	fclose(fp);
+
+#elif defined __ATARI__	
+	if (FileOpen(filename)) {
+		FileRead((char*)(SPRITERAM), 6);
+		FileRead((char*)(SPRITERAM), 8000);
+	}
+	
+#elif defined __ORIC__	
+	FileRead(filename, (void*)SPRITERAM);
+	
+#endif
+}
+
+void SetupSprites(unsigned char frames, unsigned char cols, unsigned char rows, unsigned char *spriteColors)
+{
+#if defined __APPLE2__	
+	// Set sprite rows, frames and resulting block size (there are 4 offset blocks for each sprite)
+	unsigned char i;
 	frameROWS = rows;
 	frameBLOCK = frames*frameROWS*frameWIDTH;
 	for (i=0; i<SPRITE_NUM; i++) 
@@ -159,11 +175,8 @@ void InitSprites(unsigned char frames, unsigned char cols, unsigned char rows, u
 	POKE(53276, 255);
 
 #elif defined __ORIC__	
-	// Load sprite sheet
-	unsigned char i;
-	FileRead("sprites.dat", (void*)SPRITERAM);
-	
 	// Assign frame info and sprite colors
+	unsigned char i;
 	frameROWS = rows;
 	frameBLOCK = frames*frameROWS*frameWIDTH;
 	for (i=0; i<SPRITE_NUM; i++) 

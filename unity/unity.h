@@ -186,7 +186,8 @@ void ScreechSFX(unsigned char channel, unsigned char pitch);
 #elif defined __LYNX__
   #define SPRITE_NUM 8  
 #endif
-void InitSprites(unsigned char frames, unsigned char cols, unsigned char rows, unsigned char *spriteColors);
+void LoadSprites(unsigned char* filename);
+void SetupSprites(unsigned char frames, unsigned char cols, unsigned char rows, unsigned char *spriteColors);
 void EnableSprite(signed char index);
 void DisableSprite(signed char index);
 void LocateSprite(unsigned int x, unsigned int y);

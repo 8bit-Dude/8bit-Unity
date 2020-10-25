@@ -40,7 +40,7 @@ void wait(unsigned char ticks)
 {
 	unsigned int i = 0;
 	while (i<220*ticks) { i++; }
-	clk += 1;		
+	clk++;		
 }
 
 // Sleep for x seconds
