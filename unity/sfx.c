@@ -219,7 +219,7 @@ void ScreechSFX(unsigned char channel, unsigned char pitch)
 	abcoctave(channel, 2);
 	abcvolume(channel, 30);
 	abcintegrate(channel, 1);
-	abcpitch(channel, 255-pitch);
+	abcpitch(channel, ~pitch);
 #else
 	EngineSFX(channel, pitch*3);
 #endif
@@ -235,7 +235,7 @@ void BleepSFX(unsigned char tone)
 	
 #elif defined __ATARI__
 	sampleCount = 24;
-	sampleFreq = 255-tone;
+	sampleFreq = ~tone;
 	sampleCtrl = 170;
 	
 #elif defined __APPLE2__
@@ -246,7 +246,7 @@ void BleepSFX(unsigned char tone)
 	if (hasMocking) {
 		// Mocking board sound
 		sfxData[7] &= ~DISABLE_TONE_C;
-		sfxData[4] = 255-tone;
+		sfxData[4] = ~tone;
 		SFXMocking(sfxData);		
 		while (repeat) { 
 			if (repeat%interval) { }
@@ -270,7 +270,7 @@ void BleepSFX(unsigned char tone)
 	abcoctave(2, 2);
 	abcvolume(2, 60);
 	abcintegrate(2, 1);
-	abcpitch(2, 255-tone);
+	abcpitch(2, ~tone);
 	abctimers[2] = 15;
 #endif
 }

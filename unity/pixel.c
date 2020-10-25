@@ -187,6 +187,31 @@ unsigned char GetPixel()
 
 void SetPixel(unsigned char color)
 {
+#if defined __APPLE2__
+	// Use DHR routines
+	SetDHRPointer(pixelX,pixelY);
+	SetDHRColor(color);	
+	
+#elif defined __ATARI__
+	unsigned int offset;
+	unsigned char shift, mask, col1, col2;	
+
+	// Compute pixel location
+	offset = 40*pixelY + pixelX/4;
+	shift = 6 - 2*(pixelX%4);
+	mask = ~(3 << shift);
+	if ((pixelY+pixelX)%2) {
+		col2 = (color%4) << shift;
+		col1 = (color/4) << shift;
+	} else {
+		col1 = (color%4) << shift;
+		col2 = (color/4) << shift;
+	}
+
+	// Set color/color2 in dual buffer
+	POKE((char*)BITMAPRAM1+offset, (PEEK((char*)BITMAPRAM1+offset) & mask) | col1);
+	POKE((char*)BITMAPRAM2+offset, (PEEK((char*)BITMAPRAM2+offset) & mask) | col2);
+
 #if defined __CBM__
 	unsigned int offset;
 	unsigned char shift;
@@ -201,29 +226,7 @@ void SetPixel(unsigned char color)
 	// Set color in COLORAM
 	offset = (pixelY/8)*40+(pixelX/4);
 	POKE(COLORRAM+offset, color);
-#elif defined __ATARI__
-	unsigned int offset;
-	unsigned char shift, mask, col1, col2;	
-
-	// Compute pixel location
-	offset = 40*pixelY + pixelX/4;
-	shift = 6 - 2*(pixelX%4);
-	mask = 255 - (3 << shift);
-	if ((pixelY+pixelX)%2) {
-		col2 = (color%4) << shift;
-		col1 = (color/4) << shift;
-	} else {
-		col1 = (color%4) << shift;
-		col2 = (color/4) << shift;
-	}
-
-	// Set color/color2 in dual buffer
-	POKE((char*)BITMAPRAM1+offset, (PEEK((char*)BITMAPRAM1+offset) & mask) | col1);
-	POKE((char*)BITMAPRAM2+offset, (PEEK((char*)BITMAPRAM2+offset) & mask) | col2);
-#elif defined __APPLE2__
-	// Use DHR routines
-	SetDHRPointer(pixelX,pixelY);
-	SetDHRColor(color);	
+		
 #elif defined __ORIC__
 	unsigned int offset;
 	unsigned char byte1, byte2, shift;
@@ -279,6 +282,7 @@ void SetPixel(unsigned char color)
 	// Assign bytes in Bitmap RAM
 	POKE((char*)BITMAPRAM+offset,    byte1);
 	POKE((char*)BITMAPRAM+offset+40, byte2);
+	
 #elif defined __LYNX__
 	unsigned char* addr = (char*)BITMAPRAM + pixelY*82 + pixelX/2 + 1;
 	if (pixelX%2) { 

@@ -54,7 +54,7 @@ unsigned char QueueHub(unsigned char packetCmd, unsigned char* packetBuffer, uns
 	unsigned char i;
 	
 	// Check if there is enough space in buffer
-	if (packetLen > 255-sendLen)
+	if (packetLen > ~sendLen)  // i.e: 255 - sendLen
 		return 0;
 	
 	// Add to send buffer

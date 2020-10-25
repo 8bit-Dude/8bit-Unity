@@ -64,7 +64,7 @@
   }
 #endif
 
-// Helper functions
+// Helper
 #define BYTE4(a,b,c,d) ((a<<6) | (b<<4) | (c<<2) | d)
 
 // Colors used in printing function
