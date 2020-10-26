@@ -34,8 +34,11 @@
   unsigned long udp_send_ip;
   unsigned int udp_send_port;
   unsigned int udp_recv_port;
-  unsigned char *udp_recv_buffer;
-  void PacketUDP(void) { udp_recv_buffer = udp_recv_buf; }  
+  unsigned char *udp_buffer, udp_len;
+  void PacketUDP(void) { 
+	udp_buffer = udp_recv_buf; 
+	udp_len = udp_recv_len;
+  }  
 #endif
 
 void SlotUDP(unsigned char slot)
@@ -109,14 +112,14 @@ unsigned char* RecvUDP(unsigned int timeOut)
 	return &recvHub[2]; 	
 #else
 	// Process IP65 until receiving packet
-	udp_recv_buffer = 0;
-	while (!udp_recv_buffer) {
+	while (!udp_len) {
 		if (clock() > timer) return 0;
 		ip65_process();
 	#if defined __APPLE2__
-		clk++;
+		wait(1);
 	#endif
 	}
-	return udp_recv_buffer;	
+	udp_len = 0;
+	return udp_buffer;	
 #endif
 }

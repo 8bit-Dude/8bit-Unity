@@ -31,10 +31,10 @@
 #else
   #include "IP65/ip65.h"
   #define EncodeIP(a,b,c,d) (a+b*256+c*65536+d*16777216)
-  unsigned char* tcp_recv_buffer, tcp_recv_len;
+  unsigned char* tcp_buffer, tcp_len;
   void __fastcall__ PacketTCP(const unsigned char* buf, int len) { 
-	tcp_recv_buffer = (unsigned char*)buf;
-	tcp_recv_len = len;	
+	tcp_buffer = (unsigned char*)buf;
+	tcp_len = len;	
   }
 #endif
 
@@ -98,14 +98,14 @@ unsigned char* RecvTCP(unsigned int timeOut)
 	return &recvHub[2]; 
 #else
 	// Process IP65 until receiving packet
-	tcp_recv_buffer = 0;
-	while (!tcp_recv_buffer) {
+	while (!tcp_len) {
 		if (clock() > timer) return 0;
 		ip65_process();
 	#if defined __APPLE2__
-		clk++;
+		wait(1);
 	#endif
 	}
-	return tcp_recv_buffer;	
+	tcp_len = 0;
+	return tcp_buffer;	
 #endif
 }
