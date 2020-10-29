@@ -98,8 +98,8 @@ void PrintBlanks(unsigned char col, unsigned char row, unsigned char width, unsi
 	unsigned int dataAux, dataMain;
 	
 	// Make sure columns start and end on full 7 pixel blocks
-	col = (col-col%2)/2;
-	width = (width+width%2)/2;
+	col = (col-col%2)/2u;
+	width = (width+width%2)/2u;
 	
 	// Create sample block at top-left (to encode color info)
 	x = 7*col;
@@ -160,8 +160,8 @@ void PrintNum(unsigned char col, unsigned char row, unsigned int num)
 {
 	unsigned int step = 1;
 	unsigned char tmp;
-	while ((step*10)<=num) {
-		step *= 10;
+	while ((step*10u)<=num) {
+		step *= 10u;
 	}
 	while (step>0) {
 		if (num >= step) { 
@@ -171,7 +171,7 @@ void PrintNum(unsigned char col, unsigned char row, unsigned int num)
 			tmp = 0;
 		}		
 		PrintChr(col++, row, &charDigit[tmp*3]);
-		step /= 10;
+		step /= 10u;
 	}
 #if defined __LYNX__
 	if (autoRefresh) { UpdateDisplay(); }
@@ -194,7 +194,7 @@ void PrintLogo(unsigned char col, unsigned char row, unsigned char index)
 	
 	// Compute location of character
 	if (col%2) { n=4; } else { n=3; }
-	x = (col*35)/10; y = (row*8);
+	x = (col*35u)/10u; y = (row*8u);
 	
 	// Set character over 3/4 pixels out of 7 in a cell
 	for (i=0; i<5; ++i) {
@@ -220,13 +220,13 @@ void PrintLogo(unsigned char col, unsigned char row, unsigned char index)
 	unsigned char i;
 
 	// Get memory addresses
-	addr1 = BITMAPRAM1+row*320+col;
-	addr2 = BITMAPRAM2+row*320+col;		
+	addr1 = BITMAPRAM1+row*320u+col;
+	addr2 = BITMAPRAM2+row*320u+col;		
 	
 	// Set Character data
 	for (i=0; i<8; ++i) {
-		POKE(addr1+i*40, logos[index][i]);
-		POKE(addr2+i*40, logos[index][i]);
+		POKE(addr1+i*40u, logos[index][i]);
+		POKE(addr2+i*40u, logos[index][i]);
 	}
 #elif defined __ORIC__
 	unsigned char logos[6][8] = { {0,0,0,12,18,16,23,12}, 	// C64: (0,0,1,1,0,0) (0,1,0,0,1,0) (0,1,0,0,0,0) (0,1,0,1,1,1) (0,0,1,1,0,0)
@@ -239,9 +239,9 @@ void PrintLogo(unsigned char col, unsigned char row, unsigned char index)
 	unsigned char i;
 	
 	// Set Character data
-	addr = BITMAPRAM + row*320 + (col+1);
+	addr = BITMAPRAM + row*320u + (col+1);
 	for (i=0; i<8; ++i) {
-		POKE((char*)addr+i*40, 64+logos[index][i]);
+		POKE((char*)addr+i*40u, 64+logos[index][i]);
 	}								  
 #elif defined __CBM__
 	// Define logos (1=Green, 2=Red, 3=Blue) 
@@ -255,9 +255,9 @@ void PrintLogo(unsigned char col, unsigned char row, unsigned char index)
 	unsigned char i;
 	
 	// Get memory addresses
-	addr1 = BITMAPRAM + row*320 + col*8;
-	addr2 = SCREENRAM + row*40 + col;
-	addr3 = COLORRAM + row*40+col;
+	addr1 = BITMAPRAM + row*320u + col*8;
+	addr2 = SCREENRAM + row*40u + col;
+	addr3 = COLORRAM + row*40u + col;
 	
 	// Set logo colors
 	POKE(addr2, GREEN << 4 | RED);
@@ -279,10 +279,10 @@ void PrintLogo(unsigned char col, unsigned char row, unsigned char index)
 	unsigned char i,j;
 								  
 	// Set Character data
-	addr = BITMAPRAM+1 + row*(6*82) + col*2;
+	addr = BITMAPRAM+1 + row*(492u) + col*2u;
 	for (i=0; i<6; ++i) {
 		for (j=0; j<2; ++j) {
-			POKE(addr+i*82+j, logos[index][i][j]);
+			POKE(addr+i*82u+j, logos[index][i][j]);
 		}
 	}
 #endif
@@ -297,19 +297,19 @@ void PrintChr(unsigned char col, unsigned char row, const char *chr)
 	unsigned char i,j,n;
 	if ((col > CHR_COLS) || (row > CHR_ROWS)) { return; }		
 	if (col%2) { n=4; } else { n=3; }
-	x = (col*35)/10; y = (row*8);
+	x = (col*35u)/10u; y = (row*8u);
 	SetDHRPointer(x, y);	
 	for (j=0; j<n; j++) {
 		SetDHRColor(paperColor);
 		dhrpixel++;
 	}
 	for (i=0; i<3; ++i) {
-		SetDHRPointer(x, y+i*2+1);
+		SetDHRPointer(x, y+i*2u+1);
 		for (j=0; j<n; j++) {
 			SetDHRColor(((chr[i]>>(7-j))&1) ? inkColor : paperColor);
 			dhrpixel++;
 		}
-		SetDHRPointer(x, y+i*2+2);
+		SetDHRPointer(x, y+i*2u+2);
 		for (j=0; j<n; j++) {
 			SetDHRColor(((chr[i]>>(3-j))&1) ? inkColor : paperColor);
 			dhrpixel++;
@@ -332,29 +332,29 @@ void PrintChr(unsigned char col, unsigned char row, const char *chr)
 	paperColor1 = paperColor%4; paperColor2 = paperColor/4;
 	bgByte1 = BYTE4(paperColor1,paperColor2,paperColor1,paperColor2);
 	bgByte2 = BYTE4(paperColor2,paperColor1,paperColor2,paperColor1);	
-	addr1 = BITMAPRAM1 + row*320 + col;
-	addr2 = BITMAPRAM2 + row*320 + col;
+	addr1 = BITMAPRAM1 + row*320u + col;
+	addr2 = BITMAPRAM2 + row*320u + col;
 	if (chr == &charBlank[0]) {
 		for (i=0; i<8; ++i) {
 			if (i%2) {
-				POKE((char*)addr1+i*40, bgByte2);
-				POKE((char*)addr2+i*40, bgByte1);
+				POKE((char*)addr1+i*40u, bgByte2);
+				POKE((char*)addr2+i*40u, bgByte1);
 			} else {
-				POKE((char*)addr1+i*40, bgByte1);
-				POKE((char*)addr2+i*40, bgByte2);
+				POKE((char*)addr1+i*40u, bgByte1);
+				POKE((char*)addr2+i*40u, bgByte2);
 			}
 		}
 	} else {
-		POKE((char*)addr1+0*40, bgByte1);
-		POKE((char*)addr2+0*40, bgByte2);
+		POKE((char*)addr1, bgByte1);
+		POKE((char*)addr2, bgByte2);
 		for (i=0; i<3; ++i) {
-			POKE((char*)addr2+(i*2+1)*40, BYTE4(((chr[i]&128) ? inkColor1 : paperColor1), ((chr[i]&64) ? inkColor2 : paperColor2), ((chr[i]&32) ? inkColor1 : paperColor1), paperColor2));
-			POKE((char*)addr1+(i*2+2)*40, BYTE4(((chr[i]&8  ) ? inkColor1 : paperColor1), ((chr[i]&4 ) ? inkColor2 : paperColor2), ((chr[i]&2 ) ? inkColor1 : paperColor1), paperColor2));
-			POKE((char*)addr1+(i*2+1)*40, BYTE4(((chr[i]&128) ? inkColor2 : paperColor2), ((chr[i]&64) ? inkColor1 : paperColor1), ((chr[i]&32) ? inkColor2 : paperColor2), paperColor1));
-			POKE((char*)addr2+(i*2+2)*40, BYTE4(((chr[i]&8  ) ? inkColor2 : paperColor2), ((chr[i]&4 ) ? inkColor1 : paperColor1), ((chr[i]&2 ) ? inkColor2 : paperColor2), paperColor1));
+			POKE((char*)addr2+(i*2+1)*40u, BYTE4(((chr[i]&128) ? inkColor1 : paperColor1), ((chr[i]&64) ? inkColor2 : paperColor2), ((chr[i]&32) ? inkColor1 : paperColor1), paperColor2));
+			POKE((char*)addr1+(i*2+2)*40u, BYTE4(((chr[i]&8  ) ? inkColor1 : paperColor1), ((chr[i]&4 ) ? inkColor2 : paperColor2), ((chr[i]&2 ) ? inkColor1 : paperColor1), paperColor2));
+			POKE((char*)addr1+(i*2+1)*40u, BYTE4(((chr[i]&128) ? inkColor2 : paperColor2), ((chr[i]&64) ? inkColor1 : paperColor1), ((chr[i]&32) ? inkColor2 : paperColor2), paperColor1));
+			POKE((char*)addr2+(i*2+2)*40u, BYTE4(((chr[i]&8  ) ? inkColor2 : paperColor2), ((chr[i]&4 ) ? inkColor1 : paperColor1), ((chr[i]&2 ) ? inkColor2 : paperColor2), paperColor1));
 		}
-		POKE((char*)addr1+7*40, bgByte2);
-		POKE((char*)addr2+7*40, bgByte1);
+		POKE((char*)addr1+280, bgByte2);
+		POKE((char*)addr2+280, bgByte1);
 	}
 #elif defined __ORIC__
 	// Set Character inside 6*8 cell
@@ -362,11 +362,11 @@ void PrintChr(unsigned char col, unsigned char row, const char *chr)
 	unsigned char a0,a2,a4,b,blank;
 	unsigned int addr;
 	if ((col > CHR_COLS) || (row > CHR_ROWS)) { return; }		
-	addr = BITMAPRAM+1 + row*320 + col;
+	addr = BITMAPRAM+1 + row*320u + col;
 	blank = 64+ (paperColor ? 63 : 0);
 	if (chr == &charBlank[0]) {
 		for (i=0; i<8; ++i) {
-			POKE((char*)addr+i*40, blank);
+			POKE((char*)addr+i*40u, blank);
 		}
 	} else {
 		if (paperColor != 0) {
@@ -376,8 +376,8 @@ void PrintChr(unsigned char col, unsigned char row, const char *chr)
 		}
 		POKE((char*)addr+0*40, blank);
 		for (i=0; i<3; ++i) {
-			POKE((char*)addr+(i*2+1)*40, BYTE4(1, ((chr[i]&128) ? a0 : b), ((chr[i]&64) ? a2 : b), ((chr[i]&32) ? a4 : b)));
-			POKE((char*)addr+(i*2+2)*40, BYTE4(1, ((chr[i]&8  ) ? a0 : b), ((chr[i]&4 ) ? a2 : b), ((chr[i]&2 ) ? a4 : b)));	
+			POKE((char*)addr+(i*2u+1)*40u, BYTE4(1, ((chr[i]&128) ? a0 : b), ((chr[i]&64) ? a2 : b), ((chr[i]&32) ? a4 : b)));
+			POKE((char*)addr+(i*2u+2)*40u, BYTE4(1, ((chr[i]&8  ) ? a0 : b), ((chr[i]&4 ) ? a2 : b), ((chr[i]&2 ) ? a4 : b)));	
 		}
 		POKE((char*)addr+7*40, blank);
 	}
@@ -386,26 +386,26 @@ void PrintChr(unsigned char col, unsigned char row, const char *chr)
 	unsigned char i;
 	unsigned int addr;
 	if ((col > CHR_COLS) || (row > CHR_ROWS)) { return; }		
-	addr = BITMAPRAM + row*320 + col*8;
+	addr = BITMAPRAM + row*320u + col*8u;
 	if (chr == &charBlank[0]) {
 		memset((char*)addr, pow2, 8);
 	} else {
 		POKE((char*)addr, pow2);
 		for (i=0; i<3; ++i) {
-			POKE((char*)addr+2*i+1, BYTE4(((chr[i]&128) ? 1 : 2), ((chr[i]&64) ? 1 : 2), ((chr[i]&32) ? 1 : 2), 2));
-			POKE((char*)addr+2*i+2, BYTE4(((chr[i]&8  ) ? 1 : 2), ((chr[i]&4 ) ? 1 : 2), ((chr[i]&2 ) ? 1 : 2), 2));
+			POKE((char*)addr+2u*i+1, BYTE4(((chr[i]&128) ? 1 : 2), ((chr[i]&64) ? 1 : 2), ((chr[i]&32) ? 1 : 2), 2));
+			POKE((char*)addr+2u*i+2, BYTE4(((chr[i]&8  ) ? 1 : 2), ((chr[i]&4 ) ? 1 : 2), ((chr[i]&2 ) ? 1 : 2), 2));
 		}
 		POKE((char*)addr+7, pow2);
 	}
 	
 	// Set Color
-	addr = SCREENRAM + row*40 + col;
+	addr = SCREENRAM + row*40u + col;
 	POKE((char*)addr, inkColor << 4 | paperColor);
 #elif defined __LYNX__
 	// Set Character Pixels
 	unsigned char i,j,offset;
 	unsigned int addr;
-	addr = BITMAPRAM+1 + row*(6*82) + col*2;
+	addr = BITMAPRAM+1 + row*(492) + col*2u;
 	POKE((char*)addr++, (paperColor << 4) | paperColor);
 	POKE((char*)addr++, (paperColor << 4) | paperColor);
 	addr += 80;
@@ -471,29 +471,29 @@ void CopyText(unsigned char col1, unsigned char row1, unsigned char col2, unsign
 #if defined __CBM__
 	// Copy bitmap and screen ram
 	rom_disable();
-	memcpy((char*)BITMAPRAM+row1*320+col1*8, (char*)BITMAPRAM+row2*320+col2*8, len*8);
+	memcpy((char*)BITMAPRAM+row1*320u+col1*8u, (char*)BITMAPRAM+row2*320u+col2*8u, len*8u);
 	rom_enable();
-	memcpy((char*)SCREENRAM+row1*40+col1, (char*)SCREENRAM+row2*40+col2, len);
+	memcpy((char*)SCREENRAM+row1*40u+col1, (char*)SCREENRAM+row2*40u+col2, len);
 #elif defined __ATARI__
 	// Copy bitmap 1 and 2
 	unsigned char i;
 	for (i=0; i<8; ++i) {
-		memcpy((char*)BITMAPRAM1+row1*320+col1+i*40, (char*)BITMAPRAM1+row2*320+col2+i*40, len);
-		memcpy((char*)BITMAPRAM2+row1*320+col1+i*40, (char*)BITMAPRAM2+row2*320+col2+i*40, len);
+		memcpy((char*)BITMAPRAM1+row1*320u+col1+i*40u, (char*)BITMAPRAM1+row2*320u+col2+i*40u, len);
+		memcpy((char*)BITMAPRAM2+row1*320u+col1+i*40u, (char*)BITMAPRAM2+row2*320u+col2+i*40u, len);
 	}
 #elif defined __ORIC__
 	// Copy bitmap RAM
 	unsigned char i;
 	for (i=0; i<8; ++i) {
-		memcpy((char*)BITMAPRAM+1+row1*320+col1+i*40, (char*)BITMAPRAM+1+row2*320+col2+i*40, len);
+		memcpy((char*)BITMAPRAM+1+row1*320u+col1+i*40u, (char*)BITMAPRAM+1+row2*320u+col2+i*40u, len);
 	}
 #elif defined __APPLE2__
 	// Always copy 7 pixels at a time!
 	unsigned int src, dst;
 	unsigned char i, x1, y1, x2, y2;
 	col1 += col1%2; col2 += col2%2;	
-	x1 = (col1*35)/10; y1 = (row1*8);
-	x2 = (col2*35)/10; y2 = (row2*8);	
+	x1 = (col1*35u)/10u; y1 = (row1*8u);
+	x2 = (col2*35u)/10u; y2 = (row2*8u);	
 	for (i=0; i<8; ++i) {
 		SetDHRPointer(x1, y1+i); dst = dhrptr;
 		SetDHRPointer(x2, y2+i); src = dhrptr;
@@ -506,7 +506,7 @@ void CopyText(unsigned char col1, unsigned char row1, unsigned char col2, unsign
 	// Copy bitmap RAM
 	unsigned char i;
 	for (i=0; i<6; ++i)	
-		memcpy((char*)BITMAPRAM+1+row1*(6*82)+col1*2+i*82, (char*)BITMAPRAM+1+row2*(6*82)+col2*2+i*82, len*2);
+		memcpy((char*)BITMAPRAM+1+row1*492u+col1*2u+i*82u, (char*)BITMAPRAM+1+row2*492u+col2*2u+i*82u, len*2u);
 #endif	
 }
 

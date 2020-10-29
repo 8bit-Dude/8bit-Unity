@@ -68,7 +68,7 @@
 	void PlaySFX(unsigned char tone, unsigned int enveloppe) {
 		// Music 1,octave,note,0: set the tone (volume 0 allows changing the enveloppe)
 		POKEW(0x02E1, 1);
-		POKEW(0x02E3, tone/12);
+		POKEW(0x02E3, tone/12u);
 		POKEW(0x02E5, tone%12);
 		POKEW(0x02E7, 0);
 		if PEEK((char*)0xC800) {
@@ -158,22 +158,22 @@ void StopSFX()
 void EngineSFX(unsigned int channel, unsigned int rpm)
 {
 #if defined __CBM__	
-	unsigned int freq = 3*rpm+(channel*5+200);
+	unsigned int freq = rpm*3u+(channel*5u+200);
 	if (channel%2)
 		SID.v2.freq = freq;	
 	else
 		SID.v1.freq = freq;	
 	
 #elif defined __ATARI__
-	unsigned char freq = (200-rpm/4)+channel*5;
+	unsigned char freq = (200-rpm/4u)+channel*5u;
 	POKE((char*)(0xD200+2*channel), freq);
-	POKE((char*)(0xD201+2*channel), 16*2+8);
+	POKE((char*)(0xD201+2*channel), 32+8);
 	
 #elif defined __APPLE2__	
 	unsigned char tone;
 	if (hasMocking) {
 		// Mocking board sound
-		tone = (252-rpm/4);
+		tone = (252-rpm/4u);
 		if (channel%2) {
 			sfxData[7] &= ~(DISABLE_TONE_B);
 			sfxData[2] = tone;
@@ -185,14 +185,14 @@ void EngineSFX(unsigned int channel, unsigned int rpm)
 	} else {
 		// Speaker clicks
 		POKE(0xc030,0);
-		tone = (600-rpm)/60; 
+		tone = (600-rpm)/60u; 
 		while (tone) { (tone--); }
 		POKE(0xc030,0);
 	}	
 #elif defined __ORIC__
-	rpm = rpm/20 + 1;
+	rpm = rpm/20u + 1;
 	POKEW(0x02E1, channel%2+2);
-	POKEW(0x02E3, rpm/12);
+	POKEW(0x02E3, rpm/12u);
 	POKEW(0x02E5, rpm%12);
 	POKEW(0x02E7, 0x09);
 	if PEEK((char*)0xC800) {
@@ -201,7 +201,7 @@ void EngineSFX(unsigned int channel, unsigned int rpm)
 		asm("jsr $F424");	// Oric-1 (ROM 1.0)
 	}
 #elif defined __LYNX__
-	unsigned char freq = (180-rpm/6)+channel*5;
+	unsigned char freq = (180-rpm/6u)+channel*5u;
 	channel = (channel%2)+2;
 	abctaps(channel, 60);
 	abcoctave(channel, 2);
@@ -262,7 +262,7 @@ void BleepSFX(unsigned char tone)
 		}
 	}
 #elif defined __ORIC__
-	PlaySFX(tone/4+12, 1000);
+	PlaySFX(tone/4u+12, 1000);
 	ResetChannels();	
 	
 #elif defined __LYNX__	

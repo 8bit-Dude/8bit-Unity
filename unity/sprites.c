@@ -229,20 +229,20 @@ void LocateSprite(unsigned int x, unsigned int y)
 // This function maps sprite coordinates from a 320x200 screen definition
 // It can be by-passed by assigning spriteX, spriteY directly in your code
 #if defined __APPLE2__
-	spriteX = (x*140)/320;
-	spriteY = (y*192)/200;
+	spriteX = (x*140u)/320u;
+	spriteY = (y*192u)/200u;
 #elif defined __ATARI__
-	spriteX = x/2 + 45;
+	spriteX = x/2u + 45;
 	spriteY = y + 32;
 #elif defined __ORIC__
-	spriteX = x/4;	
+	spriteX = x/4u;	
 	spriteY = y;
 #elif defined __CBM__
 	spriteX = x;
 	spriteY = y;
 #elif defined __LYNX__
-	spriteX = x/2;
-	spriteY = (y*102)/200;
+	spriteX = x/2u;
+	spriteY = (y*102u)/200u;
 #endif
 }
 
@@ -392,10 +392,10 @@ void SetSprite(unsigned char index, unsigned char frame)
 	
 	// Offset from centre of sprite
 	if (spriteX > 2) { spriteX -= 3; }
-	spriteY -= rows/2;
+	spriteY -= rows/2u;
 	
 	// Compute sprite slots
-	xDHR = (2*spriteX)/7;
+	xDHR = (spriteX*2u)/7u;
 
 	// Select the correct offset block (4 offset blocks per 7 pixels)
 	frameAddr = SPRITERAM + frame*frameROWS*frameWIDTH;
@@ -446,13 +446,13 @@ void SetSprite(unsigned char index, unsigned char frame)
 	unsigned char rows = sprROWS[index];
 	
 	// Check frame block (left or right)
-	frameAddr = SPRITERAM + frame*frameROWS*2;
+	frameAddr = SPRITERAM + frame*frameROWS*2u;
 	if (spriteX%2) { frameAddr += frameBLOCK; }
-	spriteX /= 2;
+	spriteX /= 2u;
 
 	// Offset from centre of sprite
 	if (spriteX > 0) spriteX -= 1;
-	spriteY -= rows/2;
+	spriteY -= rows/2u;
 	
 	// Make sure we do not print on next line
 	if (spriteX > 37) spriteX = 37;
@@ -493,7 +493,7 @@ void SetSprite(unsigned char index, unsigned char frame)
 		} else {
 			inkVAL = PEEK(sprCOLOR+index);
 		}
-		for (i=0; i<rows/2; i++) {
+		for (i=0; i<rows/2u; i++) {
 			if (sprMULTICOLOR[index] && i*2 > PEEK(sprMULTICOLOR[index]+inkMUL)) {
 				inkVAL = PEEK(sprMULTICOLOR[index]+inkMUL+1);
 				inkMUL += 2;

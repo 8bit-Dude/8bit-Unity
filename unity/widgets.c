@@ -39,60 +39,60 @@ callback* callList = NULL;
 unsigned char ColToX(unsigned char col)
 {
 #if defined __APPLE2__	// DHR Mode: 140 x 192
-	return (col*35)/10;
+	return (col*35u)/10u;
 #elif defined __ATARI__	// INP Mode: 160 x 200
-	return col*4;
+	return col*4u;
 #elif defined __ORIC__	// AIC Mode: 117 x 100 equivalent pixels
-	return col*3;	
+	return col*3u;	
 #elif defined __CBM__	// MLC Mode: 160 x 200
-	return col*4;
+	return col*4u;
 #elif defined __LYNX__	// STD Mode: 160 x 102
-	return col*4;
+	return col*4u;
 #endif
 }
 
 unsigned char XToCol(unsigned char x)
 {
 #if defined __APPLE2__	// DHR Mode: 140 x 192
-	return (x*10)/35;
+	return (x*10u)/35u;
 #elif defined __ATARI__	// INP Mode: 160 x 200
-	return x/4;
+	return x/4u;
 #elif defined __ORIC__	// AIC Mode: 117 x 100 equivalent pixels
-	return x/3;	
+	return x/3u;	
 #elif defined __CBM__	// MLC Mode: 160 x 200
-	return x/4;
+	return x/4u;
 #elif defined __LYNX__	// STD Mode: 160 x 102
-	return x/4;
+	return x/4u;
 #endif
 }
 
 unsigned char RowToY(unsigned char row)
 {
 #if defined __APPLE2__	// DHR Mode: 140 x 192
-	return row*8;
+	return row*8u;
 #elif defined __ATARI__	// INP Mode: 160 x 200
-	return row*8;
+	return row*8u;
 #elif defined __ORIC__	// AIC Mode: 117 x 100 equivalent pixels
-	return row*4;
+	return row*4u;
 #elif defined __CBM__	// MLC Mode: 160 x 200
-	return row*8;
+	return row*8u;
 #elif defined __LYNX__	// STD Mode: 160 x 102
-	return row*6;
+	return row*6u;
 #endif
 }
 
 unsigned char YToRow(unsigned char y)
 {
 #if defined __APPLE2__	// DHR Mode: 140 x 192
-	return y/8;
+	return y/8u;
 #elif defined __ATARI__	// INP Mode: 160 x 200
-	return y/8;
+	return y/8u;
 #elif defined __ORIC__	// AIC Mode: 117 x 100 equivalent pixels
-	return y/4;
+	return y/4u;
 #elif defined __CBM__	// MLC Mode: 160 x 200
-	return y/8;
+	return y/8u;
 #elif defined __LYNX__	// STD Mode: 160 x 102
-	return y/6;
+	return y/6u;
 #endif
 }
 

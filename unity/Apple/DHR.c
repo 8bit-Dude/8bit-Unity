@@ -44,7 +44,7 @@ void SetDHRPointer(unsigned int x, unsigned int y)
 	// Compute 7 pixels block address
 	unsigned int xBlock;
 	dhrpixel = (x%7);
-	xBlock = (x/7)*2;
+	xBlock = (x/7u)*2;
 	if (dhrpixel > 3) { ++xBlock; }
 	dhrptr = DHRLine(y) + xBlock;
 }
