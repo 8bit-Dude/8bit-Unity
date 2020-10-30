@@ -113,15 +113,35 @@ void EnterBitmapMode()
 	POKE(0xD011, PEEK(0xD011) | 32);		// 53265: set bitmap mode
 	POKE(0xD016, PEEK(0xD016) | 16);		// 53270: set multicolor mode
 #elif defined __ATARI__
+	// Setup DLIST	
+	unsigned int addr = 0x0923;
+	POKE(addr++, 0x4e);
+	POKE(addr++, 0x10);
+	POKE(addr++, 0x70);
+	while (addr<0x098b) 
+		POKE(addr++, 0x0e);
+	POKE(addr++, 0x4e);
+	POKE(addr++, 0x00);
+	POKE(addr++, 0x80);
+	while (addr<0x09ee) 
+		POKE(addr++, 0x0e);
+	POKE(addr++, 0x8e);
+	POKE(addr++, 0x41);
+	POKE(addr++, 0x20);
+	POKE(addr++, 0x09);
+
 	// Assign palette
 	POKE(0x02c8, PEEK(PALETTERAM+0));
 	POKE(0x02c4, PEEK(PALETTERAM+1));
 	POKE(0x02c5, PEEK(PALETTERAM+2));
 	POKE(0x02c6, PEEK(PALETTERAM+3));	
 	
-	// Switch ON graphic mode and antic
-	__asm__("jsr %w", STARTBMP);			
-	POKE(559, 32+16+8+4+2); // ANTIC: DMA Screen + Enable P/M + DMA Players + DMA Missiles + Single resolution
+	// Setup ANTIC: DMA Screen + Enable P/M + DMA Players + DMA Missiles + Single resolution
+	POKE(559, 32+16+8+4+2);
+  #if defined __ATARIXL__
+	// Setup frame flicker DLI (only on XL, which has enough RAM for 2 frames)
+	frameFlicker = 1; SetupFlickerDLI();	
+  #endif
 #elif defined __APPLE2__
 	// Switch ON Double Hi-Res Mode
 	asm("sta $c00d"); // TURN ON 80 COLUMN MODE	  
@@ -139,10 +159,12 @@ void ExitBitmapMode()
 	POKE(53265, vicconf[1]);
 	POKE(53270, vicconf[2]);
 	SwitchBank(0);
+	
 #elif defined __ATARI__
-    // Switch OFF graphic mode and antic
-	__asm__("jsr %w", STOPBMP);
+    // Switch OFF frame flicker and antic
+	frameFlicker = 0;
 	POKE(559, 2);
+	
 #elif defined __APPLE2__
     // Switch OFF Double Hi-Res Mode
     asm("sta $c051"); // TEXT - HIDE GRAPHICS

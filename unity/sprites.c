@@ -50,8 +50,6 @@
 	}	
 	
 #elif defined __ATARI__	
-	// Sprite flicker data (see DLI.a65)
-	void SetupFlickerDLI(void);
 	unsigned char sprYOffset;
 	extern unsigned int sprFrame[10];
 	extern unsigned char sprRows, sprMask[5], sprX[10], sprY[10], sprColor[10];
@@ -158,8 +156,8 @@ void SetupSprites(unsigned char frames, unsigned char cols, unsigned char rows, 
 	POKE(53277, 2+1);       // Tell GTIA to enable players + missile	
 	POKE(623, 32+16+1);		// Tricolor players + enable fifth player + priority  (shadow for 53275)	
 	
-	// Setup flicker DLI
-	SetupFlickerDLI();
+	// Setup flicker DLI for sprites
+	spriteFlicker = 1; SetupFlickerDLI();
 	
 #elif defined __CBM__
 	// Set sprite colors

@@ -35,20 +35,13 @@
  */
  
 // Memory Map
-#define DLIST	   (0x6600) // 6600-66df (DLI list)
-							// 6f50-700a (START/STOP routines for bitmap mode)
 #define RMTPLAYER  (0x66e0) // 66e0-6f4d (RMT music player; JSR to 0x6A00)
+#define PALETTERAM (0x7000) // 7000-7003 (palette data)
 #define BITMAPRAM1 (0x7010) // 7010-8f50 (bitmap frame 1)
 #define SPRITERAM  (0x9000)	// 9000-93ff (sprite data)
 #define MUSICRAM   (0x9400) // 9400-9aff (RMT sound track) (overlaps with unused part of PMGRAM)
 #define PMGRAM     (0x9800) // 9800-9fff (player missile memory)
-#define PALETTERAM (0xa000) // a000-a003 (palette data)
 #define BITMAPRAM2 (0xa010) // a010-bf50 (bitmap frame 2)
-
-// External Routines/Variables 
-#define BLENDTOG   (0x6f50) // Toggle for frame blending ON/OFF (see DLI.a65)
-#define STARTBMP   (0x6f5b) // Start Bitmap routine (see DLI.a65)
-#define STOPBMP    (0x6fa1) // Stop Bitmap routine (see DLI.a65)
 
 // Character Mode
 #define CHR_COLS 40
@@ -80,3 +73,8 @@
 void FileList(void);
 unsigned char FileOpen(const char* fname);
 void FileRead(void* buf, unsigned int len);
+
+// Frame/Sprite Flicker Routine (see blit.s)
+void SetupFlickerDLI(void);
+extern unsigned char frameFlicker;
+extern unsigned char spriteFlicker;

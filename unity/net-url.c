@@ -26,11 +26,17 @@
  
 #include "unity.h"
 
-#ifdef __HUB__
-  #include "hub.h"
+#ifdef __ATARIXL__
+  #pragma code-name("SHADOW_RAM")
 #endif
 
-#ifndef __HUB__
+#ifdef __HUB__
+  #include "hub.h"
+#else
+  #include "IP65/ip65.h"  
+  #define URL_LEN 512	// Note: HTTP header (parsed out) takes about 256 bytes...
+  unsigned char url_buf[URL_LEN];
+  unsigned int url_ind, url_len;
 #endif
 
 void GetURL(unsigned char* url)
@@ -39,6 +45,15 @@ void GetURL(unsigned char* url)
 	QueueHub(HUB_URL_GET, url, strlen(url));	
 	UpdateHub();
 #else
+	// Read URL and strip out HTTP header
+	url_len = url_download((const char*)url, url_buf, URL_LEN);	
+	url_ind = 0;
+	while (url_ind<url_len) {
+		if (url_buf[url_ind+0] == 13 && url_buf[url_ind+1] == 10 && url_buf[url_ind+2] == 13 && url_buf[url_ind+3] == 10)
+			break;
+		url_ind++;
+	}
+	url_ind += 4;
 #endif
 }
 
@@ -55,6 +70,11 @@ unsigned char* ReadURL(unsigned char size, unsigned int timeOut)
 	recvLen = 0;  // Clear packet
 	return &recvHub[2]; 
 #else
-	return 0;
+	unsigned char *ptr;
+	if (url_len && url_ind < url_len-1) {
+		ptr = &url_buf[url_ind];
+		url_ind += size;
+	}
+	return ptr;
 #endif
 }

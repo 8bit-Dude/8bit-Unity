@@ -1,5 +1,5 @@
 ;
-; Copyright (c) 2018 Anthony Beaucamp.
+; Copyright (c) 2020 Anthony Beaucamp.
 ;
 ; This software is provided 'as-is', without any express or implied warranty.
 ; In no event will the authors be held liable for any damages arising from
@@ -24,6 +24,12 @@
 ;   specific prior written permission.
 ;
 
+	.export _SetupFlickerDLI
+	
+	.export _frameFlicker
+	.export _frameBlending
+
+	.export _spriteFlicker
 	.export _doubleHeight
 	.export _sprRows
 	.export _sprMask
@@ -32,13 +38,23 @@
 	.export _sprColor
 	.export _sprFrame
 	
-	.export _SetupFlickerDLI
+; ROM addresses
+atract = $004d
+vdslst = $0200
+sdlstl = $0230	
+nmien  = $d40e	
 	
 	.segment	"DATA"	
 
-_doubleHeight: .res 10
-_doubleValue:  .res  1
-_rowValue:     .res  1
+; Frame parameters
+_frameFlicker:  .byte $0
+_frameBlending: .byte $0
+
+; Sprite parameters
+_spriteFlicker: .byte $0
+_doubleHeight:  .res  10
+_doubleValue:   .res  1
+_rowValue:      .res  1
 _sprRows:  .res  1
 _sprMask:  .res  5
 _sprX:     .res 10
@@ -49,6 +65,11 @@ _sprOffset:.res  5
 _sprToggle:.byte 1
 _sprIndex: .byte 1
 
+; Registers backup
+regA: .byte 1
+regX: .byte 1
+regY: .byte 1	
+
 	.segment	"CODE"
 
 ; ---------------------------------------------------------------
@@ -56,16 +77,82 @@ _sprIndex: .byte 1
 ; ---------------------------------------------------------------	
 
 .proc _SetupFlickerDLI: near
-	; Copy address of update routine to Graphics Handler (see DLI.a65)
-    lda #(<flickerSprites)
-	sta $6ffc
-    lda #(>flickerSprites)
-	sta $6ffd
+	; Copy address of DLI routine
+	sei
+	lda	#$c0	
+	sta nmien
+    lda #(<flickerDLI)
+	sta vdslst
+    lda #(>flickerDLI)
+	sta vdslst+1
+	cli	
 	rts
 .endproc
 
 ; ---------------------------------------------------------------
-; Flicker Routine, called by frame blending routine (see DLI.a65)
+; DLI routine
+; ---------------------------------------------------------------
+
+flickerDLI:
+	; Backup registers
+	sta regA
+	stx regX
+	sty regY
+	
+	; Screen Flicker ON?
+	lda _frameFlicker
+	beq skipFrameFlicker
+	jsr flickerFrames
+skipFrameFlicker:	
+
+	; Screen Flicker ON?
+	lda _spriteFlicker
+	beq skipSpriteFlicker
+	jsr flickerSprites
+skipSpriteFlicker:	
+
+	; Reset atract (screen saver timer)
+	lda #$00
+	sta atract
+
+	; Restore Registers
+	lda regA
+	ldx regX
+	ldy regY
+	rti
+	
+; ---------------------------------------------------------------
+; Screen flicker routine (switches between frame buffers)
+; ---------------------------------------------------------------
+
+flickerFrames:	
+	; Toggle buffer 1/2
+	lda _frameBlending
+	eor #$1
+	sta _frameBlending
+	bne showframe2
+
+showframe1:	
+	; Switch bitmap buffer 1
+	lda #$A0 
+	sta $0925
+	lda #$B0 
+	sta $098d	
+	jmp addrDone
+
+showframe2:	
+	; Switch bitmap buffer 2
+	lda #$70 
+	sta $0925
+	lda #$80 
+	sta $098d		
+	jmp addrDone
+
+addrDone:
+	rts
+
+; ---------------------------------------------------------------
+; Sprite flicker Routine (called by DLI routine if enabled)
 ; 	Note: Uses 4 zero page registers in range $FC - $FF
 ; ---------------------------------------------------------------
 	

@@ -37,7 +37,7 @@
 #endif
 
 #ifdef __ATARIXL__
-  #pragma code-name("SHADOW_RAM2")
+  #pragma code-name("SHADOW_RAM")
 #endif
 
 unsigned char InitNetwork(void)
@@ -53,7 +53,7 @@ unsigned char InitNetwork(void)
 	return ADAPTOR_ERR;
 #else
 	// Init IP65 and DHCP
-	if (ip65_init()) return ADAPTOR_ERR;
+	if (ip65_init(ETH_INIT_DEFAULT)) return ADAPTOR_ERR;
 	if (dhcp_init()) return DHCP_ERR;
 	return NETWORK_OK;
 #endif
