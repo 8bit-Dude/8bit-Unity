@@ -20,9 +20,11 @@ void LoadChunks()
 	LoadChunk(&appChunk[APP_CHAT],  "chat.chk");	
 	
 	// Load icon chunks	
-	LoadChunk(&icoChunk[ICO_STOP],  "stop.chk");	
 	LoadChunk(&icoChunk[ICO_PLAY],  "play.chk");	
+#ifndef __APPLE2__
+	LoadChunk(&icoChunk[ICO_STOP],  "stop.chk");	
 	LoadChunk(&icoChunk[ICO_PREV],  "prev.chk");	
+#endif
 	LoadChunk(&icoChunk[ICO_NEXT],  "next.chk");		
 }
 
@@ -75,5 +77,5 @@ void HomeScreen(void)
 
 	// Add Taskbar Message
 	paperColor = WHITE; inkColor = BLACK; 
-	PrintStr(21, CHR_ROWS-1, "8BIT-OS 2020/10/17");		
+	PrintStr(21, CHR_ROWS-1, "8BIT-OS 2020/10/24");		
 }

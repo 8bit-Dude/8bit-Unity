@@ -12,8 +12,8 @@
 #include "music.h"
 #include "chat.h"
 
-#ifdef __APPLE2__
-  #pragma code-name("LOWCODE")
+#ifdef __ATARIXL__
+  #pragma code-name("SHADOW_RAM")
 #endif
 
 void ProcessCallback(callback* call)
@@ -52,15 +52,6 @@ void ProcessPacket(unsigned char* packet)
 	}	
 }
 
-#if defined(__APPLE2__) || defined(__CBM__)
-  // IP65 bug requires reconnection after each packet
-  unsigned char packetBackup[140];
-#endif
-
-#ifdef __APPLE2__
-  #pragma code-name("CODE")
-#endif
-
 int main(void)
 {
 	clock_t timer;
@@ -83,8 +74,9 @@ int main(void)
 	HomeScreen();
 	EnterBitmapMode();
 
-	// Load mouse sprite
-	InitSprites(spriteFrames, spriteCols, spriteRows, spriteColors);
+	// Setup mouse sprites
+	LoadSprites("sprites.dat");
+	SetupSprites(spriteFrames, spriteCols, spriteRows, spriteColors);
 	EnableSprite(0);
 
 	// Try to init 
@@ -131,11 +123,6 @@ int main(void)
 			if (netConnected) {
 				packet = RecvTCP(0);
 				if ((int)packet) {
-				#if defined(__APPLE2__) || defined(__CBM__)
-					// IP65 bug requires reconnection after each packet
-					memcpy(packetBackup, packet, 140); packet = packetBackup;
-					CloseTCP();	OpenTCP(199, 47, 196, 106, 1999);
-				#endif
 				#if defined(__APPLE2__) || defined(__ORIC__)
 					DisableSprite(0);
 				#endif					
@@ -148,7 +135,7 @@ int main(void)
 		}
 		// Platform dependent actions
 	#if defined __APPLE2__
-		clk += 1;  // Manually update clock on Apple 2
+		clk++;  // Manually update clock on Apple 2
 	#elif defined __LYNX__
 		UpdateDisplay();
 	#endif
