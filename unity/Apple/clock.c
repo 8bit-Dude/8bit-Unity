@@ -30,6 +30,12 @@
 #include "unity.h"
 
 #ifdef __APPLE2__
+  #pragma code-name("HGR")
+#endif
+
+void dummy (void) {}
+
+#ifdef __APPLE2__
   #pragma code-name("LC")
 #endif
 
