@@ -71,11 +71,9 @@ int DemoNET(void)
 		
 		///////////////////////////////////////////////////////
 		// Setup request to URL server
-		GetURL("http://8bit-unity.com/test.txt");
-
-		// Fetch server response
 		gotoxy (0, line);
 		cprintf(" URL:");
+		GetURL("http://www.8bit-unity.com/test.txt");
 		packet = ReadURL(16, 3*TCK_PER_SEC); // Allow some time-out
 		gotoxy (6, line++);
 		if (!(int)packet)

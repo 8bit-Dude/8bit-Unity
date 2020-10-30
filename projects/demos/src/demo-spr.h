@@ -54,10 +54,13 @@ int DemoSPR(void)
 	// Clear screen
 	clrscr();	
 
-	// Initialize sfx, bitmap, sprites
+	// Initialize sfx/bitmap
 	InitSFX();
 	InitBitmap();
-	InitSprites(spriteFrames, spriteCols, spriteRows, spriteColors);
+	
+	// Setup sprites
+	LoadSprites("sprites.dat");
+	SetupSprites(spriteFrames, spriteCols, spriteRows, spriteColors);
 	
 	// Load and show bitmap
 	LoadBitmap("stadium.img");
@@ -104,8 +107,8 @@ int DemoSPR(void)
             timer = clock();
             angle += 3;
             for (i=0; i<4; i++) {
-				xpos = 230+cc65_cos((angle+i*90)%360)/5;
-				ypos = 90+cc65_sin((angle+i*90)%360)/6;
+				xpos = 230+_cos((angle+i*90)%360)/5;
+				ypos = 90+_sin((angle+i*90)%360)/6;
                 frame = ((12-(angle+(i+1)*90))%360)/23;
 				LocateSprite(xpos, ypos);
 			#if defined __APPLE2__
