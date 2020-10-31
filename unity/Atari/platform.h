@@ -76,5 +76,6 @@ void FileRead(void* buf, unsigned int len);
 
 // Frame/Sprite Flicker Routine (see blit.s)
 void SetupFlickerDLI(void);
+extern unsigned char frameBlending;
 extern unsigned char frameFlicker;
 extern unsigned char spriteFlicker;

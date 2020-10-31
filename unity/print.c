@@ -78,12 +78,12 @@ void PrintBlanks(unsigned char col, unsigned char row, unsigned char width, unsi
 #if defined __ATARI__
 	unsigned int addr1, addr2;
 	paperColor1 = paperColor%4;
-	paperColor2 = paperColor/4;
-	addr1 = BITMAPRAM1+row*(8*40)+col;
-	addr2 = BITMAPRAM2+row*(8*40)+col;
+	paperColor2 = paperColor/4u;
+	addr1 = BITMAPRAM1+row*320u+col;
+	addr2 = BITMAPRAM2+row*320u+col;
 	bgByte1 = BYTE4(paperColor1,paperColor2,paperColor1,paperColor2);
 	bgByte2 = BYTE4(paperColor2,paperColor1,paperColor2,paperColor1);
-	while (i<height*8) {
+	while (i<height*8u) {
 		if (i%2) {
 			memset((char*)addr1, bgByte2, width);
 			memset((char*)addr2, bgByte1, width);
@@ -466,7 +466,8 @@ void PrintStr(unsigned char col, unsigned char row, const char *buffer)
 #endif		
 }
 
-void CopyText(unsigned char col1, unsigned char row1, unsigned char col2, unsigned char row2, unsigned char len)
+// Copy string from one area of screen to another
+void CopyStr(unsigned char col1, unsigned char row1, unsigned char col2, unsigned char row2, unsigned char len)
 {
 #if defined __CBM__
 	// Copy bitmap and screen ram
@@ -539,7 +540,7 @@ unsigned char InputStr(unsigned char col, unsigned char row, unsigned char width
 				buffer[curlen] = key;
 				buffer[curlen+1] = 0;
 				if (curlen >= width) {
-					CopyText(col, row, col+1, row, width-1);
+					CopyStr(col, row, col+1, row, width-1);
 					offset--;
 				}
 				PrintChr(col+offset, row, GetChr(key));
@@ -553,7 +554,7 @@ unsigned char InputStr(unsigned char col, unsigned char row, unsigned char width
 				buffer[curlen-1] = 0;				
 				if 	(curlen > width) {
 					for (i=width-1; i>0; i--)
-						CopyText(col+i, row, col+i-1, row, 1);
+						CopyStr(col+i, row, col+i-1, row, 1);
 					PrintChr(col, row, GetChr(buffer[curlen-width-1]));					
 				} else {
 					PrintChr(col+offset, row, &charBlank[0]);

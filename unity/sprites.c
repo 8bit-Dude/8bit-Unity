@@ -111,18 +111,21 @@ void LoadSprites(unsigned char* filename)
 #if defined(__APPLE2__) || defined(__CBM__)
 	FILE* fp = fopen(filename, "rb");
 	fread((char*)(SPRITERAM), 1, 2, fp);
-	fread((char*)(SPRITERAM), 1, 8000, fp);
+  #if defined(__APPLE2__)
+	fread((char*)(SPRITERAM), 1, 0x1400, fp);
+  #elif defined(__CBM__)
+	fread((char*)(SPRITERAM), 1, 0x0900, fp);  
+  #endif
 	fclose(fp);
 
 #elif defined __ATARI__	
 	if (FileOpen(filename)) {
 		FileRead((char*)(SPRITERAM), 6);
-		FileRead((char*)(SPRITERAM), 8000);
+		FileRead((char*)(SPRITERAM), 0x0400);
 	}
 	
 #elif defined __ORIC__	
 	FileRead(filename, (void*)SPRITERAM);
-	
 #endif
 }
 

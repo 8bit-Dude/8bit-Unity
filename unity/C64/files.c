@@ -71,12 +71,3 @@ void FileList(void)
 	}
 	fclose(fp);
 }
-
-unsigned char FileOpen(const char* fname)
-{
-	return 0;
-}
-
-void FileRead(void* buf, unsigned int len)
-{
-}

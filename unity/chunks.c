@@ -41,7 +41,7 @@
 #endif
 
 #ifdef __ATARIXL__
-  #pragma code-name("SHADOW_RAM2")
+  #pragma code-name("SHADOW_RAM")
 #endif
 
 #if (defined __APPLE2__) || (defined __ORIC__)

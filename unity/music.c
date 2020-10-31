@@ -52,7 +52,7 @@ void LoadMusic(const char* filename)
 	if (FileOpen(filename)) {
 		// Consume 6 bytes of header then read data
 		FileRead((char*)MUSICRAM, 6);	
-		FileRead((char*)MUSICRAM, 8000);	
+		FileRead((char*)MUSICRAM, 0x0700);	
 	}
 #else
 	FILE* fp;
@@ -64,7 +64,11 @@ void LoadMusic(const char* filename)
 
 	// Get load address and read data
 	fread((char*)&loadaddr, 1, 2, fp);
-	fread((char*)loadaddr, 1, 8000, fp);
+  #if defined __APPLE2__
+	fread((char*)loadaddr, 1, 0x0300, fp);
+  #elif defined __CBM__
+	fread((char*)loadaddr, 1, 0x1000, fp);  
+  #endif
 #endif
 }
 
