@@ -114,21 +114,7 @@ void EnterBitmapMode()
 	POKE(0xD016, PEEK(0xD016) | 16);		// 53270: set multicolor mode
 #elif defined __ATARI__
 	// Setup DLIST	
-	unsigned int addr = 0x0923;
-	POKE(addr++, 0x4e);
-	POKE(addr++, 0x10);
-	POKE(addr++, 0x70);
-	while (addr<0x098b) 
-		POKE(addr++, 0x0e);
-	POKE(addr++, 0x4e);
-	POKE(addr++, 0x00);
-	POKE(addr++, 0x80);
-	while (addr<0x09ee) 
-		POKE(addr++, 0x0e);
-	POKE(addr++, 0x8e);
-	POKE(addr++, 0x41);
-	POKE(addr++, 0x20);
-	POKE(addr++, 0x09);
+	SetupBitmapDLIST();
 
 	// Assign palette
 	POKE(0x02c8, PEEK(PALETTERAM+0));

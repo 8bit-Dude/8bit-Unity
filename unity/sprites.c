@@ -149,7 +149,7 @@ void SetupSprites(unsigned char frames, unsigned char cols, unsigned char rows, 
 		sprColor[i] = spriteColors[i];
 	}
 	sprRows = rows;
-	sprYOffset = rows/2;
+	sprYOffset = rows/2u;
 
 	// Clear all PMG memory
 	bzero(PMGRAM+768,0x500);

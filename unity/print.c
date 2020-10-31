@@ -77,7 +77,7 @@ void PrintBlanks(unsigned char col, unsigned char row, unsigned char width, unsi
 	unsigned char i=0;
 #if defined __ATARI__
 	unsigned int addr1, addr2;
-	paperColor1 = paperColor%4;
+	paperColor1 = paperColor&3;
 	paperColor2 = paperColor/4u;
 	addr1 = BITMAPRAM1+row*320u+col;
 	addr2 = BITMAPRAM2+row*320u+col;
@@ -328,8 +328,8 @@ void PrintChr(unsigned char col, unsigned char row, const char *chr)
 	unsigned char i;
 	unsigned int addr1,addr2;
 	if ((col > CHR_COLS) || (row > CHR_ROWS)) { return; }		
-	inkColor1 = inkColor%4; inkColor2 = inkColor/4;
-	paperColor1 = paperColor%4; paperColor2 = paperColor/4;
+	inkColor1 = inkColor&3; inkColor2 = inkColor/4u;
+	paperColor1 = paperColor&3; paperColor2 = paperColor/4u;
 	bgByte1 = BYTE4(paperColor1,paperColor2,paperColor1,paperColor2);
 	bgByte2 = BYTE4(paperColor2,paperColor1,paperColor2,paperColor1);	
 	addr1 = BITMAPRAM1 + row*320u + col;

@@ -241,7 +241,7 @@ void BleepSFX(unsigned char tone)
 #elif defined __APPLE2__
 	unsigned char interval;
 	unsigned char repeat = 64;
-	interval = 8-tone/32;
+	interval = 8-tone/32u;
 	
 	if (hasMocking) {
 		// Mocking board sound
@@ -286,7 +286,7 @@ void BumpSFX()
 #elif defined __APPLE2__
 	unsigned char repeat = 8;
 	while (repeat) {
-		if (repeat%4) { POKE(0xc030,0); }
+		if (repeat&3) { POKE(0xc030,0); }
 		repeat--;
 	}
 #elif defined __ATARI__

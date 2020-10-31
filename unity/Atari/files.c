@@ -41,8 +41,8 @@
 
 // Variables containing file list
 unsigned char  fileNum;     
-unsigned char* fileNames[16];
-unsigned int   fileSizes[16];
+unsigned char* fileNames[24];
+unsigned int   fileSizes[24];
 unsigned char* fileBuffer;     
 
 // Externals: see xbios.s
@@ -60,15 +60,15 @@ void FileList(void)
 {
 	unsigned char i, j=0, k;
 
-	// Assign some memory to file buffer
-	fileBuffer = malloc(256);
+	// Assign memory to file buffer (24*13 bytes)
+	fileBuffer = malloc(312);
 	
 	// Get file list
 	xbios_list_dir();
 	
 	// Go through xbios buffer
 	i = xbios_get_entry();
-	while (fileNum<16 && PEEK(XBIOS_BUFFER+i)) {
+	while (fileNum<24 && PEEK(XBIOS_BUFFER+i)) {
 		fileNames[fileNum] = &fileBuffer[j];
 		fileSizes[fileNum] = PEEKW(XBIOS_BUFFER-4+i) * 256;
 		k = 0;

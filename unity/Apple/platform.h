@@ -85,7 +85,7 @@ void PlayMocking(unsigned int address);
 void PlaySpeaker(unsigned int address);
 
 // Workaround for missing clock (see CLOCK.c)
-#define TCK_PER_SEC	59
+#define TCK_PER_SEC	59u
 void wait(unsigned char ticks);
 clock_t clock(void);
 unsigned sleep(unsigned seconds);

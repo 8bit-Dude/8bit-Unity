@@ -78,7 +78,7 @@ unsigned char GetPixel()
 	// Check color index
 	addr = BITMAPRAM + (pixelY&248)*40u+(pixelY&7)+((pixelX*2u)&504);
 	rom_disable();
-	index = (PEEK(addr) >> (2*(3-(pixelX%4)))) & 3;
+	index = (PEEK(addr) >> (2*(3-(pixelX&3)))) & 3;
 	rom_enable();
 	
 	// Is background color?
@@ -105,7 +105,7 @@ unsigned char GetPixel()
 	
 	// Compute pixel location
 	offset = (pixelY*40u) + (pixelX/4u);
-	shift = 6 - 2u*(pixelX%4);
+	shift = 6 - 2u*(pixelX&3);
 
 	// Dual buffer (colour/shade)
 	val1 = (PEEK((char*)BITMAPRAM1+offset) & ( 3 << shift )) >> shift;
@@ -202,13 +202,13 @@ void SetPixel(unsigned char color)
 
 	// Compute pixel location
 	offset = (pixelY*40u) + (pixelX/4u);
-	shift = 6 - 2u*(pixelX%4);
+	shift = 6 - 2u*(pixelX&3);
 	mask = ~(3u << shift);
 	if ((pixelY+pixelX)%2) {
-		col2 = (color%4) << shift;
+		col2 = (color&3) << shift;
 		col1 = (color>>2) << shift;
 	} else {
-		col1 = (color%4) << shift;
+		col1 = (color&3) << shift;
 		col2 = (color>>2) << shift;
 	}
 
@@ -222,7 +222,7 @@ void SetPixel(unsigned char color)
 	
 	// Set index to 3
 	offset = (pixelY&248)*40u+(pixelY&7)+((pixelX*2)&504);
-	shift = (2u*(3-(pixelX%4)));
+	shift = (2u*(3-(pixelX&3)));
 	rom_disable();
 	POKE(BITMAPRAM+offset, PEEK(BITMAPRAM+offset) | 3 << shift);
 	rom_enable();

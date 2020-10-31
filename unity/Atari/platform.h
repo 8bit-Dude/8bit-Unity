@@ -74,7 +74,8 @@ void FileList(void);
 unsigned char FileOpen(const char* fname);
 void FileRead(void* buf, unsigned int len);
 
-// Frame/Sprite Flicker Routine (see blit.s)
+// Frame/Sprite Flicker Routine (see DLI.s)
+void SetupBitmapDLIST(void);
 void SetupFlickerDLI(void);
 extern unsigned char frameBlending;
 extern unsigned char frameFlicker;

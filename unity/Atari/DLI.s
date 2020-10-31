@@ -24,6 +24,7 @@
 ;   specific prior written permission.
 ;
 
+	.export _SetupBitmapDLIST
 	.export _SetupFlickerDLI
 	
 	.export _frameFlicker
@@ -47,23 +48,22 @@ nmien  = $d40e
 	.segment	"DATA"	
 
 ; Frame parameters
-_frameFlicker:  .byte $0
-_frameBlending: .byte $0
+_frameFlicker:  .byte 0
+_frameBlending: .byte 0
 
 ; Sprite parameters
-_spriteFlicker: .byte $0
-_doubleHeight:  .res  10
+_spriteFlicker: .byte 0
+_doubleHeight:  .byte 0,0,0,0,0,0,0,0,0,0
+_sprRows:  		.byte 0
+_sprMask:  		.byte 0,0,0,0,0
+_sprX:     		.byte 0,0,0,0,0,0,0,0,0,0
+_sprY:     		.byte 0,0,0,0,0,0,0,0,0,0
+_sprColor: 		.byte 0,0,0,0,0,0,0,0,0,0
+_sprFrame: 		.res 20
+_sprOffset:		.res  5
+_sprToggle:		.byte 1
+_sprIndex: 		.byte 1
 _doubleValue:   .res  1
-_rowValue:      .res  1
-_sprRows:  .res  1
-_sprMask:  .res  5
-_sprX:     .res 10
-_sprY:     .res 10
-_sprColor: .res 10
-_sprFrame: .res 20
-_sprOffset:.res  5
-_sprToggle:.byte 1
-_sprIndex: .byte 1
 
 ; Registers backup
 regA: .byte 1
@@ -71,6 +71,50 @@ regX: .byte 1
 regY: .byte 1	
 
 	.segment	"CODE"
+
+; ---------------------------------------------------------------
+; void __near__ _SetupBitmapDLIST (void)
+; ---------------------------------------------------------------	
+
+.proc _SetupBitmapDLIST: near
+	lda #$4e
+	sta $0923
+	lda #$10
+	sta $0924
+	lda #$70
+	sta $0925
+	
+	lda #$0e
+	ldx #102
+loop1:
+	dex
+	sta $0926,x
+	bne loop1
+	
+	lda #$4e
+	sta $098b
+	lda #$00
+	sta $098c
+	lda #$80
+	sta $098d
+	
+	lda #$0e
+	ldx #97
+loop2:
+	dex
+	sta $098e,x
+	bne loop2
+
+	lda #$8e
+	sta $09ee
+	lda #$41
+	sta $09ef
+	lda #$20
+	sta $09f0
+	lda #$09
+	sta $09f1
+	rts
+.endproc
 
 ; ---------------------------------------------------------------
 ; void __near__ _SetupFlickerDLI (void)

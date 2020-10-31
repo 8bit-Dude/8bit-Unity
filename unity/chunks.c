@@ -172,11 +172,11 @@ void GetChunk(unsigned char** chunk, unsigned char x, unsigned char y, unsigned 
 	rom_enable();
 	bytes = w/4u;
 	for (i=0; i<h; i+=8) {
-		memcpy((char*)addr, (char*)(SCREENRAM+40*(y+i)/8+x/4), bytes);
+		memcpy((char*)addr, (char*)(SCREENRAM+40*(y+i)/8u+x/4u), bytes);
 		addr += bytes;
 	}
 	for (i=0; i<h; i+=8) {
-		memcpy((char*)addr, (char*)(COLORRAM+40*(y+i)/8+x/4), bytes);
+		memcpy((char*)addr, (char*)(COLORRAM+40*(y+i)/8u+x/4u), bytes);
 		addr += bytes;
 	}
 	
@@ -185,7 +185,7 @@ void GetChunk(unsigned char** chunk, unsigned char x, unsigned char y, unsigned 
 	bytes = w/2u;
 	addr = *chunk+4;	
 	for (i=0; i<h; ++i) {
-		memcpy((char*)addr, (char*)(BITMAPRAM+(y+i)*82+x/2+1), bytes);
+		memcpy((char*)addr, (char*)(BITMAPRAM+(y+i)*82+x/2u+1), bytes);
 		addr += bytes;
 	}
 #endif

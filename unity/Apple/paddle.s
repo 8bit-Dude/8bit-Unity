@@ -31,7 +31,7 @@
 	
 PREAD = $FB1E   ; Read paddle in X, return AD conv. value in Y
 
-	.segment	"LC"	
+	.segment	"CODE"	
 
 ; ---------------------------------------------------------------
 ; unsigned char __near__ _GetPaddle (unsigned char)
