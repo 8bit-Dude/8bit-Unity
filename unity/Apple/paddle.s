@@ -56,12 +56,9 @@ PREAD = $FB1E   ; Read paddle in X, return AD conv. value in Y
 	
 .proc _GetButton: near
 	tax
-	lda     $C061,x
-	cmp 	#128
-	beq 	on
-	lda		0
-	rts
-on:
-	lda		1
+	lda     BUTN0,x
+	and		#$80	; Keep only bit 7
+	asl				; Shift it to carry
+	rol				; Roll carry to bit 0
 	rts
 .endproc	
