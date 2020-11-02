@@ -51,63 +51,82 @@ extern unsigned char paperBuffer;
 
 void NetworkTicket(char ticket)
 {
-	// Code has been removed (to prevent hacking)
+#ifdef NETCODE
+#endif
+}
+
+void ServerConnect()
+{
+}
+
+void ServerDisconnect()
+{
 }
 
 void ServerInfo()
 {
-	// Code has been removed (to prevent hacking)
+#ifdef NETCODE
+#endif
 }
+
+void PrintBuffer(char *buffer);	// see interface.h
 
 unsigned char ServerEvent()
 {
-	// Code has been removed (to prevent hacking)
-    return 0;
+    // Server Event Packet    
+    unsigned char event, ticket, i;
+#ifdef NETCODE
+#endif
+    return event;
 }
-
+	
 void ServerFrame()
 {
-	// Code has been removed (to prevent hacking)
+#ifdef NETCODE
+#endif
 }
 
 void ServerAuth()
 {
-	// Code has been removed (to prevent hacking)
+#ifdef NETCODE
+#endif
 }
 
 unsigned char ClientJoin(char game)
 {
-	// Code has been removed (to prevent hacking)
-	return ERR_TIMEOUT;
+#ifdef NETCODE	
+#endif
+	return 1;
 }
 	
 void ClientFrame()
 {
-	// Code has been removed (to prevent hacking)
+#ifdef NETCODE	
+#endif
 }
 
 unsigned char ClientReady()
 {    
-	// Code has been removed (to prevent hacking)
-    return ERR_TIMEOUT;
-}
-
-#ifdef __ATARIXL__
-  #pragma code-name("SHADOW_RAM")
+#ifdef NETCODE	
 #endif
+    return 1;
+}
 
 void ClientEvent(char event)
 {
-	// Code has been removed (to prevent hacking)
+#ifdef NETCODE	
+#endif
 }
 
 void ClientLeave()
 {
-	// Code has been removed (to prevent hacking)
+#ifdef NETCODE	
+#endif
 }
 
 unsigned char NetworkUpdate()
 {
-	// Code has been removed (to prevent hacking)
+#ifdef NETCODE
+#endif
 	return 0;    
 }

@@ -1,8 +1,9 @@
 
 #include "network.h"
 
-// Debugging flags
-//#define DEBUG_FPS
+#ifdef __ATARIXL__
+  #pragma code-name("SHADOW_RAM")
+#endif
 
 // Platform specific colors
 #if defined __APPLE2__
@@ -58,8 +59,8 @@
 // Other definitions
 #define ROW_CHAT (CHR_ROWS-2)
 
-// Paper for message Buffer
-unsigned char paperBuffer;
+// Debugging flags
+//#define DEBUG_FPS
 
 // Performance Drawing
 #ifdef DEBUG_FPS
@@ -69,7 +70,7 @@ void DrawFPS(unsigned long  f)
     unsigned int fps;
 	
 	// Calculate stats
-	fps = ( (f-60*(f/60)) * TCK_PER_SEC) / (clock() - fpsClock);
+	fps = ( (f-60u*(f/60u)) * TCK_PER_SEC) / (clock() - fpsClock);
 
 	// Output stats
 	inkColor = WHITE;
@@ -78,117 +79,91 @@ void DrawFPS(unsigned long  f)
 }
 #endif
 
-// Print score after round ends
-signed char rank[4];
-signed int score[4];
-void PrintScores()
-{
-	signed char i,j,f,s;
-	unsigned char* string;
-	
-	// Play the background music
-	StopSFX();
-#ifdef __LYNX__
-	StopMusic();
-	LoadMusic("speednik.mus", MUSICRAM);
-#endif		
-#ifndef __CBM__
-	PlayMusic(MUSICRAM);
-#endif	
-	
-	// Compute scores
-	for (i=0; i<MAX_PLAYERS; ++i) {
-		rank[i] = -1;
-		if (controlIndex[i] > 0) {
-			if (cars[i].lap < 0) { cars[i].lap = 0; }
-			score[i] = cars[i].lap*16+cars[i].way;
-		} else {
-			score[i] = -1;
-		}
-	}
-		
-	// Compute ranks
-	for (j=0; j<MAX_PLAYERS; ++j) {
-		for (i=0; i<MAX_PLAYERS; ++i) {
-			if (score[i] >= 0) {
-				if (i != rank[0]) {
-					if (i != rank[1]) {
-						if (i != rank[2]) {
-							if (i != rank[3]) {
-								if (rank[j]<0 | score[i] >= score[rank[j]]) { 
-									rank[j] = i; 
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-	
-	// Create blank area
-	DisableSprite(-1);
-	paperColor = PAPER_SCORES;
-	PrintBlanks(13,ROW_SCORES,14,9);
-	
-	// Print results and wait
-	for (i=0; i<MAX_PLAYERS; ++i) {
-		j = rank[i];
-		s = ROW_SCORES+2*i+1;
-		if (j >= 0) {
-			inkColor = inkColors[j];
-		#if defined __ORIC__
-			SetAttributes(17, s, inkColor);
-		#endif			
-			if (gameMode == MODE_ONLINE) {
-				string = svUsers[j];
-			} else {
-				if (i == 0) { string = "WIN"; } else { string = "LOSE"; } 
-			}
-			PrintStr(18, s, string);
-			inkColor = WHITE;
-		#if defined __ORIC__
-			SetAttributes(22, s, inkColor);
-		#endif			
-			PrintChr(23, s, charHyphen);
-			PrintNum(24, s, i+1);
-			PrintChr(25, s, charHyphen);
-		#if defined __ORIC__
-			SetAttributes(26, s, AIC);
-		#endif			
-			f = 0;
-		#if defined __APPLE2__
-			f += j*16;
-			spriteX = 55;				// ((    15*8   )*140)/320;
-			spriteY = 76+(i*384)/25;	// (((9+2*i)*8+3)*192)/200;
-		#elif defined __ATARI__
-			spriteX = 105; 
-			spriteY = s*8+30;
-		#elif defined __ORIC__
-			spriteX = 30;	
-			spriteY = s*8+3;
-		#elif defined __CBM__	
-			spriteX = 120; 
-			spriteY = s*8+3;
-		#elif defined __LYNX__
-			spriteX = 60; 
-			spriteY = s*6+3;			
-		#endif	
-			SetSprite(j, f);
-			EnableSprite(j);
-		}
-	}
 #if defined __LYNX__
-	UpdateDisplay();
-#endif		
-	// Wait a few seconds
-	paperColor = BLACK;
-#if defined __APPLE2__
-	PlayMusic(0);
-#else
-    sleep(7);
-#endif
+unsigned char cursorJoy, cursorKey, cursorPressed;
+unsigned char cursorFlick, cursorRow = MENU_ROW+2;
+clock_t cursorClock;
+
+void LynxCursorFlicker()
+{
+	// Only do preiodically
+	if (clock()-cursorClock < 20) { return; }
+	cursorClock = clock();
+	
+	// Reset Column and show Cursor
+	PrintBlanks(MENU_COL, MENU_ROW+2, 2, MENU_HEI-2);
+	if (cursorFlick) {
+		inkColor = YELLOW;
+		PrintChr(MENU_COL+0, cursorRow, &charHyphen[0]);
+		PrintChr(MENU_COL+1, cursorRow, &charBracket[3]);
+		inkColor = WHITE;
+	}
+	cursorFlick = !cursorFlick;
 }
+
+void LynxCursorControl()
+{
+	// Check if cursor was already pressed
+	cursorKey = 0;
+	cursorJoy = GetJoy(0);
+	if (cursorJoy != 255) {
+		if (cursorPressed) { return; }
+		cursorPressed = 1;
+		cursorFlick = 1;
+		cursorClock = 0;
+	} else { 
+		cursorPressed = 0; 
+	}
+	
+	// Process next event
+	if (!(cursorJoy & JOY_LEFT)) { 
+		     if (gameMode == MODE_INFO)   { cursorKey = KB_O; cursorRow = MENU_ROW+2; }
+		else if (gameMode == MODE_ONLINE) { cursorKey = KB_L; cursorRow = MENU_ROW+2; }
+	}	
+	if (!(cursorJoy & JOY_RIGHT)) { 
+		     if (gameMode == MODE_LOCAL)  { cursorKey = KB_O; cursorRow = MENU_ROW+2; }
+		else if (gameMode == MODE_ONLINE) { cursorKey = KB_I; cursorRow = MENU_ROW+2; }
+	}	
+	if (!(cursorJoy & JOY_UP)) { 
+		cursorRow -= 1; 
+		if (gameMode == MODE_LOCAL) {
+			     if (cursorRow  < MENU_ROW+2)  { cursorRow = MENU_ROW+2; }			
+			else if (cursorRow == MENU_ROW+6)  { cursorRow = MENU_ROW+5; }			
+			else if (cursorRow == MENU_ROW+8)  { cursorRow = MENU_ROW+7; }			
+			else if (cursorRow == MENU_ROW+10) { cursorRow = MENU_ROW+9; }			
+		} else {
+				 if (cursorRow  < MENU_ROW+2)  { cursorRow = MENU_ROW+2; }		
+		}
+	}
+	if (!(cursorJoy & JOY_DOWN)) { 
+		cursorRow += 1; 
+		if (gameMode == MODE_LOCAL) {
+			     if (cursorRow  > MENU_ROW+11) { cursorRow = MENU_ROW+11; }
+			else if (cursorRow == MENU_ROW+10) { cursorRow = MENU_ROW+11; }
+			else if (cursorRow == MENU_ROW+8)  { cursorRow = MENU_ROW+9; }			
+			else if (cursorRow == MENU_ROW+6)  { cursorRow = MENU_ROW+7; }			
+		} else {
+			     if (cursorRow  > MENU_ROW+13) { cursorRow = MENU_ROW+13; }
+		}
+	}
+	if (!(cursorJoy & JOY_BTN1)) { 
+		if (gameMode == MODE_LOCAL) {
+			     if (cursorRow == MENU_ROW+11) { cursorKey = KB_SP; }
+			else if (cursorRow == MENU_ROW+9)  { cursorKey = KB_L; }
+			else if (cursorRow == MENU_ROW+7)  { cursorKey = KB_M; }
+			else if (cursorRow >= MENU_ROW+2)  { cursorKey = 49 + (cursorRow-(MENU_ROW+2)); }
+		} else {
+			cursorKey = 49 + (cursorRow-(MENU_ROW+2));
+		}
+	}
+}
+#endif
+
+// Paper for message Buffer
+unsigned char paperBuffer;
+
+// Flag for Server load status
+unsigned char serversLoaded;
 
 // Chat Row Management
 #if defined __APPLE2__
@@ -203,29 +178,25 @@ static char chatBG[180];
 static char chatBG[240];
 #endif
 
-#ifdef __APPLE2__
-  #pragma code-name("LOWCODE")
-#endif
-
 // Backup Chat Row
 void BackupChatRow()
 {
 #ifdef __CBM__
 	// Make backup of chat row
-	DisableRom();
+	rom_disable();
 	memcpy(&chatBG[0],   (char*)(BITMAPRAM+320*ROW_CHAT), 160);
-	EnableRom();
+	rom_enable();
 	memcpy(&chatBG[160], (char*)(SCREENRAM+40*ROW_CHAT), 20);
 #elif defined __ATARI__
 	unsigned char i;
 	for (i=0; i<8; ++i) {
-		memcpy(&chatBG[0]+i*20,   (char*)(BITMAPRAM1+320*ROW_CHAT+i*40), 20);
-		memcpy(&chatBG[160]+i*20, (char*)(BITMAPRAM2+320*ROW_CHAT+i*40), 20);
+		memcpy(&chatBG[0]+i*20,   (char*)(BITMAPRAM1+320*ROW_CHAT+i*40u), 20);
+		memcpy(&chatBG[160]+i*20, (char*)(BITMAPRAM2+320*ROW_CHAT+i*40u), 20);
 	}	
 #elif defined __ORIC__
 	unsigned char i;
 	for (i=0; i<8; ++i) {
-		memcpy(&chatBG[0]+i*20, (char*)(BITMAPRAM+1+320*ROW_CHAT+i*40), 20);
+		memcpy(&chatBG[0]+i*20, (char*)(BITMAPRAM+1+320*ROW_CHAT+i*40u), 20);
 	}
 #elif defined __APPLE2__
 	unsigned char i;	
@@ -279,21 +250,164 @@ void RedrawChatRow()
 #endif
 }
 
-// In-case connection drops out...
-void PrintTimedOut()
+// Rolling buffer at the top of the screen, that moves text leftward when printing
+void PrintBuffer(char *buffer)
 {
-	inkColor = WHITE;
-    PrintStr(10,12, " CONNECTION TIMED-OUT ");
-    sleep(3);
+	// Get length of new message
+	unsigned char len;
+	buffer[CHR_COLS] = 0;
+	len = strlen(buffer);
+	
+#if defined __ORIC__	
+	// Apply ink change
+	if (buffer[0] == '^') {
+		SetAttributes(CHR_COLS-len, 0, inkColor);
+		buffer = &buffer[1];
+		len--;
+	}
+#elif defined __APPLE2__	
+	// Make sure message has even length
+	if (len%2) {
+		buffer[len++] = ' ';
+		buffer[len] = 0;
+	}
+#endif
+
+	// Shift buffer and print new message
+	CopyStr(0, 0, len, 0, CHR_COLS-len);
+	PrintStr(CHR_COLS-len, 0, buffer);	
 }
 
-// Display lap numbers
-void PrintLap(unsigned char i)
+void InputField(unsigned char col, unsigned char row, char *buffer, unsigned char len)
 {
-	if (cars[i].lap < 1) { return; }
-	inkColor = inkColors[i];
-	PrintNum((i+2)*8-3, CHR_ROWS-1, cars[i].lap);
+	// Print initial condition
+	InputStr(col, row, len, buffer, len, 0);
+
+	// Run input loop
+#if defined __LYNX__ 
+	ShowKeyboardOverlay();
+	while (1) {
+		while (!KeyboardOverlayHit()) { UpdateDisplay(); } // Refresh Lynx screen
+		if (InputStr(col, row, len, buffer, len, GetKeyboardOverlay())) {
+			HideKeyboardOverlay();
+			return; 
+		}
+	}
+#else
+	while (1) {
+		while (!kbhit()) {}
+		if (InputStr(col, row, len, buffer, len, cgetc())) { 
+			return; 
+		}
+	}
+#endif
 }
+
+// Print score after round ends
+signed int score[4];
+void PrintScores()
+{
+	signed char i,j,f,s;
+	unsigned char* string;
+	signed char rank[4] = {0, 1, 2, 3};
+	
+	// Play the background music
+	StopSFX();
+#ifdef __LYNX__
+	StopMusic();
+	LoadMusic("speednik.mus", MUSICRAM);
+#endif		
+#ifndef __CBM__
+	PlayMusic();
+#endif	
+	
+	// Compute scores
+	for (i=0; i<MAX_PLAYERS; ++i) {
+		if (controlIndex[i] > 0) {
+			if (cars[i].lap < 0) 
+				cars[i].lap = 0;
+			score[i] = cars[i].lap*16+cars[i].way;
+		} else {
+			score[i] = -1;
+		}
+	}
+		
+	// Compute ranks
+	for (i=0; i<MAX_PLAYERS; ++i) { 
+		for (j=i+1; j<MAX_PLAYERS; ++j) { 
+			if (score[i] < score[j]) {
+				s =  rank[i];
+				rank[i] = rank[j];
+				rank[j] = s;
+            }
+        }	
+	}
+	
+	// Create blank area
+	paperColor = PAPER_SCORES;
+	PrintBlanks(13,ROW_SCORES,14,9);
+	
+	// Print results and wait
+	for (i=0; i<MAX_PLAYERS; ++i) {
+		j = rank[i];
+		if (score[j] >= 0) {
+			s = ROW_SCORES+2*i+1;
+			inkColor = inkColors[j];
+		#if defined __ORIC__
+			SetAttributes(17, s, inkColor);
+		#endif			
+			if (gameMode == MODE_ONLINE) {
+				string = svUsers[j];
+			} else {
+				if (i == 0) { string = "WIN"; } else { string = "LOSE"; } 
+			}
+			PrintStr(18, s, string);
+			inkColor = WHITE;
+		#if defined __ORIC__
+			SetAttributes(22, s, inkColor);
+		#endif			
+			PrintChr(23, s, charHyphen);
+			PrintNum(24, s, i+1);
+			PrintChr(25, s, charHyphen);
+		#if defined __ORIC__
+			SetAttributes(26, s, AIC);
+		#endif			
+			f = 0;
+		#if defined __APPLE2__
+			f += j*16;
+			spriteX = 55;				// ((    15*8   )*140)/320;
+			spriteY = 76+(i*384)/25u;	// (((9+2*i)*8+3)*192)/200;
+		#elif defined __ATARI__
+			spriteX = 105; 
+			spriteY = s*8+36;
+		#elif defined __ORIC__
+			spriteX = 30;	
+			spriteY = s*8+3;
+		#elif defined __CBM__	
+			spriteX = 120; 
+			spriteY = s*8+3;
+		#elif defined __LYNX__
+			spriteX = 60; 
+			spriteY = s*6+3;			
+		#endif	
+			SetSprite(j, f);
+		}
+	}
+#if defined __LYNX__
+	UpdateDisplay();
+#endif		
+	// Wait a few seconds
+	paperColor = BLACK;
+#if defined __APPLE2__
+	UpdateMusic();
+#else
+    sleep(7);
+#endif
+}
+
+#ifdef __APPLE2__
+  #pragma code-name("LC")
+#endif
 
 // Print race message and laps
 void PrintRace()
@@ -311,8 +425,81 @@ void PrintRace()
 	paperColor = BLACK;
 }
 
+// In-case connection drops out...
+void PrintTimedOut()
+{
+	inkColor = WHITE;
+    PrintStr(10,12, " CONNECTION TIMED-OUT ");
+    sleep(3);
+}
+
+// Display lap numbers
+void PrintLap(unsigned char i)
+{
+	if (cars[i].lap < 1) { return; }
+	inkColor = inkColors[i];
+	PrintNum((i+2)*8-3, CHR_ROWS-1, cars[i].lap);
+}
+
+// Sub-function for Animating Sprites in Main Menu
+void SpriteAnimation(unsigned char index, unsigned char frame)
+{
+#if defined __APPLE2__
+	frame += index*16;
+	spriteX = 90+(index*96)/8u;	
+	spriteY = 16;			
+#elif defined __ATARI__
+	spriteX = 145+index*13; 
+	spriteY = 46;
+#elif defined __ORIC__
+	spriteX = 48+index*8;
+	spriteY = 16;	
+#elif defined __CBM__
+	spriteX = 200+index*26; 
+	spriteY = 15;
+#elif defined __LYNX__
+	spriteX = 100+index*13; 
+	spriteY = 6;
+#endif		
+	SetSprite(index, frame);
+}
+
 // Sub-function of GameMenu()
-unsigned char serversLoaded;
+clock_t animClock;
+unsigned char animFrame;
+unsigned char MenuWait()
+{
+#if defined __APPLE2__
+	// Just update music (it takes the entire CPU...)
+	UpdateMusic();
+#else
+	// Animate sprites while waiting for key input
+	unsigned char i,f;
+	while (!kbhit()) {
+		// Check timer
+		if (clock()-animClock > 2) {
+			animClock = clock();
+			animFrame = (animFrame+1)&15;
+			for (i=0; i<MAX_PLAYERS; i++) {
+				// Animation showing counter rotating cars
+				if (i%2) { f = (24-animFrame)&15; } else { f = animFrame; }	
+				SpriteAnimation(i, f);
+			}
+		}	
+	#if defined __LYNX__
+		LynxCursorControl();
+		if (cursorKey) { return cursorKey; }
+		if (gameMode == MODE_LOCAL || (gameMode == MODE_ONLINE && serversLoaded)) { 
+			LynxCursorFlicker(); 
+		}			
+		UpdateDisplay(); // Refresh Lynx screen
+	#endif	
+	}
+#endif
+	return cgetc();
+}
+
+// Sub-function of GameMenu()
 void MenuServers()
 {
 	unsigned char j,k,n;
@@ -321,15 +508,25 @@ void MenuServers()
 	// Show action message
 	PrintStr(MENU_COL+2, MENU_ROW+6, "FETCH LIST...");				
 	serversLoaded = 0;
-	
+
+#ifdef NETCODE
+#ifdef __ORIC__
+	StopMusic();
+#endif
 	// Flush Net Queue
-	while (RecvUDP(5)) {}	
-	
+	while ((unsigned int)RecvUDP(5));
+			
 	// Fetch server list
 	udpBuffer[0] = CL_LIST;
+	ServerConnect();
 	SendUDP(udpBuffer, 1);
-	packet = RecvUDP(2*TCK_PER_SEC); // Allow some time-out
-	
+	packet = (unsigned int)RecvUDP(2*TCK_PER_SEC); // Allow some time-out
+	ServerDisconnect();
+#ifdef __ORIC__
+	PlayMusic();
+#endif	
+#endif
+
 	// Check server response
 	if (!packet) {
 		// Timeout error
@@ -360,6 +557,25 @@ void MenuServers()
 	}
 }
 
+#if defined __ATARI__
+// Sub-function of GameMenu()
+void MenuGFX()
+{
+	// Clear previous
+	PrintStr(MENU_COL+7, MENU_ROW+11, "   ");
+	
+	// GFX mode selection
+	inkColor = INK_HIGHLT; paperColor = PAPER_HIGHLT;
+	PrintStr(MENU_COL+2, MENU_ROW+11, "G");
+	inkColor = WHITE; paperColor = BLACK;
+	if (frameBlending & 2) {
+		PrintStr(MENU_COL+3, MENU_ROW+11, "FX: OFF  ");				
+	} else {
+		PrintStr(MENU_COL+3, MENU_ROW+11, "FX: BLEND");				
+	}	
+}
+#endif
+
 // Sub-function of GameMenu()
 unsigned char MenuLogin(unsigned char serverIndex)
 {
@@ -373,177 +589,41 @@ unsigned char MenuLogin(unsigned char serverIndex)
 	PrintStr(MENU_COL+1, MENU_ROW+6, "PASS:");
 	PrintStr(MENU_COL+2, MENU_ROW+8, "REGISTER AT");
 	PrintStr(MENU_COL+1, MENU_ROW+9, "8BIT-SLICKS.COM");
-	InputStr(MENU_COL+6, MENU_ROW+4, &clUser[0], 4);
+	InputField(MENU_COL+6, MENU_ROW+4, &clUser[0], 4);
 	PrintChr(MENU_COL+6+strlen(clUser), MENU_ROW+4, &charBlank[0]);
-	InputStr(MENU_COL+6, MENU_ROW+6, &clPass[0], 10);	
+	InputField(MENU_COL+6, MENU_ROW+6, &clPass[0], 10);	
 	PrintChr(MENU_COL+6+strlen(clPass), MENU_ROW+6, &charBlank[0]);
-
+	
 	// Show action message
 	inkColor = YELLOW;
-	PrintStr(MENU_COL+2, MENU_ROW+12, "CONNECTING...");			
+	PrintStr(MENU_COL+2, MENU_ROW+12, "CONNECTING...");
+#ifdef __ORIC__
+	StopMusic();
+#endif
+	ServerConnect();	
 	res = ClientJoin(serverIndex);
+#ifdef __ORIC__
+	PlayMusic();
+#endif		
 	inkColor = WHITE;
 	if (res == ERR_MESSAGE) {
 		// Server error
 		PrintStr(MENU_COL+1, MENU_ROW+13, (char*)(packet+1));
-		return 0;
 	} else if (res == ERR_TIMEOUT) {
 		// Timeout error
 		PrintStr(MENU_COL+1, MENU_ROW+13, "ERROR: TIMEOUT");					
-		return 0;
 	} else if (res == ERR_CORRUPT) {
 		// Unexpected error
 		PrintStr(MENU_COL+1, MENU_ROW+13, "ERROR: CORRUPTION");
-		return 0;
 	} else {
-		// All good
+		// All good			
 		PrintStr(MENU_COL+2, MENU_ROW+13, "OK");
 		gameMap = svMap;
 		gameStep = svStep;
 		return 1;
 	}	
-}
-
-#ifdef __ATARIXL__
-	#pragma code-name("SHADOW_RAM2")
-#endif
-
-// Sub-function for Animating Sprites in Main Menu
-void SpriteAnimation(unsigned char index, unsigned char frame)
-{
-#if defined __APPLE2__
-	frame += index*16;
-	spriteX = 90+(index*96)/8;	
-	spriteY = 16;			
-#elif defined __ATARI__
-	spriteX = 145+index*13; 
-	spriteY = 40;
-#elif defined __ORIC__
-	spriteX = 48+index*8;
-	spriteY = 16;	
-#elif defined __CBM__
-	spriteX = 200+index*26; 
-	spriteY = 15;
-#elif defined __LYNX__
-	spriteX = 100+index*13; 
-	spriteY = 6;
-#endif		
-	SetSprite(index, frame);
-}
-
-#if defined __LYNX__
-unsigned char cursorJoy, cursorKey, cursorPressed;
-unsigned char cursorFlick, cursorRow = MENU_ROW+2;
-clock_t cursorClock;
-
-void LynxCursorFlicker()
-{
-	// Only do preiodically
-	if (clock()-cursorClock < 20) { return; }
-	cursorClock = clock();
-	
-	// Reset Column and show Cursor
-	PrintBlanks(MENU_COL, MENU_ROW+2, 2, MENU_HEI-2);
-	if (cursorFlick) {
-		inkColor = YELLOW;
-		PrintChr(MENU_COL+0, cursorRow, &charHyphen[0]);
-		PrintChr(MENU_COL+1, cursorRow, &charBracket[3]);
-		inkColor = WHITE;
-	}
-	cursorFlick = !cursorFlick;
-}
-
-void LynxCursorControl()
-{
-	// Check if cursor was already pressed
-	cursorKey = 0;
-	cursorJoy = GetJoy(0);
-	if (cursorJoy != 255) {
-		if (cursorPressed) { return; }
-		cursorPressed = 1;
-		cursorFlick = 1;
-		cursorClock = 0;
-	} else { 
-		cursorPressed = 0; 
-	}
-	
-	// Process next event
-	if (!(cursorJoy & JOY_LEFT)) { 
-		     if (gameMode == MODE_INFO)   { cursorKey = KEY_O; cursorRow = MENU_ROW+2; }
-		else if (gameMode == MODE_ONLINE) { cursorKey = KEY_L; cursorRow = MENU_ROW+2; }
-	}	
-	if (!(cursorJoy & JOY_RIGHT)) { 
-		     if (gameMode == MODE_LOCAL)  { cursorKey = KEY_O; cursorRow = MENU_ROW+2; }
-		else if (gameMode == MODE_ONLINE) { cursorKey = KEY_I; cursorRow = MENU_ROW+2; }
-	}	
-	if (!(cursorJoy & JOY_UP)) { 
-		cursorRow -= 1; 
-		if (gameMode == MODE_LOCAL) {
-			     if (cursorRow  < MENU_ROW+2)  { cursorRow = MENU_ROW+2; }			
-			else if (cursorRow == MENU_ROW+6)  { cursorRow = MENU_ROW+5; }			
-			else if (cursorRow == MENU_ROW+8)  { cursorRow = MENU_ROW+7; }			
-			else if (cursorRow == MENU_ROW+10) { cursorRow = MENU_ROW+9; }			
-		} else {
-				 if (cursorRow  < MENU_ROW+2)  { cursorRow = MENU_ROW+2; }		
-		}
-	}
-	if (!(cursorJoy & JOY_DOWN)) { 
-		cursorRow += 1; 
-		if (gameMode == MODE_LOCAL) {
-			     if (cursorRow  > MENU_ROW+11) { cursorRow = MENU_ROW+11; }
-			else if (cursorRow == MENU_ROW+10) { cursorRow = MENU_ROW+11; }
-			else if (cursorRow == MENU_ROW+8)  { cursorRow = MENU_ROW+9; }			
-			else if (cursorRow == MENU_ROW+6)  { cursorRow = MENU_ROW+7; }			
-		} else {
-			     if (cursorRow  > MENU_ROW+13) { cursorRow = MENU_ROW+13; }
-		}
-	}
-	if (!(cursorJoy & JOY_BTN1)) { 
-		if (gameMode == MODE_LOCAL) {
-			     if (cursorRow == MENU_ROW+11) { cursorKey = KEY_SP; }
-			else if (cursorRow == MENU_ROW+9)  { cursorKey = KEY_L; }
-			else if (cursorRow == MENU_ROW+7)  { cursorKey = KEY_M; }
-			else if (cursorRow >= MENU_ROW+2)  { cursorKey = 49 + (cursorRow-(MENU_ROW+2)); }
-		} else {
-			cursorKey = 49 + (cursorRow-(MENU_ROW+2));
-		}
-	}
-}
-#endif
-
-// Sub-function of GameMenu()
-clock_t animClock;
-unsigned char animFrame;
-unsigned char MenuWait()
-{
-#if defined __APPLE2__
-	// Just update music (it takes the entire CPU...)
-	PlayMusic(0);
-#else
-	// Animate sprites while waiting for key input
-	unsigned char i,f;
-	while (!kbhit()) {
-		// Check timer
-		if (clock()-animClock > 2) {
-			animClock = clock();
-			animFrame = (animFrame+1) % 16;
-			for (i=0; i<MAX_PLAYERS; i++) {
-				// Animation showing counter rotating cars
-				if (i%2) { f = (8-animFrame)%16; } else { f = animFrame; }	
-				SpriteAnimation(i, f);
-			}
-		}	
-	#if defined __LYNX__
-		LynxCursorControl();
-		if (cursorKey) { return cursorKey; }
-		if (gameMode == MODE_LOCAL || (gameMode == MODE_ONLINE && serversLoaded)) { 
-			LynxCursorFlicker(); 
-		}			
-		UpdateDisplay(); // Refresh Lynx screen
-	#endif	
-	}
-#endif
-	return cgetc();
+	ServerDisconnect();
+	return 0;
 }
 
 // Sub-function of GameMenu()
@@ -589,25 +669,6 @@ void MenuLaps()
 	PrintStr(MENU_COL+3, MENU_ROW+9, "AP:");
 	PrintNum(MENU_COL+7, MENU_ROW+9, lapNumber[lapIndex]);
 }
-
-#if defined __ATARI__
-// Sub-function of GameMenu()
-void MenuGFX()
-{
-	// Clear previous
-	PrintStr(MENU_COL+7, MENU_ROW+11, "   ");
-	
-	// GFX mode selection
-	inkColor = INK_HIGHLT; paperColor = PAPER_HIGHLT;
-	PrintStr(MENU_COL+2, MENU_ROW+11, "G");
-	inkColor = WHITE; paperColor = BLACK;
-	if (PEEK(BLENDTOG) & 2) {
-		PrintStr(MENU_COL+3, MENU_ROW+11, "FX: OFF  ");				
-	} else {
-		PrintStr(MENU_COL+3, MENU_ROW+11, "FX: BLEND");				
-	}	
-}
-#endif
 
 // Main menu function
 void GameMenu()
@@ -682,28 +743,28 @@ void GameMenu()
 					MenuPlayer(i);
 				}
 				// Switch Map
-				if (lastchar == KEY_M) { 
+				if (lastchar == KB_M) { 
 					gameMap++;
 					if (gameMap >= LEN_MAPS) { gameMap = 0; }
 					MenuMap();
 				}			
 				// Switch Laps
-				if (lastchar == KEY_L) { 
+				if (lastchar == KB_L) { 
 					lapIndex++;
 					if (lapIndex >= LEN_LAPS) { lapIndex = 0; }
 					MenuLaps();
 				}
 			#if defined __ATARI__
 				// Switch GFX Mode
-				if (lastchar == KEY_G) { 
-					POKE(BLENDTOG, PEEK(BLENDTOG) ^ 2);
+				if (lastchar == KB_G) { 
+					frameBlending ^= 2;
 					MenuGFX();
 				}
 			#endif				
 				// Start game? / Switch screen?
-				if (lastchar == KEY_SP) { return; }                
-				if (lastchar == KEY_O) { gameMode = MODE_ONLINE; break; }
-				if (lastchar == KEY_I) { gameMode = MODE_INFO; break; }                
+				if (lastchar == KB_SP) { return; }                
+				if (lastchar == KB_O) { gameMode = MODE_ONLINE; break; }
+				if (lastchar == KB_I) { gameMode = MODE_INFO; break; }                
 			}
 		} 
         
@@ -723,7 +784,9 @@ void GameMenu()
 			if (!networkReady) {
 				// Init network
 				PrintStr(MENU_COL+2, MENU_ROW+2, "INIT NETWORK...");
+			#ifdef NETCODE
 				i = InitNetwork();
+			#endif
 				if (i == ADAPTOR_ERR) {
 					PrintStr(MENU_COL+4, MENU_ROW+3, "ADAPTOR ERROR");
 					
@@ -733,15 +796,13 @@ void GameMenu()
 				} else {
 					PrintStr(MENU_COL+4, MENU_ROW+3, "ADAPTOR OK!");
 					PrintStr(MENU_COL+4, MENU_ROW+4, "DHCP OK!");
-
-					// Setup UDP settings (svIP, svPort, clPort)
-					InitUDP(199, 47, 196, 106, 5000+clock()%16, 5000+clock()%256);
 					networkReady = 1;
 				}
 			}
 			
 			// Could initialize network?
-			if (networkReady) { MenuServers(); }
+			if (networkReady) 
+				MenuServers();
 			
 			// Process user input
 			while (1) { 
@@ -750,8 +811,8 @@ void GameMenu()
 				networkReady = 1;
 			
 				// Try to join server?
-				if (lastchar >= KEY_A) {
-					i = lastchar - KEY_A + 9;
+				if (lastchar >= KB_A) {
+					i = lastchar - KB_A + 9;
 				} else {
 					i = lastchar - 49;
 				}
@@ -770,7 +831,7 @@ void GameMenu()
 				}				
 
 				// Switch screen?
-				if (lastchar == KEY_L) {
+				if (lastchar == KB_L) {
                     // Reset controls
                     controlIndex[0] = 3;
                     controlIndex[1] = 1;
@@ -778,8 +839,8 @@ void GameMenu()
                     controlIndex[3] = 0;                    
                     gameMode = MODE_LOCAL; 
                     break; }
-				if (lastchar == KEY_O) { break; }
-                if (lastchar == KEY_I) { gameMode = MODE_INFO; break; }
+				if (lastchar == KB_O) { break; }
+                if (lastchar == KB_I) { gameMode = MODE_INFO; break; }
 			}
 		}
 
@@ -815,9 +876,9 @@ void GameMenu()
 				lastchar = MenuWait();
             
 				// Switch screen?
-				if (lastchar == KEY_L) { gameMode = MODE_LOCAL; break; }
-				if (lastchar == KEY_O) { gameMode = MODE_ONLINE; break; }
-            }                
+				if (lastchar == KB_L) { gameMode = MODE_LOCAL; break; }
+				if (lastchar == KB_O) { gameMode = MODE_ONLINE; break; }
+            }       
         }        
 	}
 }

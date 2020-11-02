@@ -52,15 +52,19 @@ int yMax = 189*8;
 void LoadNavigation(char *filename)
 {
 	unsigned char i,n;
-#if defined __ORIC__
+#if (defined __ATARI__) || (defined __LYNX__) || (defined __ORIC__)
+	// Read entire file contents
+  #if defined __ATARI__
+	unsigned char buffer[160];
+	FileOpen(filename);
+	FileRead(buffer, 160);
+  #elif defined __ORIC__
 	unsigned char buffer[160];
 	FileRead(filename, buffer);
-#elif defined __LYNX__
-	unsigned char *buffer;
-	buffer = FileRead(filename);
-#endif
-
-#if (defined __ORIC__) || (defined __LYNX__)
+  #elif defined __LYNX__
+	unsigned char *buffer = (unsigned char*)SHAREDRAM;
+	FileRead(filename);
+  #endif
 	// Read Lineup
 	n = 1;
 	for (i=0; i<buffer[0]; ++i) {
@@ -77,6 +81,12 @@ void LoadNavigation(char *filename)
 		ways[i].x = PEEKW(&buffer[n]); n += 2;
 		ways[i].y = PEEKW(&buffer[n]); n += 2;
 		memcpy(&ways[i].v[0][0], &buffer[n], 8); n += 8;
+	#ifdef DEBUG_NAV
+		// Display waypoints (debugging)
+		SetColor(ways[i].x/8u, ways[i].y/8u, BLACK);
+        SetColor(ways[i].x/8u+ways[i].v[0][0], ways[i].y/8u+ways[i].v[0][1], BLACK); 
+        SetColor(ways[i].x/8u+ways[i].v[1][0], ways[i].y/8u+ways[i].v[1][1], BLACK);         
+	#endif		
 	}	
 	
 	// Read Jump Ramps
@@ -107,12 +117,12 @@ void LoadNavigation(char *filename)
 		fread(&ways[i].x, 2, 1, fp);
 		fread(&ways[i].y, 2, 1, fp);
 		fread(&ways[i].v[0][0], 2, 4, fp);
-#ifdef DEBUG_NAV
+	#ifdef DEBUG_NAV
 		// Display waypoints (debugging)
-		SetColor(ways[i].x/8, ways[i].y/8, BLACK);
-        SetColor(ways[i].x/8+ways[i].v[0][0], ways[i].y/8+ways[i].v[0][1], BLACK); 
-        SetColor(ways[i].x/8+ways[i].v[1][0], ways[i].y/8+ways[i].v[1][1], BLACK);         
-#endif
+		SetColor(ways[i].x/8u, ways[i].y/8u, BLACK);
+        SetColor(ways[i].x/8u+ways[i].v[0][0], ways[i].y/8u+ways[i].v[0][1], BLACK); 
+        SetColor(ways[i].x/8u+ways[i].v[1][0], ways[i].y/8u+ways[i].v[1][1], BLACK);         
+	#endif
 	}
     
 	// Read Jump Ramps
@@ -153,24 +163,24 @@ Waypoint *way;
 int GetWaypointAngle(Vehicle *car)
 {
 	// Get target
-	way = &ways[car->way/2];
+	way = &ways[car->way/2u];
 	iVec = car->way%2;
-	dx = 128 + (way->x + 8*way->v[iVec][0] - car->x2) / 16;
-	dy = 128 - (way->y + 8*way->v[iVec][1] - car->y2) / 16;
-	return (45*(int)atan2(dy,dx))/32;
+	dx = 128 + (way->x + 8*way->v[iVec][0] - car->x2) / 16u;
+	dy = 128 - (way->y + 8*way->v[iVec][1] - car->y2) / 16u;
+	return (45*(int)atan2(dy,dx))/32u;
 }
 
 char CheckWaypoint(Vehicle *car)
 {
 	// Initiate variables
-	way = &ways[car->way/2];
+	way = &ways[car->way/2u];
 	iVec = car->way%2;
 	
 	// Compute vectors with Waypoint centre
-	v1[0] = (car->x1 - way->x)/8;
-	v1[1] = (car->y1 - way->y)/8;
-	v2[0] = (car->x2 - way->x)/8;
-	v2[1] = (car->y2 - way->y)/8;				
+	v1[0] = (car->x1 - way->x)/8u;
+	v1[1] = (car->y1 - way->y)/8u;
+	v2[0] = (car->x2 - way->x)/8u;
+	v2[1] = (car->y2 - way->y)/8u;				
 		
 	// Check dot products against Waypoint vector
 	if ( (DOT(v1, way->v[iVec]) > 0) && (DOT(v2, way->v[iVec]) > 0) ) {

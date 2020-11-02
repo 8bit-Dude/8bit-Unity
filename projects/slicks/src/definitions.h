@@ -12,18 +12,18 @@
 
 // Platform dependent definitions
 #if defined __CBM__
-	#define KEY_START 	CH_F1
-	#define KEY_NEXT  	CH_F3
+	#define KB_START 	CH_F1
+	#define KB_NEXT  	CH_F3
 #else
-	#define KEY_START 	49
-	#define KEY_NEXT  	50
+	#define KB_START 	49
+	#define KB_NEXT  	50
 #endif
 #if defined __LYNX__
-	#define KEY_CHAT 	KEY_B	
-	#define KEY_QUIT 	KEY_P	
+	#define KB_CHAT 	KB_B	
+	#define KB_QUIT 	KB_P	
 #else
-	#define KEY_CHAT 	KEY_C	
-	#define KEY_QUIT 	KEY_Q	
+	#define KB_CHAT 	KB_C	
+	#define KB_QUIT 	KB_Q	
 #endif
 
 // Game definitions
@@ -42,7 +42,7 @@
 #define STEP_RACE   2
 
 // Build Information
-const char* buildInfo = "BUILD: 2020/01/15";
+const char* buildInfo = "BUILD: 2020/11/02";
 
 // Game data
 unsigned char gameMap = 0;

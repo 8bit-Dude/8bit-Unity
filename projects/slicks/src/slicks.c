@@ -8,7 +8,7 @@ void NextMusic() {
 	// Select next music track
 	LoadMusic(musicList[musicSel], MUSICRAM);
 	if (++musicSel > 3) musicSel = 0;
-	PlayMusic(MUSICRAM);
+	PlayMusic();
 }
 #endif
 
@@ -24,7 +24,10 @@ int main (void)
 	// Initialize modules
 	InitJoy();
 	InitBitmap();
-	InitSprites(spriteFrames, spriteCols, spriteRows, spriteColors);	// see definitions.h
+	
+	// Setup sprites
+	LoadSprites("sprites.dat");
+	SetupSprites(spriteFrames, spriteCols, spriteRows, spriteColors);	// see definitions.h
 
 	// Main Loop
 	while (1) {
@@ -37,7 +40,7 @@ int main (void)
 		// Show menu
 	#ifndef __CBM__
 		LoadMusic("speednik.mus", MUSICRAM);
-		PlayMusic(MUSICRAM);
+		PlayMusic();
 	#endif	
 		EnterBitmapMode();
 		GameMenu(); 

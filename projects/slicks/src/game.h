@@ -2,29 +2,29 @@
 #include "interface.h"
 
 #if defined __APPLE2__
-	#define RACE_ROAD LGREY
-	#define RACE_MARK YELLOW
-	#define RACE_WALL PURPLE
+  #define RACE_ROAD LGREY
+  #define RACE_MARK YELLOW
+  #define RACE_WALL PURPLE
 #elif defined __ATARI__
-	#define RACE_ROAD BLACK
-	#define RACE_MARK GREY
-	#define RACE_WALL BROWN
-	#define SPR2_SLOT 5
+  #define RACE_ROAD BLACK
+  #define RACE_MARK GREY
+  #define RACE_WALL BROWN
+  #define SPR2_SLOT 5
 #elif defined __ORIC__
-	#define RACE_ROAD BLACK
-	#define RACE_MARK LGREEN
-	#define RACE_WALL PURPLE
-	#define SPR2_SLOT 4
+  #define RACE_ROAD BLACK
+  #define RACE_MARK LGREEN
+  #define RACE_WALL PURPLE
+  #define SPR2_SLOT 4
 #elif defined __CBM__
-	#define RACE_ROAD LGREY
-	#define RACE_MARK YELLOW
-	#define RACE_WALL PURPLE
-	#define SPR2_SLOT 4
+  #define RACE_ROAD LGREY
+  #define RACE_MARK YELLOW
+  #define RACE_WALL PURPLE
+  #define SPR2_SLOT 4
 #elif defined __LYNX__
-	#define RACE_ROAD GREY
-	#define RACE_MARK YELLOW
-	#define RACE_WALL PURPLE
-	#define SPR2_SLOT 4
+  #define RACE_ROAD GREY
+  #define RACE_MARK YELLOW
+  #define RACE_WALL PURPLE
+  #define SPR2_SLOT 4
 #endif
 
 // Physics parameters
@@ -37,6 +37,7 @@ int tck4, accRate, decRate, jmpTCK;
 const char rotMax[3] = { 4, 5, 2};
 const int velMin = 200;
 const int velMax[3] = { 450, 600, 600 };
+const int velDrift = 450;
 const int velRamp = 800;
 
 // Fast tables for cos/sin
@@ -61,30 +62,30 @@ void GameReset()
         EngineSFX(i, 0);
 
         // Player available?
-        if (controlIndex[i]) {
-			// Reset laps and sprite
-			PrintStr((i+2)*8-3, CHR_ROWS-1, "  ");
-			f = ((cars[i].ang1+12)%(360))/23;
-		#if defined __APPLE2__
-			f += i*16;
-			spriteX = (cars[i].x2*7)/128;
-			spriteY = (cars[i].y2*3)/25;
-		#elif defined __ATARI__
-			spriteX = cars[i].x2/16 + 45; 
-			spriteY = cars[i].y2/8 + 26;		
-		#elif defined __ORIC__
-			spriteX = cars[i].x2/32;	
-			spriteY = cars[i].y2/8;			
-		#elif defined __CBM__
-			spriteX = cars[i].x2/8; 
-			spriteY = cars[i].y2/8;
-		#elif defined __LYNX__
-			spriteX = cars[i].x2/16; 
-			spriteY = cars[i].y2/16;
-		#endif
-			SetSprite(i, f);
-            EnableSprite(i);
-        }
+		if (!controlIndex[i] || ((gameStep == STEP_WARMUP) && (controlIndex[i] < 3)) ) { continue; }
+
+		// Reset laps and sprite
+		PrintStr((i+2)*8u-3, CHR_ROWS-1, "  ");
+		f = ((cars[i].ang1+12)%(360))/23u;
+	#if defined __APPLE2__
+		f += i*16u;
+		spriteX = (cars[i].x2*7u)/128u;
+		spriteY = (cars[i].y2*3u)/25u;
+	#elif defined __ATARI__
+		spriteX = cars[i].x2/16u + 45; 
+		spriteY = cars[i].y2/8u + 32;		
+	#elif defined __ORIC__
+		spriteX = cars[i].x2/32u;	
+		spriteY = cars[i].y2/8u;			
+	#elif defined __CBM__
+		spriteX = cars[i].x2/8u; 
+		spriteY = cars[i].y2/8u;
+	#elif defined __LYNX__
+		spriteX = cars[i].x2/16u; 
+		spriteY = cars[i].y2/16u;
+	#endif
+		SetSprite(i, f);
+		EnableSprite(i);
     }
     
 	// Display warmup message
@@ -141,7 +142,7 @@ void GameInit(const char* map)
 	tck4 = 4*TCK_PER_SEC;
 	accRate = (50*8)/TCK_PER_SEC;
 	decRate = (100*8)/TCK_PER_SEC;
-	jmpTCK = (30*TCK_PER_SEC)/50;
+	jmpTCK = (30*TCK_PER_SEC)/50u;
 	
 #if defined __ATARI__
 	// Adjust rotation rate on PAL systems
@@ -168,7 +169,7 @@ void GameInit(const char* map)
 	// Print map name in lower left corner
 	inkColor = WHITE; paperColor = BLACK;
 	PrintStr(0, CHR_ROWS-1, mapList[gameMap]);
-	
+
 	// Load Navigation
 	memcpy(&buffer[len], ".nav", 4);
 	LoadNavigation(&buffer[0]);
@@ -179,12 +180,12 @@ void GameInit(const char* map)
         for (i=0; i<MAX_PLAYERS; ++i) {
             // Print player numbers in score board
             if (controlIndex[i]) {
-				slot = (i+1)*8;
+				slot = (i+1)*8u;
                 inkColor = inkColors[i]; 
 			#if defined __ORIC__
 				SetAttributes(slot-1, CHR_ROWS-1, inkColor);
 			#endif					
-				PrintChr(slot+1, CHR_ROWS-1, &charDigit[(i+1)*3]);
+				PrintChr(slot+1, CHR_ROWS-1, &charDigit[(i+1)*3u]);
                 PrintChr(slot, CHR_ROWS-1, &charLetter[15*3]);
             }
         }
@@ -205,6 +206,10 @@ void GameInit(const char* map)
 #endif	
 }
 
+#if (defined __APPLE2__) || (defined __ATARIXL__)
+	#pragma code-name("CODE")
+#endif
+
 // Game step
 unsigned char GameRace()
 {
@@ -215,7 +220,7 @@ unsigned char GameRace()
     // Show light sprites
 #ifndef __APPLE2__
     for (i=SPR2_SLOT; i<SPR2_SLOT+3; ++i) {
-		LocateSprite(132+(i-SPR2_SLOT)*24, 24);
+		LocateSprite(132+(i-SPR2_SLOT)*24u, 24);
 	#if defined __ATARI__ 
 		RecolorSprite(i, 0, 0x08);
 		SetSprite(i, 16);
@@ -346,7 +351,7 @@ int LerpAngle(int iAng1, int iAng2, int dAng)
 	}
 	if (deltaAngle > 90+dAng) {
 		deltaAngle = 90+dAng;
-		return iAng2 - iSign*90;		
+		return iAng2 - iSign*90u;		
 	}
 	if (deltaAngle > dAng) {
 		return iAng1 + iSign*dAng;
@@ -354,10 +359,6 @@ int LerpAngle(int iAng1, int iAng2, int dAng)
 		return iAng2;
 	}
 }
-
-#if (defined __APPLE2__) || (defined __ATARIXL__)
-	#pragma code-name("CODE")
-#endif
 
 // Game loop (for 1 round)
 char GameLoop()
@@ -411,7 +412,7 @@ char GameLoop()
 			for (i=0; i<MAX_PLAYERS; ++i) {
 				// Player available?
 				iCtrl = controlIndex[i];
-				if (iCtrl == 0) { continue; }
+				if ((iCtrl == 0) || ((gameStep == STEP_WARMUP) && (iCtrl < 3)) ) { continue; }
 			#if defined __APPLE2__
 				// Regulate clock approximately...
 				if (gameFrame%7) { clk += 2; } else { clk += 1; }
@@ -448,7 +449,7 @@ char GameLoop()
 				}
 
 				// Get background color
-				LocatePixel(iX/8, iY/8);
+				LocatePixel(iX/8u, iY/8u);
 				iColor = GetPixel();
 
                 // Decide the max velocity
@@ -479,25 +480,24 @@ char GameLoop()
 					#if defined __APPLE2__
 						// Process analog signal from paddles
                         } else {
-                            iJoy = 31-JOY_BTN1*GetButton(iCtrl-3);
+                            iJoy = 255-JOY_BTN1*GetButton(iCtrl-3);
 							res = GetPaddle(iCtrl-3);
 							if (res > 159) { 
-								iAng2 -= ((res-127)/33)*steps;
+								iAng2 -= ((res-127)/33u)*steps;
 								iJoy -= JOY_RIGHT;
 							} else if (res < 93) {
-								iAng2 += ((127-res)/33)*steps;
+								iAng2 += ((127-res)/33u)*steps;
 								iJoy -= JOY_LEFT;
 							}
 						}
 					#else
 						// Process digital signal from joysticks
-                        } else {
+                        } else
                             iJoy = GetJoy(iCtrl-3);
-                        }
 
                         // Process joystick input
-                        if (!(iJoy & JOY_LEFT))  { iAng2 += rotRate*steps; } 
-                        if (!(iJoy & JOY_RIGHT)) { iAng2 -= rotRate*steps; }
+                        if (!(iJoy & JOY_LEFT))  iAng2 += rotRate*steps; 
+                        if (!(iJoy & JOY_RIGHT)) iAng2 -= rotRate*steps;
 					#endif						
                         if (!(iJoy & JOY_BTN1)) { 
                             iVel += accRate*steps;
@@ -517,7 +517,7 @@ char GameLoop()
                         }
 						
 						// Lerp to navigation target
-						iAng2 = LerpAngle(iAng2, car->ang3, 2*rotRate*steps);
+						iAng2 = LerpAngle(iAng2, car->ang3, 2u*rotRate*steps);
                     }
                 }
 			#if (defined __APPLE2__) || (defined __ORIC__)		// Simplified physics on slower systems...
@@ -526,7 +526,7 @@ char GameLoop()
 				iAng1 = iAng2;
 								
 				// Round sprite angle to nearest 22.5* sector
-				iSpr = (iAng2+12)/23;
+				iSpr = (iAng2+12)/23u;
 				if (iSpr>15) { iSpr=0; }			
 				iDir = iSpr;
 			#else				
@@ -538,11 +538,11 @@ char GameLoop()
 				if (iAng2 > 360) { iAng2 -= 360; } else if (iAng2 < 0) { iAng2 += 360; }
 				
 				// Round trajectory angle to nearest 22.5* sector				
-				iDir = (iAng1+12)/23;
+				iDir = (iAng1+12)/23u;
 				if (iDir>15) { iDir=0; }				
 				
 				// Round sprite angle to nearest 22.5* sector
-				iSpr = (iAng2+12)/23;
+				iSpr = (iAng2+12)/23u;
 				if (iSpr>15) { iSpr=0; }			
 			#endif
 				// Constrain velocity (and slow down when drifting)
@@ -554,11 +554,11 @@ char GameLoop()
 			
 				// Compute next position
 			#if defined __ORIC__
-				iTmp = steps * iVel / 16;
+				iTmp = steps * iVel / 16u;
 				iX += car->impx + ( iTmp * iCos ) / TCK_PER_SEC;
 				iY += car->impy - ( iTmp * iSin ) / TCK_PER_SEC;
 			#else				
-				iTmp = steps * iVel / 4;
+				iTmp = steps * iVel / 4u;
 				iX += car->impx + ( iTmp * iCos ) / tck4;
 				iY += car->impy - ( iTmp * iSin ) / tck4;
 			#endif                
@@ -572,25 +572,25 @@ char GameLoop()
                 						
 				// Compute sprite location
 			#if defined __APPLE2__
-				iSpr += i*16;
-				spriteX = (iX*7)/128;
-				spriteY = (iY*3)/25;
+				iSpr += i*16u;
+				spriteX = (iX*7u)/128u;
+				spriteY = (iY*3u)/25u;
 			#elif defined __ATARI__
-				spriteX = iX/16 + 45; 
-				spriteY = iY/8 + 26;
+				spriteX = iX/16u + 45; 
+				spriteY = iY/8u + 32;
 			#elif defined __ORIC__
-				spriteX = iX/32;	
-				spriteY = iY/8;							
+				spriteX = iX/32u;	
+				spriteY = iY/8u;							
 			#elif defined __CBM__					
-				spriteX = iX/8; 
-				spriteY = iY/8;
+				spriteX = iX/8u; 
+				spriteY = iY/8u;
 			#elif defined __LYNX__
-				spriteX = iX/16; 
-				spriteY = iY/16;				
+				spriteX = iX/16u; 
+				spriteY = iY/16u;				
 			#endif				
 			
 				// Get again background color
-				LocatePixel(iX/8, iY/8);
+				LocatePixel(iX/8u, iY/8u);
 				iColor = GetPixel();
                 if (iColor == RACE_WALL) {
                     // Hit a wall: return to previous position
@@ -631,8 +631,8 @@ char GameLoop()
 								// Apply impulse to other car, and reduce own velocity
 								if ( (iCos*(cars[j].x2 - iX) - iSin*(cars[j].y2 - iY)) > 0) {
 									if (iVel > velMin) { iVel = velMin; }
-									cars[j].impx = iCos/2;
-									cars[j].impy = -iSin/2;									
+									cars[j].impx = iCos/2u;
+									cars[j].impy = -iSin/2u;									
 									BumpSFX();
 								} 
 							}
@@ -641,7 +641,11 @@ char GameLoop()
 				}
 				
 				// Update sound
-				EngineSFX(i, iVel);				
+				if (iVel < velDrift || deltaAngle < 25) {
+					EngineSFX(i, iVel);
+				} else {
+					ScreechSFX(i, 192);
+				}
 				
 				// Update car position
 				car->x2 = iX;
@@ -656,7 +660,7 @@ char GameLoop()
 					// Check current cylinder
 					if (CheckWaypoint(car)) {
 						car->way++;
-						if ( car->way/2 == numWays) { car->way = 0; }
+						if ( car->way/2u == numWays) { car->way = 0; }
 						if ( car->way == 1) { 
 							// Increment laps
 							car->lap += 1;
@@ -712,7 +716,7 @@ char GameLoop()
 				if (chatting) {
 					lastKey = GetKeyboardOverlay();
 				} else if (!(GetJoy(0) & JOY_BTN2)) {
-					lastKey = KEY_CHAT;
+					lastKey = KB_CHAT;
 				} else {
 					lastKey = cgetc();
 				}
@@ -724,7 +728,7 @@ char GameLoop()
 				// Process Chat?
 				if (chatting) {
 					inkColor = inkColors[clIndex];
-					if (InputUpdate(0, ROW_CHAT, chatBuffer, 19, lastKey)) {
+					if (InputStr(0, ROW_CHAT, 19, chatBuffer, 19, lastKey)) {
 						// Return was pressed
 						if (strlen(&chatBuffer[0]) > 0) { ClientEvent(EVENT_CHAT); }
 						RedrawChatRow();
@@ -735,7 +739,7 @@ char GameLoop()
 					}
 				} else {
 					// Start Race
-					if (lastKey == KEY_START) {
+					if (lastKey == KB_START) {
 						if (gameMode == MODE_ONLINE) {
 							ClientEvent(EVENT_RACE);
 						} else {
@@ -744,7 +748,7 @@ char GameLoop()
 						}	
 					}
 					// Next Map
-					if (lastKey == KEY_NEXT) {
+					if (lastKey == KB_NEXT) {
 						if (gameMode == MODE_ONLINE) {
 							ClientEvent(EVENT_MAP);
 						} else {
@@ -753,22 +757,25 @@ char GameLoop()
 						}
 					}					
 					// Enable chat
-					if (gameMode == MODE_ONLINE & lastKey == KEY_CHAT) {
+					if (gameMode == MODE_ONLINE & lastKey == KB_CHAT) {
 					#if defined __LYNX__ 
 						ShowKeyboardOverlay();
 					#endif
 						chatting = 1;
 						chatBuffer[0] = 0;
-						InputUpdate(0, ROW_CHAT, chatBuffer, 19, 0);
+						InputStr(0, ROW_CHAT, 19, chatBuffer, 19, 0);
 					}
 					// Quit game
-					if (lastKey == KEY_QUIT) {
-						if (gameMode == MODE_ONLINE) { ClientLeave(); }
+					if (lastKey == KB_QUIT) {
+						if (gameMode == MODE_ONLINE) { 
+							ClientLeave(); 
+							ServerDisconnect();
+						}
 						return 0; 
 					}
 				#ifdef  __ATARI__
 					// Toggle RGB/BW
-					if (lastKey == KEY_G) { POKE(BLENDTOG, PEEK(BLENDTOG) ^ 2); }
+					if (lastKey == KB_G) frameBlending ^= 2;
 				#endif
 				}
 			}
