@@ -24,6 +24,9 @@
 ;   specific prior written permission.
 ;
 	
+	.import _disable_rom
+	.import _enable_rom
+	
 	.export _xbios_fname
 	.export _xbios_dest
 	.export _xbios_len
@@ -45,19 +48,6 @@ _xbios_dest:   .byte 0,0
 _xbios_len:    .byte 0,0
 
 	.segment	"CODE"
-
-; USE FOR LOADING WITH OS ROM
-PORTB = $D301
-_disable_rom:
-	lda     PORTB
-	and     #$fe
-	sta     PORTB
-	rts
-_enable_rom:
-	lda     PORTB
-	ora     #1
-	sta     PORTB
-	rts
 
 ; USE FOR LOADING WITH XBIOS
 ;_xbios_device: .byte 0
