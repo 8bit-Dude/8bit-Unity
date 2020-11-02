@@ -37,13 +37,13 @@ int DemoHLO(void)
     cprintf(pressKeyMsg);
 	
 	// Play music until keyboard is pressed
-	LoadMusic("demo.mus");
-	PlayMusic(MUSICRAM);
+	LoadMusic("demo.mus", MUSICRAM);
+	PlayMusic();
 	
 	// Wait until 'SPACE' is pressed
 	while (!kbhit () || cgetc () != keyNext) {
 	#if defined __APPLE2__	
-		PlayMusic(0);	 // Apple has no interrupts: need to progress track step-by-step
+		UpdateMusic();	 // Apple has no interrupts: need to progress track manually
 	#elif defined __LYNX__
 		UpdateDisplay(); // Refresh Lynx screen
 	#endif

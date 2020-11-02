@@ -11,7 +11,7 @@
 	const char keyNext = 49;
 #else
 	const char pressKeyMsg[] = " - press SPACE bar - ";
-	const char keyNext = KEY_SP;
+	const char keyNext = KB_SP;
 #endif
 
 int main (void)
