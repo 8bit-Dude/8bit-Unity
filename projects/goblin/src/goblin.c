@@ -140,12 +140,12 @@ void SplashScreen(void)
 	PrintStr(CHR_COLS-11, CHR_ROWS-4, "TECH DEMO");		
 	PrintStr(CHR_COLS-12, CHR_ROWS-3, "BY 8BIT-DUDE");		
 	PrintStr(CHR_COLS-11, CHR_ROWS-2,  "2020/05/20");
-	PlayMusic(MUSICRAM);
+	PlayMusic();
 
 	// Wait until key is pressed
 	while (!kbhit()) {	
 	#if defined __APPLE2__
-		PlayMusic(0);
+		UpdateMusic();
 	#elif defined __LYNX__
 		UpdateDisplay(); // Refresh Lynx screen
 	#endif
@@ -161,10 +161,13 @@ int main(void)
     bordercolor(COLOR_BLACK);
     bgcolor(COLOR_BLACK);
 	
-	// Initialize sfx, bitmap, sprites
+	// Initialize sfx/bitmap
 	InitSFX();
 	InitBitmap();
-	InitSprites(spriteFrames, spriteCols, spriteRows, spriteColors);
+	
+	// Setup sprites
+	LoadSprites("sprites.dat");
+	SetupSprites(spriteFrames, spriteCols, spriteRows, spriteColors);
 	
 	// Enable sprites
 	EnableSprite(0);  // Mouse cursor
@@ -198,7 +201,7 @@ int main(void)
 	InitScene();
 	
 	// Run game loop
-	PlayMusic(MUSICRAM);
+	PlayMusic();
 	GameLoop();
 	StopMusic();
 	
