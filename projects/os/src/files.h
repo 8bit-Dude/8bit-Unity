@@ -13,7 +13,7 @@ void GetFileList()
 	unsigned int size;
 	
 	// Get file list
-	FileList();
+	DirList();
 
 	// Build media file list
 	for (i=0; i<fileNum; i++) {
@@ -42,7 +42,7 @@ void GetFileList()
 			}
 			itoa(size, &listNames[listNum][dest], 10);			
 		} else {
-			size /= 1000;
+			size /= 1000u;
 			if (size < 10) {
 				dest = 14;
 			} else {

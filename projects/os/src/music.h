@@ -17,14 +17,14 @@ void PlayTrack(char *fname)
 {
 	if (musicPlaying)
 		StopMusic();
-	LoadMusic(fname);
-	PlayMusic(MUSICRAM);
+	LoadMusic(fname, MUSICRAM);
+	PlayMusic();
 #ifndef __APPLE2__	
 	musicPlaying = 1;
 #else
 	cgetc();
 	while (!kbhit())
-		PlayMusic(0);
+		UpdateMusic();
 	cgetc();
 #endif
 }
@@ -38,7 +38,7 @@ void PauseTrack()
 void UnpauseTrack()
 {
 	if (musicPlaying)
-		PlayMusic(MUSICRAM);
+		PlayMusic();
 }
 
 void StopTrack()
@@ -54,7 +54,7 @@ void MusicTitle()
 	
 	paperColor = BLACK; inkColor = WHITE;
 	PrintBlanks(10, 7, 20, 3); 
-	PrintStr(20-strlen(track)/2, 8, track);	
+	PrintStr(20-strlen(track)/2u, 8, track);	
 }
 
 void MusicScreen(void)

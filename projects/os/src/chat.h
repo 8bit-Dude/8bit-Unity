@@ -10,7 +10,7 @@
   #define MSG_PER_PAGE 3
 #else
   #define MSG_PER_PAGE 4
-#endif	
+#endif
 
 unsigned char lineX1, lineX2, lineY, chatConnected, chatLogged, chatLen;
 unsigned int chatList[4] = {0, 0, 0, 0};
@@ -59,10 +59,6 @@ void ChatSend()
 	scrollRange[0] = 0;
 	ChatPage();	
 }
-
-#ifdef __ATARI__
-  #pragma code-name("SHADOW_RAM2")
-#endif
 
 void ChatLogin()
 {
@@ -171,10 +167,13 @@ void ChatScreen(void)
 	}	
 }
 
+#ifdef __ATARIXL__
+  #pragma code-name("SHADOW_RAM")
+#endif
+
 void ChatPacket(unsigned char *packet)
 {
 	unsigned char i;
-	unsigned int chatPages;
 
 	// Process received packets
 	switch 	(packet[0]) {
