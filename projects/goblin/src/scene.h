@@ -15,9 +15,6 @@ void InitScene()
 	LoadChunk(&chunkAnim[2], "bottle.chk");	 // Load Bottle removed
 	LoadChunk(&chunkAnim[3], "sausage.chk"); // Load Sausage removed
 	LoadChunk(&chunkAnim[4], "switch.chk");	 // Switch animation
-#if (defined __ORIC__)
-	chunkAnim[2][3] = 11;	// For some reason, the last line corrupts the screen...
-#endif
 
 	// Grab background of some animations
 	GrabBackground(&chunkBcgr[0], chunkAnim[0]);  // Grab Notable bakground
