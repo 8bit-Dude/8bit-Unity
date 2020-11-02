@@ -2,9 +2,9 @@
  *	API of the "8bit-Unity" SDK for CC65
  *	All functions are cross-platform for the Apple IIe, Atari XL/XE, and C64/C128
  *	
- *	Last modified: 2019/05/05
+ *	Last modified: 2020/10/12
  *	
- * Copyright (c) 2019 Anthony Beaucamp.
+ * Copyright (c) 2020 Anthony Beaucamp.
  *
  * This software is provided 'as-is', without any express or implied warranty.
  * In no event will the authors be held liable for any damages arising from
@@ -30,29 +30,50 @@
  *
  */
 
-// Externals: see libsedoric.s
-extern void __fastcall__ sed_loadfile(void);
-extern void __fastcall__ sed_savefile(void);
+#include <peekpoke.h>
 
-extern unsigned int sed_size;
-extern const char* sed_fname;
-extern void* sed_dest;
-extern void* sed_end;
-extern int sed_err;
+#ifdef __ATARIXL__
+  #pragma code-name("SHADOW_RAM")
+#endif
 
-int FileWrite(const char* fname, void* buf, int len) 
+#define XBIOS_BUFFER 0x0400
+
+// Variables containing file list
+unsigned char  fileNum;     
+unsigned char* fileNames[24];
+unsigned int   fileSizes[24];
+unsigned char  fileBuffer[312]; // 24*13 bytes
+
+// Externals: see xbios.s
+extern void __fastcall__ xbios_list_dir(void);
+extern unsigned char __fastcall__ xbios_get_entry(void);
+
+// Using XBIOS for File Management
+void DirList(void)
 {
-    sed_fname = fname;
-    sed_dest = buf;
-    sed_end = (char*)sed_dest+len;
-    sed_savefile();  	
-    return sed_err;
-}
-
-int FileRead(const char* fname, void* buf)
-{
-    sed_fname = fname;
-    sed_dest = buf;
-    sed_loadfile();
-    return sed_size;
+	unsigned char i, j=0, k;
+	
+	// Get file list
+	xbios_list_dir();
+	
+	// Go through xbios buffer
+	i = xbios_get_entry();
+	while (fileNum<24 && PEEK(XBIOS_BUFFER+i)) {
+		fileNames[fileNum] = &fileBuffer[j];
+		fileSizes[fileNum] = PEEKW(XBIOS_BUFFER-4+i) * 256;
+		k = 0;
+		while (k<8) {
+			if (PEEK(XBIOS_BUFFER+i+k) != 0x20)
+				fileBuffer[j++] = PEEK(XBIOS_BUFFER+i+k);
+			k++;
+		}
+		fileBuffer[j++] = '.';
+		while (k<11) {
+			fileBuffer[j++] = PEEK(XBIOS_BUFFER+i+k);
+			k++;
+		}
+		fileBuffer[j++] = 0;
+		i = xbios_get_entry();
+		fileNum++;
+	}
 }

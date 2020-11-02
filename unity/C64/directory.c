@@ -36,23 +36,20 @@
 
 // Variables containing file lists
 unsigned char  fileNum;     
-unsigned char* fileNames[16];
-unsigned int   fileSizes[16];
-unsigned char* fileBuffer;     
+unsigned char* fileNames[24];
+unsigned int   fileSizes[24];
+unsigned char  fileBuffer[312]; // 24*13 bytes   
 
 // Using ROM for File Management
-void FileList(void)
+void DirList(void)
 {
 	unsigned char i=0, j;
 	FILE* fp;
-
-	// Assign some memory to file buffer
-	fileBuffer = malloc(256);
 	
 	// Open directory file, and parse it
 	fp = fopen("$", "rb");
 	fread(fileBuffer, 1, 0x27, fp); j = 0x21;
-	while (fileNum<16) {
+	while (fileNum<24) {
 		// Copy file size
 		fileSizes[fileNum] = *(int*)&fileBuffer[j]; j = i+0x1a;
 		

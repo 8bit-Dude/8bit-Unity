@@ -70,7 +70,7 @@
 #define TCK_PER_SEC	CLK_TCK
 
 // Using xBios for File Management
-void FileList(void);
+void DirList(void);
 unsigned char FileOpen(const char* fname);
 void FileRead(void* buf, unsigned int len);
 

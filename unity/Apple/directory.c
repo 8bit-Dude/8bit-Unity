@@ -24,31 +24,29 @@
  *   specific prior written permission.
  */
 
+#include "unity.h"
+
 #ifdef __APPLE2__
   #pragma code-name("LOWCODE")
 #endif
 
-// Externals: see prodos.s
-/* 
-extern void __fastcall__ prodos_open_file(void);
-extern void __fastcall__ prodos_load_data(void);
+// Variables containing file list
+unsigned char  fileNum = 0;
+unsigned int   fileSizes[16];  
+unsigned char* fileNames[16];
 
-extern const char* prodos_fname;
-extern void* prodos_dest;
-extern unsigned int prodos_len;
-
- unsigned char FileOpen(const char* fname)
+void DirList()
 {
-	*((char*)prodos_fname-1) = strlen(fname);
-    prodos_fname = fname;
-	prodos_open_file();	
-	return 1;
+	DIR *dir;
+	struct dirent *dp;
+	dir = opendir(".");
+	do {
+		dp = readdir(dir);
+		if (dp != NULL) {
+			fileNames[fileNum] = malloc(strlen(dp->d_name)+1);
+			strcpy(fileNames[fileNum], dp->d_name);
+			fileNum++;
+		}
+	} while (dp != NULL && fileNum<16);
+	closedir(dir);
 }
-
-void FileRead(void* buf, unsigned int len)
-{
-	prodos_dest = buf;
-  prodos_len  = len;
-  prodos_load_data();	
-} 
-*/

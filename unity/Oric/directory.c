@@ -29,30 +29,42 @@
  *   specific prior written permission.
  *
  */
+ 
+#include <string.h>
 
 // Externals: see libsedoric.s
-extern void __fastcall__ sed_loadfile(void);
-extern void __fastcall__ sed_savefile(void);
+extern void __fastcall__ sed_loadzp(void);
+extern void __fastcall__ sed_savezp(void);
 
-extern unsigned int sed_size;
-extern const char* sed_fname;
-extern void* sed_dest;
-extern void* sed_end;
-extern int sed_err;
+unsigned char  fileNum;     
+unsigned char* fileNames[16];
+unsigned int   fileSizes[16];  
+unsigned char  fileBuffer[240];
 
-int FileWrite(const char* fname, void* buf, int len) 
+// Using Sedoric for File Management
+void DirList()
 {
-    sed_fname = fname;
-    sed_dest = buf;
-    sed_end = (char*)sed_dest+len;
-    sed_savefile();  	
-    return sed_err;
-}
+	unsigned char j=0, k;
 
-int FileRead(const char* fname, void* buf)
-{
-    sed_fname = fname;
-    sed_dest = buf;
-    sed_loadfile();
-    return sed_size;
+	// Get raw file list from Sedoric buffer at $C310
+	sed_savezp();	  // Backup Zero Page
+	asm("jsr $04f2"); // Switch ON RAM/ROM overlay
+	asm("jsr $D451"); // Execute Sedoric DIR
+	memcpy(fileBuffer, 0xC310, 240);
+	asm("jsr $04f2"); // Switch OFF RAM/ROM overlay	
+	sed_loadzp();	  // Restore Zero Page
+	
+	// Reformat and link to list
+	fileNum = 0;
+	while (fileNum<15 && fileBuffer[j]) {
+		fileNames[fileNum] = &fileBuffer[j];
+		fileSizes[fileNum] = fileBuffer[j+14]*256;
+		k = j; while (fileBuffer[k] != ' ') k++;
+		fileBuffer[k++] = '.'; j += 9;
+		fileBuffer[k++] = fileBuffer[j++];
+		fileBuffer[k++] = fileBuffer[j++];
+		fileBuffer[k++] = fileBuffer[j];
+		fileBuffer[k] = 0;
+		j = (++fileNum)*16;
+	}
 }

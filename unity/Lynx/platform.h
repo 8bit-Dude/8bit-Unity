@@ -70,5 +70,5 @@
 extern unsigned char autoRefresh;
 
 // Reading files from ROM (see files.c)
-void FileList(void);
+void DirList(void);
 unsigned int FileRead(const char* filename);

@@ -61,11 +61,21 @@ void InitBitmap()
 	asm("sta $c057"); // TURN ON HI-RES           
 	asm("sta $c001"); // TURN ON 80 STORE
 #elif defined __ATARI__
+	// Switch OFF ANTIC
+	POKE(559, 2);
+
+	// Move Cursor outside of DLIST
+	POKEW(0x5E, 0x09ff);	
+
+	// Setup DLIST
+	SetupBitmapDLIST();
+		
 	// Set default palette
 	POKE(PALETTERAM+0, 0x00);
 	POKE(PALETTERAM+1, 0x24);
 	POKE(PALETTERAM+2, 0x86);
-	POKE(PALETTERAM+3, 0xd8);
+	POKE(PALETTERAM+3, 0xd8);		
+	
 #elif defined __ORIC__
 	// Switch to Hires mode
 	if PEEK((char*)0xC800) {
@@ -74,11 +84,13 @@ void InitBitmap()
 		asm("jsr $E9BB");	// Oric-1 (ROM 1.0)
 	}
 	memset((char*)0xBF68, 0, 120);	// Clear text area
+	
 #elif defined __CBM__
 	// Backup VIC config
 	vicconf[0] = PEEK(53272);
 	vicconf[1] = PEEK(53265);
 	vicconf[2] = PEEK(53270);
+	
 #elif defined __LYNX__
 	// Did we already initialize?
 	unsigned char i;
@@ -112,22 +124,15 @@ void EnterBitmapMode()
 	POKE(0xD018, SCREENLOC*16 + BITMAPLOC);	// 53272: address of screen and bitmap RAM
 	POKE(0xD011, PEEK(0xD011) | 32);		// 53265: set bitmap mode
 	POKE(0xD016, PEEK(0xD016) | 16);		// 53270: set multicolor mode
-#elif defined __ATARI__
-	// Setup DLIST	
-	SetupBitmapDLIST();
-
-	// Assign palette
-	POKE(0x02c8, PEEK(PALETTERAM+0));
-	POKE(0x02c4, PEEK(PALETTERAM+1));
-	POKE(0x02c5, PEEK(PALETTERAM+2));
-	POKE(0x02c6, PEEK(PALETTERAM+3));	
 	
-	// Setup ANTIC: DMA Screen + Enable P/M + DMA Players + DMA Missiles + Single resolution
+#elif defined __ATARI__
+	// Switch ON ANTIC: DMA Screen + Enable P/M + DMA Players + DMA Missiles + Single resolution
 	POKE(559, 32+16+8+4+2);
   #if defined __ATARIXL__
 	// Setup frame flicker DLI (only on XL, which has enough RAM for 2 frames)
 	frameFlicker = 1; SetupFlickerDLI();	
   #endif
+  
 #elif defined __APPLE2__
 	// Switch ON Double Hi-Res Mode
 	asm("sta $c00d"); // TURN ON 80 COLUMN MODE	  
@@ -147,8 +152,7 @@ void ExitBitmapMode()
 	SwitchBank(0);
 	
 #elif defined __ATARI__
-    // Switch OFF frame flicker and antic
-	frameFlicker = 0;
+    // Switch OFF ANTIC
 	POKE(559, 2);
 	
 #elif defined __APPLE2__
@@ -168,20 +172,24 @@ void ClearBitmap()
     bzero((char *)BITMAPRAM, 8192);
 	*dhrmain = 0;
     bzero((char *)BITMAPRAM, 8192);
+	
 #elif defined __ATARI__
+	// clear both frames
 	bzero((char*)BITMAPRAM1, 8000);
 	bzero((char*)BITMAPRAM2, 8000);
+	
 #elif defined __ORIC__
 	// reset pixels and set AIC Paper/Ink
 	unsigned char y;
 	memset((char*)BITMAPRAM, 64, 8000);	
-    for (y=0; y<200; y++) {
+    for (y=0; y<200; y++)
 		POKE((char*)BITMAPRAM+y*40, (y%2) ? 6 : 3);
-	}	
+
 #elif defined __CBM__
 	bzero((char*)BITMAPRAM, 8000);
 	bzero((char*)SCREENRAM, 1000);
 	bzero((char*)COLORRAM,  1000);
+	
 #elif defined __LYNX__
 	unsigned int i;
 	memset(BITMAPRAM, 0xff, 8364); 
@@ -209,8 +217,12 @@ void LoadBitmap(char *filename)
 		*dhrmain = 0; FileRead((char*)BITMAPRAM, 8192); // Read 8192 bytes to MAIN
 	} */
 #elif defined __ATARI__
-	if (FileOpen(filename)) {
+	if (FileOpen(filename)) {		
 		FileRead((char*)PALETTERAM, 4);		// 4 bytes for palette
+		POKE(0x02c8, PEEK(PALETTERAM+0));
+		POKE(0x02c4, PEEK(PALETTERAM+1));
+		POKE(0x02c5, PEEK(PALETTERAM+2));
+		POKE(0x02c6, PEEK(PALETTERAM+3));	
 		FileRead((char*)BITMAPRAM1, 8000);	// 8000 bytes for frame 1
 		FileRead((char*)BITMAPRAM2, 8000);	// 8000 bytes for frame 2
 	}

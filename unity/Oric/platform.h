@@ -92,6 +92,6 @@
 #define TCK_PER_SEC	CLK_TCK
 
 // Using Sedoric for File Management
-void FileList(void);
+void DirList(void);
 int FileRead(const char* fname, void* buf);
 int FileWrite(const char* fname, void* buf, int len);

@@ -94,6 +94,6 @@ unsigned sleep(unsigned seconds);
 extern clock_t clk;	
 
 // Using ProDos for File Management (see files.c)
-void FileList(void);
+void DirList(void);
 /* unsigned char FileOpen(const char* fname);
 void FileRead(void* buf, unsigned int len); */

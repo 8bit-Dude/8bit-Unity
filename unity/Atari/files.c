@@ -30,24 +30,11 @@
  *
  */
 
-#include <peekpoke.h>
-#include <stdlib.h>
-
 #ifdef __ATARIXL__
   #pragma code-name("SHADOW_RAM")
 #endif
 
-#define XBIOS_BUFFER 0x0400
-
-// Variables containing file list
-unsigned char  fileNum;     
-unsigned char* fileNames[24];
-unsigned int   fileSizes[24];
-unsigned char* fileBuffer;     
-
 // Externals: see xbios.s
-extern void __fastcall__ xbios_list_dir(void);
-extern unsigned char __fastcall__ xbios_get_entry(void);
 extern unsigned char __fastcall__ xbios_open_file(void);
 extern void __fastcall__ xbios_load_data(void);
 
@@ -56,38 +43,6 @@ extern void* xbios_dest;
 extern unsigned int xbios_len;
 
 // Using XBIOS for File Management
-void FileList(void)
-{
-	unsigned char i, j=0, k;
-
-	// Assign memory to file buffer (24*13 bytes)
-	fileBuffer = malloc(312);
-	
-	// Get file list
-	xbios_list_dir();
-	
-	// Go through xbios buffer
-	i = xbios_get_entry();
-	while (fileNum<24 && PEEK(XBIOS_BUFFER+i)) {
-		fileNames[fileNum] = &fileBuffer[j];
-		fileSizes[fileNum] = PEEKW(XBIOS_BUFFER-4+i) * 256;
-		k = 0;
-		while (k<8) {
-			if (PEEK(XBIOS_BUFFER+i+k) != 0x20)
-				fileBuffer[j++] = PEEK(XBIOS_BUFFER+i+k);
-			k++;
-		}
-		fileBuffer[j++] = '.';
-		while (k<11) {
-			fileBuffer[j++] = PEEK(XBIOS_BUFFER+i+k);
-			k++;
-		}
-		fileBuffer[j++] = 0;
-		i = xbios_get_entry();
-		fileNum++;
-	}
-}
-
 unsigned char FileOpen(const char* fname)
 {
 	// Convert filename to xbios format (FILENAMEEXT)

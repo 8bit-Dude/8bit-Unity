@@ -87,4 +87,4 @@ extern void __fastcall__ rom_enable(void);
 extern void __fastcall__ rom_disable(void);
 
 // File Management
-void FileList(void);
+void DirList(void);
