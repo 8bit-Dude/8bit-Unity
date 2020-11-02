@@ -338,11 +338,11 @@ void ProcessControls(Grub *grub, Proj *proj)
 			
 			// Move projectile around Grub
 			if (grub->keyFrame == KEYFRAME_MLEFT) { 
-				proj->x = grub->x+(5*cc65_cos(grub->wAng))/128;
+				proj->x = grub->x+(5*_cos(grub->wAng))/128;
 			} else { 
-				proj->x = grub->x-(5*cc65_cos(grub->wAng))/128; 
+				proj->x = grub->x-(5*_cos(grub->wAng))/128; 
 			}
-			proj->y = grub->y + (5*cc65_sin(grub->wAng))/128 + 2;
+			proj->y = grub->y + (5*_sin(grub->wAng))/128 + 2;
 		}
 	} else {
 		// Release projectile?
@@ -350,11 +350,11 @@ void ProcessControls(Grub *grub, Proj *proj)
 			grub->state &= ~STATE_LOAD;
 			proj->state = PROJ_MOVE;
 			if (grub->keyFrame == KEYFRAME_MLEFT) { 
-				proj->xVel =  (4*cc65_cos(grub->wAng))/128;
+				proj->xVel =  (4*_cos(grub->wAng))/128;
 			} else { 
-				proj->xVel = -(4*cc65_cos(grub->wAng))/128; 
+				proj->xVel = -(4*_cos(grub->wAng))/128; 
 			}
-			proj->yVel = (4*cc65_sin(grub->wAng))/128;
+			proj->yVel = (4*_sin(grub->wAng))/128;
 			BleepSFX(0);
 		}
 		
@@ -582,10 +582,13 @@ int main(void)
     bordercolor(COLOR_BLACK);
     bgcolor(COLOR_BLACK);
 
-	// Initialize sfx, bitmap, sprites
-	InitBitmap();
-	InitSprites(spriteFrames, spriteCols, spriteRows, spriteColors);	
+	// Initialize sfx/bitmap
 	InitSFX();
+	InitBitmap();
+	
+	// Setup sprites
+	LoadSprites("sprites.dat");
+	SetupSprites(spriteFrames, spriteCols, spriteRows, spriteColors);	
 	
 	// Show splash screen
 	SplashScreen();
