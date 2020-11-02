@@ -25,7 +25,7 @@
 ;
 
 	.include "atari.inc"
-	
+		
 	.export _PlayMusic
 	.export _StopMusic
 	.export _SetupSFX
@@ -33,11 +33,12 @@
 	.export _sampleFreq
 	.export _sampleCtrl
 
+	.import _musicAddr
+
 RMTPlayer = $6A00
 
 	.segment	"DATA"	
 
-_tmp: .res 1
 _sampleCount: .res 1
 _sampleFreq:  .res 1
 _sampleCtrl:  .res 1
@@ -45,20 +46,19 @@ _sampleCtrl:  .res 1
 	.segment	"CODE"	
 	
 ; ---------------------------------------------------------------
-; void __near__ _PlayMusic (unsigned int address)
+; void __near__ _PlayMusic (void)
 ; void __near__ _StopMusic (void)
 ; void __near__ _SetupSFX (void)
 ; ---------------------------------------------------------------	
 		
 .proc _PlayMusic: near
-	; Shuffling registers
-	sta _tmp
-	txa
-	tay					; hi byte of RMT module to Y reg
-	ldx _tmp			; low byte of RMT module to X reg
+	; Setup track address
+	ldx _musicAddr+0	; low byte of RMT module to X reg
+	ldy _musicAddr+1    ; hi byte of RMT module to Y reg
 	lda #0				; starting song line 0-255 to A reg
 	jsr RMTPlayer		; Init: returns instrument speed (1..4 => from 1/screen to 4/screen)
 
+	; Setup vertical blank interrupt
     lda #$07       	; deferred
 	ldx #(>RMTVBI)	; install RMT VBI routine
 	ldy #(<RMTVBI)

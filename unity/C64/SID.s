@@ -36,8 +36,7 @@ _sidInitAddr: .byte $09,03
 _sidPlayAddr: .byte $08,06		
 
 ; ---------------------------------------------------------------
-; void __near__ _PlayMusic (unsigned int address)
-; void __near__ _StopMusic (void)
+; void __near__ _PlayMusic (void)
 ; ---------------------------------------------------------------
 
 .proc _PlayMusic: near
@@ -82,6 +81,10 @@ initSID:
 skipSID:		
         rts
 .endproc        
+
+; ---------------------------------------------------------------
+; void __near__ _StopMusic (void)
+; ---------------------------------------------------------------
 
 .proc _StopMusic: near
 		; restore IRQ vector to kernel interrupt routine

@@ -79,10 +79,12 @@ unsigned char GetDHRColor(void);
 // Output for SFX/Music (see DUET.s, MOCKING.s)
 extern unsigned char hasMocking;	
 void DetectMocking(void);
-void StopMocking(void);
 void SFXMocking(unsigned int address);
 void PlayMocking(unsigned int address);		
 void PlaySpeaker(unsigned int address);
+void UpdateMocking(void);		
+void UpdateSpeaker(void);		
+void StopMocking(void);
 
 // Workaround for missing clock (see CLOCK.c)
 #define TCK_PER_SEC	59u

@@ -108,21 +108,22 @@
 
 void LoadSprites(unsigned char* filename)
 {
-#if defined(__APPLE2__) || defined(__CBM__)
+#if defined(__APPLE2__)
 	FILE* fp = fopen(filename, "rb");
 	fread((char*)(SPRITERAM), 1, 2, fp);
-  #if defined(__APPLE2__)
-	fread((char*)(SPRITERAM), 1, 0x1400, fp);
-  #elif defined(__CBM__)
-	fread((char*)(SPRITERAM), 1, 0x0900, fp);  
-  #endif
+	fread((char*)(SPRITERAM), 1, -1, fp);
 	fclose(fp);
 
 #elif defined __ATARI__	
 	if (FileOpen(filename)) {
 		FileRead((char*)(SPRITERAM), 6);
-		FileRead((char*)(SPRITERAM), 0x0400);
+		FileRead((char*)(SPRITERAM), -1);
 	}
+
+#elif defined(__CBM__)
+	// NEED SOLUTION: sprite sheets larger than $700
+	// can be loaded by exomizer, but not cc65!
+	// (file loading under ROM not possible)
 	
 #elif defined __ORIC__	
 	FileRead(filename, (void*)SPRITERAM);

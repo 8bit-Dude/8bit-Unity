@@ -162,9 +162,12 @@ unsigned char atan2(unsigned char y, unsigned char x);
 // C64:   SID track (see C64/SID.s)
 // Lynx:  Chipper   (see Lynx/CHIPPER.s)
 // Oric:  YM track  (see Oric/MYM.s)
-void LoadMusic(const char* filename);
-void PlayMusic(unsigned int address);
+void LoadMusic(const char* filename, char* addr);
+void PlayMusic(void);
 void StopMusic(void);
+#if defined __APPLE2__
+  void UpdateMusic(void);
+#endif
 
 // SFX functions (see sfx.c)
 void InitSFX(void);

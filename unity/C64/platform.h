@@ -41,10 +41,10 @@
 #define SPRITELOC  28
 #define MUSICRAM   (0x0801) 								 // 0800-17FF (SID sound track: ALSO EDIT SID.S WHEN CHANGING THIS VALUE!)
 #define SCREENRAM  (VIDEOBANK * 0x4000 + SCREENLOC * 0x0400) // C000-C3FF (char data)
-#define COLORRAM   (0xd800) 								 // D800-DBFF (color data; fixed location)
+#define COLORRAM   (0xd800) 								 // D800-DBFF (color data: *fixed location*)
 #define BITMAPRAM  (VIDEOBANK * 0x4000 + BITMAPLOC * 0x0400) // E000-FFFF (bitmap data)
-#define SPRITEPTR  (SCREENRAM + 0x03f8)						 // C3F8-???? (sprite control)
-#define SPRITERAM  (VIDEOBANK * 0x4000 + SPRITELOC * 0x0040) // C700-CFFF (sprites.prg loaded here)
+#define SPRITEPTR  (SCREENRAM + 0x03f8)						 // C3F8-???? (sprite control registers)
+#define SPRITERAM  (VIDEOBANK * 0x4000 + SPRITELOC * 0x0040) // C700-D800 (sprites.dat loaded here)
 
 // Character Mode
 #define CHR_COLS 40

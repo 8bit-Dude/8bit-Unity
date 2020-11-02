@@ -34,7 +34,7 @@
 PREAD = $FB1E   ; Read paddle in X, return AD conv. value in Y
 THRESHOLD = 32  ; Deviation from center triggering movement
 
-	.segment "CODE"	
+	.segment "CODE"				; DO NOT RELOCATE TO OTHER SEGMENTS!!! (app crashes)
 	
 ; ---------------------------------------------------------------
 ; void __near__ _InitJoy (void)

@@ -27,6 +27,7 @@
 ;
 
 	.export _PlaySpeaker
+	.export _UpdateSpeaker
 
 	.segment "LOWCODE"	
 		
@@ -34,20 +35,22 @@
 ; void __near__ _PlaySpeaker (unsigned int address)
 ; ---------------------------------------------------------------
 
-.proc _PlaySpeaker: near	
+_PlaySpeaker:
 		
-		; Check high byte: if not 0 set address, otherwise play music
-		CPX #$00
-		BEQ play
-
 		; Setup address (and back it up)
 		STA $1E
 		STA $AAFE
 		STX $1F
 		STX $AAFF
 		RTS
+
+; ---------------------------------------------------------------
+; void __near__ _UpdateSpeaker (void)
+; ---------------------------------------------------------------
+	
+_UpdateSpeaker:
 		
-; Electric Duet Player Setup
+		; Player Setup
 play:	LDA #$01        ; 2 *!*
 		STA $09         ; 3
 		STA $1D         ; 3
@@ -156,4 +159,3 @@ lbl25:	BVS lbl24       ; 4 *!*
 		NOP             ; 2
 		BVC lbl11       ; 4 *!*
 		RTS
-.endproc

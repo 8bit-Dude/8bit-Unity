@@ -34,69 +34,77 @@
   #pragma code-name("SHADOW_RAM")
 #endif	
 
-void LoadMusic(const char* filename)
+char* musicAddr;
+
+void LoadMusic(const char* filename, char* addr)
 {
 #if defined __ORIC__
 	// Load from File
-	FileRead(filename, (char*)MUSICRAM);
+	FileRead(filename, addr);
 #elif defined __LYNX__
 	// Load from CART file system
 	FileRead(filename);
 /* #elif defined __APPLE2__
 	if (FileOpen(filename)) {
 		// Consume 2 bytes of header then read data
-		FileRead((char*)MUSICRAM, 2);	
-		FileRead((char*)MUSICRAM, 8000);	
+		FileRead(addr, 2);	
+		FileRead(addr, -1);	
 	} */
 #elif defined __ATARI__
 	if (FileOpen(filename)) {
 		// Consume 6 bytes of header then read data
-		FileRead((char*)MUSICRAM, 6);	
-		FileRead((char*)MUSICRAM, 0x0700);	
+		FileRead(addr, 6);	
+		FileRead(addr, -1);	
 	}
 #else
-	FILE* fp;
-	unsigned int loadaddr;
-
 	// Try to open file
-	fp = fopen(filename, "rb");	
-	if (!fp) return;
-
-	// Get load address and read data
-	fread((char*)&loadaddr, 1, 2, fp);
-  #if defined __APPLE2__
-	fread((char*)loadaddr, 1, 0x0300, fp);
-  #elif defined __CBM__
-	fread((char*)loadaddr, 1, 0x1000, fp);  
-  #endif
+	unsigned int loadaddr;
+	FILE* fp = fopen(filename, "rb");	
+	if (fp) {
+		// Consume 2 bytes of header then read data
+		fread((char*)&loadaddr, 1, 2, fp);
+		fread((char*)loadaddr, 1, -1, fp);
+	}
 #endif
+	musicAddr = addr;
 }
 
 #ifndef __ATARI__	
 #ifndef __CBM__	
 #ifndef __ORIC__	
 
-void PlayMusic(unsigned int address) 
+void PlayMusic() 
 {
 #if defined __APPLE2__
 	// Wrapper functions (for speaker / mocking)
 	if (hasMocking == 255)
 		DetectMocking();
 	if (hasMocking) 
-		PlayMocking(address); 
+		PlayMocking(musicAddr); 
 	else 
-		PlaySpeaker(address);
+		PlaySpeaker(musicAddr);
 #elif defined __LYNX__	
 	unsigned char i = 0;
+	char* addr = musicAddr;
 	lynx_snd_pause();
 	while (i<4) {
-		if PEEKW(address) lynx_snd_play(i, PEEKW(address));
-		address += 2;
-		++i;
+		if PEEKW(addr) 
+			lynx_snd_play(i, PEEKW(addr));
+		addr += 2; i++;
 	}
 	lynx_snd_continue();
 #endif	
 }
+
+#if defined __APPLE2__
+void UpdateMusic() 
+{
+	if (hasMocking) 
+		UpdateMocking(); 
+	else 
+		UpdateSpeaker(); 
+}
+#endif	
 
 void StopMusic() 
 { 

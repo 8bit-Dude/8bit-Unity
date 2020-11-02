@@ -31,7 +31,7 @@
 	
 PREAD = $FB1E   ; Read paddle in X, return AD conv. value in Y
 
-	.segment	"CODE"	
+	.segment	"CODE"		; DO NOT RELOCATE TO OTHER SEGMENTS!!! (app crashes)
 
 ; ---------------------------------------------------------------
 ; unsigned char __near__ _GetPaddle (unsigned char)

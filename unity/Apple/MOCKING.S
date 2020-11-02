@@ -29,6 +29,7 @@
 
 	.export _DetectMocking
 	.export _PlayMocking
+	.export _UpdateMocking
 	.export _StopMocking
 	.export _SFXMocking
 	
@@ -122,7 +123,7 @@ mb4_not_in_this_slot:
 ; void __near__ _StopMocking ()
 ; ---------------------------------------------------------------
 
-.proc _StopMocking: near	
+_StopMocking:
 
 	LDA #$00
 	STA $C400
@@ -131,18 +132,12 @@ mb4_not_in_this_slot:
 	STA $C400
 	STA $C480
 	RTS
-  
-.endproc
 	
 ; ---------------------------------------------------------------
 ; void __near__ _PlayMocking (unsigned int address)
 ; ---------------------------------------------------------------
 
-.proc _PlayMocking: near	
-
-	; Check high byte: if not 0 set address, otherwise play music
-	CPX #$00
-	BEQ play
+_PlayMocking:
 
 	; Setup address (and back it up)
 	STA $1E
@@ -151,8 +146,14 @@ mb4_not_in_this_slot:
 	STX $AAFF
 	JSR RESET
 	RTS
+
+; ---------------------------------------------------------------
+; void __near__ _UpdateMocking (void)
+; ---------------------------------------------------------------
+	
+_UpdateMocking:
 		
-; Electric Duet Player Setup
+	; Player Setup
 play:     
 	JSR RESET
 	JSR ENACHN
@@ -289,7 +290,6 @@ ENACHN:
 	STA $C401
 	JSR WRDATA1
 	RTS  
-.endproc
 			
 ; ---------------------------------------------------------------
 ; void __near__ _SFXMocking (unsigned int address)
@@ -298,37 +298,36 @@ ENACHN:
 ;   X = Low  Address of registers
 ;   Y = High Address
 
-.proc _SFXMocking: near
-            STA _mock1_load_reg+1        ; *** SELF-MODIFIES!
-            STX _mock1_load_reg+2			
+_SFXMocking:
+	STA _mock1_load_reg+1        ; *** SELF-MODIFIES!
+	STX _mock1_load_reg+2			
 _mock1all_regs:
-            ldy #0
-            ldx #MOCK_REG_FIRST
+	ldy #0
+	ldx #MOCK_REG_FIRST
 _mock1_load_reg:
-            lda mockN_off_data,X    ; *** SELF-MODIFIED!
-            jsr MOCK1_PokeXA
-            inx
-            cpx #MOCK_REG_NUM       ; BUG: $B !
-            bcc _mock1_load_reg
-            rts
-.endproc
+	lda mockN_off_data,X    ; *** SELF-MODIFIED!
+	jsr MOCK1_PokeXA
+	inx
+	cpx #MOCK_REG_NUM       ; BUG: $B !
+	bcc _mock1_load_reg
+	rts
 
 ; === DATA ===
 mockN_off_data:
-            BRK                     ; Reg 0,1 Tone A
-            BRK
-            BRK                     ; Reg 2,3 Tone B
-            BRK
-            BRK                     ; Reg 4,5 Tone C
-            BRK
-            BRK                     ; Reg 6 Noise
-            BRK                     ; Reg 7 Enable
-            BRK                     ; Reg 8 Amp A
-            BRK                     ; Reg 9 Amp B
-            BRK                     ; Reg A Amp C
-            BRK                     ; Reg B Env Low
-            BRK                     ; Reg C Env Hi
-            BRK                     ; Reg D Env Type
+	BRK                     ; Reg 0,1 Tone A
+	BRK
+	BRK                     ; Reg 2,3 Tone B
+	BRK
+	BRK                     ; Reg 4,5 Tone C
+	BRK
+	BRK                     ; Reg 6 Noise
+	BRK                     ; Reg 7 Enable
+	BRK                     ; Reg 8 Amp A
+	BRK                     ; Reg 9 Amp B
+	BRK                     ; Reg A Amp C
+	BRK                     ; Reg B Env Low
+	BRK                     ; Reg C Env Hi
+	BRK                     ; Reg D Env Type
 			
 ; ====================
 ; Plays one note
@@ -341,8 +340,8 @@ mockN_off_data:
 ;   Y = trash
 ; ====================
 MOCK1_PokeXA:
-            TAY
-            ; NOTE: Intentional fall-into!
+	TAY
+	; NOTE: Intentional fall-into!
 
 ; ====================
 ; Poke (set) byte to Mockingboard
@@ -355,17 +354,17 @@ MOCK1_PokeXA:
 ;   Y = unchanged
 ; ====================
 MOCK1_PokeXY:
-            stx MOCK1_OR_A
-            jsr MOCK1_SetReg
-            sty MOCK1_OR_A
-			jmp MOCK1_SetData
-MOCK1_SetReg:                       ;         |
-            lda #_6522_LATCH        ;-->+     |
-            .byte $2C               ;   |     |
-MOCK1_SetData:                      ;   |     |
-            lda #_6522_WRITE        ;   |     |
-            sta MOCK1_OR_B          ;<--+  <--+
-            lda #_6522_PORT_B
-            sta MOCK1_OR_B
-            rts
+	stx MOCK1_OR_A
+	jsr MOCK1_SetReg
+	sty MOCK1_OR_A
+	jmp MOCK1_SetData
+MOCK1_SetReg:               ;         |
+	lda #_6522_LATCH        ;-->+     |
+	.byte $2C               ;   |     |
+MOCK1_SetData:              ;   |     |
+	lda #_6522_WRITE        ;   |     |
+	sta MOCK1_OR_B          ;<--+  <--+
+	lda #_6522_PORT_B
+	sta MOCK1_OR_B
+	rts
 			
