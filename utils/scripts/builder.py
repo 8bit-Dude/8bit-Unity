@@ -492,7 +492,7 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Build Unity Library
-            CList = ['bitmap.c', 'chunks.c', 'geom2d.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Apple\\CLOCK.c', 'Apple\\DHR.c', 'Apple\\files.c']
+            CList = ['bitmap.c', 'chunks.c', 'geom2d.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Apple\\CLOCK.c', 'Apple\\DHR.c', 'Apple\\directory.c', 'Apple\\files.c']
             SList = ['chars.s', 'math.s', 'Apple\\blit.s', 'Apple\\DUET.s', 'Apple\\joystick.s', 'Apple\\MOCKING.s', 'Apple\\PADDLE.s', 'Apple\\prodos.s']
                          
             for file in CList:
@@ -511,7 +511,7 @@ class Application:
             fp.write('\n')
             
             # Compilation
-            comp = 'utils\\cc65\\bin\\cl65 -o build/apple/' + diskname.lower() + '.bin -Cl -O -t apple2 -Wl -D,__STACKSIZE__=$0400,-D,__HIMEM__=$A800,-D,__LCADDR__=$D000,-D,__LCSIZE__=$1000 -C apple2-hgr.cfg -I unity '
+            comp = 'utils\\cc65\\bin\\cl65 -o build/apple/' + diskname.lower() + '.bin -m build/' + diskname.lower() + '-apple.map -Cl -O -t apple2 -Wl -D,__STACKSIZE__=$0400,-D,__HIMEM__=$A800,-D,__LCADDR__=$D000,-D,__LCSIZE__=$1000 -C apple2-hgr.cfg -I unity '
             for item in code:
                 comp += item + ' '
             fp.write(comp + 'build/apple/unity.lib unity/IP65/ip65_tcp.lib unity/IP65/ip65_apple2.lib\n\n')
@@ -581,8 +581,8 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Build Unity Library
-            CList = ['bitmap.c', 'chunks.c', 'geom2d.c', 'joystick.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Atari\\files.c']
-            SList = ['chars.s', 'math.s', 'Atari\\DLI.s', 'Atari\\xbios.s']
+            CList = ['bitmap.c', 'chunks.c', 'geom2d.c', 'joystick.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Atari\\directory.c', 'Atari\\files.c']
+            SList = ['chars.s', 'math.s', 'Atari\\DLI.s', 'Atari\\ROM.s', 'Atari\\xbios.s']
                          
             for file in CList:
                 fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atarixl -I unity unity\\' + file + '\n')
@@ -604,7 +604,7 @@ class Application:
                 symbols = '-Wl -D,__STACKSIZE__=$0400,-D,__CHARGENSIZE__=$0000 '
             else:
                 symbols = '-Wl -D,__STACKSIZE__=$0400 '
-            comp = 'utils\\cc65\\bin\\cl65 -o build/atari/' + diskname.lower() + '.bin -Cl -O -t atarixl ' + symbols + '-C atarixl-largehimem.cfg -I unity '
+            comp = 'utils\\cc65\\bin\\cl65 -o build/atari/' + diskname.lower() + '.bin -m build/' + diskname.lower() + '-atari.map -Cl -O -t atarixl ' + symbols + '-C atarixl-largehimem.cfg -I unity '
             for item in code:
                 comp += (item + ' ')
             fp.write(comp + 'unity/Atari/POKEY.s build/atari/unity.lib unity/IP65/ip65_tcp.lib unity/IP65/ip65_atarixl.lib\n')
@@ -681,7 +681,7 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Build Unity Library
-            CList = ['bitmap.c', 'chunks.c', 'geom2d.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'sfx.c', 'sprites.c', 'widgets.c', 'C64\\files.c']
+            CList = ['bitmap.c', 'chunks.c', 'geom2d.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'sfx.c', 'sprites.c', 'widgets.c', 'C64\\directory.c']
             SList = ['chars.s', 'math.s', 'C64\\joystick.s', 'C64\\ROM.s', 'C64\\SID.s']
                          
             for file in CList:
@@ -700,13 +700,16 @@ class Application:
             fp.write('\n')
             
             # Compilation                        
-            comp = 'utils\\cc65\\bin\\cl65 -o build/c64/' + diskname.lower() + '.bin -Cl -O -t c64 -C unity/C64/c64.cfg -I unity '
+            comp = 'utils\\cc65\\bin\\cl65 -o build/c64/' + diskname.lower() + '.bin -m build/' + diskname.lower() + '-c64.map -Cl -O -t c64 -C unity/C64/c64.cfg -I unity '
             for item in code:
                 comp += (item + ' ')
             fp.write(comp + 'build/c64/unity.lib unity/IP65/ip65_tcp.lib unity/IP65/ip65_c64.lib\n\n')
             
             # Compression
-            fp.write('utils\\scripts\\exomizer.exe sfx $180d build/c64/' + diskname.lower() + '.bin -o build/c64/loader.prg\n')
+            if len(sprites) > 0:
+                fp.write('utils\\scripts\\exomizer-3.0.2.exe sfx $180d build/c64/' + diskname.lower() + '.bin build/c64/sprites.dat -o build/c64/loader.prg\n')          
+            else:
+                fp.write('utils\\scripts\\exomizer-3.0.2.exe sfx $180d build/c64/' + diskname.lower() + '.bin -o build/c64/loader.prg\n')
 
             # Info
             fp.write('\necho DONE!\n\n')
@@ -715,8 +718,6 @@ class Application:
             # Disk builder
             fp.write('set C1541=utils\\scripts\\c64\\c1541 -format loader,666 d64 build/' + diskname + '-c64.d64 -attach build/' + diskname + '-c64.d64 ')
             fp.write('-write build/c64/loader.prg loader.prg ')
-            if len(sprites) > 0:
-                fp.write('-write build/c64/sprites.dat sprites.dat ')                
             for item in bitmaps:
                 fb = FileBase(item, '-c64.png')
                 fp.write('-write build/c64/' + fb + '.img ' + fb + '.img ')                
@@ -957,7 +958,7 @@ class Application:
             fp.write('\n')
             
             # Compilation 
-            comp = 'utils\\cc65\\bin\\cl65 -o build/' + diskname.lower() + '-lynx.lnx -Cl -O -t lynx -C build/lynx/lynx.cfg -I unity '
+            comp = 'utils\\cc65\\bin\\cl65 -o build/' + diskname.lower() + '-lynx.lnx -m build/' + diskname.lower() + '-lynx.map -Cl -O -t lynx -C build/lynx/lynx.cfg -I unity '
             for item in code:
                 comp += (item + ' ')
             for i in range(len(music)):
@@ -969,7 +970,7 @@ class Application:
             fp.write('pause\n\n')
             
             # Start emulator?
-            fp.write('cd "utils\emulators\Handy-0.99"\n')
+            fp.write('cd "utils\emulators\Handy-0.98-Hub"\n')
             fp.write('handy.exe "..\\..\\..\\build\\' + diskname + '-lynx.lnx"\n')
 
 
@@ -1017,7 +1018,7 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Build Unity Library
-            CList = ['bitmap.c', 'chunks.c', 'geom2d.c', 'hub.c', 'joystick.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Oric\\files.c']
+            CList = ['bitmap.c', 'chunks.c', 'geom2d.c', 'hub.c', 'joystick.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Oric\\directory.c', 'Oric\\files.c']
             SList = ['chars.s', 'math.s', 'Oric\\blit.s', 'Oric\\paseIJK.s', 'Oric\\keyboard.s', 'Oric\\sedoric.s', 'Oric\\MYM.s']
                          
             for file in CList:
@@ -1036,13 +1037,16 @@ class Application:
             fp.write('\n')
             
             # Compilation 
-            comp = 'utils\\cc65\\bin\\cl65 -o build/oric/' + diskname.lower() + '.bin -Cl -O -t atmos -C unity/Oric/oric.cfg -I unity '
+            comp = 'utils\\cc65\\bin\\cl65 -o build/oric/' + diskname.lower() + '.bin -m build/' + diskname.lower() + '-oric.map -Cl -O -t atmos -C unity/Oric/oric.cfg -I unity '
             for item in code:
                 comp += (item + ' ')
             fp.write(comp + 'build/oric/unity.lib\n\n')
 
             # Fix header
-            fp.write('utils\\scripts\\oric\\header.exe build/oric/' + diskname.lower() + '.bin build/oric/launch.com $0501\n\n')
+            fp.write('utils\\scripts\\oric\\header.exe build/oric/' + diskname.lower() + '.bin build/oric/' + diskname.lower() + '.com $0501\n\n')
+            
+            # Compression
+            fp.write('utils\\scripts\\exomizer-3.0.2.exe sfx bin build/oric/' + diskname.lower() + '.com -o build/oric/launch.com\n\n')            
             
             # Info
             fp.write('\necho DONE!\n\n')
