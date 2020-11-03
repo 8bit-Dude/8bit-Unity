@@ -83,9 +83,9 @@ void LoadNavigation(char *filename)
 		memcpy(&ways[i].v[0][0], &buffer[n], 8); n += 8;
 	#ifdef DEBUG_NAV
 		// Display waypoints (debugging)
-		SetColor(ways[i].x/8u, ways[i].y/8u, BLACK);
-        SetColor(ways[i].x/8u+ways[i].v[0][0], ways[i].y/8u+ways[i].v[0][1], BLACK); 
-        SetColor(ways[i].x/8u+ways[i].v[1][0], ways[i].y/8u+ways[i].v[1][1], BLACK);         
+		LocatePixel(ways[i].x/8u, ways[i].y/8u); SetPixel(BLACK);
+        LocatePixel(ways[i].x/8u+ways[i].v[0][0], ways[i].y/8u+ways[i].v[0][1]); SetPixel(BLACK); 
+        LocatePixel(ways[i].x/8u+ways[i].v[1][0], ways[i].y/8u+ways[i].v[1][1]); SetPixel(BLACK);         
 	#endif		
 	}	
 	
@@ -98,8 +98,7 @@ void LoadNavigation(char *filename)
 	}    
 #else	
 	// Try to open file
-	FILE* fp;
-	fp = fopen(filename, "rb");
+	FILE* fp = fopen(filename, "rb");
 	
 	// Read Lineup
 	n = fgetc(fp);
@@ -119,10 +118,10 @@ void LoadNavigation(char *filename)
 		fread(&ways[i].v[0][0], 2, 4, fp);
 	#ifdef DEBUG_NAV
 		// Display waypoints (debugging)
-		SetColor(ways[i].x/8u, ways[i].y/8u, BLACK);
-        SetColor(ways[i].x/8u+ways[i].v[0][0], ways[i].y/8u+ways[i].v[0][1], BLACK); 
-        SetColor(ways[i].x/8u+ways[i].v[1][0], ways[i].y/8u+ways[i].v[1][1], BLACK);         
-	#endif
+		LocatePixel(ways[i].x/8u, ways[i].y/8u); SetPixel(BLACK);
+        LocatePixel(ways[i].x/8u+ways[i].v[0][0], ways[i].y/8u+ways[i].v[0][1]); SetPixel(BLACK); 
+        LocatePixel(ways[i].x/8u+ways[i].v[1][0], ways[i].y/8u+ways[i].v[1][1]); SetPixel(BLACK);         
+	#endif	
 	}
     
 	// Read Jump Ramps
@@ -167,7 +166,7 @@ int GetWaypointAngle(Vehicle *car)
 	iVec = car->way%2;
 	dx = 128 + (way->x + 8*way->v[iVec][0] - car->x2) / 16u;
 	dy = 128 - (way->y + 8*way->v[iVec][1] - car->y2) / 16u;
-	return (45*(int)atan2(dy,dx))/32u;
+	return (45*(unsigned int)atan2(dy,dx))/32u;
 }
 
 char CheckWaypoint(Vehicle *car)
@@ -177,10 +176,10 @@ char CheckWaypoint(Vehicle *car)
 	iVec = car->way%2;
 	
 	// Compute vectors with Waypoint centre
-	v1[0] = (car->x1 - way->x)/8u;
-	v1[1] = (car->y1 - way->y)/8u;
-	v2[0] = (car->x2 - way->x)/8u;
-	v2[1] = (car->y2 - way->y)/8u;				
+	v1[0] = (car->x1 - way->x)/8;
+	v1[1] = (car->y1 - way->y)/8;
+	v2[0] = (car->x2 - way->x)/8;
+	v2[1] = (car->y2 - way->y)/8;				
 		
 	// Check dot products against Waypoint vector
 	if ( (DOT(v1, way->v[iVec]) > 0) && (DOT(v2, way->v[iVec]) > 0) ) {

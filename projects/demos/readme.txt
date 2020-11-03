@@ -28,12 +28,12 @@
  contained in 8bit-Unity:
  
 	- Text display
-	- Bitmap display
-	- Sprite drawing and collisions
-	- Joystick reading
 	- Music playback
+	- Joystick reading
+	- Networking (UDP/TCP/URL)
+	- Bitmap display
+	- Sprite drawing
 	- SFX playback
-	- UDP networking (on Apple//, Atari and C64)
 	
-The UDP example talks to the 8bit-Unity server.
-To setup your own server, check out the files in /server
+The TCP/UDP example talks to the 8bit-Unity server.
+To setup your own server, check out the files in /[python]

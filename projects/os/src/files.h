@@ -110,7 +110,12 @@ void PreviewText(void)
 	unsigned int addr, end;
 	
 	// Read text file
-#if (defined __ATARI__)
+#if (defined __APPLE2__)
+	// Try to open file
+	FILE* fp = fopen(currFile, "rb");
+	fread(textBuffer, 1, 256, fp);
+	fclose(fp);
+#elif (defined __ATARI__)
 	if (FileOpen(currFile))
 		FileRead(textBuffer, 256);
 #elif (defined __CBM__)

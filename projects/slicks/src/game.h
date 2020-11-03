@@ -351,7 +351,7 @@ int LerpAngle(int iAng1, int iAng2, int dAng)
 	}
 	if (deltaAngle > 90+dAng) {
 		deltaAngle = 90+dAng;
-		return iAng2 - iSign*90u;		
+		return iAng2 - iSign*90;		
 	}
 	if (deltaAngle > dAng) {
 		return iAng1 + iSign*dAng;
@@ -511,13 +511,12 @@ char GameLoop()
                         iVel += accRate*steps;
 
                         // Check navigation? (not every frames)
-                        if (gameFrame % MAX_PLAYERS == i) {						
+                        if (gameFrame % MAX_PLAYERS == i)					
                             // Get angle to next waypoint
                             car->ang3 = GetWaypointAngle(car);
-                        }
 						
 						// Lerp to navigation target
-						iAng2 = LerpAngle(iAng2, car->ang3, 2u*rotRate*steps);
+						iAng2 = LerpAngle(iAng2, car->ang3, 2*rotRate*steps);
                     }
                 }
 			#if (defined __APPLE2__) || (defined __ORIC__)		// Simplified physics on slower systems...
@@ -631,8 +630,8 @@ char GameLoop()
 								// Apply impulse to other car, and reduce own velocity
 								if ( (iCos*(cars[j].x2 - iX) - iSin*(cars[j].y2 - iY)) > 0) {
 									if (iVel > velMin) { iVel = velMin; }
-									cars[j].impx = iCos/2u;
-									cars[j].impy = -iSin/2u;									
+									cars[j].impx = iCos/2;
+									cars[j].impy = -iSin/2;									
 									BumpSFX();
 								} 
 							}

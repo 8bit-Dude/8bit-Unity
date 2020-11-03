@@ -22,7 +22,8 @@ void PlayTrack(char *fname)
 #ifndef __APPLE2__	
 	musicPlaying = 1;
 #else
-	cgetc();
+	if (kbhit())
+		cgetc();
 	while (!kbhit())
 		UpdateMusic();
 	cgetc();
@@ -93,7 +94,7 @@ void MusicCallback(callback* call)
 		if (call == musicCall[ICO_PREV])
 			dir = -1;
 		SelectFile(dir, musicExt, &musicSel);
-		PlayTrack(fileNames[musicSel]);
 		MusicTitle();
+		PlayTrack(fileNames[musicSel]);
 	}
 }
