@@ -30,6 +30,16 @@ void ChatPage()
 	SendTCP(chatRequest, 4);	
 }
 
+
+void ChatRefresh(void)
+{
+	unsigned int i;
+	paperColor = DESK_COLOR;
+	for (i=0; i<MSG_PER_PAGE; i++)
+		PrintBlanks(0, 5*i+2, CHR_COLS-1, 4);
+	ChatPage();
+}
+
 void ChatSend()
 {
 	// Make message length checks
@@ -48,7 +58,7 @@ void ChatSend()
 	chatRequest[1] = strlen(chatUser);
 	chatRequest[2] = strlen(chatPass);
 	chatRequest[3] = strlen(chatBuffer);
-	SendTCP(chatRequest, 24+strlen(chatBuffer));
+	SendTCP(chatRequest, 26+strlen(chatBuffer));
 	
 	// Clear previous message
 	paperColor = WHITE;
@@ -57,7 +67,7 @@ void ChatSend()
 	
 	// Refresh messages
 	scrollRange[0] = 0;
-	ChatPage();	
+	ChatRefresh();
 }
 
 void ChatLogin()
@@ -92,15 +102,6 @@ void ChatMessage(unsigned char index, unsigned char* packet)
 		PrintStr(CHR_COLS-29, line, buffer);
 		i += 28; line++;
 	}
-}
-
-void ChatScroll(void)
-{
-	unsigned int i;
-	paperColor = DESK_COLOR;
-	for (i=0; i<MSG_PER_PAGE; i++)
-		PrintBlanks(0, 5*i+2, CHR_COLS-1, 4);
-	ChatPage();
 }
 
 void ChatScreen(void)
@@ -227,7 +228,7 @@ void ChatCallback(callback* call)
 		}
 	} else {
 		if (call == callScroll) {
-			ChatScroll();
+			ChatRefresh();
 			return;
 		}
 		if (call == callSend) {
