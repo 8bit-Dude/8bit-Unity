@@ -63,18 +63,12 @@ void InitBitmap()
 #elif defined __ATARI__
 	// Switch OFF ANTIC
 	POKE(559, 2);
-
-	// Move Cursor outside of DLIST
-	POKEW(0x5E, 0x09ff);	
-
-	// Setup DLIST
-	SetupBitmapDLIST();
 		
 	// Set default palette
-	POKE(PALETTERAM+0, 0x00);
-	POKE(PALETTERAM+1, 0x24);
-	POKE(PALETTERAM+2, 0x86);
-	POKE(PALETTERAM+3, 0xd8);		
+	POKE(0x02c8, 0x00);
+	POKE(0x02c4, 0x24);
+	POKE(0x02c5, 0x86);
+	POKE(0x02c6, 0xd8);		
 	
 #elif defined __ORIC__
 	// Switch to Hires mode
@@ -126,13 +120,18 @@ void EnterBitmapMode()
 	POKE(0xD016, PEEK(0xD016) | 16);		// 53270: set multicolor mode
 	
 #elif defined __ATARI__
-	// Switch ON ANTIC: DMA Screen + Enable P/M + DMA Players + DMA Missiles + Single resolution
-	POKE(559, 32+16+8+4+2);
+	// Move Cursor outside of DLIST
+	POKEW(0x5E, 0x09ff);	
+
+	// Setup DLIST
+	SetupBitmapDLIST();	
   #if defined __ATARIXL__
 	// Setup frame flicker DLI (only on XL, which has enough RAM for 2 frames)
 	frameFlicker = 1; SetupFlickerDLI();	
   #endif
-  
+	// Switch ON ANTIC: DMA Screen + Enable P/M + DMA Players + DMA Missiles + Single resolution
+	POKE(559, 32+16+8+4+2);
+	
 #elif defined __APPLE2__
 	// Switch ON Double Hi-Res Mode
 	asm("sta $c00d"); // TURN ON 80 COLUMN MODE	  

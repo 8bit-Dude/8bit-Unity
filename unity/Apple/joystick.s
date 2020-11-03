@@ -26,8 +26,6 @@
 
 	.include  "apple2.inc"
 
-	.import	pusha	
-	
 	.export _InitJoy
 	.export _GetJoy	
 	

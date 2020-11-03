@@ -22,11 +22,25 @@
 ;   4. The names of this software and/or it's copyright holders may not be
 ;   used to endorse or promote products derived from this software without
 ;   specific prior written permission.
+; 
+;  by Johan Forslöf (doynax)
 ;
+;  Calculate the angle, in a 256-degree circle, between two points.
+;  The trick is to use logarithmic division to get the y/x ratio and
+;  integrate the power function into the atan table. Some branching is
+;  avoided by using a table to adjust for the octants.
+;  
  
 	.importzp	sp
 	.import		incsp2, pusha
 	.export		_atan2
+
+octant = $fb	; temporary zeropage variable
+
+.segment	"BSS"
+
+_g_x: .res 1
+_g_y: .res 1
 
 ; ---------------------------------------------------------------
 ; unsigned char __near__ atan2 (unsigned char, unsigned char)
@@ -34,17 +48,13 @@
 
 .segment	"CODE"
 
-.proc	_atan2: near
-	; Get arguments
-	jsr pusha
-	ldy #$00
-	lda (sp),y
+.proc _atan2: near
 	sta _g_x
-	iny
+	jsr pusha
+	ldy #$01
 	lda (sp),y
 	sta _g_y
 	
-	; Compute atan2
 	lda #$80
 	sbc _g_x
 	bcs *+4
@@ -73,15 +83,9 @@
 	; Return result
 	lda atan_tab,x
 	eor octant_adjust,y	
+	ldx #0
 	jmp incsp2
 .endproc
-
-
-.segment	"BSS"
-
-_g_x:	.res	1,$00
-_g_y:	.res	1,$00
-octant = $fb	; temporary zeropage variable
 
 .segment	"DATA"
 
@@ -166,4 +170,3 @@ log2_tab:
 	.byte $fb,$fb,$fb,$fc,$fc,$fc,$fc,$fc
 	.byte $fd,$fd,$fd,$fd,$fd,$fd,$fe,$fe
 	.byte $fe,$fe,$fe,$ff,$ff,$ff,$ff,$ff
-

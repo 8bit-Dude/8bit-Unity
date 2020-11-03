@@ -201,9 +201,9 @@ void SetPixel(unsigned char color)
 	unsigned char shift, mask, col1, col2;	
 
 	// Compute pixel location
-	offset = (pixelY*40u) + (pixelX/4u);
-	shift = 6 - 2u*(pixelX&3);
-	mask = ~(3u << shift);
+	offset = (pixelY*40) + (pixelX/4u);
+	shift = 6 - 2*(pixelX&3);
+	mask = ~(3 << shift);
 	if ((pixelY+pixelX)%2) {
 		col2 = (color&3) << shift;
 		col1 = (color>>2) << shift;

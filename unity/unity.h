@@ -148,7 +148,7 @@ unsigned char IntersectSegmentPolygon(signed int segX1, signed int segY1, signed
 									  unsigned char vN, signed int *vX, signed int *vY, signed int *intX, signed int *intY);								
 unsigned char PointInsidePolygon(signed int pX, signed int pY, unsigned char vN, signed int *vX, signed int *vY);
 
-// Math functions (see math.s)
+// Math functions
 #define MIN(a,b) (a>b ? b : a)
 #define MAX(a,b) (a>b ? a : b)
 #define ABS(a)   (a<0 ? -a : a)
