@@ -557,7 +557,7 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Build Unity Library
-            CList = ['bitmap.c', 'charmap.c', 'chunks.c', 'geom2d.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Apple\\CLOCK.c', 'Apple\\DHR.c', 'Apple\\directory.c', 'Apple\\files.c']
+            CList = ['bitmap.c', 'charmap.c', 'chunks.c', 'geom2d.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'scaling.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Apple\\CLOCK.c', 'Apple\\DHR.c', 'Apple\\directory.c', 'Apple\\files.c']
             SList = ['atan2.s', 'chars.s', 'Apple\\blit.s', 'Apple\\DUET.s', 'Apple\\joystick.s', 'Apple\\MOCKING.s', 'Apple\\PADDLE.s', 'Apple\\prodos.s']
                          
             for file in CList:
@@ -657,7 +657,7 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Build Unity Library
-            CList = ['bitmap.c', 'charmap.c', 'chunks.c', 'geom2d.c', 'joystick.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Atari\\directory.c', 'Atari\\files.c']
+            CList = ['bitmap.c', 'charmap.c', 'chunks.c', 'geom2d.c', 'joystick.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'scaling.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Atari\\directory.c', 'Atari\\files.c']
             SList = ['atan2.s', 'chars.s', 'Atari\\DLI.s', 'Atari\\ROM.s', 'Atari\\xbios.s']
                          
             for file in CList:
@@ -766,7 +766,7 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Build Unity Library
-            CList = ['bitmap.c', 'charmap.c', 'chunks.c', 'geom2d.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'sfx.c', 'sprites.c', 'widgets.c', 'C64\\directory.c', 'C64\\VIC2.c']
+            CList = ['bitmap.c', 'charmap.c', 'chunks.c', 'geom2d.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'scaling.c', 'sfx.c', 'sprites.c', 'widgets.c', 'C64\\directory.c', 'C64\\VIC2.c']
             SList = ['atan2.s', 'chars.s', 'C64\\joystick.s', 'C64\\ROM.s', 'C64\\SID.s']
                          
             for file in CList:
@@ -864,6 +864,7 @@ class Application:
                 fp.write('copy ..\\..\\' + charset[0].replace('/', '\\') + ' charset.png\n')
                 fp.write('..\\..\\utils\\scripts\\png2bmp charset.png\n')
                 fp.write('..\\..\\utils\\scripts\\lynx\\sprpck -t6 -p2 -u -r032008 -S004006 -a000000 charset.bmp\n')
+                fp.write('..\\..\\utils\\py27\python ..\\..\\utils\\scripts\\lynx\\LynxCharset.py ..\\..\\' + charset[0].replace('/', '\\') + ' charset.dat\n') 
                 fp.write('\n')
                 
             # Sprites
@@ -935,6 +936,7 @@ class Application:
             fp.write('@echo .global _fileNames >> data.asm\n')
             fp.write('@echo .global _charNum >> data.asm\n')
             fp.write('@echo .global _charData >> data.asm\n')
+            fp.write('@echo .global _charFlags >> data.asm\n')
             fp.write('@echo .global _spriteNum  >> data.asm\n')
             fp.write('@echo .global _spriteData >> data.asm\n')
             fp.write('@echo .global _cursorData >> data.asm\n')
@@ -1054,9 +1056,11 @@ class Application:
                     for c in range(32):
                         fp.write('@echo _chr' + str(i).zfill(3) + ': .incbin "charset' + str(r).zfill(3) + str(c).zfill(3) + '.spr" >> data.asm\n')
                         i = i+1
+                fp.write('@echo _charFlags: .incbin "charset.dat" >> data.asm\n')
             else:
                 fp.write('@echo _charNum: .byte 0 >> data.asm\n')
                 fp.write('@echo _charData: .byte 0 >> data.asm\n')
+                fp.write('@echo _charFlags: .byte 0 >> data.asm\n')
             fp.write('@echo ; >> data.asm\n')
             
             # Sprite Binary Data 
@@ -1094,7 +1098,7 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Build Unity Library
-            CList = ['bitmap.c', 'charmap.c', 'chunks.c', 'geom2d.c', 'hub.c', 'joystick.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Lynx\\display.c', 'Lynx\\files.c']
+            CList = ['bitmap.c', 'charmap.c', 'chunks.c', 'geom2d.c', 'hub.c', 'joystick.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'scaling.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Lynx\\display.c', 'Lynx\\files.c']
             SList = ['atan2.s', 'chars.s', 'Lynx\\header.s', 'Lynx\\serial.s', 'Lynx\\suzy.s']
                          
             for file in CList:
@@ -1174,7 +1178,7 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Build Unity Library
-            CList = ['bitmap.c', 'charmap.c', 'chunks.c', 'geom2d.c', 'hub.c', 'joystick.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Oric\\directory.c', 'Oric\\files.c']
+            CList = ['bitmap.c', 'charmap.c', 'chunks.c', 'geom2d.c', 'hub.c', 'joystick.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'scaling.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Oric\\directory.c', 'Oric\\files.c']
             SList = ['atan2.s', 'chars.s', 'Oric\\blit.s', 'Oric\\paseIJK.s', 'Oric\\keyboard.s', 'Oric\\sedoric.s', 'Oric\\MYM.s']
                          
             for file in CList:

@@ -24,7 +24,7 @@
  *   specific prior written permission.
 """
  
-import io, sys
+import io, os, sys, csv
 from PIL import Image
 
 input = sys.argv[1]
@@ -52,9 +52,20 @@ sprdata = [chr(0)] * (len(pixdata)/4)
 for i in range(0, len(pixdata), 4):
     sprdata[i/4] = chr((pixdata[i+0]<<6) + (pixdata[i+1]<<4) + (pixdata[i+2]<<2) + (pixdata[i+3]<<0))
 
+################################
+# Read character flags
+flagdata = [chr(0)] * 256
+with open(input.replace('-atari.png', '.csv')) as csvfile:
+    i = 0
+    rows = csv.reader(csvfile, delimiter=',')
+    for row in rows:
+        for elt in row:
+            flagdata[i] = chr(int(elt))
+            i += 1
 
 ###########################
 # Write output binary file
 f2 = io.open(output, 'wb')
 f2.write(''.join(sprdata))
+f2.write(''.join(flagdata))
 f2.close()

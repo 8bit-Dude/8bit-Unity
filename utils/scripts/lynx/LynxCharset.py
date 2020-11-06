@@ -25,37 +25,14 @@
 """
  
 import io, os, sys, csv
-from PIL import Image
 
 input = sys.argv[1]
 output = sys.argv[2]
 
-#################################
-# Read source bitmap and palette
-img1 = Image.open(input)
-rawdata = list(img1.getdata())
-colors = max(rawdata)
-print "Charmap size: {%i,%i}; Number of colors: %i" % (img1.size[0], img1.size[1], colors)
-
-###################################
-# Rearrange into 4 * 8 blocks
-pixdata = []
-for row in range(0, img1.size[1], 8):
-    for col in range(0, img1.size[0], 4):
-        for j in range(0, 8):
-            for i in range(0, 4):
-                pixdata.append(rawdata[(row+j)*img1.size[0]+col+i])
-
 ################################
-# Convert pixel data to charset 
-sprdata = [chr(0)] * (len(pixdata)/4)
-for i in range(0, len(pixdata), 4):
-    sprdata[i/4] = chr((pixdata[i+0]<<6) + (pixdata[i+1]<<4) + (pixdata[i+2]<<2) + (pixdata[i+3]<<0))
-
-################################
-# Read character flags
+# Convert character flags
 flagdata = [chr(0)] * 256
-with open(input.replace('-c64.png', '.csv')) as csvfile:
+with open(input.replace('-lynx.png', '.csv')) as csvfile:
     i = 0
     rows = csv.reader(csvfile, delimiter=',')
     for row in rows:
@@ -66,6 +43,5 @@ with open(input.replace('-c64.png', '.csv')) as csvfile:
 ###########################
 # Write output binary file
 f2 = io.open(output, 'wb')
-f2.write(''.join(sprdata))
 f2.write(''.join(flagdata))
 f2.close()
