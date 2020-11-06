@@ -79,6 +79,7 @@
 	}
 
 #elif defined __CBM__
+	unsigned int spritePtr = SPRITEPTR;
 	void DoubleHeightSprite(unsigned char index, unsigned char onoff) {
 		if (onoff)
 			POKE(0xD017, PEEK(0xD017) |  (1 << index));
@@ -93,6 +94,14 @@
 	}	
 
 #elif defined __LYNX__	
+	unsigned char defaultColors[] =  { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,   // Default palette
+									   0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,   
+									   0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,   
+									   0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,   
+									   0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,   
+									   0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,   
+									   0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,   
+									   0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef }; 
 	unsigned char sprX[SPRITE_NUM], sprY[SPRITE_NUM];	// Screen coordinates
 	unsigned char sprDrawn[SPRITE_NUM], sprCollision[SPRITE_NUM]; // Enable and Collision status
 	unsigned char sprCOLS, sprROWS;					    // Sprite dimensions
@@ -160,8 +169,11 @@ void SetupSprites(unsigned char frames, unsigned char cols, unsigned char rows, 
 	POKE(53277, 2+1);       // Tell GTIA to enable players + missile	
 	POKE(623, 32+16+1);		// Tricolor players + enable fifth player + priority  (shadow for 53275)	
 	
+	// ANTIC settings: Enable P/M + DMA Players + DMA Missiles + Standard Playfield
+	POKE(559, PEEK(559) | (16+8+4+2));
+	
 	// Setup flicker DLI for sprites
-	spriteFlicker = 1; SetupFlickerDLI();
+	spriteDLI = 1; StartDLI();
 	
 #elif defined __CBM__
 	// Set sprite colors
@@ -515,7 +527,7 @@ void SetSprite(unsigned char index, unsigned char frame)
 	
 #elif defined __CBM__
 	// Tell VIC where to find the frame
-	POKE(SPRITEPTR+index, SPRITELOC+frame);
+	POKE(spritePtr+index, SPRITELOC+frame);
 
 	// Set X/Y Coordinates
 	POKE(53249+2*index, spriteY+39);

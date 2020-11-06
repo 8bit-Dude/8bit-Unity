@@ -27,21 +27,29 @@
 #include "../unity.h"
 
 // See suzy.s
+unsigned char videoInit = 0;	 
+void __fastcall__ SuzyInit(void);
 void __fastcall__ SuzyDraw(void* data);
 void __fastcall__ SuzyUpdate(void);
 unsigned char __fastcall__ SuzyBusy(void);
 
 // Toggle for automatic screen refresh in LoadBitmap(), PrintStr(), PrintNum() or PrintBlanks()
 unsigned char autoRefresh = 1;
+unsigned char videoMode = 0;
 
-// See bitmap.c and sprites.c
+// See sprites.c
 extern SCB_REHV_PAL sprSCB[SPRITE_NUM];
 extern unsigned char sprDrawn[SPRITE_NUM];
 
 // GFX Data
-extern unsigned int cursorData, keybrdData;	 
+extern unsigned int charData[];	 
+extern unsigned int cursorData, keybrdData; 
+static int palette[] =    { 0x01ca, 0x03b4, 0x08c4, 0x0cc3, 0x0c53, 0x0822, 0x0552, 0x0527, 
+						    0x075e, 0x0e0f, 0x09af, 0x034d, 0x0248, 0x0fff, 0x0888, 0x0000 };	// Set RGB values of 16 color palette
 SCB_REHV_PAL bitmapSCB =  { BPP_4 | TYPE_BACKNONCOLL, REHV | LITERAL, 0, 0, (char*)BITMAPRAM, 0, 0, 
-						  0x0100, 0x0100, { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef } };
+						    0x0100, 0x0100, { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef } };
+SCB_REHV_PAL charmapSCB = { BPP_4 | TYPE_BACKNONCOLL, REHV | LITERAL, 0, 0, 0, 0, 0, 
+						    0x0100, 0x0100, { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef } };
 SCB_REHV_PAL cursorSCB =  { BPP_4 | TYPE_NONCOLL, REHV | LITERAL, 0, 0, (char*)&cursorData, 0, 0, 
 						    0x0100, 0x0100, { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef } };							
 SCB_REHV_PAL keybrdSCB =  { BPP_4 | TYPE_NONCOLL, REHV | LITERAL, 0, 0, (char*)&keybrdData, 0, 0, 
@@ -138,16 +146,58 @@ void UpdateKeyboardOverlay() {
 	}	
 }
 
+void InitDisplay(void)
+{
+	// Did we already initialize?
+	unsigned char i;
+	if (videoInit) { return; }
+	
+	// Install drivers (and set interrupts)
+	SuzyInit();
+	lynx_snd_init(); 	
+	__asm__("cli");	
+	
+	// Reset palette
+	for (i=0; i<16; i++) {
+		POKE(0xFDA0+i, palette[i] >> 8);
+		POKE(0xFDB0+i, palette[i] & 0xFF);
+	}	
+	
+	// Set flag
+	videoInit = 1;
+}
+
 // Update display routine
 void UpdateDisplay(void)
 {
 	unsigned char i, j;
+	unsigned int scr;
 
 	// Wait for previous drawing to complete
 	while (SuzyBusy()) {}
 	
-	// Send bitmap then sprites (in reverse order) to Suzy
-	SuzyDraw(&bitmapSCB);
+	// Draw background (bitmap or charmap)
+	switch (videoMode) {
+	case MODE_BITMAP:
+		SuzyDraw(&bitmapSCB);
+		break;
+	case MODE_CHARMAP:
+		scr = SCREENRAM;
+		charmapSCB.vpos = 0;
+		for (j=0; j<17; j++) {
+			charmapSCB.hpos = 0;
+			for (i=0; i<40; i++) {
+				charmapSCB.data = charData[PEEK(scr)];
+				SuzyDraw(&charmapSCB);
+				charmapSCB.hpos += 4;
+				scr++;
+			}
+			charmapSCB.vpos += 6;
+		}
+		break;
+	}
+
+	// Draw sprites (in reverse order)
 	for (j=0; j<SPRITE_NUM; j++) {
 		i = (SPRITE_NUM-1) - j;
 		if (sprDrawn[i]) SuzyDraw(&sprSCB[i]);

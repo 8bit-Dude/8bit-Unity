@@ -27,9 +27,14 @@
 #include <lynx.h>
 
 // Memory Map
-#define SHAREDRAM  (0x8F8B)
-#define MUSICRAM   (0x938B)
-#define BITMAPRAM  (0x9F8B)
+#define SHAREDRAM (0x8F8B)
+#define MUSICRAM  (0x938B)
+#define BITMAPRAM (0x9F8B)
+#define SCREENRAM (0xBD90)
+
+// Video Modes
+#define MODE_BITMAP  1
+#define MODE_CHARMAP 2
 
 // Character Mode
 #define CHR_COLS 40
@@ -66,8 +71,13 @@
 // Clock
 #define TCK_PER_SEC	60
 
-// Toggle for automatic screen refresh in LoadBitmap(), PrintStr(), PrintNum() or PrintBlanks()
-extern unsigned char autoRefresh;
+// Display management (see display.c)
+void InitDisplay(void);
+extern unsigned char videoMode;   // Bitmap or charmap mode
+extern unsigned char autoRefresh; // Toggle for automatic screen refresh after LoadBitmap(), PrintStr(), PrintNum(), PrintBlanks()
+
+// Default Sprite Colors;
+extern unsigned char defaultColors[];
 
 // Reading files from ROM (see files.c)
 void DirList(void);

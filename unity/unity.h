@@ -89,6 +89,17 @@ void GetChunk(unsigned char** chunk, unsigned char x, unsigned char y, unsigned 
 void SetChunk(unsigned char* chunk, unsigned char x, unsigned char y);
 void LoadChunk(unsigned char** chunk, char *filename);
 
+// Charmap functions (see charmap.c)
+void InitCharmap(void);
+void EnterCharmapMode(void);
+void ExitCharmapMode(void);
+void ClearCharmap(void);
+void LoadCharmap(char *filename);
+void ScrollCharmap(unsigned char x, unsigned char y);
+void PrintCharmap(unsigned char x, unsigned char y, unsigned char* str);
+extern unsigned char charmapWidth, charmapHeight;
+extern unsigned char scrollWidth, scrollHeight;
+
 // Lynx specific functions (see Lynx/display.c)
 #if defined __LYNX__
   void UpdateDisplay(void);

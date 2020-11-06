@@ -34,22 +34,8 @@
   #pragma code-name("SHADOW_RAM")
 #endif
 
-// Lynx specific variables & functions
-#ifdef __LYNX__   
-  unsigned char videoInit = 0;	 
-  static int palette[] =  { 0x01ca, 0x03b4, 0x08c4, 0x0cc3, 0x0c53, 0x0822, 0x0552, 0x0527, 
-							0x075e, 0x0e0f, 0x09af, 0x034d, 0x0248, 0x0fff, 0x0888, 0x0000 };
-  void __fastcall__ SuzyInit(void);
-#endif
-
-// C64 specific variables & functions
-#ifdef __CBM__
-  int vicconf[3];
+#if defined __CBM__  
   unsigned char bg = 0;
-  void SwitchBank(char bank) {
-	// notice that 0 selects vic bank 3, 1 selects vic bank 2, etc.
-	POKE(0xDD00, (PEEK(0xDD00) & 252 | (3 - bank))); // switch VIC base
-  }
 #endif
 
 // Initialize Bitmap Screen
@@ -60,6 +46,7 @@ void InitBitmap()
 	asm("sta $c052"); // TURN ON FULLSCREEN       
 	asm("sta $c057"); // TURN ON HI-RES           
 	asm("sta $c001"); // TURN ON 80 STORE
+	
 #elif defined __ATARI__
 	// Switch OFF ANTIC
 	POKE(559, 2);
@@ -79,30 +66,8 @@ void InitBitmap()
 	}
 	memset((char*)0xBF68, 0, 120);	// Clear text area
 	
-#elif defined __CBM__
-	// Backup VIC config
-	vicconf[0] = PEEK(53272);
-	vicconf[1] = PEEK(53265);
-	vicconf[2] = PEEK(53270);
-	
 #elif defined __LYNX__
-	// Did we already initialize?
-	unsigned char i;
-	if (videoInit) { return; }
-	
-	// Install drivers (and set interrupts)
-	SuzyInit();
-	lynx_snd_init(); 	
-	__asm__("cli");	
-	
-	// Reset palette
-	for (i=0; i<16; i++) {
-		POKE(0xFDA0+i, palette[i] >> 8);
-		POKE(0xFDB0+i, palette[i] & 0xFF);
-	}
-	
-	// Set flag
-	videoInit = 1;
+	InitDisplay();
 #endif	
 }
 
@@ -110,26 +75,23 @@ void InitBitmap()
 void EnterBitmapMode()
 {		
 #if defined __CBM__
-	// Set data direction flag and Switch bank
-	POKE(0xDD02, (PEEK(0xDD02) | 3));
-	SwitchBank(VIDEOBANK);
+	// Setup VIC2 (memory bank and multicolor mode)
+	SetupVIC2();
 
-	// Enter multicolor mode
-	POKE(0xD018, SCREENLOC*16 + BITMAPLOC);	// 53272: address of screen and bitmap RAM
-	POKE(0xD011, PEEK(0xD011) | 32);		// 53265: set bitmap mode
-	POKE(0xD016, PEEK(0xD016) | 16);		// 53270: set multicolor mode
+	// Set VIC2 to bitmap mode
+	POKE(0xD011, PEEK(0xD011) | 32);		
 	
 #elif defined __ATARI__
 	// Move Cursor outside of DLIST
 	POKEW(0x5E, 0x09ff);	
 
 	// Setup DLIST
-	SetupBitmapDLIST();	
+	BitmapDLIST();	
   #if defined __ATARIXL__
-	// Setup frame flicker DLI (only on XL, which has enough RAM for 2 frames)
-	frameFlicker = 1; SetupFlickerDLI();	
+	// Setup frame flicker DLI (only on XL)
+	bitmapDLI = 1; StartDLI();	
   #endif
-	// Switch ON ANTIC: DMA Screen + Enable P/M + DMA Players + DMA Missiles + Single resolution
+	// ANTIC: DMA Screen
 	POKE(559, 32+16+8+4+2);
 	
 #elif defined __APPLE2__
@@ -137,6 +99,9 @@ void EnterBitmapMode()
 	asm("sta $c00d"); // TURN ON 80 COLUMN MODE	  
     asm("sta $c050"); // TURN ON GRAPHICS         
     asm("sta $c05e"); // TURN ON DOUBLE HI-RES
+	
+#elif defined __LYNX__
+	videoMode = MODE_BITMAP;	
 #endif
 }
 
@@ -144,12 +109,9 @@ void EnterBitmapMode()
 void ExitBitmapMode()
 {
 #if defined __CBM__
-	// Return VIC and Bank back to previous state
-	POKE(53272, vicconf[0]);
-	POKE(53265, vicconf[1]);
-	POKE(53270, vicconf[2]);
-	SwitchBank(0);
-	
+	// Switch OFF multicolor mode
+	ResetVIC2();
+		
 #elif defined __ATARI__
     // Switch OFF ANTIC
 	POKE(559, 2);
@@ -227,8 +189,7 @@ void LoadBitmap(char *filename)
 	}
 #else
 	// Open Map File
-	FILE* fp;
-	fp = fopen(filename, "rb");	
+	FILE* fp = fopen(filename, "rb");	
   #if defined __CBM__
 	// Consume two bytes of header
 	fgetc(fp); fgetc(fp);

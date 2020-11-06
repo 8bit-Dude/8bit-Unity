@@ -24,13 +24,18 @@
 ;   specific prior written permission.
 ;
 
-	.export _SetupBitmapDLIST
-	.export _SetupFlickerDLI
+	.export _BitmapDLIST
+	.export _CharmapDLIST
+	.export _StartDLI
 	
-	.export _frameFlicker
+	.export _bitmapDLI
 	.export _frameBlending
+	
+	.export _charmapDLI
+	.export _charsetPage1
+	.export _charsetPage2
 
-	.export _spriteFlicker
+	.export _spriteDLI
 	.export _doubleHeight
 	.export _sprRows
 	.export _sprMask
@@ -47,12 +52,18 @@ nmien  = $d40e
 	
 	.segment	"DATA"	
 
-; Frame parameters
-_frameFlicker:  .byte 0
+; Bitmap parameters
+_bitmapDLI:     .byte 0
 _frameBlending: .byte 0
 
+; Bitmap paramerers
+_charmapDLI:    .byte 0
+_charsetPage1:  .byte 0
+_charsetPage2:  .byte 0
+_charsetToggle: .byte 0
+
 ; Sprite parameters
-_spriteFlicker: .byte 0
+_spriteDLI: .byte 0
 _doubleHeight:  .byte 0,0,0,0,0,0,0,0,0,0
 _sprRows:  		.byte 0
 _sprMask:  		.byte 0,0,0,0,0
@@ -73,11 +84,11 @@ regY: .byte 1
 	.segment	"CODE"
 
 ; ---------------------------------------------------------------
-; void __near__ _SetupBitmapDLIST (void)
+; void __near__ _BitmapDLIST (void)
 ; ---------------------------------------------------------------	
 
-.proc _SetupBitmapDLIST: near
-	lda #$4e
+.proc _BitmapDLIST: near
+	lda #$4e	; Header
 	sta $0923
 	lda #$10
 	sta $0924
@@ -105,9 +116,10 @@ loop2:
 	sta $098e,x
 	bne loop2
 
-	lda #$8e
+	lda #$8e	; DLI
 	sta $09ee
-	lda #$41
+	
+	lda #$41	; Footer
 	sta $09ef
 	lda #$20
 	sta $09f0
@@ -117,17 +129,54 @@ loop2:
 .endproc
 
 ; ---------------------------------------------------------------
-; void __near__ _SetupFlickerDLI (void)
+; void __near__ _CharmapDLIST (void)
 ; ---------------------------------------------------------------	
 
-.proc _SetupFlickerDLI: near
+.proc _CharmapDLIST: near
+	lda #$44	; Header
+	sta $0923
+	lda #$40
+	sta $0924
+	lda #$09
+	sta $0925
+	
+	lda #$04
+	ldx #22
+loop1:
+	dex
+	sta $0926,x
+	bne loop1
+
+	lda #$84	; DLI
+	sta $093b
+
+	lda #$04
+	sta $093c
+	
+	lda #$84	; DLI
+	sta $093d
+	
+	lda #$41	; Footer
+	sta $093e
+	lda #$20
+	sta $093f
+	lda #$09
+	sta $0940
+	rts
+.endproc
+
+; ---------------------------------------------------------------
+; void __near__ _StartDLI (void)
+; ---------------------------------------------------------------	
+
+.proc _StartDLI: near
 	; Copy address of DLI routine
 	sei
 	lda	#$c0	
 	sta nmien
-    lda #(<flickerDLI)
+    lda #(<DLI)
 	sta vdslst
-    lda #(>flickerDLI)
+    lda #(>DLI)
 	sta vdslst+1
 	cli	
 	rts
@@ -137,23 +186,35 @@ loop2:
 ; DLI routine
 ; ---------------------------------------------------------------
 
-flickerDLI:
+DLI:
 	; Backup registers
 	sta regA
 	stx regX
 	sty regY
 	
-	; Screen Flicker ON?
-	lda _frameFlicker
-	beq skipFrameFlicker
+	; Process Charset swap?
+	lda	_charmapDLI
+	beq skipCharmapDLI
+	jsr swapCharset
+	lda _charsetToggle
+	beq skipCharmapDLI  ; Exit early from first DLI
+	lda regA
+	ldx regX
+	ldy regY	
+	rti
+skipCharmapDLI:
+	
+	; Process bitmap flicker?
+	lda _bitmapDLI
+	beq skipBitmapDLI
 	jsr flickerFrames
-skipFrameFlicker:	
+skipBitmapDLI:
 
-	; Screen Flicker ON?
-	lda _spriteFlicker
-	beq skipSpriteFlicker
+	; Process sprite flicker?
+	lda _spriteDLI
+	beq skipSpriteDLI
 	jsr flickerSprites
-skipSpriteFlicker:	
+skipSpriteDLI:	
 
 	; Reset atract (screen saver timer)
 	lda #$00
@@ -164,9 +225,40 @@ skipSpriteFlicker:
 	ldx regX
 	ldy regY
 	rti
+
+; ---------------------------------------------------------------
+; Charset swap routine
+; ---------------------------------------------------------------
+	
+swapCharset:
+	lda _charsetToggle
+	eor #$1
+	sta _charsetToggle
+	bne charset2
+	
+charset1:
+	; This DLI runs just before the VBI!
+	lda _charsetPage1
+	sta $02f4
+	sta $d409
+	rts
+	
+charset2:
+	; Need to wait till we reach the next line of text
+	lda _charsetPage2
+	sta $d40A ; WSYNC
+	sta $d40A ; WSYNC
+	sta $d40A ; WSYNC
+	sta $d40A ; WSYNC
+	sta $d40A ; WSYNC
+	sta $d40A ; WSYNC
+	sta $d40A ; WSYNC
+	sta $02f4
+	sta $d409
+	rts
 	
 ; ---------------------------------------------------------------
-; Screen flicker routine (switches between frame buffers)
+; Bitmap flicker routine (switches between frame buffers)
 ; ---------------------------------------------------------------
 
 flickerFrames:	
@@ -182,7 +274,7 @@ showframe1:
 	sta $0925
 	lda #$B0 
 	sta $098d	
-	jmp addrDone
+	rts
 
 showframe2:	
 	; Switch bitmap buffer 2
@@ -190,9 +282,6 @@ showframe2:
 	sta $0925
 	lda #$80 
 	sta $098d		
-	jmp addrDone
-
-addrDone:
 	rts
 
 ; ---------------------------------------------------------------

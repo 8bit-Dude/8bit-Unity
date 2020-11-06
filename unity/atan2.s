@@ -33,6 +33,7 @@
  
 	.importzp	sp
 	.import		incsp2, pusha
+
 	.export		_atan2
 
 octant = $fb	; temporary zeropage variable
