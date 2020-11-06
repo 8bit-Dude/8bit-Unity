@@ -3,14 +3,236 @@
   <object class="ttk.Frame" id="mainwindow">
     <child>
       <object class="ttk.Notebook" id="Notebook_Assets">
-        <property name="height">370</property>
+        <property name="height">450</property>
         <property name="width">450</property>
         <layout>
           <property name="column">0</property>
           <property name="propagate">True</property>
           <property name="row">0</property>
           <property name="sticky">nw</property>
-        </layout>
+        </layout>		
+        <child>	
+          <object class="ttk.Notebook.Tab" id="Tab_General">
+            <property name="text" translatable="yes">General</property>		
+			<child>
+              <object class="tk.Frame" id="Frame_Apple">
+                <property name="height">500</property>
+                <property name="padx">10</property>
+                <property name="width">450</property>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="propagate">True</property>
+                  <property name="row">0</property>
+                </layout>
+				<child>
+				  <object class="tk.LabelFrame" id="LabelFrame_Code">
+					<property name="text" translatable="yes">Code</property>
+					<layout>
+					  <property name="column">0</property>
+					  <property name="propagate">True</property>
+					  <property name="row">0</property>
+					  <property name="sticky">nw</property>
+					</layout>
+					<child>
+					  <object class="tk.Listbox" id="Listbox_Code">
+						<property name="height">4</property>
+						<property name="width">70</property>
+						<layout>
+						  <property name="column">0</property>
+						  <property name="propagate">True</property>
+						  <property name="row">0</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>
+					</child>
+					<child>
+					  <object class="ttk.Button" id="Button_CodeAdd">
+						<property name="command">CodeAdd</property>
+						<property name="text" translatable="yes">Add File</property>
+						<layout>
+						  <property name="column">0</property>
+						  <property name="padx">25</property>
+						  <property name="pady">5</property>
+						  <property name="propagate">True</property>
+						  <property name="row">1</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>
+					</child>
+					<child>
+					  <object class="ttk.Button" id="Button_CodeRem">
+						<property name="command">CodeRem</property>
+						<property name="text" translatable="yes">Rem File</property>
+						<layout>
+						  <property name="column">0</property>
+						  <property name="padx">100</property>
+						  <property name="pady">5</property>
+						  <property name="propagate">True</property>
+						  <property name="row">1</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>
+					</child>
+				  </object>
+				</child>
+                <child>
+                  <object class="tk.LabelFrame" id="LabelFrame_Charmaps">
+                    <property name="text" translatable="yes">Charmaps</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="propagate">True</property>
+                      <property name="row">1</property>
+                      <property name="sticky">nw</property>
+                    </layout>
+                    <child>
+                      <object class="tk.Listbox" id="Listbox_Charmap">
+                        <property name="height">4</property>
+                        <property name="width">70</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="propagate">True</property>
+                          <property name="row">0</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Button" id="Button_CharmapAdd">
+                        <property name="command">CharmapAdd</property>
+                        <property name="text" translatable="yes">Add File</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">25</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Button" id="Button_CharmapRem">
+                        <property name="command">CharmapRem</property>
+                        <property name="text" translatable="yes">Rem File</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">100</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                  </object>
+                </child>				
+                <child>
+                  <object class="tk.LabelFrame" id="LabelFrame_Shared">
+                    <property name="text" translatable="yes">Shared Assets</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="propagate">True</property>
+                      <property name="row">2</property>
+                      <property name="sticky">nw</property>
+                    </layout>
+                    <child>
+                      <object class="tk.Listbox" id="Listbox_Shared">
+                        <property name="height">4</property>
+                        <property name="width">70</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="propagate">True</property>
+                          <property name="row">0</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Button" id="Button_SharedAdd">
+                        <property name="command">SharedAdd</property>
+                        <property name="text" translatable="yes">Add File</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">25</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Button" id="Button_SharedRem">
+                        <property name="command">SharedRem</property>
+                        <property name="text" translatable="yes">Rem File</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">100</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                  </object>
+                </child>				
+				<child>
+				  <object class="tk.LabelFrame" id="LabelFrame_Disk">
+					<property name="text" translatable="yes">Disk</property>
+					<layout>
+					  <property name="column">0</property>
+					  <property name="propagate">True</property>
+					  <property name="row">3</property>
+					  <property name="sticky">nw</property>
+					</layout>			
+					<child>
+					  <object class="ttk.Label" id="Label_Disk">
+						<property name="text" translatable="yes">Disk Name</property>
+						<layout>
+						  <property name="column">0</property>
+						  <property name="padx">20</property>
+						  <property name="pady">10</property>
+						  <property name="propagate">True</property>
+						  <property name="row">2</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>
+					</child>
+					<child>
+					  <object class="ttk.Entry" id="Entry_Disk">
+						<property name="text" translatable="yes">diskname</property>
+						<property name="width">16</property>
+						<layout>
+						  <property name="column">1</property>
+						  <property name="padx">10</property>
+						  <property name="pady">10</property>
+						  <property name="propagate">True</property>
+						  <property name="row">2</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>
+					</child>
+					<child>
+					  <object class="ttk.Button" id="Button_Generate">
+						<property name="command">GenerateBuilder</property>
+						<property name="text" translatable="yes">Generate Build Scripts</property>
+						<layout>
+						  <property name="column">2</property>
+						  <property name="padx">40</property>
+						  <property name="pady">10</property>
+						  <property name="propagate">True</property>
+						  <property name="row">2</property>
+						  <property name="sticky">ne</property>
+						</layout>
+					  </object>
+					</child>	
+				  </object>
+				</child>
+			  </object>
+			</child>
+		  </object>
+        </child>		
         <child>
           <object class="ttk.Notebook.Tab" id="Tab_Apple">
             <property name="text" translatable="yes">Apple</property>
@@ -76,14 +298,53 @@
                   </object>
                 </child>
                 <child>
+                  <object class="tk.LabelFrame" id="LabelFrame_AppleCharset">
+                    <property name="height">200</property>
+                    <property name="text" translatable="yes">Charset</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="pady">0</property>
+                      <property name="propagate">True</property>
+                      <property name="row">1</property>
+                      <property name="sticky">nw</property>
+                    </layout>
+                    <child>
+                      <object class="tk.Listbox" id="Listbox_AppleCharset">
+                        <property name="height">1</property>
+                        <property name="width">70</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="propagate">True</property>
+                          <property name="row">0</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Button" id="Button_AppleCharsetSel">
+                        <property name="command">AppleCharsetSel</property>
+                        <property name="text" translatable="yes">Select File</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">25</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>					
+                  </object>
+                </child>
+                <child>
                   <object class="tk.LabelFrame" id="LabelFrame_AppleSprites">
                     <property name="height">200</property>
                     <property name="text" translatable="yes">Sprites</property>
                     <layout>
                       <property name="column">0</property>
-                      <property name="pady">160</property>
+                      <property name="pady">0</property>
                       <property name="propagate">True</property>
-                      <property name="row">0</property>
+                      <property name="row">2</property>
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
@@ -203,9 +464,9 @@
                     <property name="width">100</property>
                     <layout>
                       <property name="column">0</property>
-                      <property name="pady">240</property>
+                      <property name="pady">0</property>
                       <property name="propagate">True</property>
-                      <property name="row">0</property>
+                      <property name="row">3</property>
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
@@ -244,9 +505,9 @@
                     <layout>
                       <property name="column">0</property>
                       <property name="padx">215</property>
-                      <property name="pady">240</property>
+                      <property name="pady">0</property>
                       <property name="propagate">True</property>
-                      <property name="row">0</property>
+                      <property name="row">3</property>
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
@@ -298,9 +559,9 @@
                     <property name="width">200</property>
                     <layout>
                       <property name="column">0</property>
-                      <property name="pady">320</property>
+                      <property name="pady">0</property>
                       <property name="propagate">True</property>
-                      <property name="row">0</property>
+                      <property name="row">4</property>
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
@@ -389,14 +650,53 @@
                   </object>
                 </child>
                 <child>
+                  <object class="tk.LabelFrame" id="LabelFrame_AtariCharset">
+                    <property name="height">200</property>
+                    <property name="text" translatable="yes">Charset</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="pady">0</property>
+                      <property name="propagate">True</property>
+                      <property name="row">1</property>
+                      <property name="sticky">nw</property>
+                    </layout>
+                    <child>
+                      <object class="tk.Listbox" id="Listbox_AtariCharset">
+                        <property name="height">1</property>
+                        <property name="width">70</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="propagate">True</property>
+                          <property name="row">0</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Button" id="Button_AtariCharsetSel">
+                        <property name="command">AtariCharsetSel</property>
+                        <property name="text" translatable="yes">Select File</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">25</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>					
+                  </object>
+                </child>				
+                <child>
                   <object class="tk.LabelFrame" id="LabelFrame_AtariSprites">
                     <property name="height">200</property>
                     <property name="text" translatable="yes">Sprites</property>
                     <layout>
                       <property name="column">0</property>
-                      <property name="pady">160</property>
+                      <property name="pady">0</property>
                       <property name="propagate">True</property>
-                      <property name="row">0</property>
+                      <property name="row">2</property>
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
@@ -516,9 +816,9 @@
                     <property name="width">100</property>
                     <layout>
                       <property name="column">0</property>
-                      <property name="pady">240</property>
+                      <property name="pady">0</property>
                       <property name="propagate">True</property>
-                      <property name="row">0</property>
+                      <property name="row">3</property>
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
@@ -557,9 +857,9 @@
                     <layout>
                       <property name="column">0</property>
                       <property name="padx">215</property>
-                      <property name="pady">240</property>
+                      <property name="pady">0</property>
                       <property name="propagate">True</property>
-                      <property name="row">0</property>
+                      <property name="row">3</property>
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
@@ -611,9 +911,9 @@
                     <property name="width">200</property>
                     <layout>
                       <property name="column">0</property>
-                      <property name="pady">320</property>
+                      <property name="pady">0</property>
                       <property name="propagate">True</property>
-                      <property name="row">0</property>
+                      <property name="row">4</property>
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
@@ -729,14 +1029,53 @@
                   </object>
                 </child>
                 <child>
+                  <object class="tk.LabelFrame" id="LabelFrame_C64Charset">
+                    <property name="height">200</property>
+                    <property name="text" translatable="yes">Charset</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="pady">0</property>
+                      <property name="propagate">True</property>
+                      <property name="row">1</property>
+                      <property name="sticky">nw</property>
+                    </layout>
+                    <child>
+                      <object class="tk.Listbox" id="Listbox_C64Charset">
+                        <property name="height">1</property>
+                        <property name="width">70</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="propagate">True</property>
+                          <property name="row">0</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Button" id="Button_C64CharsetSel">
+                        <property name="command">C64CharsetSel</property>
+                        <property name="text" translatable="yes">Select File</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">25</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>					
+                  </object>
+                </child>				
+                <child>
                   <object class="tk.LabelFrame" id="LabelFrame_C64Sprites">
                     <property name="height">200</property>
                     <property name="text" translatable="yes">Sprites</property>
                     <layout>
                       <property name="column">0</property>
-                      <property name="pady">160</property>
+                      <property name="pady">0</property>
                       <property name="propagate">True</property>
-                      <property name="row">0</property>
+                      <property name="row">2</property>
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
@@ -857,9 +1196,9 @@
                     <property name="width">100</property>
                     <layout>
                       <property name="column">0</property>
-                      <property name="pady">240</property>
+                      <property name="pady">0</property>
                       <property name="propagate">True</property>
-                      <property name="row">0</property>
+                      <property name="row">3</property>
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
@@ -898,9 +1237,9 @@
                     <layout>
                       <property name="column">0</property>
                       <property name="padx">215</property>
-                      <property name="pady">240</property>
+                      <property name="pady">0</property>
                       <property name="propagate">True</property>
-                      <property name="row">0</property>
+                      <property name="row">3</property>
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
@@ -952,9 +1291,9 @@
                     <property name="width">200</property>
                     <layout>
                       <property name="column">0</property>
-                      <property name="pady">320</property>
+                      <property name="pady">0</property>
                       <property name="propagate">True</property>
-                      <property name="row">0</property>
+                      <property name="row">4</property>
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
@@ -1043,14 +1382,53 @@
                   </object>
                 </child>
                 <child>
+                  <object class="tk.LabelFrame" id="LabelFrame_LynxCharset">
+                    <property name="height">200</property>
+                    <property name="text" translatable="yes">Charset</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="pady">0</property>
+                      <property name="propagate">True</property>
+                      <property name="row">1</property>
+                      <property name="sticky">nw</property>
+                    </layout>
+                    <child>
+                      <object class="tk.Listbox" id="Listbox_LynxCharset">
+                        <property name="height">1</property>
+                        <property name="width">70</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="propagate">True</property>
+                          <property name="row">0</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Button" id="Button_LynxCharsetSel">
+                        <property name="command">LynxCharsetSel</property>
+                        <property name="text" translatable="yes">Select File</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">25</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>					
+                  </object>
+                </child>				
+                <child>
                   <object class="tk.LabelFrame" id="LabelFrame_LynxSprites">
                     <property name="height">200</property>
                     <property name="text" translatable="yes">Sprites</property>
                     <layout>
                       <property name="column">0</property>
-                      <property name="pady">160</property>
+                      <property name="pady">0</property>
                       <property name="propagate">True</property>
-                      <property name="row">0</property>
+                      <property name="row">2</property>
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
@@ -1169,9 +1547,9 @@
                     <property name="width">100</property>
                     <layout>
                       <property name="column">0</property>
-                      <property name="pady">240</property>
+                      <property name="pady">0</property>
                       <property name="propagate">True</property>
-                      <property name="row">0</property>
+                      <property name="row">3</property>
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
@@ -1210,9 +1588,9 @@
                     <layout>
                       <property name="column">0</property>
                       <property name="padx">215</property>
-                      <property name="pady">240</property>
+                      <property name="pady">0</property>
                       <property name="propagate">True</property>
-                      <property name="row">0</property>
+                      <property name="row">3</property>
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
@@ -1264,9 +1642,9 @@
                     <property name="width">200</property>
                     <layout>
                       <property name="column">0</property>
-                      <property name="pady">320</property>
+                      <property name="pady">0</property>
                       <property name="propagate">True</property>
-                      <property name="row">0</property>
+                      <property name="row">4</property>
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
@@ -1355,14 +1733,53 @@
                   </object>
                 </child>
                 <child>
+                  <object class="tk.LabelFrame" id="LabelFrame_OricCharset">
+                    <property name="height">200</property>
+                    <property name="text" translatable="yes">Charset</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="pady">0</property>
+                      <property name="propagate">True</property>
+                      <property name="row">1</property>
+                      <property name="sticky">nw</property>
+                    </layout>
+                    <child>
+                      <object class="tk.Listbox" id="Listbox_OricCharset">
+                        <property name="height">1</property>
+                        <property name="width">70</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="propagate">True</property>
+                          <property name="row">0</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Button" id="Button_OricCharsetSel">
+                        <property name="command">OricCharsetSel</property>
+                        <property name="text" translatable="yes">Select File</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">25</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>					
+                  </object>
+                </child>				
+                <child>
                   <object class="tk.LabelFrame" id="LabelFrame_OricSprites">
                     <property name="height">200</property>
                     <property name="text" translatable="yes">Sprites</property>
                     <layout>
                       <property name="column">0</property>
-                      <property name="pady">160</property>
+                      <property name="pady">0</property>
                       <property name="propagate">True</property>
-                      <property name="row">0</property>
+                      <property name="row">2</property>
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
@@ -1482,9 +1899,9 @@
                     <property name="width">100</property>
                     <layout>
                       <property name="column">0</property>
-                      <property name="pady">240</property>
+                      <property name="pady">0</property>
                       <property name="propagate">True</property>
-                      <property name="row">0</property>
+                      <property name="row">3</property>
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
@@ -1523,9 +1940,9 @@
                     <layout>
                       <property name="column">0</property>
                       <property name="padx">215</property>
-                      <property name="pady">240</property>
+                      <property name="pady">0</property>
                       <property name="propagate">True</property>
-                      <property name="row">0</property>
+                      <property name="row">3</property>
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
@@ -1577,9 +1994,9 @@
                     <property name="width">200</property>
                     <layout>
                       <property name="column">0</property>
-                      <property name="pady">320</property>
+                      <property name="pady">0</property>
                       <property name="propagate">True</property>
-                      <property name="row">0</property>
+                      <property name="row">4</property>
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
@@ -1643,168 +2060,6 @@
             </child>
           </object>
         </child>
-        <child>
-          <object class="ttk.Notebook.Tab" id="Tab_Shared">
-            <property name="text" translatable="yes">*Shared*</property>
-            <child>
-              <object class="tk.Frame" id="Frame_Shared">
-                <property name="height">500</property>
-                <property name="padx">10</property>
-                <property name="width">450</property>
-                <layout>
-                  <property name="column">0</property>
-                  <property name="propagate">True</property>
-                  <property name="row">0</property>
-                </layout>
-                <child>
-                  <object class="tk.LabelFrame" id="LabelFrame_Shared">
-                    <property name="text" translatable="yes">Shared Assets</property>
-                    <layout>
-                      <property name="column">0</property>
-                      <property name="propagate">True</property>
-                      <property name="row">0</property>
-                      <property name="sticky">nw</property>
-                    </layout>
-                    <child>
-                      <object class="tk.Listbox" id="Listbox_Shared">
-                        <property name="height">15</property>
-                        <property name="width">70</property>
-                        <layout>
-                          <property name="column">0</property>
-                          <property name="propagate">True</property>
-                          <property name="row">0</property>
-                          <property name="sticky">nw</property>
-                        </layout>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="ttk.Button" id="Button_SharedAdd">
-                        <property name="command">SharedAdd</property>
-                        <property name="text" translatable="yes">Add File</property>
-                        <layout>
-                          <property name="column">0</property>
-                          <property name="padx">25</property>
-                          <property name="pady">5</property>
-                          <property name="propagate">True</property>
-                          <property name="row">1</property>
-                          <property name="sticky">nw</property>
-                        </layout>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="ttk.Button" id="Button_SharedRem">
-                        <property name="command">SharedRem</property>
-                        <property name="text" translatable="yes">Rem File</property>
-                        <layout>
-                          <property name="column">0</property>
-                          <property name="padx">100</property>
-                          <property name="pady">5</property>
-                          <property name="propagate">True</property>
-                          <property name="row">1</property>
-                          <property name="sticky">nw</property>
-                        </layout>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-              </object>
-            </child>
-          </object>
-        </child>
-      </object>
-    </child>
-    <child>
-      <object class="tk.LabelFrame" id="LabelFrame_Code">
-        <property name="text" translatable="yes">Code</property>
-        <layout>
-          <property name="column">0</property>
-          <property name="padx">10</property>
-          <property name="pady">5</property>
-          <property name="propagate">True</property>
-          <property name="row">1</property>
-          <property name="sticky">nw</property>
-        </layout>
-        <child>
-          <object class="tk.Listbox" id="Listbox_Code">
-            <property name="height">4</property>
-            <property name="width">70</property>
-            <layout>
-              <property name="column">0</property>
-              <property name="propagate">True</property>
-              <property name="row">0</property>
-              <property name="sticky">nw</property>
-            </layout>
-          </object>
-        </child>
-        <child>
-          <object class="ttk.Button" id="Button_CodeAdd">
-            <property name="command">CodeAdd</property>
-            <property name="text" translatable="yes">Add File</property>
-            <layout>
-              <property name="column">0</property>
-              <property name="padx">25</property>
-              <property name="pady">5</property>
-              <property name="propagate">True</property>
-              <property name="row">1</property>
-              <property name="sticky">nw</property>
-            </layout>
-          </object>
-        </child>
-        <child>
-          <object class="ttk.Button" id="Button_CodeRem">
-            <property name="command">CodeRem</property>
-            <property name="text" translatable="yes">Rem File</property>
-            <layout>
-              <property name="column">0</property>
-              <property name="padx">100</property>
-              <property name="pady">5</property>
-              <property name="propagate">True</property>
-              <property name="row">1</property>
-              <property name="sticky">nw</property>
-            </layout>
-          </object>
-        </child>
-      </object>
-    </child>
-    <child>
-      <object class="ttk.Label" id="Label_Disk">
-        <property name="text" translatable="yes">Disk Name</property>
-        <layout>
-          <property name="column">0</property>
-          <property name="padx">25</property>
-          <property name="pady">10</property>
-          <property name="propagate">True</property>
-          <property name="row">2</property>
-          <property name="sticky">nw</property>
-        </layout>
-      </object>
-    </child>
-    <child>
-      <object class="ttk.Entry" id="Entry_Disk">
-        <property name="text" translatable="yes">diskname</property>
-        <property name="width">16</property>
-        <layout>
-          <property name="column">0</property>
-          <property name="padx">100</property>
-          <property name="pady">10</property>
-          <property name="propagate">True</property>
-          <property name="row">2</property>
-          <property name="sticky">nw</property>
-        </layout>
-      </object>
-    </child>
-    <child>
-      <object class="ttk.Button" id="Button_Generate">
-        <property name="command">GenerateBuilder</property>
-        <property name="text" translatable="yes">Generate Build Scripts</property>
-        <layout>
-          <property name="column">0</property>
-          <property name="padx">25</property>
-          <property name="pady">10</property>
-          <property name="propagate">True</property>
-          <property name="row">2</property>
-          <property name="sticky">ne</property>
-        </layout>
       </object>
     </child>
   </object>

@@ -90,6 +90,6 @@ for layer in range(layers):
 ###########################
 # Write output binary file
 f2 = io.open(output, 'wb')	
-f2.write(''.join([chr(0),chr(0xc7)]))
+f2.write(''.join([chr(0),chr(0xc8)]))
 f2.write(''.join(sprdata))
 f2.close()

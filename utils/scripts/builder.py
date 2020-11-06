@@ -36,35 +36,41 @@ def FileBase(filepath, suffix):
 
 class Application:
 
-    version = 1
+    version = 2
+    
+    listbox_Code = None
+    listbox_Charmap = None
+    listbox_Shared = None
     
     listbox_AppleBitmap = None
+    listbox_AppleCharset = None
     listbox_AppleSprites = None
     listbox_AppleChunks = None
     listbox_AppleMusic = None
     
     listbox_AtariBitmap = None
+    listbox_AtariCharset = None
     listbox_AtariSprites = None
     listbox_AtariChunks = None
     listbox_AtariMusic = None
     
     listbox_C64Bitmap = None
+    listbox_C64Charset = None
     listbox_C64Sprites = None
     listbox_C64Chunks = None
     listbox_C64Music = None
     
     listbox_LynxBitmap = None
+    listbox_LynxCharset = None
     listbox_LynxSprites = None
     listbox_LynxChunks = None
     listbox_LynxMusic = None    
     
     listbox_OricBitmap = None
+    listbox_OricCharset = None
     listbox_OricSprites = None
     listbox_OricChunks = None
     listbox_OricMusic = None
-    
-    listbox_Shared = None
-    listbox_Code = None
     
     lists = None
     cwd = None
@@ -105,7 +111,13 @@ class Application:
         self.builder.connect_callbacks(self)
         
         # Get list boxes and fields
+        self.listbox_Code = self.builder.get_object('Listbox_Code')
+        self.listbox_Charmap = self.builder.get_object('Listbox_Charmap')
+        self.listbox_Shared = self.builder.get_object('Listbox_Shared')
+        self.entry_Disk = self.builder.get_object('Entry_Disk')
+        
         self.listbox_AppleBitmap = self.builder.get_object('Listbox_AppleBitmap')        
+        self.listbox_AppleCharset = self.builder.get_object('Listbox_AppleCharset')        
         self.listbox_AppleSprites = self.builder.get_object('Listbox_AppleSprites')        
         self.listbox_AppleChunks = self.builder.get_object('Listbox_AppleChunks')        
         self.listbox_AppleMusic = self.builder.get_object('Listbox_AppleMusic')        
@@ -114,6 +126,7 @@ class Application:
         self.entry_AppleSpriteHeight = self.builder.get_object('Entry_AppleSpriteHeight')
         
         self.listbox_AtariBitmap = self.builder.get_object('Listbox_AtariBitmap')        
+        self.listbox_AtariCharset = self.builder.get_object('Listbox_AtariCharset')        
         self.listbox_AtariSprites = self.builder.get_object('Listbox_AtariSprites')        
         self.listbox_AtariChunks = self.builder.get_object('Listbox_AtariChunks')        
         self.listbox_AtariMusic = self.builder.get_object('Listbox_AtariMusic')     
@@ -124,6 +137,7 @@ class Application:
         self.Combobox_AtariDiskSize = self.builder.get_object('Combobox_AtariDiskSize');
         
         self.listbox_C64Bitmap = self.builder.get_object('Listbox_C64Bitmap')        
+        self.listbox_C64Charset = self.builder.get_object('Listbox_C64Charset')        
         self.listbox_C64Sprites = self.builder.get_object('Listbox_C64Sprites')        
         self.listbox_C64Chunks = self.builder.get_object('Listbox_C64Chunks')        
         self.listbox_C64Music = self.builder.get_object('Listbox_C64Music')     
@@ -132,6 +146,7 @@ class Application:
         self.entry_C64SpriteHeight = self.builder.get_object('Entry_C64SpriteHeight')
         
         self.listbox_LynxBitmap = self.builder.get_object('Listbox_LynxBitmap')        
+        self.listbox_LynxCharset = self.builder.get_object('Listbox_LynxCharset')        
         self.listbox_LynxSprites = self.builder.get_object('Listbox_LynxSprites')        
         self.listbox_LynxChunks = self.builder.get_object('Listbox_LynxChunks')        
         self.listbox_LynxMusic = self.builder.get_object('Listbox_LynxMusic')     
@@ -140,6 +155,7 @@ class Application:
         self.entry_LynxSpriteHeight = self.builder.get_object('Entry_LynxSpriteHeight')
         
         self.listbox_OricBitmap = self.builder.get_object('Listbox_OricBitmap')        
+        self.listbox_OricCharset = self.builder.get_object('Listbox_OricCharset')        
         self.listbox_OricChunks = self.builder.get_object('Listbox_OricChunks')        
         self.listbox_OricSprites = self.builder.get_object('Listbox_OricSprites')        
         self.listbox_OricMusic = self.builder.get_object('Listbox_OricMusic')     
@@ -148,11 +164,7 @@ class Application:
         self.entry_OricSpriteHeight = self.builder.get_object('Entry_OricSpriteHeight')
         self.entry_OricDithering = self.builder.get_object('Entry_OricDithering')
         self.combobox_OricImageQuality = self.builder.get_object('Combobox_OricImageQuality')
-        
-        self.listbox_Shared = self.builder.get_object('Listbox_Shared')
-        self.listbox_Code = self.builder.get_object('Listbox_Code')
-        self.entry_Disk = self.builder.get_object('Entry_Disk')
-        
+                
         # Set some defaults
         self.Checkbutton_AtariNoText.state(['!selected'])
         self.Combobox_AtariDiskSize.current(0)
@@ -167,14 +179,17 @@ class Application:
                          self.entry_OricSpriteFrames,  self.entry_OricSpriteWidth,  self.entry_OricSpriteHeight,
                          self.entry_OricDithering ]
         self.listboxes = [ self.listbox_Code, 
-                           self.listbox_AppleBitmap, self.listbox_AppleSprites, self.listbox_AppleMusic,
-                           self.listbox_AtariBitmap, self.listbox_AtariSprites, self.listbox_AtariMusic,
-                           self.listbox_C64Bitmap,   self.listbox_C64Sprites,   self.listbox_C64Music,
-                           self.listbox_OricBitmap,  self.listbox_OricSprites,  self.listbox_OricMusic,
-                           self.listbox_Shared,
-                           self.listbox_LynxBitmap,  self.listbox_LynxSprites,  self.listbox_LynxMusic,
-                           self.listbox_AppleChunks, self.listbox_AtariChunks,  self.listbox_C64Chunks,
-                           self.listbox_LynxChunks,  self.listbox_OricChunks ]
+                           self.listbox_AppleBitmap,  self.listbox_AppleSprites, self.listbox_AppleMusic,
+                           self.listbox_AtariBitmap,  self.listbox_AtariSprites, self.listbox_AtariMusic,
+                           self.listbox_C64Bitmap,    self.listbox_C64Sprites,   self.listbox_C64Music,
+                           self.listbox_OricBitmap,   self.listbox_OricSprites,  self.listbox_OricMusic,
+                           self.listbox_Shared, 
+                           self.listbox_LynxBitmap,   self.listbox_LynxSprites,  self.listbox_LynxMusic,
+                           self.listbox_AppleChunks,  self.listbox_AtariChunks,  self.listbox_C64Chunks,
+                           self.listbox_LynxChunks,   self.listbox_OricChunks,
+                           self.listbox_AppleCharset, self.listbox_AtariCharset, self.listbox_C64Charset,
+                           self.listbox_LynxCharset,  self.listbox_OricCharset,
+                           self.listbox_Charmap ]
         self.checkbuttons = [ self.Checkbutton_AtariNoText ]
         self.comboboxes = [ self.Combobox_AtariDiskSize, self.combobox_OricImageQuality ]
                        
@@ -279,6 +294,33 @@ class Application:
     def FileExit(self):
         sys.exit()
         
+    def CodeAdd(self):
+        filename = askopenfilename(initialdir = "../../", title = "Select Code File", filetypes = (("C files","*.c"),)) 
+        if filename is not '':
+            filename = filename.replace(self.cwd, '')
+            self.listbox_Code.insert(END, filename)
+
+    def CodeRem(self):
+        self.listbox_Code.delete(0, ACTIVE)
+                
+    def CharmapAdd(self):
+        filename = askopenfilename(initialdir = "../../", title = "Select Character Map", filetypes = (("All files","*.map"),)) 
+        if filename is not '':
+            filename = filename.replace(self.cwd, '')
+            self.listbox_Charmap.insert(END, filename)
+
+    def CharmapRem(self):
+        self.listbox_Charmap.delete(0, ACTIVE)
+            
+    def SharedAdd(self):
+        filename = askopenfilename(initialdir = "../../", title = "Select Asset File", filetypes = (("All files","*.*"),)) 
+        if filename is not '':
+            filename = filename.replace(self.cwd, '')
+            self.listbox_Shared.insert(END, filename)
+
+    def SharedRem(self):
+        self.listbox_Shared.delete(0, ACTIVE)
+        
     def AppleBitmapAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Bitmap", filetypes = (("PNG files","*.png"),)) 
         if filename is not '':
@@ -288,6 +330,13 @@ class Application:
     def AppleBitmapRem(self):
         self.listbox_AppleBitmap.delete(0, ACTIVE)
 
+    def AppleCharsetSel(self):
+        filename = askopenfilename(initialdir = "../../", title = "Select Character Set", filetypes = (("PNG files","*.png"),)) 
+        if filename is not '':
+            filename = filename.replace(self.cwd, '')
+            self.listbox_AppleCharset.delete(0, END)
+            self.listbox_AppleCharset.insert(END, filename)
+            
     def AppleSpritesSel(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Sprite Sheet", filetypes = (("PNG files","*.png"),)) 
         if filename is not '':
@@ -319,7 +368,14 @@ class Application:
 
     def AtariBitmapRem(self):
         self.listbox_AtariBitmap.delete(0, ACTIVE)
-        
+
+    def AtariCharsetSel(self):
+        filename = askopenfilename(initialdir = "../../", title = "Select Character Set", filetypes = (("PNG files","*.png"),)) 
+        if filename is not '':
+            filename = filename.replace(self.cwd, '')
+            self.listbox_AtariCharset.delete(0, END)
+            self.listbox_AtariCharset.insert(END, filename)
+            
     def AtariSpritesSel(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Sprite Sheet", filetypes = (("PNG files","*.png"),)) 
         if filename is not '':
@@ -351,7 +407,14 @@ class Application:
 
     def C64BitmapRem(self):
         self.listbox_C64Bitmap.delete(0, ACTIVE)
-        
+
+    def C64CharsetSel(self):
+        filename = askopenfilename(initialdir = "../../", title = "Select Character Set", filetypes = (("PNG files","*.png"),)) 
+        if filename is not '':
+            filename = filename.replace(self.cwd, '')
+            self.listbox_C64Charset.delete(0, END)
+            self.listbox_C64Charset.insert(END, filename)
+            
     def C64SpritesSel(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Sprite Sheet", filetypes = (("PNG files","*.png"),)) 
         if filename is not '':
@@ -383,6 +446,13 @@ class Application:
 
     def LynxBitmapRem(self):
         self.listbox_LynxBitmap.delete(0, ACTIVE)
+        
+    def LynxCharsetSel(self):
+        filename = askopenfilename(initialdir = "../../", title = "Select Character Set", filetypes = (("PNG files","*.png"),)) 
+        if filename is not '':
+            filename = filename.replace(self.cwd, '')
+            self.listbox_LynxCharset.delete(0, END)
+            self.listbox_LynxCharset.insert(END, filename)        
         
     def LynxSpritesSel(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Sprite Sheet", filetypes = (("PNG files","*.png"),)) 
@@ -416,6 +486,13 @@ class Application:
     def OricBitmapRem(self):
         self.listbox_OricBitmap.delete(0, ACTIVE)
         
+    def OricCharsetSel(self):
+        filename = askopenfilename(initialdir = "../../", title = "Select Character Set", filetypes = (("PNG files","*.png"),)) 
+        if filename is not '':
+            filename = filename.replace(self.cwd, '')
+            self.listbox_OricCharset.delete(0, END)
+            self.listbox_OricCharset.insert(END, filename)        
+        
     def OricSpritesSel(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Sprite Sheet", filetypes = (("PNG files","*.png"),)) 
         if filename is not '':
@@ -438,29 +515,12 @@ class Application:
 
     def OricMusicRem(self):
         self.listbox_OricMusic.delete(0, ACTIVE) 
-        
-    def SharedAdd(self):
-        filename = askopenfilename(initialdir = "../../", title = "Select Asset File", filetypes = (("All files","*.*"),)) 
-        if filename is not '':
-            filename = filename.replace(self.cwd, '')
-            self.listbox_Shared.insert(END, filename)
 
-    def SharedRem(self):
-        self.listbox_Shared.delete(0, ACTIVE)
-            
-    def CodeAdd(self):
-        filename = askopenfilename(initialdir = "../../", title = "Select Code File", filetypes = (("C files","*.c"),)) 
-        if filename is not '':
-            filename = filename.replace(self.cwd, '')
-            self.listbox_Code.insert(END, filename)
-
-    def CodeRem(self):
-        self.listbox_Code.delete(0, ACTIVE)
-        
     def GenerateBuilder(self):
         diskname = self.entry_Disk.get()
-        shared = list(self.listbox_Shared.get(0, END))
         code = list(self.listbox_Code.get(0, END))
+        charmaps = list(self.listbox_Charmap.get(0, END))
+        shared = list(self.listbox_Shared.get(0, END))
         if len(code) < 1:
             messagebox.showinfo('Error', 'Please add C source file(s)!')
             return
@@ -468,6 +528,7 @@ class Application:
         ####################################################
         # Apple script
         bitmaps = list(self.listbox_AppleBitmap.get(0, END))
+        charset = list(self.listbox_AppleCharset.get(0, END))
         sprites = list(self.listbox_AppleSprites.get(0, END))
         chunks = list(self.listbox_AppleChunks.get(0, END))
         music = list(self.listbox_AppleMusic.get(0, END))
@@ -479,11 +540,15 @@ class Application:
             fp.write('del build\\apple\\*.* /F /Q\n\n')
             fp.write('echo --------------- CONVERT ASSETS ---------------  \n\n')
             
-            # Bitmaps / Sprites
+            # Bitmaps
             for item in bitmaps:
                 fp.write('utils\\py27\\python utils\\scripts\\apple\\AppleBitmap.py ' + item + ' build/apple/' + FileBase(item, '-apple.png') + '.img\n')
+                
+            # Sprites
             if len(sprites) > 0:
                 fp.write('utils\\py27\\python utils\\scripts\\apple\\AppleSprites.py ' + sprites[0] + ' build/apple/sprites.dat\n')
+
+            # Chunks
             if len(chunks) > 0:
                 fp.write('utils\\py27\\python utils\\scripts\\ProcessChunks.py apple ' + chunks[0] + ' build/apple/\n')
 
@@ -492,8 +557,8 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Build Unity Library
-            CList = ['bitmap.c', 'chunks.c', 'geom2d.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Apple\\CLOCK.c', 'Apple\\DHR.c', 'Apple\\directory.c', 'Apple\\files.c']
-            SList = ['chars.s', 'atan2.s', 'Apple\\blit.s', 'Apple\\DUET.s', 'Apple\\joystick.s', 'Apple\\MOCKING.s', 'Apple\\PADDLE.s', 'Apple\\prodos.s']
+            CList = ['bitmap.c', 'charmap.c', 'chunks.c', 'geom2d.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Apple\\CLOCK.c', 'Apple\\DHR.c', 'Apple\\directory.c', 'Apple\\files.c']
+            SList = ['atan2.s', 'chars.s', 'Apple\\blit.s', 'Apple\\DUET.s', 'Apple\\joystick.s', 'Apple\\MOCKING.s', 'Apple\\PADDLE.s', 'Apple\\prodos.s']
                          
             for file in CList:
                 fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t apple2 -I unity unity\\' + file + '\n')
@@ -548,6 +613,7 @@ class Application:
         ####################################################
         # Atari script
         bitmaps = list(self.listbox_AtariBitmap.get(0, END))
+        charset = list(self.listbox_AtariCharset.get(0, END))
         sprites = list(self.listbox_AtariSprites.get(0, END))
         chunks = list(self.listbox_AtariChunks.get(0, END))
         music = list(self.listbox_AtariMusic.get(0, END))
@@ -559,12 +625,22 @@ class Application:
             fp.write('del build\\atari\\*.* /F /Q\n\n')
             fp.write('echo --------------- CONVERT ASSETS ---------------  \n\n')
             
-            # Bitmaps / Sprites
+            # Bitmaps
             for item in bitmaps:
                 fp.write('utils\\py27\\python utils\\scripts\\atari\\AtariBitmap.py ' + item + ' build/atari/' + FileBase(item, '-atari.png') + '.img\n')
+                
+            # Charmaps/Charset
+            for item in charmaps:
+                fp.write('copy ' + item.replace('/', '\\') + ' build\\atari\n')
+            if len(charset) > 0:
+                fp.write('utils\\py27\python utils\\scripts\\atari\\AtariCharset.py ' + charset[0] + ' build/atari/charset.dat\n')
+                
+            # Sprites    
             if len(sprites) > 0:
                 spriteHeight = int(self.entry_AtariSpriteHeight.get())
                 fp.write('utils\\py27\\python utils\\scripts\\atari\\AtariSprites.py ' + sprites[0] + ' build/atari/sprites.dat ' + str(spriteHeight) + '\n')
+                
+            # Chunks
             if len(chunks) > 0:
                 fp.write('utils\\py27\\python utils\\scripts\\ProcessChunks.py atari ' + chunks[0] + ' build/atari/\n')
 
@@ -572,7 +648,7 @@ class Application:
             for item in shared:
                 fp.write('copy ' + item.replace('/','\\') + ' build\\atari\n')
 
-            # Music Data
+            # Music
             for item in music:
                 fp.write('copy ' + item.replace('/','\\') + ' build\\atari\\' + FileBase(item, '-atari.rmt') + '.mus\n')
 
@@ -581,8 +657,8 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Build Unity Library
-            CList = ['bitmap.c', 'chunks.c', 'geom2d.c', 'joystick.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Atari\\directory.c', 'Atari\\files.c']
-            SList = ['chars.s', 'atan2.s', 'Atari\\DLI.s', 'Atari\\ROM.s', 'Atari\\xbios.s']
+            CList = ['bitmap.c', 'charmap.c', 'chunks.c', 'geom2d.c', 'joystick.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Atari\\directory.c', 'Atari\\files.c']
+            SList = ['atan2.s', 'chars.s', 'Atari\\DLI.s', 'Atari\\ROM.s', 'Atari\\xbios.s']
                          
             for file in CList:
                 fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atarixl -I unity unity\\' + file + '\n')
@@ -645,6 +721,7 @@ class Application:
         ####################################################
         # C64 script
         bitmaps = list(self.listbox_C64Bitmap.get(0, END))
+        charset = list(self.listbox_C64Charset.get(0, END))
         sprites = list(self.listbox_C64Sprites.get(0, END))
         chunks = list(self.listbox_C64Chunks.get(0, END))
         music = list(self.listbox_C64Music.get(0, END))
@@ -657,11 +734,19 @@ class Application:
             fp.write('del build\\c64\\*.* /F /Q\n\n')
             fp.write('echo --------------- CONVERT ASSETS ---------------  \n\n')
             
-            # Bitmaps / Sprites
+            # Bitmaps
             for item in bitmaps:
                 fp.write('utils\\py27\\python utils\\scripts\\c64\\C64Bitmap.py ' + item + ' build/c64/' + FileBase(item, '-c64.png') + '.img\n')
+                
+            # Charset    
+            if len(charset) > 0:
+                fp.write('utils\\py27\python utils\\scripts\\c64\\C64Charset.py ' + charset[0] + ' build/c64/charset.dat\n')                
+                
+            # Sprites
             if len(sprites) > 0:
                 fp.write('utils\\py27\\python utils\\scripts\\c64\\C64Sprites.py ' + sprites[0] + ' build/c64/sprites.dat\n')
+                
+            # Chunks
             if len(chunks) > 0:
                 fp.write('utils\\py27\\python utils\\scripts\\ProcessChunks.py c64 ' + chunks[0] + ' build/c64/\n\n')
                 
@@ -681,8 +766,8 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Build Unity Library
-            CList = ['bitmap.c', 'chunks.c', 'geom2d.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'sfx.c', 'sprites.c', 'widgets.c', 'C64\\directory.c']
-            SList = ['chars.s', 'atan2.s', 'C64\\joystick.s', 'C64\\ROM.s', 'C64\\SID.s']
+            CList = ['bitmap.c', 'charmap.c', 'chunks.c', 'geom2d.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'sfx.c', 'sprites.c', 'widgets.c', 'C64\\directory.c', 'C64\\VIC2.c']
+            SList = ['atan2.s', 'chars.s', 'C64\\joystick.s', 'C64\\ROM.s', 'C64\\SID.s']
                          
             for file in CList:
                 fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t c64 -I unity unity\\' + file + '\n')
@@ -720,7 +805,13 @@ class Application:
             fp.write('-write build/c64/loader.prg loader.prg ')
             for item in bitmaps:
                 fb = FileBase(item, '-c64.png')
-                fp.write('-write build/c64/' + fb + '.img ' + fb + '.img ')                
+                fp.write('-write build/c64/' + fb + '.img ' + fb + '.img ')      
+            if len(charset) > 0:
+                fp.write('-write build/c64/charset.dat charset.dat ')                            
+            for item in charmaps:
+                fb = FileBase(item, '')
+                fp.write('-write ' + item + ' ' + fb + ' ')
+                fp.write('-write ' + item.replace('.map', '.col') + ' ' + fb.replace('.map', '.col') + ' ')
             for item in music:
                 fb = FileBase(item, '-c64.sid')
                 fp.write('-write build/c64/' + fb + '.prg ' + fb + '.mus ')              
@@ -740,6 +831,7 @@ class Application:
         ####################################################
         # Lynx script
         bitmaps = list(self.listbox_LynxBitmap.get(0, END))
+        charset = list(self.listbox_LynxCharset.get(0, END))
         sprites = list(self.listbox_LynxSprites.get(0, END))
         chunks = list(self.listbox_LynxChunks.get(0, END))
         music = list(self.listbox_LynxMusic.get(0, END))
@@ -752,16 +844,29 @@ class Application:
             fp.write('del *.* /F /Q\n\n')
             fp.write('echo --------------- CONVERT ASSETS ---------------  \n\n')
             
-            # Convert Keyboard/Bitmap/Sprite files
+            # Keyboard
             for item in ['cursor', 'keyboard']:
                 fp.write('copy ..\\..\\utils\\scripts\\lynx\\' + item + '.png ' + item + '.png\n')
                 fp.write('..\\..\\utils\\scripts\\png2bmp ' + item + '.png\n')
-                fp.write('..\\..\\utils\\scripts\\lynx\\sprpck -t6 -p2 -u ' + item + '.bmp\n')         
+                fp.write('..\\..\\utils\\scripts\\lynx\\sprpck -t6 -p2 -u ' + item + '.bmp\n\n')         
+                
+            # Bitmaps
             for item in bitmaps:
                 fb = FileBase(item, '-lynx.png')
                 fp.write('copy ..\\..\\' + item.replace('/', '\\') + ' ' + fb + '.png\n')
                 fp.write('..\\..\\utils\\scripts\\png2bmp ' + fb + '.png\n')
                 fp.write('..\\..\\utils\\scripts\\lynx\\sprpck -t6 -p2 -u ' + fb + '.bmp\n')
+            if len(bitmaps) > 0:
+                fp.write('\n')
+                
+            # Charset
+            if len(charset) > 0:
+                fp.write('copy ..\\..\\' + charset[0].replace('/', '\\') + ' charset.png\n')
+                fp.write('..\\..\\utils\\scripts\\png2bmp charset.png\n')
+                fp.write('..\\..\\utils\\scripts\\lynx\\sprpck -t6 -p2 -u -r032008 -S004006 -a000000 charset.bmp\n')
+                fp.write('\n')
+                
+            # Sprites
             if len(sprites) > 0:
                 spriteFrames = int(self.entry_LynxSpriteFrames.get())
                 spriteWidth  = int(self.entry_LynxSpriteWidth.get())
@@ -773,13 +878,21 @@ class Application:
                                             ' -a' + str(spriteWidth/2).zfill(3) + str(spriteHeight/2).zfill(3) + ' sprites.bmp\n')
                 if spriteFrames == 1: 
                     fp.write('ren sprites.spr sprites000000.spr\n')
-                    
-            # Convert Chunk Data
+                fp.write('\n')
+
+            # Charmaps
+            for item in charmaps:
+                fb = FileBase(item, '')
+                fp.write('copy ..\\..\\' + item.replace('/', '\\') + ' ' + fb + '\n')
+            if len(charmaps) > 0:
+                fp.write('\n')
+                
+            # Chunks
             fp.write('set /a CHUNKNUM=0\n')
             if len(chunks) > 0:
                 fp.write('..\\..\\utils\\py27\\python ..\\..\\utils\\scripts\\ProcessChunks.py lynx ../../' + chunks[0] + ' ../../build/lynx/\n')
                 fp.write('for /f "tokens=*" %%A in (chunks.lst) do set CHUNKNAMES=!CHUNKNAMES!_shkName!CHUNKNUM!,&&set /a CHUNKNUM+=1\n')
-            fp.write('set /a FILENUM=!CHUNKNUM!+' + str(len(bitmaps)+len(music)+len(shared)) + '\n')
+            fp.write('set /a FILENUM=!CHUNKNUM!+' + str(len(bitmaps)+len(charmaps)+len(music)+len(shared)) + '\n')
 
             # Copy Chipper sfx and music data
             fp.write('copy ..\\..\\unity\\Lynx\\chipper.s soundbs.mac\n')    
@@ -804,6 +917,9 @@ class Application:
             for i in range(len(bitmaps)):
                 fb = FileBase(bitmaps[i], '-lynx.png')
                 filelist += fb + '.spr,'
+            for item in charmaps:
+                fb = FileBase(item, '')
+                filelist += fb + ','
             for i in range(len(music)):
                 filelist += 'music' + str(i).zfill(2) + '.asm,'
             for item in shared:
@@ -817,6 +933,8 @@ class Application:
             fp.write('@echo .global _fileNum  >> data.asm\n')
             fp.write('@echo .global _fileSizes >> data.asm\n')
             fp.write('@echo .global _fileNames >> data.asm\n')
+            fp.write('@echo .global _charNum >> data.asm\n')
+            fp.write('@echo .global _charData >> data.asm\n')
             fp.write('@echo .global _spriteNum  >> data.asm\n')
             fp.write('@echo .global _spriteData >> data.asm\n')
             fp.write('@echo .global _cursorData >> data.asm\n')
@@ -828,7 +946,7 @@ class Application:
             fp.write('@echo _fileNum: .byte %FILENUM% >> data.asm\n')  
 
             # List of file names and data
-            if len(bitmaps) > 0 or len(music) > 0 or len(shared) > 0 or len(chunks) > 0:
+            if len(bitmaps) > 0 or len(charmaps) > 0 or len(music) > 0 or len(shared) > 0 or len(chunks) > 0:
                 # Declare all Bitmap, Shared and Chunk files
                 fp.write('@echo _fileSizes: .word %FILESIZES:~0,-1% >> data.asm\n')
                 fp.write('@echo _fileNames: .addr ')
@@ -837,6 +955,11 @@ class Application:
                     if counter > 0:
                         fp.write(',')
                     fp.write('_bmpName' + str(i).zfill(2))
+                    counter += 1
+                for i in range(len(charmaps)):
+                    if counter > 0:
+                        fp.write(',')
+                    fp.write('_mapName' + str(i).zfill(2))
                     counter += 1
                 for i in range(len(music)):
                     if counter > 0:
@@ -860,6 +983,11 @@ class Application:
                     fb = FileBase(bitmaps[i], '-lynx.png')
                     fp.write('@echo _bmpName' + str(i).zfill(2) + ': .byte "' + fb + '.img",0 >> data.asm\n')
 
+                # Write list of Charmaps
+                for i in range(len(charmaps)):
+                    fb = FileBase(charmaps[i], '')
+                    fp.write('@echo _mapName' + str(i).zfill(2) + ': .byte "' + fb + '",0 >> data.asm\n')
+
                 # Write list of Musics
                 for i in range(len(music)):
                     fb = FileBase(music[i], '-lynx.asm')
@@ -882,6 +1010,13 @@ class Application:
                     fp.write('@echo .segment "BMP' + str(i) + 'DATA" >> data.asm\n')
                     fp.write('@echo _bmpData' + str(i).zfill(2) + ': .incbin "' + fb + '.spr" >> data.asm\n')                    
 
+                # Link list of charmaps
+                fp.write('@echo ; >> data.asm\n')
+                for i in range(len(charmaps)):
+                    fb = FileBase(charmaps[i], '')
+                    fp.write('@echo .segment "BMP' + str(i) + 'DATA" >> data.asm\n')
+                    fp.write('@echo _mapData' + str(i).zfill(2) + ': .incbin "' + fb +'" >> data.asm\n')
+                    
                 # Link list of musics
                 for i in range(len(music)):
                     fp.write('@echo .segment "MUS' + str(i) + 'DATA" >> data.asm\n')
@@ -904,7 +1039,27 @@ class Application:
                 fp.write('@echo _dummyName: .byte 0 >> data.asm\n')
             fp.write('@echo ; >> data.asm\n')
             
-            # List of Sprite Binary Data 
+            # Charset Binary Data
+            fp.write('@echo .segment "RODATA" >> data.asm\n')                
+            if len(charset) > 0:            
+                fp.write('@echo _charNum: .byte 255 >> data.asm\n')
+                fp.write('@echo _charData: .addr ')
+                for i in range(256):
+                    if i > 0:
+                        fp.write(', ')
+                    fp.write('_chr' + str(i).zfill(3))
+                fp.write(' >> data.asm\n')
+                i = 0
+                for r in range(8):
+                    for c in range(32):
+                        fp.write('@echo _chr' + str(i).zfill(3) + ': .incbin "charset' + str(r).zfill(3) + str(c).zfill(3) + '.spr" >> data.asm\n')
+                        i = i+1
+            else:
+                fp.write('@echo _charNum: .byte 0 >> data.asm\n')
+                fp.write('@echo _charData: .byte 0 >> data.asm\n')
+            fp.write('@echo ; >> data.asm\n')
+            
+            # Sprite Binary Data 
             fp.write('@echo .segment "RODATA" >> data.asm\n')                
             fp.write('@echo _spriteNum: .byte ' + self.entry_LynxSpriteFrames.get() + ' >> data.asm\n')            
             if len(sprites) > 0:            
@@ -931,16 +1086,16 @@ class Application:
             fp.write('\n')
 
             # Generate config and directory Files
-            fp.write('utils\\py27\\python utils/scripts/lynx/LynxConfig.py unity/Lynx/lynx.cfg build/lynx/lynx.cfg ' + str(len(bitmaps)) + ' ' + str(len(music)) + ' ' + str(len(shared)) + ' %CHUNKNUM%\n')
-            fp.write('utils\\py27\\python utils/scripts/lynx/LynxDirectory.py unity/Lynx/directory.s build/lynx/directory.asm ' + str(len(bitmaps)) + ' ' + str(len(music)) + ' ' + str(len(shared)) + ' %CHUNKNUM%\n')
+            fp.write('utils\\py27\\python utils/scripts/lynx/LynxConfig.py unity/Lynx/lynx.cfg build/lynx/lynx.cfg ' + str(len(bitmaps)+len(charmaps)) + ' ' + str(len(music)) + ' ' + str(len(shared)) + ' %CHUNKNUM%\n')
+            fp.write('utils\\py27\\python utils/scripts/lynx/LynxDirectory.py unity/Lynx/directory.s build/lynx/directory.asm ' + str(len(bitmaps)+len(charmaps)) + ' ' + str(len(music)) + ' ' + str(len(shared)) + ' %CHUNKNUM%\n')
                         
             # Info
             fp.write('\necho DONE!\n\n')
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Build Unity Library
-            CList = ['bitmap.c', 'chunks.c', 'geom2d.c', 'hub.c', 'joystick.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Lynx\\display.c', 'Lynx\\files.c']
-            SList = ['chars.s', 'atan2.s', 'Lynx\\header.s', 'Lynx\\serial.s', 'Lynx\\suzy.s']
+            CList = ['bitmap.c', 'charmap.c', 'chunks.c', 'geom2d.c', 'hub.c', 'joystick.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Lynx\\display.c', 'Lynx\\files.c']
+            SList = ['atan2.s', 'chars.s', 'Lynx\\header.s', 'Lynx\\serial.s', 'Lynx\\suzy.s']
                          
             for file in CList:
                 fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t lynx -I unity unity\\' + file + '\n')
@@ -977,6 +1132,7 @@ class Application:
         ####################################################
         # Oric script
         bitmaps = list(self.listbox_OricBitmap.get(0, END))
+        charset = list(self.listbox_OricCharset.get(0, END))
         sprites = list(self.listbox_OricSprites.get(0, END))
         chunks = list(self.listbox_OricChunks.get(0, END))
         music = list(self.listbox_OricMusic.get(0, END))
@@ -1018,8 +1174,8 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Build Unity Library
-            CList = ['bitmap.c', 'chunks.c', 'geom2d.c', 'hub.c', 'joystick.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Oric\\directory.c', 'Oric\\files.c']
-            SList = ['chars.s', 'atan2.s', 'Oric\\blit.s', 'Oric\\paseIJK.s', 'Oric\\keyboard.s', 'Oric\\sedoric.s', 'Oric\\MYM.s']
+            CList = ['bitmap.c', 'charmap.c', 'chunks.c', 'geom2d.c', 'hub.c', 'joystick.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Oric\\directory.c', 'Oric\\files.c']
+            SList = ['atan2.s', 'chars.s', 'Oric\\blit.s', 'Oric\\paseIJK.s', 'Oric\\keyboard.s', 'Oric\\sedoric.s', 'Oric\\MYM.s']
                          
             for file in CList:
                 fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atmos -I unity unity\\' + file + '\n')
