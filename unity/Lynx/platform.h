@@ -27,10 +27,11 @@
 #include <lynx.h>
 
 // Memory Map
-#define SHAREDRAM (0x8F8B)
-#define MUSICRAM  (0x938B)
-#define BITMAPRAM (0x9F8B)
-#define SCREENRAM (0xBD90)
+#define SHAREDRAM  (0x8F8B)
+#define MUSICRAM   (0x938B)
+#define BITMAPRAM  (0x9F8B)
+#define CHARMAPRAM (0x9F8B)
+#define SCREENRAM  (0xBD90)
 
 // Video Modes
 #define MODE_BITMAP  1

@@ -90,11 +90,17 @@ void SetChunk(unsigned char* chunk, unsigned char x, unsigned char y);
 void LoadChunk(unsigned char** chunk, char *filename);
 
 // Charmap functions (see charmap.c)
+#define CHAR_NULL     0
+#define CHAR_WALKABLE 1
+#define CHAR_DAMAGE   2
+#define CHAR_PICKUP   4
+#define CHAR_INTERACT 8
 void InitCharmap(void);
 void EnterCharmapMode(void);
 void ExitCharmapMode(void);
 void ClearCharmap(void);
 void LoadCharmap(char *filename);
+unsigned char GetCharmapFlags(unsigned char x, unsigned char y);
 void ScrollCharmap(unsigned char x, unsigned char y);
 void PrintCharmap(unsigned char x, unsigned char y, unsigned char* str);
 extern unsigned char charmapWidth, charmapHeight;

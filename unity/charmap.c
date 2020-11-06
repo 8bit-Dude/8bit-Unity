@@ -34,7 +34,7 @@
   extern unsigned int spritePtr;
   unsigned char attribs[256];
 #elif defined __LYNX__	
-  //unsigned char charmap[680];
+  extern unsigned char charFlags[];
 #endif
 
 extern unsigned char inkColor;
@@ -48,11 +48,11 @@ void InitCharmap()
 {
 #if defined __ATARI__
 	if (FileOpen("charset.dat"))
-		FileRead((char*)CHARSETRAM, 0x0800);
+		FileRead((char*)CHARSETRAM, 0x0900);
 	
 #elif defined __CBM__	
 	FILE* fp = fopen("charset.dat", "rb");	
-	fread((char*)BITMAPRAM, 1, 0x0800, fp);
+	fread((char*)CHARSETRAM, 1, 0x0900, fp);
 	fclose(fp);	
 	
 #elif defined __LYNX__
@@ -98,7 +98,7 @@ void ExitCharmapMode()
 #endif	
 }
 
-// Clear entire bitmap screen
+// Clear entire screen
 void ClearCharmap()
 {
 #if defined __ATARI__
@@ -114,7 +114,7 @@ void ClearCharmap()
 #endif
 }
 
-// Load bitmap from file
+// Load charmap from file
 void LoadCharmap(char *filename) 
 {
 #if defined __ATARI__
@@ -152,6 +152,23 @@ void LoadCharmap(char *filename)
 	// Set Dimensions
 	charmapWidth = 116;
 	charmapHeight = 52;
+}
+
+unsigned char GetCharmapFlags(unsigned char x, unsigned char y)
+{
+	// Get flags of specified tile
+	unsigned char chr;
+	chr = PEEK(CHARMAPRAM + charmapWidth*y + x);
+#if defined __ATARI__
+	chr = PEEK(CHARSETRAM + 0x800 + chr);
+#elif defined __CBM__
+	rom_disable();
+	chr = PEEK(CHARSETRAM + 0x800 + chr);
+	rom_enable();	
+#elif defined __LYNX__
+	chr = charFlags[chr];
+#endif
+	return chr;
 }
 
 void ScrollCharmap(unsigned char x, unsigned char y)
@@ -202,7 +219,7 @@ void ScrollCharmap(unsigned char x, unsigned char y)
 	
 #elif defined __LYNX__	
 	// Copy Map Section
-	src = BITMAPRAM + charmapWidth*y + x;
+	src = CHARMAPRAM + charmapWidth*y + x;
 	scr = SCREENRAM;
 	for (j=0; j<scrollHeight; j++) {
 		for (i=0; i<scrollWidth; i++) {
