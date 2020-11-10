@@ -218,7 +218,7 @@ void SetupSprites(unsigned char frames, unsigned char cols, unsigned char rows, 
 #endif
 }	
 
-void RecolorSprite(unsigned char index, unsigned char number, unsigned char color)
+void RecolorSprite(unsigned char index, unsigned char offset, unsigned char color)
 {
 #if defined __ATARI__
 	sprColor[index] = color;
@@ -227,7 +227,7 @@ void RecolorSprite(unsigned char index, unsigned char number, unsigned char colo
 #elif defined __CBM__
 	POKE(53287+index, color);
 #elif defined __LYNX__
-	sprSCB[index].penpal[number] = color;
+	sprSCB[index].penpal[offset] = color;
 #endif
 }
 

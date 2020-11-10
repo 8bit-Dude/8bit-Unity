@@ -42,6 +42,8 @@
 #define BITMAPRAM2 (0xa010) // a010-bf50 (bitmap frame 2)
 #define CHARMAPRAM (0x7000) // 7000-7fff (character map)
 #define CHARSETRAM (0xa000) // a000-a7ff (character set)
+#define CHARATRRAM (0xa800) // a800-a87f (character col atr)
+#define CHARFLGRAM (0xa880) // a880-a8ff (character flags)
 #define SPRITERAM  (0x9000)	// 9000-93ff (sprite data)
 #define MUSICRAM   (0x9400) // 9400-9aff (RMT sound track) (overlaps with unused part of PMGRAM)
 #define PMGRAM     (0x9800) // 9800-9fff (player missile memory)

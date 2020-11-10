@@ -28,11 +28,10 @@
 
 #ifdef __APPLE2__
   #pragma code-name("LC")
-#endif
+#endif	
 
 #if defined __CBM__	
   extern unsigned int spritePtr;
-  unsigned char attribs[256];
 #elif defined __LYNX__	
   extern unsigned char charFlags[];
 #endif
@@ -45,18 +44,8 @@ unsigned char charmapX, charmapY, charmapFrame = 0;
 
 // Initialize Charmap Mode
 void InitCharmap() 
-{
-#if defined __ATARI__
-	if (FileOpen("charset.dat"))
-		FileRead((char*)CHARSETRAM, 0x0900);
-	
-#elif defined __CBM__	
-	FILE* fp = fopen("charset.dat", "rb");	
-	fread((char*)CHARSETRAM, 1, 0x0900, fp);
-	fclose(fp);	
-	
-#elif defined __LYNX__
-	// Charset already in memory
+{	
+#if defined __LYNX__
 	InitDisplay();
 #endif		
 }
@@ -86,7 +75,6 @@ void EnterCharmapMode()
 
 	// Show Top-Left
 	charmapX = 255;
-	ScrollCharmap(0, 0);
 }
 
 // Switch from Charmap mode to Text mode
@@ -96,6 +84,37 @@ void ExitCharmapMode()
 	// Switch OFF multicolor mode
 	ResetVIC2();
 #endif	
+}
+
+// Load charset and associated attributes / flags
+void LoadCharset(char* filename)
+{
+#if defined __ATARI__
+	// Read Charset and Attributes
+	if (FileOpen(filename)) {
+		FileRead((char*)CHARSETRAM, 0x0800);
+		FileRead((char*)CHARATRRAM, 0x0100);
+	}
+	
+	// Set Colors
+	POKE(0x02c8, 0x00);
+	POKE(0x02c4, 0x0c);	
+	POKE(0x02c5, 0x78);
+	POKE(0x02c6, 0x62);
+	POKE(0x02c7, 0x12);		
+	
+#elif defined __CBM__	
+	// Read Charset and Attributes
+	FILE* fp = fopen(filename, "rb");	
+	fread((char*)CHARSETRAM, 1, 0x0800, fp);
+	fread((char*)CHARATRRAM, 1, 0x0100, fp);
+	fclose(fp);	
+	
+	// Set Colors
+	POKE(0xd021, BLACK);	// BG Color
+	POKE(0xd022, WHITE); 	// MC1
+	POKE(0xd023, LBLUE);	// MC2	
+#endif			
 }
 
 // Clear entire screen
@@ -120,50 +139,31 @@ void LoadCharmap(char *filename)
 #if defined __ATARI__
 	if (FileOpen(filename))
 		FileRead((char*)CHARMAPRAM, 0x2000);
-
-	// Set Colors
-	POKE(0x02c8, 0x00);
-	POKE(0x02c4, 0x62);
-	POKE(0x02c5, 0x78);
-	POKE(0x02c6, 0x0c);	
-	POKE(0x02c7, 0x00);	
 	
 #elif defined __CBM__	
-	FILE* fp;
-
 	// Read Char Map
-	fp = fopen(filename, "rb");	
+	FILE* fp = fopen(filename, "rb");	
 	fread((char*)CHARMAPRAM, 1, 0x2000, fp);
-	fclose(fp);	
-
-	// Read Attribs
-	fp = fopen("quedex.col", "rb");	
-	fread((char*)attribs, 1, 0xff, fp);
 	fclose(fp);
-
-	// Set Colors
-	POKE(0xd021, BLACK);	// BG Color
-	POKE(0xd022, LBLUE); 	// MC1
-	POKE(0xd023, BLUE);		// MC2
-
+	
 #elif defined __LYNX__
 	FileRead(filename);	
 #endif
 	// Set Dimensions
-	charmapWidth = 116;
-	charmapHeight = 52;
+	charmapWidth = 96;
+	charmapHeight = 64;
 }
 
-unsigned char GetCharmapFlags(unsigned char x, unsigned char y)
+unsigned char GetCharFlags(unsigned char x, unsigned char y)
 {
 	// Get flags of specified tile
 	unsigned char chr;
 	chr = PEEK(CHARMAPRAM + charmapWidth*y + x);
 #if defined __ATARI__
-	chr = PEEK(CHARSETRAM + 0x800 + chr);
+	chr = PEEK(CHARFLGRAM + chr);
 #elif defined __CBM__
 	rom_disable();
-	chr = PEEK(CHARSETRAM + 0x800 + chr);
+	chr = PEEK(CHARFLGRAM + chr);
 	rom_enable();	
 #elif defined __LYNX__
 	chr = charFlags[chr];
@@ -174,18 +174,14 @@ unsigned char GetCharmapFlags(unsigned char x, unsigned char y)
 void ScrollCharmap(unsigned char x, unsigned char y)
 {
 	unsigned int src, scr, col;
-	unsigned char i, j, chr;
-	signed char offset;
+	unsigned char i, j, chr, att;
 	
 	// Check if moved?
 	if (x == charmapX && y == charmapY)
 		return;
 	charmapX = x;
 	charmapY = y;
-	
-	// Switch Frame
-	charmapFrame ^= 1;
-	
+		
 #if defined __ATARI__	
 	// Copy Map Section
 	src = CHARMAPRAM + charmapWidth*y + x;
@@ -193,12 +189,16 @@ void ScrollCharmap(unsigned char x, unsigned char y)
 	for (j=0; j<scrollHeight; j++) {
 		for (i=0; i<scrollWidth; i++) {
 			chr = PEEK(src+i);
-			POKE(scr++, chr);
+			att = PEEK(CHARATRRAM+chr);
+			POKE(scr++, chr+att);
 		}
 		src += charmapWidth;
 	}
 	
 #elif defined __CBM__	
+	// Switch Frame
+	//charmapFrame ^= 1;
+
 	// Copy Map Section
 	src = CHARMAPRAM + charmapWidth*y + x;
 	scr = SCREENRAM + 0x0400*charmapFrame;
@@ -207,15 +207,15 @@ void ScrollCharmap(unsigned char x, unsigned char y)
 		for (i=0; i<scrollWidth; i++) {
 			chr = PEEK(src+i);
 			POKE(scr++, chr);
-			POKE(col++, attribs[chr]);
+			POKE(col++, PEEK(CHARATRRAM+chr));
 		}
 		src += charmapWidth;
 	}
 	
 	// Update frame address (and sprite pointers)
-	POKE(0xD018, charmapFrame*16 + BITMAPLOC);
-	memcpy(SPRITEPTR + 0x0400*charmapFrame, spritePtr, 8);
-	spritePtr = SPRITEPTR + 0x0400*charmapFrame;
+	//POKE(0xD018, charmapFrame*16 + BITMAPLOC);
+	//memcpy(SPRITEPTR + 0x0400*charmapFrame, spritePtr, 8);
+	//spritePtr = SPRITEPTR + 0x0400*charmapFrame;
 	
 #elif defined __LYNX__	
 	// Copy Map Section

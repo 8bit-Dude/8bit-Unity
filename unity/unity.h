@@ -98,11 +98,12 @@ void LoadChunk(unsigned char** chunk, char *filename);
 void InitCharmap(void);
 void EnterCharmapMode(void);
 void ExitCharmapMode(void);
-void ClearCharmap(void);
 void LoadCharmap(char *filename);
-unsigned char GetCharmapFlags(unsigned char x, unsigned char y);
+void LoadCharset(char* filename);
+void ClearCharmap(void);
 void ScrollCharmap(unsigned char x, unsigned char y);
 void PrintCharmap(unsigned char x, unsigned char y, unsigned char* str);
+unsigned char GetCharFlags(unsigned char x, unsigned char y);
 extern unsigned char charmapWidth, charmapHeight;
 extern unsigned char scrollWidth, scrollHeight;
 
@@ -212,7 +213,7 @@ void EnableSprite(signed char index);
 void DisableSprite(signed char index);
 void LocateSprite(unsigned int x, unsigned int y);
 void SetSprite(unsigned char index, unsigned char frame);
-void RecolorSprite(unsigned char index, unsigned char number, unsigned char color);
+void RecolorSprite(unsigned char index, unsigned char offset, unsigned char color);
 #if defined __APPLE2__
   void CropSprite(unsigned char index, unsigned char rows);
 #elif defined __ATARI__
