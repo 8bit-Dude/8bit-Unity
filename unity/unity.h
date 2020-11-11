@@ -105,7 +105,8 @@ void ScrollCharmap(unsigned char x, unsigned char y);
 void PrintCharmap(unsigned char x, unsigned char y, unsigned char* str);
 unsigned char GetCharFlags(unsigned char x, unsigned char y);
 extern unsigned char charmapWidth, charmapHeight;
-extern unsigned char scrollWidth, scrollHeight;
+extern unsigned char scrollCol1, scrollCol2;
+extern unsigned char scrollRow1, scrollRow2;
 
 // Lynx specific functions (see Lynx/display.c)
 #if defined __LYNX__

@@ -26,6 +26,8 @@
  
 // Graphical scaling functions
 
+#include "unity.h"
+
 unsigned char ColToX(unsigned char col)
 {
 #if defined __APPLE2__	// DHR Mode: 140 x 192

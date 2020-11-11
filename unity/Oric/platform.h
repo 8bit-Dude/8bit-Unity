@@ -38,10 +38,14 @@
 #define __ORIC__
  
 // Memory Map
-#define SPRITERAM  (0x8000)	// 8000-87ff (location of sprite frames)
-#define MUSICRAM   (0x8800) // 8800-8fff (compressed music data)
-#define MUSICBUF   (0x9000) // 9000-9fff (music buffer used by player)
-#define BITMAPRAM  (0xA000) // A000-Bfff (address where bitmaps are loaded)
+#define CHARMAPRAM  (0x6000) // 6000-7BFF (charmap data)
+#define CHARSETRAM  (0x7A00) // 7B00-7EFF (charset data)
+#define CHARFLGRAM  (0x7E00) // 7F00-7FFF (charflag data)
+#define SPRITERAM   (0x8000) // 8000-87ff (location of sprite frames)
+#define MUSICRAM    (0x8800) // 8800-8fff (compressed music data)
+#define MUSICBUF    (0x9000) // 9000-9fff (music buffer used by player)
+#define BITMAPRAM   (0xA000) // A000-Bfff (address where bitmaps are loaded)
+#define SCREENRAM   (0xBB80) // BB80-BFDF (text buffer)
 
 // Character Mode
 #define CHR_COLS 39

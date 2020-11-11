@@ -64,7 +64,7 @@ void InitBitmap()
 	} else {
 		asm("jsr $E9BB");	// Oric-1 (ROM 1.0)
 	}
-	memset((char*)0xBF68, 0, 120);	// Clear text area
+	memset((char*)0xBF68, 0, 120);	// Clear lower text area
 	
 #elif defined __LYNX__
 	InitDisplay();
