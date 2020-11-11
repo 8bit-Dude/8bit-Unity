@@ -3,11 +3,20 @@ from PIL import Image
 
 input = sys.argv[1]
 output = sys.argv[2]
+height = int(sys.argv[3])
 
 # Read source file
 img1 = Image.open(sys.argv[1])
-pixdata = list(img1.getdata())
-#print pixdata
+rawdata = list(img1.getdata())
+
+###################################
+# Rearrange into 12*8 blocks
+pixdata = []
+for row in range(0, img1.size[1], height):
+    for col in range(0, img1.size[0], 12):
+        for j in range(0, height):        
+            for i in range(0, 12):
+                pixdata.append(rawdata[(row+j)*img1.size[0]+col+i])
 
 #########################
 # Fix paper color

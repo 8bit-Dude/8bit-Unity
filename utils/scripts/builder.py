@@ -633,7 +633,8 @@ class Application:
             for item in charmaps:
                 fp.write('copy ' + item.replace('/', '\\') + ' build\\atari\n')
             if len(charset) > 0:
-                fp.write('utils\\py27\python utils\\scripts\\atari\\AtariCharset.py ' + charset[0] + ' build/atari/charset.dat\n')
+                fb = FileBase(charset[0], '-atari.png')
+                fp.write('utils\\py27\python utils\\scripts\\atari\\AtariCharset.py ' + charset[0] + ' build/atari/' + fb + '.dat\n')
                 
             # Sprites    
             if len(sprites) > 0:
@@ -740,7 +741,8 @@ class Application:
                 
             # Charset    
             if len(charset) > 0:
-                fp.write('utils\\py27\python utils\\scripts\\c64\\C64Charset.py ' + charset[0] + ' build/c64/charset.dat\n')                
+                fb = FileBase(charset[0], '-c64.png')
+                fp.write('utils\\py27\python utils\\scripts\\c64\\C64Charset.py ' + charset[0] + ' build/c64/' + fb + '.dat\n')
                 
             # Sprites
             if len(sprites) > 0:
@@ -805,13 +807,13 @@ class Application:
             fp.write('-write build/c64/loader.prg loader.prg ')
             for item in bitmaps:
                 fb = FileBase(item, '-c64.png')
-                fp.write('-write build/c64/' + fb + '.img ' + fb + '.img ')      
+                fp.write('-write build/c64/' + fb + '.img ' + fb + '.img ')
             if len(charset) > 0:
-                fp.write('-write build/c64/charset.dat charset.dat ')                            
+                fb = FileBase(charset[0], '-c64.png')            
+                fp.write('-write build/c64/' + fb + '.dat ' + fb + '.dat ')                           
             for item in charmaps:
                 fb = FileBase(item, '')
                 fp.write('-write ' + item + ' ' + fb + ' ')
-                fp.write('-write ' + item.replace('.map', '.col') + ' ' + fb.replace('.map', '.col') + ' ')
             for item in music:
                 fb = FileBase(item, '-c64.sid')
                 fp.write('-write build/c64/' + fb + '.prg ' + fb + '.mus ')              
@@ -861,9 +863,12 @@ class Application:
                 
             # Charset
             if len(charset) > 0:
-                fp.write('copy ..\\..\\' + charset[0].replace('/', '\\') + ' charset.png\n')
-                fp.write('..\\..\\utils\\scripts\\png2bmp charset.png\n')
-                fp.write('..\\..\\utils\\scripts\\lynx\\sprpck -t6 -p2 -u -r032008 -S004006 -a000000 charset.bmp\n')
+                fp.write('copy ..\\..\\' + charset[0].replace('/', '\\') + ' char.png\n')
+                fp.write('copy ..\\..\\utils\\scripts\\lynx\\font.png' + ' font.png\n')
+                fp.write('..\\..\\utils\\scripts\\png2bmp char.png\n')
+                fp.write('..\\..\\utils\\scripts\\png2bmp font.png\n')
+                fp.write('..\\..\\utils\\scripts\\lynx\\sprpck -t6 -p2 -u -r032004 -S004006 -a000000 char.bmp\n')
+                fp.write('..\\..\\utils\\scripts\\lynx\\sprpck -t6 -p2 -u -r032004 -S004006 -a000000 font.bmp\n')
                 fp.write('..\\..\\utils\\py27\python ..\\..\\utils\\scripts\\lynx\\LynxCharset.py ..\\..\\' + charset[0].replace('/', '\\') + ' charset.dat\n') 
                 fp.write('\n')
                 
@@ -1041,20 +1046,28 @@ class Application:
                 fp.write('@echo _dummyName: .byte 0 >> data.asm\n')
             fp.write('@echo ; >> data.asm\n')
             
-            # Charset Binary Data
+            # Charset Data
             fp.write('@echo .segment "RODATA" >> data.asm\n')                
             if len(charset) > 0:            
                 fp.write('@echo _charNum: .byte 255 >> data.asm\n')
                 fp.write('@echo _charData: .addr ')
-                for i in range(256):
+                for i in range(0, 128):
                     if i > 0:
                         fp.write(', ')
                     fp.write('_chr' + str(i).zfill(3))
+                for i in range(128, 256):
+                    if i > 0:
+                        fp.write(', ')
+                    fp.write('_fnt' + str(i).zfill(3))
                 fp.write(' >> data.asm\n')
                 i = 0
-                for r in range(8):
+                for r in range(4):
                     for c in range(32):
-                        fp.write('@echo _chr' + str(i).zfill(3) + ': .incbin "charset' + str(r).zfill(3) + str(c).zfill(3) + '.spr" >> data.asm\n')
+                        fp.write('@echo _chr' + str(i).zfill(3) + ': .incbin "char' + str(r).zfill(3) + str(c).zfill(3) + '.spr" >> data.asm\n')
+                        i = i+1
+                for r in range(4):
+                    for c in range(32):
+                        fp.write('@echo _fnt' + str(i).zfill(3) + ': .incbin "font' + str(r).zfill(3) + str(c).zfill(3) + '.spr" >> data.asm\n')
                         i = i+1
                 fp.write('@echo _charFlags: .incbin "charset.dat" >> data.asm\n')
             else:
@@ -1063,7 +1076,7 @@ class Application:
                 fp.write('@echo _charFlags: .byte 0 >> data.asm\n')
             fp.write('@echo ; >> data.asm\n')
             
-            # Sprite Binary Data 
+            # Sprite Data 
             fp.write('@echo .segment "RODATA" >> data.asm\n')                
             fp.write('@echo _spriteNum: .byte ' + self.entry_LynxSpriteFrames.get() + ' >> data.asm\n')            
             if len(sprites) > 0:            
@@ -1152,26 +1165,40 @@ class Application:
             # Process Bitmaps / Chunks / Sprites / Shared
             fp.write('cd utils\\scripts\\oric\n')
             for item in bitmaps:
-                filebase = FileBase(item, '-oric.png')
+                fb = FileBase(item, '-oric.png')
                 if self.combobox_OricImageQuality.get() == 'Hires(Noisy)':
-                    fp.write('luajit PictOric.lua ' + self.entry_OricDithering.get() + ' ../../../' + item + ' ../../../build/oric/' + filebase + '.dat\n')
+                    fp.write('luajit PictOric.lua ' + self.entry_OricDithering.get() + ' ../../../' + item + ' ../../../build/oric/' + fb + '.dat\n')
                 else:
-                    fp.write('..\\..\\py27\\python OricBitmap.py ../../../' + item + ' ../../../build/oric/' + filebase + '.dat\n')
-                fp.write('header -a0 ../../../build/oric/' + filebase + '.dat ../../../build/oric/' + filebase + '.img $A000\n')
+                    fp.write('..\\..\\py27\\python OricBitmap.py ../../../' + item + ' ../../../build/oric/' + fb + '.dat\n')
+                fp.write('header -a0 ../../../build/oric/' + fb + '.dat ../../../build/oric/' + fb + '.img $A000\n')
+                
+            if len(charset) > 0:
+                fb = FileBase(charset[0], '-oric.png')
+                fp.write('..\\..\\py27\python OricCharset.py ' + self.entry_OricDithering.get() +  ' ../../../' + charset[0] + ' ../../../build/oric/' + fb + '.dat\n') 
+                fp.write('header -a0 ../../../build/oric/' + fb + '.dat ../../../build/oric/' + fb + '.dat $A000\n')
+                
             if len(chunks) > 0:
                 fp.write('..\\..\\py27\\python ProcessChunks.py ' + self.combobox_OricImageQuality.get() + ' ' + self.entry_OricDithering.get() + ' ../../../' + chunks[0] + ' ../../../build/oric/\n')
                 fp.write('for /f "tokens=*" %%A in (..\\..\\..\\build\\oric\\chunks.lst) do header -a0 ../../../%%A ../../../%%A $8000\n')
             fp.write('cd ..\\..\\..\n')
+
+            for item in charmaps:
+                fb = FileBase(item, '')
+                fp.write('utils\\scripts\\oric\\header -a0 ' + item + ' build/oric/' + fb + ' $A000\n')
+            
             if len(sprites) > 0:
-                fp.write('utils\\py27\\python utils\\scripts\\oric\\OricSprites.py ' + sprites[0] + ' build/oric/sprites.dat\n')
+                spriteHeight = int(self.entry_OricSpriteHeight.get())
+                fp.write('utils\\py27\\python utils\\scripts\\oric\\OricSprites.py ' + sprites[0] + ' build/oric/sprites.dat ' + str(spriteHeight) + '\n')
                 fp.write('utils\\scripts\\oric\\header -a0 build/oric/sprites.dat build/oric/sprites.dat $7800\n')
+                
             for item in music:
-                filebase = FileBase(item, '-oric.ym')
-                fp.write('utils\\scripts\\oric\\ym2mym ' + item + ' build/oric/' + filebase + '.mus\n')
-                fp.write('utils\\scripts\\oric\\header -h1 -a0 build/oric/' + filebase + '.mus build/oric/' + filebase + '.mus $8000\n')
+                fb = FileBase(item, '-oric.ym')
+                fp.write('utils\\scripts\\oric\\ym2mym ' + item + ' build/oric/' + fb + '.mus\n')
+                fp.write('utils\\scripts\\oric\\header -h1 -a0 build/oric/' + fb + '.mus build/oric/' + fb + '.mus $8000\n')
+                
             for item in shared:
-                filebase = FileBase(item, '')
-                fp.write('utils\\scripts\\oric\\header -a0 ' + item + ' build/oric/' + filebase + ' $A000\n')
+                fb = FileBase(item, '')
+                fp.write('utils\\scripts\\oric\\header -a0 ' + item + ' build/oric/' + fb + ' $A000\n')
                 
             # Info
             fp.write('\necho DONE!\n\n')
@@ -1179,7 +1206,7 @@ class Application:
 
             # Build Unity Library
             CList = ['bitmap.c', 'charmap.c', 'chunks.c', 'geom2d.c', 'hub.c', 'joystick.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'scaling.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Oric\\directory.c', 'Oric\\files.c']
-            SList = ['atan2.s', 'chars.s', 'Oric\\blit.s', 'Oric\\paseIJK.s', 'Oric\\keyboard.s', 'Oric\\sedoric.s', 'Oric\\MYM.s']
+            SList = ['atan2.s', 'chars.s', 'Oric\\blit.s', 'Oric\\paseIJK.s', 'Oric\\keyboard.s', 'Oric\\scroll.s', 'Oric\\sedoric.s', 'Oric\\MYM.s']
                          
             for file in CList:
                 fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atmos -I unity unity\\' + file + '\n')
@@ -1218,9 +1245,13 @@ class Application:
                 cmd += ' build/oric/sprites.dat'
             for item in bitmaps:
                 cmd += ' build/oric/' + FileBase(item, '-oric.png') + '.img'
+            if len(charset) > 0:
+                cmd += ' build/oric/' + FileBase(charset[0], '-oric.png') + '.dat'
+            for item in charmaps:
+                cmd += ' build/oric/' + FileBase(item, '')
             for item in music:
-                filebase = FileBase(item, '-oric.ym')
-                cmd += ' build/oric/' + filebase + '.mus'
+                fb = FileBase(item, '-oric.ym')
+                cmd += ' build/oric/' + fb + '.mus'
             for item in shared:
                 cmd += ' build/oric/' + FileBase(item, '')
             fp.write(cmd + '\n')

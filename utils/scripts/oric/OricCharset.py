@@ -27,53 +27,40 @@
 import io, os, sys, csv
 from PIL import Image
 
-charFile = sys.argv[1]
-output   = sys.argv[2]
+dither   = sys.argv[1]
+charFile = sys.argv[2]
+output   = sys.argv[3]
 
-fontFile = 'utils/scripts/c64/font.png'
-flagFile = charFile.replace('-c64.png', '.csv')
+pictFile = output.replace('.dat', '.png')
+flagFile = charFile.replace('-oric.png', '.csv')
 
 #############################
 # Read char and font bitmaps
 charImg = Image.open(charFile)
-fontImg = Image.open(fontFile)
 charRaw = list(charImg.getdata())
-fontRaw = list(fontImg.getdata())
-print "Charset size: {%i,%i}; Colors: %i" % (charImg.size[0], charImg.size[1], max(charRaw))
+print "Charset size: {%i,%i}" % (charImg.size[0], charImg.size[1])
 
 ############################
-# Rearrange into 4*8 blocks
-charBlocks = []
-for row in range(0, charImg.size[1], 8):
-    for col in range(0, charImg.size[0], 4):
-        for j in range(0, 8):
-            for i in range(0, 4):
-                charBlocks.append(charRaw[(row+j)*charImg.size[0]+col+i])
-fontBlocks = []
-for row in range(0, fontImg.size[1], 8):
-    for col in range(0, fontImg.size[0], 4):
-        for j in range(0, 8):
-            for i in range(0, 4):
-                fontBlocks.append(fontRaw[(row+j)*fontImg.size[0]+col+i])
+# Prepare image for PictOric
+charImg = charImg.convert("RGB")
+result = Image.new(charImg.mode, (240, 200), (0,0,0))
+result.paste(charImg, (6, 0))
+result.save(pictFile)
 
-###############################
-# Process character attributes
-attrData = [chr(0x0e)] * 128
-for i in range(0, len(charBlocks)/32):
-    attr = max(charBlocks[i*32:(i+1)*32])
-    if attr is 4:
-        for j in range(0, 32):
-            if charBlocks[i*32+j] == 4:
-                charBlocks[i*32+j] = 3
-        attrData[i] = chr(0x0a)
+###################
+# Call PictOric
+os.system('luajit PictOric.lua ' + dither + ' ' + pictFile + ' ' + output)
 
-############################################
-# Convert char and font data to C64 format
-charData = [chr(0)] * (256*8)
-for i in range(0, len(charBlocks), 4):
-    charData[i/4] = chr((charBlocks[i+0]<<6) + (charBlocks[i+1]<<4) + (charBlocks[i+2]<<2) + (charBlocks[i+3]<<0))
-for i in range(0, len(fontBlocks), 4):
-    charData[128*8+i/4] = chr((fontBlocks[i+0]<<6) + (fontBlocks[i+1]<<4) + (fontBlocks[i+2]<<2) + (fontBlocks[i+3]<<0))
+#####################
+# Trim PictOric File
+f1 = io.open(output, 'rb')
+data = f1.read()
+f1.close()
+charData = []
+for pix in range(8):
+    for row in range(4):
+        for col in range(32):
+            charData.append(data[row*8*40+pix*40+col+1])
 
 #######################
 # Read character flags
@@ -90,6 +77,5 @@ with open(flagFile) as csvfile:
 # Write output binary file
 f2 = io.open(output, 'wb')
 f2.write(''.join(charData))
-f2.write(''.join(attrData))
 f2.write(''.join(flagData))
 f2.close()
