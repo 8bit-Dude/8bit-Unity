@@ -169,9 +169,9 @@ void gameLoop(void)
 	
 	while (1) {
 		// Check clock
-		if (clock() <= gameClock+8) 
+		if (clock() < gameClock) 
 			continue;
-		gameClock = clock();
+		gameClock = clock()+(TCK_PER_SEC/12);
 		togFrame ^= 1;
 
 		// Save previous location
@@ -260,8 +260,8 @@ void gameLoop(void)
 		i = 0; slot = SPRITE_ENEMY;
 		while (i<ENEMY_NUM && slot<SPRITE_NUM) {
 			enemy = &enemies[i++];
-			if (enemy->state && enemy->mapX >= mapX && enemy->mapX <= mapX+maxW
-						     && enemy->mapX >= mapY && enemy->mapY <= mapY+maxH) {
+			if (enemy->state && enemy->mapX > mapX && enemy->mapX < mapX+maxW
+						     && enemy->mapX > mapY && enemy->mapY < mapY+maxH) {
 				enmX = (enemy->mapX-mapX+scrollCol1)*SCALE_X;
 				enmY = (enemy->mapY-mapY+scrollRow1)*SCALE_Y;
 				deltaX  = sprX;  deltaY = sprY;
