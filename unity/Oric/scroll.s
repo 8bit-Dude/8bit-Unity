@@ -96,23 +96,23 @@ loopRows:
 
 			; Update charset block (+128)
 		; add += 128;	
+			clc	
 			lda $b9			; Update address of char block
-			adc #127
+			adc #128
 			sta $b9	
 			bcc nocarryCS	; Check if carry to high byte
 			inc $ba
 		nocarryCS:
-			clc	
 			
 			; Update bitmap line (+40)
 		; dst += 40;	
+			clc	
 			lda $b7			; Update address of bitmap line
 			adc #40
 			sta $b7
 			bcc nocarryBM	; Check if carry to high byte
 			inc $b8
 		nocarryBM:
-			clc	
 			
 		; Move to next line
 		jmp loopLines
@@ -121,13 +121,13 @@ loopRows:
 
 		; Update charmap line
 	; src += charmapWidth
+		clc	
 		lda $b5			; Update address of charmap line
 		adc $b4			; Add block offset
 		sta $b5	
 		bcc nocarryCM	; Check if carry to high byte
 		inc $b6
 	nocarryCM:
-		clc	
 	
 	; Move to next row
 	jmp loopRows

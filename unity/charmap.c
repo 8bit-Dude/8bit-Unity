@@ -246,7 +246,7 @@ void ScrollCharmap(unsigned char x, unsigned char y)
 	POKE(0xb1, scrollRow2);		
 	POKE(0xb2, scrollCol1);		
 	POKE(0xb3, scrollCol2);		
-	POKE(0xb4, charmapWidth - 1); 					// Offset between source lines
+	POKE(0xb4, charmapWidth); 					// Offset between source lines
 	POKEW(0xb5, CHARMAPRAM + charmapWidth*y + (x - scrollCol1));	// Address of first charmap line
 	POKEW(0xb7, BITMAPRAM + scrollRow1*320 + 1);	// Address of first bitmap line
 	Scroll();	
