@@ -17,12 +17,13 @@
 	#define spriteFrames 32
 	#define spriteCols   8
 	#define spriteRows   18
-	unsigned char spriteColors[] = {0x0c, 0x14, 0xbc, 0x2c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };  // White (sword), Brown, Green, Pink (player), White (enemies) ...
+	unsigned char spriteColors[] = {0x0c, 0x14, 0xbc, 0x2c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };  // White (sword), Brown, Green, Pink (player), White (enemies)
 #elif defined __ORIC__
 	#define spriteFrames 32
 	#define spriteCols   12
-	#define spriteRows   6
-	unsigned char spriteColors[] = { SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC };	// Matching more or less with above
+	#define spriteRows   17
+	unsigned char spriteColors[] = { SPR_WHITE, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC };	// White (sword), AIC (player), AIC (enemies)
+	unsigned char multiColorDef[] = { SPR_WHITE, 7, SPR_GREEN, 14 , SPR_YELLOW, 17 };	// Multicolor definition { color, row, ...  }
 #elif defined __CBM__
 	#define spriteFrames 32
 	#define spriteCols   12
@@ -57,6 +58,12 @@
 	#define SPRITE_ENEMY    4
 	#define COLOR_SKELETON 0x0c
 	#define COLOR_GOBLIN   0xbc
+#elif defined __ORIC__	
+	#define SPRITE_WEAPON   0
+	#define SPRITE_PLAYER   1
+	#define SPRITE_ENEMY    2
+	#define COLOR_SKELETON SPR_WHITE
+	#define COLOR_GOBLIN   SPR_GREEN
 #else
 	#define SPRITE_WEAPON   0
 	#define SPRITE_PLAYER   1
@@ -85,12 +92,18 @@ Enemy enemies[ENEMY_NUM];
 
 void gameInit(void)
 {
-	// Load charmap
+	// Setup charmap
+#if defined __LYNX__
+	scrollCol1 = 2; scrollCol2 = CHR_COLS-3;
+	scrollRow1 = 0; scrollRow2 = CHR_ROWS-1;
+#else
+	scrollCol1 = 2; scrollCol2 = CHR_COLS-3;
+	scrollRow1 = 2; scrollRow2 = CHR_ROWS-3;
+#endif
 	InitCharmap();		
 	ClearCharmap();
 	LoadCharset("charset1.dat");
 	LoadCharmap("quedex.map");
-	scrollHeight = CHR_ROWS-1;
 	EnterCharmapMode();
 	
 	// Setup sprites
@@ -100,6 +113,9 @@ void gameInit(void)
 	EnableSprite(SPRITE_PLAYER0);
 	EnableSprite(SPRITE_PLAYER1);
 	EnableSprite(SPRITE_PLAYER2);
+#elif defined __ORIC__
+	EnableSprite(SPRITE_PLAYER);
+	MultiColorSprite(SPRITE_PLAYER, multiColorDef);
 #else
 	EnableSprite(SPRITE_PLAYER);
 #endif
@@ -122,8 +138,10 @@ void gameInit(void)
 	enemies[2].mapY = 30;
 
 	// Start music
+#if (defined __ATARI__) || (defined __CBM__)
 	LoadMusic("dungeon.mus", MUSICRAM);
 	PlayMusic();
+#endif
 
 	// Show some text
 	inkColor = RED;    PrintCharmap(0, CHR_ROWS-1,"H100");
@@ -135,19 +153,26 @@ void gameLoop(void)
 {
 	unsigned char mapXPRV, mapYPRV, mapX =  25, mapY =  28; // Previous and current map position
 	unsigned int  sprXPRV, sprYPRV, sprX = 160, sprY = 100; // Backup and current sprite position
-	unsigned char flagX, flagY1, flagY2;  // Coords of collision detection (accounting for model height)
+	unsigned char maxW, maxH, maxX, maxY, flagX, flagY1, flagY2;  // Coords of collision detection (accounting for model height)
 	unsigned char i, slot, joy, action, motion, direction;
-	unsigned char sprFrame, weaFrame, enmFrame; 
+	unsigned char sprFrame, weaFrame, enmFrame, togFrame; 
 	unsigned int  weaX, weaY, enmX, enmY;
 	signed int    deltaX, deltaY;
 	clock_t gameClock;	
 	Enemy* enemy;
 	
+	// Helper variables
+	maxW = scrollCol2-scrollCol1;
+	maxH = scrollRow2-scrollRow1;
+	maxX = charmapWidth-maxW;
+	maxY = charmapHeight-maxH;
+	
 	while (1) {
 		// Check clock
-		if (clock() <= gameClock+4) 
+		if (clock() <= gameClock+8) 
 			continue;
 		gameClock = clock();
+		togFrame ^= 1;
 
 		// Save previous location
 		sprXPRV = sprX; sprYPRV = sprY;
@@ -167,32 +192,30 @@ void gameLoop(void)
 				motion = 1; direction = 0;
 			} else 
 			if (!(joy & JOY_RIGHT)) { 
-					 if (sprX<240) sprX += STEP_X; 
-				else if (mapX<(charmapWidth-41)) mapX += 1;
-				else if (sprX<317) sprX += STEP_X; 
+					 if (sprX<240)  sprX += STEP_X; 
+				else if (mapX<maxX) mapX += 1;
+				else if (sprX<317)  sprX += STEP_X; 
 				motion = 1; direction = 2;
 			} else
 			if (!(joy & JOY_UP)) {
 					 if (sprY>50)  sprY -= STEP_Y; 
 				else if (mapY>1)   mapY -= 1;
 				else if (sprY>2)   sprY -= STEP_Y; 
-				sprFrame = 4 + gameClock%2;
 				motion = 1; direction = 4;
 			} else
 			if (!(joy & JOY_DOWN)) {
-					 if (sprY<150) sprY += STEP_Y; 
-				else if (mapY<(charmapHeight-25)) mapY += 1;
-				else if (sprY<185) sprY += STEP_Y;
-				sprFrame = 6 + gameClock%2;
+					 if (sprY<150)  sprY += STEP_Y; 
+				else if (mapY<maxY) mapY += 1;
+				else if (sprY<185)  sprY += STEP_Y;
 				motion = 1; direction = 6;
 			} 
 		}	
 		
 		// Check if new position is allowed?
 		LocatePixel(sprX, sprY);
-		flagX = mapX+XToCol(pixelX);
-		flagY1 = mapY+YToRow(pixelY);
-		flagY2 = mapY+YToRow(pixelY+5);
+		flagX = mapX+XToCol(pixelX)-scrollCol1;
+		flagY1 = mapY+YToRow(pixelY)-scrollRow1;
+		flagY2 = mapY+YToRow(pixelY+5)-scrollRow1;
 		if (!(GetCharFlags(flagX, flagY1) & CHAR_WALKABLE) ||
 			!(GetCharFlags(flagX, flagY2) & CHAR_WALKABLE)) {
 			sprX = sprXPRV; sprY = sprYPRV;
@@ -203,11 +226,9 @@ void gameLoop(void)
 		
 		// Update sprite
 		LocateSprite(sprX, sprY);
+		sprFrame = direction;
 		if (motion)
-			sprFrame = gameClock%2;
-		else
-			sprFrame = 0;
-		sprFrame += direction;
+			sprFrame += togFrame;
 	#if defined __ATARI__
 		SetSprite(SPRITE_PLAYER0, sprFrame);		
 		SetSprite(SPRITE_PLAYER1, sprFrame+spriteFrames);		
@@ -239,10 +260,10 @@ void gameLoop(void)
 		i = 0; slot = SPRITE_ENEMY;
 		while (i<ENEMY_NUM && slot<SPRITE_NUM) {
 			enemy = &enemies[i++];
-			if (enemy->state && enemy->mapX > mapX && enemy->mapX < mapX+39
-						     && enemy->mapX > mapY && enemy->mapY < mapY+24) {
-				enmX = (enemy->mapX-mapX)*SCALE_X;
-				enmY = (enemy->mapY-mapY)*SCALE_Y;
+			if (enemy->state && enemy->mapX >= mapX && enemy->mapX <= mapX+maxW
+						     && enemy->mapX >= mapY && enemy->mapY <= mapY+maxH) {
+				enmX = (enemy->mapX-mapX+scrollCol1)*SCALE_X;
+				enmY = (enemy->mapY-mapY+scrollRow1)*SCALE_Y;
 				deltaX  = sprX;  deltaY = sprY;
 				deltaX -= enmX; deltaY -= enmY;
 				if (ABS(deltaX) < 20 && ABS(deltaY) < 20) {
@@ -250,9 +271,9 @@ void gameLoop(void)
 						enemy->offset = 0;
 					else
 						enemy->offset = 4;
-					enmFrame = enemy->frame+enemy->offset+(gameClock/2u+slot)%2+2;					
+					enmFrame = enemy->frame+enemy->offset+(togFrame+slot)%2u+2;					
 				} else {
-					enmFrame = enemy->frame+enemy->offset+(gameClock/2u+slot)%2;
+					enmFrame = enemy->frame+enemy->offset+(togFrame+slot)%2u;
 			    }
 				RecolorSprite(slot, 0, enemy->color); 
 				LocateSprite(enmX, enmY);
