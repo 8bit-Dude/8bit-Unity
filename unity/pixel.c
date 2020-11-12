@@ -51,7 +51,7 @@ void LocatePixel(unsigned int x, unsigned int y)
 {
 // This function maps pixel coordinates from a 320x200 screen definition
 // It can be by-passed by assigning pixelX, pixelY directly in your code
-#if defined __APPLE2__	// DHR Mode: 140 x 192
+#if defined __APPLE2__	// Hires Mode: 140 x 192
 	pixelX = (x*140u)/320u;
 	pixelY = (y*192u)/200u;
 #elif defined __ATARI__	// INP Mode: 160 x 200
@@ -117,10 +117,15 @@ unsigned char GetPixel()
 	}
 	
 #elif defined __APPLE2__
-	// Use DHR routines
+	// Use Hires routines
 	RestoreSprLine(pixelX,pixelY);
-	SetDHRPointer(pixelX,pixelY);
-	return GetDHRColor();
+	SetHiresPointer(pixelX,pixelY);
+  #if defined __DHR__	
+    return GetColorDHR();
+  #else
+    return GetColorSHR();
+  #endif
+
 	
 #elif defined __ORIC__
 	unsigned int addr;
@@ -192,9 +197,13 @@ unsigned char GetPixel()
 void SetPixel(unsigned char color)
 {
 #if defined __APPLE2__
-	// Use DHR routines
-	SetDHRPointer(pixelX,pixelY);
-	SetDHRColor(color);	
+	// Use Hires routines
+	SetHiresPointer(pixelX,pixelY);
+  #if defined __DHR__	
+	SetColorDHR(color);	
+  #else
+	SetColorSHR(color);	
+  #endif
 	
 #elif defined __ATARI__
 	unsigned int offset;

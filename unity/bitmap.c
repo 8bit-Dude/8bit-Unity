@@ -45,8 +45,10 @@ void InitBitmap()
 	// Prepare Double Hi-Res Mode
 	asm("sta $c052"); // TURN ON FULLSCREEN       
 	asm("sta $c057"); // TURN ON HI-RES           
+  #if defined __DHR__
 	asm("sta $c001"); // TURN ON 80 STORE
-	
+  #endif	
+  
 #elif defined __ATARI__
 	// Switch OFF ANTIC
 	POKE(559, 2);
@@ -59,11 +61,10 @@ void InitBitmap()
 	
 #elif defined __ORIC__
 	// Switch to Hires mode
-	if PEEK((char*)0xC800) {
+	if PEEK((char*)0xC800)
 		asm("jsr $EC33");	// Atmos (ROM 1.1)
-	} else {
+	else
 		asm("jsr $E9BB");	// Oric-1 (ROM 1.0)
-	}
 	memset((char*)0xBF68, 0, 120);	// Clear lower text area
 	
 #elif defined __LYNX__
@@ -95,11 +96,12 @@ void EnterBitmapMode()
 	POKE(559, 32+16+8+4+2);
 	
 #elif defined __APPLE2__
-	// Switch ON Double Hi-Res Mode
-	asm("sta $c00d"); // TURN ON 80 COLUMN MODE	  
+	// Switch ON Bitmap Mode
     asm("sta $c050"); // TURN ON GRAPHICS         
+  #if defined __DHR__
+	asm("sta $c00d"); // TURN ON 80 COLUMN MODE	  
     asm("sta $c05e"); // TURN ON DOUBLE HI-RES
-	
+  #endif	
 #elif defined __LYNX__
 	videoMode = MODE_BITMAP;	
 #endif
@@ -119,8 +121,10 @@ void ExitBitmapMode()
 #elif defined __APPLE2__
     // Switch OFF Double Hi-Res Mode
     asm("sta $c051"); // TEXT - HIDE GRAPHICS
+  #if defined __DHR__
     asm("sta $c05f"); // TURN OFF DOUBLE RES
 	asm("sta $c00c"); // TURN OFF 80 COLUMN MODE	  
+  #endif	
 #endif
 }
 
@@ -129,9 +133,11 @@ void ClearBitmap()
 {
 #if defined __APPLE2__
     // clear main and aux screen memory	
+  #if defined __DHR__	
 	*dhraux = 0;
     bzero((char *)BITMAPRAM, 8192);
 	*dhrmain = 0;
+  #endif
     bzero((char *)BITMAPRAM, 8192);
 	
 #elif defined __ATARI__
@@ -172,11 +178,11 @@ void LoadBitmap(char *filename)
 	// Load from CART file system
 	if (FileRead(filename) && autoRefresh) 
 		UpdateDisplay();	
-/* #elif defined __APPLE2__
+/*#elif defined __APPLE2__
 	if (FileOpen(filename)) {
 		*dhraux = 0;  FileRead((char*)BITMAPRAM, 8192);	// Read 8192 bytes to AUX	
 		*dhrmain = 0; FileRead((char*)BITMAPRAM, 8192); // Read 8192 bytes to MAIN
-	} */
+	}*/
 #elif defined __ATARI__
 	if (FileOpen(filename)) {		
 		FileRead((char*)PALETTERAM, 4);		// 4 bytes for palette
@@ -207,11 +213,12 @@ void LoadBitmap(char *filename)
 	bg = (char) fgetc(fp);
   #elif defined __APPLE2__
 	// Read 8192 bytes to AUX
+  #if defined __DHR__
 	*dhraux = 0;
 	fread((char*)BITMAPRAM, 1, 8192, fp);
-	
-	// Read 8192 bytes to MAIN
 	*dhrmain = 0;
+  #endif	
+	// Read 8192 bytes to MAIN
 	fread((char*)BITMAPRAM, 1, 8192, fp);
   #endif
 	// Close file

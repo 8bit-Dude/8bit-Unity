@@ -30,7 +30,7 @@
 
 unsigned char ColToX(unsigned char col)
 {
-#if defined __APPLE2__	// DHR Mode: 140 x 192
+#if defined __APPLE2__	// Hires Mode: 140 x 192
 	return (col*35u)/10u;
 #elif defined __ATARI__	// INP Mode: 160 x 200
 	return col*4u;
@@ -45,7 +45,7 @@ unsigned char ColToX(unsigned char col)
 
 unsigned char XToCol(unsigned char x)
 {
-#if defined __APPLE2__	// DHR Mode: 140 x 192
+#if defined __APPLE2__	// Hires Mode: 140 x 192
 	return (x*10u)/35u;
 #elif defined __ATARI__	// INP Mode: 160 x 200
 	return x/4u;
@@ -60,7 +60,7 @@ unsigned char XToCol(unsigned char x)
 
 unsigned char RowToY(unsigned char row)
 {
-#if defined __APPLE2__	// DHR Mode: 140 x 192
+#if defined __APPLE2__	// Hires Mode: 140 x 192
 	return row*8u;
 #elif defined __ATARI__	// INP Mode: 160 x 200
 	return row*8u;
@@ -75,7 +75,7 @@ unsigned char RowToY(unsigned char row)
 
 unsigned char YToRow(unsigned char y)
 {
-#if defined __APPLE2__	// DHR Mode: 140 x 192
+#if defined __APPLE2__	// Hires Mode: 140 x 192
 	return y/8u;
 #elif defined __ATARI__	// INP Mode: 160 x 200
 	return y/8u;

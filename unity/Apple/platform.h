@@ -38,43 +38,72 @@
 #define BITMAPRAM  (0x2000)
 #define SPRITERAM  (0xa800)	// A800-BBFF (sprites.app loaded here)
 #define MUSICRAM   (0xbc00) // BC00-BEFF (electric duet track loaded here)
+#define CHARMAPRAM (0x0000) // 6000-7BFF (charmap data)
+#define CHARSETRAM (0x0000) // 7B00-7EFF (charset data)
+#define CHARFLGRAM (0x0000) // 7F00-7FFF (charflag data)
 
 // Character Mode
 #define CHR_COLS 40
 #define CHR_ROWS 24
 
-// Bitmap Mode (DHR)
+// Bitmap Mode (Single or Double Hires)
 #define BMP_COLS 140
 #define BMP_ROWS 192
 #define BMP_PALETTE 16
 
 // Bitmap Palette
-#define BLACK   0
-#define DBLUE	1
-#define DGREEN	2
-#define BLUE	3
-#define CYAN	3
-#define BROWN	4
-#define GREY	5
-#define GREEN	6
-#define LGREEN	7
-#define RED 	8
-#define PURPLE  9
-#define LGREY	10
-#define LBLUE	11
-#define ORANGE	12
-#define PINK	13
-#define YELLOW  14
-#define WHITE   15
+#if defined __DHR__
+  #define BLACK   0
+  #define DBLUE	  1
+  #define DGREEN  2
+  #define BLUE	  3
+  #define CYAN	  3
+  #define BROWN	  4
+  #define GREY	  5
+  #define GREEN	  6
+  #define LGREEN  7
+  #define RED 	  8
+  #define PURPLE  9
+  #define LGREY	 10
+  #define LBLUE	 11
+  #define ORANGE 12
+  #define PINK	 13
+  #define YELLOW 14
+  #define WHITE  15
+#else
+  #define BLACK   0
+  #define DBLUE	  1
+  #define DGREEN  2
+  #define BLUE	  3
+  #define CYAN	  3
+  #define BROWN	  4
+  #define GREY	  3
+  #define GREEN	  2
+  #define LGREEN  2
+  #define RED 	  4
+  #define PURPLE  1
+  #define LGREY	  3
+  #define LBLUE	  3
+  #define ORANGE  4
+  #define PINK	  5
+  #define YELLOW  2
+  #define WHITE   5	
+#endif
 
 // Workaround for missing chardefs
 #define CH_DEL  0x08
 
-// Double Hi-Res functions (see DHR.c)
-extern unsigned char *dhrmain, *dhraux, *dhrptr, dhrpixel;
-void SetDHRPointer(unsigned int x, unsigned int y);
-void SetDHRColor(unsigned char color);
-unsigned char GetDHRColor(void);
+// Hires functions (see hires.s, pixel.c, blitXXX.s, pixelXXX.c)
+extern unsigned char *hiresPtr, hiresPixel;
+void SetHiresPointer(unsigned int x, unsigned int y);
+#if defined __DHR__
+  extern unsigned char *dhrmain, *dhraux;
+  void SetColorDHR(unsigned char color);
+  unsigned char GetColorDHR(void);
+#else
+  void SetColorSHR(unsigned char color);
+  unsigned char GetColorSHR(void);
+#endif
 
 // Output for SFX/Music (see DUET.s, MOCKING.s)
 extern unsigned char hasMocking;	
@@ -95,5 +124,5 @@ extern clock_t clk;
 
 // Using ProDos for File Management (see files.c)
 void DirList(void);
-/* unsigned char FileOpen(const char* fname);
-void FileRead(void* buf, unsigned int len); */
+unsigned char FileOpen(const char* fname);
+void FileRead(char* buf, unsigned int len);

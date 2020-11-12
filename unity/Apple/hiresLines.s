@@ -1,5 +1,5 @@
 ;
-; Copyright (c) 2019 Anthony Beaucamp.
+; Copyright (c) 2020 Anthony Beaucamp.
 ;
 ; This software is provided 'as-is', without any express or implied warranty.
 ; In no event will the authors be held liable for any damages arising from
@@ -24,12 +24,13 @@
 ;   specific prior written permission.
 ;
 
-	.export _DHRLine
-	.export _Blit
+	.export _hiresLinesHI, _hiresLinesLO
 
+	.export _HiresLine
+	
 	.segment	"DATA"
 		
-_dhrLinesHI: 
+_hiresLinesHI: 
 	.byte $20,$24,$28,$2C,$30,$34,$38,$3C
 	.byte $20,$24,$28,$2C,$30,$34,$38,$3C
 	.byte $21,$25,$29,$2D,$31,$35,$39,$3D
@@ -55,7 +56,7 @@ _dhrLinesHI:
  	.byte $23,$27,$2B,$2F,$33,$37,$3B,$3F
 	.byte $23,$27,$2B,$2F,$33,$37,$3B,$3F
 	
-_dhrLinesLO: 
+_hiresLinesLO: 
 	.byte $00,$00,$00,$00,$00,$00,$00,$00
  	.byte $80,$80,$80,$80,$80,$80,$80,$80
 	.byte $00,$00,$00,$00,$00,$00,$00,$00
@@ -80,117 +81,19 @@ _dhrLinesLO:
  	.byte $D0,$D0,$D0,$D0,$D0,$D0,$D0,$D0
  	.byte $50,$50,$50,$50,$50,$50,$50,$50
  	.byte $D0,$D0,$D0,$D0,$D0,$D0,$D0,$D0
-
-_mainAuxTog: .res 1
 
 	.segment	"LOWCODE"
 
 ; ---------------------------------------------------------------
-; int __near__ _DHRLine (char line)
-;	Return address of DHR line
+; int __near__ HiresLine (char line)
+;	Return address of Hires line
 ; ---------------------------------------------------------------	
 	
-.proc _DHRLine: near
+.proc _HiresLine: near
 
-	; Save DHR address to registers A/X
+	; Save Hires address to registers A/X
 	tay
-	ldx _dhrLinesHI,y
-	lda _dhrLinesLO,y
+	ldx _hiresLinesHI,y
+	lda _hiresLinesLO,y
 	rts
 .endproc	
-	
-; ---------------------------------------------------------------
-; void __near__ Blit (void)
-;	Fast copy data between PROGRAM and DHR memory
-;	Zero Page Data:
-;		$e3: Number of bytes per row
-;		$eb: Number of rows
-;		$ec: DHR offset X
-;		$ed: DHR offset Y
-;		$ee: 16 bit output address (optional)
-;		$fa: 16 bit input address (optional)
-;
-;		$fc: 16 bit address of DHR line (generated from offsets)
-; ---------------------------------------------------------------	
-
-.proc _Blit: near
-
-	; Init Main/Aux Toggle
-	lda #0
-	sta _mainAuxTog
-
-	; X loop: Number of lines
-	ldx $eb
-loopRow:
-	; Copy from DHR Tables (with Line Offset Y and Byte Offset X) to $fc/$fd
-	ldy $ed				; Y offset within table
-	lda _dhrLinesHI,y
-	sta $fd
-	lda _dhrLinesLO,y
-	adc $ec				; Add X Offset
-	sta $fc
-
-	; Main/Aux Toggle
-branchAux:	
-	sta $c055		; Switch to AUX memory
-	jmp switchDone
-branchMain:
-	sta $c054		; Switch to MAIN memory
-switchDone:
-	
-	; Copy bytes from DHR to ouput	
-screen2output:
-	lda $ef
-	beq input2screen  ; If high-byte is zero, then skip
-	ldy #0			; Y loop: Copy ? bytes (see $e3)
-loopCopy1:
-	lda ($fc),y		; Copy 1 byte
-	sta ($ee),y
-	iny				; Iterate Y loop
-	cpy $e3
-	bne loopCopy1
-incAddress1:
-	clc				; Increment address of output block
-	lda $ee			
-	adc $e3			; Move ? bytes (see $e3)
-	sta $ee	
-	bcc nocarry1	; Check if carry to high-byte
-	inc $ef
-nocarry1:
-	
-	; Copy bytes from input to DHR
-input2screen:	
-	lda $fb
-	beq toggleBlocks  ; If high-byte is zero, then skip	
-	ldy #0			; Y loop: Copy ? bytes (see $e3)
-loopCopy2:
-	lda ($fa),y		; Copy 1 byte
-	sta ($fc),y
-	iny				; Iterate Y loop
-	cpy $e3
-	bne loopCopy2
-incAddress2:
-	clc				; Increment address of input block
-	lda $fa			
-	adc $e3			; Move ? bytes (see $e3)
-	sta $fa	
-	bcc nocarry2	; Check if carry to high byte
-	inc $fb
-nocarry2:
-	
-toggleBlocks:
-	; Process Main Block?
-	clc
-	lda _mainAuxTog
-	eor #1
-	sta _mainAuxTog
-	bne branchMain
-
-nextRow:
-	; Move to next row
-	inc $ed			; Increment Y-Line offset in DHR Table
-	clc
-	dex				; Iterate X loop
-	bne loopRow	
-	rts
-.endproc

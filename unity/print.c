@@ -105,24 +105,31 @@ void PrintBlanks(unsigned char col, unsigned char row, unsigned char width, unsi
 	x = 7*col;
 	y = row*8;
 	for (i=0; i<7; ++i) {
-		SetDHRPointer(x+i, y);
-		SetDHRColor(paperColor);
+		SetHiresPointer(x+i, y);
+	  #if defined __DHR__
+		SetColorDHR(paperColor);
+	  #else
+		SetColorSHR(paperColor);
+	  #endif
 	}
 	
-	// Get sample block value
-	SetDHRPointer(x, y);
-	*dhraux = 0;  dataAux = PEEKW(dhrptr);
-	*dhrmain = 0; dataMain = PEEKW(dhrptr);
-
-	// Copy block across the rest of DHR memory
+	// Copy sample block across the rest of DHR memory
+	SetHiresPointer(x, y);
+  #if defined __DHR__	
+	*dhraux = 0;  dataAux = PEEKW(hiresPtr); *dhrmain = 0; 
+  #endif
+	dataMain = PEEKW(hiresPtr);
 	for (y=row*8; y<(row+height)*8; ++y) {
-		SetDHRPointer(x, y);
+		SetHiresPointer(x, y);
 		for (i=0; i<width; ++i) {
-			*dhraux = 0;  POKEW(dhrptr, dataAux);
-			*dhrmain = 0; POKEW(dhrptr, dataMain);
-			dhrptr += 2;
+		  #if defined __DHR__	
+			*dhraux = 0;  POKEW(hiresPtr, dataAux); *dhrmain = 0; 
+		  #endif
+			POKEW(hiresPtr, dataMain);
+			hiresPtr += 2;
 		}
 	}
+  
 #elif defined __ORIC__
 	// Fill with 0s (papercolor) or 1s (inkcolor)
 	unsigned int addr;
@@ -198,16 +205,25 @@ void PrintLogo(unsigned char col, unsigned char row, unsigned char index)
 	
 	// Set character over 3/4 pixels out of 7 in a cell
 	for (i=0; i<5; ++i) {
-		SetDHRPointer(x, y+i+3);
+		SetHiresPointer(x, y+i+3);
 		for (j=0; j<n; j++) {
 			if (j<3) {
-				SetDHRColor(logos[index][i][j]);
+			  #if defined __DHR__		
+				SetColorDHR(logos[index][i][j]);
+			  #else
+				SetColorSHR(logos[index][i][j]);
+			  #endif
 			} else {
-				SetDHRColor(BLACK);
+			  #if defined __DHR__		
+				SetColorDHR(BLACK);
+			  #else
+				SetColorSHR(BLACK);
+			  #endif
 			}
-			dhrpixel++;
+			hiresPixel++;
 		}
 	}
+	
 #elif defined __ATARI__
 	// Define logos (1=Red, 2=Blue, 3=Green)
 	unsigned char logos[6][8] = { {0,0,0, 32,136,128,132, 32}, 		// C64: (0,2,0,0) (2,0,2,0) (2,0,0,0) (2,0,1,0) (0,2,0,0)
@@ -297,32 +313,49 @@ void PrintChr(unsigned char col, unsigned char row, const char *chr)
 	unsigned char i,j,n;
 	if ((col > CHR_COLS) || (row > CHR_ROWS)) { return; }		
 	if (col%2) { n=4; } else { n=3; }
-	x = (col*35u)/10u; y = (row*8u);
-	SetDHRPointer(x, y);	
+	x = (col*35)/10u; y = (row*8);
+	SetHiresPointer(x, y);	
 	for (j=0; j<n; j++) {
-		SetDHRColor(paperColor);
-		dhrpixel++;
+	  #if defined __DHR__	
+		SetColorDHR(paperColor);
+	  #else
+		SetColorSHR(paperColor);
+	  #endif
+		hiresPixel++;
 	}
 	for (i=0; i<3; ++i) {
-		SetDHRPointer(x, y+i*2u+1);
+		SetHiresPointer(x, y+i*2+1);
 		for (j=0; j<n; j++) {
-			SetDHRColor(((chr[i]>>(7-j))&1) ? inkColor : paperColor);
-			dhrpixel++;
+		  #if defined __DHR__	
+			SetColorDHR(((chr[i]>>(7-j))&1) ? inkColor : paperColor);
+		  #else
+			SetColorSHR(((chr[i]>>(7-j))&1) ? inkColor : paperColor);
+		  #endif
+			hiresPixel++;
 		}
-		SetDHRPointer(x, y+i*2u+2);
+		SetHiresPointer(x, y+i*2+2);
 		for (j=0; j<n; j++) {
-			SetDHRColor(((chr[i]>>(3-j))&1) ? inkColor : paperColor);
-			dhrpixel++;
+		  #if defined __DHR__	
+			SetColorDHR(((chr[i]>>(3-j))&1) ? inkColor : paperColor);
+		  #else
+			SetColorSHR(((chr[i]>>(3-j))&1) ? inkColor : paperColor);
+		  #endif
+			hiresPixel++;
 		}
 	}
-	SetDHRPointer(x, y+7);
+	SetHiresPointer(x, y+7);
 	for (j=0; j<n; j++) {
-		SetDHRColor(paperColor);
-		dhrpixel++;
+	  #if defined __DHR__	
+		SetColorDHR(paperColor);
+	  #else
+		SetColorSHR(paperColor);
+	  #endif
+		hiresPixel++;
 	}
 
 	// Update clock (slow function)
 	clk += 2;
+	
 #elif defined __ATARI__	
 	// Set Character across double buffer
 	unsigned char i;
@@ -332,16 +365,16 @@ void PrintChr(unsigned char col, unsigned char row, const char *chr)
 	paperColor1 = paperColor&3; paperColor2 = paperColor/4u;
 	bgByte1 = BYTE4(paperColor1,paperColor2,paperColor1,paperColor2);
 	bgByte2 = BYTE4(paperColor2,paperColor1,paperColor2,paperColor1);	
-	addr1 = BITMAPRAM1 + row*320u + col;
-	addr2 = BITMAPRAM2 + row*320u + col;
+	addr1 = BITMAPRAM1 + row*320 + col;
+	addr2 = BITMAPRAM2 + row*320 + col;
 	if (chr == &charBlank[0]) {
 		for (i=0; i<8; ++i) {
 			if (i%2) {
-				POKE((char*)addr1+i*40u, bgByte2);
-				POKE((char*)addr2+i*40u, bgByte1);
+				POKE((char*)addr1+i*40, bgByte2);
+				POKE((char*)addr2+i*40, bgByte1);
 			} else {
-				POKE((char*)addr1+i*40u, bgByte1);
-				POKE((char*)addr2+i*40u, bgByte2);
+				POKE((char*)addr1+i*40, bgByte1);
+				POKE((char*)addr2+i*40, bgByte2);
 			}
 		}
 	} else {
@@ -496,11 +529,13 @@ void CopyStr(unsigned char col1, unsigned char row1, unsigned char col2, unsigne
 	x1 = (col1*35u)/10u; y1 = (row1*8u);
 	x2 = (col2*35u)/10u; y2 = (row2*8u);	
 	for (i=0; i<8; ++i) {
-		SetDHRPointer(x1, y1+i); dst = dhrptr;
-		SetDHRPointer(x2, y2+i); src = dhrptr;
+		SetHiresPointer(x1, y1+i); dst = hiresPtr;
+		SetHiresPointer(x2, y2+i); src = hiresPtr;
+	  #if defined __DHR__	
 		*dhraux = 0;
 		memcpy((char*)dst, (char*)src, len);
 		*dhrmain = 0;
+	  #endif
 		memcpy((char*)dst, (char*)src, len);
 	}
 #elif defined __LYNX__

@@ -33,100 +33,89 @@
   #pragma code-name("LOWCODE")
 #endif
 
-// Addresses for AUX bank copying
+extern unsigned char *hiresPtr, hiresPixel;
+
 unsigned char *dhrmain = (unsigned char*)0xC054;
 unsigned char *dhraux = (unsigned char*)0xC055;	
-unsigned char *dhrptr, dhrpixel;
-unsigned int DHRLine(unsigned char y);	// (see Apple/sprite.c)
 
-void SetDHRPointer(unsigned int x, unsigned int y)
-{
-	// Compute 7 pixels block address
-	unsigned int xBlock;
-	dhrpixel = (x%7);
-	xBlock = (x/7u)*2;
-	if (dhrpixel > 3) { ++xBlock; }
-	dhrptr = DHRLine(y) + xBlock;
-}
-
-void SetDHRColor(unsigned char color)
+void SetColorDHR(unsigned char color)
 {
 	// Use bitmasks to assign the relevant pixel
-	switch(dhrpixel) {
+	switch(hiresPixel) {
 		case 0: *dhraux = 0; // select auxilliary memory 
-				*dhrptr &= 0x70;
-				*dhrptr |= color;
+				*hiresPtr &= 0x70;
+				*hiresPtr |= color;
 				*dhrmain = 0; // reset to main memory 
 				break;
 		case 1: *dhraux = 0; // select auxilliary memory 
-				*dhrptr &= 0x0f;
-				*dhrptr |= (color &  7) << 4;
+				*hiresPtr &= 0x0f;
+				*hiresPtr |= (color &  7) << 4;
 				*dhrmain = 0; // reset to main memory 
-				*dhrptr &= 0x7e;
-				*dhrptr |= (color &  8) >> 3;
+				*hiresPtr &= 0x7e;
+				*hiresPtr |= (color &  8) >> 3;
 				break;
-		case 2: *dhrptr &= 0x61;
-				*dhrptr |= color << 1;
+		case 2: *hiresPtr &= 0x61;
+				*hiresPtr |= color << 1;
 				break;
-		case 3: *dhrptr &= 0x1f;
-				*dhrptr |= (color &  3) << 5;
+		case 3: *hiresPtr &= 0x1f;
+				*hiresPtr |= (color &  3) << 5;
 				*dhraux = 0; // select auxilliary memory 
-				*dhrptr++;   // advance offset in frame 
-				*dhrptr &= 0x7c;
-				*dhrptr |= (color & 12) >> 2;
+				*hiresPtr++;   // next byte
+				*hiresPtr &= 0x7c;
+				*hiresPtr |= (color & 12) >> 2;
 				*dhrmain = 0; // reset to main memory 
 				break;
 		case 4: *dhraux = 0; // select auxilliary memory 
-				*dhrptr &= 0x43;
-				*dhrptr |= color << 2;
+				*hiresPtr &= 0x43;
+				*hiresPtr |= color << 2;
 				*dhrmain = 0; // reset to main memory 
 				break;
 		case 5: *dhraux = 0; // select auxilliary memory 
-				*dhrptr &= 0x3f;
-				*dhrptr |= (color &  1) << 6;
+				*hiresPtr &= 0x3f;
+				*hiresPtr |= (color &  1) << 6;
 				*dhrmain = 0; // reset to main memory 
-				*dhrptr &= 0x78;
-				*dhrptr |= (color & 14) >> 1;
+				*hiresPtr &= 0x78;
+				*hiresPtr |= (color & 14) >> 1;
 				break;
-		case 6: *dhrptr &= 0x07;
-				*dhrptr |= color << 3;
+		case 6: *hiresPtr &= 0x07;
+				*hiresPtr |= color << 3;
 				break;
 	}
 }
 
-unsigned char GetDHRColor()
+unsigned char GetColorDHR()
 {
 	unsigned char color;
 
 	// Use bitmasks to retrieve the relevant pixel
-	switch(dhrpixel) {
+	switch (hiresPixel) {
 		case 0: *dhraux = 0; // select auxilliary memory 
-				color = *dhrptr & 15;
+				color = *hiresPtr & 15;
 				*dhrmain = 0; // reset to main memory 
 				break;
 		case 1: *dhraux = 0; // select auxilliary memory 
-				color = (*dhrptr & 112) >> 4;
+				color = (*hiresPtr & 112) >> 4;
 				*dhrmain = 0; // reset to main memory 
-				color |= (*dhrptr & 1) << 3;
+				color |= (*hiresPtr & 1) << 3;
 				break;
-		case 2: color = (*dhrptr & 30) >> 1;
+		case 2: color = (*hiresPtr & 30) >> 1;
 				break;
-		case 3: color = (*dhrptr & 96) >> 5;
+		case 3: color = (*hiresPtr & 96) >> 5;
 				*dhraux = 0; // select auxilliary memory 
-				*dhrptr++;      // advance off in frame 
-				color |= (*dhrptr & 3) << 2;
+				*hiresPtr++;      // next byte
+				color |= (*hiresPtr & 3) << 2;
 				*dhrmain = 0; // reset to main memory 
 				break;
 		case 4: *dhraux = 0; // select auxilliary memory 
-				color = (*dhrptr & 60) >> 2;
+				color = (*hiresPtr & 60) >> 2;
 				*dhrmain = 0; // reset to main memory 
 				break;
 		case 5: *dhraux = 0; // select auxilliary memory 
-				color = (*dhrptr & 64) >> 6;
+				color = (*hiresPtr & 64) >> 6;
 				*dhrmain = 0; // reset to main memory 
-				color |= (*dhrptr & 7) << 1;
+				color |= (*hiresPtr & 7) << 1;
 				break;
-		case 6: color = (*dhrptr & 120) >> 3;
+		case 6: color = (*hiresPtr & 120) >> 3;
 				break;
 	}
 

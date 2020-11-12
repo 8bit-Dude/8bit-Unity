@@ -49,6 +49,7 @@ loopy:
 	sta ($b4),y
 	dey				; Iterate Y loop
 	bne loopy
+	
 	clc
 	lda $b2			; Update address of next source block
 	adc $b6			; Add block offset (ZP$b6)
@@ -56,6 +57,7 @@ loopy:
 	bcc nocarry1	; Check if carry to high byte
 	inc $b3
 nocarry1:
+
 	clc
 	lda $b4			; Update address of next target block
 	adc $b7			; Add block offset (ZP$b7)
@@ -63,6 +65,7 @@ nocarry1:
 	bcc nocarry2	; Check if carry to higher byte
 	inc $b5
 nocarry2:
+
 	dex				; Iterate X loop
 	bne loopx
 	rts

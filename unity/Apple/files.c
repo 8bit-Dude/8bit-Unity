@@ -24,31 +24,88 @@
  *   specific prior written permission.
  */
 
+#include <string.h>
+
 #ifdef __APPLE2__
-  #pragma code-name("LOWCODE")
+  #pragma code-name("CODE")
 #endif
 
 // Externals: see prodos.s
-/* 
-extern void __fastcall__ prodos_open_file(void);
-extern void __fastcall__ prodos_load_data(void);
+unsigned char mli(unsigned char call, void* ptr_parameter);
 
-extern const char* prodos_fname;
-extern void* prodos_dest;
-extern unsigned int prodos_len;
+// MLI functions
+#define CREATE   0xC0
+#define OPEN     0xC8
+#define READ     0xCA
+#define WRITE    0xCB
+#define CLOSE    0xCC
+#define FLUSH    0xCD
+#define SET_MARK 0xCE
 
- unsigned char FileOpen(const char* fname)
+const char* VOLUME_NAME = "/SYSTEM/";
+
+// File handle
+unsigned char* ref_num;
+char Filename[65];
+static unsigned char Io[ 1024+256 ]; //I need an adress aligned on 256: I'll use the 1st one inside Io
+static unsigned char Error = 0u;
+
+void EncodePath( const char* p_filename )
 {
-	*((char*)prodos_fname-1) = strlen(fname);
-    prodos_fname = fname;
-	prodos_open_file();	
-	return 1;
+  strcpy(Filename[1], VOLUME_NAME );
+  Filename[0] = strlen(VOLUME_NAME);
+  strcpy(Filename[1+Filename[0]], p_filename );
+  Filename[0] += strlen(p_filename);
 }
 
-void FileRead(void* buf, unsigned int len)
+typedef struct {
+	unsigned char param_count;
+	char* pathname;
+	unsigned char* io_buffer;
+	unsigned char ref_num;
+} open_param_t;
+
+unsigned char FileOpen( const char* p_filename )
 {
-	prodos_dest = buf;
-  prodos_len  = len;
-  prodos_load_data();	
-} 
-*/
+	open_param_t param;
+	EncodePath( p_filename );
+	param.param_count = 3u;
+	param.pathname = Filename;
+	param.io_buffer = (unsigned char*)((unsigned int)(Io)+256-(unsigned int)(Io)%256); //Getting the 256byte aligned adrress
+	Error = mli( OPEN, &param );
+	if(!Error)
+		ref_num = param.ref_num;
+	return Error;
+}
+
+typedef struct {
+	unsigned char param_count;
+	unsigned char ref_num;
+	unsigned char* data_buffer;
+	unsigned int request_count;
+	unsigned int trans_count;
+} read_param_t;
+
+unsigned int FileRead( char* buffer, unsigned int len )
+{
+	read_param_t param;
+	param.param_count = 4u;
+	param.ref_num = ref_num;
+	param.data_buffer = buffer;
+	param.request_count = len;
+	Error = mli( READ, &param );
+	return param.trans_count;
+}
+
+typedef struct {
+	unsigned char param_count;
+	unsigned char ref_num;
+} close_param_t;
+
+void file_close( void )
+{
+	close_param_t param;
+	param.param_count = 1u;
+	param.ref_num = ref_num;
+	Error = mli( CLOSE, &param );
+}

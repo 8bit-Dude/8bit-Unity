@@ -23,58 +23,31 @@
 ;   used to endorse or promote products derived from this software without
 ;   specific prior written permission.
 ;
-	
-	.export _prodos_fname
-	.export _prodos_dest
-	.export _prodos_len
-	
-	.export _prodos_open_file
-	.export _prodos_load_data
+;	Original implementation by Christophe Meneboeuf
+;
 
-_prodos_flen:  .res 1
-_prodos_fname: .res 13
-_prodos_dest:  .res 2
-_prodos_len:   .res 2
+	.import     __dos_type
+	.import     popa
 
-_params: .res 4
+	.export _mli
 
-_prodos_open_file:
-	lda #$03			; 3 params (pointer to filename, pointer to I/O buffer (unused), ref. number (result))
-    sta _params+0
-	lda #<_prodos_flen  ; low byte of len+name address
-    sta _params+1
-    lda #>_prodos_flen  ; high byte of len+name address
-    sta _params+2
-    lda #$00			; use file 0
-    sta _params+3
-    lda #$A6			; use file 0
-    sta _params+4       
-    lda #$C8            ; open command
-    sta _mli+3
-    jsr _mli            ; open the file
-	rts
+.code
 
-_prodos_load_data:
-	lda #$03			; 4 params (file ref. number, pointer to buffer, num of bytes, number actually read)
-    sta _params+0
-	lda #$00			; use file 0
-    sta _params+1
-	lda #<_prodos_dest  ; low byte of buffer address
-    sta _params+2
-    lda #>_prodos_dest  ; high byte of buffer address
-    sta _params+3
-	lda _prodos_len+0 	; low byte of read num
-    sta _params+4
-    lda _prodos_len+1  	; high byte of read num
-    sta _params+5
-    lda #$CA            ; read command
-    sta _mli+3
-    jsr _mli            ; open the file
-	rts
-	
-_mli: 
-	jsr $BF00       	; call ProDOS
-    .byte $00          	; command number
-    .word _params       ; address of parameter table
-    rts
-	
+_mli:
+        ; Store parameters
+        STA     Mli_Param
+        STX     Mli_Param+1
+        ; Store call number
+        JSR     popa
+        STA     Mli_Call
+
+        ; Call MLI and return
+        JSR     $BF00           ; MLI call entry point
+		
+Mli_Call:
+        .byte   $00
+Mli_Param:
+        .addr   $00
+        rts
+		
+		

@@ -36,12 +36,16 @@
 
 // Platform specific function
 #if defined __APPLE2__
-	#define frameWIDTH 4		// Byte width of sprite (7 pixels)
+  #if defined __DHR__
+	#define frameWIDTH 4		// 4 bytes per 7 pixels
+  #else
+    #define frameWIDTH 2		// 2 bytes per 7 pixels
+  #endif
 	unsigned char frameROWS;
     unsigned int  frameBLOCK;	// Size of sprite offset block (4 blocks)
 	unsigned char sprX[SPRITE_NUM], sprY[SPRITE_NUM];	 // Screen coordinates
 	unsigned char sprDrawn[SPRITE_NUM], sprCollision[SPRITE_NUM]; // Enable and Collision status
-	unsigned char sprXDHR[SPRITE_NUM];  // Byte offset within DHR line
+	unsigned char sprHiresX[SPRITE_NUM];  // Byte offset within Hires line
 	unsigned char*sprBG[SPRITE_NUM];  // Sprite background
 	unsigned char sprROWS[SPRITE_NUM];  // Sprite dimensions used in algorithms
 	void CropSprite(unsigned char index, unsigned char rows) {
@@ -262,18 +266,26 @@ void LocateSprite(unsigned int x, unsigned int y)
 
 // Apple II specific background redrawing function
 #if defined __APPLE2__
-  unsigned char xDHR, yDHR, xptr, yptr, *bgPTR;
-  void __fastcall__ Blit(void);	// (see Apple/blit.s)
-  unsigned int DHRLine(unsigned char y);
+  unsigned char xHires, yHires, xptr, yptr, *bgPtr;
+#if defined __DHR__
+  void __fastcall__ BlitDHR(void);
+#else
+  void __fastcall__ BlitSHR(void);
+#endif
+  unsigned int HiresLine(unsigned char y);
   void RestoreSprBG(unsigned char index)
   {
 	  POKE(0xE3, 2);				// Bytes per line (x2 for MAIN/AUX)	
 	  POKE(0xEB, sprROWS[index]);	// Number of lines
-	  POKE(0xEC, sprXDHR[index]);	// DHR Offset X
-	  POKE(0xED, sprY[index]);		// DHR Offset Y
-	  POKEW(0xEE, 0);				// Address for copying DHR > Output
+	  POKE(0xEC, sprHiresX[index]);	// Hires Offset X
+	  POKE(0xED, sprY[index]);		// Hires Offset Y
+	  POKEW(0xEE, 0);				// Address for copying Hires > Output
 	  POKEW(0xFA, sprBG[index]);	// Address for copying Input > DHR
-	  Blit();
+    #if defined __DHR__	  
+	  BlitDHR();
+	#else
+	  BlitSHR();
+    #endif		
   }
   void RestoreSprLine(unsigned char x, unsigned char y)
   {
@@ -281,19 +293,21 @@ void LocateSprite(unsigned int x, unsigned int y)
 	  unsigned char i;
 	  for (i=0; i<SPRITE_NUM; i++) {
 		  if (sprDrawn[i]) {
-			  xDHR = x-sprX[i];
-			  yDHR = y-sprY[i];
-			  if (xDHR<7 && yDHR<sprROWS[i]) {
-				  xptr = sprXDHR[i];
-				  yptr = sprY[i]+yDHR;
-				  bgPTR = sprBG[i]+yDHR*frameWIDTH;				  
-				  dhrptr = DHRLine(yptr) + xptr;
+			  xHires = x-sprX[i];
+			  yHires = y-sprY[i];
+			  if (xHires<7 && yHires<sprROWS[i]) {
+				  xptr = sprHiresX[i];
+				  yptr = sprY[i]+yHires;
+				  bgPtr = sprBG[i]+yHires*frameWIDTH;				  
+				  hiresPtr = HiresLine(yptr) + xptr;
+				#if defined __DHR__  
 				  *dhraux = 0;
-				  dhrptr[0] = bgPTR[0];
-				  dhrptr[1] = bgPTR[1];
+				  hiresPtr[0] = bgPtr[0];
+				  hiresPtr[1] = bgPtr[1];
 				  *dhrmain = 0;
-				  dhrptr[0] = bgPTR[2];		
-				  dhrptr[1] = bgPTR[3];
+				#endif
+				  hiresPtr[0] = bgPtr[2];		
+				  hiresPtr[1] = bgPtr[3];
 				  return;
 			  }
 		  }
@@ -324,7 +338,7 @@ void LocateSprite(unsigned int x, unsigned int y)
 	unsigned char i, dX, dY, rows;
   #if defined __ORIC__	
 	unsigned char x1, x2, y1, y2;
-	unsigned int bgPTR1, bgPTR2;
+	unsigned int bgPtr1, bgPtr2;
   #endif					
 	
 	// Check for collisions
@@ -339,7 +353,7 @@ void LocateSprite(unsigned int x, unsigned int y)
 	#if defined __APPLE2__
 		rows = MAX(sprROWS[index], sprROWS[i]);
 		if (dY < rows || dY>(256-rows)) {
-			dX = sprXDHR[i] - xDHR;
+			dX = sprHiresX[i] - xHires;
 			if (dX < 2 || dX>254) {
 				// Apply collision
 				sprCollision[index] |= 1 << i;
@@ -373,14 +387,14 @@ void LocateSprite(unsigned int x, unsigned int y)
 				}
 				
 				// Copy overlapping background
-				bgPTR1 = sprBG[index] + y1*4;
-				bgPTR2 = sprBG[i] + (rows-y2)*4 + (4-x2) - x1;
+				bgPtr1 = sprBG[index] + y1*4;
+				bgPtr2 = sprBG[i] + (rows-y2)*4 + (4-x2) - x1;
 				for (dY=y1; dY<y2; dY++) {
 					for (dX=x1; dX<x2; dX++) {
-						POKE(bgPTR1+dX, PEEK(bgPTR2+dX));	
+						POKE(bgPtr1+dX, PEEK(bgPtr2+dX));	
 					}
-					bgPTR1 += 4;
-					bgPTR2 += 4;
+					bgPtr1 += 4;
+					bgPtr2 += 4;
 				}					
 			}
 		}
@@ -409,11 +423,11 @@ void SetSprite(unsigned char index, unsigned char frame)
 	spriteY -= rows/2u;
 	
 	// Compute sprite slots
-	xDHR = (spriteX*2u)/7u;
+	xHires = (spriteX*2u)/7u;
 
 	// Select the correct offset block (4 offset blocks per 7 pixels)
 	frameAddr = SPRITERAM + frame*frameROWS*frameWIDTH;
-	if (xDHR%2) {
+	if (xHires%2) {
 		if (spriteX%7 > 5) { 
 			frameAddr += 3*frameBLOCK; 
 		} else {
@@ -437,14 +451,18 @@ void SetSprite(unsigned char index, unsigned char frame)
 	// Backup new background and draw sprite
 	POKE(0xE3, 2);				// Bytes per line (x2 for MAIN/AUX)
 	POKE(0xEB, rows);			// Number of lines
-	POKE(0xEC, xDHR);			// DHR Offset X
-	POKE(0xED, spriteY);		// DHR Offset Y
-	POKEW(0xEE, sprBG[index]);	// Address for copying DHR > Output
-	POKEW(0xFA, frameAddr);		// Address for copying Input > DHR
-	Blit();
+	POKE(0xEC, xHires);			// Hires Offset X
+	POKE(0xED, spriteY);		// Hires Offset Y
+	POKEW(0xEE, sprBG[index]);	// Address for copying Hires > Output
+	POKEW(0xFA, frameAddr);		// Address for copying Input > Hires
+  #if defined __DHR__	
+	BlitDHR();
+  #else
+	BlitSHR();  
+  #endif	  
 
 	// Set sprite information
-	sprXDHR[index] = xDHR;
+	sprHiresX[index] = xHires;
 	sprX[index] = spriteX;
 	sprY[index] = spriteY;
 	sprDrawn[index] = 1;	
@@ -460,7 +478,7 @@ void SetSprite(unsigned char index, unsigned char frame)
 	unsigned char rows = sprROWS[index];
 	
 	// Check frame block (left or right)
-	frameAddr = SPRITERAM + frame*frameROWS*2u;
+	frameAddr = SPRITERAM + frame*frameROWS*2;
 	if (spriteX%2) { frameAddr += frameBLOCK; }
 	spriteX /= 2u;
 
