@@ -24,77 +24,113 @@
  *   specific prior written permission.
 """
 
+from AppleHires import *
 from PIL import Image
 import io, sys
 
-input = sys.argv[1]
-output = sys.argv[2]
+mode = sys.argv[1]
+input = sys.argv[2]
+output = sys.argv[3]
 
-##############################
-# Set color of specific pixel
-def SetColor(block, pixel, color):
+try:
+    ###################
+    # Read source file
+    img1 = Image.open(input)
+    rawdata = list(img1.getdata())
+    colors = max(rawdata)
 
-    if pixel == 0:
-        block[0] |= (color & 15)
-    if pixel == 1:
-        block[0] |= (color &  7) << 4
-        block[1] |= (color &  8) >> 3
-    if pixel == 2:
-        block[1] |= (color & 15) << 1
-    if pixel == 3:
-        block[1] |= (color &  3) << 5
-        block[2] |= (color & 12) >> 2
-    if pixel == 4:
-        block[2] |= (color & 15) << 2
-    if pixel == 5:
-        block[2] |= (color &  1) << 6
-        block[3] |= (color & 14) >> 1
-    if pixel == 6:
-        block[3] |= (color & 15) << 3
+    # Create sprite file
+    f1 = io.open(output, 'wb')
 
-###################
-# Read source file
-img1 = Image.open(input)
-pixdata = list(img1.getdata())
-#print pixdata
+    # Write load address ($A800)
+    f1.write(chr(0x00));
+    f1.write(chr(0xa8));
 
-# Create sprite file
-f1 = io.open(output, 'wb')
+    # Process in blocks of 7 pixels > 4 bytes
+    for i in range(len(rawdata)/7):
+        pixels = rawdata[i*7:(i+1)*7]
+        if mode == 'single':   
+            # Reduce palette?
+            if colors > 6:
+                pixels = RemapDHR2SHR(pixels)
+            res = AssignColorGroup(pixels)    
+            pixels = res[0]; block = res[1]
+            for j in range(7):
+                SetSHRColor(block, j, pixels[j])
+            for j in [0,1]:
+                f1.write(chr(block[j]))  
+              
+        else:
+            block = [0,0,0,0]
+            for j in range(7):
+                SetDHRColor(block, j, pixels[j])
+            for j in [0,2,1,3]:
+                f1.write(chr(block[j]))
 
-# Write load address ($A800)
-f1.write(chr(0x00));
-f1.write(chr(0xa8));
+    # Process in blocks of 7 pixels > 4 bytes (Shifted by 2 pixels)
+    for i in range(len(rawdata)/7):
+        pixels = rawdata[i*7:(i+1)*7]
+        if mode == 'single':        
+            # Reduce palette?
+            if colors > 6:
+                pixels = RemapDHR2SHR(pixels)
+            res = AssignColorGroup(pixels)    
+            pixels = res[0]; block = res[1]
+            for j in range(7):
+                SetSHRColor(block, (j+2)%7, pixels[j])
+            for j in [0,1]:
+                f1.write(chr(block[j]))  
+              
+        else:
+            block = [0,0,0,0]
+            for j in range(7):
+                SetDHRColor(block, (j+2)%7, pixels[j])
+            for j in [0,2,1,3]:
+                f1.write(chr(block[j]))            
+            
+    # Process offset blocks of 7 pixels > 4 bytes (Shifted by 4 pixels)
+    for i in range(len(rawdata)/7):
+        pixels = rawdata[i*7:(i+1)*7]
+        if mode == 'single':        
+            # Reduce palette?
+            if colors > 6:
+                pixels = RemapDHR2SHR(pixels)
+            res = AssignColorGroup(pixels)    
+            pixels = res[0]; block = res[1]
+            for j in range(7):
+                SetSHRColor(block, (j+4)%7, pixels[j])
+            for j in [1,0]:
+                f1.write(chr(block[j]))  
+              
+        else:
+            block = [0,0,0,0]
+            for j in range(7):
+                SetDHRColor(block, (j+4)%7, pixels[j])
+            for j in [2,0,3,1]:
+                f1.write(chr(block[j]))            
 
-# Process in blocks of 7 pixels > 4 bytes
-for i in range(len(pixdata)/7):
-    block = [0,0,0,0]
-    for j in range(7):
-        SetColor(block, j, pixdata[i*7+j])
-    for j in [0,2,1,3]:
-        f1.write(chr(block[j]))
+    # Process offset blocks of 7 pixels > 4 bytes (Shifted by 5 pixels)
+    for i in range(len(rawdata)/7):
+        pixels = rawdata[i*7:(i+1)*7]
+        if mode == 'single':        
+            # Reduce palette?
+            if colors > 6:
+                pixels = RemapDHR2SHR(pixels)
+            res = AssignColorGroup(pixels)    
+            pixels = res[0]; block = res[1]
+            for j in range(7):
+                SetSHRColor(block, (j+5)%7, pixels[j])
+            for j in [1,0]:
+                f1.write(chr(block[j]))  
+              
+        else:
+            block = [0,0,0,0]
+            for j in range(7):
+                SetDHRColor(block, (j+5)%7, pixels[j])
+            for j in [2,0,3,1]:
+                f1.write(chr(block[j]))            
 
-# Process in blocks of 7 pixels > 4 bytes (Shifted by 2 pixels)
-for i in range(len(pixdata)/7):
-    block = [0,0,0,0]
-    for j in range(7):
-        SetColor(block, (j+2)%7, pixdata[i*7+j])
-    for j in [0,2,1,3]:
-        f1.write(chr(block[j]))            
-        
-# Process offset blocks of 7 pixels > 4 bytes (Shifted by 4 pixels)
-for i in range(len(pixdata)/7):
-    block = [0,0,0,0]
-    for j in range(7):
-        SetColor(block, (j+4)%7, pixdata[i*7+j])
-    for j in [2,0,3,1]:
-        f1.write(chr(block[j]))            
+    f1.close()
 
-# Process offset blocks of 7 pixels > 4 bytes (Shifted by 5 pixels)
-for i in range(len(pixdata)/7):
-    block = [0,0,0,0]
-    for j in range(7):
-        SetColor(block, (j+5)%7, pixdata[i*7+j])
-    for j in [2,0,3,1]:
-        f1.write(chr(block[j]))            
-
-f1.close()
+except:
+    print "Error: cannot convert " + input + "... (is it a 14x? PNG file with 6 or 16 color palette?)"

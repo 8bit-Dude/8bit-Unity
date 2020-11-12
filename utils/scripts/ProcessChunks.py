@@ -24,35 +24,113 @@ from PIL import Image
 from collections import Counter
 from math import sqrt
 
+#############################################
+# Set color of specific pixel (Single Hires)
+# 0=BLACK, 1=VIOLET/BLUE, 2=GREEN/ORANGE, 3=WHITE
+def SetSHRColor(block, pixel, color):
+    
+    if pixel == 0:
+        block[0] |= (color & 3)
+    if pixel == 1:
+        block[0] |= (color & 3) << 2
+    if pixel == 2:
+        block[0] |= (color & 3) << 4
+    if pixel == 3:
+        block[0] |= (color & 1) << 6
+        block[1] |= (color & 2) >> 1
+    if pixel == 4:
+        block[1] |= (color & 3) << 1
+    if pixel == 5:
+        block[1] |= (color & 3) << 3
+    if pixel == 6:
+        block[1] |= (color & 3) << 5
+
+#############################################
+# Set color of specific pixel (Double Hires)
+def SetDHRColor(block, pixel, color):
+
+    if pixel == 0:
+        block[0] |= (color & 15)
+    if pixel == 1:
+        block[0] |= (color &  7) << 4
+        block[1] |= (color &  8) >> 3
+    if pixel == 2:
+        block[1] |= (color & 15) << 1
+    if pixel == 3:
+        block[1] |= (color &  3) << 5
+        block[2] |= (color & 12) >> 2
+    if pixel == 4:
+        block[2] |= (color & 15) << 2
+    if pixel == 5:
+        block[2] |= (color &  1) << 6
+        block[3] |= (color & 14) >> 1
+    if pixel == 6:
+        block[3] |= (color & 15) << 3
+        
+#############################################
+def RemapDHR2SHR(pixels):
+    remap = [x+100 for x in pixels]                
+    remap = [0 if x==100 else x for x in remap] # BLACK
+    remap = [1 if x==101 else x for x in remap] # DBLUE -> PURPLE
+    remap = [2 if x==102 else x for x in remap] # DGREEN -> GREEN
+    remap = [3 if x==103 else x for x in remap] # BLUE
+    remap = [4 if x==104 else x for x in remap] # BROWN -> ORANGE
+    remap = [0 if x==105 else x for x in remap] # DGREY -> BLACK
+    remap = [2 if x==106 else x for x in remap] # GREEN
+    remap = [2 if x==107 else x for x in remap] # LGREEN -> GREEN
+    remap = [0 if x==108 else x for x in remap] # DPURPLE -> BLACK
+    remap = [1 if x==109 else x for x in remap] # PURPLE                
+    remap = [3 if x==110 else x for x in remap] # LGREY -> BLUE                
+    remap = [3 if x==111 else x for x in remap] # LBLUE -> BLUE
+    remap = [4 if x==112 else x for x in remap] # ORANGE
+    remap = [5 if x==113 else x for x in remap] # PINK -> WHITE
+    remap = [2 if x==114 else x for x in remap] # YELLOW -> GREEN
+    remap = [5 if x==115 else x for x in remap] # WHITE    
+    return remap
+    
+#############################################
+def AssignColorGroup(pixels): 
+    # Find group (Purple/Green) or (Blue/Orange) with most occurence
+    group1 = pixels.count(1)+pixels.count(2)
+    group2 = pixels.count(3)+pixels.count(4)
+    if group1 > group2:
+        block = [0,0]
+    else:
+        block = [128,128] 
+
+    # Re-assign all colors according to that group
+    pixels = [1 if x==3 else x for x in pixels]
+    pixels = [2 if x==4 else x for x in pixels]
+    pixels = [3 if x==5 else x for x in pixels]
+    return pixels, block
+
 ############################################
-def ExportApple(filename, coords, pixdata):
+def ExportApple(filename, coords, pixdata, mode):
 
     # Process in blocks of 7 pixels > 4 bytes
     imgWidth  = (coords[2]-coords[0])
-    imgHeight = (coords[3]-coords[1]) 
+    imgHeight = (coords[3]-coords[1])
+    colors = max(pixdata)    
     blocks = []
     for i in range(len(pixdata)/7):
-        block = [0,0,0,0]
-        for pixel in range(7):
-            color = pixdata[i*7+pixel]
-            if pixel == 0:
-                block[0] |= (color & 15)
-            if pixel == 1:
-                block[0] |= (color &  7) << 4
-                block[1] |= (color &  8) >> 3
-            if pixel == 2:
-                block[1] |= (color & 15) << 1
-            if pixel == 3:
-                block[1] |= (color &  3) << 5
-                block[2] |= (color & 12) >> 2
-            if pixel == 4:
-                block[2] |= (color & 15) << 2
-            if pixel == 5:
-                block[2] |= (color &  1) << 6
-                block[3] |= (color & 14) >> 1
-            if pixel == 6:
-                block[3] |= (color & 15) << 3            
-        blocks.append(block)
+        pixels = pixdata[i*7:(i+1)*7]
+        if mode == 'single':
+            # Reduce palette?
+            if colors > 6:
+                pixels = RemapDHR2SHR(pixels)
+            res = AssignColorGroup(pixels)    
+            pixels = res[0]; block = res[1]
+            
+            # Process in blocks of 7 pixels, to be packed into 2 bytes
+            for k in range(7):
+                SetSHRColor(block, k, pixels[k])
+            blocks.append(block)
+        else:
+            # Process in blocks of 7 pixels, to be packed into 4 bytes
+            block = [0,0,0,0]
+            for k in range(7):
+                SetDHRColor(block, k, pixels[k])        
+            blocks.append(block)
 
     # Write to file line-by-line
     blocksPerLine = (coords[2]-coords[0])/7
@@ -63,14 +141,19 @@ def ExportApple(filename, coords, pixdata):
     output.write(chr(imgHeight))
     i = 0
     while i < len(blocks):
-        # Write MAIN data
-        for j in range(blocksPerLine):
-            output.write(chr(blocks[i+j][0]))           
-            output.write(chr(blocks[i+j][2]))           
-        # Write AUX data
-        for j in range(blocksPerLine):
-            output.write(chr(blocks[i+j][1]))           
-            output.write(chr(blocks[i+j][3]))           
+        if mode == 'single':
+            for j in range(blocksPerLine):
+                output.write(chr(blocks[i+j][0]))           
+                output.write(chr(blocks[i+j][1]))           
+        else:
+            # Write MAIN data
+            for j in range(blocksPerLine):
+                output.write(chr(blocks[i+j][0]))           
+                output.write(chr(blocks[i+j][2]))           
+            # Write AUX data
+            for j in range(blocksPerLine):
+                output.write(chr(blocks[i+j][1]))           
+                output.write(chr(blocks[i+j][3]))           
         i += blocksPerLine
     output.close() 
 
@@ -392,8 +475,10 @@ for line in lines:
     paldata = chunkdata.getpalette()
     
     # Export to required format    
-    if platform == 'apple':
-        ExportApple(outfile, coords, pixdata)
+    if platform == 'apple-double':
+        ExportApple(outfile, coords, pixdata, 'double')
+    if platform == 'apple-single':
+        ExportApple(outfile, coords, pixdata, 'single')
     if platform == 'atari':
         ExportAtari(outfile, coords, pixdata)
     if platform == 'c64':

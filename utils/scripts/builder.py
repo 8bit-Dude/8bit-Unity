@@ -532,83 +532,100 @@ class Application:
         sprites = list(self.listbox_AppleSprites.get(0, END))
         chunks = list(self.listbox_AppleChunks.get(0, END))
         music = list(self.listbox_AppleMusic.get(0, END))
-        with open("../../build/"+diskname+"-apple.bat", "wb") as fp:
-            # Info
-            fp.write('echo off\n\n')
-            fp.write('mkdir apple\n')            
-            fp.write('cd ..\n\n')
-            fp.write('del build\\apple\\*.* /F /Q\n\n')
-            fp.write('echo --------------- CONVERT ASSETS ---------------  \n\n')
-            
-            # Bitmaps
-            for item in bitmaps:
-                fp.write('utils\\py27\\python utils\\scripts\\apple\\AppleBitmap.py ' + item + ' build/apple/' + FileBase(item, '-apple.png') + '.img\n')
+        
+        # Build Single and Double Hires Scripts
+        for target in ['64k', '128k']:
+        
+            with open("../../build/"+diskname+"-apple"+target+".bat", "wb") as fp:
+                # Info
+                fp.write('echo off\n\n')
+                fp.write('mkdir apple\n')            
+                fp.write('cd ..\n\n')
+                fp.write('del build\\apple\\*.* /F /Q\n\n')
+                fp.write('echo --------------- CONVERT ASSETS ---------------  \n\n')
                 
-            # Sprites
-            if len(sprites) > 0:
-                fp.write('utils\\py27\\python utils\\scripts\\apple\\AppleSprites.py ' + sprites[0] + ' build/apple/sprites.dat\n')
+                # Assign GFX mode
+                if target == '128k':
+                    graphics = 'double'
+                else:
+                    graphics = 'single'
+                
+                # Bitmaps
+                for item in bitmaps:
+                    fp.write('utils\\py27\\python utils\\scripts\\apple\\AppleBitmap.py ' + graphics + ' ' + item + ' build/apple/' + FileBase(item, '-apple.png') + '.img\n')
+                    
+                # Sprites
+                if len(sprites) > 0:
+                    fp.write('utils\\py27\\python utils\\scripts\\apple\\AppleSprites.py ' + graphics + ' ' + sprites[0] + ' build/apple/sprites.dat\n')
 
-            # Chunks
-            if len(chunks) > 0:
-                fp.write('utils\\py27\\python utils\\scripts\\ProcessChunks.py apple ' + chunks[0] + ' build/apple/\n')
+                # Chunks
+                if len(chunks) > 0:
+                    fp.write('utils\\py27\\python utils\\scripts\\ProcessChunks.py apple-' + graphics + ' ' + chunks[0] + ' build/apple/\n')
 
-            # Info
-            fp.write('\necho DONE!\n\n')
-            fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
+                # Info
+                fp.write('\necho DONE!\n\n')
+                fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
-            # Build Unity Library
-            CList = ['bitmap.c', 'charmap.c', 'chunks.c', 'geom2d.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'scaling.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Apple\\CLOCK.c', 'Apple\\DHR.c', 'Apple\\directory.c', 'Apple\\files.c']
-            SList = ['atan2.s', 'chars.s', 'Apple\\blit.s', 'Apple\\DUET.s', 'Apple\\joystick.s', 'Apple\\MOCKING.s', 'Apple\\PADDLE.s', 'Apple\\prodos.s']
-                         
-            for file in CList:
-                fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t apple2 -I unity unity\\' + file + '\n')
-                fp.write('utils\\cc65\\bin\\ca65 unity\\' + file[0:-2] + '.s\n')
-                fp.write('del unity\\' + file[0:-2] + '.s\n')
+                # Build Unity Library
+                CList = ['bitmap.c', 'charmap.c', 'chunks.c', 'geom2d.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'scaling.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Apple\\CLOCK.c', 'Apple\\directory.c', 'Apple\\files.c', 'Apple\\hires.c', 'Apple\\pixelDHR.c', 'Apple\\pixelSHR.c']
+                SList = ['atan2.s', 'chars.s', 'Apple\\blitDHR.s', 'Apple\\blitSHR.s', 'Apple\\DUET.s', 'Apple\\hiresLines.s', 'Apple\\joystick.s', 'Apple\\MOCKING.s', 'Apple\\PADDLE.s', 'Apple\\prodos.s']
+                             
+                for file in CList:
+                    if graphics == 'double':
+                        fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t apple2 -D __DHR__ -I unity unity\\' + file + '\n')
+                    else:
+                        fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t apple2 -I unity unity\\' + file + '\n')
+                    fp.write('utils\\cc65\\bin\\ca65 unity\\' + file[0:-2] + '.s\n')
+                    fp.write('del unity\\' + file[0:-2] + '.s\n')
 
-            for file in SList:            
-                fp.write('utils\\cc65\\bin\\ca65 unity\\' + file + '\n')
-            
-            fp.write('utils\\cc65\\bin\\ar65 r build/apple/unity.lib ')
-            for file in CList:
-                fp.write('unity\\' + file[0:-2] + '.o ')
-            for file in SList:            
-                fp.write('unity\\' + file[0:-2] + '.o ')
-            fp.write('\n')
-            
-            # Compilation
-            comp = 'utils\\cc65\\bin\\cl65 -o build/apple/' + diskname.lower() + '.bin -m build/' + diskname.lower() + '-apple.map -Cl -O -t apple2 -Wl -D,__STACKSIZE__=$0400,-D,__HIMEM__=$A800,-D,__LCADDR__=$D000,-D,__LCSIZE__=$1000 -C apple2-hgr.cfg -I unity '
-            for item in code:
-                comp += item + ' '
-            fp.write(comp + 'build/apple/unity.lib unity/IP65/ip65_tcp.lib unity/IP65/ip65_apple2.lib\n\n')
-            
-            # Compression
-            fp.write('utils\\scripts\\exomizer-3.0.2.exe sfx bin build/apple/' + diskname.lower() + '.bin -o build/apple/loader\n\n')
+                for file in SList:            
+                    fp.write('utils\\cc65\\bin\\ca65 unity\\' + file + '\n')
+                
+                fp.write('utils\\cc65\\bin\\ar65 r build/apple/unity.lib ')
+                for file in CList:
+                    fp.write('unity\\' + file[0:-2] + '.o ')
+                for file in SList:            
+                    fp.write('unity\\' + file[0:-2] + '.o ')
+                fp.write('\n')
+                
+                # Compilation
+                if graphics == 'double':
+                    symbols = '-D __DHR__ -Wl -D,__STACKSIZE__=$0400,-D,__HIMEM__=$A800,-D,__LCADDR__=$D000,-D,__LCSIZE__=$1000'
+                else:
+                    symbols = '-Wl -D,__STACKSIZE__=$0400,-D,__HIMEM__=$A800,-D,__LCADDR__=$D000,-D,__LCSIZE__=$1000'
+                comp = 'utils\\cc65\\bin\\cl65 -o build/apple/' + diskname.lower() + '.bin -m build/' + diskname.lower() + '-apple' + target + '.map -Cl -O -t apple2 ' + symbols + ' -C apple2-hgr.cfg -I unity '
+                for item in code:
+                    comp += item + ' '
+                fp.write(comp + 'build/apple/unity.lib unity/IP65/ip65_tcp.lib unity/IP65/ip65_apple2.lib\n\n')
+                
+                # Compression
+                fp.write('utils\\scripts\\exomizer-3.0.2.exe sfx bin build/apple/' + diskname.lower() + '.bin -o build/apple/loader\n\n')
 
-            # Info
-            fp.write('echo DONE!\n\n')
-            fp.write('echo --------------- APPLE DISK BUILDER --------------- \n\n')
+                # Info
+                fp.write('echo DONE!\n\n')
+                fp.write('echo --------------- APPLE DISK BUILDER --------------- \n\n')
 
-            # Disk builder
-            fp.write('copy utils\\scripts\\apple\\ProDOS190.dsk build\\' + diskname + '-apple.do\n')
-            fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -as build/' + diskname + '-apple.do LOADER bin 0x0803 < build/apple/loader\n')
-            if len(sprites) > 0:
-                fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p build/' + diskname + '-apple.do SPRITES.DAT bin < build/apple/sprites.dat\n')
-            for item in bitmaps:
-                fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p build/' + diskname + '-apple.do ' + FileBase(item, '-apple.png').upper() + '.IMG bin < build/apple/' + FileBase(item, '-apple.png') + '.img\n')
-            for item in music:
-                fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p build/' + diskname + '-apple.do ' + FileBase(item, '-apple.m').upper() + '.MUS bin < ' +item + '\n')
-            for item in shared:
-                fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p build/' + diskname + '-apple.do ' + FileBase(item, '').upper() + ' bin < ' + item + '\n')
-            if len(chunks) > 0:
-                fp.write('for /f "tokens=*" %%A in (build\\apple\\chunks.lst) do utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p build/' + diskname + '-apple.do %%~nxA bin < %%A \n')
-            
-            # Info
-            fp.write('\necho DONE\n')
-            fp.write('pause\n\n')
-            
-            # Start emulator?
-            fp.write('cd "utils\emulators\AppleWin-1.26.3.1"\n')
-            fp.write('Applewin.exe -d1 "..\\..\\..\\build\\' + diskname + '-apple.do"\n')
+                # Disk builder
+                fp.write('copy utils\\scripts\\apple\\ProDOS190.dsk build\\' + diskname + '-apple' + target + '.do\n')
+                fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -as build/' + diskname + '-apple' + target + '.do LOADER bin 0x0803 < build/apple/loader\n')
+                if len(sprites) > 0:
+                    fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p build/' + diskname + '-apple' + target + '.do SPRITES.DAT bin < build/apple/sprites.dat\n')
+                for item in bitmaps:
+                    fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p build/' + diskname + '-apple' + target + '.do ' + FileBase(item, '-apple.png').upper() + '.IMG bin < build/apple/' + FileBase(item, '-apple.png') + '.img\n')
+                for item in music:
+                    fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p build/' + diskname + '-apple' + target + '.do ' + FileBase(item, '-apple.m').upper() + '.MUS bin < ' +item + '\n')
+                for item in shared:
+                    fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p build/' + diskname + '-apple' + target + '.do ' + FileBase(item, '').upper() + ' bin < ' + item + '\n')
+                if len(chunks) > 0:
+                    fp.write('for /f "tokens=*" %%A in (build\\apple\\chunks.lst) do utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p build/' + diskname + '-apple' + target + '.do %%~nxA bin < %%A \n')
+                
+                # Info
+                fp.write('\necho DONE\n')
+                fp.write('pause\n\n')
+                
+                # Start emulator?
+                fp.write('cd "utils\emulators\AppleWin-1.26.3.1"\n')
+                fp.write('Applewin.exe -d1 "..\\..\\..\\build\\' + diskname + '-apple' + target + '.do"\n')
             
         ####################################################
         # Atari script
