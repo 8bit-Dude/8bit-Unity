@@ -247,8 +247,8 @@ void LocateSprite(unsigned int x, unsigned int y)
 // This function maps sprite coordinates from a 320x200 screen definition
 // It can be by-passed by assigning spriteX, spriteY directly in your code
 #if defined __APPLE2__
-	spriteX = (x*140u)/320u;
-	spriteY = (y*192u)/200u;
+	spriteX = (x*140)/320u;
+	spriteY = (y*192)/200u;
 #elif defined __ATARI__
 	spriteX = x/2u + 45;
 	spriteY = y + 32;
@@ -260,7 +260,7 @@ void LocateSprite(unsigned int x, unsigned int y)
 	spriteY = y;
 #elif defined __LYNX__
 	spriteX = x/2u;
-	spriteY = (y*102u)/200u;
+	spriteY = (y*102)/200u;
 #endif
 }
 
@@ -423,7 +423,7 @@ void SetSprite(unsigned char index, unsigned char frame)
 	spriteY -= rows/2u;
 	
 	// Compute sprite slots
-	xHires = (spriteX*2u)/7u;
+	xHires = (spriteX*2)/7u;
 
 	// Select the correct offset block (4 offset blocks per 7 pixels)
 	frameAddr = SPRITERAM + frame*frameROWS*frameWIDTH;

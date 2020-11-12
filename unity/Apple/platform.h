@@ -38,9 +38,9 @@
 #define BITMAPRAM  (0x2000)
 #define SPRITERAM  (0xa800)	// A800-BBFF (sprites.app loaded here)
 #define MUSICRAM   (0xbc00) // BC00-BEFF (electric duet track loaded here)
-#define CHARMAPRAM (0x0000) // 6000-7BFF (charmap data)
-#define CHARSETRAM (0x0000) // 7B00-7EFF (charset data)
-#define CHARFLGRAM (0x0000) // 7F00-7FFF (charflag data)
+#define CHARMAPRAM (0x8000) // 8000-97FF (charmap data)
+#define CHARSETRAM (0x9800) // 9800-9FFF (charset data)
+#define CHARFLGRAM (0xA000) // A000-A07F (charflag data)
 
 // Character Mode
 #define CHR_COLS 40
@@ -49,10 +49,10 @@
 // Bitmap Mode (Single or Double Hires)
 #define BMP_COLS 140
 #define BMP_ROWS 192
-#define BMP_PALETTE 16
 
 // Bitmap Palette
 #if defined __DHR__
+  #define BMP_PALETTE 16
   #define BLACK   0
   #define DBLUE	  1
   #define DGREEN  2
@@ -71,6 +71,7 @@
   #define YELLOW 14
   #define WHITE  15
 #else
+  #define BMP_PALETTE 5
   #define BLACK   0
   #define DBLUE	  1
   #define DGREEN  2

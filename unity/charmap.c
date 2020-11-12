@@ -30,13 +30,11 @@
   #pragma code-name("LC")
 #endif
 
-#if defined __CBM__	
-  extern unsigned int spritePtr;
-#elif defined __LYNX__	
-  extern unsigned char charFlags[];
-#elif defined __ORIC__
+#if (defined __APPLE2__) || (defined __ORIC__)
   extern unsigned char sprDrawn[];
   void Scroll(void);
+#elif defined __LYNX__	
+  extern unsigned char charFlags[];
 #endif
 
 extern unsigned char inkColor;
@@ -48,18 +46,21 @@ unsigned char scrollRow1 = 0, scrollRow2 = CHR_ROWS;
 // Initialize Charmap Mode
 void InitCharmap() 
 {	
-#if defined __LYNX__
-	InitDisplay();
-	
-#elif defined __ORIC__	
+#if (defined __APPLE2__) || (defined __ORIC__)
 	InitBitmap();
+	
+#elif defined __LYNX__
+	InitDisplay();
 #endif		
 }
 
 // Switch from Text mode to Charmap mode
 void EnterCharmapMode()
 {		
-#if defined __ATARI__	
+#if defined __APPLE2__	
+	EnterBitmapMode();
+	
+#elif defined __ATARI__	
 	// Setup Charmap DLIST
 	CharmapDLIST();
 
@@ -79,15 +80,17 @@ void EnterCharmapMode()
 	videoMode = MODE_CHARMAP;	
 #endif	
 
-	// Show Top-Left
-	charmapX = 255;
+	// Reset scroll coords (out of range)
+	charmapX = 255; charmapY = 255;
 }
 
-// Switch from Charmap mode to Text mode
+// Switch back to Text mode
 void ExitCharmapMode()
 {
-#if defined __CBM__	
-	// Switch OFF multicolor mode
+#if defined __APPLE2__	
+	ExitBitmapMode();
+	
+#elif defined __CBM__	
 	ResetVIC2();
 #endif	
 }
@@ -95,8 +98,12 @@ void ExitCharmapMode()
 // Load charset and associated attributes / flags
 void LoadCharset(char* filename)
 {
-	// Read Charset and Attributes
-#if defined __ATARI__
+#if defined __APPLE2__
+	FILE* fp = fopen(filename, "rb");
+	fread((char*)CHARSETRAM, 1, 0x0880, fp);
+	fclose(fp);		
+	
+#elif defined __ATARI__
 	if (FileOpen(filename)) {
 		FileRead((char*)CHARSETRAM, 0x0800);
 		FileRead((char*)CHARATRRAM, 0x0100);
@@ -128,7 +135,10 @@ void LoadCharset(char* filename)
 // Clear entire screen
 void ClearCharmap()
 {
-#if defined __ATARI__
+#if (defined __APPLE2__) || (defined __ORIC__)
+	ClearBitmap();
+
+#elif defined __ATARI__
 	bzero((char*)SCREENRAM, 1000);
 	
 #elif defined __CBM__
@@ -137,9 +147,7 @@ void ClearCharmap()
 	
 #elif defined __LYNX__
 	bzero((char*)SCREENRAM, 680);
-
-#elif defined __ORIC__
-	ClearBitmap();
+	
 #endif
 }
 
@@ -150,8 +158,7 @@ void LoadCharmap(char *filename)
 	if (FileOpen(filename))
 		FileRead((char*)CHARMAPRAM, 0x2000);
 	
-#elif defined __CBM__	
-	// Read Char Map
+#elif (defined __APPLE2__) || (defined __CBM__)
 	FILE* fp = fopen(filename, "rb");	
 	fread((char*)CHARMAPRAM, 1, 0x2000, fp);
 	fclose(fp);
@@ -179,19 +186,65 @@ unsigned char GetCharFlags(unsigned char x, unsigned char y)
 #endif
 }
 
+#if defined __APPLE2__
+  #if defined __DHR__
+    void __fastcall__ BlitDHR(void);
+  #else
+    void __fastcall__ BlitSHR(void);
+  #endif
+#endif
+
 void ScrollCharmap(unsigned char x, unsigned char y)
 {
 	unsigned int src, dst, col;
-	unsigned char i, j, k, chr;
+	unsigned char i, j, k, l, chr;
 	
 	// Check if map was moved?
 	if (x == charmapX && y == charmapY)
 		return;
 	charmapX = x;
 	charmapY = y;
-		
-#if defined __ATARI__	
+
+	// Address of first character
 	src = CHARMAPRAM + charmapWidth*y + (x - scrollCol1);
+
+#if defined __APPLE2__
+	// Reset sprite background
+	for (i=0; i<SPRITE_NUM; i++)
+		sprDrawn[i] = 0;
+	
+	// Prepare blitter
+	POKE(0xE3, 1);	// Bytes per line (x2 for MAIN/AUX)
+	POKE(0xEB, 8);	// Number of lines
+	POKEW(0xEE, 0);	// Address for copying Hires > Output
+	
+	// Blit characters to screen
+	for (j=scrollRow1; j<scrollRow2; j++) {
+		k = j*8;
+		for (i=scrollCol1; i<scrollCol2; i+=2) {
+			chr = PEEK(src+i);
+			POKE(0xEC, i);  // Hires Offset X
+			POKE(0xED, k);  // Hires Offset Y
+			POKEW(0xFA, (char*)CHARSETRAM+chr*8);	// Address for copying Input > Hires
+		  #if defined __DHR__	
+			BlitDHR();
+		  #else
+			BlitSHR();  
+		  #endif
+			chr = PEEK(src+i+1);
+			POKE(0xEC, i+1);  // Hires Offset X
+			POKE(0xED, k);  // Hires Offset Y
+			POKEW(0xFA, (char*)CHARSETRAM+1024+chr*8);	// Address for copying Input > Hires
+		  #if defined __DHR__	
+			BlitDHR();
+		  #else
+			BlitSHR();  
+		  #endif
+		}
+		src += charmapWidth;
+	}
+	
+#elif defined __ATARI__	
 	dst = SCREENRAM + scrollRow1*40;
 	for (j=scrollRow1; j<scrollRow2; j++) {
 		for (i=scrollCol1; i<scrollCol2; i++) {
@@ -206,7 +259,6 @@ void ScrollCharmap(unsigned char x, unsigned char y)
 #elif defined __CBM__	
 	// Switch Frame
 	//charmapFrame ^= 1;
-	src = CHARMAPRAM + charmapWidth*y + (x - scrollCol1);
 	dst = SCREENRAM + scrollRow1*40; // + 0x0400*charmapFrame;
 	col = COLORRAM + scrollRow1*40;
 	for (j=scrollRow1; j<scrollRow2; j++) {
@@ -226,7 +278,6 @@ void ScrollCharmap(unsigned char x, unsigned char y)
 	//spritePtr = SPRITEPTR + 0x0400*charmapFrame;
 	
 #elif defined __LYNX__	
-	src = CHARMAPRAM + charmapWidth*y + (x - scrollCol1);
 	dst = SCREENRAM + scrollRow1*40;
 	for (j=scrollRow1; j<scrollRow2; j++) {
 		for (i=scrollCol1; i<scrollCol2; i++) {
@@ -246,14 +297,13 @@ void ScrollCharmap(unsigned char x, unsigned char y)
 	POKE(0xb1, scrollRow2);		
 	POKE(0xb2, scrollCol1);		
 	POKE(0xb3, scrollCol2);		
-	POKE(0xb4, charmapWidth); 					// Offset between source lines
-	POKEW(0xb5, CHARMAPRAM + charmapWidth*y + (x - scrollCol1));	// Address of first charmap line
+	POKE(0xb4, charmapWidth); 	// Offset between source lines
+	POKEW(0xb5, src);			// Address of first charmap line
 	POKEW(0xb7, BITMAPRAM + scrollRow1*320 + 1);	// Address of first bitmap line
 	Scroll();	
 	
 	// Copy Map Section
-/*	src = CHARMAPRAM + charmapWidth*y + x;
-	dst = BITMAPRAM + scrollRow1*320 + 1;
+/*	dst = BITMAPRAM + scrollRow1*320 + 1;
 	for (j=scrollRow1; j<scrollRow2; j++) {
 		col = CHARSETRAM;
 		for (k=0; k<8; k++) {
@@ -273,7 +323,11 @@ void PrintCharmap(unsigned char x, unsigned char y, unsigned char* str)
 {
 	unsigned char i, chr;
 	unsigned int addr1;
-#if (defined __ATARI__)
+	
+#if (defined __APPLE2__) || (defined __ORIC__)
+	PrintStr(x, y, str);	
+	
+#elif (defined __ATARI__)
 	addr1 = SCREENRAM + 40*y + x;
 	for (i=0; i<strlen(str); i++) {
 		if (str[i] > 96) 
@@ -309,8 +363,6 @@ void PrintCharmap(unsigned char x, unsigned char y, unsigned char* str)
 			chr = str[i]+160;	// Upper case
 		POKE(addr1++, chr);
 	}
-	
-#elif defined __ORIC__
-	PrintStr(x, y, str);
+
 #endif
 }
