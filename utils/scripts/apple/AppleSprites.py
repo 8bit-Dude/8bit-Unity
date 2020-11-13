@@ -31,6 +31,7 @@ import io, sys
 mode = sys.argv[1]
 input = sys.argv[2]
 output = sys.argv[3]
+height = int(sys.argv[4])
 
 try:
     ###################
@@ -46,89 +47,97 @@ try:
     f1.write(chr(0x00));
     f1.write(chr(0xa8));
 
-    # Process in blocks of 7 pixels > 4 bytes
-    for i in range(len(rawdata)/7):
-        pixels = rawdata[i*7:(i+1)*7]
-        if mode == 'single':   
-            # Reduce palette?
-            if colors > 6:
-                pixels = RemapDHR2SHR(pixels)
-            res = AssignColorGroup(pixels)    
-            pixels = res[0]; block = res[1]
-            for j in range(7):
-                SetSHRColor(block, j, pixels[j])
-            for j in [0,1]:
-                f1.write(chr(block[j]))  
-              
-        else:
-            block = [0,0,0,0]
-            for j in range(7):
-                SetDHRColor(block, j, pixels[j])
-            for j in [0,2,1,3]:
-                f1.write(chr(block[j]))
+    # Shifted by 0 pix
+    for row in range(0, img1.size[1], height):
+        for col in range(0, img1.size[0], 7):
+            for k in range(0, height):  
+                pixels = rawdata[(row+k)*img1.size[0]+col:(row+k)*img1.size[0]+col+7]
+                if mode == 'single':   
+                    # Reduce palette?
+                    if colors > 6:
+                        pixels = RemapDHR2SHR(pixels)
+                    res = AssignColorGroup(pixels)    
+                    pixels = res[0]; block = res[1]
+                    for j in range(7):
+                        SetSHRColor(block, j, pixels[j])
+                    for j in [0,1]:
+                        f1.write(chr(block[j]))  
+                      
+                else:
+                    block = [0,0,0,0]
+                    for j in range(7):
+                        SetDHRColor(block, j, pixels[j])
+                    for j in [0,2,1,3]:
+                        f1.write(chr(block[j]))
 
-    # Process in blocks of 7 pixels > 4 bytes (Shifted by 2 pixels)
-    for i in range(len(rawdata)/7):
-        pixels = rawdata[i*7:(i+1)*7]
-        if mode == 'single':        
-            # Reduce palette?
-            if colors > 6:
-                pixels = RemapDHR2SHR(pixels)
-            res = AssignColorGroup(pixels)    
-            pixels = res[0]; block = res[1]
-            for j in range(7):
-                SetSHRColor(block, (j+2)%7, pixels[j])
-            for j in [0,1]:
-                f1.write(chr(block[j]))  
-              
-        else:
-            block = [0,0,0,0]
-            for j in range(7):
-                SetDHRColor(block, (j+2)%7, pixels[j])
-            for j in [0,2,1,3]:
-                f1.write(chr(block[j]))            
+    # Shifted by 2 pix
+    for row in range(0, img1.size[1], height):
+        for col in range(0, img1.size[0], 7):
+            for k in range(0, height):  
+                pixels = rawdata[(row+k)*img1.size[0]+col:(row+k)*img1.size[0]+col+7]
+                if mode == 'single':        
+                    # Reduce palette?
+                    if colors > 6:
+                        pixels = RemapDHR2SHR(pixels)
+                    res = AssignColorGroup(pixels)    
+                    pixels = res[0]; block = res[1]
+                    for j in range(7):
+                        SetSHRColor(block, (j+2)%7, pixels[j])
+                    for j in [0,1]:
+                        f1.write(chr(block[j]))  
+                      
+                else:
+                    block = [0,0,0,0]
+                    for j in range(7):
+                        SetDHRColor(block, (j+2)%7, pixels[j])
+                    for j in [0,2,1,3]:
+                        f1.write(chr(block[j]))            
             
-    # Process offset blocks of 7 pixels > 4 bytes (Shifted by 4 pixels)
-    for i in range(len(rawdata)/7):
-        pixels = rawdata[i*7:(i+1)*7]
-        if mode == 'single':        
-            # Reduce palette?
-            if colors > 6:
-                pixels = RemapDHR2SHR(pixels)
-            res = AssignColorGroup(pixels)    
-            pixels = res[0]; block = res[1]
-            for j in range(7):
-                SetSHRColor(block, (j+4)%7, pixels[j])
-            for j in [1,0]:
-                f1.write(chr(block[j]))  
-              
-        else:
-            block = [0,0,0,0]
-            for j in range(7):
-                SetDHRColor(block, (j+4)%7, pixels[j])
-            for j in [2,0,3,1]:
-                f1.write(chr(block[j]))            
+    # Shifted by 4 pix
+    for row in range(0, img1.size[1], height):
+        for col in range(0, img1.size[0], 7):
+            for k in range(0, height):  
+                pixels = rawdata[(row+k)*img1.size[0]+col:(row+k)*img1.size[0]+col+7]
+                if mode == 'single':        
+                    # Reduce palette?
+                    if colors > 6:
+                        pixels = RemapDHR2SHR(pixels)
+                    res = AssignColorGroup(pixels)    
+                    pixels = res[0]; block = res[1]
+                    for j in range(7):
+                        SetSHRColor(block, (j+4)%7, pixels[j])
+                    for j in [1,0]:
+                        f1.write(chr(block[j]))  
+                      
+                else:
+                    block = [0,0,0,0]
+                    for j in range(7):
+                        SetDHRColor(block, (j+4)%7, pixels[j])
+                    for j in [2,0,3,1]:
+                        f1.write(chr(block[j]))            
 
-    # Process offset blocks of 7 pixels > 4 bytes (Shifted by 5 pixels)
-    for i in range(len(rawdata)/7):
-        pixels = rawdata[i*7:(i+1)*7]
-        if mode == 'single':        
-            # Reduce palette?
-            if colors > 6:
-                pixels = RemapDHR2SHR(pixels)
-            res = AssignColorGroup(pixels)    
-            pixels = res[0]; block = res[1]
-            for j in range(7):
-                SetSHRColor(block, (j+5)%7, pixels[j])
-            for j in [1,0]:
-                f1.write(chr(block[j]))  
-              
-        else:
-            block = [0,0,0,0]
-            for j in range(7):
-                SetDHRColor(block, (j+5)%7, pixels[j])
-            for j in [2,0,3,1]:
-                f1.write(chr(block[j]))            
+    # Shifted by 5 pix
+    for row in range(0, img1.size[1], height):
+        for col in range(0, img1.size[0], 7):
+            for k in range(0, height):  
+                pixels = rawdata[(row+k)*img1.size[0]+col:(row+k)*img1.size[0]+col+7]
+                if mode == 'single':        
+                    # Reduce palette?
+                    if colors > 6:
+                        pixels = RemapDHR2SHR(pixels)
+                    res = AssignColorGroup(pixels)    
+                    pixels = res[0]; block = res[1]
+                    for j in range(7):
+                        SetSHRColor(block, (j+5)%7, pixels[j])
+                    for j in [1,0]:
+                        f1.write(chr(block[j]))  
+                      
+                else:
+                    block = [0,0,0,0]
+                    for j in range(7):
+                        SetDHRColor(block, (j+5)%7, pixels[j])
+                    for j in [2,0,3,1]:
+                        f1.write(chr(block[j]))            
 
     f1.close()
 

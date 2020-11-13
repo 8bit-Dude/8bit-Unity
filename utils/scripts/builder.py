@@ -553,10 +553,16 @@ class Application:
                 # Bitmaps
                 for item in bitmaps:
                     fp.write('utils\\py27\\python utils\\scripts\\apple\\AppleBitmap.py ' + graphics + ' ' + item + ' build/apple/' + FileBase(item, '-apple.png') + '.img\n')
+
+                # Charset
+                if len(charset) > 0:
+                    fb = FileBase(charset[0], '-apple.png')
+                    fp.write('utils\\py27\python utils\\scripts\\apple\\AppleCharset.py ' + graphics + ' ' + charset[0] + ' build/apple/' + fb + '.dat\n')
                     
                 # Sprites
                 if len(sprites) > 0:
-                    fp.write('utils\\py27\\python utils\\scripts\\apple\\AppleSprites.py ' + graphics + ' ' + sprites[0] + ' build/apple/sprites.dat\n')
+                    spriteHeight = int(self.entry_AppleSpriteHeight.get())
+                    fp.write('utils\\py27\\python utils\\scripts\\apple\\AppleSprites.py ' + graphics + ' ' + sprites[0] + ' build/apple/sprites.dat ' + str(spriteHeight) + '\n')
 
                 # Chunks
                 if len(chunks) > 0:
@@ -611,11 +617,20 @@ class Application:
                 if len(sprites) > 0:
                     fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p build/' + diskname + '-apple' + target + '.do SPRITES.DAT bin < build/apple/sprites.dat\n')
                 for item in bitmaps:
-                    fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p build/' + diskname + '-apple' + target + '.do ' + FileBase(item, '-apple.png').upper() + '.IMG bin < build/apple/' + FileBase(item, '-apple.png') + '.img\n')
+                    fb = FileBase(item, '-apple.png')
+                    fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p build/' + diskname + '-apple' + target + '.do ' + fb.upper() + '.IMG bin < build/apple/' + fb + '.img\n')
+                if len(charset) > 0:
+                    fb = FileBase(charset[0], '-apple.png')
+                    fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p build/' + diskname + '-apple' + target + '.do ' + fb.upper() + '.DAT bin < build/apple/' + fb + '.dat\n')
+                for item in charmaps:
+                    fb = FileBase(item, '.map')
+                    fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p build/' + diskname + '-apple' + target + '.do ' + fb.upper() + '.MAP bin < ' + item + '\n')
                 for item in music:
-                    fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p build/' + diskname + '-apple' + target + '.do ' + FileBase(item, '-apple.m').upper() + '.MUS bin < ' +item + '\n')
+                    fb = FileBase(item, '-apple.m')
+                    fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p build/' + diskname + '-apple' + target + '.do ' + fb.upper() + '.MUS bin < ' +item + '\n')
                 for item in shared:
-                    fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p build/' + diskname + '-apple' + target + '.do ' + FileBase(item, '').upper() + ' bin < ' + item + '\n')
+                    fb = FileBase(item, '')
+                    fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p build/' + diskname + '-apple' + target + '.do ' + fb.upper() + ' bin < ' + item + '\n')
                 if len(chunks) > 0:
                     fp.write('for /f "tokens=*" %%A in (build\\apple\\chunks.lst) do utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p build/' + diskname + '-apple' + target + '.do %%~nxA bin < %%A \n')
                 
