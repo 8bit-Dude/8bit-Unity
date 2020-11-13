@@ -43,10 +43,6 @@ try:
     # Create sprite file
     f1 = io.open(output, 'wb')
 
-    # Write load address ($A800)
-    f1.write(chr(0x00));
-    f1.write(chr(0xa8));
-
     # Shifted by 0 pix
     for row in range(0, img1.size[1], height):
         for col in range(0, img1.size[0], 7):

@@ -27,6 +27,7 @@
 from AppleHires import *
 from PIL import Image
 import io, os, sys, csv
+from copy import *
 
 mode = sys.argv[1]
 charFile = sys.argv[2]
@@ -46,8 +47,9 @@ print "Charmap size: {%i,%i}; Colors: %i" % (charImg.size[0], charImg.size[1], c
 charL = []; charR = []
 for row in range(0, charImg.size[1], 8):
     for col in range(0, charImg.size[0], 7):
-        for j in range(0, 8):
-            pixels = charRaw[(row+j)*charImg.size[0]+col:(row+j)*charImg.size[0]+col+7]
+        char1L = []; char1R = []; char2L = []; char2R = []
+        for k in range(0, 8):
+            pixels = charRaw[(row+k)*charImg.size[0]+col:(row+k)*charImg.size[0]+col+7]
             if mode == 'single':   
                 # Reduce palette?
                 if colors > 6:
@@ -56,21 +58,21 @@ for row in range(0, charImg.size[1], 8):
                 pixels = res[0]
 
                 # Left position
-                block1 = res[1]
+                block1 = deepcopy(res[1])
                 for j in range(7):
                     SetSHRColor(block1, j, pixels[j])
                 
                 # Right position
-                block2 = res[1]
+                block2 = deepcopy(res[1])
                 for j in range(7):
                     SetSHRColor(block2, (j+4)%7, pixels[j])
 
                 # Save in respective banks
-                charL.append(chr(block1[0]))
-                charL.append(chr(block2[0]))
+                char1L.append(chr(block1[0]))
+                char2L.append(chr(block2[0]))
                 
-                charR.append(chr(block2[1]))
-                charR.append(chr(block1[1]))
+                char1R.append(chr(block2[1]))
+                char2R.append(chr(block1[1]))
                 
             else:
                 # Left position
@@ -81,19 +83,25 @@ for row in range(0, charImg.size[1], 8):
                 # Left position
                 block2 = [0,0,0,0]
                 for j in range(7):
-                    SetDHRColor(block2, (j+4)%7, pixels[j])
+                    SetDHRColor(block2, (j+3)%7, pixels[j])
 
                 # Save in respective banks
-                charL.append(chr(block1[0]))
-                charL.append(chr(block1[2]))
-                charL.append(chr(block2[0]))
-                charL.append(chr(block2[2]))
+                char1L.append(chr(block1[0]))
+                char1L.append(chr(block1[1]))
+                char2L.append(chr(block2[0]))
+                char2L.append(chr(block2[1]))
                 
-                charR.append(chr(block2[1]))
-                charR.append(chr(block2[3]))
-                charR.append(chr(block1[1]))
-                charR.append(chr(block1[3]))
-                
+                char1R.append(chr(block2[2]))
+                char1R.append(chr(block2[3]))
+                char2R.append(chr(block1[2]))
+                char2R.append(chr(block1[3]))
+
+        # Recombine char 1 and 2
+        charL.append(''.join(char1L))
+        charL.append(''.join(char2L))
+        charR.append(''.join(char1R))
+        charR.append(''.join(char2R))
+
 #######################
 # Read character flags
 flagData = [chr(0)] * 128
