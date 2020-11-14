@@ -123,7 +123,6 @@ void LoadSprites(unsigned char* filename)
 {
 #if defined(__APPLE2__)
 	FILE* fp = fopen(filename, "rb");
-	fread((char*)(SPRITERAM), 1, 2, fp);
 	fread((char*)(SPRITERAM), 1, -1, fp);
 	fclose(fp);
 

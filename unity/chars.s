@@ -31,6 +31,7 @@
 	.export _charColon
 	.export _charComma
 	.export _charDot
+	.export _charDollar
 	.export _charExclaim
 	.export _charHyphen
 	.export _charPlus
@@ -40,6 +41,7 @@
 	.export _charFwSlash
 	.export _charStar
 	.export _charUnderbar
+	
 	.export _charArrowDown
 	.export _charArrowLeft
 	.export _charArrowRight
@@ -48,9 +50,15 @@
 	.export _charLineVert
 	.export _charSliderHorz
 	.export _charSliderVert
+	
+	.export _charDeath
+	.export _charHeart
+	.export _charPotion
+	.export _charShield	
 
 .segment "DATA"
 
+; Text Data
 _charBlank:
 	.byte %00000000, %00000000, %00000000
 _charDigit: 
@@ -98,6 +106,8 @@ _charColon:
 	.byte %00000100, %00000000, %01000000
 _charComma:	
 	.byte %00000000, %00000000, %01001000
+_charDollar:	
+	.byte %01001110, %11000110, %11100100
 _charDot:	
 	.byte %00000000, %00000000, %00000100
 _charExclaim:	
@@ -118,6 +128,8 @@ _charStar:
 	.byte %00000100, %11101110, %10100000
 _charUnderbar:
 	.byte %00000000, %00000000, %00001110
+	
+; Widget Data
 _charArrowDown:
 	.byte %01000100, %01000100, %11101110
 _charArrowLeft:
@@ -134,3 +146,13 @@ _charSliderHorz:
 	.byte %00000111, %11101110, %11100000
 _charSliderVert:
 	.byte %01001110, %11101110, %11100100
+	
+; Icon Data
+_charDeath:
+	.byte %00000100, %11100100, %01000100
+_charHeart:
+	.byte %00001010, %11101110, %11100100
+_charPotion:
+	.byte %00000100, %01001110, %11101110
+_charShield:
+	.byte %00001110, %11100111, %11100100

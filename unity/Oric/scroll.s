@@ -26,8 +26,6 @@
 
 	.export _Scroll
 	
-	.import aslax3
-	
 	.segment	"BSS"	
 	
 _tmp: .res 1

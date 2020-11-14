@@ -480,7 +480,12 @@ const char *GetChr(unsigned char chr)
 	else if (chr == 42) { return &charStar[0]; }
 	else if (chr > 39)  { return &charBracket[(chr-40)*3]; }
 	else if (chr == 39) { return &charQuote[0]; }
+	else if (chr == 36) { return &charDollar[0]; }
 	else if (chr == 33) { return &charExclaim[0]; }
+	else if (chr == 4) { return &charDeath[0]; }
+	else if (chr == 3) { return &charShield[0]; }
+	else if (chr == 2) { return &charPotion[0]; }
+	else if (chr == 1) { return &charHeart[0]; }
 	return &charBlank[0];
 }
 

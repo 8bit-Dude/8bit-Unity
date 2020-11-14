@@ -87,7 +87,7 @@
 	#define KB_Z	'z'
 #endif
 
-// Character data (see char.s)
+// Text data
 extern const char charBlank[3];
 extern const char charDigit[30];
 extern const char charLetter[78];
@@ -95,6 +95,7 @@ extern const char charBracket[6];
 extern const char charColon[3];
 extern const char charComma[3];
 extern const char charDot[3];
+extern const char charDollar[3];
 extern const char charExclaim[3];
 extern const char charHyphen[3];
 extern const char charPlus[3];
@@ -104,6 +105,8 @@ extern const char charBwSlash[3];
 extern const char charFwSlash[3];
 extern const char charStar[3];
 extern const char charUnderbar[3];
+
+// Widget data
 extern const char charArrowDown[3];
 extern const char charArrowLeft[3];
 extern const char charArrowRight[3];
@@ -112,3 +115,9 @@ extern const char charLineHorz[3];
 extern const char charLineVert[3];
 extern const char charSliderHorz[3];
 extern const char charSliderVert[3];
+
+// Icon data
+extern const char charDeath[3];
+extern const char charHeart[3];
+extern const char charPotion[3];
+extern const char charShield[3];
