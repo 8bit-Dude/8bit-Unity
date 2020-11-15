@@ -24,7 +24,9 @@
 ;   specific prior written permission.
 ;
 
-	.export _Scroll
+	.import _hiresLinesHI, _hiresLinesLO
+	
+	.export _ScrollSHR
 	
 	.segment	"BSS"	
 	
@@ -33,55 +35,92 @@ _tmp: .res 1
 	.segment	"CODE"	
 	
 ; ---------------------------------------------------------------
-; void __near__ _Scroll (void)
+; void __near__ _ScrollSHR (void)
 ;	Blit page from Charmap to Bitmap
 ;	Zero Page Data:
-;		$b0: First Row
-;		$b1: Last  Row
-;		$b2: First Col
-;		$b3: Last Col
-;		$b4: Offset between charmap lines
-;		$b5: 16 bit address of charmap line
-;		$b7: 16 bit address of bitmap line
-;		$b9: 16 bit address of charset block
+;		$e3: First Row
+;		$eb: Last  Row
+;		$ec: First Col
+;		$ed: Last Col
+;		$ee: Offset between charmap lines
+;		$ef: 16 bit address of charmap line (auto-updated)
+;
+;		$d7: Current Line (auto-generated)
+;		$ce: 16 bit address of Hires line (auto-generated)
+;		$fb: 16 bit address of charset block L (auto-generated)
+;		$fd: 16 bit address of charset block L (auto-generated)
 ; ---------------------------------------------------------------	
 
-.proc _Scroll: near
+.proc _ScrollSHR: near
 
-; for (a=0; a<rows; a++) {
+; Set start line
+	lda $e3
+	asl A
+	asl A
+	asl A
+	sta $d7
+
+; for (a=row1; a<row2; a++) {
 loopRows: 
-	lda $b0			; Number of rows
-	cmp $b1
+	lda $e3			; Number of rows
+	cmp $eb
 	bpl doneRows
-	inc $b0
+	inc $e3
 	
-	; add = CHARSETRAM
+	; add = CHARSETRAM (L)
 	lda #$00
-	sta $b9
-	lda #$7a
-	sta $ba		
+	sta $fb
+	lda #$88
+	sta $fc
+
+	; add = CHARSETRAM (R)
+	lda #$00
+	sta $fd
+	lda #$8c
+	sta $fe
 
 	; for (x=0; x<8; x++) {
 		ldx #0
 	loopLines:
 		cpx #8
 		beq doneLines	
-		inx 
+		inx
 		
-		; for (y=0; y<cols; y++) {	
-			ldy $b2
+		; Set Hires address of current line
+		ldy $d7				; Current line
+		lda _hiresLinesHI,y
+		sta $cf
+		lda _hiresLinesLO,y
+		sta $ce
+		inc $d7
+		
+		; for (y=col1; y<col2; y++) {	
+			ldy $ec
 		loopCols:
-			cpy $b3			; Number of cols
+			cpy $ed			; Number of cols
 			bpl doneCols
 
 				;---------------------
-				; Copy Char
-				lda ($b5),y		; Get char value
+				; Handle Left Char
+				lda ($ef),y		; Get char value
+				sty _tmp		
+				tay 
+				lda ($fb),y		; Get L pixels for that char
+				ldy _tmp
+				sta ($ce),y		; Save in Hires mem
+
+				; Move to next col
+				iny
+
+				;---------------------
+				; Handle Right Char
+				lda ($ef),y		; Get char value
+				
 				sty _tmp
 				tay 
-				lda ($b9),y		; Get pixels for that char
+				lda ($fd),y		; Get R pixels for that char
 				ldy _tmp
-				sta ($b7),y		; Save in Hires mem	
+				sta ($ce),y		; Save in Hires mem
 
 				; Move to next col
 				iny
@@ -90,23 +129,23 @@ loopRows:
 
 		doneCols:
 
-			; Update address of charset block (+128)
+			; Update address of charset block L (+128)
 			clc	
-			lda $b9			; Update address of charset block
+			lda $fb			
 			adc #128
-			sta $b9	
-			bcc nocarryCS	; Check if carry to high byte
-			inc $ba
-		nocarryCS:
-			
-			; Update address of Hires line (+40)
+			sta $fb	
+			bcc nocarryCL	; Check if carry to high byte
+			inc $fc
+		nocarryCL:
+
+			; Update address of charset block R (+128)
 			clc	
-			lda $b7			; Update address of Hires line
-			adc #40
-			sta $b7
-			bcc nocarryBM	; Check if carry to high byte
-			inc $b8
-		nocarryBM:
+			lda $fd			
+			adc #128
+			sta $fd	
+			bcc nocarryCR	; Check if carry to high byte
+			inc $fe
+		nocarryCR:
 			
 		; Move to next line
 		jmp loopLines
@@ -114,13 +153,12 @@ loopRows:
 	doneLines:
 
 		; Update address of charmap line
-	; src += charmapWidth
 		clc	
-		lda $b5			
-		adc $b4			; Add charmap line offset
-		sta $b5	
+		lda $ef			
+		adc $ee			; Add charmap line offset
+		sta $ef	
 		bcc nocarryCM	; Check if carry to high byte
-		inc $b6
+		inc $f0
 	nocarryCM:
 	
 	; Move to next row

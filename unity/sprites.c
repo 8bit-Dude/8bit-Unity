@@ -266,12 +266,6 @@ void LocateSprite(unsigned int x, unsigned int y)
 // Apple II specific background redrawing function
 #if defined __APPLE2__
   unsigned char xHires, yHires, xptr, yptr, *bgPtr;
-#if defined __DHR__
-  void __fastcall__ BlitDHR(void);
-#else
-  void __fastcall__ BlitSHR(void);
-#endif
-  unsigned int HiresLine(unsigned char y);
   void RestoreSprBG(unsigned char index)
   {
 	  POKE(0xE3, 2);				// Bytes per line (x2 for MAIN/AUX)	

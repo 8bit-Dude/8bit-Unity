@@ -113,8 +113,8 @@ incAddress2:
 	inc $fb
 nocarry2:
 	
+	; Toggle AUX/MAIN
 toggleBlocks:
-	; Process Main Block?
 	clc
 	lda _mainAuxTog
 	eor #1

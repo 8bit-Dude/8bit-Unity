@@ -41,7 +41,7 @@
 ;		$ee: 16 bit output address (optional)
 ;		$fa: 16 bit input address (optional)
 ;
-;		$fc: 16 bit address of Hires line (generated from offsets)
+;		$fc: 16 bit address of Hires line (auto-generated)
 ; ---------------------------------------------------------------	
 
 .proc _BlitSHR: near

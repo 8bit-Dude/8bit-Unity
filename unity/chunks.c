@@ -45,16 +45,6 @@
 #endif
 
 #if (defined __ORIC__)
-  void __fastcall__ Blit(void);
-#elif (defined __APPLE2__)
-  #if defined __DHR__
-    void __fastcall__ BlitDHR(void);
-  #else
-    void __fastcall__ BlitSHR(void);
-  #endif
-#endif
-
-#if (defined __ORIC__)
   unsigned char buffer[512];
 #else
   unsigned char buffer[4];

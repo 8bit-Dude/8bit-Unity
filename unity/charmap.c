@@ -100,7 +100,11 @@ void LoadCharset(char* filename)
 {
 #if defined __APPLE2__
 	FILE* fp = fopen(filename, "rb");
+  #if defined __DHR__	
+	fread((char*)CHARSETRAM, 1, 0x1080, fp);
+  #else	
 	fread((char*)CHARSETRAM, 1, 0x0880, fp);
+  #endif
 	fclose(fp);		
 	
 #elif defined __ATARI__
@@ -197,7 +201,7 @@ unsigned char GetCharFlags(unsigned char x, unsigned char y)
 void ScrollCharmap(unsigned char x, unsigned char y)
 {
 	unsigned int src, dst, col;
-	unsigned char i, j, k, l, chr;
+	unsigned char i, j, k, chr;
 	
 	// Check if map was moved?
 	if (x == charmapX && y == charmapY)
@@ -212,38 +216,19 @@ void ScrollCharmap(unsigned char x, unsigned char y)
 	// Reset sprite background
 	for (i=0; i<SPRITE_NUM; i++)
 		sprDrawn[i] = 0;
-	
-	// Prepare blitter
-	POKE(0xE3, 1);	// Bytes per line (x2 for MAIN/AUX)
-	POKE(0xEB, 8);	// Number of lines
-	POKEW(0xEE, 0);	// Address for copying Hires > Output
-	
-	// Blit characters to screen
-	for (j=scrollRow1; j<scrollRow2; j++) {
-		k = j*8;
-		for (i=scrollCol1; i<scrollCol2; i+=2) {
-			chr = PEEK(src+i);
-			POKE(0xEC, i);  // Hires Offset X
-			POKE(0xED, k);  // Hires Offset Y
-			POKEW(0xFA, (char*)CHARSETRAM+chr*8);	// Address for copying Input > Hires
-		  #if defined __DHR__	
-			BlitDHR();
-		  #else
-			BlitSHR();  
-		  #endif
-			chr = PEEK(src+i+1);
-			POKE(0xEC, i+1);  // Hires Offset X
-			POKE(0xED, k);  // Hires Offset Y
-			POKEW(0xFA, (char*)CHARSETRAM+1024+chr*8);	// Address for copying Input > Hires
-		  #if defined __DHR__	
-			BlitDHR();
-		  #else
-			BlitSHR();  
-		  #endif
-		}
-		src += charmapWidth;
-	}
-	
+
+	POKE(0xe3, scrollRow1); 		
+	POKE(0xeb, scrollRow2);		
+	POKE(0xec, scrollCol1);		
+	POKE(0xed, scrollCol2);		
+	POKE(0xee, charmapWidth);
+	POKEW(0xef, src);
+  #if defined __DHR__
+	ScrollDHR();
+  #else
+	ScrollSHR();
+  #endif
+
 #elif defined __ATARI__	
 	dst = SCREENRAM + scrollRow1*40;
 	for (j=scrollRow1; j<scrollRow2; j++) {
@@ -297,25 +282,10 @@ void ScrollCharmap(unsigned char x, unsigned char y)
 	POKE(0xb1, scrollRow2);		
 	POKE(0xb2, scrollCol1);		
 	POKE(0xb3, scrollCol2);		
-	POKE(0xb4, charmapWidth); 	// Offset between source lines
-	POKEW(0xb5, src);			// Address of first charmap line
-	POKEW(0xb7, BITMAPRAM + scrollRow1*320 + 1);	// Address of first bitmap line
-	Scroll();	
-	
-	// Copy Map Section
-/*	dst = BITMAPRAM + scrollRow1*320 + 1;
-	for (j=scrollRow1; j<scrollRow2; j++) {
-		col = CHARSETRAM;
-		for (k=0; k<8; k++) {
-			for (i=scrollCol1; i<scrollCol2; i++) {
-				chr = PEEK(src+i);
-				POKE(dst+i, PEEK(col+chr));
-			}
-			col += 128;
-			dst += 40;
-		}
-		src += charmapWidth;
-	}*/
+	POKE(0xb4, charmapWidth);
+	POKEW(0xb5, src);
+	POKEW(0xb7, BITMAPRAM + scrollRow1*320 + 1);
+	Scroll();
 #endif
 }
 
@@ -333,25 +303,30 @@ void PrintCharmap(unsigned char x, unsigned char y, unsigned char* str)
 		if (str[i] > 96) 
 			chr = str[i];		// Lower case
 		else
+		if (str[i] > 32) 
 			chr = str[i]+32;	// Upper case
+		else
+			chr = str[i];		// Icons
 		POKE(addr1++, chr);
 	}
 	
 #elif defined __CBM__	
-	unsigned int addr2, addr3;
+	unsigned int addr2;
 	addr1 = SCREENRAM + 40*y + x;
-	addr2 = SCREENRAM + 0x0400 + 40*y + x;
-	addr3 = COLORRAM + 40*y + x;
+	addr2 = COLORRAM + 40*y + x;
 	for (i=0; i<strlen(str); i++) {
 		if (str[i] > 192)
 			chr = str[i]+32;	// Upper case (petscii)
-		else if (str[i] > 96) 
+		else 
+		if (str[i] > 96) 
 			chr = str[i]+128;	// Lower case (ascii)
-		else
+		else 
+		if (str[i] > 32) 
 			chr = str[i]+160;	// Lower case (petscii)
+		else
+			chr = str[i]+128;	// Icons
 		POKE(addr1++, chr);
-		POKE(addr2++, chr);
-		POKE(addr3++, inkColor);
+		POKE(addr2++, inkColor);
 	}
 	
 #elif defined __LYNX__
@@ -360,7 +335,10 @@ void PrintCharmap(unsigned char x, unsigned char y, unsigned char* str)
 		if (str[i] > 96) 
 			chr = str[i]+128;	// Lower case
 		else
+		if (str[i] > 32) 
 			chr = str[i]+160;	// Upper case
+		else
+			chr = str[i]+128;	// Icons
 		POKE(addr1++, chr);
 	}
 
