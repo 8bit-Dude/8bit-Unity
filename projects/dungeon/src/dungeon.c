@@ -11,7 +11,7 @@
 #if defined __APPLE2__
 	#define spriteFrames 32
 	#define spriteCols   7
-	#define spriteRows   5
+	#define spriteRows   16
 	unsigned char spriteColors[] = { };	//  Colors are pre-assigned in the sprite sheet
 #elif defined __ATARI__
 	#define spriteFrames 32
@@ -90,6 +90,11 @@ typedef struct {
 } Enemy;
 Enemy enemies[ENEMY_NUM];
 
+char life[] = { 1 , '1', '0', '0', 0};
+char mana[] = { 2 , '1', '0', '0', 0};
+char gold[] = {'$', '0', '0', '0', 0};
+char kill[] = { 4 , '0', '0', '0', 0};
+
 void gameInit(void)
 {
 	// Setup charmap
@@ -144,9 +149,16 @@ void gameInit(void)
 #endif
 
 	// Show some text
-	inkColor = RED;    PrintCharmap(0, CHR_ROWS-1,"H100");
-	inkColor = CYAN;   PrintCharmap(5, CHR_ROWS-1,"M100");
-	inkColor = YELLOW; PrintCharmap(10,CHR_ROWS-1,"$000");
+#if (defined __ORIC__)
+	SetAttributes(-1, CHR_ROWS-1, RED);
+	SetAttributes( 4, CHR_ROWS-1, CYAN);
+	SetAttributes( 9, CHR_ROWS-1, YELLOW);
+	SetAttributes(CHR_COLS-6, CHR_ROWS-1, WHITE);
+#endif	
+	inkColor = RED;    PrintCharmap(0, CHR_ROWS-1, life);
+	inkColor = CYAN;   PrintCharmap(5, CHR_ROWS-1, mana);
+	inkColor = YELLOW; PrintCharmap(10,CHR_ROWS-1, gold);
+	inkColor = WHITE;  PrintCharmap(CHR_COLS-5, CHR_ROWS-1, kill);
 }
 
 void gameLoop(void)
@@ -167,7 +179,17 @@ void gameLoop(void)
 	maxX = charmapWidth-maxW;
 	maxY = charmapHeight-maxH;
 	
+	// Scroll to start position
+	ScrollCharmap(mapX, mapY);
+	
 	while (1) {
+		// Platform specific
+	#if defined __APPLE2__
+		clk += 1;  // Manually update clock on Apple 2		
+	#elif defined __LYNX__
+		UpdateDisplay(); // Refresh Lynx screen
+	#endif		
+		
 		// Check clock
 		if (clock() < gameClock) 
 			continue;
@@ -282,12 +304,7 @@ void gameLoop(void)
 			}
 		}
 		while (slot<SPRITE_NUM)
-			DisableSprite(slot++);
-		
-		// Platform specific
-	#if defined __LYNX__
-		UpdateDisplay(); // Refresh Lynx screen
-	#endif		
+			DisableSprite(slot++);		
 	}	
 }
 	
