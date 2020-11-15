@@ -27,3 +27,6 @@
   #define musicExt "MUS"
   #define textExt  "TXT"
 #endif
+
+// Version definitions
+char version[] = "8BIT-OS 2020/11/13";

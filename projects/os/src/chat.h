@@ -62,7 +62,7 @@ void ChatSend()
 	
 	// Clear previous message
 	paperColor = WHITE;
-	PrintBlanks(0,0,36,1);
+	PrintBlanks(0,0,CHR_COLS-4,1);
 	chatBuffer[0] = 0;
 	
 	// Refresh messages

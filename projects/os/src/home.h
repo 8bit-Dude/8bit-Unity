@@ -77,5 +77,5 @@ void HomeScreen(void)
 
 	// Add Taskbar Message
 	paperColor = WHITE; inkColor = BLACK; 
-	PrintStr(21, CHR_ROWS-1, "8BIT-OS 2020/10/24");		
+	PrintStr(21, CHR_ROWS-1, version);		
 }
