@@ -42,7 +42,7 @@
 #define STEP_RACE   2
 
 // Build Information
-const char* buildInfo = "BUILD: 2020/11/02";
+const char* buildInfo = "BUILD: 2020/11/14";
 
 // Game data
 unsigned char gameMap = 0;
@@ -102,6 +102,7 @@ unsigned char lapNumber[LEN_LAPS] = { 5, 10, 20, 50 };
 
 // List of controller types
 unsigned char controlIndex[MAX_PLAYERS] = { 3, 1, 0, 0 };
+unsigned char controlBackup[MAX_PLAYERS] = { 3, 1, 0, 0 };
 #if defined __APPLE2__
 	#define LEN_CONTROL 8
 	const char* controlList[LEN_CONTROL] = { "NONE", "CPU EASY", "CPU HARD", "PADDLE 1", "PADDLE 2", "PADDLE 3", "PADDLE 4", "NETWORK" };
@@ -112,7 +113,7 @@ unsigned char controlIndex[MAX_PLAYERS] = { 3, 1, 0, 0 };
 	#define LEN_CONTROL 8
 	const char* controlList[LEN_CONTROL] = { "NONE", "CPU EASY", "CPU HARD", "A,D,CTRL", "J,L,RET", "PASE/HUB 1", "PASE/HUB 2", "NETWORK" };
 #elif defined __CBM__
-	#define LEN_CONTROL 8	
+	#define LEN_CONTROL 8
 	const char* controlList[LEN_CONTROL] = { "NONE", "CPU EASY", "CPU HARD", "JOY 1", "JOY 2", "JOY 3", "JOY 4", "NETWORK" };
 #elif defined __LYNX__
 	#define LEN_CONTROL 7

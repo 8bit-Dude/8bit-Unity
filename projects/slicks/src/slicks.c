@@ -62,9 +62,10 @@ int main (void)
 			carryon = GameLoop();
 			DisableSprite(-1);
 			ExitBitmapMode();
-			StopMusic();
 			StopSFX();
-						
+		#ifdef __LYNX__
+			StopMusic();
+		#endif							
 			// Carry on?
 			gameStep = STEP_WARMUP;
 			if (!carryon) { break; }

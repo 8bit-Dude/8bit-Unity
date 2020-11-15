@@ -30,8 +30,14 @@
 // Physics parameters
 int tck4, accRate, decRate, jmpTCK;
 #if defined __ORIC__
+  #define LIGHT_X  118
+  #define LIGHT_Y   24
+  #define LIGHT_SP  36
   char rotRate = 2;
 #else
+  #define LIGHT_X  132
+  #define LIGHT_Y   24
+  #define LIGHT_SP  24
   char rotRate = 3;
 #endif
 const char rotMax[3] = { 4, 5, 2};
@@ -90,7 +96,11 @@ void GameReset()
     
 	// Display warmup message
 	inkColor = WHITE; 
+#if defined __ORIC__
+	paperColor = BLACK; 
+#else
 	paperColor = paperBuffer;
+#endif
 	if (gameStep == STEP_WARMUP) {
         if (gameMode == MODE_ONLINE) {
 		#if defined __CBM__
@@ -197,8 +207,8 @@ void GameInit(const char* map)
 			svUsers[i][0] = 0;
             controlIndex[i] = 0; 
         }
-		// Assign Joystick/Paddle #1 to Client
-		controlIndex[clIndex] = 3;
+		// Assign 1st Controller to Client
+		controlIndex[clIndex] = controlBackup[0];
     }
 #if defined __LYNX__
 	// Overlay for in-game chat
@@ -220,12 +230,12 @@ unsigned char GameRace()
     // Show light sprites
 #ifndef __APPLE2__
     for (i=SPR2_SLOT; i<SPR2_SLOT+3; ++i) {
-		LocateSprite(132+(i-SPR2_SLOT)*24u, 24);
+		LocateSprite(LIGHT_X+(i-SPR2_SLOT)*LIGHT_SP, LIGHT_Y);
 	#if defined __ATARI__ 
 		RecolorSprite(i, 0, 0x08);
 		SetSprite(i, 16);
 	#elif defined __ORIC__ 
-		RecolorSprite(i, 0, AIC);
+		RecolorSprite(i, 0, SPR_AIC);
 		SetSprite(i, 16);
 	#elif defined __CBM__
 		RecolorSprite(i, 0, LGREY);
@@ -253,8 +263,8 @@ unsigned char GameRace()
 
     // Red light
 #if defined __ORIC__ 
-	LocateSprite(132, 24);	
-	RecolorSprite(4, 0, RED);
+	LocateSprite(LIGHT_X, 24);	
+	RecolorSprite(4, 0, SPR_RED);
 	SetSprite(4, 16);
 #elif defined __ATARI__  
 	RecolorSprite(5, 0, 0x22);  
@@ -269,8 +279,8 @@ unsigned char GameRace()
 
     // Orange light	
 #if defined __ORIC__ 
-	LocateSprite(156, 24);	
-	RecolorSprite(5, 0, RED);
+	LocateSprite(LIGHT_X+LIGHT_SP, 24);	
+	RecolorSprite(5, 0, SPR_RED);
 	SetSprite(5, 16);	
 #elif defined __ATARI__  
 	RecolorSprite(6, 0, 0x1a);  
@@ -285,8 +295,8 @@ unsigned char GameRace()
 
     // Green light
 #if defined __ORIC__ 
-	LocateSprite(180, 24);	
-	RecolorSprite(6, 0, GREEN);
+	LocateSprite(LIGHT_X+2*LIGHT_SP, 24);	
+	RecolorSprite(6, 0, SPR_GREEN);
 	SetSprite(6, 16);	
 #elif defined __ATARI__  
 	RecolorSprite(7, 0, 0xc4);  

@@ -201,11 +201,13 @@ void BackupChatRow()
 #elif defined __APPLE2__
 	unsigned char i;	
 	for (i=0; i<8; ++i) {
-		SetDHRPointer(0, 8*ROW_CHAT+i);		
+		SetHiresPointer(0, 8*ROW_CHAT+i);		
+	  #if defined __DHR__
 		*dhraux = 0;
-		memcpy(&chatBG[0]+i*20,   (char*)(dhrptr), 20);
+		memcpy(&chatBG[0]+i*20,   (char*)(hiresPtr), 20);
 		*dhrmain = 0;
-		memcpy(&chatBG[160]+i*20, (char*)(dhrptr), 20);
+	  #endif
+		memcpy(&chatBG[160]+i*20, (char*)(hiresPtr), 20);
 	}	
 #elif defined __LYNX__
  	unsigned char i;
@@ -236,11 +238,13 @@ void RedrawChatRow()
 #elif defined __APPLE2__
 	unsigned char i;	
 	for (i=0; i<8; ++i) {
-		SetDHRPointer(0, 8*ROW_CHAT+i);		
+		SetHiresPointer(0, 8*ROW_CHAT+i);		
+	  #if defined __DHR__
 		*dhraux = 0;
-		memcpy((char*)(dhrptr),	&chatBG[0]+i*20, 20);
+		memcpy((char*)(hiresPtr),	&chatBG[0]+i*20, 20);
 		*dhrmain = 0;
-		memcpy((char*)(dhrptr), &chatBG[0]+i*20+160, 20);
+	  #endif	
+		memcpy((char*)(hiresPtr), &chatBG[0]+i*20+160, 20);
 	}		
 #elif defined __LYNX__
  	unsigned char i;
@@ -259,23 +263,31 @@ void PrintBuffer(char *buffer)
 	len = strlen(buffer);
 	
 #if defined __ORIC__	
-	// Apply ink change
-	if (buffer[0] == '^') {
+	// Need to insert ink changes...
+	len++;
+	if (len<CHR_COLS) {
+		CopyStr(0, 0, len, 0, CHR_COLS-len);
 		SetAttributes(CHR_COLS-len, 0, inkColor);
-		buffer = &buffer[1];
-		len--;
 	}
+	len--;
+	PrintStr(CHR_COLS-len, 0, buffer);		
+	
 #elif defined __APPLE2__	
 	// Make sure message has even length
 	if (len%2) {
 		buffer[len++] = ' ';
 		buffer[len] = 0;
 	}
+	if (len<CHR_COLS)
+		CopyStr(0, 0, len, 0, CHR_COLS-len);
+	PrintStr(CHR_COLS-len, 0, buffer);		
+	
+#else
+	// Just shift buffer and print new message
+	if (len<CHR_COLS)
+		CopyStr(0, 0, len, 0, CHR_COLS-len);
+	PrintStr(CHR_COLS-len, 0, buffer);		
 #endif
-
-	// Shift buffer and print new message
-	CopyStr(0, 0, len, 0, CHR_COLS-len);
-	PrintStr(CHR_COLS-len, 0, buffer);	
 }
 
 void InputField(unsigned char col, unsigned char row, char *buffer, unsigned char len)
@@ -313,14 +325,13 @@ void PrintScores()
 	
 	// Play the background music
 	StopSFX();
-#ifdef __LYNX__
+#if defined(__LYNX__)
 	StopMusic();
 	LoadMusic("speednik.mus", MUSICRAM);
-#endif		
-#ifndef __CBM__
+#elif defined(__ATARI__) || defined(__APPLE2__)
 	PlayMusic();
 #endif	
-	
+				
 	// Compute scores
 	for (i=0; i<MAX_PLAYERS; ++i) {
 		if (controlIndex[i] > 0) {
@@ -403,6 +414,11 @@ void PrintScores()
 #else
     sleep(7);
 #endif
+	
+	// Stop music if needed
+#if defined(__ATARI__) || defined(__APPLE2__) || defined(__LYNX__)
+	StopMusic();
+#endif	
 }
 
 #ifdef __APPLE2__
@@ -413,7 +429,11 @@ void PrintScores()
 void PrintRace()
 {	
 	// Print race message
+#if defined __ORIC__
+	paperColor = BLACK; 
+#else
 	paperColor = paperBuffer;
+#endif	
 	PrintBuffer("      RACE STARTED, GOAL:    LAPS!      ");
 	
 	// Print laps
@@ -510,21 +530,15 @@ void MenuServers()
 	serversLoaded = 0;
 
 #ifdef NETCODE
-#ifdef __ORIC__
-	StopMusic();
-#endif
 	// Flush Net Queue
-	while ((unsigned int)RecvUDP(5));
+	while (RecvUDP(5));
 			
 	// Fetch server list
 	udpBuffer[0] = CL_LIST;
 	ServerConnect();
 	SendUDP(udpBuffer, 1);
-	packet = (unsigned int)RecvUDP(2*TCK_PER_SEC); // Allow some time-out
+	packet = RecvUDP(2*TCK_PER_SEC); // Allow some time-out
 	ServerDisconnect();
-#ifdef __ORIC__
-	PlayMusic();
-#endif	
 #endif
 
 	// Check server response
@@ -597,14 +611,8 @@ unsigned char MenuLogin(unsigned char serverIndex)
 	// Show action message
 	inkColor = YELLOW;
 	PrintStr(MENU_COL+2, MENU_ROW+12, "CONNECTING...");
-#ifdef __ORIC__
-	StopMusic();
-#endif
 	ServerConnect();	
-	res = ClientJoin(serverIndex);
-#ifdef __ORIC__
-	PlayMusic();
-#endif		
+	res = ClientJoin(serverIndex);	
 	inkColor = WHITE;
 	if (res == ERR_MESSAGE) {
 		// Server error
@@ -699,7 +707,11 @@ void GameMenu()
 		PrintStr(MENU_COL+13, MENU_ROW, "I");
 
 		// Display LOCAL menu
-		if (gameMode == MODE_LOCAL) {            
+		if (gameMode == MODE_LOCAL) {    
+			// Restore controls
+			for (i=0; i<4; i++)
+				controlIndex[i] = controlBackup[i];
+					
 			// Display menu options
 			inkColor = INK_TAB; paperColor = BLACK;
 		#if defined __LYNX__			
@@ -761,15 +773,24 @@ void GameMenu()
 					MenuGFX();
 				}
 			#endif				
+			
+				// Backup controls
+				for (i=0; i<4; i++)
+					controlBackup[i] = controlIndex[i];
+					
 				// Start game? / Switch screen?
 				if (lastchar == KB_SP) { return; }                
-				if (lastchar == KB_O) { gameMode = MODE_ONLINE; break; }
-				if (lastchar == KB_I) { gameMode = MODE_INFO; break; }                
+				if (lastchar == KB_O)  { gameMode = MODE_ONLINE; break; }
+				if (lastchar == KB_I)  { gameMode = MODE_INFO; break; }                
 			}
 		} 
         
 		// Display ONLINE menu
         else if (gameMode == MODE_ONLINE) {
+		#ifdef __ORIC__
+			// VIA not happy with music...
+			StopMusic();
+		#endif			
 			// Display menu options
 			inkColor = INK_TAB; paperColor = BLACK;	
 		#if defined __LYNX__			
@@ -831,14 +852,7 @@ void GameMenu()
 				}				
 
 				// Switch screen?
-				if (lastchar == KB_L) {
-                    // Reset controls
-                    controlIndex[0] = 3;
-                    controlIndex[1] = 1;
-                    controlIndex[2] = 0;
-                    controlIndex[3] = 0;                    
-                    gameMode = MODE_LOCAL; 
-                    break; }
+				if (lastchar == KB_L) { gameMode = MODE_LOCAL; break; }
 				if (lastchar == KB_O) { break; }
                 if (lastchar == KB_I) { gameMode = MODE_INFO; break; }
 			}
