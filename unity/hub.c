@@ -76,9 +76,9 @@ void SendByte(unsigned char value)
 	while (SerialGet(&ch) != SER_ERR_OK) ;	 // Read byte (sent to oneself)	
 #elif defined __ORIC__
 	POKE(0x0301, value);		// Write to Printer Port
-	POKE(0x0300, 175);			// Send STROBE (falling signal)
-	tick++; tick++; tick++; 	// Wait 3 cycles
-	POKE(0x0300, 255);			// Reset STROBE
+	*((char*)0x300) &= 0xEF; 	// 11101111 - Send STROBE (falling signal)
+	tick++; tick++; tick++; 	// Wait some cycles...
+	*((char*)0x300) |= 0x10; 	// 00010000 - Reset STROBE
 #endif
 }
 
