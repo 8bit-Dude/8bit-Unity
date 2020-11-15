@@ -59,7 +59,7 @@ SCB_REHV_PAL keybrdSCB =  { BPP_4 | TYPE_NONCOLL, REHV | LITERAL, 0, 0, (char*)&
 unsigned char textColors[] = { BLACK, RED, PINK, GREY, GREY, GREY, BROWN, ORANGE, YELLOW, LGREEN, GREEN, DRED, PURPLE, BLUE, LBLUE, WHITE };
 unsigned char chrCol, chrRow;
 void clrscr(void) {
-	InitBitmap(); ClearBitmap();
+	InitBitmap(); ClearBitmap(); EnterBitmapMode();
 }
 unsigned char textcolor(unsigned char color) {
 	inkColor = textColors[color];

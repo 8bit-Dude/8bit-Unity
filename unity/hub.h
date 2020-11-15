@@ -34,7 +34,12 @@
  *		* Bill Buckels for his Apple II Double Hi-Res bitmap code
  */
 
-#define HUB_REFRESH_RATE  3	// every 3 clock cycles
+// Talk to HUB at a "conservative" 20 FPS (gives ~5 KB/s max. rate)
+#if defined __ATMOS__
+	#define HUB_REFRESH_RATE  5	// out of 100 TCK/s
+#elif defined __LYNX__
+	#define HUB_REFRESH_RATE  3	// out of 60 TCK/s
+#endif	
 
 // HUB Status Flags
 #define COM_ERR_OK        0
@@ -74,3 +79,12 @@
 #define HUB_WEB_CLOSE    55
 #define HUB_URL_GET      60
 #define HUB_URL_READ     61
+
+// HUB Functions
+void UpdateHub(void);
+unsigned char QueueHub(unsigned char packetCmd, unsigned char* packetBuffer, unsigned char packetLen);
+
+// HUB Variables
+extern unsigned char hubState[7];
+extern unsigned char sendLen, sendHub[256];
+extern unsigned char recvLen, recvHub[256];

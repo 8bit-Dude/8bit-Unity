@@ -103,10 +103,9 @@ void RecvHub()
 	unsigned char header, footer, checksum;
 
 #if defined __ORIC__
-	__asm__("sei");			// Disable interrupts
-	SendByte(85);
-	POKE(0x0303, 0);		// Set Port A as Input
-	i = PEEK(0x0301);   	// Reset ORA
+	SendByte(85);		// Ask Hub to send Data
+	POKE(0x0303, 0);	// Set Port A as Input
+	i = PEEK(0x0301);   // Reset ORA
 #endif	
 	
 	// Check header
@@ -171,10 +170,6 @@ void SendHub()
 {
 	unsigned char i, checksum, packetLen;
 	
-#if defined __ORIC__
-	POKE(0x0303, 255);	// Set port A as Output
-#endif	
-
 	// Send Header
 	SendByte(170);
 	
@@ -197,10 +192,6 @@ void SendHub()
 	
 	// Send footer
 	SendByte(checksum);
-	
-#if defined __ORIC__
-	__asm__("cli");		// Resume interrupts	
-#endif	
 }
 
 clock_t updateClock;
@@ -210,40 +201,47 @@ void UpdateHub()
 	unsigned char i;
 	
 	// Throttle requests to respect refresh rate
-	if (clock() < updateClock+HUB_REFRESH_RATE)
+	if (clock() < updateClock)
 		return;
-	updateClock = clock();
+	updateClock = clock()+HUB_REFRESH_RATE;
 
 	// Was hub already initialized?
 	if (hubState[0] == COM_ERR_OFFLINE) {
-		// Send reset command
+		// Queue reset command
 		if (sendHub[0] != HUB_SYS_RESET) {
-			recvID = 0; sendID = 0;
-			recvLen = 0; sendLen = 0;
+			recvID = 0; recvLen = 0;
+			sendID = 0; sendLen = 0;
 			QueueHub(HUB_SYS_RESET, 0, 0);
 		#if defined __LYNX__			
 			SerialOpen(&comLynx);  // Setup Comlynx interface
-		#elif defined __ORIC__
-			__asm__("sei");		   // Disable interrupts
 		#endif				
-			SendHub();
 		}
-	} 
+	}
+
 #if defined DEBUG_HUB
 	tic = clock();
 #endif
-	// Send/Receive Packet
-	RecvHub();
+
 #if defined __LYNX__	
 	while (SerialGet(&i) == SER_ERR_OK) ; // Clear UART Buffer
-#endif	
+#elif defined __ORIC__
+	__asm__("sei");		// Disable interrupts
+#endif
+
+	// Process HUB I/O
 	SendHub();
+	RecvHub();	
+
+#if defined __ORIC__
+	POKE(0x0303, 255);	// Set port A as Output
+	__asm__("cli");		// Resume interrupts	
+#endif	
 
 #if defined DEBUG_HUB
 	toc = clock();
-	 if (hubState[0] == COM_ERR_OK)      { gotoxy(0, CHR_ROWS-1); cprintf("TC%lu  ", toc-tic); 
-									       gotoxy(6, CHR_ROWS-1); cprintf("LN%u  ", recvLen);	
-									       ok+=1; gotoxy(12, CHR_ROWS-1); cprintf("OK%u  ", ok); }
+	if (hubState[0] == COM_ERR_OK)      { gotoxy(0, CHR_ROWS-1); cprintf("TC%lu  ", toc-tic); 
+										  gotoxy(6, CHR_ROWS-1); cprintf("LN%u  ", recvLen);	
+										  ok+=1; gotoxy(12, CHR_ROWS-1); cprintf("OK%u  ", ok); }
 else if (hubState[0] == COM_ERR_HEADER)  { hd+=1; gotoxy(18, CHR_ROWS-1); cprintf("HD%u", hd); }	
 else if (hubState[0] == COM_ERR_TRUNCAT) { tr+=1; gotoxy(24, CHR_ROWS-1); cprintf("TR%u", tr); } 
 else if (hubState[0] == COM_ERR_CORRUPT) { co+=1; gotoxy(30, CHR_ROWS-1); cprintf("CO%u", co); }	
