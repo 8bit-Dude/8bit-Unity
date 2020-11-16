@@ -1045,7 +1045,7 @@ class Application:
                 fp.write('@echo ; >> data.asm\n')
                 for i in range(len(charmaps)):
                     fb = FileBase(charmaps[i], '')
-                    fp.write('@echo .segment "BMP' + str(i) + 'DATA" >> data.asm\n')
+                    fp.write('@echo .segment "BMP' + str(len(bitmaps)+i) + 'DATA" >> data.asm\n')
                     fp.write('@echo _mapData' + str(i).zfill(2) + ': .incbin "' + fb +'" >> data.asm\n')
                     
                 # Link list of musics
