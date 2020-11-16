@@ -50,6 +50,11 @@ void InitBitmap()
   #endif	
   
 #elif defined __ATARI__
+	// Disable cursor
+	POKEW(0x0058, 0);	// SAVMSC
+	POKEW(0x005E, 0);	// OLDADR
+	POKE(0x005D, 0);	// OLDCHR
+	
 	// Switch OFF ANTIC
 	POKE(559, 2);
 		
@@ -80,12 +85,9 @@ void EnterBitmapMode()
 	SetupVIC2();
 
 	// Set VIC2 to bitmap mode
-	POKE(0xD011, PEEK(0xD011) | 32);		
+	POKE(0xD011, PEEK(0xD011)|32);		
 	
 #elif defined __ATARI__
-	// Move Cursor outside of DLIST
-	POKEW(0x5E, 0x09ff);	
-
 	// Setup DLIST
 	BitmapDLIST();	
   #if defined __ATARIXL__
@@ -93,7 +95,7 @@ void EnterBitmapMode()
 	bitmapDLI = 1; StartDLI();	
   #endif
 	// ANTIC: DMA Screen
-	POKE(559, 32+16+8+4+2);
+	POKE(559, PEEK(559)|32);
 	
 #elif defined __APPLE2__
 	// Switch ON Bitmap Mode
@@ -113,8 +115,9 @@ void ExitBitmapMode()
 	ResetVIC2();
 		
 #elif defined __ATARI__
-    // Switch OFF ANTIC
-	POKE(559, 2);
+    // Switch screen DMA and DLI
+	POKE(559, PEEK(559)&~32);
+	bitmapDLI = 0; 
 	
 #elif defined __APPLE2__
     // Switch OFF Double Hi-Res Mode

@@ -49,6 +49,15 @@ void InitCharmap()
 {	
 #if (defined __APPLE2__) || (defined __LYNX__) || (defined __ORIC__)
 	InitBitmap();
+
+#elif defined __ATARI__	
+	// Disable cursor
+	POKEW(0x0058, 0);	// SAVMSC
+	POKEW(0x005E, 0);	// OLDADR
+	POKE(0x005D, 0);	// OLDCHR
+	
+	// Switch OFF ANTIC
+	POKE(559, 2);	
 #endif		
 }
 
@@ -59,23 +68,21 @@ void EnterCharmapMode()
 	EnterBitmapMode();
 	
 #elif defined __ATARI__	
-	// Disable cursor
-	POKEW(0x0058, 0);	// SAVMSC
-	POKEW(0x005E, 0);	// OLDADR
-	POKE(0x005D, 0);	// OLDCHR
-	
 	// Setup Charmap DLIST
 	CharmapDLIST();
 
-	// Page to character set
+	// Set character set page
+	charsetPage1 = 0xa0;
+	charsetPage2 = 0xa4;
 	POKE(0x02f4, 0xa0);	
 	
 	// DLI parameters
-	charsetPage1 = 0xa0;
-	charsetPage2 = 0xa4;
 	StartDLI();
 	waitvsync();
 	charmapDLI = 1;
+	
+	// ANTIC: DMA Screen
+	POKE(559, PEEK(559)|32);	
 	
 #elif defined __CBM__	
 	// Setup VIC2 (memory bank and multicolor mode)
@@ -91,6 +98,11 @@ void ExitCharmapMode()
 {
 #if defined __APPLE2__	
 	ExitBitmapMode();
+	
+#elif defined __ATARI__	
+    // Switch screen DMA and DLI
+	POKE(559, PEEK(559)&~32);
+	charmapDLI = 0;
 	
 #elif defined __CBM__	
 	ResetVIC2();
