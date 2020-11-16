@@ -61,8 +61,7 @@ _sampleCtrl:  .res 1
 	; Setup vertical blank interrupt
     lda #$07       	; deferred
 	ldx #(>RMTVBI)	; install RMT VBI routine
-	ldy #(<RMTVBI)
-	;jsr $600	
+	ldy #(<RMTVBI)	
     jsr SETVBV
 	rts
 .endproc
@@ -72,7 +71,6 @@ _sampleCtrl:  .res 1
 	ldx #>XITVBV	; reset VBI
 	ldy #<XITVBV		
     jsr SETVBV	
-
 	jsr RMTPlayer+9	;all sounds off
 	rts
 .endproc

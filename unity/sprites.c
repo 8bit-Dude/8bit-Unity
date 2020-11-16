@@ -83,7 +83,6 @@
 	}
 
 #elif defined __CBM__
-	unsigned int spritePtr = SPRITEPTR;
 	void DoubleHeightSprite(unsigned char index, unsigned char onoff) {
 		if (onoff)
 			POKE(0xD017, PEEK(0xD017) |  (1 << index));
@@ -538,7 +537,7 @@ void SetSprite(unsigned char index, unsigned char frame)
 	
 #elif defined __CBM__
 	// Tell VIC where to find the frame
-	POKE(spritePtr+index, SPRITELOC+frame);
+	POKE(SPRITEPTR+index, SPRITELOC+frame);
 
 	// Set X/Y Coordinates
 	POKE(53249+2*index, spriteY+39);

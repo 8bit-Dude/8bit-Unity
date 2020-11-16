@@ -34,7 +34,8 @@
   extern unsigned char sprDrawn[];
   void Scroll(void);
 #elif defined __LYNX__	
-  extern unsigned char charFlags[];
+  extern unsigned char charsetData[];
+  unsigned char *charmapData;
 #endif
 
 extern unsigned char inkColor;
@@ -46,21 +47,23 @@ unsigned char scrollRow1 = 0, scrollRow2 = CHR_ROWS;
 // Initialize Charmap Mode
 void InitCharmap() 
 {	
-#if (defined __APPLE2__) || (defined __ORIC__)
+#if (defined __APPLE2__) || (defined __LYNX__) || (defined __ORIC__)
 	InitBitmap();
-	
-#elif defined __LYNX__
-	InitDisplay();
 #endif		
 }
 
 // Switch from Text mode to Charmap mode
 void EnterCharmapMode()
 {		
-#if defined __APPLE2__	
+#if (defined __APPLE2__) || (defined __LYNX__)
 	EnterBitmapMode();
 	
 #elif defined __ATARI__	
+	// Disable cursor
+	POKEW(0x0058, 0);	// SAVMSC
+	POKEW(0x005E, 0);	// OLDADR
+	POKE(0x005D, 0);	// OLDCHR
+	
 	// Setup Charmap DLIST
 	CharmapDLIST();
 
@@ -68,16 +71,15 @@ void EnterCharmapMode()
 	POKE(0x02f4, 0xa0);	
 	
 	// DLI parameters
-	charmapDLI = 1; StartDLI();
 	charsetPage1 = 0xa0;
 	charsetPage2 = 0xa4;
+	StartDLI();
+	waitvsync();
+	charmapDLI = 1;
 	
 #elif defined __CBM__	
 	// Setup VIC2 (memory bank and multicolor mode)
-	SetupVIC2();
-
-#elif defined __LYNX__
-	videoMode = MODE_CHARMAP;	
+	SetupVIC2();	
 #endif	
 
 	// Reset scroll coords (out of range)
@@ -139,7 +141,7 @@ void LoadCharset(char* filename)
 // Clear entire screen
 void ClearCharmap()
 {
-#if (defined __APPLE2__) || (defined __ORIC__)
+#if (defined __APPLE2__) || (defined __LYNX__) || (defined __ORIC__)
 	ClearBitmap();
 
 #elif defined __ATARI__
@@ -147,11 +149,7 @@ void ClearCharmap()
 	
 #elif defined __CBM__
 	bzero((char*)SCREENRAM, 1000);
-	bzero((char*)COLORRAM,  1000);
-	
-#elif defined __LYNX__
-	bzero((char*)SCREENRAM, 680);
-	
+	bzero((char*)COLORRAM,  1000);	
 #endif
 }
 
@@ -168,7 +166,15 @@ void LoadCharmap(char *filename)
 	fclose(fp);
 	
 #elif defined __LYNX__
-	FileRead(filename);	
+	// Free previous map and load new one
+	unsigned int size;
+	if (charmapData) free(charmapData);	
+	size = FileRead(filename);	
+	if (size) {
+		charmapData = malloc(size);
+		memcpy(charmapData, BITMAPRAM, size);
+	}
+	ClearBitmap();
 	
 #elif defined __ORIC__
 	FileRead(filename, (void*)CHARMAPRAM);	
@@ -182,26 +188,19 @@ unsigned char GetCharFlags(unsigned char x, unsigned char y)
 {
 	// Get flags of specified tile
 	unsigned char chr;
-	chr = PEEK(CHARMAPRAM + charmapWidth*y + x);
 #if defined __LYNX__
-	return charFlags[chr];
+	chr = charmapData[charmapWidth*y + x];
+	return charsetData[1536+chr];
 #else
+	chr = PEEK(CHARMAPRAM + charmapWidth*y + x);
 	return PEEK(CHARFLGRAM + chr);
 #endif
 }
 
-#if defined __APPLE2__
-  #if defined __DHR__
-    void __fastcall__ BlitDHR(void);
-  #else
-    void __fastcall__ BlitSHR(void);
-  #endif
-#endif
-
 void ScrollCharmap(unsigned char x, unsigned char y)
 {
-	unsigned int src, dst, col;
 	unsigned char i, j, k, chr;
+	unsigned int src, dst, col, tmp1, tmp2;
 	
 	// Check if map was moved?
 	if (x == charmapX && y == charmapY)
@@ -209,14 +208,12 @@ void ScrollCharmap(unsigned char x, unsigned char y)
 	charmapX = x;
 	charmapY = y;
 
-	// Address of first character
-	src = CHARMAPRAM + charmapWidth*y + (x - scrollCol1);
-
 #if defined __APPLE2__
 	// Reset sprite background
 	for (i=0; i<SPRITE_NUM; i++)
 		sprDrawn[i] = 0;
 
+	src = CHARMAPRAM + charmapWidth*y + (x - scrollCol1);
 	POKE(0xe3, scrollRow1); 		
 	POKE(0xeb, scrollRow2);		
 	POKE(0xec, scrollCol1);		
@@ -230,6 +227,7 @@ void ScrollCharmap(unsigned char x, unsigned char y)
   #endif
 
 #elif defined __ATARI__	
+	src = CHARMAPRAM + charmapWidth*y + (x - scrollCol1);
 	dst = SCREENRAM + scrollRow1*40;
 	for (j=scrollRow1; j<scrollRow2; j++) {
 		for (i=scrollCol1; i<scrollCol2; i++) {
@@ -242,9 +240,8 @@ void ScrollCharmap(unsigned char x, unsigned char y)
 	}
 	
 #elif defined __CBM__	
-	// Switch Frame
-	//charmapFrame ^= 1;
-	dst = SCREENRAM + scrollRow1*40; // + 0x0400*charmapFrame;
+	src = CHARMAPRAM + charmapWidth*y + (x - scrollCol1);	
+	dst = SCREENRAM + scrollRow1*40;
 	col = COLORRAM + scrollRow1*40;
 	for (j=scrollRow1; j<scrollRow2; j++) {
 		for (i=scrollCol1; i<scrollCol2; i++) {
@@ -256,35 +253,34 @@ void ScrollCharmap(unsigned char x, unsigned char y)
 		dst += 40;
 		col += 40;
 	}
-	
-	// Update frame address (and sprite pointers)
-	//POKE(0xD018, charmapFrame*16 + BITMAPLOC);
-	//memcpy(SPRITEPTR + 0x0400*charmapFrame, spritePtr, 8);
-	//spritePtr = SPRITEPTR + 0x0400*charmapFrame;
-	
+		
 #elif defined __LYNX__	
-	dst = SCREENRAM + scrollRow1*40;
-	for (j=scrollRow1; j<scrollRow2; j++) {
-		for (i=scrollCol1; i<scrollCol2; i++) {
-			chr = PEEK(src+i);
-			POKE(dst+i, chr);
-		}
-		src += charmapWidth;
-		dst += 40;
-	}
-	
-#elif defined __ORIC__	
-	// Reset sprite background
-	for (i=0; i<SPRITE_NUM; i++)
-		sprDrawn[i] = 0;
-
+	src = &charmapData[charmapWidth*y + (x - scrollCol1)];
+	dst = BITMAPRAM + scrollRow1*6*82 + 1;
 	POKE(0xb0, scrollRow1); 		
 	POKE(0xb1, scrollRow2);		
 	POKE(0xb2, scrollCol1);		
 	POKE(0xb3, scrollCol2);		
 	POKE(0xb4, charmapWidth);
 	POKEW(0xb5, src);
-	POKEW(0xb7, BITMAPRAM + scrollRow1*320 + 1);
+	POKEW(0xb7, dst);
+	POKEW(0xb9, charsetData);
+	Scroll();	
+	
+#elif defined __ORIC__	
+	// Reset sprite background
+	for (i=0; i<SPRITE_NUM; i++)
+		sprDrawn[i] = 0;
+
+	src = CHARMAPRAM + charmapWidth*y + (x - scrollCol1);
+	dst = BITMAPRAM + scrollRow1*320 + 1;
+	POKE(0xb0, scrollRow1); 		
+	POKE(0xb1, scrollRow2);		
+	POKE(0xb2, scrollCol1);		
+	POKE(0xb3, scrollCol2);		
+	POKE(0xb4, charmapWidth);
+	POKEW(0xb5, src);
+	POKEW(0xb7, dst);
 	Scroll();
 #endif
 }
@@ -294,7 +290,7 @@ void PrintCharmap(unsigned char x, unsigned char y, unsigned char* str)
 	unsigned char i, chr;
 	unsigned int addr1;
 	
-#if (defined __APPLE2__) || (defined __ORIC__)
+#if (defined __APPLE2__) || (defined __LYNX__) || (defined __ORIC__)
 	PrintStr(x, y, str);	
 	
 #elif (defined __ATARI__)
@@ -328,19 +324,5 @@ void PrintCharmap(unsigned char x, unsigned char y, unsigned char* str)
 		POKE(addr1++, chr);
 		POKE(addr2++, inkColor);
 	}
-	
-#elif defined __LYNX__
-	addr1 = SCREENRAM + 40*y + x;
-	for (i=0; i<strlen(str); i++) {
-		if (str[i] > 96) 
-			chr = str[i]+128;	// Lower case
-		else
-		if (str[i] > 32) 
-			chr = str[i]+160;	// Upper case
-		else
-			chr = str[i]+128;	// Icons
-		POKE(addr1++, chr);
-	}
-
 #endif
 }

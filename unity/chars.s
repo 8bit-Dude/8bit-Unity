@@ -149,7 +149,7 @@ _charSliderVert:
 	
 ; Icon Data
 _charDeath:
-	.byte %00000100, %11100100, %01000100
+	.byte %00000100, %11101110, %01000100
 _charHeart:
 	.byte %00001010, %11101110, %11100100
 _charPotion:

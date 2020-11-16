@@ -101,11 +101,8 @@ void EnterBitmapMode()
   #if defined __DHR__
 	asm("sta $c00d"); // TURN ON 80 COLUMN MODE	  
     asm("sta $c05e"); // TURN ON DOUBLE HI-RES
-  #endif	
-  
-#elif defined __LYNX__
-	videoMode = MODE_BITMAP;	
-#endif
+  #endif
+#endif  
 }
 
 // Switch from Bitmap mode to Text mode

@@ -27,8 +27,10 @@
 	.export _Scroll
 	
 	.segment	"BSS"	
-	
-_tmp: .res 1
+
+_tmpY: .res 1	
+_tmpChr: .res 1
+_tmpCol: .res 1
 	
 	.segment	"CODE"	
 	
@@ -43,77 +45,98 @@ _tmp: .res 1
 ;		$b4: Offset between charmap lines
 ;		$b5: 16 bit address of charmap line
 ;		$b7: 16 bit address of bitmap line
-;		$b9: 16 bit address of charset block
+;		$b9: 16 bit address of charset data
+;		$bb: 16 bit address of current charblock
 ; ---------------------------------------------------------------	
 
 .proc _Scroll: near
 
-; for (a=row1; a<row2; a++) {
+; for (r=0; r<rows; r++) {
 loopRows: 
 	lda $b0			; Number of rows
 	cmp $b1
 	bpl doneRows
 	inc $b0
 	
-	; add = CHARSETRAM
-	lda #$00
-	sta $b9
-	lda #$7a
-	sta $ba		
-
-	; for (x=0; x<8; x++) {
-		ldx #0
-	loopLines:
-		cpx #8
-		beq doneLines	
-		inx 
+		;-----------------------------
+		; Reset Charblock address
+		lda $b9
+		sta $bb	
+		lda $ba
+		sta $bc
 		
-		; for (y=col1; y<col2; y++) {	
-			ldy $b2
-		loopCols:
-			cpy $b3			; Number of cols
-			bpl doneCols
+		; for (k=0; k<6; k++) {
+			ldx #0
+		loopLines:
+			cpx #6
+			beq doneLines	
+			inx 
+			
+			; for (c=col1; c<col2; c++) {	
+				ldy $b2
+			loopCols:
+				cpy $b3			; Number of cols
+				bpl doneCols
 
 				;---------------------
-				; Copy Char
-				lda ($b5),y		; Get char value
-				sty _tmp
-				tay 
-				lda ($b9),y		; Get pixels for that char
-				ldy _tmp
-				sta ($b7),y		; Save in Hires mem	
+				; Get Char Value
+				lda ($b5),y
+				sty _tmpY
+				
+				;---------------------
+				; Set Chr Offset
+				asl A			; Multiply by 2	(2 bytes per col!)
+				sta _tmpChr
+				
+				;----------------------
+				; Set Col Offset
+				tya
+				asl A			; Multiply by 2	(2 bytes per col!)
+				sta _tmpCol
+				
+				;----------------------
+				; Copy 1st byte
+				ldy _tmpChr
+				lda ($bb),y		
+				ldy _tmpCol				
+				sta ($b7),y		
 
+				;----------------------
+				; Copy 2nd byte
+				ldy _tmpChr
+				iny 
+				lda ($bb),y		
+				ldy _tmpCol				
+				iny 
+				sta ($b7),y			
+
+				;----------------------
 				; Move to next col
+				ldy _tmpY
 				iny
 				
-			jmp loopCols
+			jmp loopCols	
 
 		doneCols:
 
-			; Update address of charset block (+128)
-			clc	
-			lda $b9			; Update address of charset block
-			adc #128
-			sta $b9	
-			bcc nocarryCS	; Check if carry to high byte
-			inc $ba
-		nocarryCS:
-			
-			; Update address of Hires line (+40)
+			; Update address of charblock (+256)
+			inc $bc
+		
+			; Update address of bitmap line (+82)
 			clc	
 			lda $b7			; Update address of Hires line
-			adc #40
+			adc #82
 			sta $b7
 			bcc nocarryBM	; Check if carry to high byte
 			inc $b8
-		nocarryBM:
-			
+		nocarryBM:		
+		
 		; Move to next line
 		jmp loopLines
 	
-	doneLines:
-
-		; Update address of charmap line (+charmapWidth)
+	doneLines:		
+		
+		; Update address of charmap line
 		clc	
 		lda $b5			
 		adc $b4			; Add charmap line offset

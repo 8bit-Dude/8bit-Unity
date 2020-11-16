@@ -125,7 +125,6 @@ unsigned char GetPixel()
   #else
     return GetColorSHR();
   #endif
-
 	
 #elif defined __ORIC__
 	unsigned int addr;

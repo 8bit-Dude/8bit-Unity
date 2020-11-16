@@ -35,7 +35,6 @@ unsigned char __fastcall__ SuzyBusy(void);
 
 // Toggle for automatic screen refresh in LoadBitmap(), PrintStr(), PrintNum() or PrintBlanks()
 unsigned char autoRefresh = 1;
-unsigned char videoMode = 0;
 
 // See sprites.c
 extern SCB_REHV_PAL sprSCB[SPRITE_NUM];
@@ -176,27 +175,9 @@ void UpdateDisplay(void)
 	// Wait for previous drawing to complete
 	while (SuzyBusy()) {}
 	
-	// Draw background (bitmap or charmap)
-	switch (videoMode) {
-	case MODE_BITMAP:
-		SuzyDraw(&bitmapSCB);
-		break;
-	case MODE_CHARMAP:
-		scr = SCREENRAM;
-		charmapSCB.vpos = 0;
-		for (j=0; j<17; j++) {
-			charmapSCB.hpos = 0;
-			for (i=0; i<40; i++) {
-				charmapSCB.data = charData[PEEK(scr)];
-				SuzyDraw(&charmapSCB);
-				charmapSCB.hpos += 4;
-				scr++;
-			}
-			charmapSCB.vpos += 6;
-		}
-		break;
-	}
-
+	// Draw bitmap
+	SuzyDraw(&bitmapSCB);
+	
 	// Draw sprites (in reverse order)
 	for (j=0; j<SPRITE_NUM; j++) {
 		i = (SPRITE_NUM-1) - j;

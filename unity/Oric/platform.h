@@ -95,6 +95,9 @@
 // Clock
 #define TCK_PER_SEC	CLK_TCK
 
+// Hires gfx functions (see blit.s)
+void __fastcall__ Blit(void);
+
 // Using Sedoric for File Management
 void DirList(void);
 int FileRead(const char* fname, void* buf);

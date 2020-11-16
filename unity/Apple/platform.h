@@ -33,14 +33,18 @@
  *		* Christian Groessler for helping optimize the memory maps on Commodore and Atari
  *		* Bill Buckels for his Apple II Double Hi-Res bitmap code
  */
- 
+
 // Memory Map
 #define BITMAPRAM  (0x2000)
-#define SPRITERAM  (0xa800)	// A800-BBFF (sprites.app loaded here)
-#define MUSICRAM   (0xbc00) // BC00-BEFF (electric duet track loaded here)
-#define CHARMAPRAM (0x8000) // 8000-97FF (charmap data)
-#define CHARSETRAM (0x9800) // 9800-9FFF (charset data)
-#define CHARFLGRAM (0xA000) // A000-A07F (charflag data)
+#define SPRITERAM  (0x9900)	// A000-BBFF (sprite data)
+#define MUSICRAM   (0xbc00) // BC00-BEFF (electric duet track)
+#define CHARMAPRAM (0x7000) // 8000-97FF (charmap data)
+#define CHARSETRAM (0x8800) // 9800-9FFF (charset data)
+#if defined __DHR__
+  #define CHARFLGRAM (0x9800) // A000-A07F (charflag data)
+#else
+  #define CHARFLGRAM (0x9000) // A000-A07F (charflag data)	
+#endif
 
 // Character Mode
 #define CHR_COLS 40
@@ -94,16 +98,21 @@
 // Workaround for missing chardefs
 #define CH_DEL  0x08
 
-// Hires functions (see hires.s, pixel.c, blitXXX.s, pixelXXX.c)
+// Hires gfx functions (see hires.s, pixel.c, blitXXX.s, pixelXXX.c)
 extern unsigned char *hiresPtr, hiresPixel;
 void SetHiresPointer(unsigned int x, unsigned int y);
+unsigned int HiresLine(unsigned char y);
 #if defined __DHR__
   extern unsigned char *dhrmain, *dhraux;
   void SetColorDHR(unsigned char color);
   unsigned char GetColorDHR(void);
+  void __fastcall__ BlitDHR(void);
+  void __fastcall__ ScrollDHR(void);
 #else
   void SetColorSHR(unsigned char color);
   unsigned char GetColorSHR(void);
+  void __fastcall__ BlitSHR(void);
+  void __fastcall__ ScrollSHR(void);
 #endif
 
 // Output for SFX/Music (see DUET.s, MOCKING.s)
