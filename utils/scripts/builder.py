@@ -574,7 +574,7 @@ class Application:
 
                 # Build Unity Library
                 CList = ['bitmap.c', 'charmap.c', 'chunks.c', 'geom2d.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'scaling.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Apple\\CLOCK.c', 'Apple\\directory.c', 'Apple\\files.c', 'Apple\\hires.c', 'Apple\\pixelDHR.c', 'Apple\\pixelSHR.c']
-                SList = ['atan2.s', 'chars.s', 'Apple\\blitDHR.s', 'Apple\\blitSHR.s', 'Apple\\DUET.s', 'Apple\\hiresLines.s', 'Apple\\joystick.s', 'Apple\\MOCKING.s', 'Apple\\PADDLE.s', 'Apple\\prodos.s']
+                SList = ['atan2.s', 'chars.s', 'Apple\\blitDHR.s', 'Apple\\blitSHR.s', 'Apple\\DUET.s', 'Apple\\hiresLines.s', 'Apple\\joystick.s', 'Apple\\MOCKING.s', 'Apple\\PADDLE.s', 'Apple\\prodos.s', 'Apple\\scrollDHR.s', 'Apple\\scrollSHR.s']
                              
                 for file in CList:
                     if graphics == 'double':
@@ -895,13 +895,7 @@ class Application:
                 
             # Charset
             if len(charset) > 0:
-                fp.write('copy ..\\..\\' + charset[0].replace('/', '\\') + ' char.png\n')
-                fp.write('copy ..\\..\\utils\\scripts\\lynx\\font.png' + ' font.png\n')
-                fp.write('..\\..\\utils\\scripts\\png2bmp char.png\n')
-                fp.write('..\\..\\utils\\scripts\\png2bmp font.png\n')
-                fp.write('..\\..\\utils\\scripts\\lynx\\sprpck -t6 -p2 -u -r032004 -S004006 -a000000 char.bmp\n')
-                fp.write('..\\..\\utils\\scripts\\lynx\\sprpck -t6 -p2 -u -r032004 -S004006 -a000000 font.bmp\n')
-                fp.write('..\\..\\utils\\py27\python ..\\..\\utils\\scripts\\lynx\\LynxCharset.py ..\\..\\' + charset[0].replace('/', '\\') + ' charset.dat\n') 
+                fp.write('..\\..\\utils\\py27\python ..\\..\\utils\\scripts\\lynx\\LynxCharset.py ..\\..\\' + charset[0].replace('/', '\\') + ' charset.dat\n')
                 fp.write('\n')
                 
             # Sprites
@@ -971,9 +965,7 @@ class Application:
             fp.write('@echo .global _fileNum  >> data.asm\n')
             fp.write('@echo .global _fileSizes >> data.asm\n')
             fp.write('@echo .global _fileNames >> data.asm\n')
-            fp.write('@echo .global _charNum >> data.asm\n')
-            fp.write('@echo .global _charData >> data.asm\n')
-            fp.write('@echo .global _charFlags >> data.asm\n')
+            fp.write('@echo .global _charsetData >> data.asm\n')
             fp.write('@echo .global _spriteNum  >> data.asm\n')
             fp.write('@echo .global _spriteData >> data.asm\n')
             fp.write('@echo .global _cursorData >> data.asm\n')
@@ -1081,31 +1073,9 @@ class Application:
             # Charset Data
             fp.write('@echo .segment "RODATA" >> data.asm\n')                
             if len(charset) > 0:            
-                fp.write('@echo _charNum: .byte 255 >> data.asm\n')
-                fp.write('@echo _charData: .addr ')
-                for i in range(0, 128):
-                    if i > 0:
-                        fp.write(', ')
-                    fp.write('_chr' + str(i).zfill(3))
-                for i in range(128, 256):
-                    if i > 0:
-                        fp.write(', ')
-                    fp.write('_fnt' + str(i).zfill(3))
-                fp.write(' >> data.asm\n')
-                i = 0
-                for r in range(4):
-                    for c in range(32):
-                        fp.write('@echo _chr' + str(i).zfill(3) + ': .incbin "char' + str(r).zfill(3) + str(c).zfill(3) + '.spr" >> data.asm\n')
-                        i = i+1
-                for r in range(4):
-                    for c in range(32):
-                        fp.write('@echo _fnt' + str(i).zfill(3) + ': .incbin "font' + str(r).zfill(3) + str(c).zfill(3) + '.spr" >> data.asm\n')
-                        i = i+1
-                fp.write('@echo _charFlags: .incbin "charset.dat" >> data.asm\n')
+                fp.write('@echo _charsetData: .incbin "charset.dat" >> data.asm\n')
             else:
-                fp.write('@echo _charNum: .byte 0 >> data.asm\n')
-                fp.write('@echo _charData: .byte 0 >> data.asm\n')
-                fp.write('@echo _charFlags: .byte 0 >> data.asm\n')
+                fp.write('@echo _charsetData: .byte 0 >> data.asm\n')
             fp.write('@echo ; >> data.asm\n')
             
             # Sprite Data 
@@ -1144,7 +1114,7 @@ class Application:
 
             # Build Unity Library
             CList = ['bitmap.c', 'charmap.c', 'chunks.c', 'geom2d.c', 'hub.c', 'joystick.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'scaling.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Lynx\\display.c', 'Lynx\\files.c']
-            SList = ['atan2.s', 'chars.s', 'Lynx\\header.s', 'Lynx\\serial.s', 'Lynx\\suzy.s']
+            SList = ['atan2.s', 'chars.s', 'Lynx\\header.s', 'Lynx\\scroll.s', 'Lynx\\serial.s', 'Lynx\\suzy.s']
                          
             for file in CList:
                 fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t lynx -I unity unity\\' + file + '\n')
@@ -1185,7 +1155,7 @@ class Application:
         sprites = list(self.listbox_OricSprites.get(0, END))
         chunks = list(self.listbox_OricChunks.get(0, END))
         music = list(self.listbox_OricMusic.get(0, END))
-        with open("../../build/"+diskname+"-oric.bat", "wb") as fp:
+        with open("../../build/"+diskname+"-oric48k.bat", "wb") as fp:
             # Info
             fp.write('echo off\n\n')
             fp.write('setlocal enableextensions enabledelayedexpansion\n\n')
@@ -1256,7 +1226,7 @@ class Application:
             fp.write('\n')
             
             # Compilation 
-            comp = 'utils\\cc65\\bin\\cl65 -o build/oric/' + diskname.lower() + '.bin -m build/' + diskname.lower() + '-oric.map -Cl -O -t atmos -C unity/Oric/oric.cfg -I unity '
+            comp = 'utils\\cc65\\bin\\cl65 -o build/oric/' + diskname.lower() + '.bin -m build/' + diskname.lower() + '-oric48k.map -Cl -O -t atmos -C unity/Oric/oric.cfg -I unity '
             for item in code:
                 comp += (item + ' ')
             fp.write(comp + 'build/oric/unity.lib\n\n')
@@ -1289,9 +1259,9 @@ class Application:
             fp.write(cmd + '\n')
             if len(chunks) > 0:
                 fp.write('for /f "tokens=*" %%A in (build\oric\chunks.lst) do set TAP2DSK=!TAP2DSK! %%A\n')
-            fp.write('set TAP2DSK=%TAP2DSK% build/' + diskname + '-oric.dsk\n')
+            fp.write('set TAP2DSK=%TAP2DSK% build/' + diskname + '-oric48k.dsk\n')
             fp.write('%TAP2DSK%\n')
-            fp.write('utils\\scripts\\oric\\old2mfm.exe build/' + diskname + '-oric.dsk\n')
+            fp.write('utils\\scripts\\oric\\old2mfm.exe build/' + diskname + '-oric48k.dsk\n')
             
             # Info
             fp.write('\necho DONE\n')
@@ -1299,7 +1269,7 @@ class Application:
             
             # Start emulator?
             fp.write('cd "utils\emulators\Oricutron-1.2-Hub"\n')
-            fp.write('oricutron.exe -d "..\\..\\..\\build\\' + diskname + '-oric.dsk"\n')            
+            fp.write('oricutron.exe -d "..\\..\\..\\build\\' + diskname + '-oric48k.dsk"\n')            
    
         # Done!
         messagebox.showinfo('Completed', 'Scripts succesfully written to the build folder!')

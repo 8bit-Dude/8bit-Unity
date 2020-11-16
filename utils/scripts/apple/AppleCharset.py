@@ -44,11 +44,15 @@ print "Charmap size: {%i,%i}; Colors: %i" % (charImg.size[0], charImg.size[1], c
 
 #######################################
 # Rearrange into 2 sets of 3.5*8 blocks
-charL = []; charR = []
-for row in range(0, charImg.size[1], 8):
-    for col in range(0, charImg.size[0], 7):
-        char1L = []; char1R = []; char2L = []; char2R = []
-        for k in range(0, 8):
+dataL = []; dataR = []
+for k in range(0, 8):
+    
+    if mode == 'double':  
+        auxL = []; auxR = []
+        mainL = []; mainR = []
+
+    for row in range(0, charImg.size[1], 8):
+        for col in range(0, charImg.size[0], 7):
             pixels = charRaw[(row+k)*charImg.size[0]+col:(row+k)*charImg.size[0]+col+7]
             if mode == 'single':   
                 # Reduce palette?
@@ -68,11 +72,11 @@ for row in range(0, charImg.size[1], 8):
                     SetSHRColor(block2, (j+4)%7, pixels[j])
 
                 # Save in respective banks
-                char1L.append(chr(block1[0]))
-                char2L.append(chr(block2[0]))
+                dataL.append(chr(block1[0]))
+                dataL.append(chr(block2[0]))
                 
-                char1R.append(chr(block2[1]))
-                char2R.append(chr(block1[1]))
+                dataR.append(chr(block2[1]))
+                dataR.append(chr(block1[1]))
                 
             else:
                 # Left position
@@ -86,21 +90,21 @@ for row in range(0, charImg.size[1], 8):
                     SetDHRColor(block2, (j+3)%7, pixels[j])
 
                 # Save in respective banks
-                char1L.append(chr(block1[0]))
-                char1L.append(chr(block1[1]))
-                char2L.append(chr(block2[0]))
-                char2L.append(chr(block2[1]))
+                auxL.append(chr(block1[0]))
+                mainL.append(chr(block1[1]))
+                auxL.append(chr(block2[0]))
+                mainL.append(chr(block2[1]))
                 
-                char1R.append(chr(block2[2]))
-                char1R.append(chr(block2[3]))
-                char2R.append(chr(block1[2]))
-                char2R.append(chr(block1[3]))
+                auxR.append(chr(block2[2]))
+                mainR.append(chr(block2[3]))
+                auxR.append(chr(block1[2]))
+                mainR.append(chr(block1[3]))
 
-        # Recombine char 1 and 2
-        charL.append(''.join(char1L))
-        charL.append(''.join(char2L))
-        charR.append(''.join(char1R))
-        charR.append(''.join(char2R))
+    if mode == 'double':  
+        dataL.append(''.join(auxL))
+        dataL.append(''.join(mainL))
+        dataR.append(''.join(auxR))
+        dataR.append(''.join(mainR))
 
 #######################
 # Read character flags
@@ -116,7 +120,7 @@ with open(flagFile) as csvfile:
 ############################
 # Write output binary file
 f2 = io.open(output, 'wb')
-f2.write(''.join(charL))
-f2.write(''.join(charR))
+f2.write(''.join(dataL))
+f2.write(''.join(dataR))
 f2.write(''.join(flagData))
 f2.close()
