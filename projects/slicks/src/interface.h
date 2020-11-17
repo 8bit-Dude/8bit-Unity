@@ -421,10 +421,6 @@ void PrintScores()
 #endif	
 }
 
-#ifdef __APPLE2__
-  #pragma code-name("LC")
-#endif
-
 // Print race message and laps
 void PrintRace()
 {	
@@ -444,6 +440,10 @@ void PrintRace()
 	inkColor = WHITE;
 	paperColor = BLACK;
 }
+
+#ifdef __APPLE2__
+  #pragma code-name("LC")
+#endif
 
 // In-case connection drops out...
 void PrintTimedOut()

@@ -2,10 +2,7 @@
 #include "unity.h"
 
 // *** Platform specific HACKS ***
-#if defined __APPLE2__
-	#undef  MUSICRAM
-	#define MUSICRAM (0xbe00)	// Moved Music RAM start to allow more space for sprites
-#elif defined __ATARI__
+#if defined __ATARI__
 	#undef  MUSICRAM
 	#define MUSICRAM (0x9800)	// Moved Music RAM start to allow more space for sprites
 #endif
@@ -47,7 +44,7 @@
 	#define spriteCols   12
 	#define spriteRows   24
 	unsigned char spriteColors[] = { SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC };  // AIC color allows faster drawing!
-	unsigned char multiColorDef[] = { SPR_WHITE, 8, SPR_GREEN, 14, SPR_MAGENTA, 24 };	// Multicolor definition { color, row, ... color, lastrow }
+	unsigned char multiColorDef[] = { SPR_WHITE, 8, SPR_GREEN, 14, SPR_MAGENTA, 24 };	// Multicolor definition { color, row, ... }
 #elif defined __CBM__
 	#define spriteCols   12
 	#define spriteRows   21

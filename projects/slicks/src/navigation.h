@@ -101,7 +101,7 @@ void LoadNavigation(char *filename)
 	FILE* fp = fopen(filename, "rb");
 	
 	// Read Lineup
-	n = fgetc(fp);
+	fread(&n, 1, 1, fp);
 	for (i=0; i<n; ++i) {
 		// Data is encoded as uint16
 		fread(&lineupX[i], 2, 1, fp);
@@ -110,7 +110,7 @@ void LoadNavigation(char *filename)
 	}
 
 	// Read Navigation Cylinders
-	numWays = fgetc(fp);
+	fread(&numWays, 1, 1, fp);
 	for (i=0; i<numWays; ++i) {
 		// Data is encoded as uint16
 		fread(&ways[i].x, 2, 1, fp);
@@ -125,7 +125,7 @@ void LoadNavigation(char *filename)
 	}
     
 	// Read Jump Ramps
-	numRamps = fgetc(fp);
+	fread(&numRamps, 1, 1, fp);
 	for (i=0; i<numRamps; ++i) {
 		// Data is encoded as uint16
 		fread(&ramps[i].x[0], 2, 2, fp);

@@ -4,39 +4,51 @@
 // Memory tweaks
 #if defined __ATARI__
 	#undef  MUSICRAM
-	#define MUSICRAM (0x9800)	// Moved Music RAM start to allow more space for sprites
+	#define MUSICRAM (0x9800)	// Moved Music RAM start to allow more space for sprites	
 #endif
+
+// Char flags
+#define CHAR_NULL     0
+#define CHAR_WALKABLE 1
+#define CHAR_DAMAGE   2
+#define CHAR_PICKUP   4
+#define CHAR_INTERACT 8
 
 // Sprite definitions
 #if defined __APPLE2__
 	#define spriteFrames 32
 	#define spriteCols   7
 	#define spriteRows   16
-	unsigned char spriteColors[] = { };	//  Colors are pre-assigned in the sprite sheet
+	unsigned char charColors[] = {};    //  All colors are pre-assigned in the char sheet
+	unsigned char spriteColors[] = {};  //  All colors are pre-assigned in the sprite sheet	
 #elif defined __ATARI__
 	#define spriteFrames 32
 	#define spriteCols   8
 	#define spriteRows   18
-	unsigned char spriteColors[] = {0x0c, 0x14, 0xbc, 0x2c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };  // White (sword), Brown, Green, Pink (player), White (enemies)
+	unsigned char charColors[] = { 0x00, 0x0c, 0x78, 0x62, 0x12 };   // Black, White, Light Blue, Dark Blue, Red
+	unsigned char spriteColors[] = { 0x0c, 0x14, 0xbc, 0x2c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };  // White (sword), Brown, Green, Pink (player), White (enemies)
 #elif defined __ORIC__
 	#define spriteFrames 32
 	#define spriteCols   12
 	#define spriteRows   17
+	unsigned char charColors[] = {};    //  All colors are pre-assigned in the char sheet
 	unsigned char spriteColors[] = { SPR_WHITE, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC };	// White (sword), AIC (player), AIC (enemies)
 	unsigned char multiColorDef[] = { SPR_WHITE, 7, SPR_GREEN, 14 , SPR_YELLOW, 17 };	// Multicolor definition { color, row, ...  }
 #elif defined __CBM__
 	#define spriteFrames 32
 	#define spriteCols   12
 	#define spriteRows   21
+	unsigned char charColors[] = { BLACK, WHITE, LBLUE };
 	unsigned char spriteColors[] = { WHITE, YELLOW, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, RED, GREEN };  // 0-8: Sprite colors, 9-10: Shared colors
 #elif defined __LYNX__
 	#define spriteFrames 32
 	#define spriteCols   7
 	#define spriteRows   9
+	unsigned char charColors[] = {};    //  All colors are pre-assigned in the char sheet
 	unsigned char* spriteColors = defaultColors;	// All sprites use the default palette
 #endif
 
-// Chracter Controller
+// Player Motion
 #if defined __LYNX__	
 	#define SCALE_X 8
 	#define SCALE_Y 12
@@ -49,7 +61,7 @@
 	#define STEP_Y  2 
 #endif
 
-// Sprite slots
+// Sprite slot assignments
 #if defined __ATARI__	
 	#define SPRITE_WEAPON   0
 	#define SPRITE_PLAYER0  1
@@ -58,6 +70,12 @@
 	#define SPRITE_ENEMY    4
 	#define COLOR_SKELETON 0x0c
 	#define COLOR_GOBLIN   0xbc
+#elif defined __LYNX__	
+	#define SPRITE_PLAYER   0
+	#define SPRITE_WEAPON   1
+	#define SPRITE_ENEMY    2
+	#define COLOR_SKELETON WHITE
+	#define COLOR_GOBLIN   GREEN
 #elif defined __ORIC__	
 	#define SPRITE_WEAPON   0
 	#define SPRITE_PLAYER   1
@@ -95,20 +113,56 @@ char mana[] = { 2 , '1', '0', '0', 0};
 char gold[] = {'$', '0', '0', '0', 0};
 char kill[] = { 4 , '0', '0', '0', 0};
 
-void gameInit(void)
+void SplashScreen(void)
+{	
+	// Load and show banner
+	InitBitmap();
+	LoadBitmap("menu.img");
+	EnterBitmapMode();
+	
+	// Show credit/build
+	paperColor = BLACK; 
+	PrintBlanks(CHR_COLS-13, CHR_ROWS-4, 12, 3);
+#if (defined __ORIC__)
+	inkColor = AIC;
+#else		
+	inkColor = RED; 
+#endif
+	PrintStr(CHR_COLS-12, CHR_ROWS-4, "TECH DEMO");		
+	PrintStr(CHR_COLS-13, CHR_ROWS-3, "BY 8BIT-DUDE");		
+	PrintStr(CHR_COLS-12, CHR_ROWS-2,  "2020/11/16");
+	
+	// Start music
+	PlayMusic();
+
+	// Wait until key is pressed
+	while (!kbhit()) {	
+	#if defined __APPLE2__
+		UpdateMusic();
+	#elif defined __LYNX__
+		UpdateDisplay(); // Refresh Lynx screen
+	#endif
+	}	
+	
+	// Exit banner screen
+	ExitBitmapMode();
+	StopMusic();	
+}
+
+void GameInit(void)
 {
 	// Setup charmap
 #if defined __LYNX__
-	scrollCol1 = 2; scrollCol2 = CHR_COLS-3;
-	scrollRow1 = 0; scrollRow2 = CHR_ROWS-1;
+	screenCol1 = 2; screenCol2 = CHR_COLS-3; screenWidth = CHR_COLS-4;
+	screenRow1 = 0; screenRow2 = CHR_ROWS-1; screenHeight = CHR_ROWS-1;
 #else
-	scrollCol1 = 2; scrollCol2 = CHR_COLS-3;
-	scrollRow1 = 2; scrollRow2 = CHR_ROWS-3;
+	screenCol1 = 2; screenCol2 = CHR_COLS-3; screenWidth = CHR_COLS-4;
+	screenRow1 = 2; screenRow2 = CHR_ROWS-3; screenHeight = CHR_ROWS-4;
 #endif
 	InitCharmap();		
 	ClearCharmap();
-	LoadCharset("charset1.dat");
-	LoadCharmap("quedex.map");
+	LoadCharset("quedex.chr", charColors);
+	LoadCharmap("level0.map", 64, 64);
 	EnterCharmapMode();
 	
 	// Setup sprites
@@ -142,12 +196,6 @@ void gameInit(void)
 	enemies[2].mapX = 30;
 	enemies[2].mapY = 30;
 
-	// Start music
-#if (defined __ATARI__) || (defined __CBM__)
-	LoadMusic("dungeon.mus", MUSICRAM);
-	PlayMusic();
-#endif
-
 	// Show some text
 #if (defined __ORIC__)
 	SetAttributes(-1, CHR_ROWS-1, RED);
@@ -161,11 +209,11 @@ void gameInit(void)
 	inkColor = WHITE;  PrintCharmap(CHR_COLS-5, CHR_ROWS-1, kill);
 }
 
-void gameLoop(void)
+void GameLoop(void)
 {
-	unsigned char mapXPRV, mapYPRV, mapX =  25, mapY =  28; // Previous and current map position
-	unsigned int  sprXPRV, sprYPRV, sprX = 160, sprY = 100; // Backup and current sprite position
-	unsigned char maxW, maxH, maxX, maxY, flagX, flagY1, flagY2;  // Coords of collision detection (accounting for model height)
+	unsigned char mapX =  25, mapY =  28, mapXPRV, mapYPRV; // Current and previous map position
+	unsigned int  sprX = 160, sprY = 100, sprXPRV, sprYPRV; // Current and previous sprite position
+	unsigned char maxX, maxY, flagX, flagY1, flagY2;  // Coords of collision detection (accounting for model height)
 	unsigned char i, slot, joy, action, motion, direction;
 	unsigned char sprFrame, weaFrame, enmFrame, togFrame; 
 	unsigned int  weaX, weaY, enmX, enmY;
@@ -174,13 +222,16 @@ void gameLoop(void)
 	Enemy* enemy;
 	
 	// Helper variables
-	maxW = scrollCol2-scrollCol1;
-	maxH = scrollRow2-scrollRow1;
-	maxX = charmapWidth-maxW;
-	maxY = charmapHeight-maxH;
+	maxX = worldWidth-screenWidth;
+	maxY = worldHeight-screenHeight;
 	
 	// Scroll to start position
 	ScrollCharmap(mapX, mapY);
+	
+	// Restart music playback
+#if (defined __ATARI__) || (defined __CBM__) || (defined __LYNX__)
+	PlayMusic();
+#endif	
 	
 	while (1) {
 		// Platform specific
@@ -235,9 +286,9 @@ void gameLoop(void)
 		
 		// Check if new position is allowed?
 		LocatePixel(sprX, sprY);
-		flagX = mapX+XToCol(pixelX)-scrollCol1;
-		flagY1 = mapY+YToRow(pixelY)-scrollRow1;
-		flagY2 = mapY+YToRow(pixelY+5)-scrollRow1;
+		flagX = mapX+XToCol(pixelX)-screenCol1;
+		flagY1 = mapY+YToRow(pixelY)-screenRow1;
+		flagY2 = mapY+YToRow(pixelY+5)-screenRow1;
 		if (!(GetCharFlags(flagX, flagY1) & CHAR_WALKABLE) ||
 			!(GetCharFlags(flagX, flagY2) & CHAR_WALKABLE)) {
 			sprX = sprXPRV; sprY = sprYPRV;
@@ -282,10 +333,10 @@ void gameLoop(void)
 		i = 0; slot = SPRITE_ENEMY;
 		while (i<ENEMY_NUM && slot<SPRITE_NUM) {
 			enemy = &enemies[i++];
-			if (enemy->state && enemy->mapX > mapX && enemy->mapX < mapX+maxW
-						     && enemy->mapX > mapY && enemy->mapY < mapY+maxH) {
-				enmX = (enemy->mapX-mapX+scrollCol1)*SCALE_X;
-				enmY = (enemy->mapY-mapY+scrollRow1)*SCALE_Y;
+			if (enemy->state && enemy->mapX > mapX && enemy->mapX < mapX+screenWidth
+						     && enemy->mapX > mapY && enemy->mapY < mapY+screenHeight) {
+				enmX = (enemy->mapX-mapX+screenCol1)*SCALE_X;
+				enmY = (enemy->mapY-mapY+screenRow1)*SCALE_Y;
 				deltaX  = sprX;  deltaY = sprY;
 				deltaX -= enmX; deltaY -= enmY;
 				if (ABS(deltaX) < 20 && ABS(deltaY) < 20) {
@@ -315,10 +366,14 @@ int main (void)
     bordercolor(COLOR_BLACK);
     bgcolor(COLOR_BLACK);
 	clrscr();
+
+	// Load music track
+	LoadMusic("dungeon.mus", MUSICRAM);
 	
-	// Run the game!
-	gameInit();
-	gameLoop();
+	// Run Game
+	SplashScreen();
+	GameInit();
+	GameLoop();
 		
     // Done
     return EXIT_SUCCESS;

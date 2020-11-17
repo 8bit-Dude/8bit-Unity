@@ -42,7 +42,7 @@
 #define STEP_RACE   2
 
 // Build Information
-const char* buildInfo = "BUILD: 2020/11/14";
+const char* buildInfo = "BUILD: 2020/11/15";
 
 // Game data
 unsigned char gameMap = 0;

@@ -29,4 +29,4 @@
 #endif
 
 // Version definitions
-char version[] = "8BIT-OS 2020/11/13";
+char version[] = "8BIT-OS 2020/11/15";
