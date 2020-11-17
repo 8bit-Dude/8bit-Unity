@@ -38,9 +38,6 @@
 #define __ORIC__
  
 // Memory Map
-#define CHARMAPRAM  (0x6000) // 6000-7BFF (charmap data)
-#define CHARSETRAM  (0x7A00) // 7B00-7EFF (charset data)
-#define CHARFLGRAM  (0x7E00) // 7F00-7FFF (charflag data)
 #define SPRITERAM   (0x8000) // 8000-87ff (location of sprite frames)
 #define MUSICRAM    (0x8800) // 8800-8fff (compressed music data)
 #define MUSICBUF    (0x9000) // 9000-9fff (music buffer used by player)
@@ -95,8 +92,9 @@
 // Clock
 #define TCK_PER_SEC	CLK_TCK
 
-// Hires gfx functions (see blit.s)
+// Hires gfx functions (see blit.s, scroll.s)
 void __fastcall__ Blit(void);
+void __fastcall__ Scroll(void);
 
 // Using Sedoric for File Management
 void DirList(void);

@@ -199,7 +199,7 @@ void LoadBitmap(char *filename)
 	FILE* fp = fopen(filename, "rb");	
   #if defined __CBM__
 	// Consume two bytes of header
-	fgetc(fp); fgetc(fp);
+	fread((char*)(BITMAPRAM), 1, 2, fp);
 	
 	// 8000 bytes bitmap ram
 	fread((char*)(BITMAPRAM), 1, 8000, fp);
@@ -211,7 +211,8 @@ void LoadBitmap(char *filename)
 	fread((char*)(COLORRAM), 1, 1000, fp);
 	
 	// 1 byte background color
-	bg = (char) fgetc(fp);
+	fread(&bg, 1, 1, fp);
+
   #elif defined __APPLE2__
 	// Read 8192 bytes to AUX
   #if defined __DHR__

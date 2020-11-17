@@ -90,23 +90,18 @@ void SetChunk(unsigned char* chunk, unsigned char x, unsigned char y);
 void LoadChunk(unsigned char** chunk, char *filename);
 
 // Charmap functions (see charmap.c)
-#define CHAR_NULL     0
-#define CHAR_WALKABLE 1
-#define CHAR_DAMAGE   2
-#define CHAR_PICKUP   4
-#define CHAR_INTERACT 8
 void InitCharmap(void);
 void EnterCharmapMode(void);
 void ExitCharmapMode(void);
-void LoadCharmap(char *filename);
-void LoadCharset(char* filename);
+void LoadCharmap(char *filename, unsigned int w, unsigned int h);
+void LoadCharset(char* filename, char* palette);
 void ClearCharmap(void);
 void ScrollCharmap(unsigned char x, unsigned char y);
 void PrintCharmap(unsigned char x, unsigned char y, unsigned char* str);
 unsigned char GetCharFlags(unsigned char x, unsigned char y);
-extern unsigned char charmapWidth, charmapHeight;
-extern unsigned char scrollCol1, scrollCol2;
-extern unsigned char scrollRow1, scrollRow2;
+extern unsigned char screenCol1, screenCol2, screenWidth;
+extern unsigned char screenRow1, screenRow2, screenHeight;
+extern unsigned char worldWidth, worldHeight;
 
 // Lynx specific functions (see Lynx/display.c)
 #if defined __LYNX__
@@ -248,6 +243,12 @@ void RecolorSprite(unsigned char index, unsigned char offset, unsigned char colo
 #endif
 #define COLLIDING(collisions,i) ((collisions >> i) & 1) 
 
+// Scaling functions (char <> bitmap)
+unsigned char ColToX(unsigned char col);
+unsigned char RowToY(unsigned char row);
+unsigned char XToCol(unsigned char x);
+unsigned char YToRow(unsigned char y);
+
 // Widget handling functions
 #ifndef CALLDEF
 #define CALLDEF
@@ -262,10 +263,6 @@ typedef struct {
 #define CALLTYPE_INPUT     3
 #define CALLTYPE_LISTBOX   4
 #define CALLTYPE_SCROLLBAR 5
-unsigned char ColToX(unsigned char col);
-unsigned char RowToY(unsigned char row);
-unsigned char XToCol(unsigned char x);
-unsigned char YToRow(unsigned char y);
 callback* Button(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char* label);
 callback* Icon(unsigned char col, unsigned char row, unsigned char* chunk);
 callback* Input(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char* buffer, unsigned char len);

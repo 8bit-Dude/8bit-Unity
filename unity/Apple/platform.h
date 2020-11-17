@@ -35,16 +35,8 @@
  */
 
 // Memory Map
-#define BITMAPRAM  (0x2000)
-#define SPRITERAM  (0x9900)	// A000-BBFF (sprite data)
+#define BITMAPRAM  (0x2000)	// 2000-3FFF (hires screen)
 #define MUSICRAM   (0xbc00) // BC00-BEFF (electric duet track)
-#define CHARMAPRAM (0x7000) // 8000-97FF (charmap data)
-#define CHARSETRAM (0x8800) // 9800-9FFF (charset data)
-#if defined __DHR__
-  #define CHARFLGRAM (0x9800) // A000-A07F (charflag data)
-#else
-  #define CHARFLGRAM (0x9000) // A000-A07F (charflag data)	
-#endif
 
 // Character Mode
 #define CHR_COLS 40

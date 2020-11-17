@@ -26,11 +26,16 @@
 
 	.export _Scroll
 	
+	.import _screenCol1, _screenCol2
+	.import _screenRow1, _screenRow2
+	.import _charsetData, _charmapWidth	
+	
 	.segment	"BSS"	
 
 _tmpY: .res 1	
 _tmpChr: .res 1
 _tmpCol: .res 1
+_curRow: .res 1
 	
 	.segment	"CODE"	
 	
@@ -38,70 +43,59 @@ _tmpCol: .res 1
 ; void __near__ _Scroll (void)
 ;	Blit page from Charmap to Bitmap
 ;	Zero Page Data:
-;		$b0: First Row
-;		$b1: Last  Row
-;		$b2: First Col
-;		$b3: Last Col
-;		$b4: Offset between charmap lines
-;		$b5: 16 bit address of charmap line
-;		$b7: 16 bit address of bitmap line
-;		$b9: 16 bit address of charset data
-;		$bb: 16 bit address of current charblock
+;		$b5: 16 bit address of location on charmap (auto-updated)
+;		$b7: 16 bit address of current Hires line (auto-updated)
+;
+;		$bb: 16 bit address of curent charset block (auto-generated)
 ; ---------------------------------------------------------------	
 
 .proc _Scroll: near
 
-; for (r=0; r<rows; r++) {
-loopRows: 
-	lda $b0			; Number of rows
-	cmp $b1
-	bpl doneRows
-	inc $b0
+	lda _screenRow1
+	sta _curRow
 	
-		;-----------------------------
-		; Reset Charblock address
-		lda $b9
-		sta $bb	
-		lda $ba
-		sta $bc
-		
-		; for (k=0; k<6; k++) {
+loopRows: 
+	lda _curRow
+	cmp _screenRow2
+	bpl doneRows
+	inc _curRow
+	
+		; Reset Charset Block Addr
+		lda _charsetData
+		sta $bb
+		lda _charsetData+1
+		sta $bc		
+				
 			ldx #0
 		loopLines:
 			cpx #6
 			beq doneLines	
 			inx 
 			
-			; for (c=col1; c<col2; c++) {	
-				ldy $b2
+				ldy _screenCol1
 			loopCols:
-				cpy $b3			; Number of cols
-				bpl doneCols
-
-				;---------------------
+				cpy _screenCol2
+				bpl doneCols			
+			
 				; Get Char Value
 				lda ($b5),y
 				sty _tmpY
 				
-				;---------------------
 				; Set Chr Offset
 				asl A			; Multiply by 2	(2 bytes per col!)
 				sta _tmpChr
 				
-				;----------------------
 				; Set Col Offset
 				tya
 				asl A			; Multiply by 2	(2 bytes per col!)
 				sta _tmpCol
 				
-				;----------------------
 				; Copy 1st byte
 				ldy _tmpChr
 				lda ($bb),y		
 				ldy _tmpCol				
 				sta ($b7),y		
 
-				;----------------------
 				; Copy 2nd byte
 				ldy _tmpChr
 				iny 
@@ -110,7 +104,6 @@ loopRows:
 				iny 
 				sta ($b7),y			
 
-				;----------------------
 				; Move to next col
 				ldy _tmpY
 				iny
@@ -136,10 +129,10 @@ loopRows:
 	
 	doneLines:		
 		
-		; Update address of charmap line
+		; Update address of location in charmap
 		clc	
 		lda $b5			
-		adc $b4			; Add charmap line offset
+		adc _charmapWidth
 		sta $b5	
 		bcc nocarryCM	; Check if carry to high byte
 		inc $b6

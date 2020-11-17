@@ -24,77 +24,72 @@
 ;   specific prior written permission.
 ;
 
-	.import _hiresLinesHI, _hiresLinesLO
-	
 	.export _ScrollDHR
-	
+
+	.import _hiresLinesHI, _hiresLinesLO
+	.import _screenCol1, _screenCol2
+	.import _screenRow1, _screenRow2
+	.import _charsetData, _charmapWidth	
+		
 	.segment	"BSS"	
 	
 _tmp: .res 1
+_curRow: .res 1
+_curLine: .res 1
 _mainAuxTog: .res 1
 	
 	.segment	"CODE"	
 	
 ; ---------------------------------------------------------------
-; void __near__ _ScrollSHR (void)
-;	Blit page from Charmap to Bitmap
+; void __near__ _ScrollDHR (void)
+;	Blit data from Charmap to Bitmap
 ;	Zero Page Data:
-;		$e3: First Row
-;		$eb: Last  Row
-;		$ec: First Col
-;		$ed: Last Col
-;		$ee: Offset between charmap lines
-;		$ef: 16 bit address of charmap line (auto-updated)
+;		$ef: 16 bit address of location on charmap (auto-updated)
 ;
-;		$d7: Current Line (auto-generated)
-;		$ce: 16 bit address of Hires line (auto-generated)
+;		$ce: 16 bit address of current Hires line (auto-generated)
 ;		$fb: 16 bit address of charset block L (auto-generated)
-;		$fd: 16 bit address of charset block L (auto-generated)
+;		$fd: 16 bit address of charset block R (auto-generated)
 ; ---------------------------------------------------------------	
 
 _ScrollDHR:
 
-; Set start line
-	lda $e3
+; Set start row/line
+	lda _screenRow1
+	sta _curRow
 	asl A
 	asl A
 	asl A
-	sta $d7
+	sta _curLine
 
-; for (a=row1; a<row2; a++) {
 loopRows: 
-	lda $e3			; Number of rows
-	cmp $eb
+	lda _curRow
+	cmp _screenRow2
 	bpl doneRows
-	inc $e3
+	inc _curRow
 	
-	; add = CHARSETRAM (L)
-	lda #$00
+	; Set Charset Addresses (L/R)
+	lda _charsetData
 	sta $fb
-	lda #$88
-	sta $fc
-
-	; add = CHARSETRAM (R)
-	lda #$00
 	sta $fd
-	lda #$90
+	
+	lda _charsetData+1
+	sta $fc
+	adc #08
 	sta $fe
 
-	; for (x=0; x<8; x++) {
 		ldx #0
 	loopLines:
 		cpx #8
 		beq doneLines	
 		inx
 		
-			;---------------------
 			; Set Hires address of current line
-			ldy $d7				; Current line
+			ldy _curLine
 			lda _hiresLinesHI,y
 			sta $cf
 			lda _hiresLinesLO,y
 			sta $ce
-			inc $d7
+			inc _curLine		
 			
 			;---------------------
 			; Main/Aux Toggle
@@ -145,7 +140,7 @@ loopRows:
 		; Update address of charmap line
 		clc	
 		lda $ef			
-		adc $ee			; Add charmap line offset
+		adc _charmapWidth
 		sta $ef	
 		bcc nocarryCM	; Check if carry to high byte
 		inc $f0
@@ -161,10 +156,9 @@ doneRows:
 ;----------------------------------
 ; Copy 1 line of data (AUX or MAIN)
 copyLine:
-; for (y=col1; y<col2; y++) {	
-	ldy $ec
+	ldy _screenCol1
 loopCols:
-	cpy $ed			; Number of cols
+	cpy _screenCol2			; Number of cols
 	bpl doneCols
 	
 		;---------------------

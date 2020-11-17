@@ -25,56 +25,56 @@
 ;
 
 	.export _Scroll
+
+	.import _screenCol1, _screenCol2
+	.import _screenRow1, _screenRow2
+	.import _charsetData, _charmapWidth
 	
 	.segment	"BSS"	
 	
 _tmp: .res 1
+_curRow: .res 1
 	
 	.segment	"CODE"	
 	
 ; ---------------------------------------------------------------
 ; void __near__ _Scroll (void)
-;	Blit page from Charmap to Bitmap
+;	Blit data from Charmap to Bitmap
 ;	Zero Page Data:
-;		$b0: First Row
-;		$b1: Last  Row
-;		$b2: First Col
-;		$b3: Last Col
-;		$b4: Offset between charmap lines
-;		$b5: 16 bit address of charmap line
-;		$b7: 16 bit address of bitmap line
-;		$b9: 16 bit address of charset block
+;		$ef: 16 bit address of location on charmap (auto-updated)
+;		$b7: 16 bit address of current Hires line (auto-updated)
+;
+;		$b9: 16 bit address of curent charset block (auto-generated)
 ; ---------------------------------------------------------------	
 
 .proc _Scroll: near
 
-; for (a=row1; a<row2; a++) {
-loopRows: 
-	lda $b0			; Number of rows
-	cmp $b1
-	bpl doneRows
-	inc $b0
+	lda _screenRow1
+	sta _curRow
 	
-	; add = CHARSETRAM
-	lda #$00
+loopRows: 
+	lda _curRow
+	cmp _screenRow2
+	bpl doneRows
+	inc _curRow
+	
+	; Reset Charset Block Addr
+	lda _charsetData
 	sta $b9
-	lda #$7a
+	lda _charsetData+1
 	sta $ba		
 
-	; for (x=0; x<8; x++) {
 		ldx #0
 	loopLines:
 		cpx #8
 		beq doneLines	
 		inx 
 		
-		; for (y=col1; y<col2; y++) {	
-			ldy $b2
+			ldy _screenCol1
 		loopCols:
-			cpy $b3			; Number of cols
+			cpy _screenCol2
 			bpl doneCols
 
-				;---------------------
 				; Copy Char
 				lda ($b5),y		; Get char value
 				sty _tmp
@@ -113,10 +113,10 @@ loopRows:
 	
 	doneLines:
 
-		; Update address of charmap line (+charmapWidth)
+		; Update address of location in charmap
 		clc	
 		lda $b5			
-		adc $b4			; Add charmap line offset
+		adc _charmapWidth
 		sta $b5	
 		bcc nocarryCM	; Check if carry to high byte
 		inc $b6

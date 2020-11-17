@@ -41,13 +41,14 @@
   #else
     #define frameWIDTH 2		// 2 bytes per 7 pixels
   #endif
-	unsigned char frameROWS;
-    unsigned int  frameBLOCK;	// Size of sprite offset block (4 blocks)
-	unsigned char sprX[SPRITE_NUM], sprY[SPRITE_NUM];	 // Screen coordinates
-	unsigned char sprDrawn[SPRITE_NUM], sprCollision[SPRITE_NUM]; // Enable and Collision status
-	unsigned char sprHiresX[SPRITE_NUM];  // Byte offset within Hires line
-	unsigned char*sprBG[SPRITE_NUM];  // Sprite background
-	unsigned char sprROWS[SPRITE_NUM];  // Sprite dimensions used in algorithms
+	unsigned char  frameROWS;
+    unsigned int   frameBLOCK;				// Size of sprite offset block (4 blocks)
+	unsigned char  sprX[SPRITE_NUM], sprY[SPRITE_NUM];	 // Screen coordinates
+	unsigned char  sprDrawn[SPRITE_NUM], sprCollision[SPRITE_NUM]; // Enable and Collision status
+	unsigned char  sprHiresX[SPRITE_NUM];  	// Byte offset within Hires line
+	unsigned char* sprBG[SPRITE_NUM];  		// Sprite background
+	unsigned char  sprROWS[SPRITE_NUM];  	// Sprite dimensions used in algorithms
+	unsigned char* sprData;					// Pointer to sprite data (allocated dynamically)
 	void CropSprite(unsigned char index, unsigned char rows) {
 		// Only partially draw this sprite
 		sprROWS[index] = rows;
@@ -121,8 +122,12 @@
 void LoadSprites(unsigned char* filename)
 {
 #if defined(__APPLE2__)
+	unsigned int size;
 	FILE* fp = fopen(filename, "rb");
-	fread((char*)(SPRITERAM), 1, -1, fp);
+	fread(&size, 1, 2, fp);
+	if (sprData) free(sprData);
+	sprData = malloc(size);
+	fread(sprData, 1, size, fp);
 	fclose(fp);
 
 #elif defined __ATARI__	
@@ -418,7 +423,7 @@ void SetSprite(unsigned char index, unsigned char frame)
 	xHires = (spriteX*2)/7u;
 
 	// Select the correct offset block (4 offset blocks per 7 pixels)
-	frameAddr = SPRITERAM + frame*frameROWS*frameWIDTH;
+	frameAddr = (char*)(sprData) + frame*frameROWS*frameWIDTH;
 	if (xHires%2) {
 		if (spriteX%7 > 5) { 
 			frameAddr += 3*frameBLOCK; 
