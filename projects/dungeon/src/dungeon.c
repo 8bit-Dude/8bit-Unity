@@ -152,17 +152,23 @@ void SplashScreen(void)
 void GameInit(void)
 {
 	// Setup charmap
-#if defined __LYNX__
-	screenCol1 = 2; screenCol2 = CHR_COLS-3; screenWidth = CHR_COLS-4;
-	screenRow1 = 0; screenRow2 = CHR_ROWS-1; screenHeight = CHR_ROWS-1;
+#if defined (__APPLE2__) || defined(__ORIC__)
+	screenCol1 = 6; screenCol2 = CHR_COLS-6;
+	screenRow1 = 3; screenRow2 = CHR_ROWS-4; 
+#elif defined __LYNX__
+	screenCol1 = 2; screenCol2 = CHR_COLS-2;
+	screenRow1 = 0; screenRow2 = CHR_ROWS-1; 
 #else
-	screenCol1 = 2; screenCol2 = CHR_COLS-3; screenWidth = CHR_COLS-4;
-	screenRow1 = 2; screenRow2 = CHR_ROWS-3; screenHeight = CHR_ROWS-4;
+	screenCol1 = 2; screenCol2 = CHR_COLS-2;
+	screenRow1 = 2; screenRow2 = CHR_ROWS-3;
 #endif
+	screenWidth = screenCol2-screenCol1;
+	screenHeight = screenRow2-screenRow1;
 	InitCharmap();		
 	ClearCharmap();
 	LoadCharset("quedex.chr", charColors);
-	LoadCharmap("level0.map", 64, 64);
+	LoadTileset("level1.tls", 36, 2, 2);
+	LoadCharmap("level1.map", 64, 64);
 	EnterCharmapMode();
 	
 	// Setup sprites
@@ -201,18 +207,18 @@ void GameInit(void)
 	SetAttributes(-1, CHR_ROWS-1, RED);
 	SetAttributes( 4, CHR_ROWS-1, CYAN);
 	SetAttributes( 9, CHR_ROWS-1, YELLOW);
-	SetAttributes(CHR_COLS-6, CHR_ROWS-1, WHITE);
+	SetAttributes(CHR_COLS-5, CHR_ROWS-1, WHITE);
 #endif	
 	inkColor = RED;    PrintCharmap(0, CHR_ROWS-1, life);
 	inkColor = CYAN;   PrintCharmap(5, CHR_ROWS-1, mana);
 	inkColor = YELLOW; PrintCharmap(10,CHR_ROWS-1, gold);
-	inkColor = WHITE;  PrintCharmap(CHR_COLS-5, CHR_ROWS-1, kill);
+	inkColor = WHITE;  PrintCharmap(CHR_COLS-4, CHR_ROWS-1, kill);
 }
 
 void GameLoop(void)
 {
-	unsigned char mapX =  25, mapY =  28, mapXPRV, mapYPRV; // Current and previous map position
-	unsigned int  sprX = 160, sprY = 100, sprXPRV, sprYPRV; // Current and previous sprite position
+	unsigned char mapX =  92, mapY =   0, mapXPRV, mapYPRV; // Current and previous map position
+	unsigned int  sprX = 200, sprY = 100, sprXPRV, sprYPRV; // Current and previous sprite position
 	unsigned char maxX, maxY, flagX, flagY1, flagY2;  // Coords of collision detection (accounting for model height)
 	unsigned char i, slot, joy, action, motion, direction;
 	unsigned char sprFrame, weaFrame, enmFrame, togFrame; 
@@ -235,15 +241,18 @@ void GameLoop(void)
 	
 	while (1) {
 		// Platform specific
-	#if defined __APPLE2__
-		clk += 1;  // Manually update clock on Apple 2		
-	#elif defined __LYNX__
+	#if defined __LYNX__
 		UpdateDisplay(); // Refresh Lynx screen
 	#endif		
 		
 		// Check clock
-		if (clock() < gameClock) 
+		if (clock() < gameClock) {
+		#if defined __APPLE2__
+			wait(1);  // Manually update clock on Apple 2	
+			clk += 6;			
+		#endif
 			continue;
+		}
 		gameClock = clock()+(TCK_PER_SEC/12);
 		togFrame ^= 1;
 
