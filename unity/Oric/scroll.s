@@ -29,6 +29,10 @@
 	.import _screenHeight, _screenWidth
 	.import _charsetData, _blockWidth
 	
+charPointerZP = $b5
+scrPointerZP  = $b7
+charBlockZP	  = $b9
+	
 	.segment	"BSS"	
 	
 _tmp: .res 1
@@ -40,10 +44,10 @@ _curRow: .res 1
 ; void __near__ _Scroll (void)
 ;	Blit data from Charmap to Bitmap
 ;	Zero Page Data:
-;		$ef: 16 bit address of location on charmap (auto-updated)
-;		$b7: 16 bit address of current Hires line (auto-updated)
+;		charPointerZP: 16 bit address of location on charmap (auto-updated)
+;		scrPointerZP:  16 bit address of location on screen (auto-updated)
 ;
-;		$b9: 16 bit address of curent charset block (auto-generated)
+;		charBlockZP:   16 bit address of curent charset block (auto-generated)
 ; ---------------------------------------------------------------	
 
 .proc _Scroll: near
@@ -59,9 +63,9 @@ loopRows:
 	
 	; Reset Charset Block Addr
 	lda _charsetData
-	sta $b9
+	sta  charBlockZP
 	lda _charsetData+1
-	sta $ba		
+	sta  charBlockZP+1
 
 		ldx #0
 	loopLines:
@@ -75,12 +79,12 @@ loopRows:
 			bpl doneCols
 
 				; Copy Char
-				lda ($b5),y		; Get char value
+				lda (charPointerZP),y		; Get char value
 				sty _tmp
 				tay 
-				lda ($b9),y		; Get pixels for that char
+				lda (charBlockZP),y			; Get pixels for that char
 				ldy _tmp
-				sta ($b7),y		; Save in Hires mem	
+				sta (scrPointerZP),y		; Save in Hires mem	
 
 				; Move to next col
 				iny
@@ -91,21 +95,21 @@ loopRows:
 
 			; Update address of charset block (+128)
 			clc	
-			lda $b9			; Update address of charset block
+			lda charBlockZP
 			adc #128
-			sta $b9	
-			bcc nocarryCS	; Check if carry to high byte
-			inc $ba
-		nocarryCS:
+			sta charBlockZP
+			bcc nocarryBlcPtr	; Check if carry to high byte
+			inc charBlockZP+1
+		nocarryBlcPtr:
 			
 			; Update address of Hires line (+40)
 			clc	
-			lda $b7			; Update address of Hires line
+			lda scrPointerZP
 			adc #40
-			sta $b7
-			bcc nocarryBM	; Check if carry to high byte
-			inc $b8
-		nocarryBM:
+			sta scrPointerZP
+			bcc nocarryScrPtr	; Check if carry to high byte
+			inc scrPointerZP+1
+		nocarryScrPtr:
 			
 		; Move to next line
 		jmp loopLines
@@ -114,12 +118,12 @@ loopRows:
 
 		; Update address of location in charmap
 		clc	
-		lda $b5			
+		lda charPointerZP			
 		adc _blockWidth
-		sta $b5	
-		bcc nocarryCM	; Check if carry to high byte
-		inc $b6
-	nocarryCM:
+		sta charPointerZP	
+		bcc nocarryChrPtr	; Check if carry to high byte
+		inc charPointerZP+1
+	nocarryChrPtr:
 	
 	; Move to next row
 	jmp loopRows

@@ -30,31 +30,39 @@
   #pragma code-name("LC")
 #endif
 
+// Zero Page pointers (tile decoding and map scrolling)
 #if defined(__APPLE2__)
   #define tilesetDataZP 0xef
-  #define charmapDataZP 0xce
-  #define decodeLine1ZP 0xfb
-  #define decodeLine2ZP 0xfd
+  #define charPointerZP 0xce
+  #define row1PointerZP 0xfb
+  #define row2PointerZP 0xfd
 #elif defined(__ATARI__)
   #define tilesetDataZP 0xe0
-  #define charmapDataZP 0xe2
-  #define decodeLine1ZP 0xe4
-  #define decodeLine2ZP 0xe6
+  #define charattDataZP 0xe0
+  #define charPointerZP 0xe2
+  #define scrPointerZP  0xe4
+  #define row1PointerZP 0xe4
+  #define row2PointerZP 0xe6
 #elif defined(__CBM__)
   #define tilesetDataZP 0x61
-  #define charmapDataZP 0x63
-  #define decodeLine1ZP 0xfb
-  #define decodeLine2ZP 0xfd
+  #define charattDataZP 0x61
+  #define charPointerZP 0x63
+  #define scrPointerZP  0xfb
+  #define colPointerZP  0xfd
+  #define row1PointerZP 0xfb
+  #define row2PointerZP 0xfd
 #elif defined(__LYNX__)
   #define tilesetDataZP 0xb3
-  #define charmapDataZP 0xb5
-  #define decodeLine1ZP 0xb7
-  #define decodeLine2ZP 0xb9
+  #define charPointerZP 0xb5
+  #define scrPointerZP  0xb7
+  #define row1PointerZP 0xb7
+  #define row2PointerZP 0xb9
 #elif defined(__ORIC__)
   #define tilesetDataZP 0xef
-  #define charmapDataZP 0xb5
-  #define decodeLine1ZP 0xb7
-  #define decodeLine2ZP 0xb9
+  #define charPointerZP 0xb5
+  #define scrPointerZP  0xb7
+  #define row1PointerZP 0xb7
+  #define row2PointerZP 0xb9
 #endif
 
 // Assembly function (see tiles.s)
@@ -335,9 +343,9 @@ void ScrollCharmap(unsigned char x, unsigned char y)
 	if (tilesetData) {
 		// Decode tilemap to screen buffer
 		POKEW(tilesetDataZP, tilesetData);
-		POKEW(charmapDataZP, &charmapData[charmapWidth*(worldY/2u) + worldX/2u]);
-		POKEW(decodeLine1ZP, &decodeScreen[0]);
-		POKEW(decodeLine2ZP, &decodeScreen[screenWidth+tileWidth]);	
+		POKEW(charPointerZP, &charmapData[charmapWidth*(worldY/2u) + worldX/2u]);
+		POKEW(row1PointerZP, &decodeScreen[0]);
+		POKEW(row2PointerZP, &decodeScreen[screenWidth+tileWidth]);	
 		blockWidth = 2*decodeWidth;
 		DecodeTiles();
 		
@@ -354,7 +362,7 @@ void ScrollCharmap(unsigned char x, unsigned char y)
 	// Reset sprite background
 	for (i=0; i<SPRITE_NUM; i++)
 		sprDrawn[i] = 0;
-	POKEW(0xef, src);
+	POKEW(charPointerZP, src);
   #if defined __DHR__
 	ScrollDHR();
   #else
@@ -364,34 +372,24 @@ void ScrollCharmap(unsigned char x, unsigned char y)
 
 #elif defined __ATARI__	
 	dst = SCREENRAM + screenRow1*40 + screenCol1;
-	for (j=0; j<screenHeight; j++) {
-		for (i=0; i<screenWidth; i++) {
-			chr = PEEK(src+i);
-			k = PEEK(CHARATRRAM+chr);	// 0 or 128
-			POKE(dst+i, chr+k);
-		}
-		src += blockWidth;
-		dst += 40;
-	}
+	POKEW(charattDataZP, CHARATRRAM);
+	POKEW(charPointerZP, src);
+	POKEW(scrPointerZP, dst);
+	Scroll();
 	
 #elif defined __CBM__	
 	dst = SCREENRAM + screenRow1*40 + screenCol1;
 	col = COLORRAM + screenRow1*40 + screenCol1;
-	for (j=0; j<screenHeight; j++) {
-		for (i=0; i<screenWidth; i++) {
-			chr = PEEK(src+i);
-			POKE(dst+i, chr);
-			POKE(col+i, charattData[chr]);
-		}
-		src += blockWidth;
-		dst += 40;
-		col += 40;
-	}
+	POKEW(charattDataZP, charattData);
+	POKEW(charPointerZP, src);
+	POKEW(scrPointerZP, dst);
+	POKEW(colPointerZP, col);
+	Scroll();
 		
 #elif defined __LYNX__	
 	dst = BITMAPRAM + screenRow1*6*82 + screenCol1*2 + 1;
-	POKEW(0xb5, src);
-	POKEW(0xb7, dst);
+	POKEW(charPointerZP, src);
+	POKEW(scrPointerZP, dst);
 	Scroll();	
 	
 #elif defined __ORIC__	
@@ -399,8 +397,8 @@ void ScrollCharmap(unsigned char x, unsigned char y)
 	for (i=0; i<SPRITE_NUM; i++)
 		sprDrawn[i] = 0;
 	dst = BITMAPRAM + screenRow1*320 + screenCol1 + 1;
-	POKEW(0xb5, src);
-	POKEW(0xb7, dst);
+	POKEW(charPointerZP, src);
+	POKEW(scrPointerZP, dst);
 	Scroll();
 #endif
 }

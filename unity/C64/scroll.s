@@ -27,16 +27,15 @@
 	.export _Scroll
 	
 	.import _screenWidth, _screenHeight
-	.import _blockWidth, _charsetData
+	.import _blockWidth
 	
-charPointerZP = $b5
-scrPointerZP  = $b7
-charBlockZP	  = $bb
+charattDataZP = $61
+charPointerZP = $63
+scrPointerZP  = $fb
+colPointerZP  = $fd
 	
 	.segment	"BSS"
 
-_tmpY: .res 1
-_tmpChr: .res 1
 _curCol: .res 1
 _curRow: .res 1
 
@@ -44,12 +43,11 @@ _curRow: .res 1
 	
 ; ---------------------------------------------------------------
 ; void __near__ _Scroll (void)
-;	Blit page from Charmap to Bitmap
+;	Blit page from Charmap to Screen
 ;	Zero Page Data:
+;		charattDataZP: 16 bit address of char attribute data (auto-updated)
 ;		charPointerZP: 16 bit address of location on charmap (auto-updated)
 ;		scrPointerZP:  16 bit address of location on screen (auto-updated)
-;
-;		charBlockZP:   16 bit address of curent charset block (auto-generated)
 ; ---------------------------------------------------------------	
 
 .proc _Scroll: near
@@ -62,76 +60,48 @@ loopRows:
 	cmp _screenHeight
 	bpl doneRows
 	inc _curRow
+							
+		ldy #0
+	loopCols:
+		cpy _screenWidth
+		bpl doneCols			
+		sty _curCol
 	
-		; Reset Char Block Addr
-		lda _charsetData
-		sta  charBlockZP
-		lda _charsetData+1
-		sta  charBlockZP+1
-				
-		ldx #0
-	loopLines:
-		cpx #6
-		beq doneLines	
-		inx 
-		
-			ldy #0
-		loopCols:
-			cpy _screenWidth
-			bpl doneCols			
-			sty _curCol
-		
-				; Get Char Value
-				lda (charPointerZP),y
-				
-				; Set Chr Offset
-				asl A			; Multiply by 2	(2 bytes per col!)
-				sta _tmpChr
-				
-				; Set Col Offset
-				tya
-				asl A			; Multiply by 2	(2 bytes per col!)
-				sta _tmpY
-				
-				; Copy 1st byte
-				ldy _tmpChr
-				lda (charBlockZP),y		
-				ldy _tmpY				
-				sta (scrPointerZP),y		
-
-				; Copy 2nd byte
-				ldy _tmpChr
-				iny 
-				lda (charBlockZP),y		
-				ldy _tmpY				
-				iny 
-				sta (scrPointerZP),y			
-
-			; Move to next col
+			; Get Char Value and save to ScreenRAM
+			lda (charPointerZP),y
+			sta (scrPointerZP),y		
+			
+			; Get  Atrribute and save to ColorRAM
+			tay
+			lda (charattDataZP),y
 			ldy _curCol
-			iny
-			jmp loopCols	
+			sta (colPointerZP),y								
 
-		doneCols:
+		; Move to next col
+		iny
+		jmp loopCols	
 
-			; Update address of charblock (+256)
-			inc charBlockZP+1
+	doneCols:
+
+		; Update address of screen (+40)
+		clc	
+		lda scrPointerZP
+		adc #40
+		sta scrPointerZP
+		bcc nocarryScrPtr	; Check if carry to high byte
+		inc scrPointerZP+1
+	nocarryScrPtr:		
 		
-			; Update address of screen (+82)
-			clc	
-			lda scrPointerZP
-			adc #82
-			sta scrPointerZP
-			bcc nocarryScrPtr	; Check if carry to high byte
-			inc scrPointerZP+1
-		nocarryScrPtr:		
-		
-		; Move to next line
-		jmp loopLines
+		; Update address of color (+40)
+		clc	
+		lda colPointerZP
+		adc #40
+		sta colPointerZP
+		bcc nocarryColPtr	; Check if carry to high byte
+		inc colPointerZP+1
+	nocarryColPtr:
 	
-	doneLines:		
-		
-		; Update address of location in charmap
+		; Update location in charmap
 		clc	
 		lda charPointerZP			
 		adc _blockWidth

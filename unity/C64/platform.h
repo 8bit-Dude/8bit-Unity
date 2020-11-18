@@ -93,3 +93,6 @@ extern void __fastcall__ rom_disable(void);
 
 // File Management
 void DirList(void);
+
+// Gfx functions (see scroll.s)
+void __fastcall__ Scroll(void);

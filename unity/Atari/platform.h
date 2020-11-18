@@ -89,3 +89,6 @@ extern unsigned char charmapDLI;
 extern unsigned char charsetPage1;
 extern unsigned char charsetPage2;
 extern unsigned char spriteDLI;
+
+// Gfx functions (see scroll.s)
+void __fastcall__ Scroll(void);

@@ -34,37 +34,37 @@
 
 .ifdef __APPLE2__
 	tilesetDataZP = $ef
-	charmapDataZP = $ce
-	decodeLine1ZP = $fb
-	decodeLine2ZP = $fd
+	charPointerZP = $ce
+	row1PointerZP = $fb
+	row2PointerZP = $fd
 .endif
 
 .ifdef __ATARI__
 	tilesetDataZP = $e0
-	charmapDataZP = $e2
-	decodeLine1ZP = $e4
-	decodeLine2ZP = $e6
+	charPointerZP = $e2
+	row1PointerZP = $e4
+	row2PointerZP = $e6
 .endif	
 	
 .ifdef __CBM__
 	tilesetDataZP = $61
-	charmapDataZP = $63
-	decodeLine1ZP = $fb
-	decodeLine2ZP = $fd
+	charPointerZP = $63
+	row1PointerZP = $fb
+	row2PointerZP = $fd
 .endif	
 
 .ifdef __LYNX__
 	tilesetDataZP = $b3
-	charmapDataZP = $b5
-	decodeLine1ZP = $b7
-	decodeLine2ZP = $b9
+	charPointerZP = $b5
+	row1PointerZP = $b7
+	row2PointerZP = $b9
 .endif	
 
 .ifdef __ATMOS__
 	tilesetDataZP = $ef
-	charmapDataZP = $b5
-	decodeLine1ZP = $b7
-	decodeLine2ZP = $b9
+	charPointerZP = $b5
+	row1PointerZP = $b7
+	row2PointerZP = $b9
 .endif
 
 	.segment	"BSS"
@@ -80,9 +80,9 @@ _curRow: .res 1
 ;	Convert Tilemap to Charmap
 ;	Zero Page Data:
 ;		tilesetDataZP: 16 bit address of tileset data
-;		charmapDataZP: 16 bit address of location on charmap (auto-updated)
-;		decodeLine1ZP: 16 bit address of first screen line (auto-updated)
-;		decodeLine2ZP: 16 bit address of second screen line (auto-updated)
+;		charPointerZP: 16 bit address of location on charmap (auto-updated)
+;		row1PointerZP: 16 bit address of first screen line (auto-updated)
+;		row2PointerZP: 16 bit address of second screen line (auto-updated)
 ; ---------------------------------------------------------------	
 
 .proc _DecodeTiles: near
@@ -100,7 +100,7 @@ loopRows:
 		sty _curCol
 		
 			; Get Tile Value (x4)
-			lda (charmapDataZP),y
+			lda (charPointerZP),y
 			asl A
 			asl A
 			
@@ -123,14 +123,14 @@ loopRows:
 			asl A
 			tay
 			lda _tmpChr+0
-			sta (decodeLine1ZP),y
+			sta (row1PointerZP),y
 			lda _tmpChr+2
-			sta (decodeLine2ZP),y
+			sta (row2PointerZP),y
 			iny
 			lda _tmpChr+1
-			sta (decodeLine1ZP),y
+			sta (row1PointerZP),y
 			lda _tmpChr+3
-			sta (decodeLine2ZP),y
+			sta (row2PointerZP),y
 				
 		; Move to next col
 		ldy _curCol
@@ -139,32 +139,32 @@ loopRows:
 
 	doneCols:		
 		
-		; Update address of location in charmap
+		; Update location in charmap
 		clc	
-		lda charmapDataZP			
+		lda charPointerZP			
 		adc _charmapWidth
-		sta charmapDataZP	
-		bcc nocarryCM	; Check if carry to high byte
-		inc charmapDataZP+1
-	nocarryCM:
+		sta charPointerZP	
+		bcc nocarryChrPtr	; Check if carry to high byte
+		inc charPointerZP+1
+	nocarryChrPtr:
 
-		; Update address of location of screen buffer (line 1)
+		; Update location in screen buffer (line 1)
 		clc	
-		lda decodeLine1ZP			
+		lda row1PointerZP			
 		adc _blockWidth
-		sta decodeLine1ZP	
-		bcc nocarrySB1	; Check if carry to high byte
-		inc decodeLine1ZP+1
-	nocarrySB1:
+		sta row1PointerZP	
+		bcc nocarryScrPtr1	; Check if carry to high byte
+		inc row1PointerZP+1
+	nocarryScrPtr1:
 
-		; Update address of location of screen buffer (line 2)
+		; Update location in screen buffer (line 2)
 		clc	
-		lda decodeLine2ZP		
+		lda row2PointerZP		
 		adc _blockWidth
-		sta decodeLine2ZP
-		bcc nocarrySB2	; Check if carry to high byte
-		inc decodeLine2ZP+1
-	nocarrySB2:
+		sta row2PointerZP
+		bcc nocarryScrPtr2	; Check if carry to high byte
+		inc row2PointerZP+1
+	nocarryScrPtr2:
 	
 	; Move to next row
 	jmp loopRows
