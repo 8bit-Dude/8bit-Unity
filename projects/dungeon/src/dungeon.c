@@ -70,12 +70,6 @@
 	#define SPRITE_ENEMY    4
 	#define COLOR_SKELETON 0x0c
 	#define COLOR_GOBLIN   0xbc
-#elif defined __LYNX__	
-	#define SPRITE_PLAYER   0
-	#define SPRITE_WEAPON   1
-	#define SPRITE_ENEMY    2
-	#define COLOR_SKELETON WHITE
-	#define COLOR_GOBLIN   GREEN
 #elif defined __ORIC__	
 	#define SPRITE_WEAPON   0
 	#define SPRITE_PLAYER   1
@@ -90,23 +84,32 @@
 	#define COLOR_GOBLIN   YELLOW
 #endif
 
-// Animation Frames
-#define FRAME_PLAYER     0
-#define FRAME_WEAPON     8
-#define FRAME_SKELETON  16
-#define FRAME_GOBLIN    24
+// Animation Key Frames
+#define KEY_PLAYER     0
+#define KEY_WEAPON     8
+#define KEY_SKELETON  16
+#define KEY_GOBLIN    24
+
+// Animation Stance Frames
+#define STANCE_RIGHT   0
+#define STANCE_LEFT	   4
+
 
 // Enemy data
-# define ENEMY_NUM  8
+# define ENEMY_NUM    2
 # define ENEMY_NULL   0
 # define ENEMY_GUARD  1
 # define ENEMY_ATTACK 2
 typedef struct {
 	unsigned char state, color;
-	unsigned char frame, offset;
+	unsigned char key, stance, frame;
 	unsigned char mapX, mapY;
+	unsigned int scrX, scrY;
+	clock_t timer;
 } Enemy;
-Enemy enemies[ENEMY_NUM];
+
+Enemy enemies[ENEMY_NUM] = { { ENEMY_GUARD, COLOR_SKELETON, KEY_SKELETON, STANCE_LEFT,  255, 108, 20, 255, 255, 0 },
+							 { ENEMY_GUARD, COLOR_GOBLIN,   KEY_GOBLIN,   STANCE_RIGHT, 255, 122, 21, 255, 255, 0 } };
 
 char life[] = { 1 , '1', '0', '0', 0};
 char mana[] = { 2 , '1', '0', '0', 0};
@@ -153,7 +156,7 @@ void GameInit(void)
 {
 	// Setup charmap
 #if defined (__APPLE2__) || defined(__ORIC__)
-	screenCol1 = 6; screenCol2 = CHR_COLS-6;
+	screenCol1 = 4; screenCol2 = CHR_COLS-4;
 	screenRow1 = 3; screenRow2 = CHR_ROWS-4; 
 #elif defined __LYNX__
 	screenCol1 = 2; screenCol2 = CHR_COLS-2;
@@ -167,7 +170,7 @@ void GameInit(void)
 	InitCharmap();		
 	ClearCharmap();
 	LoadCharset("quedex.chr", charColors);
-	LoadTileset("level1.tls", 36, 2, 2);
+	LoadTileset("level1.tls", 40, 2, 2);
 	LoadCharmap("level1.map", 64, 64);
 	EnterCharmapMode();
 	
@@ -185,23 +188,6 @@ void GameInit(void)
 	EnableSprite(SPRITE_PLAYER);
 #endif
 
-	// Setup enemies
-	enemies[0].state = ENEMY_GUARD;
-	enemies[0].color = COLOR_SKELETON;
-	enemies[0].frame = FRAME_SKELETON;
-	enemies[0].mapX = 22;
-	enemies[0].mapY = 22;
-	enemies[1].state = ENEMY_GUARD;
-	enemies[1].color = COLOR_SKELETON;
-	enemies[1].frame = FRAME_SKELETON;
-	enemies[1].mapX = 24;
-	enemies[1].mapY = 24;
-	enemies[2].state = ENEMY_GUARD;
-	enemies[2].color = COLOR_GOBLIN;
-	enemies[2].frame = FRAME_GOBLIN;
-	enemies[2].mapX = 30;
-	enemies[2].mapY = 30;
-
 	// Show some text
 #if (defined __ORIC__)
 	SetAttributes(-1, CHR_ROWS-1, RED);
@@ -218,13 +204,13 @@ void GameInit(void)
 void GameLoop(void)
 {
 	unsigned char mapX =  92, mapY =   0, mapXPRV, mapYPRV; // Current and previous map position
-	unsigned int  sprX = 200, sprY = 100, sprXPRV, sprYPRV; // Current and previous sprite position
+	unsigned int  scrX = 195, scrY =  50, scrXPRV, scrYPRV; // Current and previous screen position
+	unsigned int  weaponX, weaponY;							// Weapon position
 	unsigned char maxX, maxY, flagX, flagY1, flagY2;  // Coords of collision detection (accounting for model height)
-	unsigned char i, slot, joy, action, motion, direction;
-	unsigned char sprFrame, weaFrame, enmFrame, togFrame; 
-	unsigned int  weaX, weaY, enmX, enmY;
+	unsigned char i, j, slot, joy, action, motion, direction;
+	unsigned char sprFrame, weaFrame, enmFrame, togglePlayer, toggleEnemy; 
 	signed int    deltaX, deltaY;
-	clock_t gameClock;	
+	clock_t playerClock, enemyClock;	
 	Enemy* enemy;
 	
 	// Helper variables
@@ -241,131 +227,207 @@ void GameLoop(void)
 	
 	while (1) {
 		// Platform specific
-	#if defined __LYNX__
+	#if defined __APPLE2__
+		clk += 1;	// Manually update clock on Apple 2			
+	#elif defined __LYNX__
 		UpdateDisplay(); // Refresh Lynx screen
 	#endif		
 		
-		// Check clock
-		if (clock() < gameClock) {
-		#if defined __APPLE2__
-			wait(1);  // Manually update clock on Apple 2	
-			clk += 6;			
-		#endif
-			continue;
-		}
-		gameClock = clock()+(TCK_PER_SEC/12);
-		togFrame ^= 1;
+		//////////////////////////
+		// Check player clock
+		if (clock() > playerClock) {
+			playerClock = clock()+(TCK_PER_SEC/18);
+			togglePlayer ^= 1;
 
-		// Save previous location
-		sprXPRV = sprX; sprYPRV = sprY;
-		mapXPRV = mapX; mapYPRV = mapY;
+			// Save previous location
+			scrXPRV = scrX; scrYPRV = scrY;
+			mapXPRV = mapX; mapYPRV = mapY;
 
-		// Process Joystick
-		motion = 0;
-		joy = GetJoy(0);
-		if (!(joy & JOY_BTN1)) {
-			action = 1;
-		} else {
-			action = 0;
-			if (!(joy & JOY_LEFT))  {
-					 if (sprX>80)  sprX -= STEP_X; 
-				else if (mapX>1)   mapX -= 1;
-				else if (sprX>3)   sprX -= STEP_X;
-				motion = 1; direction = 0;
-			} else 
-			if (!(joy & JOY_RIGHT)) { 
-					 if (sprX<240)  sprX += STEP_X; 
-				else if (mapX<maxX) mapX += 1;
-				else if (sprX<317)  sprX += STEP_X; 
-				motion = 1; direction = 2;
-			} else
-			if (!(joy & JOY_UP)) {
-					 if (sprY>50)  sprY -= STEP_Y; 
-				else if (mapY>1)   mapY -= 1;
-				else if (sprY>2)   sprY -= STEP_Y; 
-				motion = 1; direction = 4;
-			} else
-			if (!(joy & JOY_DOWN)) {
-					 if (sprY<150)  sprY += STEP_Y; 
-				else if (mapY<maxY) mapY += 1;
-				else if (sprY<185)  sprY += STEP_Y;
-				motion = 1; direction = 6;
-			} 
-		}	
+			// Process Joystick
+			motion = 0;
+			joy = GetJoy(0);
+			if (!(joy & JOY_BTN1)) {
+				action = 1;
+			} else {
+				action = 0;
+				if (!(joy & JOY_LEFT))  {
+						 if (scrX>100) scrX -= STEP_X; 
+					else if (mapX>1)   mapX -= 1;
+					else if (scrX>3)   scrX -= STEP_X;
+					motion = 1; direction = 0;
+				} else 
+				if (!(joy & JOY_RIGHT)) { 
+						 if (scrX<220)  scrX += STEP_X; 
+					else if (mapX<maxX) mapX += 1;
+					else if (scrX<317)  scrX += STEP_X; 
+					motion = 1; direction = 2;
+				} else
+				if (!(joy & JOY_UP)) {
+						 if (scrY>60)  scrY -= STEP_Y; 
+					else if (mapY>1)   mapY -= 1;
+					else if (scrY>2)   scrY -= STEP_Y; 
+					motion = 1; direction = 4;
+				} else
+				if (!(joy & JOY_DOWN)) {
+						 if (scrY<125)  scrY += STEP_Y; 
+					else if (mapY<maxY) mapY += 1;
+					else if (scrY<185)  scrY += STEP_Y;
+					motion = 1; direction = 6;
+				} 
+			}	
+			
+			// Check if new position is allowed?
+			LocatePixel(scrX, scrY);
+			flagX = mapX+XToCol(pixelX)-screenCol1;
+			flagY1 = mapY+YToRow(pixelY)-screenRow1;
+			flagY2 = mapY+YToRow(pixelY+5)-screenRow1;
+			if (!(GetCharFlags(flagX, flagY1) & CHAR_WALKABLE) ||
+				!(GetCharFlags(flagX, flagY2) & CHAR_WALKABLE)) {
+				scrX = scrXPRV; scrY = scrYPRV;
+				mapX = mapXPRV; mapY = mapYPRV;
+			} else {
+				ScrollCharmap(mapX, mapY);
+			}					
+			
+			// Update sprite
+			LocateSprite(scrX, scrY);
+			sprFrame = direction;
+			if (motion)
+				sprFrame += togglePlayer;
+		#if defined __ATARI__
+			SetSprite(SPRITE_PLAYER0, sprFrame);		
+			SetSprite(SPRITE_PLAYER1, sprFrame+spriteFrames);		
+			SetSprite(SPRITE_PLAYER2, sprFrame+spriteFrames*2);		
+		#else
+			SetSprite(SPRITE_PLAYER, sprFrame);		
+		#endif		
 		
-		// Check if new position is allowed?
-		LocatePixel(sprX, sprY);
-		flagX = mapX+XToCol(pixelX)-screenCol1;
-		flagY1 = mapY+YToRow(pixelY)-screenRow1;
-		flagY2 = mapY+YToRow(pixelY+5)-screenRow1;
-		if (!(GetCharFlags(flagX, flagY1) & CHAR_WALKABLE) ||
-			!(GetCharFlags(flagX, flagY2) & CHAR_WALKABLE)) {
-			sprX = sprXPRV; sprY = sprYPRV;
-			mapX = mapXPRV; mapY = mapYPRV;
-		} else {
-			ScrollCharmap(mapX, mapY);
-		}					
-		
-		// Update sprite
-		LocateSprite(sprX, sprY);
-		sprFrame = direction;
-		if (motion)
-			sprFrame += togFrame;
-	#if defined __ATARI__
-		SetSprite(SPRITE_PLAYER0, sprFrame);		
-		SetSprite(SPRITE_PLAYER1, sprFrame+spriteFrames);		
-		SetSprite(SPRITE_PLAYER2, sprFrame+spriteFrames*2);		
-	#else
-		SetSprite(SPRITE_PLAYER, sprFrame);		
-	#endif		
-	
-		// Progress action
-		if (action) {
-			switch (direction) {
-			case 0:
-				weaX = sprX-12; weaY = sprY; weaFrame = 9; break;
-			case 2:
-				weaX = sprX+12; weaY = sprY; weaFrame = 11; break;
-			case 4:
-				weaX = sprX; weaY = sprY-14; weaFrame = 13; break;
-			case 6:
-				weaX = sprX; weaY = sprY+14; weaFrame = 15; break;
+			// Process action
+			if (action) {
+				switch (direction) {
+				case 0:
+					weaponX = scrX-12; weaponY = scrY; weaFrame = 9; break;
+				case 2:
+					weaponX = scrX+12; weaponY = scrY; weaFrame = 11; break;
+				case 4:
+					weaponX = scrX; weaponY = scrY-14; weaFrame = 13; break;
+				case 6:
+					weaponX = scrX; weaponY = scrY+14; weaFrame = 15; break;
+				}
+				LocateSprite(weaponX, weaponY);
+				SetSprite(SPRITE_WEAPON, weaFrame);	
+				EnableSprite(SPRITE_WEAPON);			
+			} else {
+				DisableSprite(SPRITE_WEAPON);
 			}
-			LocateSprite(weaX, weaY);
-			SetSprite(SPRITE_WEAPON, weaFrame);	
-			EnableSprite(SPRITE_WEAPON);			
-		} else {
-			DisableSprite(SPRITE_WEAPON);
-		}
-		
-		// Progress enemies
-		i = 0; slot = SPRITE_ENEMY;
-		while (i<ENEMY_NUM && slot<SPRITE_NUM) {
-			enemy = &enemies[i++];
-			if (enemy->state && enemy->mapX > mapX && enemy->mapX < mapX+screenWidth
-						     && enemy->mapX > mapY && enemy->mapY < mapY+screenHeight) {
-				enmX = (enemy->mapX-mapX+screenCol1)*SCALE_X;
-				enmY = (enemy->mapY-mapY+screenRow1)*SCALE_Y;
-				deltaX  = sprX;  deltaY = sprY;
-				deltaX -= enmX; deltaY -= enmY;
-				if (ABS(deltaX) < 20 && ABS(deltaY) < 20) {
-					if (sprX > enmX)
-						enemy->offset = 0;
-					else
-						enemy->offset = 4;
-					enmFrame = enemy->frame+enemy->offset+(togFrame+slot)%2u+2;					
-				} else {
-					enmFrame = enemy->frame+enemy->offset+(togFrame+slot)%2u;
-			    }
+
+			// Display enemies
+			i = 0; slot = SPRITE_ENEMY;
+			while (i<ENEMY_NUM && slot<SPRITE_NUM) {
+				enemy = &enemies[i++];
+				if (enemy->frame == 255) 
+					continue;					
 				RecolorSprite(slot, 0, enemy->color); 
-				LocateSprite(enmX, enmY);
-				SetSprite(slot, enmFrame);	
-				EnableSprite(slot++);
+				LocateSprite(enemy->scrX, enemy->scrY);
+				SetSprite(slot, enemy->frame);	
+				EnableSprite(slot++);			
 			}
+			while (slot<SPRITE_NUM)
+				DisableSprite(slot++);
 		}
-		while (slot<SPRITE_NUM)
-			DisableSprite(slot++);		
-	}	
+
+		//////////////////////////
+		// Check enemy clock
+		if (clock() > enemyClock) {
+			enemyClock = clock()+(TCK_PER_SEC/6);
+			toggleEnemy ^= 1;
+		
+			i = 0; slot = SPRITE_ENEMY;
+			while (i<ENEMY_NUM && slot<SPRITE_NUM) {
+				// Is valid?
+				enemy = &enemies[i++];
+				if (!enemy->state) 
+					continue;			
+				
+				// Is visible?
+				if (enemy->mapX <= mapX || enemy->mapX >= mapX+screenWidth ||
+					enemy->mapY <= mapY || enemy->mapY >= mapY+screenHeight) {
+					// Set NULL frame
+					enemy->frame = 255;
+				} else {
+					// Update screen position
+					enemy->scrX = (enemy->mapX-mapX+screenCol1)*SCALE_X;
+					enemy->scrY = (enemy->mapY-mapY+screenRow1)*SCALE_Y;
+					
+					// Compute distance to player
+					deltaX = scrX; deltaX -= enemy->scrX; 
+					deltaY = scrY; deltaY -= enemy->scrY;
+					
+					// Has detected player?
+					enemy->frame = enemy->key + enemy->stance + (toggleEnemy+slot)%2u;
+					switch (enemy->state) {
+					case ENEMY_GUARD:
+						// Check if player within reach?
+						if (ABS(deltaX) < 80 && ABS(deltaY) < 80)
+							enemy->state = ENEMY_ATTACK;
+						break;
+						
+					case ENEMY_ATTACK:
+						// Check if player out of reach?
+						if (ABS(deltaX) > 100 || ABS(deltaY) > 100) {
+							enemy->state = ENEMY_GUARD;
+							break;
+						}
+						
+						// Set direction of frame
+						if (scrX < enemy->scrX)
+							enemy->stance = STANCE_LEFT;
+						else
+							enemy->stance = STANCE_RIGHT;
+
+						// Check distance to player
+						if (ABS(deltaX) > 18 || ABS(deltaY) > 18) {
+							// Decide direction of motion
+							if (ABS(deltaX) < ABS(deltaY))  {
+								deltaX = 0; deltaY = SIGN(deltaY);
+							} else {
+								deltaY = 0; deltaX = SIGN(deltaX);
+							}
+													
+							// Look for collisions with map
+							if (GetCharFlags(enemy->mapX+deltaX, enemy->mapY+deltaX) & CHAR_WALKABLE) {
+								// Look for collisions with other enemies
+								motion = 1;
+								for (j=0; j<ENEMY_NUM; j++) {
+									if (i != j && enemies[j].frame != 255 && 
+										enemies[j].mapX == (enemy->mapX+deltaX) &&
+										enemies[j].mapY == (enemy->mapY+deltaY)) {
+										motion = 0;
+										break;
+									}
+								}
+								
+								// Update position!
+								if (motion) {
+									enemy->mapX += deltaX;
+									enemy->mapY += deltaY;
+								}
+							}
+							
+						} else {
+							// Check attack timer
+							if (clock() > enemy->timer) {
+								enemy->timer = clock() + TCK_PER_SEC;
+								//BumpSFX();
+							}
+							enemy->frame += 2;								
+						}
+						break;
+					}
+				}
+			}
+		}	
+	}
 }
 	
 int main (void)
