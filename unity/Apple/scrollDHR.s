@@ -29,7 +29,12 @@
 	.import _hiresLinesHI, _hiresLinesLO
 	.import _screenCol1, _screenWidth
 	.import _screenRow1, _screenRow2
-	.import _charsetData, _blockWidth	
+	.import _charsetData, _blockWidth
+
+charPointerZP  = $ce
+scrPointerZP   = $ef
+charLPointerZP = $fb 
+charRPointerZP = $fd
 		
 	.segment	"BSS"	
 	
@@ -44,16 +49,20 @@ _mainAuxTog: .res 1
 ; void __near__ _ScrollDHR (void)
 ;	Blit data from Charmap to Bitmap
 ;	Zero Page Data:
-;		$ef: 16 bit address of location on charmap (auto-updated)
+;		charPointerZP: 16 bit address of location on charmap (auto-updated)
 ;
-;		$ce: 16 bit address of current Hires line (auto-generated)
-;		$fb: 16 bit address of charset block L (auto-generated)
-;		$fd: 16 bit address of charset block R (auto-generated)
+;		scrPointerZP:   16 bit address of current Hires line (auto-generated)
+;		charLPointerZP: 16 bit address of charset block L (auto-generated)
+;		charRPointerZP: 16 bit address of charset block R (auto-generated)
 ; ---------------------------------------------------------------	
 
 _ScrollDHR:
 
-; Set start row/line
+	; Init Main/Aux Toggle
+	lda #0
+	sta _mainAuxTog
+
+	; Set start row/line
 	lda _screenRow1
 	sta _curRow
 	asl A
@@ -69,13 +78,13 @@ loopRows:
 	
 	; Set Charset Addresses (L/R)
 	lda _charsetData
-	sta $fb
-	sta $fd
+	sta charLPointerZP
+	sta charRPointerZP
 	
 	lda _charsetData+1
-	sta $fc
+	sta charLPointerZP+1
 	adc #08
-	sta $fe
+	sta charRPointerZP+1
 
 		ldx #0
 	loopLines:
@@ -86,10 +95,10 @@ loopRows:
 			; Set address of start pixel on Hires line
 			ldy _curLine
 			lda _hiresLinesHI,y
-			sta $cf
+			sta  scrPointerZP+1
 			lda _hiresLinesLO,y
 			adc _screenCol1
-			sta $ce
+			sta  scrPointerZP
 			inc _curLine
 					
 			;---------------------
@@ -108,22 +117,22 @@ loopRows:
 			;---------------------
 			; Update address of charset block L (+128)
 			clc	
-			lda $fb			
+			lda charLPointerZP			
 			adc #128
-			sta $fb	
-			bcc nocarryCL	; Check if carry to high byte
-			inc $fc
-		nocarryCL:
+			sta charLPointerZP	
+			bcc nocarryBlockLPtr	; Check if carry to high byte
+			inc charLPointerZP+1
+		nocarryBlockLPtr:
 
 			;---------------------
 			; Update address of charset block R (+128)
 			clc	
-			lda $fd			
+			lda charRPointerZP			
 			adc #128
-			sta $fd	
-			bcc nocarryCR	; Check if carry to high byte
-			inc $fe
-		nocarryCR:
+			sta charRPointerZP
+			bcc nocarryBlockRPtr	; Check if carry to high byte
+			inc charRPointerZP+1
+		nocarryBlockRPtr:
 			
 			;---------------------
 			; Toggle AUX/MAIN
@@ -138,21 +147,20 @@ loopRows:
 	
 	doneLines:
 
-		; Update address of charmap line
+		; Update address of location in charmap
 		clc	
-		lda $ef			
+		lda charPointerZP			
 		adc _blockWidth
-		sta $ef	
-		bcc nocarryCM	; Check if carry to high byte
-		inc $f0
-	nocarryCM:
+		sta charPointerZP	
+		bcc nocarryChrPtr	; Check if carry to high byte
+		inc charPointerZP+1
+	nocarryChrPtr:
 	
 	; Move to next row
 	jmp loopRows
 
 doneRows:
 	rts
-
 
 ;----------------------------------
 ; Copy 1 line of data (AUX or MAIN)
@@ -164,25 +172,24 @@ loopCols:
 	
 		;---------------------
 		; Handle Left Char
-		lda ($ef),y		; Get char value
+		lda (charPointerZP),y		; Get char value
 		sty _tmpY
 		tay
-		lda ($fb),y		; Get L pixels for that char
+		lda (charLPointerZP),y		; Get L pixels for that char
 		ldy _tmpY
-		sta ($ce),y		; Save in Hires mem
+		sta (scrPointerZP),y		; Save in Hires mem
 
 		; Move to next col
 		iny
 
 		;---------------------
 		; Handle Right Char
-		lda ($ef),y		; Get char value
-		
+		lda (charPointerZP),y		; Get char value
 		sty _tmpY
 		tay 
-		lda ($fd),y		; Get R pixels for that char
+		lda (charRPointerZP),y		; Get R pixels for that char
 		ldy _tmpY
-		sta ($ce),y		; Save in Hires mem
+		sta (scrPointerZP),y		; Save in Hires mem
 
 		; Move to next col
 		iny

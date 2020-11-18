@@ -605,18 +605,26 @@ void EnableSprite(signed char index)
 void DisableSprite(signed char index)
 {
 	// Switch single sprite off
+	unsigned char state;
 	if (index >= 0) {	
 	#if defined __CBM__
 		// Set bit in sprite register
 		POKE(53269, PEEK(53269) & ~(1 << index));
 	#elif defined __ATARI__
 		// Set bit in flicker mask	
-		if (index<5) { 
+		if (index<5) {
+			state = sprMask[index];
 			sprMask[index] &= ~1;
+			if (state == sprMask[index])
+				return;
 		} else {
+			state = sprMask[index-5];
 			sprMask[index-5] &= ~2;
+			if (state == sprMask[index-5])
+				return;
 		}
-		bzero(PMGRAM+768+((index+1)%5)*256,0x100); // Clear PMG slot
+		// Clear PMG slot
+		bzero(PMGRAM+768+((index+1)%5)*256,0x100);
 	#else
 		// Soft sprites: Restore background if neccessary
 	  #if (defined __APPLE2__) || (defined __ORIC__)
