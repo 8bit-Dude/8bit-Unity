@@ -27,7 +27,7 @@
 	.export _ScrollDHR
 
 	.import _hiresLinesHI, _hiresLinesLO
-	.import _screenCol1, _screenCol2
+	.import _screenCol1, _screenWidth
 	.import _screenRow1, _screenRow2
 	.import _charsetData, _blockWidth	
 		
@@ -83,14 +83,15 @@ loopRows:
 		beq doneLines	
 		inx
 		
-			; Set Hires address of current line
+			; Set address of start pixel on Hires line
 			ldy _curLine
 			lda _hiresLinesHI,y
 			sta $cf
 			lda _hiresLinesLO,y
+			adc _screenCol1
 			sta $ce
-			inc _curLine		
-			
+			inc _curLine
+					
 			;---------------------
 			; Main/Aux Toggle
 		branchAux:	
@@ -156,16 +157,16 @@ doneRows:
 ;----------------------------------
 ; Copy 1 line of data (AUX or MAIN)
 copyLine:
-	ldy _screenCol1
+	ldy #0
 loopCols:
-	cpy _screenCol2			; Number of cols
-	bpl doneCols
+	cpy _screenWidth
+	bpl doneCols		
 	
 		;---------------------
 		; Handle Left Char
 		lda ($ef),y		; Get char value
-		sty _tmpY		
-		tay 
+		sty _tmpY
+		tay
 		lda ($fb),y		; Get L pixels for that char
 		ldy _tmpY
 		sta ($ce),y		; Save in Hires mem
@@ -190,4 +191,3 @@ loopCols:
 
 doneCols:
 	rts
-	

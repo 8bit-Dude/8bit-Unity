@@ -27,7 +27,7 @@
 	.export _ScrollSHR
 
 	.import _hiresLinesHI, _hiresLinesLO
-	.import _screenCol1, _screenCol2
+	.import _screenCol1, _screenWidth
 	.import _screenRow1, _screenRow2
 	.import _charsetData, _blockWidth
 	
@@ -82,17 +82,18 @@ loopRows:
 		beq doneLines	
 		inx
 		
-		; Set Hires address of current line
+		; Set address of start pixel on Hires line
 		ldy _curLine
 		lda _hiresLinesHI,y
 		sta $cf
 		lda _hiresLinesLO,y
+		adc _screenCol1
 		sta $ce
 		inc _curLine
 		
-			ldy _screenCol1
+			ldy #0
 		loopCols:
-			cpy _screenCol2
+			cpy _screenWidth
 			bpl doneCols
 
 				;---------------------
