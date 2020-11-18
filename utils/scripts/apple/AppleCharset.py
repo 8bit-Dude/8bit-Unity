@@ -69,7 +69,7 @@ for k in range(0, 8):
                 # Right position
                 block2 = deepcopy(res[1])
                 for j in range(7):
-                    SetSHRColor(block2, (j+4)%7, pixels[j])
+                    SetSHRColor(block2, (j+3)%7, pixels[j])
 
                 # Save in respective banks
                 dataL.append(chr(block1[0]))
@@ -84,20 +84,20 @@ for k in range(0, 8):
                 for j in range(7):
                     SetDHRColor(block1, j, pixels[j])
                     
-                # Left position
+                # Right position
                 block2 = [0,0,0,0]
                 for j in range(7):
                     SetDHRColor(block2, (j+3)%7, pixels[j])
 
                 # Save in respective banks
                 auxL.append(chr(block1[0]))
-                mainL.append(chr(block1[1]))
                 auxL.append(chr(block2[0]))
+                mainL.append(chr(block1[1]))
                 mainL.append(chr(block2[1]))
                 
                 auxR.append(chr(block2[2]))
-                mainR.append(chr(block2[3]))
                 auxR.append(chr(block1[2]))
+                mainR.append(chr(block2[3]))
                 mainR.append(chr(block1[3]))
 
     if mode == 'double':  

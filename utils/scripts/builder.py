@@ -693,7 +693,7 @@ class Application:
 
             # Build Unity Library
             CList = ['bitmap.c', 'charmap.c', 'chunks.c', 'geom2d.c', 'joystick.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'scaling.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Atari\\directory.c', 'Atari\\files.c']
-            SList = ['atan2.s', 'chars.s', 'tiles.s', 'Atari\\DLI.s', 'Atari\\ROM.s', 'Atari\\xbios.s']
+            SList = ['atan2.s', 'chars.s', 'tiles.s', 'Atari\\DLI.s', 'Atari\\ROM.s', 'Atari\\scroll.s', 'Atari\\xbios.s']
                          
             for file in CList:
                 fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atarixl -I unity unity\\' + file + '\n')
@@ -803,7 +803,7 @@ class Application:
 
             # Build Unity Library
             CList = ['bitmap.c', 'charmap.c', 'chunks.c', 'geom2d.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'scaling.c', 'sfx.c', 'sprites.c', 'widgets.c', 'C64\\directory.c', 'C64\\VIC2.c']
-            SList = ['atan2.s', 'chars.s', 'tiles.s', 'C64\\joystick.s', 'C64\\ROM.s', 'C64\\SID.s']
+            SList = ['atan2.s', 'chars.s', 'tiles.s', 'C64\\joystick.s', 'C64\\scroll.s', 'C64\\ROM.s', 'C64\\SID.s']
                          
             for file in CList:
                 fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t c64 -I unity unity\\' + file + '\n')
