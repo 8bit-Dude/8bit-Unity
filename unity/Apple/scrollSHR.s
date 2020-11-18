@@ -29,11 +29,11 @@
 	.import _hiresLinesHI, _hiresLinesLO
 	.import _screenCol1, _screenCol2
 	.import _screenRow1, _screenRow2
-	.import _charsetData, _charmapWidth
+	.import _charsetData, _blockWidth
 	
 	.segment	"BSS"	
 	
-_tmp: .res 1
+_tmpY: .res 1
 _curRow: .res 1
 _curLine: .res 1
 	
@@ -98,10 +98,10 @@ loopRows:
 				;---------------------
 				; Handle Left Char
 				lda ($ef),y		; Get char value
-				sty _tmp		
+				sty _tmpY		
 				tay 
 				lda ($fb),y		; Get L pixels for that char
-				ldy _tmp
+				ldy _tmpY
 				sta ($ce),y		; Save in Hires mem
 
 				; Move to next col
@@ -111,10 +111,10 @@ loopRows:
 				; Handle Right Char
 				lda ($ef),y		; Get char value
 				
-				sty _tmp
+				sty _tmpY
 				tay 
 				lda ($fd),y		; Get R pixels for that char
-				ldy _tmp
+				ldy _tmpY
 				sta ($ce),y		; Save in Hires mem
 
 				; Move to next col
@@ -150,7 +150,7 @@ loopRows:
 		; Update address of charmap line
 		clc	
 		lda $ef			
-		adc _charmapWidth	; Add charmap line offset
+		adc _blockWidth		; Add charmap line offset
 		sta $ef	
 		bcc nocarryCM		; Check if carry to high byte
 		inc $f0

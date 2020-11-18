@@ -26,9 +26,8 @@
 
 	.export _Scroll
 
-	.import _screenCol1, _screenCol2
-	.import _screenRow1, _screenRow2
-	.import _charsetData, _charmapWidth
+	.import _screenHeight, _screenWidth
+	.import _charsetData, _blockWidth
 	
 	.segment	"BSS"	
 	
@@ -49,12 +48,12 @@ _curRow: .res 1
 
 .proc _Scroll: near
 
-	lda _screenRow1
+	lda #0
 	sta _curRow
 	
 loopRows: 
 	lda _curRow
-	cmp _screenRow2
+	cmp _screenHeight
 	bpl doneRows
 	inc _curRow
 	
@@ -70,9 +69,9 @@ loopRows:
 		beq doneLines	
 		inx 
 		
-			ldy _screenCol1
+			ldy #0
 		loopCols:
-			cpy _screenCol2
+			cpy _screenWidth
 			bpl doneCols
 
 				; Copy Char
@@ -116,7 +115,7 @@ loopRows:
 		; Update address of location in charmap
 		clc	
 		lda $b5			
-		adc _charmapWidth
+		adc _blockWidth
 		sta $b5	
 		bcc nocarryCM	; Check if carry to high byte
 		inc $b6

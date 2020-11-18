@@ -94,6 +94,7 @@ void InitCharmap(void);
 void EnterCharmapMode(void);
 void ExitCharmapMode(void);
 void LoadCharmap(char *filename, unsigned int w, unsigned int h);
+void LoadTileset(char *filename, unsigned int n, unsigned int w, unsigned int h);
 void LoadCharset(char* filename, char* palette);
 void ClearCharmap(void);
 void ScrollCharmap(unsigned char x, unsigned char y);

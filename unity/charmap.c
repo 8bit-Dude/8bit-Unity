@@ -30,18 +30,54 @@
   #pragma code-name("LC")
 #endif
 
+#if defined(__APPLE2__)
+  #define tilesetDataZP 0xef
+  #define charmapDataZP 0xce
+  #define decodeLine1ZP 0xfb
+  #define decodeLine2ZP 0xfd
+#elif defined(__ATARI__)
+  #define tilesetDataZP 0xe0
+  #define charmapDataZP 0xe2
+  #define decodeLine1ZP 0xe4
+  #define decodeLine2ZP 0xe6
+#elif defined(__CBM__)
+  #define tilesetDataZP 0x61
+  #define charmapDataZP 0x63
+  #define decodeLine1ZP 0xfb
+  #define decodeLine2ZP 0xfd
+#elif defined(__LYNX__)
+  #define tilesetDataZP 0xb3
+  #define charmapDataZP 0xb5
+  #define decodeLine1ZP 0xb7
+  #define decodeLine2ZP 0xb9
+#elif defined(__ORIC__)
+  #define tilesetDataZP 0xef
+  #define charmapDataZP 0xb5
+  #define decodeLine1ZP 0xb7
+  #define decodeLine2ZP 0xb9
+#endif
+
+// Assembly function (see tiles.s)
+void __fastcall__ DecodeTiles(void);
+
+// Map size and location properties
 unsigned char worldX, worldY, worldWidth, worldHeight;
 unsigned char tileWidth, tileHeight, charmapWidth, charmapHeight;
 unsigned char screenCol1 = 0, screenCol2 = CHR_COLS, screenWidth = CHR_COLS;
 unsigned char screenRow1 = 0, screenRow2 = CHR_ROWS, screenHeight = CHR_ROWS;
+
+// Scrolling properties
+unsigned char blockWidth, tileCols, tileRows;
+unsigned char decodeWidth, decodeHeight, *decodeScreen;
   
+// Pointers to various data sets
 unsigned char *charmapData;
 unsigned char *charsetData;
 unsigned char *charflagData;
-unsigned char *tilesetData;
 #if defined __CBM__	
   unsigned char *charattData;
 #endif
+unsigned char *tilesetData;
 
 #if (defined __APPLE2__) || (defined __ORIC__)
   extern unsigned char sprDrawn[];
@@ -196,7 +232,12 @@ void LoadCharmap(char *filename, unsigned int w, unsigned int h)
 	FILE* fp;
 #endif
 	unsigned int size = w*h;
-	charmapWidth = w; charmapHeight = h;	
+	
+	// Update Dimensions of World Map
+	charmapWidth = w; 
+	charmapHeight = h;	
+	worldWidth = w*tileHeight;
+	worldHeight = h*tileWidth;
 	
 	// Assign memory
 #if defined  __ATARI__
@@ -224,10 +265,6 @@ void LoadCharmap(char *filename, unsigned int w, unsigned int h)
 #elif defined __ORIC__
 	FileRead(filename, charmapData);	
 #endif
-
-	// Update Dimensions of World Map
-	worldWidth = w;
-	worldHeight = h;
 }
 
 // Load tileset from file
@@ -260,30 +297,59 @@ void LoadTileset(char *filename, unsigned int n, unsigned int w, unsigned int h)
 #elif defined __ORIC__
 	FileRead(filename, tilesetData);	
 #endif
+
+	// Allocate buffer for tile to char conversion
+	decodeHeight = screenHeight+tileHeight;
+	decodeWidth = screenWidth+tileWidth;
+	tileRows = decodeHeight/tileHeight;
+	tileCols = decodeWidth/tileWidth;
+	if (decodeScreen) free(decodeScreen);	
+	decodeScreen = malloc(decodeWidth*decodeHeight);
 }
 
 unsigned char GetCharFlags(unsigned char x, unsigned char y)
 {
 	// Get flags of specified tile
 	unsigned char chr;
-	chr = charmapData[charmapWidth*y + x];
+	if (tilesetData) {
+		chr = charmapData[charmapWidth*(y/2u) + x/2u];
+		chr = tilesetData[4*chr+(2*(y%2))+x%2];
+	} else {
+		chr = charmapData[charmapWidth*y + x];
+	}
 	return charflagData[chr];
 }
 
 void ScrollCharmap(unsigned char x, unsigned char y)
 {
 	unsigned char i, j, k, chr;
-	unsigned int src, dst, col, tmp1, tmp2;
+	unsigned int src, dst, col;
 	
 	// Check if map was moved?
 	if (x == worldX && y == worldY)
 		return;
 	worldX = x;
 	worldY = y;
-
-	// Set pointer to char data
-	src = &charmapData[charmapWidth*worldY + (worldX - screenCol1)];
-
+	
+	// Using tileset?
+	if (tilesetData) {
+		// Decode tilemap to screen buffer
+		POKEW(tilesetDataZP, tilesetData);
+		POKEW(charmapDataZP, &charmapData[charmapWidth*(worldY/2u) + worldX/2u]);
+		POKEW(decodeLine1ZP, &decodeScreen[0]);
+		POKEW(decodeLine2ZP, &decodeScreen[screenWidth+tileWidth]);	
+		blockWidth = 2*decodeWidth;
+		DecodeTiles();
+		
+		// Assign offset area of screen buffer
+		src = (char*)&decodeScreen[(screenWidth+tileWidth)*(y%2)+x%2];
+		blockWidth = screenWidth+tileWidth;
+	} else {
+		// Point directly to charmap data
+		src = &charmapData[charmapWidth*worldY + worldX];
+		blockWidth = charmapWidth;
+	}
+	
 #if defined __APPLE2__
 	// Reset sprite background
 	for (i=0; i<SPRITE_NUM; i++)
@@ -294,35 +360,36 @@ void ScrollCharmap(unsigned char x, unsigned char y)
   #else
 	ScrollSHR();
   #endif
+	clk += 20;
 
 #elif defined __ATARI__	
-	dst = SCREENRAM + screenRow1*40;
-	for (j=screenRow1; j<screenRow2; j++) {
-		for (i=screenCol1; i<screenCol2; i++) {
+	dst = SCREENRAM + screenRow1*40 + screenCol1;
+	for (j=0; j<screenHeight; j++) {
+		for (i=0; i<screenWidth; i++) {
 			chr = PEEK(src+i);
 			k = PEEK(CHARATRRAM+chr);	// 0 or 128
 			POKE(dst+i, chr+k);
 		}
-		src += charmapWidth;
+		src += blockWidth;
 		dst += 40;
 	}
 	
 #elif defined __CBM__	
-	dst = SCREENRAM + screenRow1*40;
-	col = COLORRAM + screenRow1*40;
-	for (j=screenRow1; j<screenRow2; j++) {
-		for (i=screenCol1; i<screenCol2; i++) {
+	dst = SCREENRAM + screenRow1*40 + screenCol1;
+	col = COLORRAM + screenRow1*40 + screenCol1;
+	for (j=0; j<screenHeight; j++) {
+		for (i=0; i<screenWidth; i++) {
 			chr = PEEK(src+i);
 			POKE(dst+i, chr);
 			POKE(col+i, charattData[chr]);
 		}
-		src += charmapWidth;
+		src += blockWidth;
 		dst += 40;
 		col += 40;
 	}
 		
 #elif defined __LYNX__	
-	dst = BITMAPRAM + screenRow1*6*82 + 1;
+	dst = BITMAPRAM + screenRow1*6*82 + screenCol1*2 + 1;
 	POKEW(0xb5, src);
 	POKEW(0xb7, dst);
 	Scroll();	
@@ -331,7 +398,7 @@ void ScrollCharmap(unsigned char x, unsigned char y)
 	// Reset sprite background
 	for (i=0; i<SPRITE_NUM; i++)
 		sprDrawn[i] = 0;
-	dst = BITMAPRAM + screenRow1*320 + 1;
+	dst = BITMAPRAM + screenRow1*320 + screenCol1 + 1;
 	POKEW(0xb5, src);
 	POKEW(0xb7, dst);
 	Scroll();

@@ -26,18 +26,17 @@
 
 	.export _Scroll
 	
-	.import _screenCol1, _screenCol2
-	.import _screenRow1, _screenRow2
-	.import _charsetData, _charmapWidth	
+	.import _screenWidth, _screenHeight
+	.import _blockWidth, _charsetData
 	
-	.segment	"BSS"	
+	.segment	"BSS"
 
-_tmpY: .res 1	
+_tmpY: .res 1
 _tmpChr: .res 1
-_tmpCol: .res 1
+_curCol: .res 1
 _curRow: .res 1
-	
-	.segment	"CODE"	
+
+	.segment	"CODE"		
 	
 ; ---------------------------------------------------------------
 ; void __near__ _Scroll (void)
@@ -51,12 +50,12 @@ _curRow: .res 1
 
 .proc _Scroll: near
 
-	lda _screenRow1
+	lda #0
 	sta _curRow
 	
 loopRows: 
 	lda _curRow
-	cmp _screenRow2
+	cmp _screenHeight
 	bpl doneRows
 	inc _curRow
 	
@@ -72,45 +71,44 @@ loopRows:
 			beq doneLines	
 			inx 
 			
-				ldy _screenCol1
+				ldy #0
 			loopCols:
-				cpy _screenCol2
+				cpy _screenWidth
 				bpl doneCols			
+				sty _curCol
 			
-				; Get Char Value
-				lda ($b5),y
-				sty _tmpY
-				
-				; Set Chr Offset
-				asl A			; Multiply by 2	(2 bytes per col!)
-				sta _tmpChr
-				
-				; Set Col Offset
-				tya
-				asl A			; Multiply by 2	(2 bytes per col!)
-				sta _tmpCol
-				
-				; Copy 1st byte
-				ldy _tmpChr
-				lda ($bb),y		
-				ldy _tmpCol				
-				sta ($b7),y		
+					; Get Char Value
+					lda ($b5),y
+					
+					; Set Chr Offset
+					asl A			; Multiply by 2	(2 bytes per col!)
+					sta _tmpChr
+					
+					; Set Col Offset
+					tya
+					asl A			; Multiply by 2	(2 bytes per col!)
+					sta _tmpY
+					
+					; Copy 1st byte
+					ldy _tmpChr
+					lda ($bb),y		
+					ldy _tmpY				
+					sta ($b7),y		
 
-				; Copy 2nd byte
-				ldy _tmpChr
-				iny 
-				lda ($bb),y		
-				ldy _tmpCol				
-				iny 
-				sta ($b7),y			
+					; Copy 2nd byte
+					ldy _tmpChr
+					iny 
+					lda ($bb),y		
+					ldy _tmpY				
+					iny 
+					sta ($b7),y			
 
 				; Move to next col
-				ldy _tmpY
+				ldy _curCol
 				iny
-				
-			jmp loopCols	
+				jmp loopCols	
 
-		doneCols:
+			doneCols:
 
 			; Update address of charblock (+256)
 			inc $bc
@@ -132,7 +130,7 @@ loopRows:
 		; Update address of location in charmap
 		clc	
 		lda $b5			
-		adc _charmapWidth
+		adc _blockWidth
 		sta $b5	
 		bcc nocarryCM	; Check if carry to high byte
 		inc $b6
