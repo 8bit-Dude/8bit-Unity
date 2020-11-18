@@ -53,7 +53,7 @@ for i in range(0, len(charBlocks), 2):
 
 ################################
 # Convert character flags
-flagData = [chr(0)] * 256
+flagData = [chr(0)] * 128
 with open(input.replace('-lynx.png', '.csv')) as csvfile:
     i = 0
     rows = csv.reader(csvfile, delimiter=',')

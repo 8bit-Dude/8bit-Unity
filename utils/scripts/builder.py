@@ -304,7 +304,7 @@ class Application:
         self.listbox_Code.delete(0, ACTIVE)
                 
     def CharmapAdd(self):
-        filename = askopenfilename(initialdir = "../../", title = "Select Character Map", filetypes = (("All files","*.map"),)) 
+        filename = askopenfilename(initialdir = "../../", title = "Select Character Map", filetypes = (("Charmap/Tileset files","*.map;*.tls"),)) 
         if filename is not '':
             filename = filename.replace(self.cwd, '')
             self.listbox_Charmap.insert(END, filename)
@@ -557,7 +557,7 @@ class Application:
                 # Charset
                 if len(charset) > 0:
                     fb = FileBase(charset[0], '-apple.png')
-                    fp.write('utils\\py27\python utils\\scripts\\apple\\AppleCharset.py ' + graphics + ' ' + charset[0] + ' build/apple/' + fb + '.dat\n')
+                    fp.write('utils\\py27\python utils\\scripts\\apple\\AppleCharset.py ' + graphics + ' ' + charset[0] + ' build/apple/' + fb + '.chr\n')
                     
                 # Sprites
                 if len(sprites) > 0:
@@ -574,18 +574,18 @@ class Application:
 
                 # Build Unity Library
                 CList = ['bitmap.c', 'charmap.c', 'chunks.c', 'geom2d.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'scaling.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Apple\\CLOCK.c', 'Apple\\directory.c', 'Apple\\files.c', 'Apple\\hires.c', 'Apple\\pixelDHR.c', 'Apple\\pixelSHR.c']
-                SList = ['atan2.s', 'chars.s', 'Apple\\blitDHR.s', 'Apple\\blitSHR.s', 'Apple\\DUET.s', 'Apple\\hiresLines.s', 'Apple\\joystick.s', 'Apple\\MOCKING.s', 'Apple\\PADDLE.s', 'Apple\\prodos.s', 'Apple\\scrollDHR.s', 'Apple\\scrollSHR.s']
+                SList = ['atan2.s', 'chars.s', 'tiles.s', 'Apple\\blitDHR.s', 'Apple\\blitSHR.s', 'Apple\\DUET.s', 'Apple\\hiresLines.s', 'Apple\\joystick.s', 'Apple\\MOCKING.s', 'Apple\\PADDLE.s', 'Apple\\prodos.s', 'Apple\\scrollDHR.s', 'Apple\\scrollSHR.s']
                              
                 for file in CList:
                     if graphics == 'double':
                         fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t apple2 -D __DHR__ -I unity unity\\' + file + '\n')
                     else:
                         fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t apple2 -I unity unity\\' + file + '\n')
-                    fp.write('utils\\cc65\\bin\\ca65 unity\\' + file[0:-2] + '.s\n')
+                    fp.write('utils\\cc65\\bin\\ca65 -t apple2 unity\\' + file[0:-2] + '.s\n')
                     fp.write('del unity\\' + file[0:-2] + '.s\n')
 
                 for file in SList:            
-                    fp.write('utils\\cc65\\bin\\ca65 unity\\' + file + '\n')
+                    fp.write('utils\\cc65\\bin\\ca65 -t apple2 unity\\' + file + '\n')
                 
                 fp.write('utils\\cc65\\bin\\ar65 r build/apple/unity.lib ')
                 for file in CList:
@@ -596,9 +596,9 @@ class Application:
                 
                 # Compilation
                 if graphics == 'double':
-                    symbols = '-D __DHR__ -Wl -D,__STACKSIZE__=$0400,-D,__HIMEM__=$A800,-D,__LCADDR__=$D000,-D,__LCSIZE__=$1000'
+                    symbols = '-D __DHR__ -Wl -D,__STACKSIZE__=$0400,-D,__HIMEM__=$BC00,-D,__LCADDR__=$D000,-D,__LCSIZE__=$1000'
                 else:
-                    symbols = '-Wl -D,__STACKSIZE__=$0400,-D,__HIMEM__=$A800,-D,__LCADDR__=$D000,-D,__LCSIZE__=$1000'
+                    symbols = '-Wl -D,__STACKSIZE__=$0400,-D,__HIMEM__=$BC00,-D,__LCADDR__=$D000,-D,__LCSIZE__=$1000'
                 comp = 'utils\\cc65\\bin\\cl65 -o build/apple/' + diskname.lower() + '.bin -m build/' + diskname.lower() + '-apple' + target + '.map -Cl -O -t apple2 ' + symbols + ' -C apple2-hgr.cfg -I unity '
                 for item in code:
                     comp += item + ' '
@@ -621,10 +621,10 @@ class Application:
                     fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p build/' + diskname + '-apple' + target + '.do ' + fb.upper() + '.IMG bin < build/apple/' + fb + '.img\n')
                 if len(charset) > 0:
                     fb = FileBase(charset[0], '-apple.png')
-                    fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p build/' + diskname + '-apple' + target + '.do ' + fb.upper() + '.DAT bin < build/apple/' + fb + '.dat\n')
+                    fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p build/' + diskname + '-apple' + target + '.do ' + fb.upper() + '.CHR bin < build/apple/' + fb + '.chr\n')
                 for item in charmaps:
-                    fb = FileBase(item, '.map')
-                    fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p build/' + diskname + '-apple' + target + '.do ' + fb.upper() + '.MAP bin < ' + item + '\n')
+                    fb = FileBase(item, '')
+                    fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p build/' + diskname + '-apple' + target + '.do ' + fb.upper() + ' bin < ' + item + '\n')
                 for item in music:
                     fb = FileBase(item, '-apple.m')
                     fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p build/' + diskname + '-apple' + target + '.do ' + fb.upper() + '.MUS bin < ' +item + '\n')
@@ -661,12 +661,14 @@ class Application:
             for item in bitmaps:
                 fp.write('utils\\py27\\python utils\\scripts\\atari\\AtariBitmap.py ' + item + ' build/atari/' + FileBase(item, '-atari.png') + '.img\n')
                 
-            # Charmaps/Charset
+            # Charmaps/Tilesets
             for item in charmaps:
                 fp.write('copy ' + item.replace('/', '\\') + ' build\\atari\n')
+                
+            # Charsets
             if len(charset) > 0:
                 fb = FileBase(charset[0], '-atari.png')
-                fp.write('utils\\py27\python utils\\scripts\\atari\\AtariCharset.py ' + charset[0] + ' build/atari/' + fb + '.dat\n')
+                fp.write('utils\\py27\python utils\\scripts\\atari\\AtariCharset.py ' + charset[0] + ' build/atari/' + fb + '.chr\n')
                 
             # Sprites    
             if len(sprites) > 0:
@@ -691,15 +693,15 @@ class Application:
 
             # Build Unity Library
             CList = ['bitmap.c', 'charmap.c', 'chunks.c', 'geom2d.c', 'joystick.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'scaling.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Atari\\directory.c', 'Atari\\files.c']
-            SList = ['atan2.s', 'chars.s', 'Atari\\DLI.s', 'Atari\\ROM.s', 'Atari\\xbios.s']
+            SList = ['atan2.s', 'chars.s', 'tiles.s', 'Atari\\DLI.s', 'Atari\\ROM.s', 'Atari\\xbios.s']
                          
             for file in CList:
                 fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atarixl -I unity unity\\' + file + '\n')
-                fp.write('utils\\cc65\\bin\\ca65 unity\\' + file[0:-2] + '.s\n')
+                fp.write('utils\\cc65\\bin\\ca65 -t atarixl unity\\' + file[0:-2] + '.s\n')
                 fp.write('del unity\\' + file[0:-2] + '.s\n')
 
             for file in SList:            
-                fp.write('utils\\cc65\\bin\\ca65 unity\\' + file + '\n')
+                fp.write('utils\\cc65\\bin\\ca65 -t atarixl unity\\' + file + '\n')
             
             fp.write('utils\\cc65\\bin\\ar65 r build/atari/unity.lib ')
             for file in CList:
@@ -774,7 +776,7 @@ class Application:
             # Charset    
             if len(charset) > 0:
                 fb = FileBase(charset[0], '-c64.png')
-                fp.write('utils\\py27\python utils\\scripts\\c64\\C64Charset.py ' + charset[0] + ' build/c64/' + fb + '.dat\n')
+                fp.write('utils\\py27\python utils\\scripts\\c64\\C64Charset.py ' + charset[0] + ' build/c64/' + fb + '.chr\n')
                 
             # Sprites
             if len(sprites) > 0:
@@ -801,15 +803,15 @@ class Application:
 
             # Build Unity Library
             CList = ['bitmap.c', 'charmap.c', 'chunks.c', 'geom2d.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'scaling.c', 'sfx.c', 'sprites.c', 'widgets.c', 'C64\\directory.c', 'C64\\VIC2.c']
-            SList = ['atan2.s', 'chars.s', 'C64\\joystick.s', 'C64\\ROM.s', 'C64\\SID.s']
+            SList = ['atan2.s', 'chars.s', 'tiles.s', 'C64\\joystick.s', 'C64\\ROM.s', 'C64\\SID.s']
                          
             for file in CList:
                 fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t c64 -I unity unity\\' + file + '\n')
-                fp.write('utils\\cc65\\bin\\ca65 unity\\' + file[0:-2] + '.s\n')
+                fp.write('utils\\cc65\\bin\\ca65 -t c64 unity\\' + file[0:-2] + '.s\n')
                 fp.write('del unity\\' + file[0:-2] + '.s\n')
 
             for file in SList:            
-                fp.write('utils\\cc65\\bin\\ca65 unity\\' + file + '\n')
+                fp.write('utils\\cc65\\bin\\ca65 -t c64 unity\\' + file + '\n')
             
             fp.write('utils\\cc65\\bin\\ar65 r build/c64/unity.lib ')
             for file in CList:
@@ -842,7 +844,7 @@ class Application:
                 fp.write('-write build/c64/' + fb + '.img ' + fb + '.img ')
             if len(charset) > 0:
                 fb = FileBase(charset[0], '-c64.png')            
-                fp.write('-write build/c64/' + fb + '.dat ' + fb + '.dat ')                           
+                fp.write('-write build/c64/' + fb + '.chr ' + fb + '.chr ')                           
             for item in charmaps:
                 fb = FileBase(item, '')
                 fp.write('-write ' + item + ' ' + fb + ' ')
@@ -895,7 +897,8 @@ class Application:
                 
             # Charset
             if len(charset) > 0:
-                fp.write('..\\..\\utils\\py27\python ..\\..\\utils\\scripts\\lynx\\LynxCharset.py ..\\..\\' + charset[0].replace('/', '\\') + ' charset.dat\n')
+                fb = FileBase(charset[0], '-lynx.png')
+                fp.write('..\\..\\utils\\py27\python ..\\..\\utils\\scripts\\lynx\\LynxCharset.py ..\\..\\' + charset[0].replace('/', '\\') + ' ' +fb + '.chr\n')
                 fp.write('\n')
                 
             # Sprites
@@ -912,7 +915,7 @@ class Application:
                     fp.write('ren sprites.spr sprites000000.spr\n')
                 fp.write('\n')
 
-            # Charmaps
+            # Charmaps/Tilesets
             for item in charmaps:
                 fb = FileBase(item, '')
                 fp.write('copy ..\\..\\' + item.replace('/', '\\') + ' ' + fb + '\n')
@@ -924,7 +927,7 @@ class Application:
             if len(chunks) > 0:
                 fp.write('..\\..\\utils\\py27\\python ..\\..\\utils\\scripts\\ProcessChunks.py lynx ../../' + chunks[0] + ' ../../build/lynx/\n')
                 fp.write('for /f "tokens=*" %%A in (chunks.lst) do set CHUNKNAMES=!CHUNKNAMES!_shkName!CHUNKNUM!,&&set /a CHUNKNUM+=1\n')
-            fp.write('set /a FILENUM=!CHUNKNUM!+' + str(len(bitmaps)+len(charmaps)+len(music)+len(shared)) + '\n')
+            fp.write('set /a FILENUM=!CHUNKNUM!+' + str(len(bitmaps)+len(charmaps)+len(charset)+len(music)+len(shared)) + '\n')
 
             # Copy Chipper sfx and music data
             fp.write('copy ..\\..\\unity\\Lynx\\chipper.s soundbs.mac\n')    
@@ -936,7 +939,7 @@ class Application:
             fp.write('del *.bmp /F /Q\n')
             fp.write('del *.pal /F /Q\n')
             fp.write('\n')
-            
+                
             # Copy Shared files
             if len(shared) > 0:             
                 for item in shared:
@@ -952,6 +955,9 @@ class Application:
             for item in charmaps:
                 fb = FileBase(item, '')
                 filelist += fb + ','
+            for i in range(len(charset)):
+                fb = FileBase(charset[i], '-lynx.png')
+                filelist += fb + '.chr,'
             for i in range(len(music)):
                 filelist += 'music' + str(i).zfill(2) + '.asm,'
             for item in shared:
@@ -965,7 +971,6 @@ class Application:
             fp.write('@echo .global _fileNum  >> data.asm\n')
             fp.write('@echo .global _fileSizes >> data.asm\n')
             fp.write('@echo .global _fileNames >> data.asm\n')
-            fp.write('@echo .global _charsetData >> data.asm\n')
             fp.write('@echo .global _spriteNum  >> data.asm\n')
             fp.write('@echo .global _spriteData >> data.asm\n')
             fp.write('@echo .global _cursorData >> data.asm\n')
@@ -977,7 +982,7 @@ class Application:
             fp.write('@echo _fileNum: .byte %FILENUM% >> data.asm\n')  
 
             # List of file names and data
-            if len(bitmaps) > 0 or len(charmaps) > 0 or len(music) > 0 or len(shared) > 0 or len(chunks) > 0:
+            if len(bitmaps) > 0 or len(charmaps) > 0 or len(charset) > 0 or len(music) > 0 or len(shared) > 0 or len(chunks) > 0:
                 # Declare all Bitmap, Shared and Chunk files
                 fp.write('@echo _fileSizes: .word %FILESIZES:~0,-1% >> data.asm\n')
                 fp.write('@echo _fileNames: .addr ')
@@ -991,6 +996,11 @@ class Application:
                     if counter > 0:
                         fp.write(',')
                     fp.write('_mapName' + str(i).zfill(2))
+                    counter += 1
+                for i in range(len(charset)):
+                    if counter > 0:
+                        fp.write(',')
+                    fp.write('_chrName' + str(i).zfill(2))
                     counter += 1
                 for i in range(len(music)):
                     if counter > 0:
@@ -1014,10 +1024,15 @@ class Application:
                     fb = FileBase(bitmaps[i], '-lynx.png')
                     fp.write('@echo _bmpName' + str(i).zfill(2) + ': .byte "' + fb + '.img",0 >> data.asm\n')
 
-                # Write list of Charmaps
+                # Write list of Charmaps/Tilesets
                 for i in range(len(charmaps)):
                     fb = FileBase(charmaps[i], '')
                     fp.write('@echo _mapName' + str(i).zfill(2) + ': .byte "' + fb + '",0 >> data.asm\n')
+
+                # Write list of Charsets
+                for i in range(len(charset)):
+                    fb = FileBase(charset[i], '-lynx.png')
+                    fp.write('@echo _chrName' + str(i).zfill(2) + ': .byte "' + fb + '.chr",0 >> data.asm\n')
 
                 # Write list of Musics
                 for i in range(len(music)):
@@ -1047,6 +1062,13 @@ class Application:
                     fb = FileBase(charmaps[i], '')
                     fp.write('@echo .segment "BMP' + str(len(bitmaps)+i) + 'DATA" >> data.asm\n')
                     fp.write('@echo _mapData' + str(i).zfill(2) + ': .incbin "' + fb +'" >> data.asm\n')
+
+                # Link list of charsets
+                fp.write('@echo ; >> data.asm\n')
+                for i in range(len(charset)):
+                    fb = FileBase(charset[i], '-lynx.png')
+                    fp.write('@echo .segment "BMP' + str(len(bitmaps)+len(charmaps)+i) + 'DATA" >> data.asm\n')
+                    fp.write('@echo _chrData' + str(i).zfill(2) + ': .incbin "' + fb + '.chr" >> data.asm\n')                    
                     
                 # Link list of musics
                 for i in range(len(music)):
@@ -1068,14 +1090,6 @@ class Application:
                 fp.write('@echo _fileSizes: .word 0 >> data.asm\n')
                 fp.write('@echo _fileNames: .addr _dummyName >> data.asm\n')
                 fp.write('@echo _dummyName: .byte 0 >> data.asm\n')
-            fp.write('@echo ; >> data.asm\n')
-            
-            # Charset Data
-            fp.write('@echo .segment "RODATA" >> data.asm\n')                
-            if len(charset) > 0:            
-                fp.write('@echo _charsetData: .incbin "charset.dat" >> data.asm\n')
-            else:
-                fp.write('@echo _charsetData: .byte 0 >> data.asm\n')
             fp.write('@echo ; >> data.asm\n')
             
             # Sprite Data 
@@ -1105,8 +1119,8 @@ class Application:
             fp.write('\n')
 
             # Generate config and directory Files
-            fp.write('utils\\py27\\python utils/scripts/lynx/LynxConfig.py unity/Lynx/lynx.cfg build/lynx/lynx.cfg ' + str(len(bitmaps)+len(charmaps)) + ' ' + str(len(music)) + ' ' + str(len(shared)) + ' %CHUNKNUM%\n')
-            fp.write('utils\\py27\\python utils/scripts/lynx/LynxDirectory.py unity/Lynx/directory.s build/lynx/directory.asm ' + str(len(bitmaps)+len(charmaps)) + ' ' + str(len(music)) + ' ' + str(len(shared)) + ' %CHUNKNUM%\n')
+            fp.write('utils\\py27\\python utils/scripts/lynx/LynxConfig.py unity/Lynx/lynx.cfg build/lynx/lynx.cfg ' + str(len(bitmaps)+len(charmaps)+len(charset)) + ' ' + str(len(music)) + ' ' + str(len(shared)) + ' %CHUNKNUM%\n')
+            fp.write('utils\\py27\\python utils/scripts/lynx/LynxDirectory.py unity/Lynx/directory.s build/lynx/directory.asm ' + str(len(bitmaps)+len(charmaps)+len(charset)) + ' ' + str(len(music)) + ' ' + str(len(shared)) + ' %CHUNKNUM%\n')
                         
             # Info
             fp.write('\necho DONE!\n\n')
@@ -1114,15 +1128,15 @@ class Application:
 
             # Build Unity Library
             CList = ['bitmap.c', 'charmap.c', 'chunks.c', 'geom2d.c', 'hub.c', 'joystick.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'scaling.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Lynx\\display.c', 'Lynx\\files.c']
-            SList = ['atan2.s', 'chars.s', 'Lynx\\header.s', 'Lynx\\scroll.s', 'Lynx\\serial.s', 'Lynx\\suzy.s']
+            SList = ['atan2.s', 'chars.s', 'tiles.s', 'Lynx\\header.s', 'Lynx\\scroll.s', 'Lynx\\serial.s', 'Lynx\\suzy.s']
                          
             for file in CList:
                 fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t lynx -I unity unity\\' + file + '\n')
-                fp.write('utils\\cc65\\bin\\ca65 --cpu 65SC02 unity\\' + file[0:-2] + '.s\n')
+                fp.write('utils\\cc65\\bin\\ca65 -t lynx --cpu 65SC02 unity\\' + file[0:-2] + '.s\n')
                 fp.write('del unity\\' + file[0:-2] + '.s\n')
 
             for file in SList:            
-                fp.write('utils\\cc65\\bin\\ca65 --cpu 65SC02 unity\\' + file + '\n')
+                fp.write('utils\\cc65\\bin\\ca65 -t lynx --cpu 65SC02 unity\\' + file + '\n')
             
             fp.write('utils\\cc65\\bin\\ar65 r build/lynx/unity.lib ')
             for file in CList:
@@ -1176,8 +1190,8 @@ class Application:
                 
             if len(charset) > 0:
                 fb = FileBase(charset[0], '-oric.png')
-                fp.write('..\\..\\py27\python OricCharset.py ' + self.entry_OricDithering.get() +  ' ../../../' + charset[0] + ' ../../../build/oric/' + fb + '.dat\n') 
-                fp.write('header -a0 ../../../build/oric/' + fb + '.dat ../../../build/oric/' + fb + '.dat $A000\n')
+                fp.write('..\\..\\py27\python OricCharset.py ' + self.combobox_OricImageQuality.get() + ' ' + self.entry_OricDithering.get() +  ' ../../../' + charset[0] + ' ../../../build/oric/' + fb + '.dat\n') 
+                fp.write('header -a0 ../../../build/oric/' + fb + '.dat ../../../build/oric/' + fb + '.chr $A000\n')
                 
             if len(chunks) > 0:
                 fp.write('..\\..\\py27\\python ProcessChunks.py ' + self.combobox_OricImageQuality.get() + ' ' + self.entry_OricDithering.get() + ' ../../../' + chunks[0] + ' ../../../build/oric/\n')
@@ -1208,15 +1222,15 @@ class Application:
 
             # Build Unity Library
             CList = ['bitmap.c', 'charmap.c', 'chunks.c', 'geom2d.c', 'hub.c', 'joystick.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'scaling.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Oric\\directory.c', 'Oric\\files.c']
-            SList = ['atan2.s', 'chars.s', 'Oric\\blit.s', 'Oric\\paseIJK.s', 'Oric\\keyboard.s', 'Oric\\scroll.s', 'Oric\\sedoric.s', 'Oric\\MYM.s']
+            SList = ['atan2.s', 'chars.s', 'tiles.s', 'Oric\\blit.s', 'Oric\\paseIJK.s', 'Oric\\keyboard.s', 'Oric\\scroll.s', 'Oric\\sedoric.s', 'Oric\\MYM.s']
                          
             for file in CList:
                 fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atmos -I unity unity\\' + file + '\n')
-                fp.write('utils\\cc65\\bin\\ca65 unity\\' + file[0:-2] + '.s\n')
+                fp.write('utils\\cc65\\bin\\ca65 -t atmos unity\\' + file[0:-2] + '.s\n')
                 fp.write('del unity\\' + file[0:-2] + '.s\n')
 
             for file in SList:            
-                fp.write('utils\\cc65\\bin\\ca65 unity\\' + file + '\n')
+                fp.write('utils\\cc65\\bin\\ca65 -t atmos unity\\' + file + '\n')
             
             fp.write('utils\\cc65\\bin\\ar65 r build/oric/unity.lib ')
             for file in CList:
@@ -1248,7 +1262,7 @@ class Application:
             for item in bitmaps:
                 cmd += ' build/oric/' + FileBase(item, '-oric.png') + '.img'
             if len(charset) > 0:
-                cmd += ' build/oric/' + FileBase(charset[0], '-oric.png') + '.dat'
+                cmd += ' build/oric/' + FileBase(charset[0], '-oric.png') + '.chr'
             for item in charmaps:
                 cmd += ' build/oric/' + FileBase(item, '')
             for item in music:

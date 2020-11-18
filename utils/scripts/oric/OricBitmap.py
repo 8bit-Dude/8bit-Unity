@@ -109,4 +109,4 @@ try:
     f2.close()
 
 except:
-    print "Error: cannot convert " + input + "... (is it a 117x100 PNG file with 20 color palette?)"
+    print "Error: cannot convert " + input + "... (is it a 240x200 PNG file with 20 color palette?)"

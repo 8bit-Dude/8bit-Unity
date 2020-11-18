@@ -24,12 +24,13 @@
  *   specific prior written permission.
 """
  
-import io, os, sys, csv
+import io, os, sys, csv, subprocess
 from PIL import Image
 
-dither   = sys.argv[1]
-charFile = sys.argv[2]
-output   = sys.argv[3]
+convert  = sys.argv[1]
+dither   = sys.argv[2]
+charFile = sys.argv[3]
+output   = sys.argv[4]
 
 pictFile = output.replace('.dat', '.png')
 flagFile = charFile.replace('-oric.png', '.csv')
@@ -49,7 +50,10 @@ result.save(pictFile)
 
 ###################
 # Call PictOric
-os.system('luajit PictOric.lua ' + dither + ' ' + pictFile + ' ' + output)
+#if convert == "Hires(Noisy)":
+subprocess.call(["luajit.exe", "PictOric.lua", dither, pictFile, output])
+#else:
+#    subprocess.call(["..\\..\\py27\\python", "OricBitmap.py", pictFile, output])
 
 #####################
 # Trim PictOric File

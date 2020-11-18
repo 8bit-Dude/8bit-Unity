@@ -15,7 +15,7 @@
           <object class="ttk.Notebook.Tab" id="Tab_General">
             <property name="text" translatable="yes">General</property>		
 			<child>
-              <object class="tk.Frame" id="Frame_Apple">
+              <object class="tk.Frame" id="Frame_General">
                 <property name="height">500</property>
                 <property name="padx">10</property>
                 <property name="width">450</property>
@@ -77,7 +77,7 @@
 				</child>
                 <child>
                   <object class="tk.LabelFrame" id="LabelFrame_Charmaps">
-                    <property name="text" translatable="yes">Charmaps</property>
+                    <property name="text" translatable="yes">Charmaps/Tilesets</property>
                     <layout>
                       <property name="column">0</property>
                       <property name="propagate">True</property>
@@ -132,7 +132,7 @@
                     <layout>
                       <property name="column">0</property>
                       <property name="propagate">True</property>
-                      <property name="row">2</property>
+                      <property name="row">3</property>
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
@@ -183,7 +183,7 @@
 					<layout>
 					  <property name="column">0</property>
 					  <property name="propagate">True</property>
-					  <property name="row">3</property>
+					  <property name="row">4</property>
 					  <property name="sticky">nw</property>
 					</layout>			
 					<child>

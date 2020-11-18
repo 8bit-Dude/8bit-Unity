@@ -33,15 +33,14 @@ input = sys.argv[2]
 output = sys.argv[3]
 height = int(sys.argv[4])
 
+data = []
+
 try:
     ###################
     # Read source file
     img1 = Image.open(input)
     rawdata = list(img1.getdata())
     colors = max(rawdata)
-
-    # Create sprite file
-    f1 = io.open(output, 'wb')
 
     # Shifted by 0 pix
     for row in range(0, img1.size[1], height):
@@ -57,14 +56,14 @@ try:
                     for j in range(7):
                         SetSHRColor(block, j, pixels[j])
                     for j in [0,1]:
-                        f1.write(chr(block[j]))  
+                        data.append(chr(block[j]))  
                       
                 else:
                     block = [0,0,0,0]
                     for j in range(7):
                         SetDHRColor(block, j, pixels[j])
                     for j in [0,2,1,3]:
-                        f1.write(chr(block[j]))
+                        data.append(chr(block[j]))
 
     # Shifted by 2 pix
     for row in range(0, img1.size[1], height):
@@ -80,14 +79,14 @@ try:
                     for j in range(7):
                         SetSHRColor(block, (j+2)%7, pixels[j])
                     for j in [0,1]:
-                        f1.write(chr(block[j]))  
+                        data.append(chr(block[j]))  
                       
                 else:
                     block = [0,0,0,0]
                     for j in range(7):
                         SetDHRColor(block, (j+2)%7, pixels[j])
                     for j in [0,2,1,3]:
-                        f1.write(chr(block[j]))            
+                        data.append(chr(block[j]))            
             
     # Shifted by 4 pix
     for row in range(0, img1.size[1], height):
@@ -103,14 +102,14 @@ try:
                     for j in range(7):
                         SetSHRColor(block, (j+4)%7, pixels[j])
                     for j in [1,0]:
-                        f1.write(chr(block[j]))  
+                        data.append(chr(block[j]))  
                       
                 else:
                     block = [0,0,0,0]
                     for j in range(7):
                         SetDHRColor(block, (j+4)%7, pixels[j])
                     for j in [2,0,3,1]:
-                        f1.write(chr(block[j]))            
+                        data.append(chr(block[j]))            
 
     # Shifted by 5 pix
     for row in range(0, img1.size[1], height):
@@ -126,15 +125,20 @@ try:
                     for j in range(7):
                         SetSHRColor(block, (j+5)%7, pixels[j])
                     for j in [1,0]:
-                        f1.write(chr(block[j]))  
+                        data.append(chr(block[j]))  
                       
                 else:
                     block = [0,0,0,0]
                     for j in range(7):
                         SetDHRColor(block, (j+5)%7, pixels[j])
                     for j in [2,0,3,1]:
-                        f1.write(chr(block[j]))            
+                        data.append(chr(block[j]))            
 
+    # Output sprite data
+    f1 = io.open(output, 'wb')
+    f1.write(chr(len(data)%256))
+    f1.write(chr(len(data)/256))
+    f1.write(''.join(data))
     f1.close()
 
 except:
