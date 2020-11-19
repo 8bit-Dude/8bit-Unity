@@ -177,8 +177,20 @@ void PrintNum(unsigned char col, unsigned char row, unsigned int num)
 			num -= tmp*step;
 		} else {
 			tmp = 0;
-		}		
+		}
+	  #if defined __CBM__
+		if (videoMode == CHR_MODE) {
+			// Charmap mode
+			POKE(SCREENRAM+40*row+col, 208+tmp);
+			POKE(COLORRAM+40*row+col, inkColor);
+			col++;
+		} else {
+			// Bitmap mode	
+			PrintChr(col++, row, &charDigit[tmp*3]);
+		}
+	  #else
 		PrintChr(col++, row, &charDigit[tmp*3]);
+	  #endif
 		step /= 10u;
 	}
 #if defined __LYNX__
