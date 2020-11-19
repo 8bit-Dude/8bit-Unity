@@ -34,6 +34,15 @@
   #pragma code-name("SHADOW_RAM")
 #endif
 
+#ifdef __ATARI__
+  void SetPalette() {
+    POKE(0x02c8, bmpPalette[0]);
+    POKE(0x02c4, bmpPalette[1]);
+    POKE(0x02c5, bmpPalette[2]);
+    POKE(0x02c6, bmpPalette[3]);			
+  }
+#endif
+
 #if defined __CBM__  
   unsigned char bg = 0;
 #endif
@@ -55,14 +64,11 @@ void InitBitmap()
 	POKEW(0x005E, 0);	// OLDADR
 	POKE(0x005D, 0);	// OLDCHR
 	
-	// Switch OFF ANTIC
-	POKE(559, 2);
-		
 	// Set default palette
-	POKE(0x02c8, 0x00);
-	POKE(0x02c4, 0x24);
-	POKE(0x02c5, 0x86);
-	POKE(0x02c6, 0xd8);		
+	SetPalette();
+	
+	// Switch OFF ANTIC
+	POKE(559, 2);	
 	
 #elif defined __ORIC__
 	// Switch to Hires mode
@@ -105,6 +111,7 @@ void EnterBitmapMode()
     asm("sta $c05e"); // TURN ON DOUBLE HI-RES
   #endif
 #endif  
+	videoMode = BMP_MODE;
 }
 
 // Switch from Bitmap mode to Text mode
@@ -127,6 +134,7 @@ void ExitBitmapMode()
 	asm("sta $c00c"); // TURN OFF 80 COLUMN MODE	  
   #endif	
 #endif
+	videoMode = TXT_MODE;
 }
 
 // Clear entire bitmap screen
@@ -186,13 +194,10 @@ void LoadBitmap(char *filename)
 	}*/
 #elif defined __ATARI__
 	if (FileOpen(filename)) {		
-		FileRead((char*)PALETTERAM, 4);		// 4 bytes for palette
-		POKE(0x02c8, PEEK(PALETTERAM+0));
-		POKE(0x02c4, PEEK(PALETTERAM+1));
-		POKE(0x02c5, PEEK(PALETTERAM+2));
-		POKE(0x02c6, PEEK(PALETTERAM+3));	
+		FileRead(bmpPalette, 4);			// 4 bytes palette
 		FileRead((char*)BITMAPRAM1, 8000);	// 8000 bytes for frame 1
 		FileRead((char*)BITMAPRAM2, 8000);	// 8000 bytes for frame 2
+		SetPalette();
 	}
 #else
 	// Open Map File

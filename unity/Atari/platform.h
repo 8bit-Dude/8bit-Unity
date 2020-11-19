@@ -35,15 +35,15 @@
  */
  
 // Memory Map
-#define SCREENRAM  (0x0940) // 0940-0cff (text mode data)
+#define SCREENRAM  (0x0950) // 0940-0cff (text mode data)
 #define RMTPLAYER  (0x66e0) // 66e0-6f4d (RMT music player; JSR to 0x6A00)
 #define PALETTERAM (0x7000) // 7000-7003 (palette data)
 #define BITMAPRAM1 (0x7010) // 7010-8f50 (bitmap frame 1)
 #define BITMAPRAM2 (0xa010) // a010-bf50 (bitmap frame 2)
 #define CHARMAPRAM (0x7000) // 7000-7fff (character map)
-#define CHARSETRAM (0xa000) // a000-a7ff (character set)
-#define CHARATRRAM (0xa800) // a800-a87f (character col atr)
-#define CHARFLGRAM (0xa880) // a880-a8ff (character flags)
+#define CHARSETRAM (0xa000) // a000-a3ff (character set)
+#define CHARATRRAM (0xa400) // a400-a47f (character col atr)
+#define CHARFLGRAM (0xa480) // a480-a4ff (character flags)
 #define SPRITERAM  (0x9000)	// 9000-93ff (sprite data)
 #define MUSICRAM   (0x9400) // 9400-9aff (RMT sound track) (overlaps with unused part of PMGRAM)
 #define PMGRAM     (0x9800) // 9800-9fff (player missile memory)
@@ -84,11 +84,11 @@ void BitmapDLIST(void);
 void CharmapDLIST(void);
 void StartDLI(void);
 extern unsigned char bitmapDLI;
-extern unsigned char frameBlending;
 extern unsigned char charmapDLI;
-extern unsigned char charsetPage1;
-extern unsigned char charsetPage2;
 extern unsigned char spriteDLI;
+extern unsigned char chrPalette[];
+extern unsigned char bmpPalette[];
+extern unsigned char frameBlending;
 
 // Gfx functions (see scroll.s)
 void __fastcall__ Scroll(void);

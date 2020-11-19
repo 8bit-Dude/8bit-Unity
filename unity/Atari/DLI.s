@@ -29,11 +29,11 @@
 	.export _StartDLI
 	
 	.export _bitmapDLI
+	.export _bmpPalette
 	.export _frameBlending
 	
 	.export _charmapDLI
-	.export _charsetPage1
-	.export _charsetPage2
+	.export _chrPalette
 
 	.export _spriteDLI
 	.export _doubleHeight
@@ -49,18 +49,31 @@ atract = $004d
 vdslst = $0200
 sdlstl = $0230	
 nmien  = $d40e	
+
+; Char palette
+colorSHADOW0 = $02c8
+colorSHADOW1 = $02c4
+colorSHADOW2 = $02c5
+colorSHADOW3 = $02c6
+colorSHADOW4 = $02c7
+
+colorHARDWR0 = $d01a
+colorHARDWR1 = $d016
+colorHARDWR2 = $d017
+colorHARDWR3 = $d018
+colorHARDWR4 = $d019
 	
 	.segment	"DATA"	
 
 ; Bitmap parameters
 _bitmapDLI:     .byte 0
+_bmpPalette: 	.byte $00, $24, $86, $d8
 _frameBlending: .byte 0
 
 ; Bitmap paramerers
-_charmapDLI:    .byte 0
-_charsetPage1:  .byte 0
-_charsetPage2:  .byte 0
-_charsetToggle: .byte 0
+_charmapDLI: .byte 0
+_chrPalette: .res  5
+_chrToggle:  .byte 0
 
 ; Sprite parameters
 _spriteDLI: .byte 0
@@ -102,7 +115,7 @@ loop1:
 	sta $0926,x
 	bne loop1
 	
-	lda #$4e
+	lda #$4e	; Change Video Address
 	sta $098b
 	lda #$00
 	sta $098c
@@ -135,34 +148,45 @@ loop2:
 .proc _CharmapDLIST: near
 	lda #$44	; Header
 	sta $0923
-	lda #$40
+	
+	;lda #$40
+	lda #$50
+	
 	sta $0924
 	lda #$09
 	sta $0925
 	
 	lda #$04
-	ldx #22
+	ldx #24
 loop1:
 	dex
 	sta $0926,x
 	bne loop1
-
-	lda #$84	; DLI
-	sta $093b
-
-	lda #$04
-	sta $093c
 	
-	lda #$84	; DLI
+	lda #$ce	; Change Video Address + DLI
 	sta $093d
+	lda #$10
+	sta $093e
+	lda #$8e
+	sta $093f
+	
+	lda #$0e
+	ldx #6
+loop2:
+	dex
+	sta $0940,x
+	bne loop2
+
+	lda #$8e	; DLI
+	sta $0946
 	
 	lda #$41	; Footer
-	sta $093e
+	sta $0947
 	lda #$20
-	sta $093f
+	sta $0948
 	lda #$09
-	sta $0940
-	rts
+	sta $0949
+	
 .endproc
 
 ; ---------------------------------------------------------------
@@ -196,7 +220,7 @@ DLI:
 	lda	_charmapDLI
 	beq skipCharmapDLI
 	jsr swapCharset
-	lda _charsetToggle
+	lda _chrToggle
 	beq skipCharmapDLI  ; Exit early from first DLI
 	lda regA
 	ldx regX
@@ -231,30 +255,44 @@ skipSpriteDLI:
 ; ---------------------------------------------------------------
 	
 swapCharset:
-	lda _charsetToggle
+	lda _chrToggle
 	eor #$1
-	sta _charsetToggle
+	sta _chrToggle
 	bne charset2
 	
 charset1:
-	; This DLI runs just before the VBI!
-	lda _charsetPage1
-	sta $02f4
-	sta $d409
+	; Switch to CHR palette for the top of screen
+	lda _chrPalette+0
+	sta  colorSHADOW0
+	lda _chrPalette+1
+	sta  colorSHADOW1
+	lda _chrPalette+2
+	sta  colorSHADOW2
+	lda _chrPalette+3
+	sta  colorSHADOW3
+	lda _chrPalette+4
+	sta  colorSHADOW4
 	rts
 	
 charset2:
-	; Need to wait till we reach the next line of text
-	lda _charsetPage2
-	sta $d40A ; WSYNC
-	sta $d40A ; WSYNC
-	sta $d40A ; WSYNC
-	sta $d40A ; WSYNC
-	sta $d40A ; WSYNC
-	sta $d40A ; WSYNC
-	sta $d40A ; WSYNC
-	sta $02f4
-	sta $d409
+	; Wait till we reach the next line of text
+	;sta $d40A ; WSYNC
+	;sta $d40A ; WSYNC
+	;sta $d40A ; WSYNC
+	;sta $d40A ; WSYNC
+	;sta $d40A ; WSYNC
+	;sta $d40A ; WSYNC
+	;sta $d40A ; WSYNC
+	
+	; Switch to BMP palette for the bottom of screen
+	lda _bmpPalette+0
+	sta  colorHARDWR0
+	lda _bmpPalette+1
+	sta  colorHARDWR1
+	lda _bmpPalette+2
+	sta  colorHARDWR2
+	lda _bmpPalette+3
+	sta  colorHARDWR3
 	rts
 	
 ; ---------------------------------------------------------------

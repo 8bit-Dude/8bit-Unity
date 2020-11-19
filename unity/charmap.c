@@ -105,7 +105,7 @@ void InitCharmap()
 	
 	// Switch OFF ANTIC
 	POKE(559, 2);	
-#endif		
+#endif
 }
 
 // Switch from Text mode to Charmap mode
@@ -115,15 +115,11 @@ void EnterCharmapMode()
 	EnterBitmapMode();
 	
 #elif defined __ATARI__	
-	// Setup Charmap DLIST
-	CharmapDLIST();
-
-	// Set character set page
-	charsetPage1 = 0xa0;
-	charsetPage2 = 0xa4;
+	// Setup Charmap Page and DLIST
 	POKE(0x02f4, 0xa0);	
+	CharmapDLIST();
 	
-	// DLI parameters
+	// Setup DLI
 	StartDLI();
 	waitvsync();
 	charmapDLI = 1;
@@ -136,8 +132,9 @@ void EnterCharmapMode()
 	SetupVIC2();	
 #endif	
 
-	// Reset scroll coords (out of	range)
+	// Reset scroll coords
 	worldX = 255; worldY = 255;
+	videoMode = CHR_MODE;
 }
 
 // Switch back to Text mode
@@ -154,6 +151,7 @@ void ExitCharmapMode()
 #elif defined __CBM__	
 	ResetVIC2();
 #endif	
+	videoMode = TXT_MODE;
 }
 
 // Clear entire screen
@@ -164,6 +162,7 @@ void ClearCharmap()
 
 #elif defined __ATARI__
 	bzero((char*)SCREENRAM, 1000);
+	bzero((char*)0x8e10, 320);
 	
 #elif defined __CBM__
 	bzero((char*)SCREENRAM, 1000);
@@ -187,21 +186,17 @@ void LoadCharset(char* filename, char* palette)
 	fread((char*)charsetData, 1, 0x0880, fp);
 	charflagData = (char*)(charsetData+0x0800);
   #endif
-	fclose(fp);		
+	fclose(fp);
 	
 #elif defined __ATARI__
 	if (FileOpen(filename)) {
-		FileRead((char*)CHARSETRAM, 0x0800);
+		FileRead((char*)CHARSETRAM, 0x0400);
 		FileRead((char*)CHARATRRAM, 0x0100);
 		charflagData = (char*)(CHARATRRAM+0x80);
 	}
 	
-	// Set palette colors
-	POKE(0x02c8, palette[0]);
-	POKE(0x02c4, palette[1]);
-	POKE(0x02c5, palette[2]);
-	POKE(0x02c6, palette[3]);
-	POKE(0x02c7, palette[4]); // WARNING: This color is shared with sprite 5!
+	// Set palette colors (WARNING: 5th color shared with sprite 5!)
+	memset(chrPalette, palette, 5);
 	
 #elif defined __CBM__	
 	FILE* fp = fopen(filename, "rb");	
@@ -400,48 +395,5 @@ void ScrollCharmap(unsigned char x, unsigned char y)
 	POKEW(charPointerZP, src);
 	POKEW(scrPointerZP, dst);
 	Scroll();
-#endif
-}
-
-void PrintCharmap(unsigned char x, unsigned char y, unsigned char* str)
-{
-	unsigned char i, chr;
-	unsigned int addr1;
-	
-#if (defined __APPLE2__) || (defined __LYNX__) || (defined __ORIC__)
-	PrintStr(x, y, str);	
-	
-#elif (defined __ATARI__)
-	addr1 = SCREENRAM + 40*y + x;
-	for (i=0; i<strlen(str); i++) {
-		if (str[i] > 96) 
-			chr = str[i];		// Lower case
-		else
-		if (str[i] > 32) 
-			chr = str[i]+32;	// Upper case
-		else
-			chr = str[i];		// Icons
-		POKE(addr1++, chr);
-	}
-	
-#elif defined __CBM__	
-	unsigned int addr2;
-	extern unsigned char inkColor;
-	addr1 = SCREENRAM + 40*y + x;
-	addr2 = COLORRAM + 40*y + x;
-	for (i=0; i<strlen(str); i++) {
-		if (str[i] > 192)
-			chr = str[i]+32;	// Upper case (petscii)
-		else 
-		if (str[i] > 96) 
-			chr = str[i]+128;	// Lower case (ascii)
-		else 
-		if (str[i] > 32) 
-			chr = str[i]+160;	// Lower case (petscii)
-		else
-			chr = str[i]+128;	// Icons
-		POKE(addr1++, chr);
-		POKE(addr2++, inkColor);
-	}
 #endif
 }

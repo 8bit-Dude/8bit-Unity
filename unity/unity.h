@@ -66,6 +66,12 @@
     #include "Lynx/platform.h"	
 #endif
 
+// Video State (auto-set by ShowBitmap()/HideBitmap()...)
+#define TXT_MODE 0
+#define BMP_MODE 1
+#define CHR_MODE 2
+extern unsigned char videoMode;
+
 // Bitmap functions (see bitmap.c)
 void InitBitmap(void);
 void EnterBitmapMode(void);
@@ -98,7 +104,6 @@ void LoadTileset(char *filename, unsigned int n, unsigned int w, unsigned int h)
 void LoadCharset(char* filename, char* palette);
 void ClearCharmap(void);
 void ScrollCharmap(unsigned char x, unsigned char y);
-void PrintCharmap(unsigned char x, unsigned char y, unsigned char* str);
 unsigned char GetCharFlags(unsigned char x, unsigned char y);
 extern unsigned char screenCol1, screenCol2, screenWidth;
 extern unsigned char screenRow1, screenRow2, screenHeight;

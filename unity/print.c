@@ -67,7 +67,8 @@
 // Helper
 #define BYTE4(a,b,c,d) ((a<<6) | (b<<4) | (c<<2) | d)
 
-// Colors used in printing function
+// Mode and colors used in printing function
+unsigned char videoMode = TXT_MODE;
 unsigned char inkColor = WHITE, paperColor = BLACK;
 
 // Rapidly fill memory area with blank characters
@@ -492,13 +493,38 @@ const char *GetChr(unsigned char chr)
 // Parse string and print characters one-by-one (can be slow...)
 void PrintStr(unsigned char col, unsigned char row, const char *buffer)
 {
-	// Parse buffer
-	const char *chr;
-	unsigned char i;
-	for (i=0; i<strlen(buffer); ++i) {
-		chr = GetChr(buffer[i]);
-		PrintChr(col+i, row, chr);
+#if defined __CBM__
+	unsigned int addr1, addr2;
+	unsigned char i, chr, len = strlen(buffer);
+	if (videoMode == CHR_MODE) {
+		// Charmap mode
+		addr1 = SCREENRAM + 40*row + col;
+		addr2 = COLORRAM + 40*row + col;
+		for (i=0; i<len; i++) {
+			if (buffer[i] > 192)
+				chr = buffer[i]+32;		// Upper case (petscii)
+			else 
+			if (buffer[i] > 96) 
+				chr = buffer[i]+128;	// Lower case (ascii)
+			else 
+			if (buffer[i] > 32) 
+				chr = buffer[i]+160;	// Lower case (petscii)
+			else
+				chr = buffer[i]+128;	// Icons
+			POKE(addr1++, chr);
+			POKE(addr2++, inkColor);
+		}		
+	} else {
+		// Bitmap mode
+		for (i=0; i<len; ++i)
+			PrintChr(col+i, row, GetChr(buffer[i]));
 	}
+#else
+	unsigned char i, len = strlen(buffer);
+	for (i=0; i<len; ++i)
+		PrintChr(col+i, row, GetChr(buffer[i]));
+#endif
+	
 #if defined __LYNX__
 	if (autoRefresh) { UpdateDisplay(); }
 #endif		
