@@ -196,7 +196,7 @@ void LoadCharset(char* filename, char* palette)
 	}
 	
 	// Set palette colors (WARNING: 5th color shared with sprite 5!)
-	memset(chrPalette, palette, 5);
+	memcpy(chrPalette, palette, 5);
 	
 #elif defined __CBM__	
 	FILE* fp = fopen(filename, "rb");	
