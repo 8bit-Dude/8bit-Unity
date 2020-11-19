@@ -134,10 +134,42 @@ Actor actors[ACTOR_NUM] = { { ACTOR_GUARD,  COLOR_SKELETON, KEY_SKELETON, STANCE
 							{ ACTOR_ARMOR,  COLOR_ARMOR,    KEY_ARMOR,    0,            255, 122, 15, 255, 255, 0 },
 							{ ACTOR_KEY,    COLOR_KEY,      KEY_KEY,      0,            255, 112, 13, 255, 255, 0 } };
 
-char life[] = { 1 , '1', '0', '0', 0};
-char mana[] = { 2 , '1', '0', '0', 0};
-char gold[] = {'$', '0', '0', '0', 0};
-char kill[] = { 4 , '0', '0', '0', 0};
+char healthHeader[] = { 1 , 32, 32, 32, 0 };
+char armorHeader[]  = { 3 , 32, 32, 32, 0 };
+char goldHeader[]   = {'$', 32, 32, 32, 0 };
+char killsHeader[]  = { 4 , 32, 32, 32, 0 };
+unsigned char health = 100;
+unsigned char armor  = 0;
+unsigned char gold   = 0;
+unsigned char kills  = 0;
+
+void PrintHealth(void)
+{
+	inkColor = RED;    
+	PrintStr(0, CHR_ROWS-1, healthHeader); 
+	PrintNum(1,  CHR_ROWS-1, health);
+}
+
+void PrintArmor(void)
+{
+	inkColor = CYAN;   
+	PrintStr(5, CHR_ROWS-1, armorHeader);  
+	PrintNum(6,  CHR_ROWS-1, armor);
+}
+
+void PrintGold(void)
+{
+	inkColor = YELLOW; 
+	PrintStr(CHR_COLS-9, CHR_ROWS-1, goldHeader); 
+	PrintNum(CHR_COLS-8, CHR_ROWS-1, gold);
+}
+
+void PrintKills(void)
+{
+	inkColor = WHITE;  
+	PrintStr(CHR_COLS-4, CHR_ROWS-1, killsHeader); 
+	PrintNum(CHR_COLS-3, CHR_ROWS-1, kills);	
+}
 
 void SplashScreen(void)
 {	
@@ -211,17 +243,15 @@ void GameInit(void)
 	EnableSprite(SPRITE_PLAYER);
 #endif
 
-	// Show some text
+	// Show stats
 #if (defined __ORIC__)
 	SetAttributes(-1, CHR_ROWS-1, RED);
 	SetAttributes( 4, CHR_ROWS-1, CYAN);
-	SetAttributes( 9, CHR_ROWS-1, YELLOW);
-	SetAttributes(CHR_COLS-5, CHR_ROWS-1, WHITE);
+	SetAttributes(CHR_COLS-10, CHR_ROWS-1, YELLOW);
+	SetAttributes(CHR_COLS-5,  CHR_ROWS-1, WHITE);
 #endif	
-	inkColor = RED;    PrintStr(0, CHR_ROWS-1, life);
-	inkColor = CYAN;   PrintStr(5, CHR_ROWS-1, mana);
-	inkColor = YELLOW; PrintStr(10,CHR_ROWS-1, gold);
-	inkColor = WHITE;  PrintStr(CHR_COLS-4, CHR_ROWS-1, kill);
+	PrintHealth(); PrintArmor();
+	PrintGold(); PrintKills();
 }
 
 void GameLoop(void)
@@ -456,7 +486,11 @@ void GameLoop(void)
 							// Check attack timer
 							if (clock() > actor->timer) {
 								actor->timer = clock() + TCK_PER_SEC;
-								//BumpSFX();
+								if (health >= 5) {
+									health -= 5; 
+									PrintHealth();
+									//BumpSFX();
+								}
 							}
 							actor->frame += 2;								
 						}
