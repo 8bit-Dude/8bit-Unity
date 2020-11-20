@@ -69,8 +69,7 @@
 void __fastcall__ DecodeTiles(void);
 
 // Map size and location properties
-unsigned char worldX, worldY, worldWidth, worldHeight;
-unsigned char tileWidth, tileHeight, charmapWidth, charmapHeight;
+unsigned char charmapWidth, charmapHeight, tileWidth, tileHeight, worldWidth, worldHeight;
 unsigned char screenCol1 = 0, screenCol2 = CHR_COLS, screenWidth = CHR_COLS;
 unsigned char screenRow1 = 0, screenRow2 = CHR_ROWS, screenHeight = CHR_ROWS;
 
@@ -132,8 +131,7 @@ void EnterCharmapMode()
 	SetupVIC2();	
 #endif	
 
-	// Reset scroll coords
-	worldX = 255; worldY = 255;
+	// Set Video Mode
 	videoMode = CHR_MODE;
 }
 
@@ -310,7 +308,7 @@ void LoadTileset(char *filename, unsigned int n, unsigned int w, unsigned int h)
 	decodeScreen = malloc(decodeWidth*decodeHeight);
 }
 
-unsigned char GetCharFlags(unsigned char x, unsigned char y)
+unsigned char GetFlag(unsigned char x, unsigned char y)
 {
 	// Get flags of specified tile
 	unsigned char chr;
@@ -323,22 +321,31 @@ unsigned char GetCharFlags(unsigned char x, unsigned char y)
 	return charflagData[chr];
 }
 
+unsigned char GetTile(unsigned char x, unsigned char y)
+{
+	return charmapData[charmapWidth*(y/2u) + x/2u];	
+}
+
+void SetTile(unsigned char x, unsigned char y, unsigned char tile)
+{
+	charmapData[charmapWidth*(y/2u) + x/2u] = tile;	
+}
+
+void SetChar(unsigned char x, unsigned char y, unsigned char chr)
+{
+	charmapData[charmapWidth*y + x] = chr;
+}
+
 void ScrollCharmap(unsigned char x, unsigned char y)
 {
-	unsigned char i, j, k, chr;
+	unsigned char i;
 	unsigned int src, dst, col;
-	
-	// Check if map was moved?
-	if (x == worldX && y == worldY)
-		return;
-	worldX = x;
-	worldY = y;
 	
 	// Using tileset?
 	if (tilesetData) {
 		// Decode tilemap to screen buffer
 		POKEW(tilesetDataZP, tilesetData);
-		POKEW(charPointerZP, &charmapData[charmapWidth*(worldY/2u) + worldX/2u]);
+		POKEW(charPointerZP, &charmapData[charmapWidth*(y/2u) + x/2u]);
 		POKEW(row1PointerZP, &decodeScreen[0]);
 		POKEW(row2PointerZP, &decodeScreen[screenWidth+tileWidth]);	
 		blockWidth = 2*decodeWidth;
@@ -349,7 +356,7 @@ void ScrollCharmap(unsigned char x, unsigned char y)
 		blockWidth = screenWidth+tileWidth;
 	} else {
 		// Point directly to charmap data
-		src = &charmapData[charmapWidth*worldY + worldX];
+		src = &charmapData[charmapWidth*y + x];
 		blockWidth = charmapWidth;
 	}
 	
