@@ -39,6 +39,9 @@ RMTPlayer = $6A00
 
 	.segment	"DATA"	
 
+_musicVBI: .byte 0
+_sfxVBI:   .byte 0
+
 _sampleCount: .res 1
 _sampleFreq:  .res 1
 _sampleCtrl:  .res 1
@@ -51,46 +54,62 @@ _sampleCtrl:  .res 1
 ; void __near__ _SetupSFX (void)
 ; ---------------------------------------------------------------	
 		
-.proc _PlayMusic: near
+_PlayMusic:
 	; Setup track address
 	ldx _musicAddr+0	; low byte of RMT module to X reg
 	ldy _musicAddr+1    ; hi byte of RMT module to Y reg
 	lda #0				; starting song line 0-255 to A reg
 	jsr RMTPlayer		; Init: returns instrument speed (1..4 => from 1/screen to 4/screen)
+	
+	; Setup music playback
+	lda #01
+	sta _musicVBI
+	jsr _StartVBI
+	rts
 
+_StopMusic:
+	; Disable VBI
+	lda #00
+	sta _musicVBI
+	
+	; Reset RMT player (all sounds off)
+	jsr RMTPlayer+9
+	rts
+
+_SetupSFX:
+	; Setup SFX playback
+	lda #01
+	sta _sfxVBI
+	jsr _StartVBI
+	rts
+	
+_StartVBI:
 	; Setup vertical blank interrupt
     lda #$07       	; deferred
-	ldx #(>RMTVBI)	; install RMT VBI routine
-	ldy #(<RMTVBI)	
+	ldx #(>VBI)	; install RMT VBI routine
+	ldy #(<VBI)	
     jsr SETVBV
 	rts
-.endproc
 
-.proc _StopMusic: near
-    lda #$07       	; deferred
-	ldx #>XITVBV	; reset VBI
-	ldy #<XITVBV		
-    jsr SETVBV	
-	jsr RMTPlayer+9	;all sounds off
-	rts
-.endproc
+; ---------------------------------------------------------------
+; VBI routine
+; ---------------------------------------------------------------
 
-.proc _SetupSFX: near
-    lda #$07       	; deferred
-    ldx #(>SFXVBI)  ; install SFX VBI routine
-    ldy #(<SFXVBI)	    
-    jsr SETVBV
-	rts
-.endproc        
+VBI:
+	;-------------------
+	; Process music?
+	lda _musicVBI
+	beq skipMusicVBI
 
-
-RMTVBI:
 	; Play 1 note of the RMT
-	jsr RMTPlayer+3	
-	jmp XITVBV
+	jsr RMTPlayer+3
+skipMusicVBI:
 	
+	;-------------------
+	; Process SFX?
+	lda _sfxVBI
+	beq skipSFXVBI
 
-SFXVBI:
 	; Get samples counter
 	ldx _sampleCount
 	cpx #0
@@ -108,12 +127,13 @@ SFXVBI:
 	cpx #0
 	bne done
 
-reset:	
+	; Reset channel
 	lda #0
 	sta $D206
 	lda #0
 	sta $D207
-	
+skipSFXVBI:
+
 done:
-	; do the normal interrupt service routine
+	; Exit VBI
 	jmp XITVBV

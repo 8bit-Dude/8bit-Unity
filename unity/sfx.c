@@ -290,7 +290,7 @@ void BumpSFX()
 		repeat--;
 	}
 #elif defined __ATARI__
-	sampleCount = 16;
+	sampleCount =  8;
 	sampleFreq = 255;
 	sampleCtrl = 232;
 
