@@ -68,7 +68,7 @@
 #define STANCE_LEFT	   4
 
 // Actor data
-# define ACTOR_NUM    6
+# define ACTOR_NUM   12
 
 # define ACTOR_NULL   0
 # define ACTOR_GUARD  1
@@ -79,14 +79,24 @@
 # define ACTOR_KEY    6
 # define ACTOR_MAX    6
 
-// Char flags
-#define CHAR_NULL     0
-#define CHAR_WALKABLE 1
-#define CHAR_DAMAGE   2
-#define CHAR_PICKUP   4
-#define CHAR_INTERACT 8
+// Flag definitions
+#define FLAG_NULL      0
+#define FLAG_WALL  	   1
+#define FLAG_TRAP      2
+#define FLAG_TOMB      4
+#define FLAG_BARREL    8
+#define FLAG_GATE     16
 
-// interface.c
+// Tile definitions
+#define TILE_FLOOR	     2
+#define TILE_TOMB_SHUTL 18
+#define TILE_TOMB_SHUTR	19
+#define TILE_TOMB_OPENL 36
+#define TILE_TOMB_OPENR	37
+#define TILE_GATE_SHUTL	38
+#define TILE_GATE_SHUTR	39
+
+// GUI functions (interface.c)
 void SplashScreen(void);
 void PrintHealth(void);
 void PrintArmor(void);
