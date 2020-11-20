@@ -1,18 +1,6 @@
 
 #include "unity.h"
-
-// Memory tweaks
-#if defined __ATARI__
-	#undef  MUSICRAM
-	#define MUSICRAM (0x9800)	// Moved Music RAM start to allow more space for sprites	
-#endif
-
-// Char flags
-#define CHAR_NULL     0
-#define CHAR_WALKABLE 1
-#define CHAR_DAMAGE   2
-#define CHAR_PICKUP   4
-#define CHAR_INTERACT 8
+#include "definitions.h"
 
 // Sprite definitions
 #if defined __APPLE2__
@@ -48,164 +36,78 @@
 	unsigned char multiColorDef[] = { SPR_WHITE, 7, SPR_MAGENTA, 12 , SPR_YELLOW, 17 };	// Multicolor definition { color, row, ...  }
 #endif
 
-// Player Motion
-#if defined __LYNX__	
-	#define SCALE_X 8
-	#define SCALE_Y 12
-	#define STEP_X  3
-	#define STEP_Y  3 	
-#else
-	#define SCALE_X 8
-	#define SCALE_Y 8
-	#define STEP_X  3
-	#define STEP_Y  2 
-#endif
-
-// Sprite slot assignments
-#if defined __ATARI__	
-	#define SPRITE_WEAPON   0
-	#define SPRITE_PLAYER0  1
-	#define SPRITE_PLAYER1  2
-	#define SPRITE_PLAYER2  3
-	#define SPRITE_ENEMY    4
-	#define COLOR_GOLD 	   0xec
-	#define COLOR_POTION   0x34
-	#define COLOR_ARMOR    0x12
-	#define COLOR_KEY      0xec
-	#define COLOR_SKELETON 0x0e
-	#define COLOR_GOBLIN   0xbc
-#elif defined __ORIC__	
-	#define SPRITE_WEAPON   0
-	#define SPRITE_PLAYER   1
-	#define SPRITE_ENEMY    2
-	#define COLOR_GOLD 	   SPR_YELLOW
-	#define COLOR_POTION   SPR_RED
-	#define COLOR_ARMOR    SPR_MAGENTA
-	#define COLOR_KEY      SPR_YELLOW
-	#define COLOR_SKELETON SPR_WHITE
-	#define COLOR_GOBLIN   SPR_GREEN	
-#else
-	#define SPRITE_WEAPON   0
-	#define SPRITE_PLAYER   1
-	#define SPRITE_ENEMY    2
-	#define COLOR_GOLD 	   YELLOW
-	#define COLOR_POTION   YELLOW
-	#define COLOR_ARMOR    YELLOW
-	#define COLOR_KEY      YELLOW
-	#define COLOR_SKELETON WHITE
-	#define COLOR_GOBLIN   YELLOW
-#endif
-
-// Animation Key Frames
-#define KEY_PLAYER     0
-#define KEY_WEAPON     8
-#define KEY_GOLD      12
-#define KEY_POTION    13
-#define KEY_ARMOR     14
-#define KEY_KEY       15
-#define KEY_SKELETON  16
-#define KEY_GOBLIN    24
-
-// Animation Stance Frames
-#define STANCE_RIGHT   0
-#define STANCE_LEFT	   4
-
-// Actor data
-# define ACTOR_NUM    6
-# define ACTOR_NULL   0
-# define ACTOR_GUARD  1
-# define ACTOR_ATTACK 2
-# define ACTOR_GOLD   3
-# define ACTOR_POTION 4
-# define ACTOR_ARMOR  5
-# define ACTOR_KEY    6
+// Actor variables (Enemies/Items)
 typedef struct {
-	unsigned char state, color;
+	unsigned char state, color, health;
 	unsigned char key, stance, frame;
 	unsigned char mapX, mapY;
 	unsigned int scrX, scrY;
 	clock_t timer;
 } Actor;
 
-Actor actors[ACTOR_NUM] = { { ACTOR_GUARD,  COLOR_SKELETON, KEY_SKELETON, STANCE_LEFT,  255, 108, 20, 255, 255, 0 },
-							{ ACTOR_GUARD,  COLOR_GOBLIN,   KEY_GOBLIN,   STANCE_RIGHT, 255, 122, 21, 255, 255, 0 },
-							{ ACTOR_GOLD,   COLOR_GOLD,     KEY_GOLD,     0,            255, 118, 18, 255, 255, 0 },
-							{ ACTOR_POTION, COLOR_POTION,   KEY_POTION,   0,            255, 104, 16, 255, 255, 0 },
-							{ ACTOR_ARMOR,  COLOR_ARMOR,    KEY_ARMOR,    0,            255, 122, 15, 255, 255, 0 },
-							{ ACTOR_KEY,    COLOR_KEY,      KEY_KEY,      0,            255, 112, 13, 255, 255, 0 } };
+Actor actors[ACTOR_NUM] = { { ACTOR_GUARD,  COLOR_SKELETON, 15, KEY_SKELETON, STANCE_LEFT,  255, 108, 20, 255, 255, 0 },
+							{ ACTOR_GUARD,  COLOR_SKELETON, 15, KEY_SKELETON, STANCE_RIGHT, 255, 122, 21, 255, 255, 0 },
+							{ ACTOR_GUARD,  COLOR_SKELETON, 15, KEY_SKELETON, STANCE_LEFT,  255, 118, 18, 255, 255, 0 },
+							{ ACTOR_GUARD,  COLOR_GOBLIN,   10, KEY_GOBLIN,   STANCE_RIGHT, 255, 104, 16, 255, 255, 0 },
+							{ ACTOR_GUARD,  COLOR_GOBLIN,   10, KEY_GOBLIN,   STANCE_LEFT,  255, 122, 15, 255, 255, 0 },
+							{ ACTOR_GUARD,  COLOR_GOBLIN,   10, KEY_GOBLIN,   STANCE_RIGHT, 255, 112, 13, 255, 255, 0 } };
 
-char healthHeader[] = { 1 , 32, 32, 32, 0 };
-char armorHeader[]  = { 3 , 32, 32, 32, 0 };
-char goldHeader[]   = {'$', 32, 32, 32, 0 };
-char killsHeader[]  = { 4 , 32, 32, 32, 0 };
+// Player variables
 unsigned char health = 100;
 unsigned char armor  = 0;
 unsigned char gold   = 0;
 unsigned char kills  = 0;
 
-void PrintHealth(void)
+void DamageEnemy(Actor* actor) 
 {
-	inkColor = RED;    
-	PrintStr(0, CHR_ROWS-1, healthHeader); 
-	PrintNum(1,  CHR_ROWS-1, health);
-}
+	unsigned char reward;
 
-void PrintArmor(void)
-{
-	inkColor = CYAN;   
-	PrintStr(5, CHR_ROWS-1, armorHeader);  
-	PrintNum(6,  CHR_ROWS-1, armor);
-}
-
-void PrintGold(void)
-{
-	inkColor = YELLOW; 
-	PrintStr(CHR_COLS-9, CHR_ROWS-1, goldHeader); 
-	PrintNum(CHR_COLS-8, CHR_ROWS-1, gold);
-}
-
-void PrintKills(void)
-{
-	inkColor = WHITE;  
-	PrintStr(CHR_COLS-4, CHR_ROWS-1, killsHeader); 
-	PrintNum(CHR_COLS-3, CHR_ROWS-1, kills);	
-}
-
-void SplashScreen(void)
-{	
-	// Load and show banner
-	InitBitmap();
-	LoadBitmap("menu.img");
-	EnterBitmapMode();
+	// Apply damage and check if killed
+	BumpSFX();
+	actor->health -= 5;
+	if (actor->health)
+		return;
+	kills += 1; PrintKills();		
 	
-	// Show credit/build
-	paperColor = BLACK; 
-	PrintBlanks(CHR_COLS-13, CHR_ROWS-4, 12, 3);
-#if (defined __ORIC__)
-	inkColor = AIC;
-#else		
-	inkColor = RED; 
-#endif
-	PrintStr(CHR_COLS-12, CHR_ROWS-4, "TECH DEMO");		
-	PrintStr(CHR_COLS-13, CHR_ROWS-3, "BY 8BIT-DUDE");		
-	PrintStr(CHR_COLS-12, CHR_ROWS-2,  "2020/11/16");
-	
-	// Start music
-	PlayMusic();
-
-	// Wait until key is pressed
-	while (!kbhit()) {	
-	#if defined __APPLE2__
-		UpdateMusic();
-	#elif defined __LYNX__
-		UpdateDisplay(); // Refresh Lynx screen
-	#endif
-	}	
-	
-	// Exit banner screen
-	ExitBitmapMode();
-	StopMusic();	
+	// Generate reward
+	reward = rand()%4;
+	if (reward<3) { 
+		actor->state  = ACTOR_GOLD+reward;
+		actor->key    = KEY_GOLD+reward;
+		actor->color  = COLOR_GOLD;
+		actor->stance = 0;
+	} else {
+		actor->state = ACTOR_NULL;
+		actor->frame = 255;
+	}
 }
+
+void PickupItem(Actor* actor)
+{
+	// Process reward
+	BleepSFX(128);
+	switch (actor->state) {
+	case ACTOR_GOLD:
+		gold += 5*(rand()%5);
+		PrintGold();
+		break;
+	case ACTOR_POTION:
+		health += 25;
+		PrintHealth();
+		break;
+	case ACTOR_ARMOR:
+		armor += 25;
+		PrintArmor();
+		break;
+	case ACTOR_KEY:
+		PrintKey();
+		break;
+	}
+
+	// Disable actor
+	actor->state = ACTOR_NULL;
+	actor->frame = 255;	
+}	
 
 void GameInit(void)
 {
@@ -252,18 +154,21 @@ void GameInit(void)
 #endif	
 	PrintHealth(); PrintArmor();
 	PrintGold(); PrintKills();
+	
+	// Setup SFX
+	InitSFX();
 }
 
 void GameLoop(void)
 {
 	unsigned char mapX =  92, mapY =  0, mapXPRV, mapYPRV; // Current and previous map position
 	unsigned int  scrX = 195, scrY = 50, scrXPRV, scrYPRV; // Current and previous screen position
-	unsigned int  weaponX, weaponY, weaponActive;    		// Weapon position
+	unsigned int  weaponX, weaponY;
 	unsigned char maxX, maxY, flagX, flagY1, flagY2;  // Coords of collision detection (accounting for model height)
-	unsigned char i, j, slot, joy, action, motion, direction, tmpX, tmpY;
-	unsigned char sprFrame, weaFrame, togglePlayer, toggleActor; 
+	unsigned char i, j, slot, joy, action, motion, direction, collision, tmpX, tmpY;
+	unsigned char sprFrame, weaponFrame, togglePlayer, toggleActor, weaponProcessed; 
 	signed int    deltaX, deltaY;
-	clock_t playerClock, actorClock;	
+	clock_t playerClock, weaponClock, actorClock;	
 	Actor* actor;
 	
 	// Helper variables
@@ -275,7 +180,7 @@ void GameLoop(void)
 	
 	// Restart music playback
 #if (defined __ATARI__) || (defined __CBM__) || (defined __LYNX__)
-	//PlayMusic();
+	PlayMusic();
 #endif	
 	
 	while (1) {
@@ -299,7 +204,7 @@ void GameLoop(void)
 			// Process Joystick
 			motion = 0;
 			joy = GetJoy(0);
-			if (!(joy & JOY_BTN1)) {
+			if (!(joy & JOY_BTN1) || clock() < weaponClock) {
 				action = 1;
 			} else {
 				action = 0;
@@ -328,14 +233,33 @@ void GameLoop(void)
 					motion = 1; direction = 6;
 				} 
 			}	
+
+			// Check if colliding with other actors?
+			i = 0; collision = 0;
+			while (i<ACTOR_NUM) { 					
+				actor = &actors[i++];
+				if (actor->frame == 255) 	
+					continue;
+				deltaX = scrX; deltaX -= actor->scrX;
+				deltaY = scrY; deltaY -= actor->scrY;
+				if (ABS(deltaX) < 10 && ABS(deltaY) < 10) {
+					if  (actor->state > ACTOR_ATTACK)
+						PickupItem(actor);
+					else
+						collision = 1;
+				}
+			}			
 			
 			// Check if new position is allowed?
 			LocatePixel(scrX, scrY);
 			flagX = mapX+XToCol(pixelX)-screenCol1;
 			flagY1 = mapY+YToRow(pixelY)-screenRow1;
 			flagY2 = mapY+YToRow(pixelY+5)-screenRow1;
-			if (!(GetCharFlags(flagX, flagY1) & CHAR_WALKABLE) ||
-				!(GetCharFlags(flagX, flagY2) & CHAR_WALKABLE)) {
+			if (!(GetCharFlags(flagX, flagY1) & CHAR_WALKABLE) || !(GetCharFlags(flagX, flagY2) & CHAR_WALKABLE))
+				collision = 1;
+			
+			// Allow motion?
+			if (collision) {
 				scrX = scrXPRV; scrY = scrYPRV;
 				mapX = mapXPRV; mapY = mapYPRV;
 			} else {
@@ -357,30 +281,48 @@ void GameLoop(void)
 		
 			// Process action
 			if (action) {
+				// Locate weapon
+				switch (direction) {
+				case 0:
+					weaponX = scrX-12; weaponY = scrY; weaponFrame = 8; break;
+				case 2:
+					weaponX = scrX+12; weaponY = scrY; weaponFrame = 9; break;
+				case 4:
+					weaponX = scrX; weaponY = scrY-14; weaponFrame = 10; break;
+				case 6:
+					weaponX = scrX; weaponY = scrY+14; weaponFrame = 11; break;
+				}
+				
 				// Process attack
-				if (!weaponActive) {
-					i = 0; slot = SPRITE_ENEMY;
-					//while (i<ACTOR_NUM) { 					
-						weaponActive = 1;
-					//}
+				if (!weaponProcessed) {
+					weaponClock = clock()+(TCK_PER_SEC/4);
+					weaponProcessed = 1;
+					
+					// Look for Enemy Hit
+					i = 0;
+					while (i<ACTOR_NUM) { 					
+						actor = &actors[i++];
+						if (actor->frame == 255 || actor->state > ACTOR_ATTACK) 	
+							continue;
+						deltaX = weaponX; deltaX -= actor->scrX;
+						deltaY = weaponY; deltaY -= actor->scrY;
+						if (ABS(deltaX) < 16 && ABS(deltaY) < 16) {
+							DamageEnemy(actor); 
+							break;
+						}
+					}
+					
+					// Look for Map Interactions
+
 				}
 				
 				// Display weapon
-				switch (direction) {
-				case 0:
-					weaponX = scrX-12; weaponY = scrY; weaFrame = 8; break;
-				case 2:
-					weaponX = scrX+12; weaponY = scrY; weaFrame = 9; break;
-				case 4:
-					weaponX = scrX; weaponY = scrY-14; weaFrame = 10; break;
-				case 6:
-					weaponX = scrX; weaponY = scrY+14; weaFrame = 11; break;
-				}
 				LocateSprite(weaponX, weaponY);
-				SetSprite(SPRITE_WEAPON, weaFrame);	
+				SetSprite(SPRITE_WEAPON, weaponFrame);	
 				EnableSprite(SPRITE_WEAPON);			
 			} else {
-				weaponActive = 0;
+				// Hide weapon
+				weaponProcessed = 0;
 				DisableSprite(SPRITE_WEAPON);
 			}
 
@@ -453,7 +395,7 @@ void GameLoop(void)
 							actor->stance = STANCE_RIGHT;
 
 						// Check distance to player
-						if (ABS(deltaX) > 18 || ABS(deltaY) > 18) {
+						if (ABS(deltaX) > 20 || ABS(deltaY) > 20) {
 							// Decide direction of motion
 							if (ABS(deltaX) < ABS(deltaY))  {
 								deltaX = 0; deltaY = SIGN(deltaY);
@@ -511,7 +453,7 @@ int main (void)
 	clrscr();
 
 	// Load music track
-	//LoadMusic("dungeon.mus", MUSICRAM);
+	LoadMusic("dungeon.mus", MUSICRAM);
 	
 	// Run Game
 	//SplashScreen();
