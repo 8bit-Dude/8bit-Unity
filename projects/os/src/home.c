@@ -1,16 +1,16 @@
 
+#include "definitions.h"
+
 // App/Icons parameters
-callback* homeCall;
-callback* appCall[4];
+extern char appSel;
+extern callback *homeCall;
+extern callback *appCall[4];
 unsigned char* appChunk[NUM_APPS];
 unsigned char* icoChunk[NUM_ICOS];
-char appSel = APP_HOME;
 
-// Media parameters
-char imageSel = 127; imageShowing = 0;
-char musicSel = 127; musicPlaying = 0;
-char netConnected = 0;
-	
+// Version definitions
+char version[] = "8BIT-OS 2020/11/15";
+
 void LoadChunks()
 {
 	// Load app chunks

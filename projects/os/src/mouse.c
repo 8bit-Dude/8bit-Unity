@@ -1,4 +1,6 @@
 
+#include "definitions.h"
+
 // Mouse sprite definitions
 #define spriteFrames 2
 #if defined __APPLE2__	
@@ -32,6 +34,14 @@
 
 // Mouse state
 unsigned char* mouse;
+
+void InitMouse()
+{
+	// Setup mouse sprites
+	LoadSprites("sprites.dat");
+	SetupSprites(spriteFrames, spriteCols, spriteRows, spriteColors);
+	EnableSprite(0);	
+}
 
 void ProcessMouse()
 {	

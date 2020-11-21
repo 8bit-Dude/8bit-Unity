@@ -1,4 +1,6 @@
 
+#include "unity.h"
+
 // GUI parameters
 #define DESK_COLOR CYAN
 
@@ -28,5 +30,41 @@
   #define textExt  "TXT"
 #endif
 
-// Version definitions
-char version[] = "8BIT-OS 2020/11/15";
+// General Functions
+void LoadChunks(void);
+void ClearScreen(void);
+void DrawTaskBar(void);
+void HomeScreen(void);
+void InitMouse(void);
+void ProcessMouse(void);
+
+// Chat Functions
+void ChatPage(void);
+void ChatRefresh(void);
+void ChatSend(void);
+void ChatLogin(void);
+void ChatMessage(unsigned char index, unsigned char* packet);
+void ChatScreen(void);
+void ChatPacket(unsigned char *packet);
+void ChatCallback(callback* call);
+
+// Browser Functions
+void GetFileList(void);
+void SelectFile(char dir, unsigned char* extension, char* fileSel);
+void PreviewText(void);
+void FilesScreen(void);
+void FileCallback(callback* call);
+
+// Slideshow Functions
+void ImageDisplay(void);
+void ImageScreen(void);
+void ImageCallback(callback* call);
+
+// Music Functions
+void PlayTrack(char *fname);
+void PauseTrack(void);
+void UnpauseTrack(void);
+void StopTrack(void);
+void MusicTitle(void);
+void MusicScreen(void);
+void MusicCallback(callback* call);

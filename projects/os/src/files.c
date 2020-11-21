@@ -1,7 +1,18 @@
 
+#include "definitions.h"
+
+// See Unity
 extern unsigned char  fileNum;     
 extern unsigned int   fileSizes[];  
 extern unsigned char* fileNames[];
+
+// See home.c
+extern unsigned char* appChunk[NUM_APPS];
+extern unsigned char* icoChunk[NUM_ICOS];
+
+// See image.c / music.c
+extern char imageShowing;
+extern char musicPlaying;
 
 unsigned char  listNum = 0;
 unsigned char* listNames[16];

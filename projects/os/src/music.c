@@ -1,4 +1,6 @@
 
+#include "definitions.h"
+
 #if (defined __ORIC__)
   #define LOGO_X    102
 #elif (defined __APPLE2__)
@@ -10,6 +12,15 @@
 #define BUTT_COL1   6
 #define BUTT_ROW1   11
 #define BUTT_HSPAN  7
+
+// See Unity
+extern unsigned char* fileNames[];
+
+// See home.c
+extern unsigned char* appChunk[NUM_APPS];
+extern unsigned char* icoChunk[NUM_ICOS];
+
+char musicSel = 127, musicPlaying = 0;
 
 callback* musicCall[4];
 

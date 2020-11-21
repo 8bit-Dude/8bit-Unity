@@ -1,4 +1,6 @@
 
+#include "definitions.h"
+
 #define REQ_LOGIN 	1
 #define REQ_PAGE 	2
 #define REQ_RECV 	3
@@ -11,6 +13,8 @@
 #else
   #define MSG_PER_PAGE 4
 #endif
+
+extern char netConnected;
 
 unsigned char lineX1, lineX2, lineY, chatConnected, chatLogged, chatLen;
 unsigned int chatList[4] = {0, 0, 0, 0};

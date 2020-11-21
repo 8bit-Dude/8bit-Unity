@@ -1,16 +1,13 @@
 
-#include "unity.h"
-
-// Main interface
 #include "definitions.h"
-#include "mouse.h"
-#include "home.h"
 
-// Individual Apps
-#include "files.h"
-#include "image.h"
-#include "music.h"
-#include "chat.h"
+// See home.c
+char appSel = APP_HOME;
+callback *homeCall, *appCall[4];
+char netConnected = 0;
+
+// See mouse.c
+extern unsigned char* mouse;
 
 void ProcessCallback(callback* call)
 {
@@ -70,12 +67,8 @@ int main(void)
 	HomeScreen();
 	EnterBitmapMode();
 
-	// Setup mouse sprites
-	LoadSprites("sprites.dat");
-	SetupSprites(spriteFrames, spriteCols, spriteRows, spriteColors);
-	EnableSprite(0);
-
-	// Try to init 
+	// Init systems
+	InitMouse();
 	netConnected = !InitNetwork();
 	if (netConnected)
 		SlotTCP(0);

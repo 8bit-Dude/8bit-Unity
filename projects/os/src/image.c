@@ -1,4 +1,11 @@
 
+#include "definitions.h"
+
+// See Unity
+extern unsigned char* fileNames[];
+
+char imageSel = 127, imageShowing = 0;
+
 callback *iPrev, *iNext;
 
 void ImageDisplay()
