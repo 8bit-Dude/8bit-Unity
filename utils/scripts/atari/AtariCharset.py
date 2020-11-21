@@ -30,15 +30,12 @@ from PIL import Image
 charFile = sys.argv[1]
 output   = sys.argv[2]
 
-fontFile = 'utils/scripts/atari/font.png'
 flagFile = charFile.replace('-atari.png', '.csv')
 
 #################################
 # Read source bitmap and palette
 charImg = Image.open(charFile)
-fontImg = Image.open(fontFile)
 charRaw = list(charImg.getdata())
-fontRaw = list(fontImg.getdata())
 print "Charmap size: {%i,%i}; Colors: %i" % (charImg.size[0], charImg.size[1], max(charRaw))
 
 ############################
@@ -49,12 +46,6 @@ for row in range(0, charImg.size[1], 8):
         for j in range(0, 8):
             for i in range(0, 4):
                 charBlocks.append(charRaw[(row+j)*charImg.size[0]+col+i])
-fontBlocks = []
-for row in range(0, fontImg.size[1], 8):
-    for col in range(0, fontImg.size[0], 4):
-        for j in range(0, 8):
-            for i in range(0, 4):
-                fontBlocks.append(fontRaw[(row+j)*fontImg.size[0]+col+i])
                 
 ###############################
 # Process character attributes
@@ -69,11 +60,9 @@ for i in range(0, len(charBlocks)/32):
 
 ############################################
 # Convert char and font data to C64 format
-charData = [chr(0)] * (256*8)
+charData = [chr(0)] * (128*8)
 for i in range(0, len(charBlocks), 4):
     charData[i/4] = chr((charBlocks[i+0]<<6) + (charBlocks[i+1]<<4) + (charBlocks[i+2]<<2) + (charBlocks[i+3]<<0))
-for i in range(0, len(fontBlocks), 4):
-    charData[128*8+i/4] = chr((fontBlocks[i+0]<<6) + (fontBlocks[i+1]<<4) + (fontBlocks[i+2]<<2) + (fontBlocks[i+3]<<0))
 
 #######################
 # Read character flags
