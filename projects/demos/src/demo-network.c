@@ -1,9 +1,11 @@
 
 #include "unity.h"
 
+extern const char keyNext, pressKeyMsg[];
+
 unsigned char message[] = "Packet received"; //Messages can be up-to 256 bytes long (this string is NULL ended for printing convenience)
 
-int DemoNET(void)
+int DemoNetwork(void)
 {
 	unsigned char state, line;
 	unsigned char* packet;

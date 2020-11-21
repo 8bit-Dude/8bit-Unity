@@ -11,7 +11,7 @@ extern const char keyNext, pressKeyMsg[];
 	const char* joyList[] = { "JOY 1", "JOY 2", "JOY 3", "JOY 4" };
 #endif
 
-int DemoJOY(void) 
+int DemoControls(void) 
 {
 	unsigned char i, *mou, joy, state[12];
 	

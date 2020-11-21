@@ -3,7 +3,7 @@
 
 extern const char keyNext, pressKeyMsg[];
 
-int DemoGFX(void) 
+int DemoGfx(void) 
 {
 	unsigned char i, color, row, palette;
 	unsigned char textRows, blockW, blockH;

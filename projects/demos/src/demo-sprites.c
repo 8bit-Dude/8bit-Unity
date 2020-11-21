@@ -45,7 +45,7 @@ extern const char keyNext;
 	unsigned char inkColors[] = { BLUE, RED, LGREEN, YELLOW };		// P1, P2, P3, P4
 #endif
 
-int DemoSPR(void) 
+int DemoSprites(void) 
 {
 	unsigned char i, slot, frame;
 	unsigned int xpos, ypos, angle;

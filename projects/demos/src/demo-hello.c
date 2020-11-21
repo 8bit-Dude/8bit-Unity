@@ -4,7 +4,7 @@
 const char welcomeMsg[] = "Welcome to 8bit Unity!";
 extern const char keyNext, pressKeyMsg[];
 
-int DemoHLO(void) 
+int DemoHello(void) 
 {
     unsigned char xSize, ySize;
 

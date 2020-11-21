@@ -1,10 +1,6 @@
 
-#include "demo-hlo.h"
-#include "demo-joy.h"
-#include "demo-net.h"
-#include "demo-bmp.h"
-#include "demo-gfx.h"
-#include "demo-spr.h"
+#include "unity.h"
+#include "definitions.h"
 
 #ifdef __LYNX__
 	const char pressKeyMsg[] = " - press OPTION 1 - ";
@@ -22,12 +18,12 @@ int main (void)
     bgcolor(COLOR_BLACK);
 	
 	// Run all demos
-	DemoHLO();
-	DemoJOY();
-	DemoNET();
-	DemoBMP();
-	DemoGFX();
-	DemoSPR();
+	DemoHello();
+	DemoControls();
+	DemoNetwork();
+	DemoBitmap();
+	DemoGfx();
+	DemoSprites();
 	
     // Done
     return EXIT_SUCCESS;

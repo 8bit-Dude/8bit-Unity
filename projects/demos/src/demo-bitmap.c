@@ -3,7 +3,7 @@
 
 extern const char keyNext;
 
-int DemoBMP(void) 
+int DemoBitmap(void) 
 {
 	unsigned char i, r;
 	unsigned char* chunks[3];
