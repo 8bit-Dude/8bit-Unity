@@ -1,5 +1,8 @@
 
-#include "chunks.h"
+#include "definitions.h"
+
+// See scene.c
+extern Item items[MAX_ITEM];
 
 // Print label in lower-left panel
 void PrintInteract(unsigned char item, unsigned char *label)

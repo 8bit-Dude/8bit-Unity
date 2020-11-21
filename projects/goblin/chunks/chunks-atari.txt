@@ -1,0 +1,22 @@
+#
+# Chunks definition file
+#
+# Format: Input, Output, Coords
+#
+#   Input:    'file.png' input image (with correct size and palette for platform)
+#	Output:	  'file.dat' output containing the chunk data
+# 	Coords:   [X, Y, W, H] on PNG file
+#
+# 	Coordinates restrictions:
+#   	Apple:  X/W must be multiples of 7 (e.g. 0,7,14,21...) |              No restrictions
+#   	Atari:  X/W must be multiples of 4 (e.g. 0,4,8,12... ) |              No restrictions
+#   	C64:    X/W must be multiples of 4 (e.g. 0,4,8,12... ) |  Y/H must be multiples of 8 (e.g. 0,8,16,24...)
+#   	Lynx:   X/W must be multiples of 2 (e.g. 0,2,4,6... )  |              No restrictions
+#   	Oric:   X/W must be multiples of 6 (e.g. 0,6,12,18...) |  Y/H must be multiples of 2 (e.g. 0,2,4,6...)
+#
+
+'chunks1-atari.png', 'notable.chk', [ 16, 52, 28, 46]	# Notable animation
+'chunks1-atari.png', 'oldmen.chk',  [104, 54, 16, 16]	# Old men animation
+'chunks1-atari.png', 'bottle.chk',  [124, 60, 12, 20]	# Bottle removed
+'chunks1-atari.png', 'sausage.chk', [ 32, 50,  4, 20]	# Sausage removed
+'chunks1-atari.png', 'switch.chk',  [  0, 94, 20, 12]	# Switch animation

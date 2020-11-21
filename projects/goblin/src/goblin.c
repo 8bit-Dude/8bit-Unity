@@ -1,5 +1,38 @@
 
-#include "scene.h"
+#include "definitions.h"
+
+// Sprite definitions
+#define spriteFrames 14
+#if defined __APPLE2__	
+	#define spriteCols   7
+	#define spriteRows   24
+	unsigned char spriteColors[] = { };  // Colors are pre-assigned in the sprite sheet
+#elif defined __ATARI__
+	#define spriteCols   8
+	#define spriteRows   26
+	unsigned char spriteColors[] = { 0x0e, 0x80, 0x10, 0x2a, 0xba, 0x00, 0x00, 0x00, 0x00, 0x00 };  // Refer to atari palette in docs
+#elif defined __ORIC__
+	#define spriteCols   12
+	#define spriteRows   24
+	unsigned char spriteColors[] = { SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC };  // AIC color allows faster drawing!
+	unsigned char multiColorDef[] = { SPR_WHITE, 8, SPR_GREEN, 14, SPR_MAGENTA, 24 };	// Multicolor definition { color, row, ... }
+#elif defined __CBM__
+	#define spriteCols   12
+	#define spriteRows   21
+	unsigned char spriteColors[] = { WHITE, BLUE, BROWN, PINK, GREEN, WHITE, WHITE, WHITE, BLACK, WHITE };	// 0-8: Sprite colors, 9-10: Shared colors
+#elif defined __LYNX__
+	#define spriteCols   9
+	#define spriteRows   13
+	unsigned char spriteColors[] =  defaultColors; // Default palette	
+#endif
+
+// Accessible polygon in scene
+#define MAX_POLYGON 19
+signed int polygonX[MAX_POLYGON] = {   0,  53, 120, 138,  65,   0,  0, 32, 180, 270, 282, 251, 232, 210, 229, 320, 320,   0,   0 };
+signed int polygonY[MAX_POLYGON] = { 138, 162, 169, 144, 138, 107, 99, 95, 78, 102, 120, 137, 124, 143, 168, 116, 180, 180, 138 };
+
+// See scene.cabs
+extern Interact interacts[MAX_INTERACT];
 
 void GameLoop(void)
 {

@@ -1,6 +1,27 @@
 
-#include "interface.h"
+#include "definitions.h"
 
+#ifdef __ATARIXL__
+  #pragma code-name("SHADOW_RAM")
+#endif
+
+Interact interacts[MAX_INTERACT] = 
+	{ {  55,  81, 15,  90,  93, 	ACTIVE,		 "Notable",  "Dear sir, you look powerful.\nPlease help me with my quest?\0", "Go away, I am busy!\0", 0, 0 },
+	  { 222,  66, 15, 194,  86, 	ACTIVE,		 "Old Men",  "Hey villagers, do you know\nthe house of lord Tazaar?\0", "We are hungry!! But the\nnotable keeps all the food.", 0, 0 },
+	  { 260,  70,  7, 240,  94, ACTIVE|PICKABLE, "Bottle",   0, 0, 0, 0 },
+	  { 230, 134, 10, 208, 141, ACTIVE|PICKABLE, "Flower",   0, 0, 0, 0 },
+	  {  69,  60,  7,  94,  93, 	ACTIVE, 	 "Sausage",  0, "Hey, don't touch that!", 0, 0 },
+	  {  32,  77,  5,  18, 101, 	ACTIVE,		 "Switch",   0, 0, 0, 0 },
+	  { 300, 170, 30, 300, 170,    INACTIVE,	 "Fountain", 0, "Well done little goblin!\nThe tech-demo ends here!", 0, 0 } };
+
+Item items[MAX_ITEM] = 
+	{ { CHR_COLS-7,  CHR_ROWS-2, INACTIVE, 0 },
+	  { CHR_COLS-7,  CHR_ROWS-1, INACTIVE, 0 } };
+
+// Chunks for scene animation
+unsigned char* chunkAnim[6];
+unsigned char* chunkBcgr[3];
+	  
 // Initialize scene animations
 void InitScene()
 {	
@@ -87,10 +108,6 @@ unsigned char SelectItem(unsigned int x, unsigned int y)
 	}
 	return 255;
 }
-
-#ifdef __ATARIXL__
-  #pragma code-name("SHADOW_RAM")
-#endif
 
 // Search for interactable object under the mouse cursor
 unsigned char SearchScene(unsigned int searchX, unsigned int searchY) 
