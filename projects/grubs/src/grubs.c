@@ -583,7 +583,6 @@ int main(void)
     bgcolor(COLOR_BLACK);
 
 	// Initialize sfx/bitmap
-	InitSFX();
 	InitBitmap();
 	
 	// Setup sprites
@@ -598,6 +597,9 @@ int main(void)
 	LoadBitmap("pumpkins.img");
 	EnterBitmapMode();
 
+	// Setup sound
+	InitSFX();
+	
 	// Setup grubs/projectiles
 	InitGrubs();
 	InitProjs();
