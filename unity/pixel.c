@@ -52,8 +52,8 @@ void LocatePixel(unsigned int x, unsigned int y)
 // This function maps pixel coordinates from a 320x200 screen definition
 // It can be by-passed by assigning pixelX, pixelY directly in your code
 #if defined __APPLE2__	// Hires Mode: 140 x 192
-	pixelX = (x*140u)/320u;
-	pixelY = (y*192u)/200u;
+	pixelX = (x*140)/320u;
+	pixelY = (y*192)/200u;
 #elif defined __ATARI__	// INP Mode: 160 x 200
 	pixelX = x/2u;
 	pixelY = y;
@@ -62,9 +62,9 @@ void LocatePixel(unsigned int x, unsigned int y)
 	pixelY = y;
 #elif defined __LYNX__	// STD Mode: 160 x 102
 	pixelX = x/2u;
-	pixelY = (y*102u)/200u;
+	pixelY = (y*102)/200u;
 #elif defined __ORIC__	// AIC Mode: 117 x 100 equivalent pixels
-	pixelX = (x*117u)/320u;	
+	pixelX = (x*117)/320u;	
 	pixelY = y/2u;	
 #endif
 }
@@ -76,7 +76,7 @@ unsigned char GetPixel()
 	unsigned int addr, offset;
 	
 	// Check color index
-	addr = BITMAPRAM + (pixelY&248)*40u+(pixelY&7)+((pixelX*2u)&504);
+	addr = BITMAPRAM + (pixelY&248)*40 + (pixelY&7) + ((pixelX*2)&504);
 	rom_disable();
 	index = (PEEK(addr) >> (2*(3-(pixelX&3)))) & 3;
 	rom_enable();
@@ -85,7 +85,7 @@ unsigned char GetPixel()
 	if (index==0) { return bg; }
 	
 	// Analyze color index
-	offset = (pixelY/8u)*40u+(pixelX/4u);
+	offset = (pixelY/8u)*40+(pixelX/4u);
 	if (index==1) {	// Upper bits of screen RAM
 		addr = SCREENRAM + offset;
 		return (PEEK(addr) & 0xF0) >> 4;		
@@ -104,16 +104,16 @@ unsigned char GetPixel()
 	unsigned char val1, val2, shift;
 	
 	// Compute pixel location
-	offset = (pixelY*40u) + (pixelX/4u);
-	shift = 6 - 2u*(pixelX&3);
+	offset = (pixelY*40) + (pixelX/4u);
+	shift = 6 - 2*(pixelX&3);
 
 	// Dual buffer (colour/shade)
 	val1 = (PEEK((char*)BITMAPRAM1+offset) & ( 3 << shift )) >> shift;
 	val2 = (PEEK((char*)BITMAPRAM2+offset) & ( 3 << shift )) >> shift;
 	if (val1 > val2) {
-		return val1*4u + val2;
+		return val1*4 + val2;
 	} else {
-		return val2*4u + val1;
+		return val2*4 + val1;
 	}
 	
 #elif defined __APPLE2__
@@ -137,7 +137,7 @@ unsigned char GetPixel()
 	extern unsigned char frameROWS;
 
 	// Scale to block coordinates (6x2)
-	pX = pixelX/3u+1; pY = pixelY*2u;
+	pX = pixelX/3u+1; pY = pixelY*2;
 	
 	// Check for sprite occlusion
 	for (i=0; i<SPRITE_NUM; i++) {
@@ -156,7 +156,7 @@ unsigned char GetPixel()
 	
 	// Get 2 bytes from Bitmap RAM (interlaced lines)
 	if (!occlusion) {
-		addr = (char*)BITMAPRAM + pY*40u + pX;		
+		addr = (char*)BITMAPRAM + pY*40 + pX;		
 		byte1 = PEEK(addr);
 		byte2 = PEEK(addr+40);	
 	}
@@ -171,20 +171,24 @@ unsigned char GetPixel()
 	byte2 = (byte2 << shift) & 48;
 	switch (byte1) {
 	case 0:
-		if (byte2 == 48) { color += 3; }
+		if (byte2 == 48) 
+			color += 3;
 		break;
 	case 32:
 		color += 1;
 		break;
 	case 48:
-		if (byte2 == 48) { color += 4; } else { color += 2; }
+		if (byte2 == 48) 
+			color += 4;
+		else
+			color += 2;
 		break;	
 	}
 	return color;
 	
 #elif defined __LYNX__
 	unsigned int addr;
-	addr = BITMAPRAM + pixelY*82u + pixelX/2u + 1;
+	addr = BITMAPRAM + pixelY*82 + pixelX/2u + 1;
 	if (pixelX%2) { 
 		return (PEEK((char*)addr) & 15);
 	} else {
@@ -229,8 +233,8 @@ void SetPixel(unsigned char color)
 	unsigned char shift;
 	
 	// Set index to 3
-	offset = (pixelY&248)*40u+(pixelY&7)+((pixelX*2)&504);
-	shift = (2u*(3-(pixelX&3)));
+	offset = (pixelY&248)*40 + (pixelY&7) + ((pixelX*2)&504);
+	shift = 2*(3-(pixelX&3));
 	rom_disable();
 	POKE(BITMAPRAM+offset, PEEK(BITMAPRAM+offset) | 3 << shift);
 	rom_enable();
@@ -241,14 +245,14 @@ void SetPixel(unsigned char color)
 		
 #elif defined __ORIC__
 	unsigned int offset;
-	unsigned char byte1, byte2, shift;
+	unsigned char byte1, byte2, shift, shift48;
 	
 	// Compute pixel offset
-	offset = pixelY*80u + pixelX/3u + 1;
+	offset = pixelY*80 + pixelX/3u + 1;
 	
 	// Get bytes from Bitmap RAM
 	byte1 = PEEK((char*)BITMAPRAM+offset) & 63;
-	byte2 = PEEK((char*)BITMAPRAM+offset+40) & 63;	
+	byte2 = PEEK((char*)BITMAPRAM+40+offset) & 63;	
 	
 	// Set PAPER/INK inversion
 	switch (color/5u) {
@@ -272,28 +276,29 @@ void SetPixel(unsigned char color)
 	
 	// Set pixels
 	shift = 2 * (pixelX%3);
-	byte1 &= ~(48 >> shift);
-	byte2 &= ~(48 >> shift);
+	shift48 = (48 >> shift);
+	byte1 &= ~shift48;
+	byte2 &= ~shift48;
 	switch (color%5) {
     case 1:
 		byte1 |= 32 >> shift;
 		byte2 |= 16 >> shift;
 		break;
 	case 2:
-		byte1 |= 48 >> shift;
+		byte1 |= shift48;
 		break;
 	case 3:
-		byte2 |= 48 >> shift;
+		byte2 |= shift48;
 		break;
 	case 4:
-		byte1 |= 48 >> shift;
-		byte2 |= 48 >> shift;
+		byte1 |= shift48;
+		byte2 |= shift48;
 		break;
 	}
 	
 	// Assign bytes in Bitmap RAM
 	POKE((char*)BITMAPRAM+offset,    byte1);
-	POKE((char*)BITMAPRAM+offset+40, byte2);
+	POKE((char*)BITMAPRAM+40+offset, byte2);
 	
 #elif defined __LYNX__
 	unsigned char* addr = (char*)BITMAPRAM + pixelY*82u + pixelX/2u + 1;
