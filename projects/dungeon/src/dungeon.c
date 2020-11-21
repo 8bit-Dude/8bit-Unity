@@ -45,18 +45,19 @@ typedef struct {
 	clock_t timer;
 } Actor;
 
-Actor actors[ACTOR_NUM] = { { ACTOR_KEY,    COLOR_KEY,      0,  KEY_KEY,           0,       255, 2*58, 2*29, 255, 255, 0 },
-							{ ACTOR_GUARD,  COLOR_SKELETON, 15, KEY_SKELETON, STANCE_LEFT,  255, 2*56, 2*27, 255, 255, 0 },
-							{ ACTOR_GUARD,  COLOR_SKELETON, 15, KEY_SKELETON, STANCE_RIGHT, 255, 2*61, 2*26, 255, 255, 0 },
-							{ ACTOR_GUARD,  COLOR_SKELETON, 15, KEY_SKELETON, STANCE_LEFT,  255, 2*62, 2*28, 255, 255, 0 },
-							{ ACTOR_GUARD,  COLOR_SKELETON, 15, KEY_SKELETON, STANCE_RIGHT, 255, 2*56, 2*30, 255, 255, 0 },
-							{ ACTOR_GUARD,  COLOR_GOBLIN,   10, KEY_GOBLIN,   STANCE_LEFT,  255, 2*41, 2*7,  255, 255, 0 },
-							{ ACTOR_GUARD,  COLOR_GOBLIN,   10, KEY_GOBLIN,   STANCE_RIGHT, 255, 2*39, 2*11, 255, 255, 0 },
-							{ ACTOR_GUARD,  COLOR_GOBLIN,   10, KEY_GOBLIN,   STANCE_LEFT,  255, 2*37, 2*7,  255, 255, 0 },
-							{ ACTOR_GUARD,  COLOR_SKELETON, 15, KEY_SKELETON, STANCE_RIGHT, 255, 2*43, 2*38, 255, 255, 0 },
-							{ ACTOR_GUARD,  COLOR_SKELETON, 15, KEY_SKELETON, STANCE_RIGHT, 255, 2*41, 2*39, 255, 255, 0 },
-							{ ACTOR_NULL,         0,         0,      0,            0,       255,   0,   0,   255, 255, 0 },
-							{ ACTOR_NULL,         0,         0,      0,            0,       255,   0,   0,   255, 255, 0 } };
+// Note: Charpad coordinates are multiplied by 2 (tile size is 2 x 2)
+Actor actors[ACTOR_NUM] = { { ACTOR_KEY,    COLOR_KEY,      0,  KEY_KEY,           0,       255, 2*58, 2*29, 0, 0, 0 },
+							{ ACTOR_GUARD,  COLOR_SKELETON, 15, KEY_SKELETON, STANCE_LEFT,  255, 2*56, 2*27, 0, 0, 0 },
+							{ ACTOR_GUARD,  COLOR_SKELETON, 15, KEY_SKELETON, STANCE_RIGHT, 255, 2*61, 2*26, 0, 0, 0 },
+							{ ACTOR_GUARD,  COLOR_SKELETON, 15, KEY_SKELETON, STANCE_LEFT,  255, 2*62, 2*28, 0, 0, 0 },
+							{ ACTOR_GUARD,  COLOR_SKELETON, 15, KEY_SKELETON, STANCE_RIGHT, 255, 2*56, 2*30, 0, 0, 0 },
+							{ ACTOR_GUARD,  COLOR_GOBLIN,   10, KEY_GOBLIN,   STANCE_LEFT,  255, 2*41, 2*7,  0, 0, 0 },
+							{ ACTOR_GUARD,  COLOR_GOBLIN,   10, KEY_GOBLIN,   STANCE_RIGHT, 255, 2*39, 2*11, 0, 0, 0 },
+							{ ACTOR_GUARD,  COLOR_GOBLIN,   10, KEY_GOBLIN,   STANCE_LEFT,  255, 2*37, 2*7,  0, 0, 0 },
+							{ ACTOR_GUARD,  COLOR_SKELETON, 15, KEY_SKELETON, STANCE_RIGHT, 255, 2*43, 2*38, 0, 0, 0 },
+							{ ACTOR_GUARD,  COLOR_SKELETON, 15, KEY_SKELETON, STANCE_RIGHT, 255, 2*41, 2*39, 0, 0, 0 },
+							{ ACTOR_NULL,         0,         0,      0,            0,       255,   0,   0,   0, 0, 0 },
+							{ ACTOR_NULL,         0,         0,      0,            0,       255,   0,   0,   0, 0, 0 } };
 
 // Player variables
 unsigned char health = 100;
@@ -65,8 +66,8 @@ unsigned char gold   = 0;
 unsigned char kills  = 0;
 
 // Game state
-unsigned char mapX =  92, mapY =  0, mapXPRV, mapYPRV; // Current and previous map position
-unsigned int  scrX = 195, scrY = 50, scrXPRV, scrYPRV; // Current and previous screen position of player
+unsigned char mapX = 2*46, mapY =  0, mapXPRV, mapYPRV; // Current and previous map position
+unsigned int  scrX =  195, scrY = 50, scrXPRV, scrYPRV; // Current and previous screen position of player
 unsigned int  weaponX, weaponY;
 unsigned char maxX, maxY, flagX, flagY1, flagY2;  // Coords of collision detection (accounting for model height)
 unsigned char i, j, slot, joy, action, motion, direction, collision, tmpX, tmpY;
