@@ -1,5 +1,5 @@
 
-#include "interface.h"
+#include "definitions.h"
 
 #if defined __APPLE2__
   #define RACE_ROAD LGREY
@@ -26,6 +26,42 @@
   #define RACE_WALL PURPLE
   #define SPR2_SLOT 4
 #endif
+
+// See slicks.c
+extern unsigned char inkColors[];
+
+// See interface.c
+extern unsigned char controlIndex[MAX_PLAYERS];
+extern unsigned char controlBackup[MAX_PLAYERS];
+extern unsigned char lapNumber[LEN_LAPS];
+extern const char *mapList[LEN_MAPS];
+extern unsigned char paperBuffer;
+
+// See navigation.c
+extern Vehicle cars[MAX_PLAYERS];
+extern unsigned char numWays;
+
+// See network.c
+extern unsigned char clIndex;
+extern unsigned char svUsers[MAX_PLAYERS][5];
+extern unsigned char svMap, svStep; 
+extern char chatBuffer[20];
+
+// Map boundaries
+int xMin = 3*8;
+int yMin = 11*8;
+int xMax = 317*8;
+int yMax = 189*8;
+
+// Game data
+unsigned char gameMap = 0;
+unsigned char gameMode = MODE_LOCAL;
+unsigned char gameStep = STEP_WARMUP;
+unsigned char gameLineUp[4] = { 0, 1, 2, 3 };
+
+// Lap information
+unsigned char lapIndex = 0;
+unsigned char lapGoal;
 
 // Physics parameters
 int tck4, accRate, decRate, jmpTCK;

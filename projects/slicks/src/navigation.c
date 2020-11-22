@@ -1,34 +1,8 @@
 
 #include "definitions.h"
 
-//#define DEBUG_NAV
-
-// Vehicle structure
-typedef struct {
-	int x1, y1;  // Old Position * 8 (integer)
-	int x2, y2;	 // New Position * 8 (integer)
-	int ang1; 	 // Vehicle Angle
-	int ang2;	 // Trajectory Angle
-	int ang3;	 // AI Target Angle
-	int vel;	 // Velocity
-	int impx;	 // Impulse
-	int impy;	 
-    clock_t jmp; // Jump Time
-	unsigned char joy;  // joystick
-	unsigned char way;	// Current waypoint
-	signed char lap;	// Current lap
-} Vehicle;
-
-// Waypoint structure
-typedef struct {
-	int x, y;		// Position
-	int v[2][2];	// In/Out Vectors
-} Waypoint;
-
-// Ramp structure
-typedef struct {
-	int x[2], y[2];	// Coordinates
-} Ramp;
+// See game.c
+extern unsigned char gameLineUp[4];
 
 // Navigation variables
 Vehicle cars[MAX_PLAYERS];
@@ -41,12 +15,6 @@ unsigned char numRamps;
 unsigned int lineupX[MAX_PLAYERS];
 unsigned int lineupY[MAX_PLAYERS];
 unsigned int lineupAng[MAX_PLAYERS];
-
-// Map boundaries
-int xMin = 3*8;
-int yMin = 11*8;
-int xMax = 317*8;
-int yMax = 189*8;
 
 // Function to load *.nav files
 void LoadNavigation(char *filename)

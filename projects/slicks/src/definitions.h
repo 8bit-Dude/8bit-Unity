@@ -2,6 +2,10 @@
 // 8bit-Unity SDK
 #include "unity.h"
 
+// Debugging flags
+//#define DEBUG_FPS
+//#define DEBUG_NAV
+
 // *** Platform specific HACKS ***
 #if defined __CBM__
 	#undef  MUSICRAM
@@ -41,82 +45,108 @@
 #define STEP_WARMUP 1
 #define STEP_RACE   2
 
-// Build Information
-const char* buildInfo = "BUILD: 2020/11/15";
+// Interface definitions
+#define ROW_CHAT (CHR_ROWS-2)
 
-// Game data
-unsigned char gameMap = 0;
-unsigned char gameMode = MODE_LOCAL;
-unsigned char gameStep = STEP_WARMUP;
-unsigned char gameLineUp[4] = { 0, 1, 2, 3 };
-
-// Lap information
-unsigned char lapIndex = 0;
-unsigned char lapGoal;
-
-// Sprite definitions
-#if defined __APPLE2__
-	#define spriteFrames 64
-	#define spriteCols   7	
-	#define spriteRows   5	
-	unsigned char spriteColors[] = { };	//  Colors are pre-assigned in the sprite sheet
-	unsigned char inkColors[] = { BLUE, RED, GREEN, YELLOW, WHITE };		// P1, P2, P3, P4, SERVER INFO
-#elif defined __ATARI__
-	#define spriteFrames 18
-	#define spriteCols   8
-	#define spriteRows   10
-	unsigned char spriteColors[] = {0x74, 0x24, 0xa6, 0xdc, 0x00, 0x22, 0x22, 0x22, 0x22, 0x22 };	// Refer to atari palette in docs
-	unsigned char inkColors[] = { BLUE, RED, GREEN, YELLOW, WHITE };		// P1, P2, P3, P4, SERVER INFO
-#elif defined __ORIC__
-	#define spriteFrames 17
-	#define spriteCols   12
-	#define spriteRows   6
-	unsigned char spriteColors[] = { SPR_CYAN, SPR_MAGENTA, SPR_GREEN, SPR_WHITE, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC };	
-	unsigned char inkColors[] = { CYAN, LPURPLE, LGREEN, GREY, WHITE };		// P1, P2, P3, P4, SERVER INFO
-#elif defined __CBM__
-	#define spriteFrames 18
-	#define spriteCols   12
-	#define spriteRows   21
-	unsigned char spriteColors[] = { BLUE, RED, GREEN, YELLOW, LGREY, LGREY, LGREY, 0, CYAN, BLACK };	// P1, P2, P3, P4, Light1, Light2, Light3, n/a, Shared Color 1, Shared Color 2
-	unsigned char inkColors[] = { BLUE, RED, LGREEN, YELLOW, WHITE };		// P1, P2, P3, P4, SERVER INFO
-#elif defined __LYNX__
-	#define spriteFrames 18
-	#define spriteCols   7
-	#define spriteRows   9
-	unsigned char spriteColors[] = { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,   // Default palette
-									 0x0b, 0x23, 0x45, 0x67, 0x89, 0xa1, 0xcd, 0xef,   // Swapped 1 and B
-									 0x05, 0x23, 0x41, 0x67, 0x89, 0xab, 0xcd, 0xef,   // Swapped 1 and 5
-									 0x09, 0x23, 0x45, 0x67, 0x81, 0xab, 0xcd, 0xef,   // Swapped 1 and 9
-									 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,   // Default palette
-									 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,   // Default palette
-									 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,   // Default palette
-									 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef }; // Default palette
-	unsigned char inkColors[] = { DBLUE, RED, LGREEN, YELLOW, WHITE };		// P1, P2, P3, P4, SERVER INFO
-#endif
-
-// List of available maps
-const char *mapList[LEN_MAPS] = {"arizona","arto","cramp","freeway","gta","island","mtcarlo","rally","river","stadium"};
-
-// List of lap goals
-unsigned char lapNumber[LEN_LAPS] = { 5, 10, 20, 50 };
-
-// List of controller types
-unsigned char controlIndex[MAX_PLAYERS] = { 3, 1, 0, 0 };
-unsigned char controlBackup[MAX_PLAYERS] = { 3, 1, 0, 0 };
+// Controller definitions
 #if defined __APPLE2__
 	#define LEN_CONTROL 8
-	const char* controlList[LEN_CONTROL] = { "NONE", "CPU EASY", "CPU HARD", "PADDLE 1", "PADDLE 2", "PADDLE 3", "PADDLE 4", "NETWORK" };
 #elif defined __ATARI__
 	#define LEN_CONTROL 8
-	const char* controlList[LEN_CONTROL] = { "NONE", "CPU EASY", "CPU HARD", "JOY 1", "JOY 2", "HUB 1", "HUB 2", "NETWORK" };
 #elif defined __ORIC__
 	#define LEN_CONTROL 8
-	const char* controlList[LEN_CONTROL] = { "NONE", "CPU EASY", "CPU HARD", "A,D,CTRL", "J,L,RET", "PASE/HUB 1", "PASE/HUB 2", "NETWORK" };
 #elif defined __CBM__
 	#define LEN_CONTROL 8
-	const char* controlList[LEN_CONTROL] = { "NONE", "CPU EASY", "CPU HARD", "JOY 1", "JOY 2", "JOY 3", "JOY 4", "NETWORK" };
 #elif defined __LYNX__
 	#define LEN_CONTROL 7
-	const char* controlList[LEN_CONTROL] = { "NONE", "CPU EASY", "CPU HARD", "JOY 1", "HUB 1", "HUB 2", "NETWORK" };
 #endif
 #define NET_CONTROL (LEN_CONTROL-1)
+
+// Network definitions
+#define CL_VER  8
+
+#define CL_ERROR  0
+#define CL_LIST   1
+#define CL_JOIN   2
+#define CL_LEAVE  3
+#define CL_READY  4
+#define CL_FRAME  5
+#define CL_EVENT  6
+#define CL_TICKET 7
+
+#define SV_ERROR  0
+#define SV_LIST   1
+#define SV_AUTH   2
+#define SV_INFO   3
+#define SV_FRAME  4
+#define SV_EVENT  5
+#define SV_OK     6
+
+#define EVENT_RACE  1
+#define EVENT_MAP   2
+#define EVENT_LAP   3
+#define EVENT_CHAT  4
+
+#define ERR_TIMEOUT 127
+#define ERR_CORRUPT 128
+#define ERR_MESSAGE 129
+
+// Vehicle structure
+typedef struct {
+	int x1, y1;  // Old Position * 8 (integer)
+	int x2, y2;	 // New Position * 8 (integer)
+	int ang1; 	 // Vehicle Angle
+	int ang2;	 // Trajectory Angle
+	int ang3;	 // AI Target Angle
+	int vel;	 // Velocity
+	int impx;	 // Impulse
+	int impy;	 
+    clock_t jmp; // Jump Time
+	unsigned char joy;  // joystick
+	unsigned char way;	// Current waypoint
+	signed char lap;	// Current lap
+} Vehicle;
+
+// Waypoint structure
+typedef struct {
+	int x, y;		// Position
+	int v[2][2];	// In/Out Vectors
+} Waypoint;
+
+// Ramp structure
+typedef struct {
+	int x[2], y[2];	// Coordinates
+} Ramp;
+
+// See game.c
+void GameReset(void);
+void GameInit(const char* map);
+char GameLoop(void);
+
+// See interface.c
+void BackupChatRow(void);
+void RedrawChatRow(void);
+void PrintBuffer(char *buffer);
+void InputField(unsigned char col, unsigned char row, char *buffer, unsigned char len);
+void PrintScores(void);
+void PrintRace(void);
+void PrintTimedOut(void);
+void PrintLap(unsigned char i);
+void GameMenu(void);
+
+// See navigation.c
+void LoadNavigation(char *filename);
+void ResetLineUp(void);
+int GetWaypointAngle(Vehicle *car);
+char CheckWaypoint(Vehicle *car);
+char CheckRamps(Vehicle *car);
+
+// See network.c
+void ServerConnect(void);
+void ServerDisconnect(void);
+void ServerInfo(void);
+unsigned char ClientJoin(char game);
+unsigned char ClientReady(void);
+void ClientEvent(char event);
+void ClientLeave(void);
+unsigned char NetworkUpdate(void);
