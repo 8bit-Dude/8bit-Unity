@@ -2,7 +2,7 @@
 # 
 # Should build Oric .DSK binaries
 #
-name: build-8bit-unity-for-oric
+name: build-8bit-unity-OS-for-oric
 
 on:
   push:
@@ -19,7 +19,7 @@ jobs:
     - name: Checkout 8bit Unity source files
       uses: actions/checkout@v2
 
-    - name: Build 8bit OS for Oric (.DSK file)
+    - name: Build 8bit Unity OS for Oric (.DSK file)
       run: cd D:\a\8bit-Unity\8bit-Unity\build; .\os-oric48k.bat
 
     - name: Upload Oric DSK file
