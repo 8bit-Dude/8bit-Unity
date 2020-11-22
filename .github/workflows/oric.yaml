@@ -1,0 +1,37 @@
+# Oric-focused build harness for 8-bit Unity
+# 
+# Should build Oric .DSK binaries
+#
+name: build-8bit-unity-for-oric
+
+os: windows-2019
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    steps:
+
+    - name: Checkout source files
+      uses: actions/checkout@v2
+
+    - name: Run build
+      run: build/os-oric48k.bat
+
+    - name: Show files
+      run:  set ; pwd ; ls -l
+
+    - name: Upload DSK files
+      uses: actions/upload-artifact@v2
+      with:
+        name: upload DSK files
+        path: build/*dsk
+
+    - name: Find output
+      run:  |
+        find . -name "*.dsk" -ls
+      
