@@ -1,5 +1,5 @@
 
-#include "network.h"
+#include "definitions.h"
 
 #ifdef __ATARIXL__
   #pragma code-name("SHADOW_RAM")
@@ -56,11 +56,47 @@
 	#define MENU_HEI 16
 #endif
 
-// Other definitions
-#define ROW_CHAT (CHR_ROWS-2)
+// See slicks.c
+extern unsigned char inkColors[];
 
-// Debugging flags
-//#define DEBUG_FPS
+// See game.c
+extern unsigned char gameMode, gameMap, gameStep;
+extern unsigned char lapIndex, lapGoal;
+
+// See navigation.c
+extern Vehicle cars[MAX_PLAYERS];
+
+// See network.c
+extern unsigned int packet;
+extern unsigned char clUser[5];
+extern unsigned char clPass[13];
+extern unsigned char svUsers[MAX_PLAYERS][5];
+extern unsigned char svMap, svStep; 
+extern char networkReady;
+
+// Build Information
+const char* buildInfo = "BUILD: 2020/11/15";
+
+// List of available maps
+const char *mapList[LEN_MAPS] = {"arizona","arto","cramp","freeway","gta","island","mtcarlo","rally","river","stadium"};
+
+// List of lap goals
+unsigned char lapNumber[LEN_LAPS] = { 5, 10, 20, 50 };
+
+// List of controller types
+unsigned char controlIndex[MAX_PLAYERS] = { 3, 1, 0, 0 };
+unsigned char controlBackup[MAX_PLAYERS] = { 3, 1, 0, 0 };
+#if defined __APPLE2__
+	const char* controlList[LEN_CONTROL] = { "NONE", "CPU EASY", "CPU HARD", "PADDLE 1", "PADDLE 2", "PADDLE 3", "PADDLE 4", "NETWORK" };
+#elif defined __ATARI__
+	const char* controlList[LEN_CONTROL] = { "NONE", "CPU EASY", "CPU HARD", "JOY 1", "JOY 2", "HUB 1", "HUB 2", "NETWORK" };
+#elif defined __ORIC__
+	const char* controlList[LEN_CONTROL] = { "NONE", "CPU EASY", "CPU HARD", "A,D,CTRL", "J,L,RET", "PASE/HUB 1", "PASE/HUB 2", "NETWORK" };
+#elif defined __CBM__
+	const char* controlList[LEN_CONTROL] = { "NONE", "CPU EASY", "CPU HARD", "JOY 1", "JOY 2", "JOY 3", "JOY 4", "NETWORK" };
+#elif defined __LYNX__
+	const char* controlList[LEN_CONTROL] = { "NONE", "CPU EASY", "CPU HARD", "JOY 1", "HUB 1", "HUB 2", "NETWORK" };
+#endif
 
 // Performance Drawing
 #ifdef DEBUG_FPS

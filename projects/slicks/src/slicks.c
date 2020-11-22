@@ -1,5 +1,45 @@
 
-#include "game.h"
+#include "definitions.h"
+
+// Sprite definitions
+#if defined __APPLE2__
+	#define spriteFrames 64
+	#define spriteCols   7	
+	#define spriteRows   5	
+	unsigned char spriteColors[] = { };	//  Colors are pre-assigned in the sprite sheet
+	unsigned char inkColors[] = { BLUE, RED, GREEN, YELLOW, WHITE };		// P1, P2, P3, P4, SERVER INFO
+#elif defined __ATARI__
+	#define spriteFrames 18
+	#define spriteCols   8
+	#define spriteRows   10
+	unsigned char spriteColors[] = {0x74, 0x24, 0xa6, 0xdc, 0x00, 0x22, 0x22, 0x22, 0x22, 0x22 };	// Refer to atari palette in docs
+	unsigned char inkColors[] = { BLUE, RED, GREEN, YELLOW, WHITE };		// P1, P2, P3, P4, SERVER INFO
+#elif defined __ORIC__
+	#define spriteFrames 17
+	#define spriteCols   12
+	#define spriteRows   6
+	unsigned char spriteColors[] = { SPR_CYAN, SPR_MAGENTA, SPR_GREEN, SPR_WHITE, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC };	
+	unsigned char inkColors[] = { CYAN, LPURPLE, LGREEN, GREY, WHITE };		// P1, P2, P3, P4, SERVER INFO
+#elif defined __CBM__
+	#define spriteFrames 18
+	#define spriteCols   12
+	#define spriteRows   21
+	unsigned char spriteColors[] = { BLUE, RED, GREEN, YELLOW, LGREY, LGREY, LGREY, 0, CYAN, BLACK };	// P1, P2, P3, P4, Light1, Light2, Light3, n/a, Shared Color 1, Shared Color 2
+	unsigned char inkColors[] = { BLUE, RED, LGREEN, YELLOW, WHITE };		// P1, P2, P3, P4, SERVER INFO
+#elif defined __LYNX__
+	#define spriteFrames 18
+	#define spriteCols   7
+	#define spriteRows   9
+	unsigned char spriteColors[] = { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,   // Default palette
+									 0x0b, 0x23, 0x45, 0x67, 0x89, 0xa1, 0xcd, 0xef,   // Swapped 1 and B
+									 0x05, 0x23, 0x41, 0x67, 0x89, 0xab, 0xcd, 0xef,   // Swapped 1 and 5
+									 0x09, 0x23, 0x45, 0x67, 0x81, 0xab, 0xcd, 0xef,   // Swapped 1 and 9
+									 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,   // Default palette
+									 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,   // Default palette
+									 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,   // Default palette
+									 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef }; // Default palette
+	unsigned char inkColors[] = { DBLUE, RED, LGREEN, YELLOW, WHITE };		// P1, P2, P3, P4, SERVER INFO
+#endif
 
 #if defined __LYNX__
 const char *musicList[4] = {"chase.mus","driven.mus","stroll.mus","whirlwnd.mus"};
@@ -11,6 +51,15 @@ void NextMusic() {
 	PlayMusic();
 }
 #endif
+
+// See game.c
+extern unsigned char gameMap, gameMode, gameStep;
+#if defined __APPLE2__
+  void CheckFileExists(const char* filename);
+#endif
+
+// See interface.c
+extern const char *mapList[LEN_MAPS];
 
 int main (void) 
 {
