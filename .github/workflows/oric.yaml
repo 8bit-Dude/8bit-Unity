@@ -11,9 +11,9 @@ on:
     branches: [ main ]
 
 jobs:
-  runs-on: windows-2019
 
   build:
+    runs-on: windows-2019
     steps:
 
     - name: Checkout source files
