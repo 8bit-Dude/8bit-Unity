@@ -16,19 +16,15 @@ jobs:
     runs-on: windows-2019
     steps:
 
-    - name: Checkout source files
+    - name: Checkout 8bit Unity source files
       uses: actions/checkout@v2
 
-    - name: Run build
+    - name: Build 8bit OS for Oric (.DSK file)
       run: cd D:\a\8bit-Unity\8bit-Unity\build; .\os-oric48k.bat
 
-    - name: Upload DSK files
+    - name: Upload Oric DSK file
       uses: actions/upload-artifact@v2
       with:
-        name: upload DSK files
-        path: build/*dsk
+        name: os-oric48k.dsk
+        path: build/os-oric48k.dsk
 
-    - name: Find output
-      run:  |
-        find . -name "*.dsk" -ls
-      
