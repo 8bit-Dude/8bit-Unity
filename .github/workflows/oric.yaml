@@ -22,9 +22,6 @@ jobs:
     - name: Run build
       run: cd D:\a\8bit-Unity\8bit-Unity\build; .\os-oric48k.bat
 
-    - name: Show files
-      run:  set ; pwd ; ls -l
-
     - name: Upload DSK files
       uses: actions/upload-artifact@v2
       with:
