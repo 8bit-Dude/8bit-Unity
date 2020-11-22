@@ -1,4 +1,7 @@
-echo off
+rem echo off
+rem
+
+dir
 
 setlocal enableextensions enabledelayedexpansion
 
