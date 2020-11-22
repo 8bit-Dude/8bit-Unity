@@ -20,7 +20,7 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Run build
-      run: D:\a\8bit-Unity\8bit-Unity\build\os-oric48k.bat
+      run: cd D:\a\8bit-Unity\8bit-Unity\build; .\os-oric48k.bat
 
     - name: Show files
       run:  set ; pwd ; ls -l
