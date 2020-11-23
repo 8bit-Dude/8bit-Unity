@@ -46,18 +46,7 @@ typedef struct {
 } Actor;
 
 // Note: Charpad coordinates are multiplied by 2 (tile size is 2 x 2)
-Actor actors[ACTOR_NUM] = { { ACTOR_KEY,    COLOR_KEY,      0,  KEY_KEY,           0,       255, 2*58, 2*29, 0, 0, 0 },
-							{ ACTOR_GUARD,  COLOR_SKELETON, 15, KEY_SKELETON, STANCE_LEFT,  255, 2*56, 2*27, 0, 0, 0 },
-							{ ACTOR_GUARD,  COLOR_SKELETON, 15, KEY_SKELETON, STANCE_RIGHT, 255, 2*61, 2*26, 0, 0, 0 },
-							{ ACTOR_GUARD,  COLOR_SKELETON, 15, KEY_SKELETON, STANCE_LEFT,  255, 2*62, 2*28, 0, 0, 0 },
-							{ ACTOR_GUARD,  COLOR_SKELETON, 15, KEY_SKELETON, STANCE_RIGHT, 255, 2*56, 2*30, 0, 0, 0 },
-							{ ACTOR_GUARD,  COLOR_GOBLIN,   10, KEY_GOBLIN,   STANCE_LEFT,  255, 2*41, 2*7,  0, 0, 0 },
-							{ ACTOR_GUARD,  COLOR_GOBLIN,   10, KEY_GOBLIN,   STANCE_RIGHT, 255, 2*39, 2*11, 0, 0, 0 },
-							{ ACTOR_GUARD,  COLOR_GOBLIN,   10, KEY_GOBLIN,   STANCE_LEFT,  255, 2*37, 2*7,  0, 0, 0 },
-							{ ACTOR_GUARD,  COLOR_SKELETON, 15, KEY_SKELETON, STANCE_RIGHT, 255, 2*43, 2*38, 0, 0, 0 },
-							{ ACTOR_GUARD,  COLOR_SKELETON, 15, KEY_SKELETON, STANCE_RIGHT, 255, 2*41, 2*39, 0, 0, 0 },
-							{ ACTOR_NULL,         0,         0,      0,            0,       255,   0,   0,   0, 0, 0 },
-							{ ACTOR_NULL,         0,         0,      0,            0,       255,   0,   0,   0, 0, 0 } };
+Actor actors[ACTOR_NUM];
 
 // Player variables
 unsigned char health = 100;
@@ -66,8 +55,8 @@ unsigned char gold   = 0;
 unsigned char kills  = 0;
 
 // Game state
-unsigned char mapX = 2*46, mapY =  0, mapXPRV, mapYPRV; // Current and previous map position
-unsigned int  scrX =  195, scrY = 50, scrXPRV, scrYPRV; // Current and previous screen position of player
+unsigned char mapX, mapY, mapXPRV, mapYPRV; // Current and previous map position
+unsigned int  scrX, scrY, scrXPRV, scrYPRV; // Current and previous screen position of player
 unsigned int  weaponX, weaponY;
 unsigned char maxX, maxY, flagX, flagY1, flagY2;  // Coords of collision detection (accounting for model height)
 unsigned char i, j, slot, joy, action, motion, direction, collision, tmpX, tmpY;
@@ -76,6 +65,82 @@ signed int    deltaX, deltaY;
 clock_t 	  playerClock, weaponClock, actorClock;	
 Actor* 		  actor;
 
+
+void LoadNavigation(const char* filename)
+{	
+	// Read nav file
+	unsigned char offset, i=0;
+#if (defined __APPLE2__)
+	unsigned char navBuffer[128];
+	FILE* fp = fopen(filename, "rb");
+	fread(navBuffer, 1, 128, fp);
+	fclose(fp);
+#elif (defined __ATARI__)
+	unsigned char navBuffer[128];
+	if (FileOpen(filename))
+		FileRead(navBuffer, 128);
+#elif (defined __CBM__)
+	unsigned char navBuffer[128];
+	FILE* fp = fopen(filename, "rb");
+	fread(navBuffer, 1, 128, fp);
+	fclose(fp);
+#elif (defined __LYNX__)
+	unsigned char* navBuffer = (char*)SHAREDRAM;
+	bzero(SHAREDRAM, 128);
+	FileRead(filename);
+#elif (defined __ORIC__)
+	unsigned char navBuffer[128];
+	FileRead(filename, navBuffer);
+#endif	
+
+	// Reset actor memory
+	memset(actors, 255, ACTOR_MAX*16);
+
+	// Decode start position
+	mapX = 2*navBuffer[0];
+	offset = MIN(mapX, screenWidth/2); 
+	scrX = 8*(CROP_X+offset);
+	mapX -= offset;
+		
+	mapY = 2*navBuffer[1];
+	offset = MIN(mapY, screenHeight/2);
+	scrY = 8*(CROP_Y+offset);
+	mapY -= offset;
+	
+	// Decode actors
+	offset = navBuffer[4];
+	while (i<offset) {
+		actor = &actors[i]; i++;
+		switch (navBuffer[5+i*5]) {
+		case 0:
+			actor->state = ACTOR_KEY;
+			actor->color = COLOR_KEY;
+			actor->key   = KEY_KEY;
+			break;
+		case 1:
+			actor->state = ACTOR_GUARD;
+			actor->color = COLOR_GOBLIN;
+			actor->key   = KEY_GOBLIN;
+			break;
+		case 2:
+			actor->state = ACTOR_GUARD;
+			actor->color = COLOR_SKELETON;
+			actor->key   = KEY_SKELETON;
+			break;		
+		}
+		switch (navBuffer[6+i*5]) {
+		case 0:
+			actor->stance = STANCE_LEFT;
+			break;
+		case 1:
+			actor->stance = STANCE_RIGHT;
+			break;
+		}
+		actor->health = navBuffer[7+i*5];
+		actor->mapX = 2*navBuffer[8+i*5];
+		actor->mapY = 2*navBuffer[9+i*5];
+	}
+}
 
 unsigned char CheckActorCollision(unsigned int scrX, unsigned int scrY, unsigned char flag)
 {
@@ -471,16 +536,8 @@ void ProcessPlayer()
 void GameInit(void)
 {
 	// Setup charmap
-#if defined (__APPLE2__) || defined(__ORIC__)
-	screenCol1 = 4; screenCol2 = CHR_COLS-4;
-	screenRow1 = 3; screenRow2 = CHR_ROWS-4; 
-#elif defined __LYNX__
-	screenCol1 = 2; screenCol2 = CHR_COLS-2;
-	screenRow1 = 0; screenRow2 = CHR_ROWS-1; 
-#else
-	screenCol1 = 2; screenCol2 = CHR_COLS-2;
-	screenRow1 = 2; screenRow2 = CHR_ROWS-3;
-#endif
+	screenCol1 = CROP_X; screenCol2 = CHR_COLS-CROP_X;
+	screenRow1 = CROP_Y; screenRow2 = CHR_ROWS-CROP_Y-1;
 	screenWidth = screenCol2-screenCol1;
 	screenHeight = screenRow2-screenRow1;
 	InitCharmap();		
@@ -488,6 +545,7 @@ void GameInit(void)
 	LoadCharset("quedex.chr", charColors);
 	LoadTileset("level1.tls", 40, 2, 2);
 	LoadCharmap("level1.map", 64, 64);
+	LoadNavigation("level1.nav");
 	EnterCharmapMode();
 	
 	// Setup sprites

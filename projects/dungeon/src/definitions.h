@@ -1,4 +1,16 @@
 
+// Screen cropping around charmap
+#if defined (__APPLE2__) || defined(__ORIC__)
+	#define CROP_X  4	// Crop more for platforms that run in HIRES
+	#define CROP_Y  3
+#elif defined __LYNX__
+	#define CROP_X  2	
+	#define CROP_Y  0	// Lynx has only 17 lines (vs. 25 on other platforms)
+#else
+	#define CROP_X  2
+	#define CROP_Y  2
+#endif
+
 // Player Motion
 #if defined __LYNX__	
 	#define SCALE_X 8
@@ -62,7 +74,7 @@
 #define STANCE_LEFT	   4
 
 // Actor data
-# define ACTOR_NUM   12
+# define ACTOR_NUM   16
 
 # define ACTOR_NULL   0
 # define ACTOR_GUARD  1
