@@ -28,6 +28,8 @@
 
 	.export _PlayMusic
 	.export _StopMusic
+	
+	.export _musicPaused
 
 VIA_1 = $30f
 VIA_2 = $30c
@@ -37,6 +39,8 @@ _PlayerBuffer 	 =	$9000		; .dsb 256*14 (About 3.5 kilobytes)
 _PlayerBufferEnd =	$9fff
 	
 	.segment	"DATA"	
+	
+_musicPaused:		.byte 0
 	
 _DecodedByte:		.res 1		; Byte being currently decoded from the MYM stream
 _DecodeBitCounter:	.res 1		; Number of bits we can read in the current byte
@@ -207,7 +211,16 @@ __auto_5:
 __auto_6:
 	sta $246
 
-	; Stop the sound
+	; Stop sound
+	jsr _StopSound
+	
+	plp
+	pla
+	rts	
+	
+; ---------------------------------------------------------------	
+
+_StopSound:	
 	lda #8
 	ldx #0
 	jsr WriteRegister
@@ -219,10 +232,7 @@ __auto_6:
 	lda #10
 	ldx #0
 	jsr WriteRegister
-	
-	plp
-	pla
-	rts	
+	rts
 
 ; ---------------------------------------------------------------	
 
@@ -240,6 +250,16 @@ irq_handler:
 	eor #1
 	sta _50hzFlipFlop
 	beq skipFrame
+	
+	; Check if track is paused
+	lda _musicPaused
+	beq playFrame
+	
+	; Stop sound for now
+	jsr _StopSound
+	jmp skipFrame
+	
+playFrame:	
 
 	jsr _Mym_PlayFrame
 

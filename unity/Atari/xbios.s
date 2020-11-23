@@ -24,8 +24,8 @@
 ;   specific prior written permission.
 ;
 	
-	.import _disable_rom
 	.import _enable_rom
+	.import _restore_rom
 	
 	.export _xbios_fname
 	.export _xbios_dest
@@ -65,13 +65,13 @@ _xbios_list_dir:
 	;jsr _xbios_set_device
 	jsr _enable_rom
 	jsr xBIOS_LIST_DIR
-	jsr _disable_rom
+	jsr _restore_rom
 	rts
 
 _xbios_get_entry:
 	jsr _enable_rom
 	jsr xBIOS_GET_ENTRY
-	jsr _disable_rom
+	jsr _restore_rom
 	txa
 	rts
 	
@@ -81,7 +81,7 @@ _xbios_open_file:
 	ldy _xbios_fname
 	ldx _xbios_fname+1
 	jsr xBIOS_OPEN_FILE
-	jsr _disable_rom
+	jsr _restore_rom
 	bcs not_found
 	lda #1
 	rts
@@ -97,5 +97,5 @@ _xbios_load_data:
 	ldy _xbios_dest
 	ldx _xbios_dest+1
 	jsr xBIOS_LOAD_DATA
-	jsr _disable_rom
+	jsr _restore_rom
 	rts

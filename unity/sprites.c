@@ -43,18 +43,19 @@
   #endif
 	unsigned char  frameROWS;
     unsigned int   frameBLOCK;				// Size of sprite offset block (4 blocks)
+	unsigned char* sprData;					// Pointer to sprite data (allocated dynamically)
 	unsigned char  sprX[SPRITE_NUM], sprY[SPRITE_NUM];	 // Screen coordinates
 	unsigned char  sprDrawn[SPRITE_NUM], sprCollision[SPRITE_NUM]; // Enable and Collision status
 	unsigned char  sprHiresX[SPRITE_NUM];  	// Byte offset within Hires line
 	unsigned char* sprBG[SPRITE_NUM];  		// Sprite background
 	unsigned char  sprROWS[SPRITE_NUM];  	// Sprite dimensions used in algorithms
-	unsigned char* sprData;					// Pointer to sprite data (allocated dynamically)
 	void CropSprite(unsigned char index, unsigned char rows) {
 		// Only partially draw this sprite
 		sprROWS[index] = rows;
 	}	
 	
 #elif defined __ATARI__	
+	unsigned char* sprData;					// Pointer to sprite data (allocated dynamically)
 	unsigned char sprYOffset;
 	extern unsigned int sprFrame[10];
 	extern unsigned char sprRows, sprMask[5], sprX[10], sprY[10], sprColor[10];
@@ -131,9 +132,12 @@ void LoadSprites(unsigned char* filename)
 	fclose(fp);
 
 #elif defined __ATARI__	
+	unsigned int size;
 	if (FileOpen(filename)) {
-		FileRead((char*)(SPRITERAM), 6);
-		FileRead((char*)(SPRITERAM), -1);
+		FileRead(&size, 2);
+		if (sprData) free(sprData);
+		sprData = malloc(size);
+		FileRead(sprData, -1);
 	}
 
 #elif defined(__CBM__)
@@ -387,9 +391,8 @@ void LocateSprite(unsigned int x, unsigned int y)
 				bgPtr1 = sprBG[index] + y1*4;
 				bgPtr2 = sprBG[i] + (rows-y2)*4 + (4-x2) - x1;
 				for (dY=y1; dY<y2; dY++) {
-					for (dX=x1; dX<x2; dX++) {
+					for (dX=x1; dX<x2; dX++)
 						POKE(bgPtr1+dX, PEEK(bgPtr2+dX));	
-					}
 					bgPtr1 += 4;
 					bgPtr2 += 4;
 				}					
@@ -467,7 +470,7 @@ void SetSprite(unsigned char index, unsigned char frame)
 #elif defined __ATARI__
 	sprX[index] = spriteX;
 	sprY[index] = spriteY-sprYOffset;
-	sprFrame[index] = SPRITERAM + frame*sprRows;
+	sprFrame[index] = &sprData[frame*sprRows];
 	
 #elif defined __ORIC__
 	unsigned char i, inkVAL, inkMUL;
@@ -480,10 +483,13 @@ void SetSprite(unsigned char index, unsigned char frame)
 	spriteX /= 2u;
 
 	// Offset from centre of sprite
-	if (spriteX > 0) spriteX -= 1;
+	if (spriteX > 1) 
+		spriteX -= 1;
+	else 
+		spriteX = 1;
 	spriteY -= rows/2u;
 	
-	// Make sure we do not print on next line
+	// Make sure we do not print on line borders
 	if (spriteX > 37) spriteX = 37;
 	
 	// Check that sprite was enabled

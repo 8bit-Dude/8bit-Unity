@@ -219,7 +219,7 @@ DLI:
 	; Process Charset swap?
 	lda	_charmapDLI
 	beq skipCharmapDLI
-	jsr swapCharset
+	jsr swapPalette
 	lda _chrToggle
 	beq skipCharmapDLI  ; Exit early from first DLI
 	lda regA
@@ -254,7 +254,7 @@ skipSpriteDLI:
 ; Charset swap routine
 ; ---------------------------------------------------------------
 	
-swapCharset:
+swapPalette:
 	lda _chrToggle
 	eor #$1
 	sta _chrToggle

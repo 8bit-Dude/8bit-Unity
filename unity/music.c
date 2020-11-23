@@ -28,10 +28,15 @@
 
 #ifdef __APPLE2__
   #pragma code-name("LC")
+  unsigned char musicPaused;	// dummy
 #endif	
 
 #ifdef __ATARIXL__
   #pragma code-name("SHADOW_RAM")
+#endif	
+
+#ifdef __LYNX__
+  unsigned char musicPaused;	// dummy
 #endif	
 
 char* musicAddr;
@@ -51,10 +56,18 @@ void LoadMusic(const char* filename, char* addr)
 		FileRead(addr, -1);	
 	} */
 #elif defined __ATARI__
+	unsigned int end, pos = MUSICRAM;
 	if (FileOpen(filename)) {
-		// Consume 6 bytes of header then read data
-		FileRead(addr, 6);	
-		FileRead(addr, -1);	
+		// Consume 6 bytes of header
+		FileRead((char*)0x9000, 6);
+		
+		// Read up-to filesize
+		end = PEEKW(0x9004);
+		while (pos < end) {
+			FileRead((char*)0x9000, 0x0100);	
+			memcpy((char*)pos, 0x9000, 0x0100);
+			pos += 0x0100;
+		}
 	}
 #else
 	// Try to open file

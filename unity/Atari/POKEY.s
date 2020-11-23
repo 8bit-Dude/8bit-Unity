@@ -25,22 +25,30 @@
 ;
 
 	.include "atari.inc"
-		
+
 	.export _PlayMusic
 	.export _StopMusic
 	.export _SetupSFX
+
+	.export _musicPaused
 	.export _sampleCount
 	.export _sampleFreq
 	.export _sampleCtrl
+	
+	.import _disable_rom
+	.import _restore_rom	
 
 	.import _musicAddr
 
-RMTPlayer = $6A00
+RMTPlayer = $9400
 
 	.segment	"DATA"	
 
-_musicVBI: .byte 0
-_sfxVBI:   .byte 0
+_musicPaused: .byte 0
+_musicVBI:    .byte 0
+_sfxVBI:      .byte 0
+
+	.segment	"BSS"	
 
 _sampleCount: .res 1
 _sampleFreq:  .res 1
@@ -100,9 +108,21 @@ VBI:
 	; Process music?
 	lda _musicVBI
 	beq skipMusicVBI
+	
+	; Check if track is paused
+	lda _musicPaused
+	beq playFrame
+	
+	; Stop sound for now
+	jsr RMTPlayer+9
+	jmp skipMusicVBI
 
+playFrame:
 	; Play 1 note of the RMT
+	jsr _disable_rom
 	jsr RMTPlayer+3
+	jsr _restore_rom
+	
 skipMusicVBI:
 	
 	;-------------------

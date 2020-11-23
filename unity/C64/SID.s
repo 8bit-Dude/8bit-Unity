@@ -27,19 +27,23 @@
 	.export _PlayMusic
 	.export _StopMusic
 	
+	.export _musicPaused
 	.export _sidInitAddr
 	.export _sidPlayAddr
 
-	.segment "CODE"
-	
+	.segment "DATA"	
+
+_musicPaused: .byte 0
 _sidInitAddr: .byte $09,03		
-_sidPlayAddr: .byte $08,06		
+_sidPlayAddr: .byte $08,06	
+
+	.segment "CODE"	
 
 ; ---------------------------------------------------------------
 ; void __near__ _PlayMusic (void)
 ; ---------------------------------------------------------------
 
-.proc _PlayMusic: near
+_PlayMusic:
 		; set JSR addresses
 		;lda _sidInitAddr
 		;sta  checkSID+3
@@ -79,14 +83,13 @@ initSID:
         cli
 		
 skipSID:		
-        rts
-.endproc        
+        rts       
 
 ; ---------------------------------------------------------------
 ; void __near__ _StopMusic (void)
 ; ---------------------------------------------------------------
 
-.proc _StopMusic: near
+_StopMusic:
 		; restore IRQ vector to kernel interrupt routine
         sei
 		ldx #$31
@@ -95,6 +98,31 @@ skipSID:
 		sty $315
         cli 
 		
+		jsr resetSID
+        rts 
+
+; ---------------------------------------------------------------
+
+interruptSID:
+		; Check if track is paused
+		;lda _musicPaused
+		;beq playFrame
+		
+		; Stop sound for now
+		;jsr resetSID
+		;jmp doneFrame
+	
+playFrame:	
+		; interrupt code (default address is $0806)
+        jsr $0806
+		
+doneFrame:
+		; do the normal interrupt service routine		
+        jmp $EA31 
+
+; ---------------------------------------------------------------
+
+resetSID:
 		; reset SID state
         ldx     #$18
         lda     #$00
@@ -122,15 +150,5 @@ rst2:
         sta     $d412
         lda     #$00
         sta     $d418
+		rts
 		
-        rts 
-.endproc 
-
-
-interruptSID:
-		; interrupt code (default address is $0806)
-        jsr $0806
-		
-		; do the normal interrupt service routine		
-        jmp $EA31 
-

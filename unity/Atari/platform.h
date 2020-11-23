@@ -33,20 +33,18 @@
  *		* Christian Groessler for helping optimize the memory maps on Commodore and Atari
  *		* Bill Buckels for his Apple II Double Hi-Res bitmap code
  */
- 
+
 // Memory Map
 #define SCREENRAM  (0x0950) // 0940-0cff (text mode data)
-#define RMTPLAYER  (0x66e0) // 66e0-6f4d (RMT music player; JSR to 0x6A00)
-#define PALETTERAM (0x7000) // 7000-7003 (palette data)
 #define BITMAPRAM1 (0x7010) // 7010-8f50 (bitmap frame 1)
 #define BITMAPRAM2 (0xa010) // a010-bf50 (bitmap frame 2)
 #define CHARMAPRAM (0x7000) // 7000-7fff (character map)
 #define CHARSETRAM (0xa000) // a000-a3ff (character set)
 #define CHARATRRAM (0xa400) // a400-a47f (character col atr)
 #define CHARFLGRAM (0xa480) // a480-a4ff (character flags)
-#define SPRITERAM  (0x9000)	// 9000-93ff (sprite data)
-#define MUSICRAM   (0x9400) // 9400-9aff (RMT sound track) (overlaps with unused part of PMGRAM)
+#define RMTPLAYER  (0x90e0) // 90e0-9a4d (RMT music player; JSR to 0x9400) (overlaps with unused part of PMGRAM)
 #define PMGRAM     (0x9800) // 9800-9fff (player missile memory)
+#define MUSICRAM   (0xc000) // c000-cbff (RMT sound track)
 
 // Character Mode
 #define CHR_COLS 40

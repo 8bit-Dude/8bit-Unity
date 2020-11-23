@@ -191,6 +191,7 @@ void StopMusic(void);
 #if defined __APPLE2__
   void UpdateMusic(void);
 #endif
+extern unsigned char musicPaused;
 
 // SFX functions (see sfx.c)
 void InitSFX(void);

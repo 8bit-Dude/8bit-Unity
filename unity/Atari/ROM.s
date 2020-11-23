@@ -24,21 +24,33 @@
 ;   specific prior written permission.
 ;
 
-	.export _disable_rom
 	.export _enable_rom
+	.export _disable_rom
+	.export _restore_rom
 
 PORTB = $D301
 
+	.segment	"BSS"	
+	
+_portState:	.res 1
+
 	.segment	"CODE"
 
-; USE FOR LOADING WITH OS ROM
+_enable_rom:
+	lda     PORTB
+	sta 	_portState
+	ora     #1
+	sta     PORTB
+	rts
+
 _disable_rom:
 	lda     PORTB
+	sta 	_portState
 	and     #$fe
 	sta     PORTB
 	rts
-_enable_rom:
-	lda     PORTB
-	ora     #1
+		
+_restore_rom:
+	lda     _portState
 	sta     PORTB
 	rts

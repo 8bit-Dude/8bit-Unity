@@ -18,7 +18,7 @@
 ;*
 
 ;*
-PLAYER		equ $6A00
+PLAYER		equ $9400
 ;*
 
 ;*
