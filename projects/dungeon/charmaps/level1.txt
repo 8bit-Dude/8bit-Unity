@@ -1,0 +1,15 @@
+Entrance (X,Y), Exit (X,Y)
+	57, 2, 15, 32
+
+Actor: Type, Stance, Health,  X,  Y
+	   KEY,   LEFT,    0,    58, 29
+	SKELETON, LEFT,   15,    56, 27
+	SKELETON, RIGHT,  15,    61, 26
+	SKELETON, LEFT,   15,    62, 28
+	SKELETON, RIGHT,  15,    56, 30
+	 GOBLIN,  LEFT,   10,    41,  7
+	 GOBLIN,  RIGHT,  10,    39, 11
+	 GOBLIN,  LEFT,   10,    37,  7
+	SKELETON, RIGHT,  15,    43, 38
+	SKELETON, RIGHT,  15,    41, 39
+
