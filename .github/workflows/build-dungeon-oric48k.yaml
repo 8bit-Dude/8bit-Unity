@@ -2,7 +2,7 @@
 # 
 # Should build Oric .DSK binaries
 #
-name: build-8bit-unity-dungeon-demo-for-oric
+name: dungeon-demo-for-oric
 
 on:
   push:
