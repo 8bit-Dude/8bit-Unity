@@ -2,7 +2,7 @@
 # 
 # Should build Oric .DSK binaries
 #
-name: build-8bit-unity-goblin-demo-for-oric
+name: goblin-demo-for-oric
 
 on:
   push:
