@@ -1,10 +1,4 @@
 
-// Memory tweaks
-#if defined __ATARI__
-	#undef  MUSICRAM
-	#define MUSICRAM (0x9800)	// Moved Music RAM start to allow more space for sprites	
-#endif
-
 // Player Motion
 #if defined __LYNX__	
 	#define SCALE_X 8
