@@ -47,15 +47,26 @@ buildFolder = "build"
 # Parse parameters
 i = 1
 while i<len(sys.argv):
+    print "arg: {} argv: {}", i, sys.argv[i]
     if sys.argv[i] == '-projectFile':
+        print "set projectFile to:", projectFile
         projectFile = sys.argv[i+1]
     if sys.argv[i] == '-buildFolder':
+        print "set buildFolder to:", buildFolder
         buildFolder = sys.argv[i+1]
     if sys.argv[i] == '-callEmu':
+        print "set callEmu to:", callEmu
         callEmu = Str2Bool(sys.argv[i+1])
     if sys.argv[i] == '-useGUI':
+        print "set useGUI to:", useGUI
         useGUI = Str2Bool(sys.argv[i+1])
-    i += 2
+    i += 1
+
+print('Number of arguments: {}'.format(len(sys.argv)))
+print('Argument(s) passed: {}'.format(str(sys.argv)))
+
+
+print "projectFile: ", projectFile, " buildFolder: ", buildFolder, " callEmu: ", callEmu, " useGUI: ", useGUI
 
 class Application:
 

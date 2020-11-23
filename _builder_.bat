@@ -1,2 +1,2 @@
 cd utils\scripts
-..\py27\python builder.py
+..\py27\python builder.py %*

@@ -19,6 +19,10 @@ jobs:
     - name: Checkout 8bit Unity source files
       uses: actions/checkout@v2
 
+    - name: Generate the builder .BAT file for Oric
+      run: cd D:\a\8bit-Unity\8bit-Unity\; .\_builder_.bat -projectFile projects\os\os.builder -useGUI 0 -callEmu 0
+
+
     - name: Build 8bit Unity OS for Oric (.DSK file)
       run: cd D:\a\8bit-Unity\8bit-Unity\build; .\os-oric48k.bat
 
