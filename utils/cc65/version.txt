@@ -1,1 +1,6 @@
 SVN Rev 15629 (2020-10-29)
+
+NOTE:
+* atari-notext.lib was compiled by commenting all "set_chbase" in romswitch.inc
+* atari-text.lib was compiled by uncommenting "CA65FLAGS += -D CHARGEN_RELOC " in Makefile.inc
+
