@@ -2,7 +2,7 @@
 # 
 # Should build Oric .DSK binaries
 #
-name: build-8bit-unity-slicks-demo-for-oric
+name: slicks-demo-for-oric
 
 on:
   push:
