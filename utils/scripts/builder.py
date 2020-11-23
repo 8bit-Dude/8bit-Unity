@@ -738,9 +738,12 @@ class Application:
             fp.write('\n')
             
             # Compilation
+            fp.write('del utils\\cc65\\lib\\atarixl.lib\n')
             if len(self.Checkbutton_AtariNoText.state()):
+                fp.write('copy utils\\cc65\\lib\\atarixl-notext.lib utils\\cc65\\lib\\atarixl.lib\n')
                 symbols = '-Wl -D,__STACKSIZE__=$0400,-D,__CHARGENSIZE__=$0000 '
             else:
+                fp.write('copy utils\\cc65\\lib\\atarixl-text.lib utils\\cc65\\lib\\atarixl.lib\n')
                 symbols = '-Wl -D,__STACKSIZE__=$0400 '
             comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/atari/' + diskname.lower() + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-atari.map -Cl -O -t atarixl ' + symbols + '-C atarixl-largehimem.cfg -I unity '
             for item in code:
