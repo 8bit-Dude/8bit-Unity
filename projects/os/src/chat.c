@@ -14,9 +14,10 @@
   #define MSG_PER_PAGE 4
 #endif
 
+// See network.c
 extern char netConnected;
 
-unsigned char lineX1, lineX2, lineY, chatConnected, chatLogged, chatLen;
+unsigned char lineX1, lineX2, lineY, chatLogged, chatLen;
 unsigned int chatList[4] = {0, 0, 0, 0};
 unsigned char chatRequest[140];
 unsigned char* chatUser = &chatRequest[4];
@@ -121,16 +122,15 @@ void ChatScreen(void)
 	// Do we have net access?
 	if (!netConnected) {
 		Panel(10, 3, 20, 9, "");	
-		PrintStr(13, 7, "No internet...");	
+		PrintStr(12, 7, "Network Init...");	
+		ServerConnect();
+	}
+	
+	if (!netConnected) {
+		PrintStr(12, 7, " No internet!  ");	
 		return;
 	}
 	
-	// Setup connection to chat server?
-	if (!chatConnected) {
-		OpenTCP(199, 47, 196, 106, 1999);
-		chatConnected = 1;
-	}
-
 	// Login and Message screen?		
 	if (!chatLogged) {
 		// Panel/Labels

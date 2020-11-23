@@ -68,3 +68,6 @@ void StopTrack(void);
 void MusicTitle(void);
 void MusicScreen(void);
 void MusicCallback(callback* call);
+
+// Network Functions
+void ServerConnect(void);

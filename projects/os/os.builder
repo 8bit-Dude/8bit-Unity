@@ -52,6 +52,8 @@ aVprojects/os/src/mouse.c
 p6
 aVprojects/os/src/music.c
 p7
+aVprojects/os/src/network.c
+p8
 a.(lp0
 Vprojects/os/bitmaps/hokusai-apple.png
 p1

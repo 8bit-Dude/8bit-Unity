@@ -4,10 +4,12 @@
 // See home.c
 char appSel = APP_HOME;
 callback *homeCall, *appCall[4];
-char netConnected = 0;
 
 // See mouse.c
 extern unsigned char* mouse;
+
+// See network.c
+extern unsigned char netConnected;
 
 void ProcessCallback(callback* call)
 {
@@ -69,9 +71,6 @@ int main(void)
 
 	// Init systems
 	InitMouse();
-	netConnected = !InitNetwork();
-	if (netConnected)
-		SlotTCP(0);
 
 	// Main loop
 	while (1) {
