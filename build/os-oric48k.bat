@@ -1,4 +1,7 @@
-echo off
+rem echo off
+rem
+
+dir
 
 setlocal enableextensions enabledelayedexpansion
 
@@ -124,9 +127,10 @@ for /f "tokens=*" %%A in (build\oric\chunks.lst) do set TAP2DSK=!TAP2DSK! %%A
 set TAP2DSK=%TAP2DSK% build/os-oric48k.dsk
 %TAP2DSK%
 utils\scripts\oric\old2mfm.exe build/os-oric48k.dsk
+dir build/os-oric48k.dsk
 
 echo DONE
-pause
+rem pause
 
-cd "utils\emulators\Oricutron-1.2-Hub"
-oricutron.exe -d "..\..\..\build\os-oric48k.dsk"
+rem cd "utils\emulators\Oricutron-1.2-Hub"
+rem oricutron.exe -d "..\..\..\build\os-oric48k.dsk"
