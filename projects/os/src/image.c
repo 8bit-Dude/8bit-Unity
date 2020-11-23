@@ -14,10 +14,10 @@ void ImageDisplay()
 	ClearScreen();
 	
 	// Disable music and display bitmap
-	//PauseTrack();
+	musicPaused = 1;
 	LoadBitmap(fileNames[imageSel]);
+	musicPaused = 0;
 	DrawTaskBar();
-	//UnpauseTrack();
 		
 	// Display file name
 	paperColor = WHITE; inkColor = BLACK; 

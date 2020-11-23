@@ -41,18 +41,6 @@ void PlayTrack(char *fname)
 #endif
 }
 
-void PauseTrack()
-{
-	if (musicPlaying)
-		StopMusic();
-}
-
-void UnpauseTrack()
-{
-	if (musicPlaying)
-		PlayMusic();
-}
-
 void StopTrack()
 {
 	if (musicPlaying)

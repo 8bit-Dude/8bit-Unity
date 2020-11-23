@@ -110,10 +110,16 @@ void SelectFile(char dir, unsigned char* extension, char* fileSel)
 callback *callImg, *callMus; 
 char *currFile, *currExt;
 
-void PlayTrack(char *fname);
-void PauseTrack(void);
-void UnpauseTrack(void);
-void StopTrack(void);
+void PreviewImage(void)
+{
+	ClearScreen();
+	musicPaused = 1;
+	LoadBitmap(currFile);
+	musicPaused = 0;
+	DrawTaskBar();
+	callImg = PushCallback(0, 0, CHR_COLS, CHR_ROWS, CALLTYPE_ICON);
+	imageShowing = 1;
+}
 
 void PreviewText(void)
 {
@@ -127,8 +133,10 @@ void PreviewText(void)
 	fread(textBuffer, 1, 256, fp);
 	fclose(fp);
 #elif (defined __ATARI__)
+	musicPaused = 1;
 	if (FileOpen(currFile))
 		FileRead(textBuffer, 256);
+	musicPaused = 0;
 #elif (defined __CBM__)
 	FILE* fp = fopen(currFile, "rb");
 	fread(textBuffer, 1, 256, fp);
@@ -138,7 +146,9 @@ void PreviewText(void)
 	bzero(SHAREDRAM, 256);
 	FileRead(currFile);
 #elif (defined __ORIC__)
+	musicPaused = 1;
 	FileRead(currFile, textBuffer);
+	musicPaused = 0;
 #endif
 
 	// Display in preview box
@@ -217,13 +227,7 @@ void FileCallback(callback* call)
 			FilesScreen();
 		} else {
 			// Show image and make entire screen callable
-			ClearScreen();
-			//PauseTrack(); 
-			LoadBitmap(currFile);
-			//UnpauseTrack(); 
-			DrawTaskBar();
-			callImg = PushCallback(0, 0, CHR_COLS, CHR_ROWS, CALLTYPE_ICON);
-			imageShowing = 1;
+			PreviewImage();
 		}
 	} else 
 	if (call == callMus) {

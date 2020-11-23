@@ -9,7 +9,7 @@ unsigned char* appChunk[NUM_APPS];
 unsigned char* icoChunk[NUM_ICOS];
 
 // Version definitions
-char version[] = "8BIT-OS 2020/11/15";
+char version[] = "8BIT-OS 2020/11/22";
 
 void LoadChunks()
 {
