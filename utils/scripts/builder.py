@@ -236,7 +236,7 @@ class Application:
             self.entry_Disk.insert(0, 'diskname')
         
             # Unpickle data
-            with open(filename, "rb") as fp:
+            with open(filename, "r") as fp:
                 # Version number
                 print "File version: " + str(pickle.load(fp))
                 data = pickle.load(fp)
