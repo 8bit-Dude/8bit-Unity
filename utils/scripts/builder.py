@@ -28,11 +28,34 @@ from Tkinter import *
 import tkMessageBox as messagebox
 from tkFileDialog import askopenfilename, asksaveasfilename
 from PIL import Image, ImageTk
-import os, pickle, pygubu
+import os, pickle, pygubu, sys
+
+# Useful functions
+def Str2Bool(v):
+    return v.lower() in ("yes", "true", "1")
 
 def FileBase(filepath, suffix):
     # Return asset file base
     return os.path.basename(filepath).lower().replace(suffix, '')
+
+# Defaults options
+useGUI = True
+callEmu = True
+projectFile = ""
+buildFolder = "build"
+
+# Parse parameters
+i = 1
+while i<len(sys.argv):
+    if sys.argv[i] == '-projectFile':
+        projectFile = sys.argv[i+1]
+    if sys.argv[i] == '-buildFolder':
+        buildFolder = sys.argv[i+1]
+    if sys.argv[i] == '-callEmu':
+        callEmu = Str2Bool(sys.argv[i+1])
+    if sys.argv[i] == '-useGUI':
+        useGUI = Str2Bool(sys.argv[i+1])
+    i += 2
 
 class Application:
 
@@ -200,8 +223,9 @@ class Application:
         self.entry_Disk.delete(0, END)
         self.entry_Disk.insert(0, 'diskname')
         
-    def FileLoad(self):
-        filename = askopenfilename(initialdir = "../../", title = "Load Builder Project", filetypes = (("Project files","*.builder"),)) 
+    def FileLoad(self, filename=''):
+        if filename == '':
+            filename = askopenfilename(initialdir = "../../", title = "Load Builder Project", filetypes = (("Project files","*.builder"),)) 
         if filename is not '':
             # Reset UI
             for l in self.listboxes:
@@ -536,7 +560,7 @@ class Application:
         # Build Single and Double Hires Scripts
         for target in ['64k', '128k']:
         
-            with open("../../build/"+diskname+"-apple"+target+".bat", "wb") as fp:
+            with open('../../'+buildFolder+'/'+diskname+"-apple"+target+".bat", "wb") as fp:
                 # Info
                 fp.write('echo off\n\n')
                 fp.write('mkdir apple\n')            
@@ -552,21 +576,21 @@ class Application:
                 
                 # Bitmaps
                 for item in bitmaps:
-                    fp.write('utils\\py27\\python utils\\scripts\\apple\\AppleBitmap.py ' + graphics + ' ' + item + ' build/apple/' + FileBase(item, '-apple.png') + '.img\n')
+                    fp.write('utils\\py27\\python utils\\scripts\\apple\\AppleBitmap.py ' + graphics + ' ' + item + ' ' + buildFolder + '/apple/' + FileBase(item, '-apple.png') + '.img\n')
 
                 # Charset
                 if len(charset) > 0:
                     fb = FileBase(charset[0], '-apple.png')
-                    fp.write('utils\\py27\python utils\\scripts\\apple\\AppleCharset.py ' + graphics + ' ' + charset[0] + ' build/apple/' + fb + '.chr\n')
+                    fp.write('utils\\py27\python utils\\scripts\\apple\\AppleCharset.py ' + graphics + ' ' + charset[0] + ' ' + buildFolder + '/apple/' + fb + '.chr\n')
                     
                 # Sprites
                 if len(sprites) > 0:
                     spriteHeight = int(self.entry_AppleSpriteHeight.get())
-                    fp.write('utils\\py27\\python utils\\scripts\\apple\\AppleSprites.py ' + graphics + ' ' + sprites[0] + ' build/apple/sprites.dat ' + str(spriteHeight) + '\n')
+                    fp.write('utils\\py27\\python utils\\scripts\\apple\\AppleSprites.py ' + graphics + ' ' + sprites[0] + ' ' + buildFolder + '/apple/sprites.dat ' + str(spriteHeight) + '\n')
 
                 # Chunks
                 if len(chunks) > 0:
-                    fp.write('utils\\py27\\python utils\\scripts\\ProcessChunks.py apple-' + graphics + ' ' + chunks[0] + ' build/apple/\n')
+                    fp.write('utils\\py27\\python utils\\scripts\\ProcessChunks.py apple-' + graphics + ' ' + chunks[0] + ' ' + buildFolder + '/apple/\n')
 
                 # Info
                 fp.write('\necho DONE!\n\n')
@@ -587,7 +611,7 @@ class Application:
                 for file in SList:            
                     fp.write('utils\\cc65\\bin\\ca65 -t apple2 unity\\' + file + '\n')
                 
-                fp.write('utils\\cc65\\bin\\ar65 r build/apple/unity.lib ')
+                fp.write('utils\\cc65\\bin\\ar65 r ' + buildFolder + '/apple/unity.lib ')
                 for file in CList:
                     fp.write('unity\\' + file[0:-2] + '.o ')
                 for file in SList:            
@@ -599,48 +623,49 @@ class Application:
                     symbols = '-D __DHR__ -Wl -D,__STACKSIZE__=$0400,-D,__HIMEM__=$BC00,-D,__LCADDR__=$D000,-D,__LCSIZE__=$1000'
                 else:
                     symbols = '-Wl -D,__STACKSIZE__=$0400,-D,__HIMEM__=$BC00,-D,__LCADDR__=$D000,-D,__LCSIZE__=$1000'
-                comp = 'utils\\cc65\\bin\\cl65 -o build/apple/' + diskname.lower() + '.bin -m build/' + diskname.lower() + '-apple' + target + '.map -Cl -O -t apple2 ' + symbols + ' -C apple2-hgr.cfg -I unity '
+                comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/apple/' + diskname.lower() + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-apple' + target + '.map -Cl -O -t apple2 ' + symbols + ' -C apple2-hgr.cfg -I unity '
                 for item in code:
                     comp += item + ' '
-                fp.write(comp + 'build/apple/unity.lib unity/IP65/ip65_tcp.lib unity/IP65/ip65_apple2.lib\n\n')
+                fp.write(comp + buildFolder + '/apple/unity.lib unity/IP65/ip65_tcp.lib unity/IP65/ip65_apple2.lib\n\n')
                 
                 # Compression
-                fp.write('utils\\scripts\\exomizer-3.0.2.exe sfx bin build/apple/' + diskname.lower() + '.bin -o build/apple/loader\n\n')
+                fp.write('utils\\scripts\\exomizer-3.0.2.exe sfx bin ' + buildFolder + '/apple/' + diskname.lower() + '.bin -o ' + buildFolder + '/apple/loader\n\n')
 
                 # Info
                 fp.write('echo DONE!\n\n')
                 fp.write('echo --------------- APPLE DISK BUILDER --------------- \n\n')
 
                 # Disk builder
-                fp.write('copy utils\\scripts\\apple\\ProDOS190.dsk build\\' + diskname + '-apple' + target + '.do\n')
-                fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -as build/' + diskname + '-apple' + target + '.do LOADER bin 0x0803 < build/apple/loader\n')
+                fp.write('copy utils\\scripts\\apple\\ProDOS190.dsk ' + buildFolder + '\\' + diskname + '-apple' + target + '.do\n')
+                fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -as ' + buildFolder + '/' + diskname + '-apple' + target + '.do LOADER bin 0x0803 < ' + buildFolder + '/apple/loader\n')
                 if len(sprites) > 0:
-                    fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p build/' + diskname + '-apple' + target + '.do SPRITES.DAT bin < build/apple/sprites.dat\n')
+                    fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p ' + buildFolder + '/' + diskname + '-apple' + target + '.do SPRITES.DAT bin < ' + buildFolder + '/apple/sprites.dat\n')
                 for item in bitmaps:
                     fb = FileBase(item, '-apple.png')
-                    fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p build/' + diskname + '-apple' + target + '.do ' + fb.upper() + '.IMG bin < build/apple/' + fb + '.img\n')
+                    fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p ' + buildFolder + '/' + diskname + '-apple' + target + '.do ' + fb.upper() + '.IMG bin < ' + buildFolder + '/apple/' + fb + '.img\n')
                 if len(charset) > 0:
                     fb = FileBase(charset[0], '-apple.png')
-                    fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p build/' + diskname + '-apple' + target + '.do ' + fb.upper() + '.CHR bin < build/apple/' + fb + '.chr\n')
+                    fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p ' + buildFolder + '/' + diskname + '-apple' + target + '.do ' + fb.upper() + '.CHR bin < ' + buildFolder + '/apple/' + fb + '.chr\n')
                 for item in charmaps:
                     fb = FileBase(item, '')
-                    fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p build/' + diskname + '-apple' + target + '.do ' + fb.upper() + ' bin < ' + item + '\n')
+                    fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p ' + buildFolder + '/' + diskname + '-apple' + target + '.do ' + fb.upper() + ' bin < ' + item + '\n')
                 for item in music:
                     fb = FileBase(item, '-apple.m')
-                    fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p build/' + diskname + '-apple' + target + '.do ' + fb.upper() + '.MUS bin < ' +item + '\n')
+                    fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p ' + buildFolder + '/' + diskname + '-apple' + target + '.do ' + fb.upper() + '.MUS bin < ' +item + '\n')
                 for item in shared:
                     fb = FileBase(item, '')
-                    fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p build/' + diskname + '-apple' + target + '.do ' + fb.upper() + ' bin < ' + item + '\n')
+                    fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p ' + buildFolder + '/' + diskname + '-apple' + target + '.do ' + fb.upper() + ' bin < ' + item + '\n')
                 if len(chunks) > 0:
-                    fp.write('for /f "tokens=*" %%A in (build\\apple\\chunks.lst) do utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p build/' + diskname + '-apple' + target + '.do %%~nxA bin < %%A \n')
+                    fp.write('for /f "tokens=*" %%A in (' + buildFolder + '\\apple\\chunks.lst) do utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p ' + buildFolder + '/' + diskname + '-apple' + target + '.do %%~nxA bin < %%A \n')
                 
                 # Info
                 fp.write('\necho DONE\n')
-                fp.write('pause\n\n')
                 
                 # Start emulator?
-                fp.write('cd "utils\emulators\AppleWin-1.26.3.1"\n')
-                fp.write('Applewin.exe -d1 "..\\..\\..\\build\\' + diskname + '-apple' + target + '.do"\n')
+                if callEmu:
+                    fp.write('pause\n\n')
+                    fp.write('cd "utils\emulators\AppleWin-1.26.3.1"\n')
+                    fp.write('Applewin.exe -d1 "..\\..\\..\\' + buildFolder + '\\' + diskname + '-apple' + target + '.do"\n')
             
         ####################################################
         # Atari script
@@ -649,43 +674,43 @@ class Application:
         sprites = list(self.listbox_AtariSprites.get(0, END))
         chunks = list(self.listbox_AtariChunks.get(0, END))
         music = list(self.listbox_AtariMusic.get(0, END))
-        with open("../../build/"+diskname+"-atari.bat", "wb") as fp:
+        with open('../../'+buildFolder+'/'+diskname+"-atari.bat", "wb") as fp:
             # Info
             fp.write('echo off\n\n')
             fp.write('mkdir atari\n')            
             fp.write('cd ..\n\n')
-            fp.write('del build\\atari\\*.* /F /Q\n\n')
+            fp.write('del ' + buildFolder + '\\atari\\*.* /F /Q\n\n')
             fp.write('echo --------------- CONVERT ASSETS ---------------  \n\n')
             
             # Bitmaps
             for item in bitmaps:
-                fp.write('utils\\py27\\python utils\\scripts\\atari\\AtariBitmap.py ' + item + ' build/atari/' + FileBase(item, '-atari.png') + '.img\n')
+                fp.write('utils\\py27\\python utils\\scripts\\atari\\AtariBitmap.py ' + item + ' ' + buildFolder + '/atari/' + FileBase(item, '-atari.png') + '.img\n')
                 
             # Charmaps/Tilesets
             for item in charmaps:
-                fp.write('copy ' + item.replace('/', '\\') + ' build\\atari\n')
+                fp.write('copy ' + item.replace('/', '\\') + ' ' + buildFolder + '\\atari\n')
                 
             # Charsets
             if len(charset) > 0:
                 fb = FileBase(charset[0], '-atari.png')
-                fp.write('utils\\py27\python utils\\scripts\\atari\\AtariCharset.py ' + charset[0] + ' build/atari/' + fb + '.chr\n')
+                fp.write('utils\\py27\python utils\\scripts\\atari\\AtariCharset.py ' + charset[0] + ' ' + buildFolder + '/atari/' + fb + '.chr\n')
                 
             # Sprites    
             if len(sprites) > 0:
                 spriteHeight = int(self.entry_AtariSpriteHeight.get())
-                fp.write('utils\\py27\\python utils\\scripts\\atari\\AtariSprites.py ' + sprites[0] + ' build/atari/sprites.dat ' + str(spriteHeight) + '\n')
+                fp.write('utils\\py27\\python utils\\scripts\\atari\\AtariSprites.py ' + sprites[0] + ' ' + buildFolder + '/atari/sprites.dat ' + str(spriteHeight) + '\n')
                 
             # Chunks
             if len(chunks) > 0:
-                fp.write('utils\\py27\\python utils\\scripts\\ProcessChunks.py atari ' + chunks[0] + ' build/atari/\n')
+                fp.write('utils\\py27\\python utils\\scripts\\ProcessChunks.py atari ' + chunks[0] + ' ' + buildFolder + '/atari/\n')
 
             # Shared Data
             for item in shared:
-                fp.write('copy ' + item.replace('/','\\') + ' build\\atari\n')
+                fp.write('copy ' + item.replace('/','\\') + ' ' + buildFolder + '\\atari\n')
 
             # Music
             for item in music:
-                fp.write('copy ' + item.replace('/','\\') + ' build\\atari\\' + FileBase(item, '-atari.rmt') + '.mus\n')
+                fp.write('copy ' + item.replace('/','\\') + ' ' + buildFolder + '\\atari\\' + FileBase(item, '-atari.rmt') + '.mus\n')
 
             # Info
             fp.write('\necho DONE!\n\n')
@@ -703,7 +728,7 @@ class Application:
             for file in SList:            
                 fp.write('utils\\cc65\\bin\\ca65 -t atarixl unity\\' + file + '\n')
             
-            fp.write('utils\\cc65\\bin\\ar65 r build/atari/unity.lib ')
+            fp.write('utils\\cc65\\bin\\ar65 r ' + buildFolder + '/atari/unity.lib ')
             for file in CList:
                 fp.write('unity\\' + file[0:-2] + '.o ')
             for file in SList:            
@@ -715,43 +740,44 @@ class Application:
                 symbols = '-Wl -D,__STACKSIZE__=$0400,-D,__CHARGENSIZE__=$0000 '
             else:
                 symbols = '-Wl -D,__STACKSIZE__=$0400 '
-            comp = 'utils\\cc65\\bin\\cl65 -o build/atari/' + diskname.lower() + '.bin -m build/' + diskname.lower() + '-atari.map -Cl -O -t atarixl ' + symbols + '-C atarixl-largehimem.cfg -I unity '
+            comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/atari/' + diskname.lower() + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-atari.map -Cl -O -t atarixl ' + symbols + '-C atarixl-largehimem.cfg -I unity '
             for item in code:
                 comp += (item + ' ')
-            fp.write(comp + 'unity/Atari/POKEY.s build/atari/unity.lib unity/IP65/ip65_tcp.lib unity/IP65/ip65_atarixl.lib\n')
-            fp.write('utils\\cc65\\bin\\cl65 -t atarixl -C atari-asm.cfg -o build/atari/basicoff.bin unity/Atari/BASICOFF.s\n')
-            fp.write('utils\\scripts\\atari\\mads.exe -o:build/atari/rmt.bin unity/Atari/RMT.a65\n\n')
+            fp.write(comp + 'unity/Atari/POKEY.s ' + buildFolder + '/atari/unity.lib unity/IP65/ip65_tcp.lib unity/IP65/ip65_atarixl.lib\n')
+            fp.write('utils\\cc65\\bin\\cl65 -t atarixl -C atari-asm.cfg -o ' + buildFolder + '/atari/basicoff.bin unity/Atari/BASICOFF.s\n')
+            fp.write('utils\\scripts\\atari\\mads.exe -o:' + buildFolder + '/atari/rmt.bin unity/Atari/RMT.a65\n\n')
 
             # Merging
-            fp.write('utils\\py27\\python utils\\scripts\\atari\\AtariMerge.py build/atari/xautorun build/atari/basicoff.bin build/atari/' + diskname.lower() + '.bin build/atari/rmt.bin\n')
+            fp.write('utils\\py27\\python utils\\scripts\\atari\\AtariMerge.py ' + buildFolder + '/atari/xautorun ' + buildFolder + '/atari/basicoff.bin ' + buildFolder + '/atari/' + diskname.lower() + '.bin ' + buildFolder + '/atari/rmt.bin\n')
 
             # Info
             fp.write('\necho DONE!\n\n')
             fp.write('echo --------------- ATARI DISK BUILDER --------------- \n\n')
 
             # Clean-up build folder
-            fp.write('del build\\atari\\*.bin\n')
-            fp.write('del build\\atari\\*.lib\n')
-            fp.write('del build\\atari\\*.lst\n')
+            fp.write('del ' + buildFolder + '\\atari\\*.bin\n')
+            fp.write('del ' + buildFolder + '\\atari\\*.lib\n')
+            fp.write('del ' + buildFolder + '\\atari\\*.lst\n')
             
             # Copy xBios files
-            fp.write('copy utils\\scripts\\atari\\xbios.com build\\atari\\autorun\n')
-            fp.write('copy utils\\scripts\\atari\\xbios.cfg build\\atari\\xbios.cfg\n')
+            fp.write('copy utils\\scripts\\atari\\xbios.com ' + buildFolder + '\\atari\\autorun\n')
+            fp.write('copy utils\\scripts\\atari\\xbios.cfg ' + buildFolder + '\\atari\\xbios.cfg\n')
 
             # Disk builder
             if self.Combobox_AtariDiskSize.get() == '180KB':                
                 diskSize = '720'
             else:
                 diskSize = '1440'
-            fp.write('utils\\scripts\\atari\\dir2atr.exe -d -B utils/scripts/atari/xboot.obx ' + diskSize + ' build/' + diskname + '-atari.atr build\\atari\n')
+            fp.write('utils\\scripts\\atari\\dir2atr.exe -d -B utils/scripts/atari/xboot.obx ' + diskSize + ' ' + buildFolder + '/' + diskname + '-atari.atr ' + buildFolder + '\\atari\n')
 
             # Info
             fp.write('\necho DONE\n')
-            fp.write('pause\n\n')
             
             # Start emulator?
-            fp.write('cd "utils\emulators\Altirra-3.20"\n')
-            fp.write('Altirra.exe "..\\..\\..\\build\\' + diskname + '-atari.atr"\n')             
+            if callEmu:
+                fp.write('pause\n\n')
+                fp.write('cd "utils\emulators\Altirra-3.20"\n')
+                fp.write('Altirra.exe "..\\..\\..\\' + buildFolder + '\\' + diskname + '-atari.atr"\n')             
 
         ####################################################
         # C64 script
@@ -760,41 +786,41 @@ class Application:
         sprites = list(self.listbox_C64Sprites.get(0, END))
         chunks = list(self.listbox_C64Chunks.get(0, END))
         music = list(self.listbox_C64Music.get(0, END))
-        with open("../../build/"+diskname+"-c64.bat", "wb") as fp:
+        with open('../../'+buildFolder+'/'+diskname+"-c64.bat", "wb") as fp:
             # Info
             fp.write('echo off\n\n')
             fp.write('setlocal enableextensions enabledelayedexpansion\n\n')
             fp.write('mkdir c64\n')            
             fp.write('cd ..\n\n')            
-            fp.write('del build\\c64\\*.* /F /Q\n\n')
+            fp.write('del ' + buildFolder + '\\c64\\*.* /F /Q\n\n')
             fp.write('echo --------------- CONVERT ASSETS ---------------  \n\n')
             
             # Bitmaps
             for item in bitmaps:
-                fp.write('utils\\py27\\python utils\\scripts\\c64\\C64Bitmap.py ' + item + ' build/c64/' + FileBase(item, '-c64.png') + '.img\n')
+                fp.write('utils\\py27\\python utils\\scripts\\c64\\C64Bitmap.py ' + item + ' ' + buildFolder + '/c64/' + FileBase(item, '-c64.png') + '.img\n')
                 
             # Charset    
             if len(charset) > 0:
                 fb = FileBase(charset[0], '-c64.png')
-                fp.write('utils\\py27\python utils\\scripts\\c64\\C64Charset.py ' + charset[0] + ' build/c64/' + fb + '.chr\n')
+                fp.write('utils\\py27\python utils\\scripts\\c64\\C64Charset.py ' + charset[0] + ' ' + buildFolder + '/c64/' + fb + '.chr\n')
                 
             # Sprites
             if len(sprites) > 0:
-                fp.write('utils\\py27\\python utils\\scripts\\c64\\C64Sprites.py ' + sprites[0] + ' build/c64/sprites.dat\n')
+                fp.write('utils\\py27\\python utils\\scripts\\c64\\C64Sprites.py ' + sprites[0] + ' ' + buildFolder + '/c64/sprites.dat\n')
                 
             # Chunks
             if len(chunks) > 0:
-                fp.write('utils\\py27\\python utils\\scripts\\ProcessChunks.py c64 ' + chunks[0] + ' build/c64/\n\n')
+                fp.write('utils\\py27\\python utils\\scripts\\ProcessChunks.py c64 ' + chunks[0] + ' ' + buildFolder + '/c64/\n\n')
                 
             # Music
             for item in music:
                 fb = FileBase(item, '-c64.sid')
-                fp.write('utils\\scripts\\c64\\sidreloc.exe -v -z 30-ff -p 08 ' + item + ' build/c64/' + fb + '.sid\n')
-                fp.write('if exist build/c64/' + fb + '.sid (\n')
-                fp.write('    utils\\scripts\\c64\\psid64.exe -n build/c64/' + fb + '.sid\n')
+                fp.write('utils\\scripts\\c64\\sidreloc.exe -v -z 30-ff -p 08 ' + item + ' ' + buildFolder + '/c64/' + fb + '.sid\n')
+                fp.write('if exist ' + buildFolder + '/c64/' + fb + '.sid (\n')
+                fp.write('    utils\\scripts\\c64\\psid64.exe -n ' + buildFolder + '/c64/' + fb + '.sid\n')
                 fp.write(') else (\n')
                 fp.write('    echo Relocation impossible, using the original file instead...\n')
-                fp.write('    copy ' + item.replace('/', '\\') + ' build\\c64\\' + fb + '.prg\n')
+                fp.write('    copy ' + item.replace('/', '\\') + ' ' + buildFolder + '\\c64\\' + fb + '.prg\n')
                 fp.write(')\n')
 
             # Info
@@ -813,7 +839,7 @@ class Application:
             for file in SList:            
                 fp.write('utils\\cc65\\bin\\ca65 -t c64 unity\\' + file + '\n')
             
-            fp.write('utils\\cc65\\bin\\ar65 r build/c64/unity.lib ')
+            fp.write('utils\\cc65\\bin\\ar65 r ' + buildFolder + '/c64/unity.lib ')
             for file in CList:
                 fp.write('unity\\' + file[0:-2] + '.o ')
             for file in SList:            
@@ -821,48 +847,49 @@ class Application:
             fp.write('\n')
             
             # Compilation                        
-            comp = 'utils\\cc65\\bin\\cl65 -o build/c64/' + diskname.lower() + '.bin -m build/' + diskname.lower() + '-c64.map -Cl -O -t c64 -C unity/C64/c64.cfg -I unity '
+            comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/c64/' + diskname.lower() + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-c64.map -Cl -O -t c64 -C unity/C64/c64.cfg -I unity '
             for item in code:
                 comp += (item + ' ')
-            fp.write(comp + 'build/c64/unity.lib unity/IP65/ip65_tcp.lib unity/IP65/ip65_c64.lib\n\n')
+            fp.write(comp + buildFolder + '/c64/unity.lib unity/IP65/ip65_tcp.lib unity/IP65/ip65_c64.lib\n\n')
             
             # Compression
             if len(sprites) > 0:
-                fp.write('utils\\scripts\\exomizer-3.0.2.exe sfx $180d build/c64/' + diskname.lower() + '.bin build/c64/sprites.dat -o build/c64/loader.prg\n')          
+                fp.write('utils\\scripts\\exomizer-3.0.2.exe sfx $180d ' + buildFolder + '/c64/' + diskname.lower() + '.bin ' + buildFolder + '/c64/sprites.dat -o ' + buildFolder + '/c64/loader.prg\n')          
             else:
-                fp.write('utils\\scripts\\exomizer-3.0.2.exe sfx $180d build/c64/' + diskname.lower() + '.bin -o build/c64/loader.prg\n')
+                fp.write('utils\\scripts\\exomizer-3.0.2.exe sfx $180d ' + buildFolder + '/c64/' + diskname.lower() + '.bin -o ' + buildFolder + '/c64/loader.prg\n')
 
             # Info
             fp.write('\necho DONE!\n\n')
             fp.write('echo --------------- C64 DISK BUILDER --------------- \n\n')
 
             # Disk builder
-            fp.write('set C1541=utils\\scripts\\c64\\c1541 -format loader,666 d64 build/' + diskname + '-c64.d64 -attach build/' + diskname + '-c64.d64 ')
-            fp.write('-write build/c64/loader.prg loader.prg ')
+            fp.write('set C1541=utils\\scripts\\c64\\c1541 -format loader,666 d64 ' + buildFolder + '/' + diskname + '-c64.d64 -attach ' + buildFolder + '/' + diskname + '-c64.d64 ')
+            fp.write('-write ' + buildFolder + '/c64/loader.prg loader.prg ')
             for item in bitmaps:
                 fb = FileBase(item, '-c64.png')
-                fp.write('-write build/c64/' + fb + '.img ' + fb + '.img ')
+                fp.write('-write ' + buildFolder + '/c64/' + fb + '.img ' + fb + '.img ')
             if len(charset) > 0:
                 fb = FileBase(charset[0], '-c64.png')            
-                fp.write('-write build/c64/' + fb + '.chr ' + fb + '.chr ')                           
+                fp.write('-write ' + buildFolder + '/c64/' + fb + '.chr ' + fb + '.chr ')                           
             for item in charmaps:
                 fb = FileBase(item, '')
                 fp.write('-write ' + item + ' ' + fb + ' ')
             for item in music:
                 fb = FileBase(item, '-c64.sid')
-                fp.write('-write build/c64/' + fb + '.prg ' + fb + '.mus ')              
+                fp.write('-write ' + buildFolder + '/c64/' + fb + '.prg ' + fb + '.mus ')              
             for item in shared:
                 fp.write('-write ' + item + ' ' + FileBase(item, '') + ' ')                
-            fp.write('\nfor /f "tokens=*" %%A in (build\c64\chunks.lst) do set C1541=!C1541!-write %%A %%~nxA \n')
+            fp.write('\nfor /f "tokens=*" %%A in (' + buildFolder + '\c64\chunks.lst) do set C1541=!C1541!-write %%A %%~nxA \n')
             fp.write('%C1541%\n')
                
             # Info
             fp.write('\n\necho DONE\n')
-            fp.write('pause\n\n')
             
             # Start emulator?
-            fp.write('cd "utils\emulators\WinVICE-2.4"\n')
-            fp.write('x64.exe "..\\..\\..\\build\\' + diskname + '-c64.d64"\n')
+            if callEmu:
+                fp.write('pause\n\n')            
+                fp.write('cd "utils\emulators\WinVICE-2.4"\n')
+                fp.write('x64.exe "..\\..\\..\\' + buildFolder + '\\' + diskname + '-c64.d64"\n')
 
         ####################################################
         # Lynx script
@@ -871,7 +898,7 @@ class Application:
         sprites = list(self.listbox_LynxSprites.get(0, END))
         chunks = list(self.listbox_LynxChunks.get(0, END))
         music = list(self.listbox_LynxMusic.get(0, END))
-        with open("../../build/"+diskname+"-lynx.bat", "wb") as fp:
+        with open('../../'+buildFolder+'/'+diskname+"-lynx.bat", "wb") as fp:
             # Info
             fp.write('echo off\n\n')
             fp.write('setlocal enableextensions enabledelayedexpansion\n\n')
@@ -925,7 +952,7 @@ class Application:
             # Chunks
             fp.write('set /a CHUNKNUM=0\n')
             if len(chunks) > 0:
-                fp.write('..\\..\\utils\\py27\\python ..\\..\\utils\\scripts\\ProcessChunks.py lynx ../../' + chunks[0] + ' ../../build/lynx/\n')
+                fp.write('..\\..\\utils\\py27\\python ..\\..\\utils\\scripts\\ProcessChunks.py lynx ../../' + chunks[0] + ' ../../'+buildFolder + '/lynx/\n')
                 fp.write('for /f "tokens=*" %%A in (chunks.lst) do set CHUNKNAMES=!CHUNKNAMES!_shkName!CHUNKNUM!,&&set /a CHUNKNUM+=1\n')
             fp.write('set /a FILENUM=!CHUNKNUM!+' + str(len(bitmaps)+len(charmaps)+len(charset)+len(music)+len(shared)) + '\n')
 
@@ -1119,8 +1146,8 @@ class Application:
             fp.write('\n')
 
             # Generate config and directory Files
-            fp.write('utils\\py27\\python utils/scripts/lynx/LynxConfig.py unity/Lynx/lynx.cfg build/lynx/lynx.cfg ' + str(len(bitmaps)+len(charmaps)+len(charset)) + ' ' + str(len(music)) + ' ' + str(len(shared)) + ' %CHUNKNUM%\n')
-            fp.write('utils\\py27\\python utils/scripts/lynx/LynxDirectory.py unity/Lynx/directory.s build/lynx/directory.asm ' + str(len(bitmaps)+len(charmaps)+len(charset)) + ' ' + str(len(music)) + ' ' + str(len(shared)) + ' %CHUNKNUM%\n')
+            fp.write('utils\\py27\\python utils/scripts/lynx/LynxConfig.py unity/Lynx/lynx.cfg ' + buildFolder + '/lynx/lynx.cfg ' + str(len(bitmaps)+len(charmaps)+len(charset)) + ' ' + str(len(music)) + ' ' + str(len(shared)) + ' %CHUNKNUM%\n')
+            fp.write('utils\\py27\\python utils/scripts/lynx/LynxDirectory.py unity/Lynx/directory.s ' + buildFolder + '/lynx/directory.asm ' + str(len(bitmaps)+len(charmaps)+len(charset)) + ' ' + str(len(music)) + ' ' + str(len(shared)) + ' %CHUNKNUM%\n')
                         
             # Info
             fp.write('\necho DONE!\n\n')
@@ -1138,7 +1165,7 @@ class Application:
             for file in SList:            
                 fp.write('utils\\cc65\\bin\\ca65 -t lynx --cpu 65SC02 unity\\' + file + '\n')
             
-            fp.write('utils\\cc65\\bin\\ar65 r build/lynx/unity.lib ')
+            fp.write('utils\\cc65\\bin\\ar65 r ' + buildFolder + '/lynx/unity.lib ')
             for file in CList:
                 fp.write('unity\\' + file[0:-2] + '.o ')
             for file in SList:            
@@ -1146,20 +1173,21 @@ class Application:
             fp.write('\n')
             
             # Compilation 
-            comp = 'utils\\cc65\\bin\\cl65 -o build/' + diskname.lower() + '-lynx.lnx -m build/' + diskname.lower() + '-lynx.map -Cl -O -t lynx -C build/lynx/lynx.cfg -I unity '
+            comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/' + diskname.lower() + '-lynx.lnx -m ' + buildFolder + '/' + diskname.lower() + '-lynx.map -Cl -O -t lynx -C ' + buildFolder + '/lynx/lynx.cfg -I unity '
             for item in code:
                 comp += (item + ' ')
             for i in range(len(music)):
-                comp += 'build/lynx/music' + str(i).zfill(2) + '.asm '
-            fp.write(comp + 'unity/Lynx/sfx.s build/lynx/directory.asm build/lynx/data.asm build/lynx/unity.lib\n')
+                comp += buildFolder + '/lynx/music' + str(i).zfill(2) + '.asm '
+            fp.write(comp + 'unity/Lynx/sfx.s ' + buildFolder + '/lynx/directory.asm ' + buildFolder + '/lynx/data.asm ' + buildFolder + '/lynx/unity.lib\n')
             
             # Info
             fp.write('\necho DONE!\n\n')
-            fp.write('pause\n\n')
             
             # Start emulator?
-            fp.write('cd "utils\emulators\Handy-0.98-Hub"\n')
-            fp.write('handy.exe "..\\..\\..\\build\\' + diskname + '-lynx.lnx"\n')
+            if callEmu:
+                fp.write('pause\n\n')
+                fp.write('cd "utils\emulators\Handy-0.98-Hub"\n')
+                fp.write('handy.exe "..\\..\\..\\' + buildFolder + '\\' + diskname + '-lynx.lnx"\n')
 
 
         ####################################################
@@ -1169,13 +1197,13 @@ class Application:
         sprites = list(self.listbox_OricSprites.get(0, END))
         chunks = list(self.listbox_OricChunks.get(0, END))
         music = list(self.listbox_OricMusic.get(0, END))
-        with open("../../build/"+diskname+"-oric48k.bat", "wb") as fp:
+        with open('../../'+buildFolder+'/'+diskname+"-oric48k.bat", "wb") as fp:
             # Info
             fp.write('echo off\n\n')
             fp.write('setlocal enableextensions enabledelayedexpansion\n\n')
             fp.write('mkdir oric\n')            
             fp.write('cd ..\n\n')            
-            fp.write('del build\\oric\\*.* /F /Q\n\n')
+            fp.write('del ' + buildFolder + '\\oric\\*.* /F /Q\n\n')
             fp.write('echo --------------- CONVERT ASSETS ---------------  \n\n')
             
             # Process Bitmaps / Chunks / Sprites / Shared
@@ -1183,38 +1211,38 @@ class Application:
             for item in bitmaps:
                 fb = FileBase(item, '-oric.png')
                 if self.combobox_OricImageQuality.get() == 'Hires(Noisy)':
-                    fp.write('luajit PictOric.lua ' + self.entry_OricDithering.get() + ' ../../../' + item + ' ../../../build/oric/' + fb + '.dat\n')
+                    fp.write('luajit PictOric.lua ' + self.entry_OricDithering.get() + ' ../../../' + item + ' ../../../'+buildFolder + '/oric/' + fb + '.dat\n')
                 else:
-                    fp.write('..\\..\\py27\\python OricBitmap.py ../../../' + item + ' ../../../build/oric/' + fb + '.dat\n')
-                fp.write('header -a0 ../../../build/oric/' + fb + '.dat ../../../build/oric/' + fb + '.img $A000\n')
+                    fp.write('..\\..\\py27\\python OricBitmap.py ../../../' + item + ' ../../../'+buildFolder + '/oric/' + fb + '.dat\n')
+                fp.write('header -a0 ../../../'+buildFolder + '/oric/' + fb + '.dat ../../../'+buildFolder + '/oric/' + fb + '.img $A000\n')
                 
             if len(charset) > 0:
                 fb = FileBase(charset[0], '-oric.png')
-                fp.write('..\\..\\py27\python OricCharset.py ' + self.combobox_OricImageQuality.get() + ' ' + self.entry_OricDithering.get() +  ' ../../../' + charset[0] + ' ../../../build/oric/' + fb + '.dat\n') 
-                fp.write('header -a0 ../../../build/oric/' + fb + '.dat ../../../build/oric/' + fb + '.chr $A000\n')
+                fp.write('..\\..\\py27\python OricCharset.py ' + self.combobox_OricImageQuality.get() + ' ' + self.entry_OricDithering.get() +  ' ../../../' + charset[0] + ' ../../../'+buildFolder + '/oric/' + fb + '.dat\n') 
+                fp.write('header -a0 ../../../'+buildFolder + '/oric/' + fb + '.dat ../../../'+buildFolder + '/oric/' + fb + '.chr $A000\n')
                 
             if len(chunks) > 0:
-                fp.write('..\\..\\py27\\python ProcessChunks.py ' + self.combobox_OricImageQuality.get() + ' ' + self.entry_OricDithering.get() + ' ../../../' + chunks[0] + ' ../../../build/oric/\n')
-                fp.write('for /f "tokens=*" %%A in (..\\..\\..\\build\\oric\\chunks.lst) do header -a0 ../../../%%A ../../../%%A $8000\n')
+                fp.write('..\\..\\py27\\python ProcessChunks.py ' + self.combobox_OricImageQuality.get() + ' ' + self.entry_OricDithering.get() + ' ../../../' + chunks[0] + ' ../../../'+buildFolder + '/oric/\n')
+                fp.write('for /f "tokens=*" %%A in (..\\..\\..\\' + buildFolder + '\\oric\\chunks.lst) do header -a0 ../../../%%A ../../../%%A $8000\n')
             fp.write('cd ..\\..\\..\n')
 
             for item in charmaps:
                 fb = FileBase(item, '')
-                fp.write('utils\\scripts\\oric\\header -a0 ' + item + ' build/oric/' + fb + ' $A000\n')
+                fp.write('utils\\scripts\\oric\\header -a0 ' + item + ' ' + buildFolder + '/oric/' + fb + ' $A000\n')
             
             if len(sprites) > 0:
                 spriteHeight = int(self.entry_OricSpriteHeight.get())
-                fp.write('utils\\py27\\python utils\\scripts\\oric\\OricSprites.py ' + sprites[0] + ' build/oric/sprites.dat ' + str(spriteHeight) + '\n')
-                fp.write('utils\\scripts\\oric\\header -a0 build/oric/sprites.dat build/oric/sprites.dat $7800\n')
+                fp.write('utils\\py27\\python utils\\scripts\\oric\\OricSprites.py ' + sprites[0] + ' ' + buildFolder + '/oric/sprites.dat ' + str(spriteHeight) + '\n')
+                fp.write('utils\\scripts\\oric\\header -a0 ' + buildFolder + '/oric/sprites.dat ' + buildFolder + '/oric/sprites.dat $7800\n')
                 
             for item in music:
                 fb = FileBase(item, '-oric.ym')
-                fp.write('utils\\scripts\\oric\\ym2mym ' + item + ' build/oric/' + fb + '.mus\n')
-                fp.write('utils\\scripts\\oric\\header -h1 -a0 build/oric/' + fb + '.mus build/oric/' + fb + '.mus $8000\n')
+                fp.write('utils\\scripts\\oric\\ym2mym ' + item + ' ' + buildFolder + '/oric/' + fb + '.mus\n')
+                fp.write('utils\\scripts\\oric\\header -h1 -a0 ' + buildFolder + '/oric/' + fb + '.mus ' + buildFolder + '/oric/' + fb + '.mus $8000\n')
                 
             for item in shared:
                 fb = FileBase(item, '')
-                fp.write('utils\\scripts\\oric\\header -a0 ' + item + ' build/oric/' + fb + ' $A000\n')
+                fp.write('utils\\scripts\\oric\\header -a0 ' + item + ' ' + buildFolder + '/oric/' + fb + ' $A000\n')
                 
             # Info
             fp.write('\necho DONE!\n\n')
@@ -1232,7 +1260,7 @@ class Application:
             for file in SList:            
                 fp.write('utils\\cc65\\bin\\ca65 -t atmos unity\\' + file + '\n')
             
-            fp.write('utils\\cc65\\bin\\ar65 r build/oric/unity.lib ')
+            fp.write('utils\\cc65\\bin\\ar65 r ' + buildFolder + '/oric/unity.lib ')
             for file in CList:
                 fp.write('unity\\' + file[0:-2] + '.o ')
             for file in SList:            
@@ -1240,58 +1268,66 @@ class Application:
             fp.write('\n')
             
             # Compilation 
-            comp = 'utils\\cc65\\bin\\cl65 -o build/oric/' + diskname.lower() + '.bin -m build/' + diskname.lower() + '-oric48k.map -Cl -O -t atmos -C unity/Oric/oric.cfg -I unity '
+            comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/oric/' + diskname.lower() + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-oric48k.map -Cl -O -t atmos -C unity/Oric/oric.cfg -I unity '
             for item in code:
                 comp += (item + ' ')
-            fp.write(comp + 'build/oric/unity.lib\n\n')
+            fp.write(comp + buildFolder + '/oric/unity.lib\n\n')
 
             # Fix header
-            fp.write('utils\\scripts\\oric\\header.exe build/oric/' + diskname.lower() + '.bin build/oric/' + diskname.lower() + '.com $0501\n\n')
+            fp.write('utils\\scripts\\oric\\header.exe ' + buildFolder + '/oric/' + diskname.lower() + '.bin ' + buildFolder + '/oric/' + diskname.lower() + '.com $0501\n\n')
             
             # Compression
-            fp.write('utils\\scripts\\exomizer-3.0.2.exe sfx bin build/oric/' + diskname.lower() + '.com -o build/oric/launch.com\n\n')            
+            fp.write('utils\\scripts\\exomizer-3.0.2.exe sfx bin ' + buildFolder + '/oric/' + diskname.lower() + '.com -o ' + buildFolder + '/oric/launch.com\n\n')            
             
             # Info
             fp.write('\necho DONE!\n\n')
             fp.write('echo --------------- ORIC DISK BUILDER --------------- \n\n')
             
             # Disk builder
-            cmd = 'set TAP2DSK=utils\\scripts\\oric\\tap2dsk.exe -iLAUNCH.COM build/oric/launch.com'
+            cmd = 'set TAP2DSK=utils\\scripts\\oric\\tap2dsk.exe -iLAUNCH.COM ' + buildFolder + '/oric/launch.com'
             if len(sprites) > 0:
-                cmd += ' build/oric/sprites.dat'
+                cmd += ' ' + buildFolder + '/oric/sprites.dat'
             for item in bitmaps:
-                cmd += ' build/oric/' + FileBase(item, '-oric.png') + '.img'
+                cmd += ' ' + buildFolder + '/oric/' + FileBase(item, '-oric.png') + '.img'
             if len(charset) > 0:
-                cmd += ' build/oric/' + FileBase(charset[0], '-oric.png') + '.chr'
+                cmd += ' ' + buildFolder + '/oric/' + FileBase(charset[0], '-oric.png') + '.chr'
             for item in charmaps:
-                cmd += ' build/oric/' + FileBase(item, '')
+                cmd += ' ' + buildFolder + '/oric/' + FileBase(item, '')
             for item in music:
                 fb = FileBase(item, '-oric.ym')
-                cmd += ' build/oric/' + fb + '.mus'
+                cmd += ' ' + buildFolder + '/oric/' + fb + '.mus'
             for item in shared:
-                cmd += ' build/oric/' + FileBase(item, '')
+                cmd += ' ' + buildFolder + '/oric/' + FileBase(item, '')
             fp.write(cmd + '\n')
             if len(chunks) > 0:
-                fp.write('for /f "tokens=*" %%A in (build\oric\chunks.lst) do set TAP2DSK=!TAP2DSK! %%A\n')
-            fp.write('set TAP2DSK=%TAP2DSK% build/' + diskname + '-oric48k.dsk\n')
+                fp.write('for /f "tokens=*" %%A in (' + buildFolder + '\oric\chunks.lst) do set TAP2DSK=!TAP2DSK! %%A\n')
+            fp.write('set TAP2DSK=%TAP2DSK% ' + buildFolder + '/' + diskname + '-oric48k.dsk\n')
             fp.write('%TAP2DSK%\n')
-            fp.write('utils\\scripts\\oric\\old2mfm.exe build/' + diskname + '-oric48k.dsk\n')
+            fp.write('utils\\scripts\\oric\\old2mfm.exe ' + buildFolder + '/' + diskname + '-oric48k.dsk\n')
             
             # Info
             fp.write('\necho DONE\n')
-            fp.write('pause\n\n')
             
             # Start emulator?
-            fp.write('cd "utils\emulators\Oricutron-1.2-Hub"\n')
-            fp.write('oricutron.exe -d "..\\..\\..\\build\\' + diskname + '-oric48k.dsk"\n')            
+            if callEmu:
+                fp.write('pause\n\n')
+                fp.write('cd "utils\emulators\Oricutron-1.2-Hub"\n')
+                fp.write('oricutron.exe -d "..\\..\\..\\' + buildFolder + '\\' + diskname + '-oric48k.dsk"\n')            
    
         # Done!
-        messagebox.showinfo('Completed', 'Scripts succesfully written to the build folder!')
-        
+        if useGUI:
+            messagebox.showinfo('Completed', 'Scripts succesfully written to the build folder!')
         
 if __name__ == '__main__':
-    root = Tk()
-    app = Application(root)
-    root.iconbitmap('builder.ico')
-    root.resizable(False, False)
-    root.mainloop()
+    if useGUI:
+        root = Tk()
+        app = Application(root)
+        root.iconbitmap('builder.ico')
+        root.resizable(False, False)
+        root.mainloop()
+    else:
+        root = Tk()
+        root.withdraw()
+        app = Application(root)
+        app.FileLoad('../../'+projectFile)
+        app.GenerateBuilder()
