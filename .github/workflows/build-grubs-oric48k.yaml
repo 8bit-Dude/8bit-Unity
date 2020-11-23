@@ -2,7 +2,7 @@
 # 
 # Should build Oric .DSK binaries
 #
-name: build-8bit-unity-grubs-demo-for-oric
+name: grubs-demo-for-oric
 
 on:
   push:
