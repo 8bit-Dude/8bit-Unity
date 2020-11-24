@@ -40,8 +40,12 @@ p0
 .(lp0
 Vprojects/dungeon/src/dungeon.c
 p1
-aVprojects/dungeon/src/interface.c
+aVprojects/dungeon/src/actors.c
 p2
+aVprojects/dungeon/src/interface.c
+p3
+aVprojects/dungeon/src/player.c
+p4
 a.(lp0
 Vprojects/dungeon/bitmaps/menu-apple.png
 p1
@@ -79,7 +83,7 @@ a.(lp0
 Vprojects/dungeon/music/dungeon-oric.ym
 p1
 a.(lp0
-Vprojects/dungeon/charmaps/level1.nav
+Vprojects/dungeon/charmaps/level1.act
 p1
 a.(lp0
 Vprojects/dungeon/bitmaps/menu-lynx.png

@@ -1,4 +1,6 @@
 
+#include "unity.h"
+
 // Screen cropping around charmap
 #if defined (__APPLE2__) || defined(__ORIC__)
 	#define CROP_X  4	// Crop more for platforms that run in HIRES
@@ -23,6 +25,9 @@
 	#define STEP_X  3
 	#define STEP_Y  2 
 #endif
+
+// Sprite definitions
+#define spriteFrames 32
 
 // Sprite slot assignments
 #if defined __ATARI__	
@@ -102,6 +107,25 @@
 #define TILE_GATE_SHUTL	38
 #define TILE_GATE_SHUTR	39
 
+// Actor variables (Enemies/Items)
+typedef struct {
+	unsigned char state, color, health;
+	unsigned char key, stance, frame;
+	unsigned char mapX, mapY;
+	unsigned int scrX, scrY;
+	clock_t timer;
+} Actor;
+
+// Actor functions (actors.c)
+void LoadActors(const char* filename);
+void ProcessActors(void);
+unsigned char CheckActorCollision(unsigned int scrX, unsigned int scrY, unsigned char flag);
+unsigned char FindActorSlot(void);
+void GenerateMonster(unsigned char mapX, unsigned char mapY);
+void GenerateReward(unsigned char mapX, unsigned char mapY);
+void DamageMonster(Actor* actor);
+void PickupReward(Actor* actor);
+
 // GUI functions (interface.c)
 void SplashScreen(void);
 void PrintHealth(void);
@@ -109,3 +133,7 @@ void PrintArmor(void);
 void PrintGold(void);
 void PrintKills(void);
 void PrintKey(void);
+
+// Player functions (player.c)
+void ProcessPlayer(void);
+void ProcessWeapon(void);
