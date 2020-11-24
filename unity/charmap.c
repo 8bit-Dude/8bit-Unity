@@ -168,6 +168,14 @@ void ClearCharmap()
 #endif
 }
 
+void DisplayCharmap(unsigned char c1, unsigned char c2, unsigned char r1, unsigned char r2)
+{
+	// Define rendering window
+	screenCol1 = c1; screenCol2 = c2;
+	screenRow1 = r1; screenRow2 = r2;
+	screenWidth = c2-c1; screenHeight = r2-r1;	
+}
+
 // Load charset and associated attributes / flags
 void LoadCharset(char* filename, char* palette)
 {
