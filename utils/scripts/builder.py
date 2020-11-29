@@ -178,6 +178,8 @@ class Application:
         self.entry_LynxSpriteFrames = self.builder.get_object('Entry_LynxSpriteFrames')
         self.entry_LynxSpriteWidth = self.builder.get_object('Entry_LynxSpriteWidth')
         self.entry_LynxSpriteHeight = self.builder.get_object('Entry_LynxSpriteHeight')
+        self.entry_LynxMusicMemory = self.builder.get_object('Entry_LynxMusicMemory')
+        self.entry_LynxSharedMemory = self.builder.get_object('Entry_LynxSharedMemory')
         
         self.listbox_OricBitmap = self.builder.get_object('Listbox_OricBitmap')        
         self.listbox_OricCharset = self.builder.get_object('Listbox_OricCharset')        
@@ -202,7 +204,7 @@ class Application:
                          self.entry_C64SpriteFrames,   self.entry_C64SpriteWidth,   self.entry_C64SpriteHeight, 
                          self.entry_LynxSpriteFrames,  self.entry_LynxSpriteWidth,  self.entry_LynxSpriteHeight, 
                          self.entry_OricSpriteFrames,  self.entry_OricSpriteWidth,  self.entry_OricSpriteHeight,
-                         self.entry_OricDithering ]
+                         self.entry_OricDithering,     self.entry_LynxMusicMemory,  self.entry_LynxSharedMemory ]
         self.listboxes = [ self.listbox_Code, 
                            self.listbox_AppleBitmap,  self.listbox_AppleSprites, self.listbox_AppleMusic,
                            self.listbox_AtariBitmap,  self.listbox_AtariSprites, self.listbox_AtariMusic,
@@ -1159,11 +1161,13 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Build Unity Library
+            symbols = ' -D __MUSSIZE__='  + self.entry_LynxMusicMemory.get().replace('$','0x') + ' -D __SHRSIZE__='  + self.entry_LynxSharedMemory.get().replace('$','0x')
+            config  = ' -Wl -D,__MUSSIZE__='  + self.entry_LynxMusicMemory.get() + ',-D,__SHRSIZE__='  + self.entry_LynxSharedMemory.get()
             CList = ['bitmap.c', 'charmap.c', 'chunks.c', 'geom2d.c', 'hub.c', 'joystick.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'scaling.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Lynx\\display.c', 'Lynx\\files.c']
             SList = ['atan2.s', 'chars.s', 'tiles.s', 'Lynx\\header.s', 'Lynx\\scroll.s', 'Lynx\\serial.s', 'Lynx\\suzy.s']
                          
             for file in CList:
-                fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t lynx -I unity unity\\' + file + '\n')
+                fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t lynx' + symbols + ' -I unity unity\\' + file + '\n')
                 fp.write('utils\\cc65\\bin\\ca65 -t lynx --cpu 65SC02 unity\\' + file[0:-2] + '.s\n')
                 fp.write('del unity\\' + file[0:-2] + '.s\n')
 
@@ -1178,7 +1182,7 @@ class Application:
             fp.write('\n')
             
             # Compilation 
-            comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/' + diskname.lower() + '-lynx.lnx -m ' + buildFolder + '/' + diskname.lower() + '-lynx.map -Cl -O -t lynx -C ' + buildFolder + '/lynx/lynx.cfg -I unity '
+            comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/' + diskname.lower() + '-lynx.lnx -m ' + buildFolder + '/' + diskname.lower() + '-lynx.map -Cl -O -t lynx' + symbols + config + ' -C ' + buildFolder + '/lynx/lynx.cfg -I unity '
             for item in code:
                 comp += (item + ' ')
             for i in range(len(music)):

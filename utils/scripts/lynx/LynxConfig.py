@@ -49,9 +49,9 @@ try:
                     for i in range(musNum):
                         fout.write('	MUS' + str(i) + ':	file = %O, define = yes, start = $C038 - __BMPSIZE__ - __MUSSIZE__, size = __MUSSIZE__;\n')
                     for i in range(shrNum):
-                        fout.write('	SHR' + str(i) + ':	file = %O, define = yes, start = $C038 - __BMPSIZE__ - __MUSSIZE__ - __FILSIZE__, size = __FILSIZE__;\n')
+                        fout.write('	SHR' + str(i) + ':	file = %O, define = yes, start = $C038 - __BMPSIZE__ - __MUSSIZE__ - __SHRSIZE__, size = __SHRSIZE__;\n')
                     for i in range(shkNum):
-                        fout.write('	SHK' + str(i) + ':	file = %O, define = yes, start = $C038 - __BMPSIZE__ - __MUSSIZE__ - __FILSIZE__, size = __FILSIZE__;\n')
+                        fout.write('	SHK' + str(i) + ':	file = %O, define = yes, start = $C038 - __BMPSIZE__ - __MUSSIZE__ - __SHRSIZE__, size = __SHRSIZE__;\n')
                         
                 if 'BSS:       load = MAIN' in line:
                     for i in range(bmpNum):

@@ -1648,21 +1648,59 @@
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
-                      <object class="tk.Label" id="Label_C64Options">
-                        <property name="height">1</property>
-                        <property name="height">1</property>
-                        <property name="text" translatable="yes">No options for Lynx...</property>
-                        <property name="width">59</property>
+                      <object class="tk.Label" id="Label_LynxMusicFiles">
+                        <property name="text" translatable="yes">Memory Allocation:       Music Files</property>
                         <layout>
                           <property name="column">0</property>
-						  <property name="pady">2</property>						  
+                          <property name="padx">5</property>
+						  <property name="pady">5</property>
                           <property name="propagate">True</property>
-                          <property name="row">0</property>
+                          <property name="row">1</property>
                           <property name="sticky">nw</property>
                         </layout>
                       </object>
                     </child>
-                  </object>
+					<child>
+					  <object class="ttk.Entry" id="Entry_LynxMusicMemory">
+						<property name="text" translatable="yes">$0C00</property>
+						<property name="width">8</property>
+						<layout>
+						  <property name="column">1</property>
+                          <property name="padx">5</property>
+                          <property name="pady">5</property>
+						  <property name="propagate">True</property>
+						  <property name="row">1</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>
+					</child>
+                    <child>
+                      <object class="tk.Label" id="Label_LynxSharedMemory">
+                        <property name="text" translatable="yes">     Shared Files</property>
+                        <layout>
+                          <property name="column">2</property>
+                          <property name="padx">5</property>
+						  <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+					<child>
+					  <object class="ttk.Entry" id="Entry_LynxSharedMemory">
+						<property name="text" translatable="yes">$0400</property>
+						<property name="width">8</property>
+						<layout>
+						  <property name="column">3</property>
+                          <property name="padx">5</property>
+                          <property name="pady">5</property>
+						  <property name="propagate">True</property>
+						  <property name="row">1</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>
+					</child>                  </object>
                 </child>
               </object>
             </child>
