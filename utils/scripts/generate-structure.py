@@ -50,12 +50,12 @@ for mat in matches:
 def dict_to_source(d, indent):
     for k, v in d.items():
         if isinstance(v, tuple):
-            print("{}'{}': ('{}', self.{}),".format(indent, k, v[0], v[1]))
+            print("{}('{}', ('{}', self.{})),".format(indent, k, v[0], v[1]))
         else:
-            print("{}'{}': {{".format(indent, k))
+            print("{}('{}', [".format(indent, k))
             dict_to_source(v, indent + '    ')
-            print("{}}},".format(indent))
+            print("{}]),".format(indent))
 
-print("self.json_structure = {")
-dict_to_source(tree, '    ')
-print("}")
+print("        return [")
+dict_to_source(tree, '            ')
+print("        ]")

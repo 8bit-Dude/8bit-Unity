@@ -340,7 +340,7 @@ class Application:
         # Generates the JSON tree
 
         def process_node(dest, orig):
-            for k, v in orig.items():
+            for k, v in orig:
                 child = None
                 if isinstance(v, tuple):
                     (kind, component) = v
@@ -351,7 +351,8 @@ class Application:
                     elif kind == 'listbox':
                         child = list(component.get(0, END))
                     elif kind == 'checkbutton':
-                        child = component.state()[0] == 'selected'
+                        state = component.state()
+                        child = state[0] == 'selected' if state else False
                     elif kind == 'combobox':
                         child = component.get()
                 else:
@@ -376,74 +377,74 @@ class Application:
     def FileExit(self):
         sys.exit()
         
-    def JsonStructureTemplate(self):
-        return {
-            'general': {
-                'disk': ('entry', self.entry_Disk),
-                'code': ('listbox', self.listbox_Code),
-                'shared': ('listbox', self.listbox_Shared),
-                'charmap': ('listbox', self.listbox_Charmap),
-            },
-            'platform': {
-                'Apple': {
-                    'spriteFrames': ('entry', self.entry_AppleSpriteFrames),
-                    'spriteWidth': ('entry', self.entry_AppleSpriteWidth),
-                    'spriteHeight': ('entry', self.entry_AppleSpriteHeight),
-                    'bitmap': ('listbox', self.listbox_AppleBitmap),
-                    'sprites': ('listbox', self.listbox_AppleSprites),
-                    'music': ('listbox', self.listbox_AppleMusic),
-                    'chunks': ('listbox', self.listbox_AppleChunks),
-                    'charset': ('listbox', self.listbox_AppleCharset),
-                },
-                'Atari': {
-                    'spriteFrames': ('entry', self.entry_AtariSpriteFrames),
-                    'spriteWidth': ('entry', self.entry_AtariSpriteWidth),
-                    'spriteHeight': ('entry', self.entry_AtariSpriteHeight),
-                    'bitmap': ('listbox', self.listbox_AtariBitmap),
-                    'sprites': ('listbox', self.listbox_AtariSprites),
-                    'music': ('listbox', self.listbox_AtariMusic),
-                    'chunks': ('listbox', self.listbox_AtariChunks),
-                    'charset': ('listbox', self.listbox_AtariCharset),
-                    'noText': ('Checkbutton', self.Checkbutton_AtariNoText),
-                    'diskSize': ('Combobox', self.Combobox_AtariDiskSize),
-                },
-                'C64': {
-                    'spriteFrames': ('entry', self.entry_C64SpriteFrames),
-                    'spriteWidth': ('entry', self.entry_C64SpriteWidth),
-                    'spriteHeight': ('entry', self.entry_C64SpriteHeight),
-                    'bitmap': ('listbox', self.listbox_C64Bitmap),
-                    'sprites': ('listbox', self.listbox_C64Sprites),
-                    'music': ('listbox', self.listbox_C64Music),
-                    'chunks': ('listbox', self.listbox_C64Chunks),
-                    'charset': ('listbox', self.listbox_C64Charset),
-                },
-                'Lynx': {
-                    'spriteFrames': ('entry', self.entry_LynxSpriteFrames),
-                    'spriteWidth': ('entry', self.entry_LynxSpriteWidth),
-                    'spriteHeight': ('entry', self.entry_LynxSpriteHeight),
-                    'musicMemory': ('entry', self.entry_LynxMusicMemory),
-                    'sharedMemory': ('entry', self.entry_LynxSharedMemory),
-                    'bitmap': ('listbox', self.listbox_LynxBitmap),
-                    'sprites': ('listbox', self.listbox_LynxSprites),
-                    'music': ('listbox', self.listbox_LynxMusic),
-                    'chunks': ('listbox', self.listbox_LynxChunks),
-                    'charset': ('listbox', self.listbox_LynxCharset),
-                },
-                'Oric': {
-                    'spriteFrames': ('entry', self.entry_OricSpriteFrames),
-                    'spriteWidth': ('entry', self.entry_OricSpriteWidth),
-                    'spriteHeight': ('entry', self.entry_OricSpriteHeight),
-                    'dithering': ('entry', self.entry_OricDithering),
-                    'bitmap': ('listbox', self.listbox_OricBitmap),
-                    'sprites': ('listbox', self.listbox_OricSprites),
-                    'music': ('listbox', self.listbox_OricMusic),
-                    'chunks': ('listbox', self.listbox_OricChunks),
-                    'charset': ('listbox', self.listbox_OricCharset),
-                    'imageQuality': ('combobox', self.combobox_OricImageQuality),
-                },
-            },
-        }        
-        
+    def JsonStructureTemplate(self):        
+        return [
+            ('general', [
+                ('disk', ('entry', self.entry_Disk)),        
+                ('code', ('listbox', self.listbox_Code)),    
+                ('shared', ('listbox', self.listbox_Shared)),
+                ('charmap', ('listbox', self.listbox_Charmap)),
+            ]),
+            ('platform', [
+                ('Apple', [
+                    ('spriteFrames', ('entry', self.entry_AppleSpriteFrames)),
+                    ('spriteWidth', ('entry', self.entry_AppleSpriteWidth)),
+                    ('spriteHeight', ('entry', self.entry_AppleSpriteHeight)),
+                    ('bitmap', ('listbox', self.listbox_AppleBitmap)),
+                    ('sprites', ('listbox', self.listbox_AppleSprites)),
+                    ('music', ('listbox', self.listbox_AppleMusic)),
+                    ('chunks', ('listbox', self.listbox_AppleChunks)),
+                    ('charset', ('listbox', self.listbox_AppleCharset)),
+                ]),
+                ('Atari', [
+                    ('spriteFrames', ('entry', self.entry_AtariSpriteFrames)),
+                    ('spriteWidth', ('entry', self.entry_AtariSpriteWidth)),
+                    ('spriteHeight', ('entry', self.entry_AtariSpriteHeight)),
+                    ('bitmap', ('listbox', self.listbox_AtariBitmap)),
+                    ('sprites', ('listbox', self.listbox_AtariSprites)),
+                    ('music', ('listbox', self.listbox_AtariMusic)),
+                    ('chunks', ('listbox', self.listbox_AtariChunks)),
+                    ('charset', ('listbox', self.listbox_AtariCharset)),
+                    ('noText', ('Checkbutton', self.Checkbutton_AtariNoText)),
+                    ('diskSize', ('Combobox', self.Combobox_AtariDiskSize)),
+                ]),
+                ('C64', [
+                    ('spriteFrames', ('entry', self.entry_C64SpriteFrames)),
+                    ('spriteWidth', ('entry', self.entry_C64SpriteWidth)),
+                    ('spriteHeight', ('entry', self.entry_C64SpriteHeight)),
+                    ('bitmap', ('listbox', self.listbox_C64Bitmap)),
+                    ('sprites', ('listbox', self.listbox_C64Sprites)),
+                    ('music', ('listbox', self.listbox_C64Music)),
+                    ('chunks', ('listbox', self.listbox_C64Chunks)),
+                    ('charset', ('listbox', self.listbox_C64Charset)),
+                ]),
+                ('Lynx', [
+                    ('spriteFrames', ('entry', self.entry_LynxSpriteFrames)),
+                    ('spriteWidth', ('entry', self.entry_LynxSpriteWidth)),
+                    ('spriteHeight', ('entry', self.entry_LynxSpriteHeight)),
+                    ('musicMemory', ('entry', self.entry_LynxMusicMemory)),
+                    ('sharedMemory', ('entry', self.entry_LynxSharedMemory)),
+                    ('bitmap', ('listbox', self.listbox_LynxBitmap)),
+                    ('sprites', ('listbox', self.listbox_LynxSprites)),
+                    ('music', ('listbox', self.listbox_LynxMusic)),
+                    ('chunks', ('listbox', self.listbox_LynxChunks)),
+                    ('charset', ('listbox', self.listbox_LynxCharset)),
+                ]),
+                ('Oric', [
+                    ('spriteFrames', ('entry', self.entry_OricSpriteFrames)),
+                    ('spriteWidth', ('entry', self.entry_OricSpriteWidth)),
+                    ('spriteHeight', ('entry', self.entry_OricSpriteHeight)),
+                    ('dithering', ('entry', self.entry_OricDithering)),
+                    ('bitmap', ('listbox', self.listbox_OricBitmap)),
+                    ('sprites', ('listbox', self.listbox_OricSprites)),
+                    ('music', ('listbox', self.listbox_OricMusic)),
+                    ('chunks', ('listbox', self.listbox_OricChunks)),
+                    ('charset', ('listbox', self.listbox_OricCharset)),
+                    ('imageQuality', ('combobox', self.combobox_OricImageQuality)),
+                ]),
+            ]),
+        ]
+
     def CodeAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Code File", filetypes = (("C files","*.c"),)) 
         if filename is not '':
