@@ -28,7 +28,7 @@ from Tkinter import *
 import tkMessageBox as messagebox
 from tkFileDialog import askopenfilename, asksaveasfilename
 from PIL import Image, ImageTk
-import os, pickle, pygubu, sys
+import os, pickle, pygubu, sys, collections, json, codecs
 
 # Useful functions
 def Str2Bool(v):
@@ -39,9 +39,8 @@ def FileBase(filepath, suffix):
     return os.path.basename(filepath).lower().replace(suffix, '')
 
 # Constants
-PROJECT_FILE_TYPES = (
-    ("Project files","*.builder"),
-)
+STANDARD_PROJECT_FILE = ("Project files","*.builder")
+JSON_PROJECT_FILE = ("Project files","*.builder.json")
 
 # Defaults options
 useGUI = True
@@ -129,6 +128,7 @@ class Application:
         fileMenu.add_command(label="New", command=self.FileNew)
         fileMenu.add_command(label="Load", command=self.FileLoad)
         fileMenu.add_command(label="Save", command=self.FileSave)
+        fileMenu.add_command(label="Save as JSON", command=self.FileSaveJson)
         fileMenu.add_separator()
         fileMenu.add_command(label="Exit", command=self.FileExit)        
         menubar.add_cascade(label="File", menu=fileMenu)
@@ -234,7 +234,7 @@ class Application:
         
     def FileLoad(self, filename=''):
         if filename == '':
-            filename = askopenfilename(initialdir = "../../", title = "Load Builder Project", filetypes = PROJECT_FILE_TYPES) 
+            filename = askopenfilename(initialdir = "../../", title = "Load Builder Project", filetypes = (STANDARD_PROJECT_FILE, JSON_PROJECT_FILE)) 
         if filename is not '':
             # Reset UI
             for l in self.listboxes:
@@ -289,7 +289,7 @@ class Application:
                     item.set(data)
                     
     def FileSave(self):
-        filename = asksaveasfilename(initialdir = "../../", title = "Save Builder Project", filetypes = PROJECT_FILE_TYPES)
+        filename = asksaveasfilename(initialdir = "../../", title = "Save Builder Project", filetypes = (STANDARD_PROJECT_FILE,))
         if filename is not '':
             # Fix extension
             if ".builder" not in filename.lower():
@@ -324,8 +324,125 @@ class Application:
                     data = item.get()
                     pickle.dump(data, fp)
                     
+    def FileSaveJson(self):
+        # Unfortunately, TkInter does not reliably return which of the "filetypes" was selected by the user, so it was necessary to use two separate menu options
+        filename = asksaveasfilename(initialdir = "../../", title = "Save Builder Project as JSON", filetypes = (JSON_PROJECT_FILE,))
+        if not filename:
+            # No filename chosem
+            return
+
+        # Fix extension
+        if not filename.lower().endswith('.json'):
+            if not filename.lower().endswith('.builder'):
+                filename += '.builder'
+            filename += '.json'
+
+        # Generates the JSON tree
+
+        def process_node(dest, orig):
+            for k, v in orig.items():
+                child = None
+                if isinstance(v, tuple):
+                    (kind, component) = v
+                    kind = kind.lower()
+
+                    if kind == 'entry':
+                        child = component.get()
+                    elif kind == 'listbox':
+                        child = list(component.get(0, END))
+                    elif kind == 'checkbutton':
+                        child = component.state()[0] == 'selected'
+                    elif kind == 'combobox':
+                        child = component.get()
+                else:
+                    child = collections.OrderedDict()
+                    process_node(child, v)
+
+                dest[k] = child
+
+        structure_template = self.JsonStructureTemplate()
+        json_tree = collections.OrderedDict([
+            ('format', '8bit-Unity Project'),
+            ('formatVersion', self.version),
+        ])
+
+        process_node(json_tree, structure_template)
+
+        # Save the file
+        json_string = json.dumps(json_tree, indent=4)
+        with codecs.open(filename, "w", "utf-8") as fp:
+            fp.write(json_string)
+
     def FileExit(self):
         sys.exit()
+        
+    def JsonStructureTemplate(self):
+        return {
+            'general': {
+                'disk': ('entry', self.entry_Disk),
+                'code': ('listbox', self.listbox_Code),
+                'shared': ('listbox', self.listbox_Shared),
+                'charmap': ('listbox', self.listbox_Charmap),
+            },
+            'platform': {
+                'Apple': {
+                    'spriteFrames': ('entry', self.entry_AppleSpriteFrames),
+                    'spriteWidth': ('entry', self.entry_AppleSpriteWidth),
+                    'spriteHeight': ('entry', self.entry_AppleSpriteHeight),
+                    'bitmap': ('listbox', self.listbox_AppleBitmap),
+                    'sprites': ('listbox', self.listbox_AppleSprites),
+                    'music': ('listbox', self.listbox_AppleMusic),
+                    'chunks': ('listbox', self.listbox_AppleChunks),
+                    'charset': ('listbox', self.listbox_AppleCharset),
+                },
+                'Atari': {
+                    'spriteFrames': ('entry', self.entry_AtariSpriteFrames),
+                    'spriteWidth': ('entry', self.entry_AtariSpriteWidth),
+                    'spriteHeight': ('entry', self.entry_AtariSpriteHeight),
+                    'bitmap': ('listbox', self.listbox_AtariBitmap),
+                    'sprites': ('listbox', self.listbox_AtariSprites),
+                    'music': ('listbox', self.listbox_AtariMusic),
+                    'chunks': ('listbox', self.listbox_AtariChunks),
+                    'charset': ('listbox', self.listbox_AtariCharset),
+                    'noText': ('Checkbutton', self.Checkbutton_AtariNoText),
+                    'diskSize': ('Combobox', self.Combobox_AtariDiskSize),
+                },
+                'C64': {
+                    'spriteFrames': ('entry', self.entry_C64SpriteFrames),
+                    'spriteWidth': ('entry', self.entry_C64SpriteWidth),
+                    'spriteHeight': ('entry', self.entry_C64SpriteHeight),
+                    'bitmap': ('listbox', self.listbox_C64Bitmap),
+                    'sprites': ('listbox', self.listbox_C64Sprites),
+                    'music': ('listbox', self.listbox_C64Music),
+                    'chunks': ('listbox', self.listbox_C64Chunks),
+                    'charset': ('listbox', self.listbox_C64Charset),
+                },
+                'Lynx': {
+                    'spriteFrames': ('entry', self.entry_LynxSpriteFrames),
+                    'spriteWidth': ('entry', self.entry_LynxSpriteWidth),
+                    'spriteHeight': ('entry', self.entry_LynxSpriteHeight),
+                    'musicMemory': ('entry', self.entry_LynxMusicMemory),
+                    'sharedMemory': ('entry', self.entry_LynxSharedMemory),
+                    'bitmap': ('listbox', self.listbox_LynxBitmap),
+                    'sprites': ('listbox', self.listbox_LynxSprites),
+                    'music': ('listbox', self.listbox_LynxMusic),
+                    'chunks': ('listbox', self.listbox_LynxChunks),
+                    'charset': ('listbox', self.listbox_LynxCharset),
+                },
+                'Oric': {
+                    'spriteFrames': ('entry', self.entry_OricSpriteFrames),
+                    'spriteWidth': ('entry', self.entry_OricSpriteWidth),
+                    'spriteHeight': ('entry', self.entry_OricSpriteHeight),
+                    'dithering': ('entry', self.entry_OricDithering),
+                    'bitmap': ('listbox', self.listbox_OricBitmap),
+                    'sprites': ('listbox', self.listbox_OricSprites),
+                    'music': ('listbox', self.listbox_OricMusic),
+                    'chunks': ('listbox', self.listbox_OricChunks),
+                    'charset': ('listbox', self.listbox_OricCharset),
+                    'imageQuality': ('combobox', self.combobox_OricImageQuality),
+                },
+            },
+        }        
         
     def CodeAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Code File", filetypes = (("C files","*.c"),)) 
