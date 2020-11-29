@@ -449,7 +449,7 @@ void PrintChr(unsigned char col, unsigned char row, const char *chr)
 	POKE((char*)addr, inkColor << 4 | paperColor);
 #elif defined __LYNX__
 	// Set Character Pixels
-	unsigned char i,j,offset;
+	unsigned char i;
 	unsigned int addr;
 	addr = BITMAPRAM+1 + row*(492) + col*2u;
 	POKE((char*)addr++, (paperColor << 4) | paperColor);

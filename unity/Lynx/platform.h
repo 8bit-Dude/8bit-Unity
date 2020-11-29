@@ -27,9 +27,9 @@
 #include <lynx.h>
 
 // Memory Map
-#define SHAREDRAM  (0x8F8B)
-#define MUSICRAM   (0x938B)
 #define BITMAPRAM  (0x9F8B)
+#define MUSICRAM   (BITMAPRAM - __MUSSIZE__)
+#define SHAREDRAM  (MUSICRAM  - __SHRSIZE__)
 
 // Character Mode
 #define CHR_COLS 40

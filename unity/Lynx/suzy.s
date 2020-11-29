@@ -31,23 +31,38 @@
 	.import __viddma: zp
 
 	.export _SuzyInit
+	.export _SuzyFlip
 	.export _SuzyDraw
 	.export _SuzyUpdate
 	.export _SuzyBusy
+
+	.global __sprsys: zp
 		
 	.interruptor VBLIRQ
 
 	.segment "DATA"	
 
-VBLIRQ:     .byte   $60, $00, $00       ; RTS plus two dummy bytes
+VBLIRQ:    .byte   $60, $00, $00       ; RTS plus two dummy bytes
 
+pixel:    .byte   3,%10000100,%00000000, $0       ; A pixel bitmap (used for clear screen)
+cls_coll: .byte   0
+cls_sprite:
+         .byte   %00000001                        ; A pixel sprite (used for clear screen)
+         .byte   %00010000
+         .byte   %00100000
+         .addr   0,pixel
+         .word   0
+         .word   0
+         .word   $a000                           ; 160
+         .word   $6600                           ; 102
+         .byte   $00
+		 
 	.segment "BSS"	
 
-_DrawPageAddr: .res 2
-
 ; Double buffer IRQ stuff
-DRAWPAGE:   .res    1
-SWAPREQUEST:.res    1
+DRAWPAGE:      .res 1
+SWAPREQUEST:   .res 1
+_DrawPageAddr: .res 2
 
 	.segment "CODE"	
 
@@ -55,7 +70,7 @@ SWAPREQUEST:.res    1
 ; void __near__ SuzyInit (void)
 ; ---------------------------------------------------------------	
 	
-.proc _SuzyInit: near
+_SuzyInit:
 ; Init parameters
 	lda     #1
 	stz     DRAWPAGE
@@ -86,14 +101,34 @@ SWAPREQUEST:.res    1
 	sta 	VBLIRQ+2
 	lda     #$4C        ; Jump opcode
 	sta     VBLIRQ      ; Activate IRQ routine
+; Finally, clear screen by drawing black pixel
+	lda     #<cls_sprite
+    ldx     #>cls_sprite
+    jsr     _SuzyDraw	
+	jsr     _SuzyUpdate
 	rts	
-.endproc		
+
+; ---------------------------------------------------------------
+; void __near__ SuzyFlip (void* ptr)
+; ---------------------------------------------------------------	
+
+_SuzyFlip:
+; Flip screen
+	lda     __sprsys
+	eor     #8
+	sta     __sprsys
+	sta     SPRSYS
+	lda     __viddma
+	eor     #2
+	sta     __viddma
+	sta     DISPCTL
+	rts
 
 ; ---------------------------------------------------------------
 ; void __near__ SuzyDraw (void* ptr)
 ; ---------------------------------------------------------------	
 
-.proc _SuzyDraw: near
+_SuzyDraw:
 ; Draw in render buffer
 	sta     SCBNEXTL
 	stx     SCBNEXTH	
@@ -110,8 +145,7 @@ SWAPREQUEST:.res    1
 	lsr
 	bcs     @L0
 	stz     SDONEACK
-	rts
-.endproc		
+	rts		
 
 ; ---------------------------------------------------------------
 ; void __near__ SuzyUpdate (unsigned char swap)

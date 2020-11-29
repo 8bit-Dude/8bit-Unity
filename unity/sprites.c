@@ -611,7 +611,9 @@ void EnableSprite(signed char index)
 void DisableSprite(signed char index)
 {
 	// Switch single sprite off
+#if defined __ATARI__	
 	unsigned char state;
+#endif
 	if (index >= 0) {	
 	#if defined __CBM__
 		// Set bit in sprite register

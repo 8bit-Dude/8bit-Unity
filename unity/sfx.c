@@ -201,7 +201,7 @@ void EngineSFX(unsigned int channel, unsigned int rpm)
 		asm("jsr $F424");	// Oric-1 (ROM 1.0)
 	}
 #elif defined __LYNX__
-	unsigned char freq = (180-rpm/6u)+channel*5u;
+	unsigned char freq = (220-rpm/6u)+channel*5u;
 	channel = (channel%2)+2;
 	abctaps(channel, 60);
 	abcoctave(channel, 2);

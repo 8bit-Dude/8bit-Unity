@@ -58,7 +58,7 @@ SCB_REHV_PAL keybrdSCB =  { BPP_4 | TYPE_NONCOLL, REHV | LITERAL, 0, 0, (char*)&
 unsigned char textColors[] = { BLACK, RED, PINK, GREY, GREY, GREY, BROWN, ORANGE, YELLOW, LGREEN, GREEN, DRED, PURPLE, BLUE, LBLUE, WHITE };
 unsigned char chrCol, chrRow;
 void clrscr(void) {
-	InitBitmap(); ClearBitmap(); EnterBitmapMode();
+	InitBitmap(); ClearBitmap();
 }
 unsigned char textcolor(unsigned char color) {
 	inkColor = textColors[color];
@@ -153,7 +153,7 @@ void InitDisplay(void)
 	
 	// Install drivers (and set interrupts)
 	SuzyInit();
-	lynx_snd_init(); 	
+	lynx_snd_init();
 	__asm__("cli");	
 	
 	// Reset palette
@@ -170,7 +170,6 @@ void InitDisplay(void)
 void UpdateDisplay(void)
 {
 	unsigned char i, j;
-	unsigned int scr;
 
 	// Wait for previous drawing to complete
 	while (SuzyBusy()) {}
