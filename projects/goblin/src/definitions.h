@@ -1,23 +1,14 @@
 
 #include "unity.h"
 
-// *** Platform specific HACKS ***
-#if defined __ATARI__
-	#undef  MUSICRAM
-	#define MUSICRAM (0x9800)	// Moved Music RAM start to allow more space for sprites
-#endif
-
 // Motion parameters
 #if defined __APPLE2__
-  #define mouseStep 3	// Apple soft sprites cause slow animation...
   #define unitStep  3
   #define unitTicks 3
 #elif defined __ORIC__
-  #define mouseStep 3
   #define unitStep  3
   #define unitTicks 6
 #else
-  #define mouseStep 2
   #define unitStep  3
   #define unitTicks 5
 #endif	

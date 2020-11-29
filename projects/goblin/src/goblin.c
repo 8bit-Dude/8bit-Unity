@@ -23,7 +23,7 @@
 #elif defined __LYNX__
 	#define spriteCols   9
 	#define spriteRows   13
-	unsigned char spriteColors[] =  defaultColors; // Default palette	
+	unsigned char *spriteColors =  defaultColors; // Default palette	
 #endif
 
 // Accessible polygon in scene
@@ -36,14 +36,11 @@ extern Interact interacts[MAX_INTERACT];
 
 void GameLoop(void)
 {
-	unsigned char joy, test;
+	unsigned char *mouse, mouseL = 0, mouseAction = 0, intersect;
+	unsigned int mouseX = 160, mouseY = 100, clickX = 160, clickY = 100;
+	unsigned int goalX = 180, goalY = 130, unitX = 180, unitY = 130;	
 	unsigned char sceneSearch, sceneIndex = 255, sceneInteract = 255, sceneItem = 255;
-	unsigned char mouseL = 0, mouseMotion = 0, mouseAction = 0;
-	unsigned int mouseX = 160, mouseY = 100;
-	unsigned int clickX = 160, clickY = 100;
-	unsigned int goalX = 180, goalY = 130;	
 	unsigned char unitFrame = frameWaitLeft, waitFrame = frameWaitLeft;
-	unsigned int unitX = 180, unitY = 130;	
 	signed int interX, interY, deltaX, deltaY;
 	clock_t gameClock = clock();
 	
@@ -51,21 +48,21 @@ void GameLoop(void)
 	#if defined __APPLE2__
 		clk += 1;  // Manually update clock on Apple 2
 	#endif		
-		// Move cursor
-		mouseMotion = 0;
-		joy = GetJoy(0);
-		if (joy != 255) { mouseMotion = 1; }
-		if (!(joy & JOY_UP))    { mouseY -= mouseStep; if (mouseY > 200) mouseY = 0; }
-		if (!(joy & JOY_DOWN))  { mouseY += mouseStep; if (mouseY > 200) mouseY = 200; }
-		if (!(joy & JOY_LEFT))  { mouseX -= mouseStep; if (mouseX > 320) mouseX = 0; }
-		if (!(joy & JOY_RIGHT)) { mouseX += mouseStep; if (mouseX > 320) mouseX = 320; }
-		if (!(joy & JOY_BTN1))  { mouseL = 1; } else { mouseL = 0; mouseAction = 0; }
+		// Get mouse state
+		mouse = GetMouse();
+		if (!(mouse[2] & MOU_LEFT)) {
+			mouseL = 1;
+		} else {
+			mouseL = 0; mouseAction = 0;
+		}
+		mouseX = 2*mouse[0];
+		mouseY = mouse[1];
 		
 		// Update mouse pointer
 		DrawPointer(mouseX, mouseY, mouseL);
 		
 		// Search scene
-		if (mouseMotion) {
+		if (!(mouse[2] & MOU_MOTION)) {
 			sceneSearch = SearchScene(mouseX, mouseY);			
 			if (sceneSearch != sceneIndex) {
 				sceneIndex = sceneSearch;
@@ -102,13 +99,13 @@ void GameLoop(void)
 				}
 			
 				// Compute goal coordinates
-				test = IntersectSegmentPolygon(unitX, unitY, clickX, clickY, MAX_POLYGON, polygonX, polygonY, &interX, &interY);
-				if (test && (unitX != interX || unitY != interY)) { 	// Check that we are not stuck on a polygon segment
+				intersect = IntersectSegmentPolygon(unitX, unitY, clickX, clickY, MAX_POLYGON, polygonX, polygonY, &interX, &interY);
+				if (intersect && (unitX != interX || unitY != interY)) { 	// Check that we are not stuck on a polygon segment
 					goalX = interX;
 					goalY = interY;
 				} else {
 					// Move directly to mouse cursor (if in allowed area, and not crossing other parts of polygon)
-					if (test < 2 && PointInsidePolygon(clickX, clickY, MAX_POLYGON, polygonX, polygonY)) {
+					if (intersect < 2 && PointInsidePolygon(clickX, clickY, MAX_POLYGON, polygonX, polygonY)) {
 						goalX = clickX;
 						goalY = clickY;
 					}
