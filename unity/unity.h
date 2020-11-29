@@ -142,11 +142,14 @@ const char *GetChr(unsigned char chr);
 #define JOY_DOWN    2
 #define JOY_LEFT    4
 #define JOY_RIGHT   8
-#define JOY_BTN1    16
-#define JOY_BTN2    32
+#define JOY_BTN1   16
+#define JOY_BTN2   32
 #define MOU_LEFT    1
 #define MOU_MIDDLE  2
 #define MOU_RIGHT   4
+#define MOU_UP      8
+#define MOU_DOWN   16
+#define MOU_MOTION 32
 #if (defined __APPLE2__) || (defined __ATARI__)
   #define JOY_MAX 2
 #elif (defined __CBM__) || (defined __LYNX__)

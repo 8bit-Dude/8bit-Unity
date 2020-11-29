@@ -26,7 +26,7 @@
  
 #include "unity.h"
 
-#if defined(__LYNX__) || defined(__ORIC__)
+#ifdef __HUB__
   #include "hub.h"
 #endif
 
@@ -38,36 +38,43 @@
   #pragma code-name("SHADOW_RAM")
 #endif
 
-#if defined(__APPLE2__)
-  #define MOU_STEP 4
-#else
-  #define MOU_STEP 2
-#endif
+#define MOU_XMAX 160
+#define MOU_YMAX 200
 
 unsigned char mouseState[3] = {80, 100, 255};
+clock_t mouseClock;
 
 unsigned char* GetMouse(void) 
 {
+    unsigned char step, joy;
+	mouseState[2] = 255;
 #if (defined __LYNX__) || (defined __ORIC__)
 	// Get mouse state from Hub
 	UpdateHub();
 	if (hubState[5] != 255) {
-		mouseState[0] = hubState[5];
-		mouseState[1] = hubState[6];
-		mouseState[2] = 255;
+		if (hubState[5] < 127) mouseState[0] = MIN(MOU_XMAX, mouseState[0]+hubState[5]); 
+		                  else mouseState[0] -= MIN(mouseState[0], ~hubState[5]);
+		if (hubState[6] < 127) mouseState[1] = MIN(MOU_YMAX, mouseState[1]+hubState[6]); 
+		                  else mouseState[1] -= MIN(mouseState[1], ~hubState[6]);
+		if (hubState[5] || hubState[6]) mouseState[2] &= ~MOU_MOTION;
 		if (!(hubState[1] & 64))  mouseState[2] &= ~MOU_LEFT;
 		if (!(hubState[1] & 128)) mouseState[2] &= ~MOU_RIGHT;
 		if (!(hubState[2] & 64))  mouseState[2] &= ~MOU_MIDDLE;
+		if (!(hubState[3] & 64))  mouseState[2] &= ~MOU_UP;
+		if (!(hubState[3] & 128)) mouseState[2] &= ~MOU_DOWN;
 	} else {
 #endif
-	  // Read mouse state from joystick #1
-	  unsigned char joy = GetJoy(0);
-	  if (joy & JOY_UP)    { mouseState[1]+=MOU_STEP; if (mouseState[1]>200) mouseState[1] = 200; }
-	  if (joy & JOY_DOWN)  { mouseState[1]-=MOU_STEP; if (mouseState[1]>200) mouseState[1] = 0;   }
-	  if (joy & JOY_LEFT)  { mouseState[0]+=MOU_STEP; if (mouseState[0]>160) mouseState[0] = 160; }
-	  if (joy & JOY_RIGHT) { mouseState[0]-=MOU_STEP; if (mouseState[0]>160) mouseState[0] = 0;   }
-	  if (joy & JOY_BTN1)  { mouseState[2] |= MOU_LEFT;  } else { mouseState[2] &= ~MOU_LEFT;  } 
-	  if (joy & JOY_BTN2)  { mouseState[2] |= MOU_RIGHT; } else { mouseState[2] &= ~MOU_RIGHT; } 
+	// Read mouse state from joystick #1
+	step = clock()-mouseClock;
+	if (step > 30) step = 0;
+	mouseClock = clock();
+	joy = GetJoy(0);
+	if (!(joy & JOY_UP))    mouseState[1] -= MIN(mouseState[1], step);
+	if (!(joy & JOY_DOWN))  mouseState[1] = MIN(MOU_XMAX, mouseState[1]+step); 
+	if (!(joy & JOY_LEFT))  mouseState[0] -= MIN(mouseState[0], step);
+	if (!(joy & JOY_RIGHT)) mouseState[0] = MIN(MOU_YMAX, mouseState[0]+step); 
+	if (!(joy & JOY_BTN1))  mouseState[2] &= ~MOU_LEFT;  
+	if (!(joy & JOY_BTN2))  mouseState[2] &= ~MOU_RIGHT;  
 #if (defined __LYNX__) || (defined __ORIC__)
 	}
 #endif

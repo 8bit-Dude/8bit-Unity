@@ -483,10 +483,10 @@ void SetSprite(unsigned char index, unsigned char frame)
 	spriteX /= 2u;
 
 	// Offset from centre of sprite
-	if (spriteX > 1) 
+	if (spriteX > 0) 
 		spriteX -= 1;
 	else 
-		spriteX = 1;
+		spriteX = 0;
 	spriteY -= rows/2u;
 	
 	// Make sure we do not print on line borders
