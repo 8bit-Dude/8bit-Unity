@@ -35,6 +35,10 @@ p0
 p0
 .S'0.1'
 p0
+.S'$0C00'
+p0
+.S'$0100'
+p0
 .S'listboxes'
 p0
 .(lp0
@@ -208,6 +212,8 @@ aVprojects/slicks/bitmaps/river-lynx.png
 p10
 aVprojects/slicks/bitmaps/stadium-lynx.png
 p11
+aVprojects/slicks/bitmaps/banner-lynx.png
+p12
 a.(lp0
 Vprojects/slicks/sprites/sprites-lynx.png
 p1

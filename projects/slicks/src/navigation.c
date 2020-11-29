@@ -127,16 +127,6 @@ static int iVec, v1[2], v2[2], v90[2];
 unsigned char dx, dy;
 Waypoint *way;
 
-int GetWaypointAngle(Vehicle *car)
-{
-	// Get target
-	way = &ways[car->way/2u];
-	iVec = car->way%2;
-	dx = 128 + (way->x + 8*way->v[iVec][0] - car->x2) / 16u;
-	dy = 128 - (way->y + 8*way->v[iVec][1] - car->y2) / 16u;
-	return (45*(unsigned int)atan2(dy,dx))/32u;
-}
-
 char CheckWaypoint(Vehicle *car)
 {
 	// Initiate variables
@@ -160,6 +150,20 @@ char CheckWaypoint(Vehicle *car)
 		if ((DOT(v1, v90) <= 0) & (DOT(v2, v90) >= 0)) { return 1; }
 	}
 	return 0;
+}
+
+#ifdef __ATARIXL__
+  #pragma code-name("SHADOW_RAM")
+#endif
+
+int GetWaypointAngle(Vehicle *car)
+{
+	// Get target
+	way = &ways[car->way/2u];
+	iVec = car->way%2;
+	dx = 128 + (way->x + 8*way->v[iVec][0] - car->x2) / 16u;
+	dy = 128 - (way->y + 8*way->v[iVec][1] - car->y2) / 16u;
+	return (45*(unsigned int)atan2(dy,dx))/32u;
 }
 
 // Function to check ramp logics

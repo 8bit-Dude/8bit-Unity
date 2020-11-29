@@ -41,21 +41,12 @@
 	unsigned char inkColors[] = { DBLUE, RED, LGREEN, YELLOW, WHITE };		// P1, P2, P3, P4, SERVER INFO
 #endif
 
-#if defined __LYNX__
-const char *musicList[4] = {"chase.mus","driven.mus","stroll.mus","whirlwnd.mus"};
-unsigned char musicSel = 0;
-void NextMusic() {
-	// Select next music track
-	LoadMusic(musicList[musicSel], MUSICRAM);
-	if (++musicSel > 3) musicSel = 0;
-	PlayMusic();
-}
-#endif
-
-// See game.c
+// See interface.c
 extern unsigned char gameMap, gameMode, gameStep;
 #if defined __APPLE2__
   void CheckFileExists(const char* filename);
+#elif defined __LYNX__
+  void NextMusic(unsigned char blank);
 #endif
 
 // See interface.c
@@ -64,15 +55,25 @@ extern const char *mapList[LEN_MAPS];
 int main (void) 
 {
 	unsigned char carryon;
-    
+#if defined __LYNX__
+	clock_t bannerClock;
+#endif   
+	
 	// Reset screen
 	clrscr();
-    bordercolor(COLOR_BLACK);
+	bordercolor(COLOR_BLACK);
     bgcolor(COLOR_BLACK);
 
 	// Initialize modules
 	InitJoy();
 	InitBitmap();
+	
+	// Show banner
+#if defined __LYNX__
+    LoadBitmap("banner.img");
+	bannerClock = clock()+2*TCK_PER_SEC;
+    while (clock()<bannerClock && !kbhit());
+#endif
 	
 	// Setup sprites
 	LoadSprites("sprites.dat");
@@ -105,7 +106,7 @@ int main (void)
 			// Run game
 			InitSFX();
 		#ifdef __LYNX__
-			NextMusic();
+			NextMusic(0);
 		#endif	
 			EnterBitmapMode();
 			carryon = GameLoop();

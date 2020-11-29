@@ -6,6 +6,9 @@
 //#define DEBUG_FPS
 //#define DEBUG_NAV
 
+// NetCode Toggle
+#define NETCODE
+
 // *** Platform specific HACKS ***
 #if defined __CBM__
 	#undef  MUSICRAM
@@ -15,17 +18,23 @@
 #endif			
 
 // Platform dependent definitions
-#if defined __CBM__
+#if defined __LYNX__
+	void __fastcall__ SuzyFlip(void);
+	#define KB_START 	49
+	#define KB_MUSIC 	50
+	#define KB_NEXT  	51
+	#define KB_CHAT 	KB_B
+	#define KB_FLIP 	KB_F	
+	#define KB_PAUSE 	KB_P
+	#define KB_QUIT 	KB_R	
+#elif defined __CBM__
 	#define KB_START 	CH_F1
 	#define KB_NEXT  	CH_F3
+	#define KB_CHAT 	KB_C	
+	#define KB_QUIT 	KB_Q	
 #else
 	#define KB_START 	49
 	#define KB_NEXT  	50
-#endif
-#if defined __LYNX__
-	#define KB_CHAT 	KB_B	
-	#define KB_QUIT 	KB_P	
-#else
 	#define KB_CHAT 	KB_C	
 	#define KB_QUIT 	KB_Q	
 #endif

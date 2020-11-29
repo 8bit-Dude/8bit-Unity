@@ -36,6 +36,9 @@ extern unsigned char controlBackup[MAX_PLAYERS];
 extern unsigned char lapNumber[LEN_LAPS];
 extern const char *mapList[LEN_MAPS];
 extern unsigned char paperBuffer;
+#if defined __LYNX__
+  void NextMusic(unsigned char blank);
+#endif
 
 // See navigation.c
 extern Vehicle cars[MAX_PLAYERS];
@@ -142,7 +145,7 @@ void GameReset()
 		#if defined __CBM__
             PrintBuffer("  WARMUP: F1-RACE, F3-NEXT MAP, C-CHAT  ");   
 		#elif defined __LYNX__
-            PrintBuffer("  WARMUP: O1-RACE, O2-NEXT MAP, B-CHAT  ");   
+            PrintBuffer(" WARMUP: O1-RACE, O1+O2-NEXT MAP, B-CHAT");   
 		#else
             PrintBuffer("   WARMUP: 1-RACE, 2-NEXT MAP, C-CHAT   ");   
 		#endif
@@ -150,7 +153,7 @@ void GameReset()
 		#if defined __CBM__
             PrintBuffer("  WARMUP: F1-RACE, F3-NEXT MAP, Q-Quit  ");   
 		#elif defined __LYNX__
-            PrintBuffer(" WARMUP: O1-RACE, O2-NEXT MAP, PAU-Quit ");   
+            PrintBuffer("WARMUP: O1-RACE, O1+O2-NEXT MAP, RS-Quit");   
 		#else
             PrintBuffer("   WARMUP: 1-RACE, 2-NEXT MAP, Q-Quit   ");   
 		#endif
@@ -764,6 +767,26 @@ char GameLoop()
 					lastKey = KB_CHAT;
 				} else {
 					lastKey = cgetc();
+				}
+				
+				// Special functions (flip screen, pause game)
+				if (!chatting) {
+					switch (lastKey) {
+					case KB_FLIP:
+						SuzyFlip();
+						break;
+					case KB_PAUSE: 
+						if (gameMode == MODE_LOCAL) {
+							lynx_snd_pause();
+							while (cgetc() != KB_PAUSE);
+							lynx_snd_continue();
+						}
+						break;
+					case KB_MUSIC:
+						StopMusic();
+						NextMusic(1);
+						break;
+					}
 				}
 		#else
 			if (kbhit()) {

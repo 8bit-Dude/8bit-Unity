@@ -72,6 +72,7 @@ extern unsigned char clUser[5];
 extern unsigned char clPass[13];
 extern unsigned char svUsers[MAX_PLAYERS][5];
 extern unsigned char svMap, svStep; 
+extern char udpBuffer[28];
 extern char networkReady;
 
 // Build Information
@@ -84,8 +85,13 @@ const char *mapList[LEN_MAPS] = {"arizona","arto","cramp","freeway","gta","islan
 unsigned char lapNumber[LEN_LAPS] = { 5, 10, 20, 50 };
 
 // List of controller types
-unsigned char controlIndex[MAX_PLAYERS] = { 3, 1, 0, 0 };
-unsigned char controlBackup[MAX_PLAYERS] = { 3, 1, 0, 0 };
+#if defined __LYNX__
+	unsigned char controlIndex[MAX_PLAYERS] = { 3, 1, 1, 1 };
+	unsigned char controlBackup[MAX_PLAYERS] = { 3, 1, 1, 1 };
+#else
+	unsigned char controlIndex[MAX_PLAYERS] = { 3, 1, 0, 0 };
+	unsigned char controlBackup[MAX_PLAYERS] = { 3, 1, 0, 0 };
+#endif
 #if defined __APPLE2__
 	const char* controlList[LEN_CONTROL] = { "NONE", "CPU EASY", "CPU HARD", "PADDLE 1", "PADDLE 2", "PADDLE 3", "PADDLE 4", "NETWORK" };
 #elif defined __ATARI__
@@ -116,7 +122,21 @@ void DrawFPS(unsigned long  f)
 #endif
 
 #if defined __LYNX__
-unsigned char cursorJoy, cursorKey, cursorPressed;
+const char *musicList[4] = {"chase.mus","driven.mus","stroll.mus","whirlwnd.mus"};
+unsigned char musicSel = 0;
+void NextMusic(unsigned char blank) {
+	// Change music track
+	if (!blank && musicSel > 3)
+		musicSel = 0;
+	if (musicSel <= 3) {
+		LoadMusic(musicList[musicSel], MUSICRAM);
+		PlayMusic();
+	}
+	if (++musicSel > 3+blank) 
+		musicSel = 0;
+}
+
+unsigned char cursorJoy, cursorKey, cursorBut2, cursorPressed;
 unsigned char cursorFlick, cursorRow = MENU_ROW+2;
 clock_t cursorClock;
 
@@ -139,6 +159,19 @@ void LynxCursorFlicker()
 
 void LynxCursorControl()
 {
+	// Process screen flips
+	if (kbhit()) {
+		switch (cgetc()) {
+		case KB_FLIP:
+			SuzyFlip();
+			break;
+		case KB_MUSIC:
+			StopMusic();
+			NextMusic(0);
+			break;
+		}
+	}
+	
 	// Check if cursor was already pressed
 	cursorKey = 0;
 	cursorJoy = GetJoy(0);
@@ -182,7 +215,10 @@ void LynxCursorControl()
 			     if (cursorRow  > MENU_ROW+13) { cursorRow = MENU_ROW+13; }
 		}
 	}
-	if (!(cursorJoy & JOY_BTN1)) { 
+	if (!(cursorJoy & JOY_BTN1) || !(cursorJoy & JOY_BTN2)) { 
+		cursorBut2 = 0;
+		if (!(cursorJoy & JOY_BTN2))
+			cursorBut2 = 1;
 		if (gameMode == MODE_LOCAL) {
 			     if (cursorRow == MENU_ROW+11) { cursorKey = KB_SP; }
 			else if (cursorRow == MENU_ROW+9)  { cursorKey = KB_L; }
@@ -531,7 +567,11 @@ unsigned char MenuWait()
 #else
 	// Animate sprites while waiting for key input
 	unsigned char i,f;
+#if defined __LYNX__
+	while (1) {
+#else
 	while (!kbhit()) {
+#endif
 		// Check timer
 		if (clock()-animClock > 2) {
 			animClock = clock();
@@ -714,6 +754,30 @@ void MenuLaps()
 	PrintNum(MENU_COL+7, MENU_ROW+9, lapNumber[lapIndex]);
 }
 
+// Sub-function of GameMenu()
+void MenuConnect()
+{
+	// Init network
+	unsigned char state = 1;
+#ifdef NETCODE
+	PrintStr(MENU_COL+2, MENU_ROW+2, "INIT NETWORK...");
+	state = InitNetwork();
+	if (state == ADAPTOR_ERR) {
+		PrintStr(MENU_COL+4, MENU_ROW+3, "ADAPTOR ERROR");
+		
+	} else if (state == DHCP_ERR) {
+		PrintStr(MENU_COL+4, MENU_ROW+3, "DHCP ERROR");
+	
+	} else {
+		PrintStr(MENU_COL+4, MENU_ROW+3, "ADAPTOR OK!");
+		PrintStr(MENU_COL+4, MENU_ROW+4, "DHCP OK!");
+		networkReady = 1;
+	}	
+#else
+	PrintStr(MENU_COL+2, MENU_ROW+2, "NOT SUPPORTED");	
+#endif
+}
+
 // Main menu function
 void GameMenu()
 {
@@ -786,20 +850,41 @@ void GameMenu()
 				// Switch Player 1-4
 				i = lastchar - 49;
 				if (i>=0 & i<4) {
-					controlIndex[i]++;
-					if (controlIndex[i] == NET_CONTROL) { controlIndex[i] = 0; }
+				#if defined __LYNX__
+					if (cursorBut2) {
+						controlIndex[i]--; if (controlIndex[i] >= NET_CONTROL) controlIndex[i] = NET_CONTROL-1;
+					} else {
+						controlIndex[i]++; if (controlIndex[i] >= NET_CONTROL) controlIndex[i] = 0;
+					}
+				#else
+					controlIndex[i]++; if (controlIndex[i] >= NET_CONTROL) controlIndex[i] = 0;
+				#endif				
 					MenuPlayer(i);
 				}
 				// Switch Map
 				if (lastchar == KB_M) { 
-					gameMap++;
-					if (gameMap >= LEN_MAPS) { gameMap = 0; }
+				#if defined __LYNX__
+					if (cursorBut2) {
+						gameMap--; if (gameMap >= LEN_MAPS) gameMap = LEN_MAPS-1;
+					} else {
+						gameMap++; if (gameMap >= LEN_MAPS) gameMap = 0;
+					}
+				#else
+					gameMap++; if (gameMap >= LEN_MAPS) gameMap = 0;
+				#endif				
 					MenuMap();
 				}			
 				// Switch Laps
 				if (lastchar == KB_L) { 
-					lapIndex++;
-					if (lapIndex >= LEN_LAPS) { lapIndex = 0; }
+				#if defined __LYNX__
+					if (cursorBut2) {
+						lapIndex--; if (lapIndex >= LEN_LAPS) lapIndex = LEN_LAPS-1;
+					} else {
+						lapIndex++; if (lapIndex >= LEN_LAPS) lapIndex = 0;
+					}
+				#else
+					lapIndex++; if (lapIndex >= LEN_LAPS) lapIndex = 0;
+				#endif				
 					MenuLaps();
 				}
 			#if defined __ATARI__
@@ -838,24 +923,8 @@ void GameMenu()
 			PrintStr(MENU_COL+14, MENU_ROW, "NFO");
 
 			// Is network ready?
-			if (!networkReady) {
-				// Init network
-				PrintStr(MENU_COL+2, MENU_ROW+2, "INIT NETWORK...");
-			#ifdef NETCODE
-				i = InitNetwork();
-			#endif
-				if (i == ADAPTOR_ERR) {
-					PrintStr(MENU_COL+4, MENU_ROW+3, "ADAPTOR ERROR");
-					
-				} else if (i == DHCP_ERR) {
-					PrintStr(MENU_COL+4, MENU_ROW+3, "DHCP ERROR");
-				
-				} else {
-					PrintStr(MENU_COL+4, MENU_ROW+3, "ADAPTOR OK!");
-					PrintStr(MENU_COL+4, MENU_ROW+4, "DHCP OK!");
-					networkReady = 1;
-				}
-			}
+			if (!networkReady)
+				MenuConnect();
 			
 			// Could initialize network?
 			if (networkReady) 
@@ -865,7 +934,6 @@ void GameMenu()
 			while (1) { 
 				// Get Character
 				lastchar = MenuWait();
-				networkReady = 1;
 			
 				// Try to join server?
 				if (lastchar >= KB_A) {
