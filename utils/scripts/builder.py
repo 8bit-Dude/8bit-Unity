@@ -241,6 +241,22 @@ class Application:
                 l.delete(0, END)
             self.entry_Disk.delete(0, END)
             self.entry_Disk.insert(0, 'diskname')
+
+            # Try to open as JSON:
+            json_tree = None
+            try:
+                with codecs.open(filename, "r", "utf-8") as fp:
+                    json_tree = json.load(fp)
+            except ValueError as e:
+                # Not a valid JSON
+                pass
+
+            if json_tree:
+                # It is a JSON file: try to load it
+                self.FileLoadJson(json_tree)                
+                return
+
+            # It's not a JSON file: assumes it is a pickle file
         
             # Unpickle data
             with open(filename, "r") as fp:
@@ -288,6 +304,34 @@ class Application:
                     data = pickle.load(fp)
                     item.set(data)
                     
+    def FileLoadJson(self, json_tree):
+        def process_node(child, template):
+            for k, v in template:
+                if isinstance(v, tuple) and (k in child):
+                    (kind, component) = v
+                    kind = kind.lower()
+                    data = child[k]
+
+                    if kind == 'entry':
+                        component.delete(0, END)
+                        component.insert(0, data)
+                    elif kind == 'listbox':
+                        component.delete(0, END)
+                        for row in data:
+                            component.insert(END, row)
+                    elif kind == 'checkbutton':
+                        if data:
+                            component.state(('selected',))
+                        else:
+                            component.state(('!selected',))
+                    elif kind == 'combobox':
+                        component.set(data)
+                elif k in child:
+                    process_node(child[k], v)
+
+        structure_template = self.JsonStructureTemplate()
+        process_node(json_tree, structure_template)
+
     def FileSave(self):
         filename = asksaveasfilename(initialdir = "../../", title = "Save Builder Project", filetypes = (STANDARD_PROJECT_FILE,))
         if filename is not '':
