@@ -38,6 +38,11 @@ def FileBase(filepath, suffix):
     # Return asset file base
     return os.path.basename(filepath).lower().replace(suffix, '')
 
+# Constants
+PROJECT_FILE_TYPES = (
+    ("Project files","*.builder"),
+)
+
 # Defaults options
 useGUI = True
 callEmu = True
@@ -229,7 +234,7 @@ class Application:
         
     def FileLoad(self, filename=''):
         if filename == '':
-            filename = askopenfilename(initialdir = "../../", title = "Load Builder Project", filetypes = (("Project files","*.builder"),)) 
+            filename = askopenfilename(initialdir = "../../", title = "Load Builder Project", filetypes = PROJECT_FILE_TYPES) 
         if filename is not '':
             # Reset UI
             for l in self.listboxes:
@@ -284,7 +289,7 @@ class Application:
                     item.set(data)
                     
     def FileSave(self):
-        filename = asksaveasfilename(initialdir = "../../", title = "Save Builder Project", filetypes = (("Project files","*.builder"),))
+        filename = asksaveasfilename(initialdir = "../../", title = "Save Builder Project", filetypes = PROJECT_FILE_TYPES)
         if filename is not '':
             # Fix extension
             if ".builder" not in filename.lower():
