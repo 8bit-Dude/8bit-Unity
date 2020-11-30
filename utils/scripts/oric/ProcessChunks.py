@@ -3,10 +3,9 @@ import io, os, struct, sys, subprocess
 
 ############################################    
 # Process chunks definition file
-algorithm = sys.argv[1]
-dithering = sys.argv[2]
-chunkDefs = sys.argv[3]
-outfolder = sys.argv[4]
+chunkDefs = sys.argv[1]
+outfolder = sys.argv[2]
+dithering = sys.argv[3]
 
 script = open(chunkDefs, "r")
 lines = script.readlines() 
@@ -59,10 +58,7 @@ for line in lines:
         sourcefile = outfolder + "/source" + str(sourceindex) + ".dat"
         sourcefile = sourcefile.replace('//','/')
         sourceindex += 1
-        if algorithm == "Hires(Noisy)":
-            subprocess.call(["luajit.exe", "PictOric.lua", dithering, infile, sourcefile])
-        else:
-            subprocess.call(["..\\..\\py27\\python", "OricBitmap.py", infile, sourcefile])
+        subprocess.call(["luajit.exe", "PictOric.lua", dithering, infile, sourcefile])
         sources[infile] = sourcefile
 
     # Read the entire image

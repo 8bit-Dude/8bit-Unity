@@ -194,13 +194,12 @@ class Application:
         self.entry_OricSpriteFrames = self.builder.get_object('Entry_OricSpriteFrames')
         self.entry_OricSpriteWidth = self.builder.get_object('Entry_OricSpriteWidth')
         self.entry_OricSpriteHeight = self.builder.get_object('Entry_OricSpriteHeight')
+        self.entry_OricEnforcedColors = self.builder.get_object('Entry_OricEnforcedColors')
         self.entry_OricDithering = self.builder.get_object('Entry_OricDithering')
-        self.combobox_OricImageQuality = self.builder.get_object('Combobox_OricImageQuality')
                 
         # Set some defaults
         self.Checkbutton_AtariNoText.state(['!selected'])
         self.Combobox_AtariDiskSize.current(0)
-        self.combobox_OricImageQuality.current(1)
 
         # Make lists of various GUI inputs (adding new inputs to the end of each list will guarantee backward compatibility)
         self.entries = [ self.entry_Disk, 
@@ -209,7 +208,8 @@ class Application:
                          self.entry_C64SpriteFrames,   self.entry_C64SpriteWidth,   self.entry_C64SpriteHeight, 
                          self.entry_LynxSpriteFrames,  self.entry_LynxSpriteWidth,  self.entry_LynxSpriteHeight, 
                          self.entry_OricSpriteFrames,  self.entry_OricSpriteWidth,  self.entry_OricSpriteHeight,
-                         self.entry_OricDithering,     self.entry_LynxMusicMemory,  self.entry_LynxSharedMemory ]
+                         self.entry_OricDithering,     self.entry_LynxMusicMemory,  self.entry_LynxSharedMemory,
+                         self.entry_OricEnforcedColors ]
         self.listboxes = [ self.listbox_Code, 
                            self.listbox_AppleBitmap,  self.listbox_AppleSprites, self.listbox_AppleMusic,
                            self.listbox_AtariBitmap,  self.listbox_AtariSprites, self.listbox_AtariMusic,
@@ -223,7 +223,7 @@ class Application:
                            self.listbox_LynxCharset,  self.listbox_OricCharset,
                            self.listbox_Charmap ]
         self.checkbuttons = [ self.Checkbutton_AtariNoText ]
-        self.comboboxes = [ self.Combobox_AtariDiskSize, self.combobox_OricImageQuality ]
+        self.comboboxes = [ self.Combobox_AtariDiskSize ]
                        
     def FileNew(self):
         # Reset all fields
@@ -479,12 +479,12 @@ class Application:
                     ('spriteWidth', ('entry', self.entry_OricSpriteWidth)),
                     ('spriteHeight', ('entry', self.entry_OricSpriteHeight)),
                     ('dithering', ('entry', self.entry_OricDithering)),
+                    ('enforcedColors', ('entry', self.entry_OricEnforcedColors)),
                     ('bitmap', ('listbox', self.listbox_OricBitmap)),
                     ('sprites', ('listbox', self.listbox_OricSprites)),
                     ('music', ('listbox', self.listbox_OricMusic)),
                     ('chunks', ('listbox', self.listbox_OricChunks)),
                     ('charset', ('listbox', self.listbox_OricCharset)),
-                    ('imageQuality', ('combobox', self.combobox_OricImageQuality)),
                 ]),
             ]),
         ]
@@ -731,7 +731,7 @@ class Application:
         # Build Single and Double Hires Scripts
         for target in ['64k', '128k']:
         
-            with open('../../'+buildFolder+'/'+diskname+"-apple"+target+".bat", "wb") as fp:
+            with open('../../' + buildFolder+'/'+diskname+"-apple"+target+".bat", "wb") as fp:
                 # Info
                 fp.write('echo off\n\n')
                 fp.write('mkdir apple\n')            
@@ -845,7 +845,7 @@ class Application:
         sprites = list(self.listbox_AtariSprites.get(0, END))
         chunks = list(self.listbox_AtariChunks.get(0, END))
         music = list(self.listbox_AtariMusic.get(0, END))
-        with open('../../'+buildFolder+'/'+diskname+"-atari.bat", "wb") as fp:
+        with open('../../' + buildFolder+'/'+diskname+"-atari.bat", "wb") as fp:
             # Info
             fp.write('echo off\n\n')
             fp.write('mkdir atari\n')            
@@ -960,7 +960,7 @@ class Application:
         sprites = list(self.listbox_C64Sprites.get(0, END))
         chunks = list(self.listbox_C64Chunks.get(0, END))
         music = list(self.listbox_C64Music.get(0, END))
-        with open('../../'+buildFolder+'/'+diskname+"-c64.bat", "wb") as fp:
+        with open('../../' + buildFolder+'/'+diskname+"-c64.bat", "wb") as fp:
             # Info
             fp.write('echo off\n\n')
             fp.write('setlocal enableextensions enabledelayedexpansion\n\n')
@@ -1072,7 +1072,7 @@ class Application:
         sprites = list(self.listbox_LynxSprites.get(0, END))
         chunks = list(self.listbox_LynxChunks.get(0, END))
         music = list(self.listbox_LynxMusic.get(0, END))
-        with open('../../'+buildFolder+'/'+diskname+"-lynx.bat", "wb") as fp:
+        with open('../../' + buildFolder+'/'+diskname+"-lynx.bat", "wb") as fp:
             # Info
             fp.write('echo off\n\n')
             fp.write('setlocal enableextensions enabledelayedexpansion\n\n')
@@ -1126,7 +1126,7 @@ class Application:
             # Chunks
             fp.write('set /a CHUNKNUM=0\n')
             if len(chunks) > 0:
-                fp.write('..\\..\\utils\\py27\\python ..\\..\\utils\\scripts\\ProcessChunks.py lynx ../../' + chunks[0] + ' ../../'+buildFolder + '/lynx/\n')
+                fp.write('..\\..\\utils\\py27\\python ..\\..\\utils\\scripts\\ProcessChunks.py lynx ../../' + chunks[0] + ' ../../' + buildFolder + '/lynx/\n')
                 fp.write('for /f "tokens=*" %%A in (chunks.lst) do set CHUNKNAMES=!CHUNKNAMES!_shkName!CHUNKNUM!,&&set /a CHUNKNUM+=1\n')
             fp.write('set /a FILENUM=!CHUNKNUM!+' + str(len(bitmaps)+len(charmaps)+len(charset)+len(music)+len(shared)) + '\n')
 
@@ -1373,7 +1373,7 @@ class Application:
         sprites = list(self.listbox_OricSprites.get(0, END))
         chunks = list(self.listbox_OricChunks.get(0, END))
         music = list(self.listbox_OricMusic.get(0, END))
-        with open('../../'+buildFolder+'/'+diskname+"-oric48k.bat", "wb") as fp:
+        with open('../../' + buildFolder+'/'+diskname+"-oric48k.bat", "wb") as fp:
             # Info
             fp.write('echo off\n\n')
             fp.write('setlocal enableextensions enabledelayedexpansion\n\n')
@@ -1386,19 +1386,16 @@ class Application:
             fp.write('cd utils\\scripts\\oric\n')
             for item in bitmaps:
                 fb = FileBase(item, '-oric.png')
-                if self.combobox_OricImageQuality.get() == 'Hires(Noisy)':
-                    fp.write('luajit PictOric.lua ' + self.entry_OricDithering.get() + ' ../../../' + item + ' ../../../'+buildFolder + '/oric/' + fb + '.dat\n')
-                else:
-                    fp.write('..\\..\\py27\\python OricBitmap.py ../../../' + item + ' ../../../'+buildFolder + '/oric/' + fb + '.dat\n')
-                fp.write('header -a0 ../../../'+buildFolder + '/oric/' + fb + '.dat ../../../'+buildFolder + '/oric/' + fb + '.img $A000\n')
+                fp.write('..\\..\\py27\\python OricBitmap.py ../../../' + item + ' ../../../' + buildFolder + '/oric/' + fb + '.dat ' + self.entry_OricDithering.get() + ' ' + self.entry_OricEnforcedColors.get() + '\n')
+                fp.write('header -a0 ../../../' + buildFolder + '/oric/' + fb + '.dat ../../../' + buildFolder + '/oric/' + fb + '.img $A000\n')
                 
             if len(charset) > 0:
                 fb = FileBase(charset[0], '-oric.png')
-                fp.write('..\\..\\py27\python OricCharset.py ' + self.combobox_OricImageQuality.get() + ' ' + self.entry_OricDithering.get() +  ' ../../../' + charset[0] + ' ../../../'+buildFolder + '/oric/' + fb + '.dat\n') 
-                fp.write('header -a0 ../../../'+buildFolder + '/oric/' + fb + '.dat ../../../'+buildFolder + '/oric/' + fb + '.chr $A000\n')
+                fp.write('..\\..\\py27\python OricCharset.py ../../../' + charset[0] + ' ../../../' + buildFolder + '/oric/' + fb + '.dat ' + self.entry_OricDithering.get() +  '\n') 
+                fp.write('header -a0 ../../../' + buildFolder + '/oric/' + fb + '.dat ../../../' + buildFolder + '/oric/' + fb + '.chr $A000\n')
                 
             if len(chunks) > 0:
-                fp.write('..\\..\\py27\\python ProcessChunks.py ' + self.combobox_OricImageQuality.get() + ' ' + self.entry_OricDithering.get() + ' ../../../' + chunks[0] + ' ../../../'+buildFolder + '/oric/\n')
+                fp.write('..\\..\\py27\\python ProcessChunks.py ../../../' + chunks[0] + ' ../../../' + buildFolder + '/oric/ ' + self.entry_OricDithering.get() + '\n')
                 fp.write('for /f "tokens=*" %%A in (..\\..\\..\\' + buildFolder + '\\oric\\chunks.lst) do header -a0 ../../../%%A ../../../%%A $8000\n')
             fp.write('cd ..\\..\\..\n')
 

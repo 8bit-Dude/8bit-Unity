@@ -1,24 +1,58 @@
+"""
+ * Copyright (c) 2020 Anthony Beaucamp.
+ *
+ * This software is provided 'as-is', without any express or implied warranty.
+ * In no event will the authors be held liable for any damages arising from
+ * the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ *   1. The origin of this software must not be misrepresented * you must not
+ *   claim that you wrote the original software. If you use this software in a
+ *   product, an acknowledgment in the product documentation would be
+ *   appreciated but is not required.
+ *
+ *   2. Altered source versions must be plainly marked as such, and must not
+ *   be misrepresented as being the original software.
+ *
+ *   3. This notice may not be removed or altered from any distribution.
+ *
+ *   4. The names of this software and/or it's copyright holders may not be
+ *   used to endorse or promote products derived from this software without
+ *   specific prior written permission.
+"""
 
-import io,struct, sys
+import io,struct, sys, subprocess
 from PIL import Image
 from collections import Counter
 from math import sqrt
 
-input = sys.argv[1]
-output = sys.argv[2]
+imgFile = sys.argv[1]
+rawFile = sys.argv[2]
+dither  = sys.argv[3]
 try:
-    noRemap = [int(n) for n in sys.argv[3].split(',')]
+    enforce = [int(n) for n in sys.argv[4].split(',')]
 except:
-    noRemap = []
+    enforce = []
+    
+###################
+# Call PictOric
+subprocess.call(["luajit.exe", "PictOric.lua", dither, imgFile, rawFile])
 
-try:
+
+# Process RAW data again to enforce colors
+if len(enforce) > 0:
     # Read source file
-    img1 = Image.open(sys.argv[1])
+    img1 = Image.open(imgFile)
     pixdata = list(img1.getdata())
-
-    # Force BW over WB order for grey colour
-    pixdata = [pix if pix != 5 else 10 for pix in pixdata]
-
+    
+    # Read binary files
+    f1 = io.open(rawFile, 'rb')
+    data = [c for c in f1.read()]
+    f1.close()   
+    
     # Get palette RGB
     rgb = []
     dump = img1.getpalette()
@@ -32,17 +66,18 @@ try:
                [15,16,17,18,19] ]   # line 1 and 2 inverted
                
     # Convert to AIC format
-    data = [0]*8000
-    for y in range(100):
-        # Set paper/ink
-        data[(2*y+0)*40+0] = 3    # Ink: Yellow / Blue
-        data[(2*y+1)*40+0] = 6    # Ink: Cyan / Red
-        
+    for y in range(100):       
         # Process in blocks of 3x1 pixels (encoded as 6x2)
         for x in range(0,39):
-            # Find most frequent colour in block
+            # Extract block
             location = y*2*240+x*6+6
-            block = [pixdata[location], pixdata[location+2], pixdata[location+4]]
+            block = [pixdata[location], pixdata[location+2], pixdata[location+4]]            
+
+            # Does block contain enforced color?
+            if len([i for i in block if i in enforce]) == 0:
+                continue
+            
+            # Find most frequent colour in block
             gcount = []
             for i in block:
                 for g in range(len(groups)):
@@ -60,7 +95,7 @@ try:
                     vec1 = rgb[block[i]]
                     for k in range(len(groups[gsel])):
                         index = groups[gsel][k]
-                        if index in noRemap:
+                        if index in enforce:
                             delta.append( 999999 )
                         else:
                             vec2 = rgb[index]
@@ -72,41 +107,39 @@ try:
             byte1 = (2*y+0)*40+x+1
             byte2 = (2*y+1)*40+x+1
             if gsel == 0:
-                data[byte1] = 64
-                data[byte2] = 64
+                value1 = 64
+                value2 = 64
             if gsel == 1:
-                data[byte1] = 192
-                data[byte2] = 64
+                value1 = 192
+                value2 = 64
             if gsel == 2:
-                data[byte1] = 64
-                data[byte2] = 192
+                value1 = 64
+                value2 = 192
             if gsel == 3:
-                data[byte1] = 192
-                data[byte2] = 192
+                value1 = 192
+                value2 = 192
                 
             # Assign bits
             for i in range(3):
                 index = block[i] % 5
                 if index == 1:
-                    data[byte1] += 32 / 4**i
-                    data[byte2] += 16 / 4**i
+                    value1 += 32 / 4**i
+                    value2 += 16 / 4**i
                 if index == 2:
-                    data[byte1] += (32+16) / 4**i
+                    value1 += (32+16) / 4**i
                 if index == 3:
-                    data[byte2] += (32+16) / 4**i
+                    value2 += (32+16) / 4**i
                 if index == 4:
-                    data[byte1] += (32+16) / 4**i
-                    data[byte2] += (32+16) / 4**i
+                    value1 += (32+16) / 4**i
+                    value2 += (32+16) / 4**i
+                    
+            # Save data
+            data[byte1] = chr(value1)
+            data[byte2] = chr(value2)
             
-    # Convert to char
-    for i in range(len(data)):
-        data[i] = chr(data[i])
                 
     #################
     # Write DAT file
-    f2 = io.open(output, 'wb')	
+    f2 = io.open(rawFile, 'wb')	
     f2.write(''.join(data))
     f2.close()
-
-except:
-    print "Error: cannot convert " + input + "... (is it a 240x200 PNG file with 20 color palette?)"

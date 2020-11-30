@@ -2037,39 +2037,11 @@
                       <property name="row">4</property>
                       <property name="sticky">nw</property>
                     </layout>
-                    <child>
-                      <object class="tk.Label" id="Label_OricImageQuality">
-                        <property name="text" translatable="yes">Image Quality</property>
-                        <layout>
-                          <property name="column">0</property>
-                          <property name="padx">10</property>
-						  <property name="pady">5</property>
-                          <property name="propagate">True</property>
-                          <property name="row">1</property>
-                          <property name="sticky">nw</property>
-                        </layout>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="ttk.Combobox" id="Combobox_OricImageQuality">
-                        <property name="state">readonly</property>
-                        <property name="values">Lores(Smooth) Hires(Noisy)</property>
-                        <property name="width">12</property>
-                        <layout>
-                          <property name="column">1</property>
-                          <property name="padx">5</property>
-						  <property name="pady">5</property>
-                          <property name="propagate">True</property>
-                          <property name="row">1</property>
-                          <property name="sticky">nw</property>
-                        </layout>
-                      </object>
-                    </child>
 					<child>
 					  <object class="ttk.Label" id="Label_OricDithering">
 						<property name="text" translatable="yes">Image dithering (0~1)</property>
 						<layout>
-						  <property name="column">2</property>
+						  <property name="column">0</property>
                           <property name="padx">10</property>						  
                           <property name="pady">5</property>
 						  <property name="propagate">True</property>
@@ -2083,7 +2055,7 @@
 						<property name="text" translatable="yes">0.2</property>
 						<property name="width">8</property>
 						<layout>
-						  <property name="column">3</property>
+						  <property name="column">1</property>
                           <property name="padx">5</property>
                           <property name="pady">5</property>
 						  <property name="propagate">True</property>
@@ -2092,6 +2064,33 @@
 						</layout>
 					  </object>
 					</child>
+					<child>
+					  <object class="ttk.Label" id="Label_OricEnforcedColors">
+						<property name="text" translatable="yes">Enforced colors [0:19]</property>
+						<layout>
+						  <property name="column">2</property>
+                          <property name="padx">10</property>						  
+                          <property name="pady">5</property>
+						  <property name="propagate">True</property>
+						  <property name="row">1</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>
+					</child>
+					<child>
+					  <object class="ttk.Entry" id="Entry_OricEnforcedColors">
+						<property name="text" translatable="yes"> </property>
+						<property name="width">8</property>
+						<layout>
+						  <property name="column">3</property>
+                          <property name="padx">5</property>
+                          <property name="pady">5</property>
+						  <property name="propagate">True</property>
+						  <property name="row">1</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>
+					</child>					
 				  </object>
                 </child>
               </object>

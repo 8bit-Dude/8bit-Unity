@@ -1,5 +1,5 @@
 """
- * Copyright (c) 2018 Anthony Beaucamp.
+ * Copyright (c) 2020 Anthony Beaucamp.
  *
  * This software is provided 'as-is', without any express or implied warranty.
  * In no event will the authors be held liable for any damages arising from
@@ -27,12 +27,12 @@
 import io, os, sys, csv, subprocess
 from PIL import Image
 
-convert  = sys.argv[1]
-dither   = sys.argv[2]
-charFile = sys.argv[3]
-output   = sys.argv[4]
+charFile = sys.argv[1]
+output   = sys.argv[2]
+dither   = sys.argv[3]
 
-pictFile = output.replace('.dat', '.png')
+pictOricIn = output.replace('.dat', '-in.png')
+pictOricOut = output.replace('.dat', '-out.dat')
 flagFile = charFile.replace('-oric.png', '.csv')
 
 #############################
@@ -46,18 +46,15 @@ print "Charset size: {%i,%i}" % (charImg.size[0], charImg.size[1])
 charImg = charImg.convert("RGB")
 result = Image.new(charImg.mode, (240, 200), (0,0,0))
 result.paste(charImg, (6, 0))
-result.save(pictFile)
+result.save(pictOricIn)
 
 ###################
 # Call PictOric
-#if convert == "Hires(Noisy)":
-subprocess.call(["luajit.exe", "PictOric.lua", dither, pictFile, output])
-#else:
-#    subprocess.call(["..\\..\\py27\\python", "OricBitmap.py", pictFile, output])
+subprocess.call(["luajit.exe", "PictOric.lua", dither, pictOricIn, pictOricOut])
 
 #####################
 # Trim PictOric File
-f1 = io.open(output, 'rb')
+f1 = io.open(pictOricOut, 'rb')
 data = f1.read()
 f1.close()
 charData = []
