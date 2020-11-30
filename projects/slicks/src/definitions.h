@@ -40,7 +40,7 @@
 #endif
 
 // Game definitions
-#define LEN_MAPS    10
+#define LEN_MAPS    11
 #define LEN_LAPS    4
 #define MAX_PLAYERS 4
 #define MAX_WAYPOINTS 8

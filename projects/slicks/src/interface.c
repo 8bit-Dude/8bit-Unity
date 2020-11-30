@@ -76,10 +76,10 @@ extern char udpBuffer[28];
 extern char networkReady;
 
 // Build Information
-const char* buildInfo = "BUILD: 2020/11/15";
+const char* buildInfo = "BUILD: 2020/11/30";
 
 // List of available maps
-const char *mapList[LEN_MAPS] = {"arizona","arto","cramp","freeway","gta","island","mtcarlo","rally","river","stadium"};
+const char *mapList[LEN_MAPS] = {"arizona","arto","cramp","freeway","gta","island","mtcarlo","rally","river","stadium","suzuka"};
 
 // List of lap goals
 unsigned char lapNumber[LEN_LAPS] = { 5, 10, 20, 50 };
