@@ -69,10 +69,10 @@ unsigned char* GetMouse(void)
 	if (step > 30) step = 0;
 	mouseClock = clock();
 	joy = GetJoy(0);
-	if (!(joy & JOY_UP))    mouseState[1] -= MIN(mouseState[1], step);
-	if (!(joy & JOY_DOWN))  mouseState[1] = MIN(MOU_XMAX, mouseState[1]+step); 
 	if (!(joy & JOY_LEFT))  mouseState[0] -= MIN(mouseState[0], step);
-	if (!(joy & JOY_RIGHT)) mouseState[0] = MIN(MOU_YMAX, mouseState[0]+step); 
+	if (!(joy & JOY_RIGHT)) mouseState[0] = MIN(MOU_XMAX, mouseState[0]+step); 
+	if (!(joy & JOY_UP))    mouseState[1] -= MIN(mouseState[1], step);
+	if (!(joy & JOY_DOWN))  mouseState[1] = MIN(MOU_YMAX, mouseState[1]+step); 
 	if (!(joy & JOY_BTN1))  mouseState[2] &= ~MOU_LEFT;  
 	if (!(joy & JOY_BTN2))  mouseState[2] &= ~MOU_RIGHT;  
 #if (defined __LYNX__) || (defined __ORIC__)
