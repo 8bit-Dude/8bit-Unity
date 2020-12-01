@@ -39,8 +39,7 @@ def FileBase(filepath, suffix):
     return os.path.basename(filepath).lower().replace(suffix, '')
 
 # Constants
-STANDARD_PROJECT_FILE = ("Project files","*.builder")
-JSON_PROJECT_FILE = ("Project files","*.builder.json")
+PROJECT_FILE_FORMATS = (("Project files","*.builder"), )
 
 # Defaults options
 useGUI = True
@@ -128,7 +127,6 @@ class Application:
         fileMenu.add_command(label="New", command=self.FileNew)
         fileMenu.add_command(label="Load", command=self.FileLoad)
         fileMenu.add_command(label="Save", command=self.FileSave)
-        fileMenu.add_command(label="Save as JSON", command=self.FileSaveJson)
         fileMenu.add_separator()
         fileMenu.add_command(label="Exit", command=self.FileExit)        
         menubar.add_cascade(label="File", menu=fileMenu)
@@ -234,7 +232,7 @@ class Application:
         
     def FileLoad(self, filename=''):
         if filename == '':
-            filename = askopenfilename(initialdir = "../../", title = "Load Builder Project", filetypes = (STANDARD_PROJECT_FILE, JSON_PROJECT_FILE)) 
+            filename = askopenfilename(initialdir = "../../", title = "Load Builder Project", filetypes = PROJECT_FILE_FORMATS) 
         if filename is not '':
             # Reset UI
             for l in self.listboxes:
@@ -333,53 +331,14 @@ class Application:
         process_node(json_tree, structure_template)
 
     def FileSave(self):
-        filename = asksaveasfilename(initialdir = "../../", title = "Save Builder Project", filetypes = (STANDARD_PROJECT_FILE,))
-        if filename is not '':
-            # Fix extension
-            if ".builder" not in filename.lower():
-                filename += ".builder"
-                
-            # Pickle data
-            with open(filename, "wb") as fp:
-                # Version number
-                pickle.dump(self.version, fp)
-                
-                # Entry boxes
-                pickle.dump('entries', fp)
-                for item in self.entries:
-                    data = item.get()
-                    pickle.dump(data, fp)
-                    
-                # List boxes                     
-                pickle.dump('listboxes', fp)
-                for item in self.listboxes:
-                    data = list(item.get(0, END))
-                    pickle.dump(data, fp)
-
-                # Check buttons
-                pickle.dump('checkbuttons', fp)
-                for item in self.checkbuttons:
-                    data = item.state()
-                    pickle.dump(data, fp)
-
-                # Check buttons
-                pickle.dump('comboboxes', fp)
-                for item in self.comboboxes:
-                    data = item.get()
-                    pickle.dump(data, fp)
-                    
-    def FileSaveJson(self):
-        # Unfortunately, TkInter does not reliably return which of the "filetypes" was selected by the user, so it was necessary to use two separate menu options
-        filename = asksaveasfilename(initialdir = "../../", title = "Save Builder Project as JSON", filetypes = (JSON_PROJECT_FILE,))
+        filename = asksaveasfilename(initialdir = "../../", title = "Save Builder Project as JSON", filetypes = PROJECT_FILE_FORMATS)
         if not filename:
             # No filename chosem
             return
 
         # Fix extension
-        if not filename.lower().endswith('.json'):
-            if not filename.lower().endswith('.builder'):
-                filename += '.builder'
-            filename += '.json'
+        if not filename.lower().endswith('.builder'):
+            filename += '.builder'
 
         # Generates the JSON tree
 
