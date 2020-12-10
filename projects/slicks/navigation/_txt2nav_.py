@@ -26,7 +26,7 @@
 
 import io,struct
 
-maps = ['arizona','arto','cramp','freeway','gta','island','mtcarlo','rally','river','stadium','suzuka']
+maps = ['arizona','arto','cramp','freeway','gta','island','mtcarlo','rally','river','stadium','suzuka','thrash']
 
 for map in maps:
 	#######################

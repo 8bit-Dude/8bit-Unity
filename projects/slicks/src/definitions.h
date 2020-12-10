@@ -7,7 +7,7 @@
 //#define DEBUG_NAV
 
 // NetCode Toggle
-#define NETCODE
+//#define NETCODE
 
 // *** Platform specific HACKS ***
 #if defined __CBM__
@@ -40,11 +40,11 @@
 #endif
 
 // Game definitions
-#define LEN_MAPS    11
-#define LEN_LAPS    4
-#define MAX_PLAYERS 4
-#define MAX_WAYPOINTS 8
-#define MAX_RAMPS     3
+#define LEN_MAPS        12
+#define LEN_LAPS         4
+#define MAX_PLAYERS      4
+#define MAX_WAYPOINTS    8
+#define MAX_RAMPS        3
 #define LERP_THRESHOLD 128
 
 #define MODE_LOCAL  1
@@ -133,6 +133,9 @@ void GameInit(const char* map);
 char GameLoop(void);
 
 // See interface.c
+#ifdef DEBUG_FPS
+  void DrawFPS(unsigned long f);
+#endif
 void BackupChatRow(void);
 void RedrawChatRow(void);
 void PrintBuffer(char *buffer);

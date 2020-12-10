@@ -4,19 +4,18 @@
 #define TYPE_TEXT  1
 #define TYPE_IMAGE 2
 
+// HTML content types
 const char ctImg[] = "Content-Type: image/jpg\r\nCache-Control: max-age=999999, public";
 const char ctTxt[] = "Content-Type: text/html";
 
 // Hint: max string length is 255, but better to keep below 192 bytes!
 const char htmlHead[] = "<html><center>Welcome to 8bit-Unity Web Server<br><br><img src=\"logo.jpg\" width=\"48\"><br><br><a href=\"support\">Supported</a> platforms | <a href=\"future\">Future</a> platforms";
-
 const char htmlSup1[] = "<br><br><table style=\"border:1px solid black;text-align:center\"><tr><td>Apple //</td><td>Atari XL/XE</td><td>Commodore 64</td><td>Oric</td><td>Lynx</td></tr><tr><td><img src=\"apple.jpg\" width=\"64\">";
 const char htmlSup2[] = "</td><td><img src=\"atari.jpg\" width=\"64\"></td><td><img src=\"c64.jpg\" width=\"64\"></td><td><img src=\"atmos.jpg\" width=\"64\"></td><td><img src=\"lynx.jpg\" width=\"64\"></td></tr></table>";
-
 const char htmlFut1[] = "<br><br><table style=\"border:1px solid black;text-align:center\"><tr><td>BBC</td><td>NES</td><td>MSX</td><td>CPC</td><td>...</td></tr></table>";
-
 const char htmlFoot[] = "<br></center></html>";
 
+// Shared files (jpeg images)
 const char *jpgName[6] = { "logo.jpg", "apple.jpg", "atari.jpg", "atmos.jpg", "c64.jpg", "lynx.jpg" };
 unsigned char *jpgData[6];
 unsigned int jpgSize[6];

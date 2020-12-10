@@ -1,133 +1,119 @@
-I2
-.S'entries'
-p0
-.S'dungeon'
-p0
-.S'32'
-p0
-.S'7'
-p0
-.S'16'
-p0
-.S'32'
-p0
-.S'8'
-p0
-.S'18'
-p0
-.S'32'
-p0
-.S'12'
-p0
-.S'21'
-p0
-.S'32'
-p0
-.S'8'
-p0
-.S'12'
-p0
-.S'32'
-p0
-.S'12'
-p0
-.S'17'
-p0
-.S'0.4'
-p0
-.S'listboxes'
-p0
-.(lp0
-Vprojects/dungeon/src/dungeon.c
-p1
-aVprojects/dungeon/src/actors.c
-p2
-aVprojects/dungeon/src/interface.c
-p3
-aVprojects/dungeon/src/player.c
-p4
-a.(lp0
-Vprojects/dungeon/bitmaps/menu-apple.png
-p1
-a.(lp0
-Vprojects/dungeon/sprites/sprites-apple.png
-p1
-a.(lp0
-Vprojects/dungeon/music/dungeon-apple.m
-p1
-a.(lp0
-Vprojects/dungeon/bitmaps/menu-atari.png
-p1
-a.(lp0
-Vprojects/dungeon/sprites/sprites-atari.png
-p1
-a.(lp0
-Vprojects/dungeon/music/dungeon-atari.rmt
-p1
-a.(lp0
-Vprojects/dungeon/bitmaps/menu-c64.png
-p1
-a.(lp0
-Vprojects/dungeon/sprites/sprites-c64.png
-p1
-a.(lp0
-Vprojects/dungeon/music/dungeon-c64.sid
-p1
-a.(lp0
-Vprojects/dungeon/bitmaps/menu-oric.png
-p1
-a.(lp0
-Vprojects/dungeon/sprites/sprites-oric.png
-p1
-a.(lp0
-Vprojects/dungeon/music/dungeon-oric.ym
-p1
-a.(lp0
-Vprojects/dungeon/charmaps/level1.act
-p1
-a.(lp0
-Vprojects/dungeon/bitmaps/menu-lynx.png
-p1
-a.(lp0
-Vprojects/dungeon/sprites/sprites-lynx.png
-p1
-a.(lp0
-Vprojects/dungeon/music/dungeon-lynx.asm
-p1
-a.(lp0
-.(lp0
-.(lp0
-.(lp0
-.(lp0
-.(lp0
-Vprojects/dungeon/charsets/quedex-apple.png
-p1
-a.(lp0
-Vprojects/dungeon/charsets/quedex-atari.png
-p1
-a.(lp0
-Vprojects/dungeon/charsets/quedex-c64.png
-p1
-a.(lp0
-Vprojects/dungeon/charsets/quedex-lynx.png
-p1
-a.(lp0
-Vprojects/dungeon/charsets/quedex-oric.png
-p1
-a.(lp0
-Vprojects/dungeon/charmaps/level1.map
-p1
-aVprojects/dungeon/charmaps/level1.tls
-p2
-a.S'checkbuttons'
-p0
-.(S'selected'
-p0
-tp1
-.S'comboboxes'
-p0
-.S'180KB'
-p0
-.S'Hires(Noisy)'
-p0
-.
+{
+    "format": "8bit-Unity Project", 
+    "formatVersion": 2, 
+    "general": {
+        "disk": "dungeon", 
+        "code": [
+            "projects/dungeon/src/dungeon.c", 
+            "projects/dungeon/src/actors.c", 
+            "projects/dungeon/src/interface.c", 
+            "projects/dungeon/src/player.c"
+        ], 
+        "shared": [
+            "projects/dungeon/charmaps/level1.act"
+        ], 
+        "charmap": [
+            "projects/dungeon/charmaps/level1.map", 
+            "projects/dungeon/charmaps/level1.tls"
+        ]
+    }, 
+    "platform": {
+        "Apple": {
+            "spriteFrames": "32", 
+            "spriteWidth": "7", 
+            "spriteHeight": "16", 
+            "bitmap": [
+                "projects/dungeon/bitmaps/menu-apple.png"
+            ], 
+            "sprites": [
+                "projects/dungeon/sprites/sprites-apple.png"
+            ], 
+            "music": [
+                "projects/dungeon/music/dungeon-apple.m"
+            ], 
+            "chunks": [], 
+            "charset": [
+                "projects/dungeon/charsets/quedex-apple.png"
+            ], 
+            "diskSize": "140KB"
+        }, 
+        "Atari": {
+            "spriteFrames": "32", 
+            "spriteWidth": "8", 
+            "spriteHeight": "18", 
+            "bitmap": [
+                "projects/dungeon/bitmaps/menu-atari.png"
+            ], 
+            "sprites": [
+                "projects/dungeon/sprites/sprites-atari.png"
+            ], 
+            "music": [
+                "projects/dungeon/music/dungeon-atari.rmt"
+            ], 
+            "chunks": [], 
+            "charset": [
+                "projects/dungeon/charsets/quedex-atari.png"
+            ], 
+            "noText": true, 
+            "diskSize": "180KB"
+        }, 
+        "C64": {
+            "spriteFrames": "32", 
+            "spriteWidth": "12", 
+            "spriteHeight": "21", 
+            "bitmap": [
+                "projects/dungeon/bitmaps/menu-c64.png"
+            ], 
+            "sprites": [
+                "projects/dungeon/sprites/sprites-c64.png"
+            ], 
+            "music": [
+                "projects/dungeon/music/dungeon-c64.sid"
+            ], 
+            "chunks": [], 
+            "charset": [
+                "projects/dungeon/charsets/quedex-c64.png"
+            ]
+        }, 
+        "Lynx": {
+            "spriteFrames": "32", 
+            "spriteWidth": "8", 
+            "spriteHeight": "12", 
+            "musicMemory": "$0C00", 
+            "sharedMemory": "$0400", 
+            "bitmap": [
+                "projects/dungeon/bitmaps/menu-lynx.png"
+            ], 
+            "sprites": [
+                "projects/dungeon/sprites/sprites-lynx.png"
+            ], 
+            "music": [
+                "projects/dungeon/music/dungeon-lynx.asm"
+            ], 
+            "chunks": [], 
+            "charset": [
+                "projects/dungeon/charsets/quedex-lynx.png"
+            ]
+        }, 
+        "Oric": {
+            "spriteFrames": "32", 
+            "spriteWidth": "12", 
+            "spriteHeight": "17", 
+            "dithering": "0.4", 
+            "enforcedColors": " ", 
+            "bitmap": [
+                "projects/dungeon/bitmaps/menu-oric.png"
+            ], 
+            "sprites": [
+                "projects/dungeon/sprites/sprites-oric.png"
+            ], 
+            "music": [
+                "projects/dungeon/music/dungeon-oric.ym"
+            ], 
+            "chunks": [], 
+            "charset": [
+                "projects/dungeon/charsets/quedex-oric.png"
+            ]
+        }
+    }
+}

@@ -48,12 +48,14 @@
 	#define MENU_COL 22
 	#define MENU_ROW  2
 	#define MENU_WID 17
-	#define MENU_HEI 15
+	#define MENU_HEI 13
+	#define MENU_BLD CHR_ROWS-1
 #else
 	#define MENU_COL 22
 	#define MENU_ROW  4
 	#define MENU_WID 17
 	#define MENU_HEI 16
+	#define MENU_BLD CHR_ROWS-2
 #endif
 
 // See slicks.c
@@ -79,7 +81,7 @@ extern char networkReady;
 const char* buildInfo = "BUILD: 2020/11/30";
 
 // List of available maps
-const char *mapList[LEN_MAPS] = {"arizona","arto","cramp","freeway","gta","island","mtcarlo","rally","river","stadium","suzuka"};
+const char *mapList[LEN_MAPS] = {"arizona","arto","cramp","freeway","gta","island","mtcarlo","rally","river","stadium","suzuka","thrash"};
 
 // List of lap goals
 unsigned char lapNumber[LEN_LAPS] = { 5, 10, 20, 50 };
@@ -107,7 +109,7 @@ unsigned char lapNumber[LEN_LAPS] = { 5, 10, 20, 50 };
 // Performance Drawing
 #ifdef DEBUG_FPS
 clock_t fpsClock;
-void DrawFPS(unsigned long  f)
+void DrawFPS(unsigned long f)
 {
     unsigned int fps;
 	
@@ -793,7 +795,7 @@ void GameMenu()
 		
 	// Show version, credits, and start music
 	inkColor = WHITE; paperColor = BLACK;
-	PrintStr(MENU_COL, CHR_ROWS-2, buildInfo);	
+	PrintStr(MENU_COL, MENU_BLD, buildInfo);	
 	
 	// Show menu options
 	while (1) {

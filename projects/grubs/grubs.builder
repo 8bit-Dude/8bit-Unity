@@ -1,105 +1,96 @@
-I1
-.S'entries'
-p0
-.S'grubs'
-p0
-.S'16'
-p0
-.S'7'
-p0
-.S'13'
-p0
-.S'16'
-p0
-.S'8'
-p0
-.S'13'
-p0
-.S'16'
-p0
-.S'12'
-p0
-.S'21'
-p0
-.S'16'
-p0
-.S'7'
-p0
-.S'11'
-p0
-.S'16'
-p0
-.S'12'
-p0
-.S'13'
-p0
-.S'0.2'
-p0
-.S'listboxes'
-p0
-.(lp0
-Vprojects/grubs/src/grubs.c
-p1
-a.(lp0
-Vprojects/grubs/bitmaps/banner-apple.png
-p1
-aVprojects/grubs/bitmaps/pumpkins-apple.png
-p2
-a.(lp0
-Vprojects/grubs/sprites/sprites-apple.png
-p1
-a.(lp0
-.(lp0
-Vprojects/grubs/bitmaps/banner-atari.png
-p1
-aVprojects/grubs/bitmaps/pumpkins-atari.png
-p2
-a.(lp0
-Vprojects/grubs/sprites/sprites-atari.png
-p1
-a.(lp0
-.(lp0
-Vprojects/grubs/bitmaps/banner-c64.png
-p1
-aVprojects/grubs/bitmaps/pumpkins-c64.png
-p2
-a.(lp0
-Vprojects/grubs/sprites/sprites-c64.png
-p1
-a.(lp0
-.(lp0
-Vprojects/grubs/bitmaps/banner-oric.png
-p1
-aVprojects/grubs/bitmaps/pumpkins-oric.png
-p2
-a.(lp0
-Vprojects/grubs/sprites/sprites-oric.png
-p1
-a.(lp0
-.(lp0
-.(lp0
-Vprojects/grubs/bitmaps/banner-lynx.png
-p1
-aVprojects/grubs/bitmaps/pumpkins-lynx.png
-p2
-a.(lp0
-Vprojects/grubs/sprites/sprites-lynx.png
-p1
-a.(lp0
-.(lp0
-.(lp0
-.(lp0
-.(lp0
-.(lp0
-.S'checkbuttons'
-p0
-.(S'focus'
-p0
-tp1
-.S'comboboxes'
-p0
-.S'180KB'
-p0
-.S'Hires(Noisy)'
-p0
-.
+{
+    "format": "8bit-Unity Project", 
+    "formatVersion": 2, 
+    "general": {
+        "disk": "grubs", 
+        "code": [
+            "projects/grubs/src/grubs.c"
+        ], 
+        "shared": [], 
+        "charmap": []
+    }, 
+    "platform": {
+        "Apple": {
+            "spriteFrames": "16", 
+            "spriteWidth": "7", 
+            "spriteHeight": "13", 
+            "bitmap": [
+                "projects/grubs/bitmaps/banner-apple.png", 
+                "projects/grubs/bitmaps/pumpkins-apple.png"
+            ], 
+            "sprites": [
+                "projects/grubs/sprites/sprites-apple.png"
+            ], 
+            "music": [], 
+            "chunks": [], 
+            "charset": [], 
+            "diskSize": "140KB"
+        }, 
+        "Atari": {
+            "spriteFrames": "16", 
+            "spriteWidth": "8", 
+            "spriteHeight": "13", 
+            "bitmap": [
+                "projects/grubs/bitmaps/banner-atari.png", 
+                "projects/grubs/bitmaps/pumpkins-atari.png"
+            ], 
+            "sprites": [
+                "projects/grubs/sprites/sprites-atari.png"
+            ], 
+            "music": [], 
+            "chunks": [], 
+            "charset": [], 
+            "noText": true, 
+            "diskSize": "180KB"
+        }, 
+        "C64": {
+            "spriteFrames": "16", 
+            "spriteWidth": "12", 
+            "spriteHeight": "21", 
+            "bitmap": [
+                "projects/grubs/bitmaps/banner-c64.png", 
+                "projects/grubs/bitmaps/pumpkins-c64.png"
+            ], 
+            "sprites": [
+                "projects/grubs/sprites/sprites-c64.png"
+            ], 
+            "music": [], 
+            "chunks": [], 
+            "charset": []
+        }, 
+        "Lynx": {
+            "spriteFrames": "16", 
+            "spriteWidth": "7", 
+            "spriteHeight": "11", 
+            "musicMemory": "$0C00", 
+            "sharedMemory": "$0400", 
+            "bitmap": [
+                "projects/grubs/bitmaps/banner-lynx.png", 
+                "projects/grubs/bitmaps/pumpkins-lynx.png"
+            ], 
+            "sprites": [
+                "projects/grubs/sprites/sprites-lynx.png"
+            ], 
+            "music": [], 
+            "chunks": [], 
+            "charset": []
+        }, 
+        "Oric": {
+            "spriteFrames": "16", 
+            "spriteWidth": "12", 
+            "spriteHeight": "13", 
+            "dithering": "0.2", 
+            "enforcedColors": " ", 
+            "bitmap": [
+                "projects/grubs/bitmaps/banner-oric.png", 
+                "projects/grubs/bitmaps/pumpkins-oric.png"
+            ], 
+            "sprites": [
+                "projects/grubs/sprites/sprites-oric.png"
+            ], 
+            "music": [], 
+            "chunks": [], 
+            "charset": []
+        }
+    }
+}
