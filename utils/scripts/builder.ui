@@ -565,16 +565,29 @@
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
-                      <object class="tk.Label" id="Label_AppleOptions">
-                        <property name="height">1</property>
-                        <property name="height">1</property>
-                        <property name="text" translatable="yes">No options for Apple...</property>
-                        <property name="width">59</property>
+                      <object class="tk.Label" id="Label_AppleDiskSize">
+                        <property name="text" translatable="yes">Disk Size</property>
                         <layout>
                           <property name="column">0</property>
-					      <property name="pady">2</property>
+                          <property name="padx">100</property>
+						  <property name="pady">2</property>
                           <property name="propagate">True</property>
-                          <property name="row">0</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Combobox" id="Combobox_AppleDiskSize">
+                        <property name="state">readonly</property>
+                        <property name="values">140KB 800KB</property>
+                        <property name="width">8</property>
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="padx">50</property>
+						  <property name="pady">2</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
                           <property name="sticky">nw</property>
                         </layout>
                       </object>

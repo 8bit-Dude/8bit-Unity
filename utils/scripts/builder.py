@@ -152,6 +152,7 @@ class Application:
         self.entry_AppleSpriteFrames = self.builder.get_object('Entry_AppleSpriteFrames')
         self.entry_AppleSpriteWidth = self.builder.get_object('Entry_AppleSpriteWidth')
         self.entry_AppleSpriteHeight = self.builder.get_object('Entry_AppleSpriteHeight')
+        self.Combobox_AppleDiskSize = self.builder.get_object('Combobox_AppleDiskSize');
         
         self.listbox_AtariBitmap = self.builder.get_object('Listbox_AtariBitmap')        
         self.listbox_AtariCharset = self.builder.get_object('Listbox_AtariCharset')        
@@ -196,8 +197,9 @@ class Application:
         self.entry_OricDithering = self.builder.get_object('Entry_OricDithering')
                 
         # Set some defaults
-        self.Checkbutton_AtariNoText.state(['!selected'])
+        self.Combobox_AppleDiskSize.current(0)
         self.Combobox_AtariDiskSize.current(0)
+        self.Checkbutton_AtariNoText.state(['!selected'])
 
         # Make lists of various GUI inputs (adding new inputs to the end of each list will guarantee backward compatibility)
         self.entries = [ self.entry_Disk, 
@@ -221,7 +223,7 @@ class Application:
                            self.listbox_LynxCharset,  self.listbox_OricCharset,
                            self.listbox_Charmap ]
         self.checkbuttons = [ self.Checkbutton_AtariNoText ]
-        self.comboboxes = [ self.Combobox_AtariDiskSize ]
+        self.comboboxes = [ self.Combobox_AtariDiskSize, self.Combobox_AppleDiskSize ]
                        
     def FileNew(self):
         # Reset all fields
@@ -398,6 +400,7 @@ class Application:
                     ('music', ('listbox', self.listbox_AppleMusic)),
                     ('chunks', ('listbox', self.listbox_AppleChunks)),
                     ('charset', ('listbox', self.listbox_AppleCharset)),
+                    ('diskSize', ('Combobox', self.Combobox_AppleDiskSize)),
                 ]),
                 ('Atari', [
                     ('spriteFrames', ('entry', self.entry_AtariSpriteFrames)),
@@ -766,27 +769,33 @@ class Application:
                 fp.write('echo --------------- APPLE DISK BUILDER --------------- \n\n')
 
                 # Disk builder
-                fp.write('copy utils\\scripts\\apple\\ProDOS190.dsk ' + buildFolder + '\\' + diskname + '-apple' + target + '.do\n')
-                fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -as ' + buildFolder + '/' + diskname + '-apple' + target + '.do LOADER bin 0x0803 < ' + buildFolder + '/apple/loader\n')
+                if self.Combobox_AppleDiskSize.get() == '140KB':                
+                    podisk = 'ProDOS190-140K.po'
+                    ext = '.do'
+                else:
+                    podisk = 'ProDOS190-800K.po'
+                    ext = '.po'
+                fp.write('copy utils\\scripts\\apple\\' + podisk + ' ' + buildFolder + '\\' + diskname + '-apple' + target + ext + '\n')
+                fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -as ' + buildFolder + '/' + diskname + '-apple' + target + ext + ' LOADER bin 0x0803 < ' + buildFolder + '/apple/loader\n')
                 if len(sprites) > 0:
-                    fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p ' + buildFolder + '/' + diskname + '-apple' + target + '.do SPRITES.DAT bin < ' + buildFolder + '/apple/sprites.dat\n')
+                    fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p ' + buildFolder + '/' + diskname + '-apple' + target + ext + ' SPRITES.DAT bin < ' + buildFolder + '/apple/sprites.dat\n')
                 for item in bitmaps:
                     fb = FileBase(item, '-apple.png')
-                    fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p ' + buildFolder + '/' + diskname + '-apple' + target + '.do ' + fb.upper() + '.IMG bin < ' + buildFolder + '/apple/' + fb + '.img\n')
+                    fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p ' + buildFolder + '/' + diskname + '-apple' + target + ext + ' ' + fb.upper() + '.IMG bin < ' + buildFolder + '/apple/' + fb + '.img\n')
                 if len(charset) > 0:
                     fb = FileBase(charset[0], '-apple.png')
-                    fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p ' + buildFolder + '/' + diskname + '-apple' + target + '.do ' + fb.upper() + '.CHR bin < ' + buildFolder + '/apple/' + fb + '.chr\n')
+                    fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p ' + buildFolder + '/' + diskname + '-apple' + target + ext + ' ' + fb.upper() + '.CHR bin < ' + buildFolder + '/apple/' + fb + '.chr\n')
                 for item in charmaps:
                     fb = FileBase(item, '')
-                    fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p ' + buildFolder + '/' + diskname + '-apple' + target + '.do ' + fb.upper() + ' bin < ' + item + '\n')
+                    fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p ' + buildFolder + '/' + diskname + '-apple' + target + ext + ' ' + fb.upper() + ' bin < ' + item + '\n')
                 for item in music:
                     fb = FileBase(item, '-apple.m')
-                    fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p ' + buildFolder + '/' + diskname + '-apple' + target + '.do ' + fb.upper() + '.MUS bin < ' +item + '\n')
+                    fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p ' + buildFolder + '/' + diskname + '-apple' + target + ext + ' ' + fb.upper() + '.MUS bin < ' +item + '\n')
                 for item in shared:
                     fb = FileBase(item, '')
-                    fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p ' + buildFolder + '/' + diskname + '-apple' + target + '.do ' + fb.upper() + ' bin < ' + item + '\n')
+                    fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p ' + buildFolder + '/' + diskname + '-apple' + target + ext + ' ' + fb.upper() + ' bin < ' + item + '\n')
                 if len(chunks) > 0:
-                    fp.write('for /f "tokens=*" %%A in (' + buildFolder + '\\apple\\chunks.lst) do utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p ' + buildFolder + '/' + diskname + '-apple' + target + '.do %%~nxA bin < %%A \n')
+                    fp.write('for /f "tokens=*" %%A in (' + buildFolder + '\\apple\\chunks.lst) do utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p ' + buildFolder + '/' + diskname + '-apple' + target + ext + ' %%~nxA bin < %%A \n')
                 
                 # Info
                 fp.write('\necho DONE\n')
@@ -795,7 +804,7 @@ class Application:
                 if callEmu:
                     fp.write('pause\n\n')
                     fp.write('cd "utils\emulators\AppleWin-1.26.3.1"\n')
-                    fp.write('Applewin.exe -d1 "..\\..\\..\\' + buildFolder + '\\' + diskname + '-apple' + target + '.do"\n')
+                    fp.write('Applewin.exe -d1 "..\\..\\..\\' + buildFolder + '\\' + diskname + '-apple' + target + ext + '"\n')
             
         ####################################################
         # Atari script
