@@ -771,9 +771,11 @@ class Application:
                 # Disk builder
                 if self.Combobox_AppleDiskSize.get() == '140KB':                
                     podisk = 'ProDOS190-140K.po'
+                    par = '-s7 empty -d1'
                     ext = '.do'
                 else:
                     podisk = 'ProDOS190-800K.po'
+                    par = '-h1'
                     ext = '.po'
                 fp.write('copy utils\\scripts\\apple\\' + podisk + ' ' + buildFolder + '\\' + diskname + '-apple' + target + ext + '\n')
                 fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -as ' + buildFolder + '/' + diskname + '-apple' + target + ext + ' LOADER bin 0x0803 < ' + buildFolder + '/apple/loader\n')
@@ -803,8 +805,8 @@ class Application:
                 # Start emulator?
                 if callEmu:
                     fp.write('pause\n\n')
-                    fp.write('cd "utils\emulators\AppleWin-1.26.3.1"\n')
-                    fp.write('Applewin.exe -d1 "..\\..\\..\\' + buildFolder + '\\' + diskname + '-apple' + target + ext + '"\n')
+                    fp.write('cd "utils\emulators\AppleWin-1.29.16.0"\n')
+                    fp.write('Applewin.exe ' + par + ' "..\\..\\..\\' + buildFolder + '\\' + diskname + '-apple' + target + ext + '"\n')
             
         ####################################################
         # Atari script
