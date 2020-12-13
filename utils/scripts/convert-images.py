@@ -1,13 +1,21 @@
 import argparse, ntpath, os
 from PIL import Image, ImagePalette
 
-def create_info(w, h, palette):
+
+def create_pil_palette(rgb_palette):
+    """Converts a list of (r, g, b) tuples into a PIL-compatible palette."""
     pal = []
-    for (r, g, b) in palette:
+    for (r, g, b) in rgb_palette:
         pal += [r, g, b]
     # For classic PIL, the palette size *must* be 256 * 3
     pal += [0] * (256 * 3 - len(pal))
-    return ((w, h), pal, palette)
+
+    return pal
+
+
+def create_info(w, h, palette):
+    return ((w, h), palette)
+
 
 PLATFORM_NAMES = ['apple', 'atari', 'c64', 'lynx', 'oric']
 PLATFORM_INFOS = {
@@ -77,8 +85,10 @@ def create_color_finder(rgb_palette):
     return find_color
 
 
-def create_indexed_image(original, pil_palette, rgb_palette):
+def create_indexed_image(original, rgb_palette):
     """Create a indexed image given the original image and the palette."""
+    pil_palette = create_pil_palette(rgb_palette)
+
     newimage = Image.new('P', original.size)
     newimage.putpalette(pil_palette)        
 
@@ -113,8 +123,8 @@ for input_name in args.input_files:
         target_name = ntpath.abspath(target_name)
         print('Generating ' + target_name)
 
-        (target_size, pil_palette, rgb_palette) = PLATFORM_INFOS.get(platform)
+        (target_size, rgb_palette) = PLATFORM_INFOS.get(platform)
         resized = original.resize(target_size, resample)
 
-        newimage = create_indexed_image(resized, pil_palette, rgb_palette)
+        newimage = create_indexed_image(resized, rgb_palette)
         newimage.save(target_name)
