@@ -39,24 +39,25 @@ PLATFORM_INFOS = {
          (173, 117, 179), (125, 123, 228), (228, 133, 134), (125, 1, 133)])
 }
 
-parser = argparse.ArgumentParser(
-    description='Converts images to the various dimensions and palettes required by 8bit-Unity.')
-parser.add_argument('input_files', nargs='+', help='Input images. Accepts Unix styled wildcards.')
-parser.add_argument('--platform', action='append', choices=PLATFORM_NAMES, default=PLATFORM_NAMES,
-    help='Platform to generate images for. Can be informed more than once. If ommited, generates for all plaforms.')
-parser.add_argument('--resample', choices=['nearest', 'bilinear', 'bicubic', 'antialias'], default='nearest',
-    help='Resampling filter to use when resizing image. Default is "nearest".')
-args = parser.parse_args()
+def parse_command_line():
+    parser = argparse.ArgumentParser(
+        description='Converts images to the various dimensions and palettes required by 8bit-Unity.')
+    parser.add_argument('input_files', nargs='+', help='Input images. Accepts Unix styled wildcards.')
+    parser.add_argument('--platform', action='append', choices=PLATFORM_NAMES, default=PLATFORM_NAMES,
+        help='Platform to generate images for. Can be informed more than once. If ommited, generates for all plaforms.')
+    parser.add_argument('--resample', choices=['nearest', 'bilinear', 'bicubic', 'antialias'], default='nearest',
+        help='Resampling filter to use when resizing image. Default is "nearest".')
+    return parser.parse_args()
+
+args = parse_command_line()
 
 resample = getattr(Image, args.resample.upper())
-print(resample)
 
 for input_name in args.input_files:
     print('Processing ' + input_name)    
 
     (input_dir, input_filename) = ntpath.split(input_name)
     (input_base_name, input_ext) = ntpath.splitext(input_filename)
-    print(input_dir, input_filename, input_base_name, input_ext)
 
     original = Image.open(input_name)
 
