@@ -57,6 +57,8 @@ def parse_command_line():
         help='Platform to generate images for. Can be informed more than once. If ommited, generates for all plaforms.')
     parser.add_argument('--resample', choices=['nearest', 'bilinear', 'bicubic', 'antialias'], default='nearest',
         help='Resampling filter to use when resizing image. Default is "nearest".')
+    parser.add_argument('--dither', choices=['none', 'errordiffusion'], default='none',
+        help='Dithering to use, if any.')
     return parser.parse_args()
 
 
@@ -86,8 +88,8 @@ def create_color_finder(rgb_palette):
     return find_color
 
 
-def create_indexed_image(original, rgb_palette):
-    """Create a indexed image given the original image and the palette."""
+def create_indexed_image_non_dither(original, rgb_palette):
+    """Create a indexed image given the original image and the palette, without dithering."""
     pil_palette = create_pil_palette(rgb_palette)
 
     newimage = Image.new('P', original.size)
@@ -107,7 +109,54 @@ def create_indexed_image(original, rgb_palette):
     return newimage
 
 
-def convert_image_file(input_name, plaforms=PLATFORM_NAMES, resample='nearest'):
+def create_indexed_image_error_diffusion(original, rgb_palette):
+    """Create a indexed image given the original image and the palette, with error diffusion dithering."""
+    pil_palette = create_pil_palette(rgb_palette)
+
+    newimage = Image.new('P', original.size)
+    newimage.putpalette(pil_palette)        
+
+    def clamp_byte(n):
+        return max(min(255, n), 0)
+
+    # The paste() method should have been enough, but, with the PIL version used on 8bit-Unity,
+    # it seems to be ignoring the palette set by putpalette().
+    # So, manual implementation, it will be.
+    find_color = create_color_finder(rgb_palette)
+    dith_err = [0, 0, 0]
+    for y in range(0, original.size[1]):
+        # Will run from left to right on even y, and right to left in odd y.
+        xrange = range(0, original.size[0])
+        if y % 2 != 0:
+            xrange = reversed(xrange)
+
+        for x in xrange:
+            coord = (x, y)
+            orig = original.getpixel(coord)
+            with_err = [0, 0, 0]
+            clamped = [0, 0, 0]
+            for i in [0, 1, 2]:
+                with_err[i] = orig[i] + dith_err[i]
+                clamped[i] = clamp_byte(with_err[i])
+
+            index = find_color(tuple(clamped))
+            newimage.putpixel(coord, index)
+
+            actual = rgb_palette[index]
+            for i in [0, 1, 2]:
+                dith_err[i] = with_err[i] - actual[i]
+    
+    return newimage
+
+
+def create_indexed_image(original, rgb_palette, dither):
+    if dither == 'errordiffusion':
+        return create_indexed_image_error_diffusion(original, rgb_palette)
+    else:
+        return create_indexed_image_non_dither(original, rgb_palette)
+
+
+def convert_image_file(input_name, plaforms=PLATFORM_NAMES, resample='nearest', dither='none'):
     """Reads the input image and converts it to the specified platforms."""
     print('Processing ' + input_name)    
 
@@ -125,15 +174,13 @@ def convert_image_file(input_name, plaforms=PLATFORM_NAMES, resample='nearest'):
         (target_size, rgb_palette) = PLATFORM_INFOS.get(platform)
         resized = rgb_image.resize(target_size, resample)
 
-        newimage = create_indexed_image(resized, rgb_palette)
+        newimage = create_indexed_image(resized, rgb_palette, dither)
         newimage.save(target_name)
 
 
 if __name__ == "__main__":
     args = parse_command_line()
-
     resample = getattr(Image, args.resample.upper())
-    platforms = args.platform
 
     for input_name in args.input_files:
-        convert_image_file(input_name, platforms, resample)
+        convert_image_file(input_name, args.platform, resample, args.dither)
