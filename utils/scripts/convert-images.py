@@ -115,6 +115,7 @@ def convert_image_file(input_name, plaforms=PLATFORM_NAMES, resample='nearest'):
     input_base_name = ntpath.splitext(input_filename)[0]
 
     original = Image.open(input_name)
+    rgb_image = original if original.mode == 'RGB' else original.convert('RGB')
 
     for platform in plaforms:
         target_name = ntpath.join(input_dir, input_base_name + '-' + platform + '.png')
@@ -122,7 +123,7 @@ def convert_image_file(input_name, plaforms=PLATFORM_NAMES, resample='nearest'):
         print('Generating ' + target_name)
 
         (target_size, rgb_palette) = PLATFORM_INFOS.get(platform)
-        resized = original.resize(target_size, resample)
+        resized = rgb_image.resize(target_size, resample)
 
         newimage = create_indexed_image(resized, rgb_palette)
         newimage.save(target_name)
