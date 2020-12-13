@@ -49,6 +49,7 @@ PLATFORM_INFOS = {
 
 
 def parse_command_line():
+    """Parses command line arguments and returns the parsed results."""
     parser = argparse.ArgumentParser(
         description='Converts images to the various dimensions and palettes required by 8bit-Unity.')
     parser.add_argument('input_files', nargs='+', help='Input images. Accepts Unix styled wildcards.')
@@ -106,19 +107,16 @@ def create_indexed_image(original, rgb_palette):
     return newimage
 
 
-args = parse_command_line()
-
-resample = getattr(Image, args.resample.upper())
-
-for input_name in args.input_files:
+def convert_image_file(input_name, plaforms=PLATFORM_NAMES, resample='nearest'):
+    """Reads the input image and converts it to the specified platforms."""
     print('Processing ' + input_name)    
 
     (input_dir, input_filename) = ntpath.split(input_name)
-    (input_base_name, input_ext) = ntpath.splitext(input_filename)
+    input_base_name = ntpath.splitext(input_filename)[0]
 
     original = Image.open(input_name)
 
-    for platform in PLATFORM_NAMES:
+    for platform in plaforms:
         target_name = ntpath.join(input_dir, input_base_name + '-' + platform + '.png')
         target_name = ntpath.abspath(target_name)
         print('Generating ' + target_name)
@@ -128,3 +126,12 @@ for input_name in args.input_files:
 
         newimage = create_indexed_image(resized, rgb_palette)
         newimage.save(target_name)
+
+
+args = parse_command_line()
+
+resample = getattr(Image, args.resample.upper())
+platforms = args.platform
+
+for input_name in args.input_files:
+    convert_image_file(input_name, platforms, resample)
