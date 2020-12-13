@@ -49,6 +49,29 @@ def parse_command_line():
         help='Resampling filter to use when resizing image. Default is "nearest".')
     return parser.parse_args()
 
+def create_color_finder(rgb_palette):
+    color_cache = {}
+    def find_color(rgb):
+        index = 0
+        if rgb in color_cache:
+            index = color_cache[rgb]
+        else:
+            best = -1
+            ro = rgb[0]
+            go = rgb[1]
+            bo = rgb[2]
+            for n, (r, g, b) in enumerate(rgb_palette):
+                distance = (ro - r) ** 2 + (go - g) ** 2 + (bo - b) ** 2
+                if best == -1 or distance < best:
+                    index = n
+                    best = distance
+            
+            color_cache[rgb] = index
+
+        return index
+
+    return find_color
+
 args = parse_command_line()
 
 resample = getattr(Image, args.resample.upper())
@@ -75,27 +98,12 @@ for input_name in args.input_files:
         # The paste() method should have been enough, but, with the PIL version used on 8bit-Unity,
         # it seems to be ignoring the palette set by putpalette().
         # So, manual implementation, it will be.
-        color_cache = {}
+        find_color = create_color_finder(rgb_palette)
         for x in range(0, target_size[0]):
             for y in range(0, target_size[1]):
                 coord = (x, y)
                 orig = resized.getpixel(coord)
-                index = 0
-                if orig in color_cache:
-                    index = color_cache[orig]
-                else:
-                    best = -1
-                    ro = orig[0]
-                    go = orig[1]
-                    bo = orig[2]
-                    for n, (r, g, b) in enumerate(rgb_palette):
-                        distance = (ro - r) ** 2 + (go - g) ** 2 + (bo - b) ** 2
-                        if best == -1 or distance < best:
-                            index = n
-                            best = distance
-                    
-                    color_cache[orig] = index
-                
+                index = find_color(orig)                
                 newimage.putpixel(coord, index)
 
         newimage.save(target_name)
