@@ -7,11 +7,11 @@ def create_info(w, h, palette):
         pal += [r, g, b]
     # For classic PIL, the palette size *must* be 256 * 3
     pal += [0] * (256 * 3 - len(pal))
-    return ((w, h), pal)
+    return ((w, h), pal, palette)
 
 PLATFORM_NAMES = ['apple', 'atari', 'c64', 'lynx', 'oric']
 PLATFORM_INFOS = {
-    'apple': create_info(140, 192, [(0, 1, 2), (250, 251, 252)]),
+    'apple': create_info(140, 192, [(0, 1, 2), (250, 251, 252), (255, 0, 0), (0, 255, 0), (0, 0, 255)]),
     'atari': create_info(160, 200, [(0, 1, 2), (250, 251, 252)]),
     'c64': create_info(160, 200, [(0, 1, 2), (250, 251, 252)]),
     'lynx': create_info(160, 102, [(0, 1, 2), (250, 251, 252)]),
@@ -44,11 +44,36 @@ for input_name in args.input_files:
         target_name = ntpath.abspath(target_name)
         print('Generating ' + target_name)
 
-        (target_size, target_palette) = PLATFORM_INFOS.get(platform)
+        (target_size, pil_palette, rgb_palette) = PLATFORM_INFOS.get(platform)
         resized = original.resize(target_size, resample)
 
         newimage = Image.new('P', target_size)
-        newimage.putpalette(target_palette)
-        newimage.paste(resized, (0, 0) + target_size)
+        newimage.putpalette(pil_palette)        
+
+        # The paste() method should have been enough, but, with the PIL version used on 8bit-Unity,
+        # it seems to be ignoring the palette set by putpalette().
+        # So, manual implementation, it will be.
+        color_cache = {}
+        for x in range(0, target_size[0]):
+            for y in range(0, target_size[1]):
+                coord = (x, y)
+                orig = resized.getpixel(coord)
+                index = 0
+                if orig in color_cache:
+                    index = color_cache[orig]
+                else:
+                    best = -1
+                    ro = orig[0]
+                    go = orig[1]
+                    bo = orig[2]
+                    for n, (r, g, b) in enumerate(rgb_palette):
+                        distance = (ro - r) ** 2 + (go - g) ** 2 + (bo - b) ** 2
+                        if best == -1 or distance < best:
+                            index = n
+                            best = distance
+                    
+                    color_cache[orig] = index
+                
+                newimage.putpixel(coord, index)
 
         newimage.save(target_name)
