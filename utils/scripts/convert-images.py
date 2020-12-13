@@ -2,6 +2,13 @@ import argparse, ntpath, os
 from PIL import Image
 
 PLATFORM_NAMES = ['apple', 'atari', 'c64', 'lynx', 'oric']
+PLATFORM_INFOS = {
+    'apple': (140, 192),
+    'atari': (160, 200),
+    'c64': (160, 200),
+    'lynx': (160, 102),
+    'oric': (117, 100)
+}
 
 parser = argparse.ArgumentParser(
     description='Converts images to the various dimensions and palettes required by 8bit-Unity.')
@@ -29,5 +36,5 @@ for input_name in args.input_files:
         target_name = ntpath.abspath(target_name)
         print('Generating ' + target_name)
 
-        target = original.resize((160, 200), resample)
+        target = original.resize(PLATFORM_INFOS.get(platform), resample)
         target.save(target_name)
