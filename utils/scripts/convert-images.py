@@ -128,10 +128,11 @@ def convert_image_file(input_name, plaforms=PLATFORM_NAMES, resample='nearest'):
         newimage.save(target_name)
 
 
-args = parse_command_line()
+if __name__ == "__main__":
+    args = parse_command_line()
 
-resample = getattr(Image, args.resample.upper())
-platforms = args.platform
+    resample = getattr(Image, args.resample.upper())
+    platforms = args.platform
 
-for input_name in args.input_files:
-    convert_image_file(input_name, platforms, resample)
+    for input_name in args.input_files:
+        convert_image_file(input_name, platforms, resample)
