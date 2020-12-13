@@ -1,13 +1,22 @@
 import argparse, ntpath, os
-from PIL import Image
+from PIL import Image, ImagePalette
+
+def create_info(w, h, palette):
+    # For classic PIL, the palette size *must* be 256 * 3
+    pal = [0] * (256 * 3)
+    for n, (r, g, b) in enumerate(palette):
+        pal[n] = r
+        pal[n + 256] = g
+        pal[n + 512] = b
+    return ((w, h), ImagePalette.ImagePalette('RGB', pal))
 
 PLATFORM_NAMES = ['apple', 'atari', 'c64', 'lynx', 'oric']
 PLATFORM_INFOS = {
-    'apple': (140, 192),
-    'atari': (160, 200),
-    'c64': (160, 200),
-    'lynx': (160, 102),
-    'oric': (117, 100)
+    'apple': create_info(140, 192, [(0, 1, 2), (3, 4, 5)]),
+    'atari': create_info(160, 200, [(0, 1, 2), (3, 4, 5)]),
+    'c64': create_info(160, 200, [(0, 1, 2), (3, 4, 5)]),
+    'lynx': create_info(160, 102, [(0, 1, 2), (3, 4, 5)]),
+    'oric': create_info(117, 100, [(0, 1, 2), (3, 4, 5)])
 }
 
 parser = argparse.ArgumentParser(
@@ -36,5 +45,7 @@ for input_name in args.input_files:
         target_name = ntpath.abspath(target_name)
         print('Generating ' + target_name)
 
-        target = original.resize(PLATFORM_INFOS.get(platform), resample)
-        target.save(target_name)
+        (target_size, target_palette) = PLATFORM_INFOS.get(platform)
+        resized = original.resize(target_size, resample)
+        quantized = resized.convert('P', palette=target_palette)
+        quantized.save(target_name)
