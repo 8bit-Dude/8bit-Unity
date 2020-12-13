@@ -39,6 +39,7 @@ PLATFORM_INFOS = {
          (173, 117, 179), (125, 123, 228), (228, 133, 134), (125, 1, 133)])
 }
 
+
 def parse_command_line():
     parser = argparse.ArgumentParser(
         description='Converts images to the various dimensions and palettes required by 8bit-Unity.')
@@ -49,11 +50,14 @@ def parse_command_line():
         help='Resampling filter to use when resizing image. Default is "nearest".')
     return parser.parse_args()
 
+
 def create_color_finder(rgb_palette):
+    """Receives a list of (r, g, b) tuples, and returns a function that converts (r, g, b) tuples into a palette index."""
     color_cache = {}
     def find_color(rgb):
+        """Receives a (r, g, b) tuple, and returns the index of the closest corresponding palette entry."""
         index = 0
-        if rgb in color_cache:
+        if rgb in color_cache:        
             index = color_cache[rgb]
         else:
             best = -1
@@ -71,6 +75,26 @@ def create_color_finder(rgb_palette):
         return index
 
     return find_color
+
+
+def create_indexed_image(original, pil_palette, rgb_palette):
+    """Create a indexed image given the original image and the palette."""
+    newimage = Image.new('P', original.size)
+    newimage.putpalette(pil_palette)        
+
+    # The paste() method should have been enough, but, with the PIL version used on 8bit-Unity,
+    # it seems to be ignoring the palette set by putpalette().
+    # So, manual implementation, it will be.
+    find_color = create_color_finder(rgb_palette)
+    for x in range(0, original.size[0]):
+        for y in range(0, original.size[1]):
+            coord = (x, y)
+            orig = original.getpixel(coord)
+            index = find_color(orig)                
+            newimage.putpixel(coord, index)
+    
+    return newimage
+
 
 args = parse_command_line()
 
@@ -92,18 +116,5 @@ for input_name in args.input_files:
         (target_size, pil_palette, rgb_palette) = PLATFORM_INFOS.get(platform)
         resized = original.resize(target_size, resample)
 
-        newimage = Image.new('P', target_size)
-        newimage.putpalette(pil_palette)        
-
-        # The paste() method should have been enough, but, with the PIL version used on 8bit-Unity,
-        # it seems to be ignoring the palette set by putpalette().
-        # So, manual implementation, it will be.
-        find_color = create_color_finder(rgb_palette)
-        for x in range(0, target_size[0]):
-            for y in range(0, target_size[1]):
-                coord = (x, y)
-                orig = resized.getpixel(coord)
-                index = find_color(orig)                
-                newimage.putpixel(coord, index)
-
+        newimage = create_indexed_image(resized, pil_palette, rgb_palette)
         newimage.save(target_name)
