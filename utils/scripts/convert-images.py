@@ -1,4 +1,4 @@
-import argparse
+import argparse, ntpath, os
 from PIL import Image
 
 PLATFORM_NAMES = ['apple', 'atari', 'c64', 'lynx', 'oric']
@@ -12,7 +12,22 @@ parser.add_argument('--resample', choices=['nearest', 'box', 'bilinear', 'hammin
     help='Resampling filter to use when resizing image. Default is "nearest".')
 args = parser.parse_args()
 
-for input_file in args.input_files:
-    print("Processing " + input_file)
-    original = Image.open(input_file)
-    target = original.copy()
+resample = getattr(Image, args.resample.upper())
+print(resample)
+
+for input_name in args.input_files:
+    print('Processing ' + input_name)    
+
+    (input_dir, input_filename) = ntpath.split(input_name)
+    (input_base_name, input_ext) = ntpath.splitext(input_filename)
+    print(input_dir, input_filename, input_base_name, input_ext)
+
+    original = Image.open(input_name)
+
+    for platform in PLATFORM_NAMES:
+        target_name = ntpath.join(input_dir, input_base_name + '-' + platform + '.png')
+        target_name = ntpath.abspath(target_name)
+        print('Generating ' + target_name)
+
+        target = original.resize((160, 200), resample)
+        target.save(target_name)
