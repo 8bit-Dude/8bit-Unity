@@ -13,33 +13,33 @@ def create_pil_palette(rgb_palette):
     return pal
 
 
-def create_info(w, h, palette):
-    return ((w, h), palette)
+def create_info(w, h, left_margin, palette):
+    return ((w, h), left_margin, palette)
 
 
 PLATFORM_NAMES = ['apple', 'atari', 'c64', 'lynx', 'oric']
 PLATFORM_INFOS = {
-    'apple': create_info(140, 192, 
+    'apple': create_info(140, 192, 0,
         [(0, 0, 0), (49, 51, 222), (0, 116, 6), (30, 150, 230), 
          (119, 89, 1), (112, 112, 91), (87, 186, 2), (148, 237, 154), 
          (141, 18, 100), (155, 71, 253), (137, 150, 170), (150, 182, 255), 
          (232, 112, 46), (222, 126, 163), (243, 225, 1), (255, 255, 255)]),
-    'atari': create_info(160, 200, 
+    'atari': create_info(160, 200, 0,
         [(0, 0, 0), (75, 20, 11), (22, 60, 104), (67, 80, 0), 
          (75, 20, 11), (150, 39, 22), (97, 79, 115), (142, 100, 11), 
          (22, 60, 104), (97, 79, 115), (44, 119, 207), (89, 140, 104), 
          (67, 80, 0), (142, 100, 11), (89, 140, 104), (133, 160, 0)]),
-    'c64': create_info(160, 200, 
+    'c64': create_info(160, 200, 0,
         [(0, 0, 0), (255, 255, 255), (104, 55, 43), (112, 164, 178), 
          (111, 61, 134), (88, 141, 67), (53, 40, 121), (184, 199, 111), 
          (111, 79, 37), (67, 57, 0), (154, 103, 89), (68, 68, 68), 
          (108, 108, 108), (154, 210, 132), (108, 94, 181), (149, 149, 149)]),
-    'lynx': create_info(160, 102, 
+    'lynx': create_info(160, 102, 0,
         [(165, 16, 198), (66, 49, 181), (66, 132, 198), (49, 198, 198), 
          (49, 198, 82), (33, 132, 33), (33, 82, 82), (115, 82, 33), 
          (231, 115, 82), (247, 231, 0), (247, 148, 165), (214, 49, 66), 
          (132, 33, 66), (247, 247, 247), (132, 132, 132), (0, 0, 0)]),
-    'oric': create_info(117, 100, 
+    'oric': create_info(240, 200, 6,
         [(0, 0, 0), (111, 156, 101), (130, 132, 3), (3, 123, 121), 
          (131, 226, 124), (133, 135, 132), (70, 117, 176), (3, 6, 135), 
          (131, 225, 227), (2, 126, 229), (133, 135, 132), (173, 121, 66), 
@@ -171,10 +171,16 @@ def convert_image_file(input_name, plaforms=PLATFORM_NAMES, resample='nearest', 
         target_name = ntpath.abspath(target_name)
         print('Generating ' + target_name)
 
-        (target_size, rgb_palette) = PLATFORM_INFOS.get(platform)
-        resized = rgb_image.resize(target_size, resample)
+        ((target_w, target_h), left_margin, rgb_palette) = PLATFORM_INFOS.get(platform)
 
-        newimage = create_indexed_image(resized, rgb_palette, dither)
+        resized = rgb_image.resize((target_w - left_margin, target_h), resample)
+
+        with_margin = resized
+        if left_margin:
+            with_margin = Image.new('RGB', (target_w, target_h))
+            with_margin.paste(resized, (left_margin, 0))
+
+        newimage = create_indexed_image(with_margin, rgb_palette, dither)
         newimage.save(target_name)
 
 
