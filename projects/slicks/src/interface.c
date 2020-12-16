@@ -12,35 +12,37 @@
 	#define INK_HIGHLT	 BLACK
 	#define PAPER_HIGHLT YELLOW
 	#define PAPER_SCORES BLACK
-	#define ROW_SCORES   8
+	#define SCORES_ROW   8
 #elif defined __ATARI__
 	#define INK_LAPS   	 RED
 	#define INK_TAB		 GREEN
 	#define INK_HIGHLT	 BLACK
 	#define PAPER_HIGHLT YELLOW
 	#define PAPER_SCORES BLACK
-	#define ROW_SCORES   8
+	#define SCORES_ROW   8
 #elif defined __ORIC__
 	#define INK_LAPS   	 RED
 	#define INK_TAB		 GREEN
 	#define INK_HIGHLT	 BLACK
 	#define PAPER_HIGHLT YELLOW
 	#define PAPER_SCORES BLACK
-	#define ROW_SCORES   8
+	#define SCORES_ROW   8
 #elif defined __CBM__
 	#define INK_LAPS   	 BLACK
 	#define INK_TAB		 GREEN
 	#define INK_HIGHLT	 BLACK
 	#define PAPER_HIGHLT YELLOW
 	#define PAPER_SCORES GREY
-	#define ROW_SCORES   8
+	#define SCORES_ROW   8
 #elif defined __LYNX__
 	#define INK_LAPS   	 BLACK
 	#define INK_TAB		 YELLOW	
 	#define INK_HIGHLT	 WHITE
 	#define PAPER_HIGHLT BLACK
 	#define PAPER_SCORES DGREEN
-	#define ROW_SCORES   4
+	#define SCORES_ROW   4
+	#define PAUSE_ROW    6
+	#define PAUSE_COL    16
 #endif
 
 // Platform specific panel location/size
@@ -78,7 +80,7 @@ extern char udpBuffer[28];
 extern char networkReady;
 
 // Build Information
-const char* buildInfo = "BUILD: 2020/11/30";
+const char* buildInfo = "BUILD: 2020/12/16";
 
 // List of available maps
 const char *mapList[LEN_MAPS] = {"arizona","arto","cramp","freeway","gta","island","mtcarlo","rally","river","stadium","suzuka","thrash"};
@@ -123,116 +125,6 @@ void DrawFPS(unsigned long f)
 }
 #endif
 
-#if defined __LYNX__
-const char *musicList[4] = {"chase.mus","driven.mus","stroll.mus","whirlwnd.mus"};
-unsigned char musicSel = 0;
-void NextMusic(unsigned char blank) {
-	// Change music track
-	if (!blank && musicSel > 3)
-		musicSel = 0;
-	if (musicSel <= 3) {
-		LoadMusic(musicList[musicSel], MUSICRAM);
-		PlayMusic();
-	}
-	if (++musicSel > 3+blank) 
-		musicSel = 0;
-}
-
-unsigned char cursorJoy, cursorKey, cursorBut2, cursorPressed;
-unsigned char cursorFlick, cursorRow = MENU_ROW+2;
-clock_t cursorClock;
-
-void LynxCursorFlicker()
-{
-	// Only do preiodically
-	if (clock()-cursorClock < 20) { return; }
-	cursorClock = clock();
-	
-	// Reset Column and show Cursor
-	PrintBlanks(MENU_COL, MENU_ROW+2, 2, MENU_HEI-2);
-	if (cursorFlick) {
-		inkColor = YELLOW;
-		PrintChr(MENU_COL+0, cursorRow, &charHyphen[0]);
-		PrintChr(MENU_COL+1, cursorRow, &charBracket[3]);
-		inkColor = WHITE;
-	}
-	cursorFlick = !cursorFlick;
-}
-
-void LynxCursorControl()
-{
-	// Process screen flips
-	if (kbhit()) {
-		switch (cgetc()) {
-		case KB_FLIP:
-			SuzyFlip();
-			break;
-		case KB_MUSIC:
-			StopMusic();
-			NextMusic(0);
-			break;
-		}
-	}
-	
-	// Check if cursor was already pressed
-	cursorKey = 0;
-	cursorJoy = GetJoy(0);
-	if (cursorJoy != 255) {
-		if (cursorPressed) { return; }
-		cursorPressed = 1;
-		cursorFlick = 1;
-		cursorClock = 0;
-	} else { 
-		cursorPressed = 0; 
-	}
-	
-	// Process next event
-	if (!(cursorJoy & JOY_LEFT)) { 
-		     if (gameMode == MODE_INFO)   { cursorKey = KB_O; cursorRow = MENU_ROW+2; }
-		else if (gameMode == MODE_ONLINE) { cursorKey = KB_L; cursorRow = MENU_ROW+2; }
-	}	
-	if (!(cursorJoy & JOY_RIGHT)) { 
-		     if (gameMode == MODE_LOCAL)  { cursorKey = KB_O; cursorRow = MENU_ROW+2; }
-		else if (gameMode == MODE_ONLINE) { cursorKey = KB_I; cursorRow = MENU_ROW+2; }
-	}	
-	if (!(cursorJoy & JOY_UP)) { 
-		cursorRow -= 1; 
-		if (gameMode == MODE_LOCAL) {
-			     if (cursorRow  < MENU_ROW+2)  { cursorRow = MENU_ROW+2; }			
-			else if (cursorRow == MENU_ROW+6)  { cursorRow = MENU_ROW+5; }			
-			else if (cursorRow == MENU_ROW+8)  { cursorRow = MENU_ROW+7; }			
-			else if (cursorRow == MENU_ROW+10) { cursorRow = MENU_ROW+9; }			
-		} else {
-				 if (cursorRow  < MENU_ROW+2)  { cursorRow = MENU_ROW+2; }		
-		}
-	}
-	if (!(cursorJoy & JOY_DOWN)) { 
-		cursorRow += 1; 
-		if (gameMode == MODE_LOCAL) {
-			     if (cursorRow  > MENU_ROW+11) { cursorRow = MENU_ROW+11; }
-			else if (cursorRow == MENU_ROW+10) { cursorRow = MENU_ROW+11; }
-			else if (cursorRow == MENU_ROW+8)  { cursorRow = MENU_ROW+9; }			
-			else if (cursorRow == MENU_ROW+6)  { cursorRow = MENU_ROW+7; }			
-		} else {
-			     if (cursorRow  > MENU_ROW+13) { cursorRow = MENU_ROW+13; }
-		}
-	}
-	if (!(cursorJoy & JOY_BTN1) || !(cursorJoy & JOY_BTN2)) { 
-		cursorBut2 = 0;
-		if (!(cursorJoy & JOY_BTN2))
-			cursorBut2 = 1;
-		if (gameMode == MODE_LOCAL) {
-			     if (cursorRow == MENU_ROW+11) { cursorKey = KB_SP; }
-			else if (cursorRow == MENU_ROW+9)  { cursorKey = KB_L; }
-			else if (cursorRow == MENU_ROW+7)  { cursorKey = KB_M; }
-			else if (cursorRow >= MENU_ROW+2)  { cursorKey = 49 + (cursorRow-(MENU_ROW+2)); }
-		} else {
-			cursorKey = 49 + (cursorRow-(MENU_ROW+2));
-		}
-	}
-}
-#endif
-
 // Paper for message Buffer
 unsigned char paperBuffer;
 
@@ -249,7 +141,7 @@ static char chatBG[160];
 #elif defined __CBM__
 static char chatBG[180];
 #elif defined __LYNX__
-static char chatBG[240];
+static char chatBG[288];
 #endif
 
 // Backup Chat Row
@@ -389,6 +281,167 @@ void InputField(unsigned char col, unsigned char row, char *buffer, unsigned cha
 #endif
 }
 
+#if defined __LYNX__
+const char *musicList[4] = {"chase.mus","driven.mus","stroll.mus","whirlwnd.mus"};
+unsigned char musicSel = 0;
+void NextMusic(unsigned char blank) {
+	// Change music track
+	if (!blank && musicSel > 3)
+		musicSel = 0;
+	if (musicSel <= 3) {
+		LoadMusic(musicList[musicSel], MUSICRAM);
+		PlayMusic();
+	}
+	if (++musicSel > 3+blank) 
+		musicSel = 0;
+}
+
+unsigned char cursorJoy, cursorKey, cursorBut2, cursorPressed;
+unsigned char cursorFlick, cursorCol = MENU_COL, cursorRow = MENU_ROW+2;
+unsigned char cursorTop = MENU_ROW+2, cursorHeight = MENU_HEI-2;
+clock_t cursorClock;
+
+void LynxCursorFlicker()
+{
+	// Only do preiodically
+	if (clock()-cursorClock < 20) { return; }
+	cursorClock = clock();
+	
+	// Reset Column and show Cursor
+	PrintBlanks(cursorCol, cursorTop, 2, cursorHeight);
+	if (cursorFlick) {
+		inkColor = YELLOW;
+		PrintChr(cursorCol, cursorRow, &charHyphen[0]);
+		PrintChr(cursorCol+1, cursorRow, &charBracket[3]);
+		inkColor = WHITE;
+	}
+	cursorFlick = !cursorFlick;
+}
+
+void LynxCursorControl()
+{
+	// Process screen flips
+	if (kbhit()) {
+		switch (cgetc()) {
+		case KB_FLIP:
+			SuzyFlip();
+			break;
+		case KB_MUSIC:
+			if (gameMode != MODE_PAUSE) {
+				StopMusic();
+				NextMusic(0);
+			}
+			break;
+		}
+	}
+	
+	// Check if cursor was already pressed
+	cursorKey = 0;
+	cursorJoy = GetJoy(0);
+	if (cursorJoy != 255) {
+		if (cursorPressed) { return; }
+		cursorPressed = 1;
+		cursorFlick = 1;
+		cursorClock = 0;
+	} else { 
+		cursorPressed = 0; 
+	}
+	
+	// Process next event
+	if (!(cursorJoy & JOY_LEFT)) { 
+		     if (gameMode == MODE_INFO)   { cursorKey = KB_O; cursorRow = MENU_ROW+2; }
+		else if (gameMode == MODE_ONLINE) { cursorKey = KB_L; cursorRow = MENU_ROW+2; }
+	}	
+	if (!(cursorJoy & JOY_RIGHT)) { 
+		     if (gameMode == MODE_LOCAL)  { cursorKey = KB_O; cursorRow = MENU_ROW+2; }
+		else if (gameMode == MODE_ONLINE) { cursorKey = KB_I; cursorRow = MENU_ROW+2; }
+	}	
+	if (!(cursorJoy & JOY_UP)) { 
+		cursorRow -= 1; 
+		if (gameMode == MODE_LOCAL) {
+			     if (cursorRow  < MENU_ROW+2)  { cursorRow = MENU_ROW+2; }			
+			else if (cursorRow == MENU_ROW+6)  { cursorRow = MENU_ROW+5; }			
+			else if (cursorRow == MENU_ROW+8)  { cursorRow = MENU_ROW+7; }			
+			else if (cursorRow == MENU_ROW+10) { cursorRow = MENU_ROW+9; }			
+		} else if (gameMode == MODE_ONLINE) {
+				 if (cursorRow  < MENU_ROW+2)  { cursorRow = MENU_ROW+2; }
+		} else if (gameMode == MODE_PAUSE) {
+				 if (cursorRow  < PAUSE_ROW)  { cursorRow = PAUSE_ROW; }
+		}
+	}
+	if (!(cursorJoy & JOY_DOWN)) { 
+		cursorRow += 1; 
+		if (gameMode == MODE_LOCAL) {
+			     if (cursorRow  > MENU_ROW+11) { cursorRow = MENU_ROW+11; }
+			else if (cursorRow == MENU_ROW+10) { cursorRow = MENU_ROW+11; }
+			else if (cursorRow == MENU_ROW+8)  { cursorRow = MENU_ROW+9; }			
+			else if (cursorRow == MENU_ROW+6)  { cursorRow = MENU_ROW+7; }			
+		} else if (gameMode == MODE_ONLINE) {
+			     if (cursorRow  > MENU_ROW+13) { cursorRow = MENU_ROW+13; }
+		} else if (gameMode == MODE_PAUSE) {
+			     if (cursorRow  > PAUSE_ROW+2) { cursorRow = PAUSE_ROW+2; }
+		}
+	}
+	if (!(cursorJoy & JOY_BTN1) || !(cursorJoy & JOY_BTN2)) { 
+		cursorBut2 = 0;
+		if (!(cursorJoy & JOY_BTN2))
+			cursorBut2 = 1;
+		if (gameMode == MODE_LOCAL) {
+			     if (cursorRow == MENU_ROW+11) { cursorKey = KB_SP; }
+			else if (cursorRow == MENU_ROW+9)  { cursorKey = KB_L; }
+			else if (cursorRow == MENU_ROW+7)  { cursorKey = KB_M; }
+			else if (cursorRow >= MENU_ROW+2)  { cursorKey = 49 + (cursorRow-(MENU_ROW+2)); }
+		} else if (gameMode == MODE_ONLINE) {
+			cursorKey = 49 + (cursorRow-(MENU_ROW+2));
+		} else if (gameMode == MODE_PAUSE) {
+			     if (cursorRow == PAUSE_ROW+0) { cursorKey = KB_PAUSE; }
+			else if (cursorRow == PAUSE_ROW+1) { cursorKey = KB_NEXT; }
+			else if (cursorRow == PAUSE_ROW+2) { cursorKey = KB_QUIT; }
+		}
+	}
+}
+
+void BackupPauseBg()
+{
+	unsigned char i;
+	for (i=0; i<(3*6); ++i) {
+		memcpy(&chatBG[0]+i*16, (char*)(BITMAPRAM+1+2*PAUSE_COL+492*PAUSE_ROW+i*82), 16);
+	}		
+}
+
+void RestorePauseBg()
+{
+ 	unsigned char i;
+	for (i=0; i<(3*6); ++i) {
+		memcpy((char*)(BITMAPRAM+1+2*PAUSE_COL+492*PAUSE_ROW+i*82), &chatBG[0]+i*16, 16);
+	}	
+}
+
+unsigned char MenuPause()
+{
+	// Draw Menu
+	paperColor = PAPER_SCORES; inkColor = WHITE;
+	PrintBlanks(PAUSE_COL, PAUSE_ROW, 8, 3);
+	PrintStr(PAUSE_COL+2, PAUSE_ROW+0, "resume");
+	PrintStr(PAUSE_COL+2, PAUSE_ROW+1, "next");
+	PrintStr(PAUSE_COL+2, PAUSE_ROW+2, "quit");
+	
+	// Set Cursor
+	cursorCol = PAUSE_COL;
+	cursorRow = PAUSE_ROW;
+	cursorTop = PAUSE_ROW;
+	cursorHeight = 3;
+	
+	// Process Cursor
+	while (!kbhit()) {
+		LynxCursorControl();
+		if (cursorKey) { return cursorKey; }
+		LynxCursorFlicker(); 
+		UpdateDisplay();
+	}	
+}
+#endif
+
 // Print score after round ends
 signed int score[4];
 void PrintScores()
@@ -430,13 +483,13 @@ void PrintScores()
 	
 	// Create blank area
 	paperColor = PAPER_SCORES;
-	PrintBlanks(13,ROW_SCORES,14,9);
+	PrintBlanks(13,SCORES_ROW,14,9);
 	
 	// Print results and wait
 	for (i=0; i<MAX_PLAYERS; ++i) {
 		j = rank[i];
 		if (score[j] >= 0) {
-			s = ROW_SCORES+2*i+1;
+			s = SCORES_ROW+2*i+1;
 			inkColor = inkColors[j];
 		#if defined __ORIC__
 			SetAttributes(17, s, inkColor);
@@ -688,22 +741,22 @@ unsigned char MenuLogin(unsigned char serverIndex)
 	
 	// Show action message
 	inkColor = YELLOW;
-	PrintStr(MENU_COL+2, MENU_ROW+12, "CONNECTING...");
+	PrintStr(MENU_COL+2, MENU_ROW+11, "CONNECTING...");
 	ServerConnect();	
 	res = ClientJoin(serverIndex);	
 	inkColor = WHITE;
 	if (res == ERR_MESSAGE) {
 		// Server error
-		PrintStr(MENU_COL+1, MENU_ROW+13, (char*)(packet+1));
+		PrintStr(MENU_COL+1, MENU_ROW+12, (char*)(packet+1));
 	} else if (res == ERR_TIMEOUT) {
 		// Timeout error
-		PrintStr(MENU_COL+1, MENU_ROW+13, "ERROR: TIMEOUT");					
+		PrintStr(MENU_COL+1, MENU_ROW+12, "ERROR: TIMEOUT");					
 	} else if (res == ERR_CORRUPT) {
 		// Unexpected error
-		PrintStr(MENU_COL+1, MENU_ROW+13, "ERROR: CORRUPTION");
+		PrintStr(MENU_COL+1, MENU_ROW+12, "ERROR: CORRUPTION");
 	} else {
 		// All good			
-		PrintStr(MENU_COL+2, MENU_ROW+13, "OK");
+		PrintStr(MENU_COL+2, MENU_ROW+12, "OK");
 		gameMap = svMap;
 		gameStep = svStep;
 		return 1;
@@ -795,7 +848,15 @@ void GameMenu()
 		
 	// Show version, credits, and start music
 	inkColor = WHITE; paperColor = BLACK;
-	PrintStr(MENU_COL, MENU_BLD, buildInfo);	
+	PrintStr(MENU_COL, MENU_BLD, buildInfo);
+
+#if defined __LYNX__
+	// Reset cursor state
+	cursorCol = MENU_COL;
+	cursorRow = MENU_ROW+2;
+	cursorTop = MENU_ROW+2;
+	cursorHeight = MENU_HEI-2;
+#endif
 	
 	// Show menu options
 	while (1) {
@@ -969,14 +1030,18 @@ void GameMenu()
 			// Display menu options
 			inkColor = INK_TAB; paperColor = BLACK;
 		#if defined __LYNX__			
-			PrintStr(MENU_COL+13, MENU_ROW, "I");			
+			PrintStr(MENU_COL+13, MENU_ROW, "I");
 		#endif			
 			PrintStr(MENU_COL+14, MENU_ROW, "NFO");
 			inkColor = WHITE; 
 			PrintStr(MENU_COL+1,  MENU_ROW, "OCAL");
 			PrintStr(MENU_COL+7,  MENU_ROW, "NLINE");
           
+		#if defined __LYNX__			
+            PrintStr(MENU_COL+2, MENU_ROW+2,  "2021 SONGBIRD");
+		#else
             PrintStr(MENU_COL+5, MENU_ROW+2,  "CREDITS");
+		#endif
             PrintStr(MENU_COL+0, MENU_ROW+4,  "CODE/GFX:");
             PrintStr(MENU_COL+1, MENU_ROW+5,  "ANTHONY BEAUCAMP");
             PrintStr(MENU_COL+0, MENU_ROW+7,  "MUSIC:");

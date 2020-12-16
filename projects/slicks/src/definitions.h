@@ -50,6 +50,7 @@
 #define MODE_LOCAL  1
 #define MODE_ONLINE 2
 #define MODE_INFO   3
+#define MODE_PAUSE  4
 
 #define STEP_WARMUP 1
 #define STEP_RACE   2

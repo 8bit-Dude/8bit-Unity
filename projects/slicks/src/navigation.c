@@ -146,8 +146,20 @@ char CheckWaypoint(Vehicle *car)
 		v90[1] =  way->v[iVec][0];
 
 		// Check dot products with 90 deg rotated vector
-		if ((DOT(v1, v90) >= 0) & (DOT(v2, v90) <= 0)) { return 1; }
-		if ((DOT(v1, v90) <= 0) & (DOT(v2, v90) >= 0)) { return 1; }
+		if ((DOT(v1, v90) >= 0) & (DOT(v2, v90) <= 0)) { 
+		#ifdef DEBUG_NAV
+			PrintBlanks(0, 0, 2, 0);
+			PrintNum(0, 0, car->way+1);
+		#endif
+			return 1; 
+		}
+		if ((DOT(v1, v90) <= 0) & (DOT(v2, v90) >= 0)) { 
+		#ifdef DEBUG_NAV
+			PrintBlanks(0, 0, 2, 0);
+			PrintNum(0, 0, car->way+1);
+		#endif
+			return 1; 
+		}
 	}
 	return 0;
 }
