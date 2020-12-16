@@ -4,7 +4,7 @@
 #if defined __APPLE2__
   #define RACE_ROAD LGREY
   #define RACE_MARK YELLOW
-  #define RACE_WALL PURPLE
+  #define RACE_WALL RED
 #elif defined __ATARI__
   #define RACE_ROAD BLACK
   #define RACE_MARK GREY
@@ -25,6 +25,9 @@
   #define RACE_MARK YELLOW
   #define RACE_WALL PURPLE
   #define SPR2_SLOT 4
+  void BackupPauseBg(void);
+  void RestorePauseBg(void);
+  unsigned char MenuPause(void);
 #endif
 
 // See slicks.c
@@ -93,6 +96,18 @@ const int sin[16] = {0,6,11,14,16,14,11,6,0,-6,-11,-14,-16,-14,-11,-6};
 clock_t gameClock;
 unsigned long gameFrame;
 
+unsigned char PlayerAvailable(unsigned char i)
+{
+	// CPU players not available during warmup phase
+	if (controlIndex[i]) {
+		if ((gameStep == STEP_WARMUP) && (controlIndex[i] < 3))
+			return 0;
+		else
+			return 1;
+	}
+	return 0;
+}
+
 // Reset Game
 void GameReset()
 {
@@ -107,7 +122,7 @@ void GameReset()
         EngineSFX(i, 0);
 
         // Player available?
-		if (!controlIndex[i] || ((gameStep == STEP_WARMUP) && (controlIndex[i] < 3)) ) { continue; }
+		if (!PlayerAvailable(i)) { continue; }
 
 		// Reset laps and sprite
 		PrintStr((i+2)*8u-3, CHR_ROWS-1, "  ");
@@ -460,8 +475,8 @@ char GameLoop()
 			// Update cars
 			for (i=0; i<MAX_PLAYERS; ++i) {
 				// Player available?
+				if (!PlayerAvailable(i)) { continue; }
 				iCtrl = controlIndex[i];
-				if ((iCtrl == 0) || ((gameStep == STEP_WARMUP) && (iCtrl < 3)) ) { continue; }
 			#if defined __APPLE2__
 				// Regulate clock approximately...
 				if (gameFrame%7) { clk += 2; } else { clk += 1; }
@@ -504,7 +519,7 @@ char GameLoop()
                 // Decide the max velocity
                 if (CheckRamps(car)) {
                     // On ramp: check if jumping and increase max velocity
-					if (iVel > iVelMax) { car->jmp = clock(); }
+					if (iVel >= 450) { car->jmp = clock(); }
                     iVelMax = velRamp;
                 } else {
                     // Jumping: maintain speed                        
@@ -577,6 +592,9 @@ char GameLoop()
 				iSpr = (iAng2+12)/23u;
 				if (iSpr>15) { iSpr=0; }			
 				iDir = iSpr;
+				
+				// Constrain velocity
+				if (iVel > iVelMax) { iVel = iVelMax; }								
 			#else				
 				// Lerp trajectory angle to create "drift effect"
 				iAng1 = LerpAngle(iAng1, iAng2, iRotMax*steps);
@@ -592,10 +610,11 @@ char GameLoop()
 				// Round sprite angle to nearest 22.5* sector
 				iSpr = (iAng2+12)/23u;
 				if (iSpr>15) { iSpr=0; }			
-			#endif
+				
 				// Constrain velocity (and slow down when drifting)
-				if (iVel > (iVelMax - deltaAngle)) { iVel = (iVelMax - deltaAngle); }
-								
+				if (iVel > (iVelMax - deltaAngle)) { iVel = (iVelMax - deltaAngle); }				
+			#endif
+				
 				// Compute direction vector
 				iCos = cos[iDir];
 				iSin = sin[iDir];
@@ -617,12 +636,12 @@ char GameLoop()
 				// Check map boundaries				
 				if (iX < xMin) { iX = xMin; } else if (iX > xMax) { iX = xMax; }
 				if (iY < yMin) { iY = yMin; } else if (iY > yMax) { iY = yMax; }
-                						
+                		
 				// Compute sprite location
 			#if defined __APPLE2__
-				iSpr += i*16u;
-				spriteX = (iX*7u)/128u;
-				spriteY = (iY*3u)/25u;
+				iSpr += i*16;
+				spriteX = (iX*7)/128u;
+				spriteY = (iY*3)/25u;
 			#elif defined __ATARI__
 				spriteX = iX/16u + 45; 
 				spriteY = iY/8u + 32;
@@ -777,9 +796,18 @@ char GameLoop()
 						break;
 					case KB_PAUSE: 
 						if (gameMode == MODE_LOCAL) {
+							for (j=0; j<MAX_PLAYERS; ++j) { DisableSprite(j); }
+							gameMode = MODE_PAUSE; 
 							lynx_snd_pause();
-							while (cgetc() != KB_PAUSE);
+							BackupPauseBg();
+							lastKey = MenuPause();
+							RestorePauseBg(); 
 							lynx_snd_continue();
+							gameMode = MODE_LOCAL;
+							for (j=0; j<MAX_PLAYERS; ++j) { if (PlayerAvailable(j)) EnableSprite(j); }
+							paperColor = BLACK;
+						} else {
+							lastKey = KB_QUIT;
 						}
 						break;
 					case KB_MUSIC:
