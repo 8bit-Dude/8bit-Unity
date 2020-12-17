@@ -43,9 +43,7 @@
 
 // See interface.c
 extern unsigned char gameMap, gameMode, gameStep;
-#if defined __APPLE2__
-  void CheckFileExists(const char* filename);
-#elif defined __LYNX__
+#if defined __LYNX__
   void NextMusic(unsigned char blank);
 #endif
 
@@ -82,9 +80,6 @@ int main (void)
 	// Main Loop
 	while (1) {
         // Load menu screen
-	#if defined __APPLE2__
-		CheckFileExists("menu.img");
-	#endif
         LoadBitmap("menu.img");
 		
 		// Show menu

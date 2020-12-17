@@ -179,24 +179,6 @@ void GameReset()
 	paperColor = BLACK;
 }
 
-#if defined __APPLE2__
-// Check if file exists on disk
-void CheckFileExists(const char* filename)
-{
-	FILE* fp = NULL;
-	while (fp == NULL) {
-		fp = fopen(filename, "rb");
-		if (fp == NULL) { 
-			EnterBitmapMode();
-			PrintStr(2,12," PLEASE SWAP DISK AND PRESS ANY KEY "); 
-			cgetc();
-			ExitBitmapMode();
-		}
-	}
-	fclose(fp);	
-}
-#endif
-
 // Initialize Game
 void GameInit(const char* map)
 {
@@ -220,9 +202,6 @@ void GameInit(const char* map)
 	buffer[len+4] = 0;
 	
 	// Load Bitmap and backup chat row
-#if defined __APPLE2__	
-	CheckFileExists(&buffer[0]);
-#endif
 	LoadBitmap(&buffer[0]);
 	BackupChatRow();
 

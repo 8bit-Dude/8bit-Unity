@@ -281,6 +281,10 @@ void InputField(unsigned char col, unsigned char row, char *buffer, unsigned cha
 #endif
 }
 
+#ifdef __APPLE2__
+  #pragma code-name("LOWCODE")
+#endif
+
 #if defined __LYNX__
 const char *musicList[4] = {"chase.mus","driven.mus","stroll.mus","whirlwnd.mus"};
 unsigned char musicSel = 0;
@@ -442,6 +446,18 @@ unsigned char MenuPause()
 }
 #endif
 
+// Display lap numbers
+void PrintLap(unsigned char i)
+{
+	if (cars[i].lap < 1) { return; }
+	inkColor = inkColors[i];
+	PrintNum((i+2)*8-3, CHR_ROWS-1, cars[i].lap);
+}
+
+#ifdef __APPLE2__
+  #pragma code-name("LC")
+#endif
+
 // Print score after round ends
 signed int score[4];
 void PrintScores()
@@ -568,24 +584,12 @@ void PrintRace()
 	paperColor = BLACK;
 }
 
-#ifdef __APPLE2__
-  #pragma code-name("LC")
-#endif
-
 // In-case connection drops out...
 void PrintTimedOut()
 {
 	inkColor = WHITE;
     PrintStr(10,12, " CONNECTION TIMED-OUT ");
     sleep(3);
-}
-
-// Display lap numbers
-void PrintLap(unsigned char i)
-{
-	if (cars[i].lap < 1) { return; }
-	inkColor = inkColors[i];
-	PrintNum((i+2)*8-3, CHR_ROWS-1, cars[i].lap);
 }
 
 // Sub-function for Animating Sprites in Main Menu
