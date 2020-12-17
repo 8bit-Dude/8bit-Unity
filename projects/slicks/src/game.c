@@ -270,10 +270,6 @@ void GameInit(const char* map)
 #endif	
 }
 
-#if (defined __APPLE2__) || (defined __ATARIXL__)
-	#pragma code-name("CODE")
-#endif
-
 // Game step
 unsigned char GameRace()
 {
@@ -708,11 +704,17 @@ char GameLoop()
 				}
 				
 				// Update sound
-				if (iVel < velDrift || deltaAngle < 25) {
+			#if defined __LYNX__	
+				if (iJmp) {
+					EngineSFX(i, 800);
+				} else
+			#endif
+				if (iVel < velDrift || deltaAngle < 25)
 					EngineSFX(i, iVel);
-				} else {
+			#if defined __LYNX__	
+				else
 					ScreechSFX(i, 192);
-				}
+			#endif
 				
 				// Update car position
 				car->x2 = iX;

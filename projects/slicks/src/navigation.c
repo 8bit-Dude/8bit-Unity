@@ -16,92 +16,52 @@ unsigned int lineupX[MAX_PLAYERS];
 unsigned int lineupY[MAX_PLAYERS];
 unsigned int lineupAng[MAX_PLAYERS];
 
+#if defined __LYNX__
+  unsigned char *buffer = (unsigned char*)SHAREDRAM;
+#else
+  unsigned char buffer[128];
+#endif
+
 // Function to load *.nav files
 void LoadNavigation(char *filename)
 {
-	unsigned char i,n;
-#if (defined __ATARI__) || (defined __LYNX__) || (defined __ORIC__)
-	// Read entire file contents
+	// Read nav file contents
+	unsigned char i,n,*p;
   #if defined __ATARI__
-	unsigned char buffer[160];
 	FileOpen(filename);
-	FileRead(buffer, 160);
+	FileRead(buffer, 128);
   #elif defined __ORIC__
-	unsigned char buffer[160];
 	FileRead(filename, buffer);
   #elif defined __LYNX__
-	unsigned char *buffer = (unsigned char*)SHAREDRAM;
 	FileRead(filename);
-  #endif
-	// Read Lineup
-	n = 1;
-	for (i=0; i<buffer[0]; ++i) {
-		// Data is encoded as uint16
-		lineupX[i] = PEEKW(&buffer[n]); n += 2;
-		lineupY[i] = PEEKW(&buffer[n]); n += 2;
-		lineupAng[i] = PEEKW(&buffer[n]); n += 2;
-	}	
-	
-	// Read Navigation Cylinders
-	numWays = buffer[n]; n += 1;
-	for (i=0; i<numWays; ++i) {
-		// Data is encoded as uint16
-		ways[i].x = PEEKW(&buffer[n]); n += 2;
-		ways[i].y = PEEKW(&buffer[n]); n += 2;
-		memcpy(&ways[i].v[0][0], &buffer[n], 8); n += 8;
-	#ifdef DEBUG_NAV
-		// Display waypoints (debugging)
-		LocatePixel(ways[i].x/8u, ways[i].y/8u); SetPixel(BLACK);
-        LocatePixel(ways[i].x/8u+ways[i].v[0][0], ways[i].y/8u+ways[i].v[0][1]); SetPixel(BLACK); 
-        LocatePixel(ways[i].x/8u+ways[i].v[1][0], ways[i].y/8u+ways[i].v[1][1]); SetPixel(BLACK);         
-	#endif		
-	}	
-	
-	// Read Jump Ramps
-	numRamps = buffer[n]; n += 1;
-	for (i=0; i<numRamps; ++i) {
-		// Data is encoded as uint16
-		memcpy(&ramps[i].x[0], &buffer[n], 4); n += 4;
-		memcpy(&ramps[i].y[0], &buffer[n], 4); n += 4;
-	}    
-#else	
-	// Try to open file
+  #else
 	FILE* fp = fopen(filename, "rb");
-	
+	fread(buffer, 1, 128, fp);
+	fclose(fp);
+  #endif
+  
 	// Read Lineup
-	fread(&n, 1, 1, fp);
-	for (i=0; i<n; ++i) {
-		// Data is encoded as uint16
-		fread(&lineupX[i], 2, 1, fp);
-		fread(&lineupY[i], 2, 1, fp);
-		fread(&lineupAng[i], 2, 1, fp);
-	}
-
+	p = buffer;
+	n = *p*2; p++;
+	memcpy(lineupX, p, n); p += n;
+	memcpy(lineupY, p, n); p += n;
+	memcpy(lineupAng, p, n); p += n;
+	
 	// Read Navigation Cylinders
-	fread(&numWays, 1, 1, fp);
+	numWays = *p; p++;
+	memcpy(&ways[0].x, p, numWays*12); p += numWays*12;
+	
+	// Read Jump Ramps
+	numRamps = *p; p++;
+	memcpy(&ramps[0].x[0], p, numRamps*8);
+	
+#ifdef DEBUG_NAV
 	for (i=0; i<numWays; ++i) {
-		// Data is encoded as uint16
-		fread(&ways[i].x, 2, 1, fp);
-		fread(&ways[i].y, 2, 1, fp);
-		fread(&ways[i].v[0][0], 2, 4, fp);
-	#ifdef DEBUG_NAV
 		// Display waypoints (debugging)
 		LocatePixel(ways[i].x/8u, ways[i].y/8u); SetPixel(BLACK);
-        LocatePixel(ways[i].x/8u+ways[i].v[0][0], ways[i].y/8u+ways[i].v[0][1]); SetPixel(BLACK); 
-        LocatePixel(ways[i].x/8u+ways[i].v[1][0], ways[i].y/8u+ways[i].v[1][1]); SetPixel(BLACK);         
-	#endif	
+		LocatePixel(ways[i].x/8u+ways[i].v[0][0], ways[i].y/8u+ways[i].v[0][1]); SetPixel(BLACK); 
+		LocatePixel(ways[i].x/8u+ways[i].v[1][0], ways[i].y/8u+ways[i].v[1][1]); SetPixel(BLACK);         
 	}
-    
-	// Read Jump Ramps
-	fread(&numRamps, 1, 1, fp);
-	for (i=0; i<numRamps; ++i) {
-		// Data is encoded as uint16
-		fread(&ramps[i].x[0], 2, 2, fp);
-		fread(&ramps[i].y[0], 2, 2, fp);
-	}    
-	
-	// Release file
-	fclose(fp);
 #endif
 }
 
