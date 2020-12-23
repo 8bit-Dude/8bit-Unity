@@ -490,7 +490,7 @@ void SetSprite(unsigned char index, unsigned char frame)
 	spriteY -= rows/2u;
 	
 	// Make sure we do not print on line borders
-	if (spriteX > 37) spriteX = 37;
+	if (spriteX > 36) spriteX = 36;
 	
 	// Check that sprite was enabled
 	if (!sprBG[index]) EnableSprite(index);
