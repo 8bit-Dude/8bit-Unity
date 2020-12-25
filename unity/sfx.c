@@ -205,7 +205,7 @@ void EngineSFX(unsigned int channel, unsigned int rpm)
 	channel = (channel%2)+2;
 	abctaps(channel, 60);
 	abcoctave(channel, 2);
-	abcvolume(channel, 20);
+	abcvolume(channel, 22);
 	abcintegrate(channel, 0);
 	abcpitch(channel, freq);
 #endif
