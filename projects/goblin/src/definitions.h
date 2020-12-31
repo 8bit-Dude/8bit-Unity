@@ -1,6 +1,19 @@
 
 #include "unity.h"
 
+// Text colors
+#if defined __SHR__	// Apple single hires (Orange paper can only be combined with Black, Blue or White ink)
+	#define INK_DEFAULT		WHITE
+	#define INK_GOBLIN		WHITE
+	#define INK_INTERACT	BLACK
+	#define INK_INVENTORY	BLACK
+#else
+	#define INK_DEFAULT		WHITE
+	#define INK_GOBLIN		YELLOW
+	#define INK_INTERACT	RED
+	#define INK_INVENTORY	BLACK
+#endif
+
 // Motion parameters
 #if defined __APPLE2__
   #define unitStep  3

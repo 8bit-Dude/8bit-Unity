@@ -165,7 +165,7 @@ void SplashScreen(void)
 #else		
 	pixelX = 0; pixelY = 0;
 	paperColor = GetPixel(); 
-	inkColor = WHITE; 
+	inkColor = INK_DEFAULT; 
 #endif
 	PrintStr(CHR_COLS-11, CHR_ROWS-4, "TECH DEMO");		
 	PrintStr(CHR_COLS-12, CHR_ROWS-3, "BY 8BIT-DUDE");		

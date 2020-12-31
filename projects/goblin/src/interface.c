@@ -47,7 +47,7 @@ void PrintInventory(void)
 	unsigned char i=0;
 	Item* item;
 	
-	inkColor = BLACK;
+	inkColor = INK_INVENTORY;
 	while (i<MAX_ITEM) {
 		item = &items[i];
 		if (!item->label) {
@@ -57,7 +57,7 @@ void PrintInventory(void)
 		}
 		i++;
 	}
-	inkColor = WHITE;
+	inkColor = INK_DEFAULT;
 }
 
 // Draw mouse pointer

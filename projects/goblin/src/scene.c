@@ -141,11 +141,11 @@ unsigned char ProcessInteract(unsigned char index, unsigned char item, unsigned 
 	if (item != 255) {
 		// Use item on interact
 		if (!strcmp(items[item].label, "Flower") && (index < 2)) {
-			inkColor = RED;
+			inkColor = INK_INTERACT;
 			PrintMessage("No, thank you...");
 		} else if (!strcmp(items[item].label, "Bottle") && (index < 2)) {
 			if (index == 1) {
-				inkColor = RED;
+				inkColor = INK_INTERACT;
 				PrintMessage("We are not thirsty...\nWe are hungry!!");
 				Wait(60);
 			} else {
@@ -154,33 +154,33 @@ unsigned char ProcessInteract(unsigned char index, unsigned char item, unsigned 
 				interacts[4].chunk1 = 0;
 				interacts[4].chunk2 = chunkAnim[3];	 // Sausage removed
 				interacts[4].answer = 0;
-				inkColor = RED;
+				inkColor = INK_INTERACT;
 				PrintMessage("Just what I need in this heat!\nWould you like some sausage?");
 				Wait(60);
 			}
 		} else if (!strcmp(items[item].label, "Sausage") && (index == 1)) {
 			PopItem(item);
 			interacts[6].flags |= ACTIVE;  // Fountain interactable
-			inkColor = RED;
+			inkColor = INK_INTERACT;
 			interacts[1].answer = "Thank you kind sir!\nGo right, to the fountain.\0";
 			PrintMessage(interacts[1].answer);
 			Wait(60);
 		} else {
-			inkColor = YELLOW;
+			inkColor = INK_GOBLIN;
 			PrintMessage("I can't do that...");
 		}
 		Wait(120);
 	} else {
 		// Process question (if any)
 		if (interact->question) {
-			inkColor = YELLOW;
+			inkColor = INK_GOBLIN;
 			PrintMessage(interact->question);
 			Wait(120);
 		}
 		
 		// Process answer/chunk#1 (if any)
 		if (interact->answer || interact->chunk1) {
-			inkColor = RED;
+			inkColor = INK_INTERACT;
 			if (index == 5) {
 				// Jump animation
 				BleepSFX(64);
@@ -221,6 +221,6 @@ unsigned char ProcessInteract(unsigned char index, unsigned char item, unsigned 
 	
 	// Clean-up
 	PrintMessage("\0");
-	inkColor = WHITE;
+	inkColor = INK_DEFAULT;
 	return 0;
 }
