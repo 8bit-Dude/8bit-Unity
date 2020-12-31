@@ -229,7 +229,7 @@ void GameInit(const char* map)
 				SetAttributes(slot-1, CHR_ROWS-1, inkColor);
 			#endif					
 				PrintChr(slot+1, CHR_ROWS-1, &charDigit[(i+1)*3u]);
-                PrintChr(slot, CHR_ROWS-1, &charLetter[15*3]);
+                PrintChr(slot, CHR_ROWS-1, &charLetter[15*3]);	// 'P'
             }
         }
         // Initiate laps

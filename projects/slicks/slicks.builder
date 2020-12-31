@@ -22,7 +22,7 @@
             "projects/slicks/navigation/river.nav", 
             "projects/slicks/navigation/stadium.nav", 
             "projects/slicks/navigation/suzuka.nav", 
-            "projects/slicks/navigation/thrash.nav"
+            "projects/slicks/navigation/trial.nav"
         ], 
         "charmap": []
     }, 
@@ -44,7 +44,7 @@
                 "projects/slicks/bitmaps/river-apple.png", 
                 "projects/slicks/bitmaps/stadium-apple.png", 
                 "projects/slicks/bitmaps/suzuka-apple.png", 
-                "projects/slicks/bitmaps/thrash-apple.png"
+                "projects/slicks/bitmaps/trial-apple.png"
             ], 
             "sprites": [
                 "projects/slicks/sprites/sprites-apple.png"
@@ -73,7 +73,7 @@
                 "projects/slicks/bitmaps/river-atari.png", 
                 "projects/slicks/bitmaps/stadium-atari.png", 
                 "projects/slicks/bitmaps/suzuka-atari.png", 
-                "projects/slicks/bitmaps/thrash-atari.png"
+                "projects/slicks/bitmaps/trial-atari.png"
             ], 
             "sprites": [
                 "projects/slicks/sprites/sprites-atari.png"
@@ -103,7 +103,7 @@
                 "projects/slicks/bitmaps/river-c64.png", 
                 "projects/slicks/bitmaps/stadium-c64.png", 
                 "projects/slicks/bitmaps/suzuka-c64.png", 
-                "projects/slicks/bitmaps/thrash-c64.png"
+                "projects/slicks/bitmaps/trial-c64.png"
             ], 
             "sprites": [
                 "projects/slicks/sprites/sprites-c64.png"
@@ -134,7 +134,7 @@
                 "projects/slicks/bitmaps/river-lynx.png", 
                 "projects/slicks/bitmaps/stadium-lynx.png", 
                 "projects/slicks/bitmaps/suzuka-lynx.png", 
-                "projects/slicks/bitmaps/thrash-lynx.png"
+                "projects/slicks/bitmaps/trial-lynx.png"
             ], 
             "sprites": [
                 "projects/slicks/sprites/sprites-lynx.png"
@@ -168,7 +168,7 @@
                 "projects/slicks/bitmaps/river-oric.png", 
                 "projects/slicks/bitmaps/stadium-oric.png", 
                 "projects/slicks/bitmaps/suzuka-oric.png", 
-                "projects/slicks/bitmaps/thrash-oric.png"
+                "projects/slicks/bitmaps/trial-oric.png"
             ], 
             "sprites": [
                 "projects/slicks/sprites/sprites-oric.png"

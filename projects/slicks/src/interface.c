@@ -80,10 +80,10 @@ extern char udpBuffer[28];
 extern char networkReady;
 
 // Build Information
-const char* buildInfo = "BUILD: 2020/12/16";
+const char* buildInfo = "BUILD: 2021/01/01";
 
 // List of available maps
-const char *mapList[LEN_MAPS] = {"arizona","arto","cramp","freeway","gta","island","mtcarlo","rally","river","stadium","suzuka","thrash"};
+const char *mapList[LEN_MAPS] = {"arizona","arto","cramp","freeway","gta","island","mtcarlo","rally","river","stadium","suzuka","trial"};
 
 // List of lap goals
 unsigned char lapNumber[LEN_LAPS] = { 5, 10, 20, 50 };
@@ -336,6 +336,9 @@ void LynxCursorControl()
 				NextMusic(0);
 			}
 			break;
+		case KB_PAUSE:
+			cursorKey = KB_PAUSE;
+			return;
 		}
 	}
 	
@@ -471,6 +474,7 @@ void PrintScores()
 #if defined(__LYNX__)
 	StopMusic();
 	LoadMusic("speednik.mus", MUSICRAM);
+	PlayMusic();
 #elif defined(__ATARI__) || defined(__APPLE2__)
 	PlayMusic();
 #endif	
@@ -777,11 +781,14 @@ void MenuPlayer(unsigned char i)
 	PrintBlanks(MENU_COL+6, row, MENU_WID-6, 1);
 	
 	// Print Characters
+	inkColor = inkColors[i]; paperColor = BLACK;
+	PrintChr(MENU_COL+2, row, &charLetter[15*3]);	// 'P'
+#ifndef __LYNX__
 	inkColor = INK_HIGHLT; paperColor = PAPER_HIGHLT;
-	PrintNum(MENU_COL+3, row, i+1);
+#endif
+	PrintNum(MENU_COL+3, row, i+1);					//  i
 	inkColor = WHITE; paperColor = BLACK;
-	PrintStr(MENU_COL+2, row, "P");
-	PrintStr(MENU_COL+4, row, ":");
+	PrintChr(MENU_COL+4, row, charColon);			// ':'
 	PrintStr(MENU_COL+6, row, controlList[controlIndex[i]]);	
 }
 
@@ -793,7 +800,7 @@ void MenuMap()
 	
 	// Print Characters
 	inkColor = INK_HIGHLT; paperColor = PAPER_HIGHLT;
-	PrintStr(MENU_COL+2, MENU_ROW+7, "M");
+	PrintChr(MENU_COL+2, MENU_ROW+7, &charLetter[12*3]);	// 'M'
 	inkColor = WHITE; paperColor = BLACK;
 	PrintStr(MENU_COL+3, MENU_ROW+7, "AP:");
 	PrintStr(MENU_COL+7, MENU_ROW+7, mapList[gameMap]);	
@@ -807,7 +814,7 @@ void MenuLaps()
 	
 	// Print Characters
 	inkColor = INK_HIGHLT; paperColor = PAPER_HIGHLT;
-	PrintStr(MENU_COL+2, MENU_ROW+9, "L");
+	PrintChr(MENU_COL+2, MENU_ROW+9, &charLetter[11*3]);	// 'L'
 	inkColor = WHITE; paperColor = BLACK;
 	PrintStr(MENU_COL+3, MENU_ROW+9, "AP:");
 	PrintNum(MENU_COL+7, MENU_ROW+9, lapNumber[lapIndex]);
