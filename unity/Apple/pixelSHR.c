@@ -37,11 +37,11 @@ extern unsigned char *hiresPtr, hiresPixel;
 
 void SetColorSHR(unsigned char color)
 {
-	// USe color groups
+	// Use color groups
 	switch (color) {
 		case 1:
 		case 2:
-			*hiresPtr &= 0x7f;	
+			*hiresPtr &= ~0x80;	
 			break;
 		case 3:
 		case 4:
