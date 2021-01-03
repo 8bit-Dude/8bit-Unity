@@ -35,36 +35,27 @@ via_portb =	$0300
 	.segment	"CODE"	
 		
 ;------------------------------------------
-; unsigned char __near__ _InitPaseIJK ()
+; unsigned char __near__ _InitPaseIJK (unsigned char)
+; Set Joystick Mode (#$01 = ALTAI/PASE, #02 = IJK)
 ; -----------------------------------------
 
-.proc _InitPaseIJK: near
-	ldx #%10110111		;Ensure Printer Strobe is set to Output
-	stx via_ddrb
-	ldx #%00000000		;Set Strobe Low
-	stx via_portb
-	ldx #%11000000		;Set Top two bits of PortA to Output and rest as Input
-	stx via_ddra
-	sta via_porta
-	
-	lda via_porta		;Read Joystick state (#$3f = NONE/ALTAI/PASE, #$1f = IJK)
+_InitPaseIJK:	
 	sta adapter
-	
-	ldx #%11111111		;Restore VIA PortA state
-	stx via_ddra	
-	rts
-.endproc
 	
 ; ------------------------------------------------
 ; unsigned char __near__ _GetPaseIJK (unsigned char)
 ; ------------------------------------------------
 
-.proc _GetPaseIJK: near
+_GetPaseIJK:
+	; Setup port A/B
+	ldx #%10110111	    ;Ensure Printer Strobe set to Output
+	stx via_ddrb
 	ldx #%00000000		;Set Strobe Low
 	stx via_portb
 	ldx #%11000000		;Set Top two bits of PortA to Output and rest as Input
 	stx via_ddra
-
+	
+	; Select Joystick
 	cmp #1
 	beq joy2	
 joy1:
@@ -75,7 +66,7 @@ joy2:
 	
 invert:
 	ldy adapter
-	cpy #$1f
+	cpy #$02
 	beq read
 	eor #%11000000		;Altai/Pase: Invert bits
 
@@ -83,7 +74,7 @@ read:
 	sta via_porta
 	lda via_porta		;Read Joystick state
 	ldy adapter			;Branch to decoder (Altai/Pase or IJK)
-	cpy #$1f
+	cpy #$02
 	bne pase
 	
 ijk:	
@@ -110,12 +101,13 @@ restore:
 	ldx #%11111111		;Restore VIA PortA state
 	stx via_ddra
 	rts
-.endproc
+	
+; ------------------------------------------------
 
 	.segment	"DATA"
 	
 adapter: 
-  .res 1,$00	;#$3f = NONE/ALTAI/PASE, #$1f = IJK
+  .res 1,$00
 
 bitmasksIJK:
   .byte 255,247,251,243,239,231,235,227,253,245,249,241,237,229,233,225

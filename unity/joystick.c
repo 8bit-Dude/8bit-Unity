@@ -38,10 +38,12 @@
 #endif
 
 #if (defined __ORIC__)
-  #define ADAPTOR_PASE 0
-  #define ADAPTOR_HUB  1
-  unsigned char joyAdaptor = ADAPTOR_PASE;
-  unsigned char InitPaseIJK(void);			// see Oric/paseIJK.s
+  #define ADAPTOR_NONE 0
+  #define ADAPTOR_PASE 1
+  #define ADAPTOR_IJK  2
+  #define ADAPTOR_HUB  3
+  unsigned char joyAdaptor = ADAPTOR_IJK;	// Default to IJK
+  unsigned char InitPaseIJK(unsigned char);	// see Oric/paseIJK.s
   unsigned char GetPaseIJK(unsigned char);	// see Oric/paseIJK.s
   unsigned char GetKey(unsigned char);		// see Oric/keyboard.s
 #endif
@@ -49,9 +51,14 @@
 void InitJoy(void)
 {
 #if defined __ORIC__
-	// Check if 8bit-Hub connected (otherwise assume PASE/IJK interface)
-	if (hubState[0] == COM_ERR_OFFLINE) UpdateHub();
-	if (hubState[0] != COM_ERR_OFFLINE) joyAdaptor = ADAPTOR_HUB;
+	// Check if 8bit-Hub connected (otherwise assume IJK interface)
+	if (hubState[0] == COM_ERR_OFFLINE) 
+		UpdateHub();
+	if (hubState[0] != COM_ERR_OFFLINE) {
+		joyAdaptor = ADAPTOR_HUB;
+	} else {
+		InitPaseIJK(joyAdaptor);
+	}
 #else
 	return;
 #endif
@@ -87,7 +94,7 @@ unsigned char GetJoy(unsigned char joy)
 	return state;
 	
 #elif defined __ORIC__
-	// 3 input types: Keyboard (#0,#1) 8bit-Hub (#2,#3,#4) or PASE (#2,#3)
+	// 3 input types: Keyboard (#0,#1) 8bit-Hub (#2,#3,#4) or ALTAI/PASE/IJK (#2,#3)
 	unsigned char state;
 	switch (joy) {
 	case 0:
@@ -109,11 +116,17 @@ unsigned char GetJoy(unsigned char joy)
 		break;
 		
 	default:
-		if (joyAdaptor) {			// Joy #2-#4: 8bit-Hub
+		switch (joyAdaptor) {
+		case ADAPTOR_HUB:			// Joy #2-#4: 8bit-Hub
 			UpdateHub();			
 			state = hubState[joy-1];
-		} else {					// Joy #2-#3: ALTAI/PASE/IJK
-			state = GetPaseIJK(joy-2);
+			break;
+		default: 					// Joy #2-#3: ALTAI/PASE/IJK
+			if (joy<4) { 
+				state = GetPaseIJK(joy-2); 
+			} else {
+				state = 255;
+			}
 		}
 	}
 	return state;
