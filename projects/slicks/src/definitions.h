@@ -7,15 +7,7 @@
 //#define DEBUG_NAV
 
 // NetCode Toggle
-//#define NETCODE
-
-// *** Platform specific HACKS ***
-#if defined __CBM__
-	#undef  MUSICRAM
-	#define MUSICRAM (0x1000)  // This SID file is located at $1000 instead of usual $0800
-	//sidInitAddr = 0x1048;	
-	//sidPlayAddr = 0x1021;
-#endif			
+#define NETCODE		
 
 // Platform dependent definitions
 #if defined __LYNX__
@@ -60,15 +52,15 @@
 
 // Controller definitions
 #if defined __APPLE2__
-	#define LEN_CONTROL 8
+	#define LEN_CONTROL 9
 #elif defined __ATARI__
-	#define LEN_CONTROL 8
+	#define LEN_CONTROL 9
 #elif defined __ORIC__
-	#define LEN_CONTROL 8
+	#define LEN_CONTROL 9
 #elif defined __CBM__
-	#define LEN_CONTROL 8
+	#define LEN_CONTROL 9
 #elif defined __LYNX__
-	#define LEN_CONTROL 7
+	#define LEN_CONTROL 8
 #endif
 #define NET_CONTROL (LEN_CONTROL-1)
 
@@ -163,3 +155,12 @@ unsigned char ClientReady(void);
 void ClientEvent(char event);
 void ClientLeave(void);
 unsigned char NetworkUpdate(void);
+
+//See sfx.c
+#if defined(__LYNX__) || defined(__ORIC__)
+void BleepSFX(unsigned char pitch);
+void BumpSFX(void);
+void EngineSFX(unsigned char car, unsigned int rpm);
+void JumpSFX(unsigned char car);
+void ScreechSFX(unsigned char car);
+#endif		

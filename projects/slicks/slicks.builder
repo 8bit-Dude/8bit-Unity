@@ -8,7 +8,8 @@
             "projects/slicks/src/game.c", 
             "projects/slicks/src/interface.c", 
             "projects/slicks/src/navigation.c", 
-            "projects/slicks/src/network.c"
+            "projects/slicks/src/network.c", 
+            "projects/slicks/src/sfx.c"
         ], 
         "shared": [
             "projects/slicks/navigation/arizona.nav", 

@@ -90,22 +90,22 @@ unsigned char lapNumber[LEN_LAPS] = { 5, 10, 20, 50 };
 
 // List of controller types
 #if defined __LYNX__
-	unsigned char controlIndex[MAX_PLAYERS] = { 3, 1, 1, 1 };
-	unsigned char controlBackup[MAX_PLAYERS] = { 3, 1, 1, 1 };
+	unsigned char controlIndex[MAX_PLAYERS] = { 4, 1, 1, 1 };
+	unsigned char controlBackup[MAX_PLAYERS] = { 4, 1, 1, 1 };
 #else
-	unsigned char controlIndex[MAX_PLAYERS] = { 3, 1, 0, 0 };
-	unsigned char controlBackup[MAX_PLAYERS] = { 3, 1, 0, 0 };
+	unsigned char controlIndex[MAX_PLAYERS] = { 4, 1, 0, 0 };
+	unsigned char controlBackup[MAX_PLAYERS] = { 4, 1, 0, 0 };
 #endif
 #if defined __APPLE2__
-	const char* controlList[LEN_CONTROL] = { "NONE", "CPU EASY", "CPU HARD", "PADDLE 1", "PADDLE 2", "PADDLE 3", "PADDLE 4", "NETWORK" };
+	const char* controlList[LEN_CONTROL] = { "NONE", "CPU EASY", "CPU MED.", "CPU HARD", "PADDLE 1", "PADDLE 2", "PADDLE 3", "PADDLE 4", "NETWORK" };
 #elif defined __ATARI__
-	const char* controlList[LEN_CONTROL] = { "NONE", "CPU EASY", "CPU HARD", "JOY 1", "JOY 2", "HUB 1", "HUB 2", "NETWORK" };
+	const char* controlList[LEN_CONTROL] = { "NONE", "CPU EASY", "CPU MED.", "CPU HARD", "JOY 1", "JOY 2", "HUB 1", "HUB 2", "NETWORK" };
 #elif defined __ORIC__
-	const char* controlList[LEN_CONTROL] = { "NONE", "CPU EASY", "CPU HARD", "A,D,CTRL", "J,L,RET", "PASE/HUB 1", "PASE/HUB 2", "NETWORK" };
+	const char* controlList[LEN_CONTROL] = { "NONE", "CPU EASY", "CPU MED.", "CPU HARD", "A,D,CTRL", "J,L,RET", "HUB/IJK 1", "HUB/IJK 2", "NETWORK" };
 #elif defined __CBM__
-	const char* controlList[LEN_CONTROL] = { "NONE", "CPU EASY", "CPU HARD", "JOY 1", "JOY 2", "JOY 3", "JOY 4", "NETWORK" };
+	const char* controlList[LEN_CONTROL] = { "NONE", "CPU EASY", "CPU MED.", "CPU HARD", "JOY 1", "JOY 2", "JOY 3", "JOY 4", "NETWORK" };
 #elif defined __LYNX__
-	const char* controlList[LEN_CONTROL] = { "NONE", "CPU EASY", "CPU HARD", "JOY 1", "HUB 1", "HUB 2", "NETWORK" };
+	const char* controlList[LEN_CONTROL] = { "NONE", "CPU EASY", "CPU MED.", "CPU HARD", "JOY 1", "HUB 1", "HUB 2", "NETWORK" };
 #endif
 
 // Performance Drawing
@@ -256,6 +256,10 @@ void PrintBuffer(char *buffer)
 #endif
 }
 
+#ifdef __APPLE2__
+  #pragma code-name("LC")
+#endif
+
 void InputField(unsigned char col, unsigned char row, char *buffer, unsigned char len)
 {
 	// Print initial condition
@@ -280,10 +284,6 @@ void InputField(unsigned char col, unsigned char row, char *buffer, unsigned cha
 	}
 #endif
 }
-
-#ifdef __APPLE2__
-  #pragma code-name("LOWCODE")
-#endif
 
 #if defined __LYNX__
 const char *musicList[4] = {"chase.mus","driven.mus","stroll.mus","whirlwnd.mus"};
@@ -457,10 +457,6 @@ void PrintLap(unsigned char i)
 	PrintNum((i+2)*8-3, CHR_ROWS-1, cars[i].lap);
 }
 
-#ifdef __APPLE2__
-  #pragma code-name("LC")
-#endif
-
 // Print score after round ends
 signed int score[4];
 void PrintScores()
@@ -474,8 +470,8 @@ void PrintScores()
 #if defined(__LYNX__)
 	StopMusic();
 	LoadMusic("speednik.mus", MUSICRAM);
-	PlayMusic();
-#elif defined(__ATARI__) || defined(__APPLE2__)
+#endif	
+#ifndef __ORIC__
 	PlayMusic();
 #endif	
 				
@@ -563,7 +559,7 @@ void PrintScores()
 #endif
 	
 	// Stop music if needed
-#if defined(__ATARI__) || defined(__APPLE2__) || defined(__LYNX__)
+#ifndef __ORIC__
 	StopMusic();
 #endif	
 }

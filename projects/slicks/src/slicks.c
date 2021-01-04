@@ -83,10 +83,8 @@ int main (void)
         LoadBitmap("menu.img");
 		
 		// Show menu
-	#ifndef __CBM__
 		LoadMusic("speednik.mus", MUSICRAM);
 		PlayMusic();
-	#endif	
 		EnterBitmapMode();
 		GameMenu(); 
 		DisableSprite(-1);

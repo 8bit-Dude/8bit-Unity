@@ -4,7 +4,7 @@
 #if defined __APPLE2__
   #define RACE_ROAD LGREY
   #define RACE_MARK YELLOW
-  #define RACE_WALL RED
+  #define RACE_WALL PURPLE
 #elif defined __ATARI__
   #define RACE_ROAD BLACK
   #define RACE_MARK GREY
@@ -84,7 +84,7 @@ int tck4, accRate, decRate, jmpTCK;
 #endif
 const char rotMax[3] = { 4, 5, 2};
 const int velMin = 200;
-const int velMax[3] = { 450, 600, 600 };
+const int velMax[3] = { 450, 510, 600 };
 const int velDrift = 450;
 const int velRamp = 800;
 
@@ -100,7 +100,7 @@ unsigned char PlayerAvailable(unsigned char i)
 {
 	// CPU players not available during warmup phase
 	if (controlIndex[i]) {
-		if ((gameStep == STEP_WARMUP) && (controlIndex[i] < 3))
+		if ((gameStep == STEP_WARMUP) && (controlIndex[i] < 4))
 			return 0;
 		else
 			return 1;
@@ -120,7 +120,7 @@ void GameReset()
     for (i=0; i<MAX_PLAYERS; ++i) {        
         // Reset SFX
         EngineSFX(i, 0);
-
+	
         // Player available?
 		if (!PlayerAvailable(i)) { continue; }
 
@@ -303,7 +303,7 @@ unsigned char GameRace()
 	RecolorSprite(4, 7, 0xbf);
 	UpdateDisplay();
 #endif	
-    BleepSFX(64);
+	BleepSFX(64); 
     sleep(1);
 
     // Orange light	
@@ -319,7 +319,7 @@ unsigned char GameRace()
 	RecolorSprite(5, 7, 0x8f);	
 	UpdateDisplay();
 #endif	
-    BleepSFX(64);
+	BleepSFX(64); 
     sleep(1);
 
     // Green light
@@ -335,7 +335,7 @@ unsigned char GameRace()
 	RecolorSprite(6, 7, 0x4f);	
 	UpdateDisplay();
 #endif
-    BleepSFX(128);
+	BleepSFX(128); 
 
 	// In net mode, use client ready lag time!
 	if (gameMode == MODE_ONLINE) {
@@ -466,7 +466,7 @@ char GameLoop()
 				iJmp = 0;
 				
 				// Get customized physics parameters
-				if (iCtrl > 2) {
+				if (iCtrl > 3) {
 					iVelMax = velMax[2];
 					iRotMax = rotMax[2];
 				} else {
@@ -512,15 +512,16 @@ char GameLoop()
                 // Process Vehicle Control (when not jumping)
                 if (!iJmp) {
                     // Process Human Players
-                    if (iCtrl > 2) {
+					iTmp = MIN(45, rotRate*steps);
+                    if (iCtrl > 3) {
                         // State provided by network
                         if (iCtrl == NET_CONTROL) {
                             iJoy = car->joy;
 					#if defined __APPLE2__
 						// Process analog signal from paddles
                         } else {
-                            iJoy = 255-JOY_BTN1*GetButton(iCtrl-3);
-							res = GetPaddle(iCtrl-3);
+                            iJoy = 255-JOY_BTN1*GetButton(iCtrl-4);
+							res = GetPaddle(iCtrl-4);
 							if (res > 159) { 
 								iAng2 -= ((res-127)/33u)*steps;
 								iJoy -= JOY_RIGHT;
@@ -532,11 +533,11 @@ char GameLoop()
 					#else
 						// Process digital signal from joysticks
                         } else
-                            iJoy = GetJoy(iCtrl-3);
+                            iJoy = GetJoy(iCtrl-4);
 
                         // Process joystick input
-                        if (!(iJoy & JOY_LEFT))  iAng2 += rotRate*steps; 
-                        if (!(iJoy & JOY_RIGHT)) iAng2 -= rotRate*steps;
+                        if (!(iJoy & JOY_LEFT))  iAng2 += iTmp; 
+                        if (!(iJoy & JOY_RIGHT)) iAng2 -= iTmp;
 					#endif						
                         if (!(iJoy & JOY_BTN1)) { 
                             iVel += accRate*steps;
@@ -555,24 +556,31 @@ char GameLoop()
                             car->ang3 = GetWaypointAngle(car);
 						
 						// Lerp to navigation target
-						iAng2 = LerpAngle(iAng2, car->ang3, 2*rotRate*steps);
+						iAng2 = LerpAngle(iAng2, car->ang3, 2*iTmp);
                     }
                 }
 			#if (defined __APPLE2__) || (defined __ORIC__)		// Simplified physics on slower systems...
 				// Constrain angle range
 				if (iAng2 > 360) { iAng2 -= 360; } else if (iAng2 < 0) { iAng2 += 360; }
+				
+				// Constrain velocity
+				if (iCtrl > 3 && iAng1 != iAng2) {
+					if (iVel > (iVelMax-45)) { iVel = (iVelMax-45); }								
+				} else {
+					if (iVel > iVelMax) { iVel = iVelMax; }								
+				}
 				iAng1 = iAng2;
-								
+				
 				// Round sprite angle to nearest 22.5* sector
 				iSpr = (iAng2+12)/23u;
 				if (iSpr>15) { iSpr=0; }			
-				iDir = iSpr;
-				
-				// Constrain velocity
-				if (iVel > iVelMax) { iVel = iVelMax; }								
+				iDir = iSpr;				
 			#else				
 				// Lerp trajectory angle to create "drift effect"
 				iAng1 = LerpAngle(iAng1, iAng2, iRotMax*steps);
+			
+				// Constrain velocity (and slow down when drifting)
+				if (iVel > (iVelMax - deltaAngle)) { iVel = (iVelMax - deltaAngle); }				
 			
 				// Constrain angle range
 				if (iAng1 > 360) { iAng1 -= 360; } else if (iAng1 < 0) { iAng1 += 360; }
@@ -584,10 +592,7 @@ char GameLoop()
 				
 				// Round sprite angle to nearest 22.5* sector
 				iSpr = (iAng2+12)/23u;
-				if (iSpr>15) { iSpr=0; }			
-				
-				// Constrain velocity (and slow down when drifting)
-				if (iVel > (iVelMax - deltaAngle)) { iVel = (iVelMax - deltaAngle); }				
+				if (iSpr>15) { iSpr=0; }							
 			#endif
 				
 				// Compute direction vector
@@ -637,7 +642,7 @@ char GameLoop()
                 if (iColor == RACE_WALL) {
                     // Hit a wall: return to previous position
                     if (iVel > velMin) { iVel = velMin; }
-					if (iCtrl > 2) {
+					if (iCtrl > 3) {
 						iX = car->x2;
 						iY = car->y2;
 						BumpSFX();
@@ -674,7 +679,7 @@ char GameLoop()
 								if ( (iCos*(cars[j].x2 - iX) - iSin*(cars[j].y2 - iY)) > 0) {
 									if (iVel > velMin) { iVel = velMin; }
 									cars[j].impx = iCos/2;
-									cars[j].impy = -iSin/2;									
+									cars[j].impy = -iSin/2;		
 									BumpSFX();
 								} 
 							}
@@ -684,15 +689,15 @@ char GameLoop()
 				
 				// Update sound
 			#if defined __LYNX__	
-				if (iJmp) {
-					EngineSFX(i, 800);
+				if (iJmp) {		
+					JumpSFX(i);
 				} else
 			#endif
 				if (iVel < velDrift || deltaAngle < 25)
 					EngineSFX(i, iVel);
 			#if defined __LYNX__	
 				else
-					ScreechSFX(i, 192);
+					ScreechSFX(i);					
 			#endif
 				
 				// Update car position
@@ -716,7 +721,13 @@ char GameLoop()
 							// Local: Check if won?
 							if (gameMode == MODE_LOCAL) {
 								// Process interface
-								if (car->lap > 0) { BleepSFX(128); }
+								if (car->lap > 0) { 
+								#if defined __LYNX__
+									PlaySFX(SFX_BLEEP, 128, 60, 3, 0);
+								#else
+									BleepSFX(128); 
+								#endif
+								}
 
 								// Update lap count
 								PrintLap(i);
