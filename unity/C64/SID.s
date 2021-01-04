@@ -27,15 +27,15 @@
 	.export _PlayMusic
 	.export _StopMusic
 	
-	.export _musicPaused
 	.export _sidInitAddr
 	.export _sidPlayAddr
+	.export _musicPaused
 
 	.segment "DATA"	
 
+_sidInitAddr: .byte 0,0 ; Default is $0903		
+_sidPlayAddr: .byte 0,0 ; Default is $0806	
 _musicPaused: .byte 0
-_sidInitAddr: .byte $09,03		
-_sidPlayAddr: .byte $08,06	
 
 	.segment "CODE"	
 
@@ -44,30 +44,22 @@ _sidPlayAddr: .byte $08,06
 ; ---------------------------------------------------------------
 
 _PlayMusic:
-		; set JSR addresses
-		;lda _sidInitAddr
-		;sta  checkSID+3
-		;lda _sidInitAddr+1
-		;sta  checkSID+2
-		
-checkSID:
-		; check SID actually exists
-		;clc
-		;lda $0903
-		;cmp #$A0
-		;bne skipSID
+		; check SID was succesfully loaded
+		clc
+		lda _sidPlayAddr
+		beq skipSID
 
 copyAddr:
 		; set JSR addresses
 		lda _sidInitAddr
-		sta  initSID+2
-		lda _sidInitAddr+1
 		sta  initSID+1
+		lda _sidInitAddr+1
+		sta  initSID+2
 		
 		lda _sidPlayAddr
-		sta  interruptSID+2
+		sta  interruptSID+1
 		lda _sidPlayAddr+1
-		sta  interruptSID+1		
+		sta  interruptSID+2		
 		
 
 initSID:

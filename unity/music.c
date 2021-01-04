@@ -31,6 +31,12 @@
   unsigned char musicPaused;	// dummy
 #endif	
 
+#ifdef __CBM__
+  // see C64/SID.s
+  extern unsigned int sidInitAddr;	// Defelmask default: $0903
+  extern unsigned int sidPlayAddr;	// Defelmask default: $0806
+#endif	
+
 #ifdef __ATARIXL__
   #pragma code-name("SHADOW_RAM")
 #endif	
@@ -69,6 +75,23 @@ void LoadMusic(const char* filename, char* addr)
 			pos += 0x0100;
 		}
 	}
+#elif defined __CBM__
+	// Try to open file
+	unsigned int loadaddr;
+	FILE* fp = fopen(filename, "rb");	
+	if (fp) {
+		// Consume 124 bytes of header, copy load/init/play addresses, and load SID program
+		fread((char*)MUSICRAM, 1, 124, fp);
+		POKE((char*)(&loadaddr)+0, PEEK((char*)(MUSICRAM+9)));
+		POKE((char*)(&loadaddr)+1, PEEK((char*)(MUSICRAM+8)));
+		POKE((char*)(&sidInitAddr)+0, PEEK((char*)(MUSICRAM+11)));
+		POKE((char*)(&sidInitAddr)+1, PEEK((char*)(MUSICRAM+10)));
+		POKE((char*)(&sidPlayAddr)+0, PEEK((char*)(MUSICRAM+13)));
+		POKE((char*)(&sidPlayAddr)+1, PEEK((char*)(MUSICRAM+12)));
+		if (!loadaddr) { fread((char*)(&loadaddr), 1, 2, fp); }	// Load address provided just before SID
+		fread((char*)(loadaddr), 1, -1, fp);
+		fclose(fp);
+	}
 #else
 	// Try to open file
 	unsigned int loadaddr;
@@ -77,6 +100,7 @@ void LoadMusic(const char* filename, char* addr)
 		// Consume 2 bytes of header then read data
 		fread((char*)&loadaddr, 1, 2, fp);
 		fread((char*)loadaddr, 1, -1, fp);
+		fclose(fp);
 	}
 #endif
 	musicAddr = addr;

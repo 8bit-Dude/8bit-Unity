@@ -39,7 +39,7 @@
 #define SCREENLOC  0
 #define BITMAPLOC  8
 #define SPRITELOC  32
-#define MUSICRAM   (0x0801) 								 // 0800-17FF (SID sound track: ALSO EDIT SID.S WHEN CHANGING THIS VALUE!)
+#define MUSICRAM   (0x0800) 								 // 0800-17FF (SID sound track: ALSO EDIT SID.S WHEN CHANGING THIS VALUE!)
 #define SCREENRAM  (VIDEOBANK * 0x4000 + SCREENLOC * 0x0400) // C000-C3FF (screen data)
 #define COLORRAM   (0xd800) 								 // D800-DBFF (color data) *fixed location*
 #define BITMAPRAM  (VIDEOBANK * 0x4000 + BITMAPLOC * 0x0400) // E000-FFFF (bitmap data)
@@ -82,10 +82,6 @@
 // VIC2 functions
 void SetupVIC2(void);
 void ResetVIC2(void);
-
-// SID player customization  (see SID.s)
-extern unsigned int sidInitAddr;	// SID init (default: $0906)
-extern unsigned int sidPlayAddr;	// SID play (default: $0803)
 
 // Rom function: use before/after accessing BITMAPRAM (see ROM.s)
 extern void __fastcall__ rom_enable(void);
