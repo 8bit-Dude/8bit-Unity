@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Anthony Beaucamp.
+ * Copyright (c) 2020 Anthony Beaucamp.
  *
  * This software is provided 'as-is', without any express or implied warranty.
  * In no event will the authors be held liable for any damages arising from
@@ -33,17 +33,9 @@
 #ifdef __ATARIXL__
   #pragma code-name("SHADOW_RAM")
 #endif
-
-#if defined __ATARI__
-	// Atari specific functions (see Atari/POKEY.s)
-	void SetupSFX(); // VBI for SFX samples
-	extern unsigned char sampleCount;
-	extern unsigned char sampleFreq;
-	extern unsigned char sampleCtrl;
 	
-#elif defined __APPLE2__	
-	// Mockingboards sounds:        TONE A  	TONE B	    TONE C	 NOISE  MASKS   AMP A, B, C     ENV LO, HI, TYPE
-	unsigned char sfxData[14] = { 0x00, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0xFF, 0x0F, 0x0F, 0x0F, 0x00, 0x00, 0x00 }; 
+#if defined __APPLE2__			//  TONE A  	TONE B	    TONE C	 NOISE  MASKS   AMP A, B, C     ENV LO, HI, TYPE
+	unsigned char sfxData[14] = { 0x00, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0xFF, 0x0F, 0x0F, 0x0F, 0x00, 0x00, 0x00 }; 	// Mockingboard
     #define DISABLE_TONE_A  (0x01)
     #define DISABLE_TONE_B  (0x02)
     #define DISABLE_TONE_C  (0x04)
@@ -52,9 +44,59 @@
     #define DISABLE_NOISE_C (0x20)
 	#define DISABLE_ALL		(0x3f)
 	
-#elif defined __ORIC__
-	void ResetChannels(void) {
-		// Play 7,0,0: enable channels 1/2/3 (with no enveloppe)
+#elif defined __ATARI__
+	void SetupSFX(); // VBI for SFX samples	(see Atari/POKEY.s)
+	extern unsigned char sampleCount;
+	extern unsigned char sampleFreq;
+	extern unsigned char sampleCtrl;
+	
+#elif defined __CBM__			  //  Attack/Decay  Sustain/Release  Ctrl Attack  Ctrl Release
+	unsigned char sfxData[4][4] = { { 	  0x22,			0x09,			0x11,		0x10 	},		// SFX_BLEEP  (Ctrl: Triangle Wave)
+									{     0x22,			0xA8,			0x21,		0x20 	},		// SFX_BUMP	  (Ctrl: Square Wave)
+									{     0x00,    		0xA8,			0x61,		0x00 	},		// SFX_ENGINE
+									{     0x00,			0xA8,			0x61,		0x00 	} };	// SFX_SCREECH
+	
+	void PlaySFX(unsigned char type, unsigned char pitch, unsigned char volume, unsigned char channel) {
+		// Prepare SFX data
+		unsigned char *data = sfxData[type];
+		struct __sid_voice *ch;
+		unsigned int freq;
+		if (data[0]) {
+			freq = 64*(32+pitch);
+		} else {
+			freq = 16*(8+pitch);
+		}		
+		
+		// Get channel
+		switch (channel) {
+		case 0:
+			ch = &SID.v1;
+			break;
+		case 1:
+			ch = &SID.v2;
+			break;
+		case 2:
+			ch = &SID.v3;
+			break;
+		}
+		
+		// Assign registers
+		ch->freq = freq;
+		ch->ad = data[0];
+		ch->sr = data[1];
+		ch->ctrl = data[2];
+		if (data[3]) { ch->ctrl = data[3]; }
+	}
+	
+	
+#elif defined __ORIC__			  //  Env.  Period  
+	unsigned char sfxData[4][2] = { {   1,    1000 },	// SFX_BLEEP
+									{   1,     100 },	// SFX_BUMP
+									{   0,       0 },	// SFX_ENGINE
+									{   0,       0 } };	// SFX_SCREECH
+
+	void EnableChannels(void) {
+		// Play 7,0,0: enable channels 1/2/3
 		POKEW(0x02E1, 7);
 		POKEW(0x02E3, 0);
 		POKEW(0x02E5, 0);
@@ -65,62 +107,109 @@
 		}		
 	}
 	
-	void PlaySFX(unsigned char tone, unsigned int enveloppe) {
-		// Music 1,octave,note,0: set the tone (volume 0 allows changing the enveloppe)
-		POKEW(0x02E1, 1);
-		POKEW(0x02E3, tone/12u);
-		POKEW(0x02E5, tone%12);
-		POKEW(0x02E7, 0);
+	void DisableChannels(void) {
+		// PLAY 0,0,0: disable channels 1/2/3
+		POKEW(0x02E1, 0);
+		POKEW(0x02E3, 0);
+		POKEW(0x02E5, 0);
+		if PEEK((char*)0xC800) {
+			asm("jsr $FBD0");	// Atmos (ROM 1.1)
+		} else {
+			asm("jsr $F421");	// Oric-1 (ROM 1.0)
+		}
+	}
+
+	void PlaySFX(unsigned char type, unsigned char pitch, unsigned char volume, unsigned char channel) {
+		// Prepare SFX data
+		unsigned char *data = sfxData[type];
+		if (data[0]) {
+			pitch = pitch/4u;
+		} else {
+			pitch = pitch/8u; volume /= 2;
+		}
+		
+		// Set channel pitch (MUSIC Channel, Octave, Note, Volume)
+		POKEW(0x02E1, channel);
+		POKEW(0x02E3, pitch/12u+1);	// Octave
+		POKEW(0x02E5, pitch%12);	// Note
+		POKEW(0x02E7, data[0]?0:volume);	// (Volume 0 allows changing the enveloppe)
 		if PEEK((char*)0xC800) {
 			asm("jsr $FC18");	// Atmos (ROM 1.1)
 		} else {
 			asm("jsr $F424");	// Oric-1 (ROM 1.0)
 		}
+		if (!data[0]) return;
+	
+		// TODO: Alternative pitch setting mode (SOUND Channel, Period, Volume)
+		//POKEW(0x02E1, channel);
+		//POKEW(0x02E3, pitch);
+		//POKEW(0x02E5, volume);
+		//if PEEK((char*)0xC800) {
+		//	asm("jsr $FB40");	// Atmos (ROM 1.1)
+		//} else {
+		//	asm("jsr $F41E");	// Oric-1 (ROM 1.0)
+		//}
 		
-		// Play 1,0,1,enveloppe: set a decaying enveloppe for channel 1
-		POKEW(0x02E1, 1);
-		POKEW(0x02E3, 0);
-		POKEW(0x02E5, 1);
-		POKEW(0x02E7, enveloppe);
+		// Set enveloppe (PLAY Tone, Noise, Envelope, Period)
+		POKEW(0x02E1, channel);	// Tone:  1: Channel 1 ON -- 2: Channel 2 ON -- 4: Channel 3 ON
+		POKEW(0x02E3, 0);		// Noise: 1: Channel 1 ON -- 2: Channel 2 ON -- 4: Channel 3 ON
+		POKEW(0x02E5, data[0]);	// Enveloppe:  1-2: Finite, 3-7: Continuous
+		POKEW(0x02E7, data[1]);	// Period
 		if PEEK((char*)0xC800) {
 			asm("jsr $FBD0");	// Atmos (ROM 1.1)
 		} else {
 			asm("jsr $F421");	// Oric-1 (ROM 1.0)
-		}		
+		}	
+
+		// Re-enable all channels
+		EnableChannels();
 	}
 	
-#elif defined __LYNX__
+#elif defined __LYNX__			    //  Prior  Period  Taps  Octv  Int.  
+	unsigned char sfxData[4][5] = { {     0,	 15,    7,    2,    1 },	// SFX_BLEEP
+									{     1,	  5,    7,    4,    1 },	// SFX_BUMP
+									{     2,	  0,   60,    2,    0 },	// SFX_ENGINE
+									{     2,	  0,  107,    2,    1 } };	// SFX_SCREECH
+	
 	// ABCmusic functions (see lynx/sfx.s)
+	unsigned char abcpriority[4] = {0, 0, 0, 0};
 	extern unsigned char abctimers[4];	// Timers of musics channels
 	extern void __fastcall__ abcoctave(unsigned char chan, unsigned char val);	  // legal values 0..6
 	extern void __fastcall__ abcpitch(unsigned char chan, unsigned char val);	  // legal values 0..255
 	extern void __fastcall__ abctaps(unsigned char chan, unsigned int val);		  // legal values 0..511
 	extern void __fastcall__ abcintegrate(unsigned char chan, unsigned char val); // legal values 0..1
 	extern void __fastcall__ abcvolume(unsigned char chan, unsigned char val);	  // legal values 0..127
+	
+	// Centralized SFX function
+	void PlaySFX(unsigned char type, unsigned char pitch, unsigned char volume, unsigned char channel)
+	{
+		unsigned char *data = sfxData[type];
+		if (data[0] <= abcpriority[channel] || !abctimers[channel]) {
+			abcpriority[channel] = data[0];
+			abctimers[channel] = data[1];
+			abctaps(channel, data[2]);
+			abcoctave(channel, data[3]);
+			abcintegrate(channel, data[4]);
+			abcpitch(channel, ~pitch);		
+			abcvolume(channel, volume);
+		}
+	}	
 #endif
 
 void InitSFX() 
 {
 #if defined __APPLE2__
-	if (hasMocking == 255)
-		DetectMocking();
+	DetectMocking();
 #elif defined __CBM__
-	SID.flt_freq = 0xA000;
-	SID.flt_ctrl = 0x44;
-	SID.amp      = 0x1F;
-	SID.v1.ad    = 0x00; // attack, delay
-	SID.v1.sr    = 0xA8; // sustain, release
-	SID.v1.ctrl  = 0x61; // pulse
-	SID.v2.ad    = 0x00; // attack, delay
-	SID.v2.sr    = 0xA8; // sustain, release
-	SID.v2.ctrl  = 0x61; // pulse
-	SID.v3.ad    = 0x22; // attack, delay	
+	SID.flt_freq = 0xA000;	// filter frequency
+	SID.flt_ctrl = 0x44;	// filter control
+	SID.amp      = 0x1F;	// amplitude
 #elif defined __ATARI__
-	POKE((char*)0xD208,0);  // AUDCTL
+	POKE((char*)0xD208,0);  // reset AUDCTL
 	POKE((char*)0xD20F,3);
 	SetupSFX();	// VBI for SFX samples
 #elif defined __ORIC__
-	ResetChannels();
+	EnableChannels();
 #endif
 }
 
@@ -138,15 +227,7 @@ void StopSFX()
 	POKE((char*)(0xD204), 0);
 	POKE((char*)(0xD208), 0);
 #elif defined __ORIC__
-	// Play 0,0,0: disable channels 1/2/3
-	POKEW(0x02E1, 0);
-	POKEW(0x02E3, 0);
-	POKEW(0x02E5, 0);
-	if PEEK((char*)0xC800) {
-		asm("jsr $FBD0");	// Atmos (ROM 1.1)
-	} else {
-		asm("jsr $F421");	// Oric-1 (ROM 1.0)
-	}
+	DisableChannels();
 #elif defined __LYNX__
 	unsigned char i;
 	for (i=0; i<4; i++) {
@@ -154,17 +235,11 @@ void StopSFX()
 	}
 #endif
 }
-
+	
+#if defined(__APPLE2__) || defined(__ATARI__)
 void EngineSFX(unsigned int channel, unsigned int rpm)
 {
-#if defined __CBM__	
-	unsigned int freq = rpm*3u+(channel*5u+200);
-	if (channel%2)
-		SID.v2.freq = freq;	
-	else
-		SID.v1.freq = freq;	
-	
-#elif defined __ATARI__
+#if defined __ATARI__
 	unsigned char freq = (200-rpm/4u)+channel*5u;
 	POKE((char*)(0xD200+2*channel), freq);
 	POKE((char*)(0xD201+2*channel), 32+8);
@@ -188,52 +263,13 @@ void EngineSFX(unsigned int channel, unsigned int rpm)
 		tone = (600-rpm)/60u; 
 		while (tone) { (tone--); }
 		POKE(0xc030,0);
-	}	
-#elif defined __ORIC__
-	rpm = rpm/20u + 1;
-	POKEW(0x02E1, channel%2+2);
-	POKEW(0x02E3, rpm/12u);
-	POKEW(0x02E5, rpm%12);
-	POKEW(0x02E7, 0x09);
-	if PEEK((char*)0xC800) {
-		asm("jsr $FC18");	// Atmos (ROM 1.1)
-	} else {
-		asm("jsr $F424");	// Oric-1 (ROM 1.0)
 	}
-#elif defined __LYNX__
-	unsigned char freq = (220-rpm/6u)+channel*5u;
-	channel = (channel%2)+2;
-	abctaps(channel, 60);
-	abcoctave(channel, 2);
-	abcvolume(channel, 22);
-	abcintegrate(channel, 0);
-	abcpitch(channel, freq);
-#endif
-}
-
-void ScreechSFX(unsigned char channel, unsigned char pitch)
-{
-#if defined __LYNX__
-	channel = (channel%2)+2;
-	abctaps(channel, 107);
-	abcoctave(channel, 2);
-	abcvolume(channel, 30);
-	abcintegrate(channel, 1);
-	abcpitch(channel, ~pitch);
-#else
-	EngineSFX(channel, pitch*3);
 #endif
 }
 
 void BleepSFX(unsigned char tone) 
 {
-#if defined __CBM__	
-	SID.v3.freq = 78*(64+tone);
-	SID.v3.sr   = 0x09; // sustain, release
-	SID.v3.ctrl = 0x11; // triangle wave, set attack bit
-	SID.v3.ctrl = 0x10; // release attack bit
-	
-#elif defined __ATARI__
+#if defined __ATARI__
 	sampleCount = 24;
 	sampleFreq = ~tone;
 	sampleCtrl = 170;
@@ -261,29 +297,12 @@ void BleepSFX(unsigned char tone)
 			repeat--;
 		}
 	}
-#elif defined __ORIC__
-	PlaySFX(tone/4u+12, 1000);
-	ResetChannels();	
-	
-#elif defined __LYNX__	
-	abctaps(2, 7);
-	abcoctave(2, 2);
-	abcvolume(2, 60);
-	abcintegrate(2, 1);
-	abcpitch(2, ~tone);
-	abctimers[2] = 15;
 #endif
 }
 
 void BumpSFX() 
 {
-#if defined __CBM__	
-	SID.v3.freq = 2000;
-	SID.v3.sr   = 0xA8; // sustain, release
-	SID.v3.ctrl = 0x21; // square wave, set attack bit
-	SID.v3.ctrl = 0x20; // release attack bit
-
-#elif defined __APPLE2__
+#if defined __APPLE2__
 	unsigned char repeat = 8;
 	while (repeat) {
 		if (repeat&3) { POKE(0xc030,0); }
@@ -293,17 +312,6 @@ void BumpSFX()
 	sampleCount =  8;
 	sampleFreq = 255;
 	sampleCtrl = 232;
-
-#elif defined __ORIC__
-	PlaySFX(16, 100);
-	ResetChannels();	
-
-#elif defined __LYNX__	
-	abctaps(1, 7);
-	abcoctave(1, 4);
-	abcvolume(1, 80);
-	abcintegrate(1, 1);
-	abcpitch(1, 192);
-	abctimers[1] = 10;
 #endif
 }
+#endif

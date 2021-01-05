@@ -198,12 +198,20 @@ void StopMusic(void);
 extern unsigned char musicPaused;
 
 // SFX functions (see sfx.c)
+#define SFX_BLEEP   0
+#define SFX_BUMP    1
+#define SFX_ENGINE  2
+#define SFX_SCREECH 3
 void InitSFX(void);
 void StopSFX(void);
-void BleepSFX(unsigned char tone);
-void BumpSFX(void);
-void EngineSFX(unsigned int channel, unsigned int rpm);
-void ScreechSFX(unsigned char channel, unsigned char pitch);
+#if defined(__CBM__) || defined(__LYNX__) || defined(__ORIC__)
+	void PlaySFX(unsigned char type, unsigned char pitch, unsigned char volume, unsigned char channel);
+#else
+	void BleepSFX(unsigned char tone);
+	void BumpSFX(void);
+	void EngineSFX(unsigned int channel, unsigned int rpm);
+	void ScreechSFX(unsigned char channel, unsigned char pitch);
+#endif
 
 // Sprite handling functions
 #if defined __APPLE2__
