@@ -7,11 +7,10 @@
 //#define DEBUG_NAV
 
 // NetCode Toggle
-#define NETCODE		
+//#define NETCODE		
 
-// Platform dependent definitions
+// Keyboard definitions
 #if defined __LYNX__
-	void __fastcall__ SuzyFlip(void);
 	#define KB_START 	49
 	#define KB_MUSIC 	50
 	#define KB_NEXT  	51
@@ -157,10 +156,8 @@ void ClientLeave(void);
 unsigned char NetworkUpdate(void);
 
 //See sfx.c
-#if defined(__LYNX__) || defined(__ORIC__)
 void BleepSFX(unsigned char pitch);
 void BumpSFX(void);
 void EngineSFX(unsigned char car, unsigned int rpm);
 void JumpSFX(unsigned char car);
 void ScreechSFX(unsigned char car);
-#endif		

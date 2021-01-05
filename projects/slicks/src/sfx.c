@@ -1,52 +1,36 @@
 
 #include "definitions.h"
 
-#if defined(__LYNX__) || defined(__ORIC__)
-
-unsigned char channel;
+// SFX channel definitions
+#if defined(__LYNX__)
+	#define CHAN_BLEEP 1
+	#define CHAN_BUMP  1
+#else
+	#define CHAN_BLEEP 2
+	#define CHAN_BUMP  2
+#endif
 
 void BleepSFX(unsigned char pitch)
 {
-#if defined __LYNX__
-	channel = 3;
-#elif defined __ORIC__
-	channel = 1;
-#endif		
-	PlaySFX(SFX_BLEEP, pitch, 60, channel, 0);
+	PlaySFX(SFX_BLEEP, pitch, 60, CHAN_BLEEP);
 }
 
 void BumpSFX(void)
 {
-#if defined __LYNX__
-	channel = 3;
-#elif defined __ORIC__
-	channel = 1;
-#endif	
-	PlaySFX(SFX_BUMP, 32, 120, channel, 1);
+	PlaySFX(SFX_BUMP, 32, 120, CHAN_BUMP);
 }
 
 void EngineSFX(unsigned char car, unsigned int rpm)
-{
-#if defined (__LYNX__) || defined(__ORIC__)
-	channel = (car%2)+2;						// Multiplex on Channels 2/3
-#endif
-	PlaySFX(SFX_ENGINE, (rpm*17)/80u + car*6, 22, channel, 2);
+{	
+	PlaySFX(SFX_ENGINE, (rpm*17)/80u + car*6, 22, car%2);	// Multiplex on channels 1/2
 }
 
 void JumpSFX(unsigned char car)
 {
-#if defined (__LYNX__) || defined(__ORIC__)
-	channel = (car%2)+2;						// Multiplex on Channels 2/3
-#endif
-	PlaySFX(SFX_ENGINE, 192, 30, channel, 2);
+	PlaySFX(SFX_ENGINE, 192, 30, car%2);	// Multiplex on channels 1/2
 }
 
 void ScreechSFX(unsigned char car)
 {
-#if defined (__LYNX__) || defined(__ORIC__)
-	channel = (car%2)+2;						// Multiplex on Channels 2/3
-#endif
-	PlaySFX(SFX_SCREECH, 192, 30, channel, 2);
+	PlaySFX(SFX_SCREECH, 192, 30, car%2);	// Multiplex on channels 1/2
 }
-
-#endif		

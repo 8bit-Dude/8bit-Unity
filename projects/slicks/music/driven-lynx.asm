@@ -4,7 +4,7 @@
 	.global musicptr
 	.rodata
 musicptr:
-	.word CHANNEL_0, CHANNEL_1, 0, 0
+	.word 0, 0, CHANNEL_0, CHANNEL_1
 
 PATTERN_LENGTH   .set  2048
 

@@ -39,7 +39,7 @@
 	#define INK_TAB		 YELLOW	
 	#define INK_HIGHLT	 WHITE
 	#define PAPER_HIGHLT BLACK
-	#define PAPER_SCORES DGREEN
+	#define PAPER_SCORES GREY
 	#define SCORES_ROW   4
 	#define PAUSE_ROW    6
 	#define PAUSE_COL    16
@@ -78,6 +78,9 @@ extern unsigned char svUsers[MAX_PLAYERS][5];
 extern unsigned char svMap, svStep; 
 extern char udpBuffer[28];
 extern char networkReady;
+
+// See Unity/Lynx/Suzy.s
+void __fastcall__ SuzyFlip(void);
 
 // Build Information
 const char* buildInfo = "BUILD: 2021/01/01";

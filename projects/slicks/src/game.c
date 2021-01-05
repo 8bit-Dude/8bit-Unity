@@ -2,9 +2,15 @@
 #include "definitions.h"
 
 #if defined __APPLE2__
+ #if define __DHR__
   #define RACE_ROAD LGREY
   #define RACE_MARK YELLOW
   #define RACE_WALL PURPLE
+ #else
+  #define RACE_ROAD BLUE
+  #define RACE_MARK BLUE
+  #define RACE_WALL PURPLE
+ #endif	 
 #elif defined __ATARI__
   #define RACE_ROAD BLACK
   #define RACE_MARK GREY
@@ -52,6 +58,9 @@ extern unsigned char clIndex;
 extern unsigned char svUsers[MAX_PLAYERS][5];
 extern unsigned char svMap, svStep; 
 extern char chatBuffer[20];
+
+// See Unity/Lynx/Suzy.s
+void __fastcall__ SuzyFlip(void);
 
 // Map boundaries
 int xMin = 3*8;
@@ -718,16 +727,10 @@ char GameLoop()
 							// Increment laps
 							car->lap += 1;
 							
-							// Local: Check if won?
+							// Local: Process lap
 							if (gameMode == MODE_LOCAL) {
-								// Process interface
-								if (car->lap > 0) { 
-								#if defined __LYNX__
-									PlaySFX(SFX_BLEEP, 128, 60, 3, 0);
-								#else
-									BleepSFX(128); 
-								#endif
-								}
+								// Play lap sound
+								if (car->lap > 0) { BleepSFX(128); }
 
 								// Update lap count
 								PrintLap(i);
