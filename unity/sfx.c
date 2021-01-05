@@ -28,37 +28,113 @@
 
 #ifdef __APPLE2__
   #pragma code-name("LC")
+  #define DISABLE_TONE_A  (0x01)
+  #define DISABLE_TONE_B  (0x02)
+  #define DISABLE_TONE_C  (0x04)
+  #define DISABLE_NOISE_A (0x08)
+  #define DISABLE_NOISE_B (0x10)
+  #define DISABLE_NOISE_C (0x20)
+  #define DISABLE_ALL	  (0x3f)  
 #endif
 
 #ifdef __ATARIXL__
   #pragma code-name("SHADOW_RAM")
 #endif
 	
-#if defined __APPLE2__			//  TONE A  	TONE B	    TONE C	 NOISE  MASKS   AMP A, B, C     ENV LO, HI, TYPE
-	unsigned char sfxData[14] = { 0x00, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0xFF, 0x0F, 0x0F, 0x0F, 0x00, 0x00, 0x00 }; 	// Mockingboard
-    #define DISABLE_TONE_A  (0x01)
-    #define DISABLE_TONE_B  (0x02)
-    #define DISABLE_TONE_C  (0x04)
-    #define DISABLE_NOISE_A (0x08)
-    #define DISABLE_NOISE_B (0x10)
-    #define DISABLE_NOISE_C (0x20)
-	#define DISABLE_ALL		(0x3f)
+#if defined __APPLE2__			  //  Period  
+	unsigned char sfxData[4][1] = { {	64  },		// SFX_BLEEP
+									{   16 	},		// SFX_BUMP
+									{    0 	},		// SFX_ENGINE
+									{    0 	} };	// SFX_SCREECH
+
+								//  TONE A  	TONE B	    TONE C	 NOISE  MASKS   AMP A, B, C     ENV LO, HI, TYPE
+	unsigned char mockBrd[14] = { 0x00, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0xFF, 0x0F, 0x0F, 0x0F, 0x00, 0x00, 0x00 }; 	// Mockingboard state
+
+	void DisableChannels(void) {
+		if (hasMocking) {
+			mockBrd[7] |= (DISABLE_TONE_A | DISABLE_TONE_B | DISABLE_TONE_C);		
+			SFXMocking(mockBrd);		
+		}
+	}
+									
+ 	void PlaySFX(unsigned char index, unsigned char pitch, unsigned char volume, unsigned char channel) {
+		// Prepare SFX data
+		unsigned char *data = sfxData[index];
+		unsigned char period = data[0];
+		unsigned char interv = 8-pitch/32u;
+		unsigned char ch;
+		
+		// Get channel
+		switch (channel) {
+		case 0:
+			ch = DISABLE_TONE_A; break;
+		case 1:
+			ch = DISABLE_TONE_B; break;
+		case 2:
+			ch = DISABLE_TONE_C;
+		}
+
+		// Play on Mockingboard or Speaker?
+		if (hasMocking) {
+			// Mocking board sound
+			mockBrd[7] &= ~ch;
+			mockBrd[2*channel] = ~pitch;
+			SFXMocking(mockBrd);
+			if (!period) 
+				return;	// Continuous sound
+			while (period) { 
+				period--; 
+				if (!(period%interv)) { /* do nothing */ }
+			}
+			mockBrd[7] |= ch;		
+			SFXMocking(mockBrd);	
+		} else {
+			// Speaker clicks
+			if (!period) {
+				period = (256-pitch)/16u;
+				interv = period-1;
+			}
+			while (period) {
+				period--;
+				if (!(period%interv)) { POKE(0xc030,0); }
+			}
+		}
+	}
 	
-#elif defined __ATARI__
+#elif defined __ATARI__			  //  Period  Control (7,6,5:noise/3,2,1,0:volume)
+	unsigned char sfxData[4][2] = { { 	24,	   			0b10101010		},		// SFX_BLEEP						
+									{    8,	   			0b11101000		},		// SFX_BUMP							
+									{    0,    			0b00101000		},		// SFX_ENGINE						
+									{    0,	   			0b00101000   	} };	// SFX_SCREECH						
+
 	void SetupSFX(); // VBI for SFX samples	(see Atari/POKEY.s)
-	extern unsigned char sampleCount;
-	extern unsigned char sampleFreq;
-	extern unsigned char sampleCtrl;
+	extern unsigned char sampleTimer[4];
+	extern unsigned char sampleFreq[4];
+	extern unsigned char sampleCtrl[4];
+	
+	void PlaySFX(unsigned char index, unsigned char pitch, unsigned char volume, unsigned char channel) {
+		// Prepare SFX data
+		unsigned char *data = sfxData[index];
+		
+		// Start sound
+		POKE(0xD200+2*channel, ~pitch);
+		POKE(0xD201+2*channel, data[1]);
+		
+		// Set DLI data (for period control)
+		sampleTimer[channel] = data[0];
+		sampleFreq[channel] = ~pitch;
+		sampleCtrl[channel] = data[1];		
+	}
 	
 #elif defined __CBM__			  //  Attack/Decay  Sustain/Release  Ctrl Attack  Ctrl Release
 	unsigned char sfxData[4][4] = { { 	  0x22,			0x09,			0x11,		0x10 	},		// SFX_BLEEP  (Ctrl: Triangle Wave)
 									{     0x22,			0xA8,			0x21,		0x20 	},		// SFX_BUMP	  (Ctrl: Square Wave)
 									{     0x00,    		0xA8,			0x61,		0x00 	},		// SFX_ENGINE
 									{     0x00,			0xA8,			0x61,		0x00 	} };	// SFX_SCREECH
-	
-	void PlaySFX(unsigned char type, unsigned char pitch, unsigned char volume, unsigned char channel) {
+
+	void PlaySFX(unsigned char index, unsigned char pitch, unsigned char volume, unsigned char channel) {
 		// Prepare SFX data
-		unsigned char *data = sfxData[type];
+		unsigned char *data = sfxData[index];
 		struct __sid_voice *ch;
 		unsigned int freq;
 		if (data[0]) {
@@ -70,14 +146,11 @@
 		// Get channel
 		switch (channel) {
 		case 0:
-			ch = &SID.v1;
-			break;
+			ch = &SID.v1; break;
 		case 1:
-			ch = &SID.v2;
-			break;
+			ch = &SID.v2; break;
 		case 2:
 			ch = &SID.v3;
-			break;
 		}
 		
 		// Assign registers
@@ -119,9 +192,9 @@
 		}
 	}
 
-	void PlaySFX(unsigned char type, unsigned char pitch, unsigned char volume, unsigned char channel) {
+	void PlaySFX(unsigned char index, unsigned char pitch, unsigned char volume, unsigned char channel) {
 		// Prepare SFX data
-		unsigned char *data = sfxData[type];
+		unsigned char *data = sfxData[index];
 		if (data[0]) {
 			pitch = pitch/4u;
 		} else {
@@ -129,6 +202,7 @@
 		}
 		
 		// Set channel pitch (MUSIC Channel, Octave, Note, Volume)
+		channel += 1;
 		POKEW(0x02E1, channel);
 		POKEW(0x02E3, pitch/12u+1);	// Octave
 		POKEW(0x02E5, pitch%12);	// Note
@@ -181,9 +255,9 @@
 	extern void __fastcall__ abcvolume(unsigned char chan, unsigned char val);	  // legal values 0..127
 	
 	// Centralized SFX function
-	void PlaySFX(unsigned char type, unsigned char pitch, unsigned char volume, unsigned char channel)
+	void PlaySFX(unsigned char index, unsigned char pitch, unsigned char volume, unsigned char channel)
 	{
-		unsigned char *data = sfxData[type];
+		unsigned char *data = sfxData[index];
 		if (data[0] <= abcpriority[channel] || !abctimers[channel]) {
 			abcpriority[channel] = data[0];
 			abctimers[channel] = data[1];
@@ -199,7 +273,9 @@
 void InitSFX() 
 {
 #if defined __APPLE2__
-	DetectMocking();
+	if (hasMocking == 255) 
+		DetectMocking();
+	DisableChannels();
 #elif defined __CBM__
 	SID.flt_freq = 0xA000;	// filter frequency
 	SID.flt_ctrl = 0x44;	// filter control
@@ -216,8 +292,7 @@ void InitSFX()
 void StopSFX() 
 {
 #if defined __APPLE2__
-	if (hasMocking) 
-		StopMocking();
+	DisableChannels();
 #elif defined __CBM__	
 	StopMusic();
 #elif defined __ATARI__
@@ -235,83 +310,3 @@ void StopSFX()
 	}
 #endif
 }
-	
-#if defined(__APPLE2__) || defined(__ATARI__)
-void EngineSFX(unsigned int channel, unsigned int rpm)
-{
-#if defined __ATARI__
-	unsigned char freq = (200-rpm/4u)+channel*5u;
-	POKE((char*)(0xD200+2*channel), freq);
-	POKE((char*)(0xD201+2*channel), 32+8);
-	
-#elif defined __APPLE2__	
-	unsigned char tone;
-	if (hasMocking) {
-		// Mocking board sound
-		tone = (252-rpm/4u);
-		if (channel%2) {
-			sfxData[7] &= ~(DISABLE_TONE_B);
-			sfxData[2] = tone;
-		} else {
-			sfxData[7] &= ~(DISABLE_TONE_A);
-			sfxData[0] = tone+3;
-		}
-		SFXMocking(sfxData);
-	} else {
-		// Speaker clicks
-		POKE(0xc030,0);
-		tone = (600-rpm)/60u; 
-		while (tone) { (tone--); }
-		POKE(0xc030,0);
-	}
-#endif
-}
-
-void BleepSFX(unsigned char tone) 
-{
-#if defined __ATARI__
-	sampleCount = 24;
-	sampleFreq = ~tone;
-	sampleCtrl = 170;
-	
-#elif defined __APPLE2__
-	unsigned char interval;
-	unsigned char repeat = 64;
-	interval = 8-tone/32u;
-	
-	if (hasMocking) {
-		// Mocking board sound
-		sfxData[7] &= ~DISABLE_TONE_C;
-		sfxData[4] = ~tone;
-		SFXMocking(sfxData);		
-		while (repeat) { 
-			if (repeat%interval) { }
-			repeat--; 
-		}
-		sfxData[7] |= DISABLE_TONE_C;		
-		SFXMocking(sfxData);	
-	} else {
-		// Speaker clicks		
-		while (repeat) {
-			if (repeat%interval) { POKE(0xc030,0); }
-			repeat--;
-		}
-	}
-#endif
-}
-
-void BumpSFX() 
-{
-#if defined __APPLE2__
-	unsigned char repeat = 8;
-	while (repeat) {
-		if (repeat&3) { POKE(0xc030,0); }
-		repeat--;
-	}
-#elif defined __ATARI__
-	sampleCount =  8;
-	sampleFreq = 255;
-	sampleCtrl = 232;
-#endif
-}
-#endif

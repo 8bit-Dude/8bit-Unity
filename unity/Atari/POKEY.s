@@ -31,7 +31,8 @@
 	.export _SetupSFX
 
 	.export _musicPaused
-	.export _sampleCount
+	
+	.export _sampleTimer
 	.export _sampleFreq
 	.export _sampleCtrl
 	
@@ -50,9 +51,9 @@ _sfxVBI:      .byte 0
 
 	.segment	"BSS"	
 
-_sampleCount: .res 1
-_sampleFreq:  .res 1
-_sampleCtrl:  .res 1
+_sampleTimer: .res 4
+_sampleFreq:  .res 4
+_sampleCtrl:  .res 4
 
 	.segment	"CODE"	
 	
@@ -130,30 +131,48 @@ skipMusicVBI:
 	lda _sfxVBI
 	beq skipSFXVBI
 
-	; Get samples counter
-	ldx _sampleCount
-	cpx #0
-	beq done
-	
-	; Set sample data
-	lda _sampleFreq
-	sta $D206
-	lda _sampleCtrl
-	sta $D207
+	; Loop through channel 0-3
+	ldy #0
+	loopY:
+		; Check sample timer
+		ldx _sampleTimer,y
+		cpx #0
+		beq nextY
 
-	; Increment counter
-	dex
-	stx _sampleCount
-	cpx #0
-	bne done
+		; Decrement timer
+		dex
+		txa
+		sta _sampleTimer,y
 
-	; Reset channel
-	lda #0
-	sta $D206
-	lda #0
-	sta $D207
+		; Register offset (2*y)
+		tya
+		asl
+
+		; Check if timer expired?
+		cpx #0
+		beq resetChannel
+		
+		; Set sample data
+	setChannel:
+		tax
+		lda _sampleFreq,y
+		sta $D200,x
+		lda _sampleCtrl,y
+		sta $D201,x
+		jmp nextY
+		
+	resetChannel:
+		tax
+		lda #0
+		sta $D200,x
+		lda #0
+		sta $D201,x
+		
+	nextY:
+		iny
+		cpy #4
+		bne loopY
+
 skipSFXVBI:
-
-done:
 	; Exit VBI
 	jmp XITVBV

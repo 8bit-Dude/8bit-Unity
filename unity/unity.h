@@ -204,14 +204,7 @@ extern unsigned char musicPaused;
 #define SFX_SCREECH 3
 void InitSFX(void);
 void StopSFX(void);
-#if defined(__CBM__) || defined(__LYNX__) || defined(__ORIC__)
-	void PlaySFX(unsigned char type, unsigned char pitch, unsigned char volume, unsigned char channel);
-#else
-	void BleepSFX(unsigned char tone);
-	void BumpSFX(void);
-	void EngineSFX(unsigned int channel, unsigned int rpm);
-	void ScreechSFX(unsigned char channel, unsigned char pitch);
-#endif
+void PlaySFX(unsigned char index, unsigned char pitch, unsigned char volume, unsigned char channel);
 
 // Sprite handling functions
 #if defined __APPLE2__
