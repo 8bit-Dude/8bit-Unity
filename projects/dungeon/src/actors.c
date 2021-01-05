@@ -281,7 +281,7 @@ void GenerateReward(unsigned char mapX, unsigned char mapY)
 void DamageMonster(Actor* actor) 
 {
 	// Apply damage and check if killed
-	BumpSFX();
+	PlaySFX(SFX_BUMP, 32, 120, 2);
 	selActor->health -= 5;
 	if (selActor->health)
 		return;
@@ -296,7 +296,7 @@ void DamageMonster(Actor* actor)
 void PickupReward(Actor* actor)
 {
 	// Process reward
-	BleepSFX(128);
+	PlaySFX(SFX_BLEEP, 128, 60, 2);
 	switch (selActor->state) {
 	case ACTOR_GOLD:
 		gold += 5*(rand()%5);

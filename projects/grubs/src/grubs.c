@@ -355,12 +355,12 @@ void ProcessControls(Grub *grub, Proj *proj)
 				proj->xVel = -(4*_cos(grub->wAng))/128; 
 			}
 			proj->yVel = (4*_sin(grub->wAng))/128;
-			BleepSFX(0);
+			PlaySFX(SFX_BUMP, 64, 60, 2);
 		}
 		
 		// Process motion
 		if (!(joy & JOY_UP) && !(grub->state & STATE_JUMP)) {
-			BumpSFX();
+			PlaySFX(SFX_BUMP, 32, 120, 2);
 			grub->zAcc = -3;
 			grub->state |= STATE_JUMP; 
 			grub->numFrames = NUMFRAME_JUMP;
@@ -392,7 +392,7 @@ void Explosion(unsigned int x, unsigned int y)
 	Grub *grub;
 	
 	// Explode in 2 steps
-	BumpSFX();
+	PlaySFX(SFX_BUMP, 32, 120, 2);
 	for (pass=0; pass<2; pass++) {
 		// 2 passes: yellow then sky color
 		if (!pass) { color = EXPLODE; } else { color = SKY; }

@@ -183,7 +183,7 @@ unsigned char ProcessInteract(unsigned char index, unsigned char item, unsigned 
 			inkColor = INK_INTERACT;
 			if (index == 5) {
 				// Jump animation
-				BleepSFX(64);
+				PlaySFX(SFX_BLEEP, 64, 60, 2);
 				DrawUnit(unitX, unitY-10, frameWalkLeftBeg);
 				DrawChunk(interact->chunk1);
 				Wait(10);

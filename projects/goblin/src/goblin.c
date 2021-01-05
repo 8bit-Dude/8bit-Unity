@@ -78,7 +78,7 @@ void GameLoop(void)
 		if (mouseL && !mouseAction) {
 	 		// Record action
 			mouseAction = 1;
-			BumpSFX();
+			PlaySFX(SFX_BUMP, 32, 120, 2);
 					
 			// Is mouse cursor in inventory area?
 			if (mouseY > INVENTORY_Y) {

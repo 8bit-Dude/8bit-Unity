@@ -17,12 +17,14 @@ int DemoGfx(void)
 	EnterBitmapMode();
 	
 	// Draw palette (Method #1: set pixel coordinates directly using global variables pixelX & pixelY)
-#if defined __ORIC__
-	palette = 19;
+#if defined __ORIC__	
+	palette = 19; blockW = 6;	// Oric Hires (enforce 6 pixel groups)
+#elif defined __SHR__	
+	palette = 6;  blockW = 21;	// Apple Single Hires (enforce 7 pixel groups)
 #else	
-	palette = 16;
+	palette = BMP_PALETTE; 
+	blockW = BMP_COLS/BMP_PALETTE;	
 #endif
-	blockW = BMP_COLS/palette;	
 	blockH = (8*BMP_ROWS)/200;		// Display equivalent of 8 lines (rescaled on APPLE/ATMOS/LYNX)
 	for (color=0; color<palette; color++) {
 		for (row=0; row<blockH; row++) {
@@ -39,10 +41,12 @@ int DemoGfx(void)
 	}
 	
 	// Print text (global variables inkColor & paperColor are assigned directly)
-#if defined __LYNX__
-	textRows = 12;
-#elif defined __ORIC__
+#if defined __ORIC__
 	textRows = 19;
+#elif defined __LYNX__
+	textRows = 12;
+#elif defined __SHR__
+	textRows = 6;
 #else 
 	textRows = 16;
 #endif		

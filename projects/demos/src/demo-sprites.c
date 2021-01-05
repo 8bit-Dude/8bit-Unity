@@ -119,7 +119,7 @@ int DemoSprites(void)
 			#else
 				SetSprite(i, frame);
 			#endif
-				EngineSFX(1, 300);
+				PlaySFX(SFX_ENGINE, 64, 22, 0);
             }       
         }
 	}

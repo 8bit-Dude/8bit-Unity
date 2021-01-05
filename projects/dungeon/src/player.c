@@ -118,6 +118,12 @@ void ProcessPlayer()
 	}	
 }
 
+void TriggerAction()
+{
+	ScrollCharmap(mapX, mapY);
+	PlaySFX(SFX_BUMP, 32, 120, 2);	
+}
+
 void ProcessWeapon()
 {
 	// Locate weapon
@@ -150,8 +156,7 @@ void ProcessWeapon()
 			case FLAG_BARREL:
 				GenerateReward(flagX, flagY1);
 				SetTile(flagX, flagY1, TILE_FLOOR);
-				ScrollCharmap(mapX, mapY);
-				BumpSFX();
+				TriggerAction();
 				break;						
 			case FLAG_TOMB:
 				tile = GetTile(flagX, flagY1);
@@ -165,8 +170,7 @@ void ProcessWeapon()
 					SetTile(flagX, flagY1, TILE_TOMB_OPENR);
 					GenerateMonster(flagX-4, flagY1);
 				}
-				ScrollCharmap(mapX, mapY);
-				BumpSFX();
+				TriggerAction();
 				break;						
 			case FLAG_GATE:
 				tile = GetTile(flagX, flagY1);
@@ -178,8 +182,7 @@ void ProcessWeapon()
 					SetTile(flagX-2, flagY1, TILE_FLOOR);
 					SetTile(flagX, flagY1, TILE_FLOOR);
 				}
-				ScrollCharmap(mapX, mapY);
-				BumpSFX();
+				TriggerAction();
 				break;						
 			}	
 		}
