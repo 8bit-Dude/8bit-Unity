@@ -59,7 +59,10 @@ int DemoControls(void)
 	#if defined __LYNX__
 		UpdateDisplay(); // Refresh Lynx screen
 	#endif
-	}
+	}	
+
+	// Reset state
+	clrscr();	
 	
     // Done
     return EXIT_SUCCESS;	

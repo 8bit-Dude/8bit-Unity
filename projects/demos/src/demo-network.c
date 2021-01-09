@@ -92,7 +92,10 @@ int DemoNetwork(void)
 		UpdateDisplay(); // Refresh Lynx screen
 	#endif		
 	}
-	
+
+	// Reset state
+	clrscr();	
+
     // Done
     return EXIT_SUCCESS;	
 }

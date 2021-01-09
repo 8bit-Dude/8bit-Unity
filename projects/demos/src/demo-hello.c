@@ -49,8 +49,9 @@ int DemoHello(void)
 	#endif
 	}
 
-	// Stop music
+	// Reset state
 	StopMusic();
+	clrscr();
 	
     // Done
     return EXIT_SUCCESS;	
