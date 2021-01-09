@@ -132,7 +132,8 @@ void GetChunk(unsigned char** chunk, unsigned char x, unsigned char y, unsigned 
 #if defined __APPLE2__
 	// Blit data 
 	POKE(0xE3, (w*2)/7u);	// Bytes per line (x2 for MAIN/AUX)	
-	POKE(0xEB, h);			// Number of lines
+	POKE(0xCE, h);			// Number of lines (from screen)
+	POKE(0xEB, h);			// Number of lines (to screen)
 	POKE(0xEC, (x*2)/7u);	// Hires Offset X
 	POKE(0xED, y);			// Hires Offset Y
 	POKEW(0xEE, *chunk+4);	// Address of Output
@@ -204,7 +205,8 @@ void SetChunk(unsigned char* chunk, unsigned char x, unsigned char y)
 #if defined __APPLE2__
 	// Blit data 
 	POKE(0xE3, (w*2)/7u);	// Bytes per line (x2 for MAIN/AUX)	
-	POKE(0xEB, h);			// Number of lines
+	POKE(0xCE, h);			// Number of lines (from screen)
+	POKE(0xEB, h);			// Number of lines (to screen)
 	POKE(0xEC, (x*2)/7u);	// Hires Offset X
 	POKE(0xED, y);			// Hires Offset Y
 	POKEW(0xEE, 0);			// Address for copying Hires > Output

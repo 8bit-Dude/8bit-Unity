@@ -29,7 +29,7 @@
 	.export _PlaySpeaker
 	.export _UpdateSpeaker
 
-	.segment "LOWCODE"	
+	.segment "CODE"	
 		
 ; ---------------------------------------------------------------
 ; void __near__ _PlaySpeaker (unsigned int address)

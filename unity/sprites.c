@@ -37,9 +37,9 @@
 // Platform specific function
 #if defined __APPLE2__
   #if defined __DHR__
-	#define frameWIDTH 4		// 4 bytes per 7 pixels
+	#define byteWIDTH 4		// 4 bytes per 7 pixels
   #else
-    #define frameWIDTH 2		// 2 bytes per 7 pixels
+    #define byteWIDTH 2		// 2 bytes per 7 pixels
   #endif
 	unsigned char  frameROWS;
     unsigned int   frameBLOCK;				// Size of sprite offset block (4 blocks)
@@ -66,7 +66,7 @@
 	}
 
 #elif defined __ORIC__	
-	#define frameWIDTH 2		// Byte width of sprite (12 pixels)
+	#define byteWIDTH 2		// Byte width of sprite (12 pixels)
 	unsigned char frameROWS;
 	unsigned int  frameBLOCK;	// Size of sprite offset block (4 blocks), 
 	unsigned char sprX[SPRITE_NUM], sprY[SPRITE_NUM];	   // Screen coordinates
@@ -156,7 +156,7 @@ void SetupSprites(unsigned char frames, unsigned char cols, unsigned char rows, 
 	// Set sprite rows, frames and resulting block size (there are 4 offset blocks for each sprite)
 	unsigned char i;
 	frameROWS = rows;
-	frameBLOCK = frames*frameROWS*frameWIDTH;
+	frameBLOCK = frames*frameROWS*byteWIDTH;
 	for (i=0; i<SPRITE_NUM; i++) 
 		sprROWS[i] = frameROWS;
 	
@@ -203,7 +203,7 @@ void SetupSprites(unsigned char frames, unsigned char cols, unsigned char rows, 
 	// Assign frame info and sprite colors
 	unsigned char i;
 	frameROWS = rows;
-	frameBLOCK = frames*frameROWS*frameWIDTH;
+	frameBLOCK = frames*frameROWS*byteWIDTH;
 	for (i=0; i<SPRITE_NUM; i++) 
 		sprROWS[i] = rows;
 	sprCOLOR = spriteColors;
@@ -277,6 +277,7 @@ void LocateSprite(unsigned int x, unsigned int y)
   void RestoreSprBG(unsigned char index)
   {
 	  POKE(0xE3, 2);				// Bytes per line (x2 for MAIN/AUX)	
+	  POKE(0xCE, sprROWS[index]);	// Number of lines
 	  POKE(0xEB, sprROWS[index]);	// Number of lines
 	  POKE(0xEC, sprHiresX[index]);	// Hires Offset X
 	  POKE(0xED, sprY[index]);		// Hires Offset Y
@@ -299,7 +300,7 @@ void LocateSprite(unsigned int x, unsigned int y)
 			  if (xHires<7 && yHires<sprROWS[i]) {
 				  xptr = sprHiresX[i];
 				  yptr = sprY[i]+yHires;
-				  bgPtr = sprBG[i]+yHires*frameWIDTH;				  
+				  bgPtr = sprBG[i]+yHires*byteWIDTH;				  
 				  hiresPtr = HiresLine(yptr) + xptr;
 				#if defined __DHR__  
 				  *dhraux = 0;
@@ -337,10 +338,8 @@ void LocateSprite(unsigned int x, unsigned int y)
   void SpriteCollisions(unsigned char index)
   {
 	unsigned char i, dX, dY, rows;
-  #if defined __ORIC__	
 	unsigned char x1, x2, y1, y2;
 	unsigned int bgPtr1, bgPtr2;
-  #endif					
 	
 	// Check for collisions
 	sprCollision[index] = 0;
@@ -359,7 +358,33 @@ void LocateSprite(unsigned int x, unsigned int y)
 				// Apply collision
 				sprCollision[index] |= 1 << i;
 				sprCollision[i] |= 1 << index;
-				RestoreSprBG(i);
+				
+				// Define X overlap
+				if (dX < 2) { 
+					x1 = dX; x2 = 2; 
+				} else { 
+					x1 = 0; x2 = 2+dX; 
+				}
+				dX = (x2-x1);
+				
+				// Define Y overlap
+				if (dY < rows) { 
+					y1 = dY; y2 = rows; 
+				} else { 
+					y1 = 0; y2 = rows+dY; 
+				}
+				
+				// Copy overlapping background
+				bgPtr1 = sprBG[index] + y1*byteWIDTH + x1;
+				bgPtr2 = sprBG[i] + (rows-y2)*byteWIDTH + (2 - x2);
+				for (dY=y1; dY<y2; dY++) {
+					memcpy(bgPtr1, bgPtr2, dX);		// AUX
+				#if defined __DHR__
+					memcpy(bgPtr1+2, bgPtr2+2, dX);	// MAIN
+				#endif
+					bgPtr1 += byteWIDTH; 
+					bgPtr2 += byteWIDTH;
+				}				
 			}
 		}
 	#elif defined __ORIC__
@@ -373,12 +398,13 @@ void LocateSprite(unsigned int x, unsigned int y)
 					sprCollision[i] |= 1 << index;
 				}					
 			
-				// Define X overlap
+				// Define X overlap (including 2 attribute bytes on L/R of sprite)
 				if (dX < 4) { 
-					x1 = dX; x2 = 4; 
+					x1 = dX; x2 = 4;
 				} else { 
 					x1 = 0; x2 = 4+dX; 
 				}
+				dX = (x2-x1);
 				
 				// Define Y overlap
 				if (dY < rows) { 
@@ -388,12 +414,11 @@ void LocateSprite(unsigned int x, unsigned int y)
 				}
 				
 				// Copy overlapping background
-				bgPtr1 = sprBG[index] + y1*4;
-				bgPtr2 = sprBG[i] + (rows-y2)*4 + (4-x2) - x1;
+				bgPtr1 = sprBG[index] + y1*4 + x1;
+				bgPtr2 = sprBG[i] + (rows-y2)*4 + (4-x2);
 				for (dY=y1; dY<y2; dY++) {
-					for (dX=x1; dX<x2; dX++)
-						POKE(bgPtr1+dX, PEEK(bgPtr2+dX));	
-					bgPtr1 += 4;
+					memcpy(bgPtr1, bgPtr2, dX);
+					bgPtr1 += 4; 
 					bgPtr2 += 4;
 				}					
 			}
@@ -426,7 +451,7 @@ void SetSprite(unsigned char index, unsigned char frame)
 	xHires = (spriteX*2)/7u;
 
 	// Select the correct offset block (4 offset blocks per 7 pixels)
-	frameAddr = (char*)(sprData) + frame*frameROWS*frameWIDTH;
+	frameAddr = (char*)(sprData) + frame*frameROWS*byteWIDTH;
 	if (xHires%2) {
 		if (spriteX%7 > 5) { 
 			frameAddr += 3*frameBLOCK; 
@@ -445,12 +470,10 @@ void SetSprite(unsigned char index, unsigned char frame)
 	// Restore background if sprite was previously drawn
 	if (sprDrawn[index]) RestoreSprBG(index);
 
-	// Check collisions with other sprites
-	SpriteCollisions(index);	
-		
 	// Backup new background and draw sprite
 	POKE(0xE3, 2);				// Bytes per line (x2 for MAIN/AUX)
-	POKE(0xEB, rows);			// Number of lines
+	POKE(0xCE, frameROWS);		// Number of lines to backup from screen
+	POKE(0xEB, rows);			// Number of lines to write to screen
 	POKE(0xEC, xHires);			// Hires Offset X
 	POKE(0xED, spriteY);		// Hires Offset Y
 	POKEW(0xEE, sprBG[index]);	// Address for copying Hires > Output
@@ -461,7 +484,10 @@ void SetSprite(unsigned char index, unsigned char frame)
 	BlitSHR();  
   #endif	  
 
-	// Set sprite information
+	// Check collisions with other sprites
+	SpriteCollisions(index);	
+		
+	// Save sprite information
 	sprHiresX[index] = xHires;
 	sprX[index] = spriteX;
 	sprY[index] = spriteY;
@@ -592,7 +618,11 @@ void EnableSprite(signed char index)
 #elif (defined __APPLE2__) || (defined __ORIC__)
 	// Allocate memory for background
 	if (!sprBG[index]) {
-		sprBG[index] = (unsigned char*)malloc(4*frameROWS);	// Byte length of 1 sprite
+	#if defined __SHR__
+		sprBG[index] = (unsigned char*)malloc(2*frameROWS);	// 2 bytes per line
+	#else
+		sprBG[index] = (unsigned char*)malloc(4*frameROWS);	// 4 bytes per line
+	#endif
 		sprDrawn[index] = 0;
 	}
 #endif

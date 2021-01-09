@@ -37,7 +37,8 @@ _mainAuxTog: .res 1
 ;	Fast copy data between PROGRAM and Hires memory
 ;	Zero Page Data:
 ;		$e3: Number of bytes per row
-;		$eb: Number of rows
+;		$ce: Number of rows (output)
+;		$eb: Number of rows (input)
 ;		$ec: Hires offset X
 ;		$ed: Hires offset Y
 ;		$ee: 16 bit output address (optional)
@@ -48,12 +49,9 @@ _mainAuxTog: .res 1
 
 .proc _BlitDHR: near
 
-	; Init Main/Aux Toggle
-	lda #0
-	sta _mainAuxTog
-
-	; X loop: Number of lines
-	ldx $eb
+	; X loop: Frame rows
+	ldx #0
+	stx _mainAuxTog		; Init Main/Aux Toggle
 loopRow:
 	; Copy from Hires Tables (with Line Offset Y and Byte Offset X) to $fc/$fd
 	ldy $ed				; Y offset within table
@@ -71,7 +69,7 @@ branchMain:
 	sta $c054		; Switch to MAIN memory
 switchDone:
 	
-	; Copy bytes from Hires to ouput	
+	; Copy bytes from DHR buffer to ouput	
 screen2output:
 	lda $ef
 	beq input2screen  ; If high-byte is zero, then skip
@@ -92,8 +90,11 @@ incAddress1:
 	inc $ef
 nocarry1:
 	
-	; Copy bytes from input to Hires
+	; Copy bytes from input to DHR buffer
+	cpx $eb			; Check number of input rows (for cropped sprites)
+	bcs toggleBlocks
 input2screen:	
+	clc
 	lda $fb
 	beq toggleBlocks  ; If high-byte is zero, then skip	
 	ldy #0			; Y loop: Copy ? bytes (see $e3)
@@ -124,8 +125,8 @@ toggleBlocks:
 nextRow:
 	; Move to next row
 	inc $ed			; Increment Y-Line offset in Hires Table
-	clc
-	dex				; Iterate X loop
-	bne loopRow	
+	inx				; Iterate X loop
+	cpx $ce
+	bcc loopRow	
 	rts
 .endproc

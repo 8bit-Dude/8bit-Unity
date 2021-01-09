@@ -28,6 +28,10 @@
 
 #include "unity.h"
 
+#ifdef __APPLE2__
+  #pragma code-name("LC")
+#endif
+
 unsigned char ColToX(unsigned char col)
 {
 #if defined __APPLE2__	// Hires Mode: 140 x 192
