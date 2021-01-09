@@ -20,9 +20,6 @@ int DemoBitmap(void)
 #endif
 	clock_t time = clock();
 	
-	// Clear screen
-	clrscr();
-	
 	// Prepare bitmap
 	InitBitmap();
 	LoadBitmap("banner.img");

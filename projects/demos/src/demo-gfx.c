@@ -7,9 +7,6 @@ int DemoGfx(void)
 {
 	unsigned char i, color, row, palette;
 	unsigned char textRows, blockW, blockH;
-
-	// Clear screen
-	clrscr();
 	
 	// Prepare bitmap
 	InitBitmap();

@@ -49,10 +49,7 @@ int DemoSprites(void)
 {
 	unsigned char i, slot, frame;
 	unsigned int xpos, ypos, angle;
-	clock_t timer = clock();
-	
-	// Clear screen
-	clrscr();	
+	clock_t timer = clock();	
 
 	// Initialize sfx/bitmap
 	InitSFX();
