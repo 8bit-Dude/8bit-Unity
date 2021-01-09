@@ -108,10 +108,10 @@ void InitCharmap()
 }
 
 // Switch from Text mode to Charmap mode
-void EnterCharmapMode()
+void ShowCharmap()
 {		
 #if (defined __APPLE2__) || (defined __LYNX__)
-	EnterBitmapMode();
+	ShowBitmap();
 	
 #elif defined __ATARI__	
 	// Setup Charmap Page and DLIST
@@ -136,10 +136,10 @@ void EnterCharmapMode()
 }
 
 // Switch back to Text mode
-void ExitCharmapMode()
+void HideCharmap()
 {
 #if defined __APPLE2__	
-	ExitBitmapMode();
+	HideBitmap();
 	
 #elif defined __ATARI__	
     // Switch screen DMA and DLI

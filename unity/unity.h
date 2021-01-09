@@ -74,8 +74,8 @@ extern unsigned char videoMode;
 
 // Bitmap functions (see bitmap.c)
 void InitBitmap(void);
-void EnterBitmapMode(void);
-void ExitBitmapMode(void);
+void ShowBitmap(void);
+void HideBitmap(void);
 void ClearBitmap(void);
 void LoadBitmap(char *filename);
 
@@ -97,8 +97,8 @@ void LoadChunk(unsigned char** chunk, char *filename);
 
 // Charmap functions (see charmap.c)
 void InitCharmap(void);
-void EnterCharmapMode(void);
-void ExitCharmapMode(void);
+void ShowCharmap(void);
+void HideCharmap(void);
 void ClearCharmap(void);
 void DisplayCharmap(unsigned char c1, unsigned char c2, unsigned char r1, unsigned char r2);
 void LoadCharmap(char *filename, unsigned int w, unsigned int h);

@@ -84,7 +84,7 @@ void InitBitmap()
 }
 
 // Switch from Text mode to Bitmap mode
-void EnterBitmapMode()
+void ShowBitmap()
 {		
 #if defined __CBM__
 	// Setup VIC2 (memory bank and multicolor mode)
@@ -115,7 +115,7 @@ void EnterBitmapMode()
 }
 
 // Switch from Bitmap mode to Text mode
-void ExitBitmapMode()
+void HideBitmap()
 {
 #if defined __CBM__
 	// Switch OFF multicolor mode
