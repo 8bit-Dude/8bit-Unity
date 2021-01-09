@@ -13,7 +13,7 @@ void SplashScreen(void)
 	// Load and show banner
 	InitBitmap();
 	LoadBitmap("menu.img");
-	EnterBitmapMode();
+	ShowBitmap();
 	
 	// Show credit/build
 	paperColor = BLACK; 
@@ -40,7 +40,7 @@ void SplashScreen(void)
 	}	
 	
 	// Exit banner screen
-	ExitBitmapMode();
+	HideBitmap();
 	StopMusic();	
 }
 

@@ -11,7 +11,7 @@ int DemoGfx(void)
 	// Prepare bitmap
 	InitBitmap();
 	ClearBitmap();
-	EnterBitmapMode();
+	ShowBitmap();
 	
 	// Draw palette (Method #1: set pixel coordinates directly using global variables pixelX & pixelY)
 #if defined __ORIC__	
@@ -78,6 +78,6 @@ int DemoGfx(void)
 	}
 	
     // Done
-	ExitBitmapMode();
+	HideBitmap();
     return EXIT_SUCCESS;	
 }

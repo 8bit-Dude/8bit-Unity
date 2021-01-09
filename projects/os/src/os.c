@@ -67,7 +67,7 @@ int main(void)
 	InitBitmap();
 	ClearBitmap();
 	HomeScreen();
-	EnterBitmapMode();
+	ShowBitmap();
 
 	// Init systems
 	InitMouse();

@@ -554,7 +554,7 @@ void SplashScreen(void)
 {
 	// Load and show banner
 	LoadBitmap("banner.img");
-	EnterBitmapMode();
+	ShowBitmap();
 	
 	// Show credit/build
 	paperColor = SKY; 
@@ -571,7 +571,7 @@ void SplashScreen(void)
 	}	
 	
 	// Exit bitmap mode again
-	ExitBitmapMode();
+	HideBitmap();
 }
 
 int main(void) 
@@ -596,7 +596,7 @@ int main(void)
 		
 	// Load and show playfield
 	LoadBitmap("pumpkins.img");
-	EnterBitmapMode();
+	ShowBitmap();
 
 	// Setup sound
 	InitSFX();
@@ -631,7 +631,7 @@ int main(void)
 	
 	// Black-out screen and stop SFX
 	DisableSprite(-1);	// "-1" disables all sprites
-	ExitBitmapMode();
+	HideBitmap();
 	StopSFX();
 		
     // Done

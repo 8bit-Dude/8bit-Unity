@@ -156,7 +156,7 @@ void SplashScreen(void)
 {
 	// Load and show banner
 	LoadBitmap("banner.img");
-	EnterBitmapMode();
+	ShowBitmap();
 	
 	// Show credit/build
 #if (defined __ORIC__)
@@ -237,7 +237,7 @@ int main(void)
 	
 	// Black-out screen and clear key
 	DisableSprite(-1);	// "-1" disables all sprites
-	ExitBitmapMode();
+	HideBitmap();
 	StopSFX();
 	
     // Done

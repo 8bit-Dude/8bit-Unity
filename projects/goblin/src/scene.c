@@ -26,9 +26,9 @@ unsigned char* chunkBcgr[3];
 void InitScene()
 {	
 	// Load bitmap
-	ExitBitmapMode();
+	HideBitmap();
 	LoadBitmap("scene1.img");
-	EnterBitmapMode();
+	ShowBitmap();
 
 	// Prepare graphic animations
 	LoadChunk(&chunkAnim[0], "notable.chk"); // Load Notable animation

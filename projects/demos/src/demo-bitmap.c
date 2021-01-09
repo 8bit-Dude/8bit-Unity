@@ -23,7 +23,7 @@ int DemoBitmap(void)
 	// Prepare bitmap
 	InitBitmap();
 	LoadBitmap("banner.img");
-	EnterBitmapMode();
+	ShowBitmap();
 	
 	// Grab graphic chunks
 	for (i=0; i<3; i++) 
@@ -46,7 +46,7 @@ int DemoBitmap(void)
 	}
 	
 	// Exit bitmap mode
-	ExitBitmapMode();
+	HideBitmap();
 	
     // Done
     return EXIT_SUCCESS;	

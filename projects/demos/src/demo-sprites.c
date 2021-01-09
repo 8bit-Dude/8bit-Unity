@@ -61,7 +61,7 @@ int DemoSprites(void)
 	
 	// Load and show bitmap
 	LoadBitmap("stadium.img");
-	EnterBitmapMode();
+	ShowBitmap();
 	
 	// Print some extra info
 	paperColor = GREY; 
@@ -123,7 +123,7 @@ int DemoSprites(void)
 	
 	// Black-out screen and stop SFX
 	DisableSprite(-1);	// "-1" disables all sprites
-	ExitBitmapMode();
+	HideBitmap();
 	StopSFX();
 	
     // Done

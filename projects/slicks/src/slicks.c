@@ -85,10 +85,10 @@ int main (void)
 		// Show menu
 		LoadMusic("speednik.mus", MUSICRAM);
 		PlayMusic();
-		EnterBitmapMode();
+		ShowBitmap();
 		GameMenu(); 
 		DisableSprite(-1);
-		ExitBitmapMode();
+		HideBitmap();
         StopMusic();
 		
 		// Loop through map list
@@ -101,10 +101,10 @@ int main (void)
 		#ifdef __LYNX__
 			NextMusic(0);
 		#endif	
-			EnterBitmapMode();
+			ShowBitmap();
 			carryon = GameLoop();
 			DisableSprite(-1);
-			ExitBitmapMode();
+			HideBitmap();
 			StopSFX();
 		#ifdef __LYNX__
 			StopMusic();

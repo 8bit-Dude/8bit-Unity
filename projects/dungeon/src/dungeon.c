@@ -46,7 +46,7 @@ void GameInit(void)
 	LoadTileset("level1.tls", 40, 2, 2);
 	LoadCharmap("level1.map", 64, 64);
 	LoadActors("level1.act");
-	EnterCharmapMode();
+	ShowCharmap();
 
 	// Helper variables
 	maxX = worldWidth-screenWidth;
