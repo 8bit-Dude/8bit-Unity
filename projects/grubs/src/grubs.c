@@ -392,7 +392,7 @@ void Explosion(unsigned int x, unsigned int y)
 	Grub *grub;
 	
 	// Explode in 2 steps
-	PlaySFX(SFX_BUMP, 32, 120, 2);
+	PlaySFX(SFX_BUMP, 8, 120, 2);
 	for (pass=0; pass<2; pass++) {
 		// 2 passes: yellow then sky color
 		if (!pass) { color = EXPLODE; } else { color = SKY; }
@@ -553,7 +553,6 @@ void ProcessProj(Proj *proj)
 void SplashScreen(void)
 {
 	// Load and show banner
-	ExitBitmapMode();
 	LoadBitmap("banner.img");
 	EnterBitmapMode();
 	
@@ -570,6 +569,9 @@ void SplashScreen(void)
 		UpdateDisplay(); // Refresh Lynx screen
 	#endif
 	}	
+	
+	// Exit bitmap mode again
+	ExitBitmapMode();
 }
 
 int main(void) 
@@ -593,7 +595,6 @@ int main(void)
 	SplashScreen();
 		
 	// Load and show playfield
-	ExitBitmapMode();
 	LoadBitmap("pumpkins.img");
 	EnterBitmapMode();
 
