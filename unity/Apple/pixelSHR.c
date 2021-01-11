@@ -106,7 +106,7 @@ unsigned char GetColorSHR()
 	// Use color groups
 	if (color == 3)
 		color = 5;
-	else if (*hiresPtr & 0x80)
+	else if (color != 0 && *hiresPtr & 0x80)
 		color += 2;
 	return color;
 }

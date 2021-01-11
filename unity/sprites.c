@@ -307,9 +307,12 @@ void LocateSprite(unsigned int x, unsigned int y)
 				  hiresPtr[0] = bgPtr[0];
 				  hiresPtr[1] = bgPtr[1];
 				  *dhrmain = 0;
-				#endif
 				  hiresPtr[0] = bgPtr[2];		
 				  hiresPtr[1] = bgPtr[3];
+				#else
+				  hiresPtr[0] = bgPtr[0];
+				  hiresPtr[1] = bgPtr[1];		
+				#endif
 				  return;
 			  }
 		  }
