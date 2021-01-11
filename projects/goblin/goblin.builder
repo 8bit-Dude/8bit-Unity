@@ -17,20 +17,23 @@
             "spriteFrames": "14", 
             "spriteWidth": "7", 
             "spriteHeight": "24", 
-            "bitmap": [
+            "bitmapDHR": [
                 "projects/goblin/bitmaps/banner-apple.png", 
                 "projects/goblin/bitmaps/scene1-apple.png"
             ], 
-            "sprites": [
+            "bitmapSHR": [], 
+            "charsetDHR": [], 
+            "charsetSHR": [], 
+            "spritesDHR": [
                 "projects/goblin/sprites/sprites-apple.png"
             ], 
+            "spritesSHR": [], 
             "music": [
                 "projects/goblin/music/goblin-apple.m"
             ], 
             "chunks": [
                 "projects/goblin/chunks/chunks-apple.txt"
             ], 
-            "charset": [], 
             "diskSize": "140KB"
         }, 
         "Atari": {
@@ -41,6 +44,7 @@
                 "projects/goblin/bitmaps/banner-atari.png", 
                 "projects/goblin/bitmaps/scene1-atari.png"
             ], 
+            "charset": [], 
             "sprites": [
                 "projects/goblin/sprites/sprites-atari.png"
             ], 
@@ -50,7 +54,6 @@
             "chunks": [
                 "projects/goblin/chunks/chunks-atari.txt"
             ], 
-            "charset": [], 
             "noText": false, 
             "diskSize": "180KB"
         }, 
@@ -62,6 +65,7 @@
                 "projects/goblin/bitmaps/banner-c64.png", 
                 "projects/goblin/bitmaps/scene1-c64.png"
             ], 
+            "charset": [], 
             "sprites": [
                 "projects/goblin/sprites/sprites-c64.png"
             ], 
@@ -70,8 +74,7 @@
             ], 
             "chunks": [
                 "projects/goblin/chunks/chunks-c64.txt"
-            ], 
-            "charset": []
+            ]
         }, 
         "Lynx": {
             "spriteFrames": "14", 
@@ -83,6 +86,7 @@
                 "projects/goblin/bitmaps/banner-lynx.png", 
                 "projects/goblin/bitmaps/scene1-lynx.png"
             ], 
+            "charset": [], 
             "sprites": [
                 "projects/goblin/sprites/sprites-lynx.png"
             ], 
@@ -91,8 +95,7 @@
             ], 
             "chunks": [
                 "projects/goblin/chunks/chunks-lynx.txt"
-            ], 
-            "charset": []
+            ]
         }, 
         "Oric": {
             "spriteFrames": "14", 
@@ -104,6 +107,7 @@
                 "projects/goblin/bitmaps/banner-oric.png", 
                 "projects/goblin/bitmaps/scene1-oric.png"
             ], 
+            "charset": [], 
             "sprites": [
                 "projects/goblin/sprites/sprites-oric.png"
             ], 
@@ -112,8 +116,7 @@
             ], 
             "chunks": [
                 "projects/goblin/chunks/chunks-oric.txt"
-            ], 
-            "charset": []
+            ]
         }
     }
 }

@@ -20,18 +20,26 @@
             "spriteFrames": "64", 
             "spriteWidth": "7", 
             "spriteHeight": "5", 
-            "bitmap": [
-                "projects/demos/bitmaps/banner-apple.png", 
-                "projects/demos/bitmaps/stadium-apple.png"
+            "bitmapDHR": [
+                "projects/demos/bitmaps/banner-apple-dhr.png", 
+                "projects/demos/bitmaps/stadium-apple-dhr.png"
             ], 
-            "sprites": [
-                "projects/demos/sprites/sprites-apple.png"
+            "bitmapSHR": [
+                "projects/demos/bitmaps/banner-apple-shr.png", 
+                "projects/demos/bitmaps/stadium-apple-shr.png"
+            ], 
+            "charsetDHR": [], 
+            "charsetSHR": [], 
+            "spritesDHR": [
+                "projects/demos/sprites/sprites-apple-dhr.png"
+            ], 
+            "spritesSHR": [
+                "projects/demos/sprites/sprites-apple-shr.png"
             ], 
             "music": [
                 "projects/demos/music/demo-apple.m"
             ], 
             "chunks": [], 
-            "charset": [], 
             "diskSize": "140KB"
         }, 
         "Atari": {
@@ -42,6 +50,7 @@
                 "projects/demos/bitmaps/banner-atari.png", 
                 "projects/demos/bitmaps/stadium-atari.png"
             ], 
+            "charset": [], 
             "sprites": [
                 "projects/demos/sprites/sprites-atari.png"
             ], 
@@ -49,7 +58,6 @@
                 "projects/demos/music/demo-atari.rmt"
             ], 
             "chunks": [], 
-            "charset": [], 
             "noText": false, 
             "diskSize": "180KB"
         }, 
@@ -61,14 +69,14 @@
                 "projects/demos/bitmaps/banner-c64.png", 
                 "projects/demos/bitmaps/stadium-c64.png"
             ], 
+            "charset": [], 
             "sprites": [
                 "projects/demos/sprites/sprites-c64.png"
             ], 
             "music": [
                 "projects/demos/music/demo-c64.sid"
             ], 
-            "chunks": [], 
-            "charset": []
+            "chunks": []
         }, 
         "Lynx": {
             "spriteFrames": "16", 
@@ -80,14 +88,14 @@
                 "projects/demos/bitmaps/banner-lynx.png", 
                 "projects/demos/bitmaps/stadium-lynx.png"
             ], 
+            "charset": [], 
             "sprites": [
                 "projects/demos/sprites/sprites-lynx.png"
             ], 
             "music": [
                 "projects/demos/music/demo-lynx.asm"
             ], 
-            "chunks": [], 
-            "charset": []
+            "chunks": []
         }, 
         "Oric": {
             "spriteFrames": "16", 
@@ -99,14 +107,14 @@
                 "projects/demos/bitmaps/banner-oric.png", 
                 "projects/demos/bitmaps/stadium-oric.png"
             ], 
+            "charset": [], 
             "sprites": [
                 "projects/demos/sprites/sprites-oric.png"
             ], 
             "music": [
                 "projects/demos/music/demo-oric.ym"
             ], 
-            "chunks": [], 
-            "charset": []
+            "chunks": []
         }
     }
 }

@@ -14,16 +14,16 @@
             "spriteFrames": "16", 
             "spriteWidth": "7", 
             "spriteHeight": "13", 
-            "bitmap": [
+            "bitmapDHR": [
                 "projects/grubs/bitmaps/banner-apple.png", 
                 "projects/grubs/bitmaps/pumpkins-apple.png"
             ], 
-            "sprites": [
+            "spritesDHR": [
                 "projects/grubs/sprites/sprites-apple.png"
             ], 
             "music": [], 
             "chunks": [], 
-            "charset": [], 
+            "charsetDHR": [], 
             "diskSize": "140KB"
         }, 
         "Atari": {

@@ -22,17 +22,17 @@
             "spriteFrames": "32", 
             "spriteWidth": "7", 
             "spriteHeight": "16", 
-            "bitmap": [
+            "bitmapDHR": [
                 "projects/dungeon/bitmaps/menu-apple.png"
             ], 
-            "sprites": [
+            "spritesDHR": [
                 "projects/dungeon/sprites/sprites-apple.png"
             ], 
             "music": [
                 "projects/dungeon/music/dungeon-apple.m"
             ], 
             "chunks": [], 
-            "charset": [
+            "charsetDHR": [
                 "projects/dungeon/charsets/quedex-apple.png"
             ], 
             "diskSize": "140KB"

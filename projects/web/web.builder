@@ -21,11 +21,11 @@
             "spriteFrames": "0", 
             "spriteWidth": "7", 
             "spriteHeight": "0", 
-            "bitmap": [], 
-            "sprites": [], 
+            "bitmapDHR": [], 
+            "spritesDHR": [], 
             "music": [], 
             "chunks": [], 
-            "charset": [], 
+            "charsetDHR": [], 
             "diskSize": "140KB"
         }, 
         "Atari": {

@@ -2,13 +2,13 @@
 #include "definitions.h"
 
 #if defined __APPLE2__
- #if define __DHR__
+ #if defined __DHR__
   #define RACE_ROAD LGREY
   #define RACE_MARK YELLOW
   #define RACE_WALL PURPLE
  #else
-  #define RACE_ROAD BLUE
-  #define RACE_MARK BLUE
+  #define RACE_ROAD BLACK
+  #define RACE_MARK WHITE
   #define RACE_WALL PURPLE
  #endif	 
 #elif defined __ATARI__

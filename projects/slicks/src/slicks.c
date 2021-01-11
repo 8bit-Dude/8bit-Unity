@@ -7,7 +7,11 @@
 	#define spriteCols   7	
 	#define spriteRows   5	
 	unsigned char spriteColors[] = { };	//  Colors are pre-assigned in the sprite sheet
+  #if defined __DHR__	
 	unsigned char inkColors[] = { BLUE, RED, GREEN, YELLOW, WHITE };		// P1, P2, P3, P4, SERVER INFO
+  #else
+	unsigned char inkColors[] = { BLUE, PURPLE, GREEN, ORANGE, WHITE };		// P1, P2, P3, P4, SERVER INFO
+  #endif
 #elif defined __ATARI__
 	#define spriteFrames 18
 	#define spriteCols   8

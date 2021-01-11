@@ -23,13 +23,13 @@
             "spriteFrames": "2", 
             "spriteWidth": "7", 
             "spriteHeight": "7", 
-            "bitmap": [
+            "bitmapDHR": [
                 "projects/os/bitmaps/hokusai-apple.png", 
                 "projects/os/bitmaps/munch-apple.png", 
                 "projects/os/bitmaps/picasso-apple.png", 
                 "projects/os/bitmaps/vangogh-apple.png"
             ], 
-            "sprites": [
+            "spritesDHR": [
                 "projects/os/sprites/sprites-apple.png"
             ], 
             "music": [
@@ -40,7 +40,7 @@
             "chunks": [
                 "projects/os/chunks/chunks-apple.txt"
             ], 
-            "charset": [], 
+            "charsetDHR": [], 
             "diskSize": "140KB"
         }, 
         "Atari": {

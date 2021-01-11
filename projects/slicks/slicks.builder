@@ -32,29 +32,48 @@
             "spriteFrames": "64", 
             "spriteWidth": "7", 
             "spriteHeight": "5", 
-            "bitmap": [
-                "projects/slicks/bitmaps/menu-apple.png", 
-                "projects/slicks/bitmaps/arizona-apple.png", 
-                "projects/slicks/bitmaps/arto-apple.png", 
-                "projects/slicks/bitmaps/cramp-apple.png", 
-                "projects/slicks/bitmaps/freeway-apple.png", 
-                "projects/slicks/bitmaps/gta-apple.png", 
-                "projects/slicks/bitmaps/island-apple.png", 
-                "projects/slicks/bitmaps/mtcarlo-apple.png", 
-                "projects/slicks/bitmaps/rally-apple.png", 
-                "projects/slicks/bitmaps/river-apple.png", 
-                "projects/slicks/bitmaps/stadium-apple.png", 
-                "projects/slicks/bitmaps/suzuka-apple.png", 
-                "projects/slicks/bitmaps/trial-apple.png"
+            "bitmapDHR": [
+                "projects/slicks/bitmaps/menu-apple-dhr.png", 
+                "projects/slicks/bitmaps/arizona-apple-dhr.png", 
+                "projects/slicks/bitmaps/arto-apple-dhr.png", 
+                "projects/slicks/bitmaps/cramp-apple-dhr.png", 
+                "projects/slicks/bitmaps/freeway-apple-dhr.png", 
+                "projects/slicks/bitmaps/gta-apple-dhr.png", 
+                "projects/slicks/bitmaps/island-apple-dhr.png", 
+                "projects/slicks/bitmaps/mtcarlo-apple-dhr.png", 
+                "projects/slicks/bitmaps/rally-apple-dhr.png", 
+                "projects/slicks/bitmaps/river-apple-dhr.png", 
+                "projects/slicks/bitmaps/stadium-apple-dhr.png", 
+                "projects/slicks/bitmaps/suzuka-apple-dhr.png", 
+                "projects/slicks/bitmaps/trial-apple-dhr.png"
             ], 
-            "sprites": [
-                "projects/slicks/sprites/sprites-apple.png"
+            "bitmapSHR": [
+                "projects/slicks/bitmaps/menu-apple-shr.png", 
+                "projects/slicks/bitmaps/arizona-apple-shr.png", 
+                "projects/slicks/bitmaps/arto-apple-shr.png", 
+                "projects/slicks/bitmaps/cramp-apple-shr.png", 
+                "projects/slicks/bitmaps/freeway-apple-shr.png", 
+                "projects/slicks/bitmaps/gta-apple-shr.png", 
+                "projects/slicks/bitmaps/island-apple-shr.png", 
+                "projects/slicks/bitmaps/mtcarlo-apple-shr.png", 
+                "projects/slicks/bitmaps/rally-apple-shr.png", 
+                "projects/slicks/bitmaps/river-apple-shr.png", 
+                "projects/slicks/bitmaps/stadium-apple-shr.png", 
+                "projects/slicks/bitmaps/suzuka-apple-shr.png", 
+                "projects/slicks/bitmaps/suzuka-apple-shr.png"
+            ], 
+            "charsetDHR": [], 
+            "charsetSHR": [], 
+            "spritesDHR": [
+                "projects/slicks/sprites/sprites-apple-dhr.png"
+            ], 
+            "spritesSHR": [
+                "projects/slicks/sprites/sprites-apple-shr.png"
             ], 
             "music": [
                 "projects/slicks/music/speednik-apple.m"
             ], 
             "chunks": [], 
-            "charset": [], 
             "diskSize": "800KB"
         }, 
         "Atari": {
@@ -76,6 +95,7 @@
                 "projects/slicks/bitmaps/suzuka-atari.png", 
                 "projects/slicks/bitmaps/trial-atari.png"
             ], 
+            "charset": [], 
             "sprites": [
                 "projects/slicks/sprites/sprites-atari.png"
             ], 
@@ -83,7 +103,6 @@
                 "projects/slicks/music/speednik-atari.rmt"
             ], 
             "chunks": [], 
-            "charset": [], 
             "noText": true, 
             "diskSize": "360KB"
         }, 
@@ -106,14 +125,14 @@
                 "projects/slicks/bitmaps/suzuka-c64.png", 
                 "projects/slicks/bitmaps/trial-c64.png"
             ], 
+            "charset": [], 
             "sprites": [
                 "projects/slicks/sprites/sprites-c64.png"
             ], 
             "music": [
                 "projects/slicks/music/speednik-c64.sid"
             ], 
-            "chunks": [], 
-            "charset": []
+            "chunks": []
         }, 
         "Lynx": {
             "spriteFrames": "18", 
@@ -137,6 +156,7 @@
                 "projects/slicks/bitmaps/suzuka-lynx.png", 
                 "projects/slicks/bitmaps/trial-lynx.png"
             ], 
+            "charset": [], 
             "sprites": [
                 "projects/slicks/sprites/sprites-lynx.png"
             ], 
@@ -147,8 +167,7 @@
                 "projects/slicks/music/stroll-lynx.asm", 
                 "projects/slicks/music/whirlwnd-lynx.asm"
             ], 
-            "chunks": [], 
-            "charset": []
+            "chunks": []
         }, 
         "Oric": {
             "spriteFrames": "17", 
@@ -171,14 +190,14 @@
                 "projects/slicks/bitmaps/suzuka-oric.png", 
                 "projects/slicks/bitmaps/trial-oric.png"
             ], 
+            "charset": [], 
             "sprites": [
                 "projects/slicks/sprites/sprites-oric.png"
             ], 
             "music": [
                 "projects/slicks/music/speednik-oric.ym"
             ], 
-            "chunks": [], 
-            "charset": []
+            "chunks": []
         }
     }
 }
