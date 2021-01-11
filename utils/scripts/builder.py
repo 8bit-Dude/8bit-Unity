@@ -36,7 +36,9 @@ def Str2Bool(v):
 
 def FileBase(filepath, suffix):
     # Return asset file base
-    return os.path.basename(filepath).lower().replace(suffix, '')
+    name = os.path.basename(filepath).lower().replace(suffix, '')
+    name = name.split("-")
+    return name[0]
 
 # Constants
 PROJECT_FILE_FORMATS = (("Project files","*.builder"), )
@@ -70,9 +72,12 @@ class Application:
     listbox_Charmap = None
     listbox_Shared = None
     
-    listbox_AppleBitmap = None
-    listbox_AppleCharset = None
-    listbox_AppleSprites = None
+    listbox_AppleBitmapDHR = None
+    listbox_AppleBitmapSHR = None
+    listbox_AppleCharsetDHR = None
+    listbox_AppleCharsetSHR = None
+    listbox_AppleSpritesDHR = None
+    listbox_AppleSpritesSHR = None
     listbox_AppleChunks = None
     listbox_AppleMusic = None
     
@@ -144,9 +149,12 @@ class Application:
         self.listbox_Shared = self.builder.get_object('Listbox_Shared')
         self.entry_Disk = self.builder.get_object('Entry_Disk')
         
-        self.listbox_AppleBitmap = self.builder.get_object('Listbox_AppleBitmap')        
-        self.listbox_AppleCharset = self.builder.get_object('Listbox_AppleCharset')        
-        self.listbox_AppleSprites = self.builder.get_object('Listbox_AppleSprites')        
+        self.listbox_AppleBitmapDHR = self.builder.get_object('Listbox_AppleBitmapDHR')        
+        self.listbox_AppleBitmapSHR = self.builder.get_object('Listbox_AppleBitmapSHR')        
+        self.listbox_AppleCharsetDHR = self.builder.get_object('Listbox_AppleCharsetDHR')        
+        self.listbox_AppleCharsetSHR = self.builder.get_object('Listbox_AppleCharsetSHR')        
+        self.listbox_AppleSpritesDHR = self.builder.get_object('Listbox_AppleSpritesDHR')        
+        self.listbox_AppleSpritesSHR = self.builder.get_object('Listbox_AppleSpritesSHR')        
         self.listbox_AppleChunks = self.builder.get_object('Listbox_AppleChunks')        
         self.listbox_AppleMusic = self.builder.get_object('Listbox_AppleMusic')        
         self.entry_AppleSpriteFrames = self.builder.get_object('Entry_AppleSpriteFrames')
@@ -211,17 +219,17 @@ class Application:
                          self.entry_OricDithering,     self.entry_LynxMusicMemory,  self.entry_LynxSharedMemory,
                          self.entry_OricEnforcedColors ]
         self.listboxes = [ self.listbox_Code, 
-                           self.listbox_AppleBitmap,  self.listbox_AppleSprites, self.listbox_AppleMusic,
-                           self.listbox_AtariBitmap,  self.listbox_AtariSprites, self.listbox_AtariMusic,
-                           self.listbox_C64Bitmap,    self.listbox_C64Sprites,   self.listbox_C64Music,
-                           self.listbox_OricBitmap,   self.listbox_OricSprites,  self.listbox_OricMusic,
+                           self.listbox_AppleBitmapDHR,self.listbox_AppleSpritesDHR,self.listbox_AppleMusic,
+                           self.listbox_AtariBitmap,   self.listbox_AtariSprites, self.listbox_AtariMusic,
+                           self.listbox_C64Bitmap,     self.listbox_C64Sprites,   self.listbox_C64Music,
+                           self.listbox_OricBitmap,    self.listbox_OricSprites,  self.listbox_OricMusic,
                            self.listbox_Shared, 
-                           self.listbox_LynxBitmap,   self.listbox_LynxSprites,  self.listbox_LynxMusic,
-                           self.listbox_AppleChunks,  self.listbox_AtariChunks,  self.listbox_C64Chunks,
-                           self.listbox_LynxChunks,   self.listbox_OricChunks,
-                           self.listbox_AppleCharset, self.listbox_AtariCharset, self.listbox_C64Charset,
-                           self.listbox_LynxCharset,  self.listbox_OricCharset,
-                           self.listbox_Charmap ]
+                           self.listbox_LynxBitmap,    self.listbox_LynxSprites,  self.listbox_LynxMusic,
+                           self.listbox_AppleChunks,   self.listbox_AtariChunks,  self.listbox_C64Chunks,
+                           self.listbox_LynxChunks,    self.listbox_OricChunks,
+                           self.listbox_AppleCharsetDHR,self.listbox_AtariCharset, self.listbox_C64Charset,
+                           self.listbox_LynxCharset,   self.listbox_OricCharset,  self.listbox_Charmap,
+                           self.listbox_AppleBitmapSHR,self.listbox_AppleSpritesSHR, self.listbox_AppleCharsetSHR ]
         self.checkbuttons = [ self.Checkbutton_AtariNoText ]
         self.comboboxes = [ self.Combobox_AtariDiskSize, self.Combobox_AppleDiskSize ]
                        
@@ -395,11 +403,14 @@ class Application:
                     ('spriteFrames', ('entry', self.entry_AppleSpriteFrames)),
                     ('spriteWidth', ('entry', self.entry_AppleSpriteWidth)),
                     ('spriteHeight', ('entry', self.entry_AppleSpriteHeight)),
-                    ('bitmap', ('listbox', self.listbox_AppleBitmap)),
-                    ('sprites', ('listbox', self.listbox_AppleSprites)),
+                    ('bitmapDHR', ('listbox', self.listbox_AppleBitmapDHR)),
+                    ('bitmapSHR', ('listbox', self.listbox_AppleBitmapSHR)),
+                    ('charsetDHR', ('listbox', self.listbox_AppleCharsetDHR)),
+                    ('charsetSHR', ('listbox', self.listbox_AppleCharsetSHR)),
+                    ('spritesDHR', ('listbox', self.listbox_AppleSpritesDHR)),
+                    ('spritesSHR', ('listbox', self.listbox_AppleSpritesSHR)),
                     ('music', ('listbox', self.listbox_AppleMusic)),
                     ('chunks', ('listbox', self.listbox_AppleChunks)),
-                    ('charset', ('listbox', self.listbox_AppleCharset)),
                     ('diskSize', ('Combobox', self.Combobox_AppleDiskSize)),
                 ]),
                 ('Atari', [
@@ -407,10 +418,10 @@ class Application:
                     ('spriteWidth', ('entry', self.entry_AtariSpriteWidth)),
                     ('spriteHeight', ('entry', self.entry_AtariSpriteHeight)),
                     ('bitmap', ('listbox', self.listbox_AtariBitmap)),
+                    ('charset', ('listbox', self.listbox_AtariCharset)),
                     ('sprites', ('listbox', self.listbox_AtariSprites)),
                     ('music', ('listbox', self.listbox_AtariMusic)),
                     ('chunks', ('listbox', self.listbox_AtariChunks)),
-                    ('charset', ('listbox', self.listbox_AtariCharset)),
                     ('noText', ('Checkbutton', self.Checkbutton_AtariNoText)),
                     ('diskSize', ('Combobox', self.Combobox_AtariDiskSize)),
                 ]),
@@ -419,10 +430,10 @@ class Application:
                     ('spriteWidth', ('entry', self.entry_C64SpriteWidth)),
                     ('spriteHeight', ('entry', self.entry_C64SpriteHeight)),
                     ('bitmap', ('listbox', self.listbox_C64Bitmap)),
+                    ('charset', ('listbox', self.listbox_C64Charset)),
                     ('sprites', ('listbox', self.listbox_C64Sprites)),
                     ('music', ('listbox', self.listbox_C64Music)),
                     ('chunks', ('listbox', self.listbox_C64Chunks)),
-                    ('charset', ('listbox', self.listbox_C64Charset)),
                 ]),
                 ('Lynx', [
                     ('spriteFrames', ('entry', self.entry_LynxSpriteFrames)),
@@ -431,10 +442,10 @@ class Application:
                     ('musicMemory', ('entry', self.entry_LynxMusicMemory)),
                     ('sharedMemory', ('entry', self.entry_LynxSharedMemory)),
                     ('bitmap', ('listbox', self.listbox_LynxBitmap)),
+                    ('charset', ('listbox', self.listbox_LynxCharset)),
                     ('sprites', ('listbox', self.listbox_LynxSprites)),
                     ('music', ('listbox', self.listbox_LynxMusic)),
                     ('chunks', ('listbox', self.listbox_LynxChunks)),
-                    ('charset', ('listbox', self.listbox_LynxCharset)),
                 ]),
                 ('Oric', [
                     ('spriteFrames', ('entry', self.entry_OricSpriteFrames)),
@@ -443,10 +454,10 @@ class Application:
                     ('dithering', ('entry', self.entry_OricDithering)),
                     ('enforcedColors', ('entry', self.entry_OricEnforcedColors)),
                     ('bitmap', ('listbox', self.listbox_OricBitmap)),
+                    ('charset', ('listbox', self.listbox_OricCharset)),
                     ('sprites', ('listbox', self.listbox_OricSprites)),
                     ('music', ('listbox', self.listbox_OricMusic)),
                     ('chunks', ('listbox', self.listbox_OricChunks)),
-                    ('charset', ('listbox', self.listbox_OricCharset)),
                 ]),
             ]),
         ]
@@ -478,29 +489,52 @@ class Application:
     def SharedRem(self):
         self.listbox_Shared.delete(0, ACTIVE)
         
-    def AppleBitmapAdd(self):
+    def AppleBitmapDHRAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Bitmap", filetypes = (("PNG files","*.png"),)) 
         if filename is not '':
             filename = filename.replace(self.cwd, '')
-            self.listbox_AppleBitmap.insert(END, filename)
+            self.listbox_AppleBitmapDHR.insert(END, filename)
 
-    def AppleBitmapRem(self):
-        self.listbox_AppleBitmap.delete(0, ACTIVE)
+    def AppleBitmapDHRRem(self):
+        self.listbox_AppleBitmapDHR.delete(0, ACTIVE)
 
-    def AppleCharsetSel(self):
+    def AppleBitmapSHRAdd(self):
+        filename = askopenfilename(initialdir = "../../", title = "Select Bitmap", filetypes = (("PNG files","*.png"),)) 
+        if filename is not '':
+            filename = filename.replace(self.cwd, '')
+            self.listbox_AppleBitmapSHR.insert(END, filename)
+
+    def AppleBitmapSHRRem(self):
+        self.listbox_AppleBitmapSHR.delete(0, ACTIVE)
+
+    def AppleCharsetDHRSel(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Character Set", filetypes = (("PNG files","*.png"),)) 
         if filename is not '':
             filename = filename.replace(self.cwd, '')
-            self.listbox_AppleCharset.delete(0, END)
-            self.listbox_AppleCharset.insert(END, filename)
+            self.listbox_AppleCharsetDHR.delete(0, END)
+            self.listbox_AppleCharsetDHR.insert(END, filename)
+
+    def AppleCharsetSHRSel(self):
+        filename = askopenfilename(initialdir = "../../", title = "Select Character Set", filetypes = (("PNG files","*.png"),)) 
+        if filename is not '':
+            filename = filename.replace(self.cwd, '')
+            self.listbox_AppleCharsetSHR.delete(0, END)
+            self.listbox_AppleCharsetSHR.insert(END, filename)
             
-    def AppleSpritesSel(self):
+    def AppleSpritesDHRSel(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Sprite Sheet", filetypes = (("PNG files","*.png"),)) 
         if filename is not '':
             filename = filename.replace(self.cwd, '')
-            self.listbox_AppleSprites.delete(0, END)
-            self.listbox_AppleSprites.insert(END, filename)
+            self.listbox_AppleSpritesDHR.delete(0, END)
+            self.listbox_AppleSpritesDHR.insert(END, filename)
 
+    def AppleSpritesSHRSel(self):
+        filename = askopenfilename(initialdir = "../../", title = "Select Sprite Sheet", filetypes = (("PNG files","*.png"),)) 
+        if filename is not '':
+            filename = filename.replace(self.cwd, '')
+            self.listbox_AppleSpritesSHR.delete(0, END)
+            self.listbox_AppleSpritesSHR.insert(END, filename)
+            
     def AppleChunksSel(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Chunks Definition", filetypes = (("Text files","*.txt"),)) 
         if filename is not '':
@@ -684,9 +718,12 @@ class Application:
 
         ####################################################
         # Apple script
-        bitmaps = list(self.listbox_AppleBitmap.get(0, END))
-        charset = list(self.listbox_AppleCharset.get(0, END))
-        sprites = list(self.listbox_AppleSprites.get(0, END))
+        bitmapsDHR = list(self.listbox_AppleBitmapDHR.get(0, END))
+        bitmapsSHR = list(self.listbox_AppleBitmapSHR.get(0, END))
+        charsetDHR = list(self.listbox_AppleCharsetDHR.get(0, END))
+        charsetSHR = list(self.listbox_AppleCharsetSHR.get(0, END))
+        spritesDHR = list(self.listbox_AppleSpritesDHR.get(0, END))
+        spritesSHR = list(self.listbox_AppleSpritesSHR.get(0, END))
         chunks = list(self.listbox_AppleChunks.get(0, END))
         music = list(self.listbox_AppleMusic.get(0, END))
         
@@ -701,19 +738,28 @@ class Application:
                 fp.write('del build\\apple\\*.* /F /Q\n\n')
                 fp.write('echo --------------- CONVERT ASSETS ---------------  \n\n')
                 
-                # Assign GFX mode
+                # Assign GFX mode and assets
+                bitmaps = bitmapsDHR
+                charset = charsetDHR
+                sprites = spritesDHR
                 if target == '128k':
                     graphics = 'double'
                 else:
                     graphics = 'single'
+                    if len(bitmapsSHR) > 0:
+                        bitmaps = bitmapsSHR
+                    if len(charsetSHR) > 0:
+                        charset = charsetSHR
+                    if len(spritesSHR) > 0:
+                        sprites = spritesSHR
                 
                 # Bitmaps
                 for item in bitmaps:
-                    fp.write('utils\\py27\\python utils\\scripts\\apple\\AppleBitmap.py ' + graphics + ' ' + item + ' ' + buildFolder + '/apple/' + FileBase(item, '-apple.png') + '.img\n')
+                    fp.write('utils\\py27\\python utils\\scripts\\apple\\AppleBitmap.py ' + graphics + ' ' + item + ' ' + buildFolder + '/apple/' + FileBase(item, '.png') + '.img\n')
 
                 # Charset
                 if len(charset) > 0:
-                    fb = FileBase(charset[0], '-apple.png')
+                    fb = FileBase(charset[0], '.png')
                     fp.write('utils\\py27\python utils\\scripts\\apple\\AppleCharset.py ' + graphics + ' ' + charset[0] + ' ' + buildFolder + '/apple/' + fb + '.chr\n')
                     
                 # Sprites
@@ -737,7 +783,7 @@ class Application:
                     if graphics == 'double':
                         fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t apple2 -D __DHR__ -I unity unity\\' + file + '\n')
                     else:
-                        fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t apple2 -I unity unity\\' + file + '\n')
+                        fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t apple2 -D __SHR__ -I unity unity\\' + file + '\n')
                     fp.write('utils\\cc65\\bin\\ca65 -t apple2 unity\\' + file[0:-2] + '.s\n')
                     fp.write('del unity\\' + file[0:-2] + '.s\n')
 
@@ -755,7 +801,7 @@ class Application:
                 if graphics == 'double':
                     symbols = '-D __DHR__ -Wl -D,__STACKSIZE__=$0400,-D,__HIMEM__=$BC00,-D,__LCADDR__=$D000,-D,__LCSIZE__=$1000'
                 else:
-                    symbols = '-Wl -D,__STACKSIZE__=$0400,-D,__HIMEM__=$BC00,-D,__LCADDR__=$D000,-D,__LCSIZE__=$1000'
+                    symbols = '-D __SHR__ -Wl -D,__STACKSIZE__=$0400,-D,__HIMEM__=$BC00,-D,__LCADDR__=$D000,-D,__LCSIZE__=$1000'
                 comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/apple/' + diskname.lower() + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-apple' + target + '.map -Cl -O -t apple2 ' + symbols + ' -C apple2-hgr.cfg -I unity '
                 for item in code:
                     comp += item + ' '
@@ -782,16 +828,16 @@ class Application:
                 if len(sprites) > 0:
                     fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p ' + buildFolder + '/' + diskname + '-apple' + target + ext + ' SPRITES.DAT bin < ' + buildFolder + '/apple/sprites.dat\n')
                 for item in bitmaps:
-                    fb = FileBase(item, '-apple.png')
+                    fb = FileBase(item, '.png')
                     fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p ' + buildFolder + '/' + diskname + '-apple' + target + ext + ' ' + fb.upper() + '.IMG bin < ' + buildFolder + '/apple/' + fb + '.img\n')
                 if len(charset) > 0:
-                    fb = FileBase(charset[0], '-apple.png')
+                    fb = FileBase(charset[0], '.png')
                     fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p ' + buildFolder + '/' + diskname + '-apple' + target + ext + ' ' + fb.upper() + '.CHR bin < ' + buildFolder + '/apple/' + fb + '.chr\n')
                 for item in charmaps:
                     fb = FileBase(item, '')
                     fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p ' + buildFolder + '/' + diskname + '-apple' + target + ext + ' ' + fb.upper() + ' bin < ' + item + '\n')
                 for item in music:
-                    fb = FileBase(item, '-apple.m')
+                    fb = FileBase(item, '.m')
                     fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p ' + buildFolder + '/' + diskname + '-apple' + target + ext + ' ' + fb.upper() + '.MUS bin < ' +item + '\n')
                 for item in shared:
                     fb = FileBase(item, '')
@@ -825,7 +871,7 @@ class Application:
             
             # Bitmaps
             for item in bitmaps:
-                fp.write('utils\\py27\\python utils\\scripts\\atari\\AtariBitmap.py ' + item + ' ' + buildFolder + '/atari/' + FileBase(item, '-atari.png') + '.img\n')
+                fp.write('utils\\py27\\python utils\\scripts\\atari\\AtariBitmap.py ' + item + ' ' + buildFolder + '/atari/' + FileBase(item, '.png') + '.img\n')
                 
             # Charmaps/Tilesets
             for item in charmaps:
@@ -833,7 +879,7 @@ class Application:
                 
             # Charsets
             if len(charset) > 0:
-                fb = FileBase(charset[0], '-atari.png')
+                fb = FileBase(charset[0], '.png')
                 fp.write('utils\\py27\python utils\\scripts\\atari\\AtariCharset.py ' + charset[0] + ' ' + buildFolder + '/atari/' + fb + '.chr\n')
                 
             # Sprites    
@@ -851,7 +897,7 @@ class Application:
 
             # Music
             for item in music:
-                fp.write('copy ' + item.replace('/','\\') + ' ' + buildFolder + '\\atari\\' + FileBase(item, '-atari.rmt') + '.mus\n')
+                fp.write('copy ' + item.replace('/','\\') + ' ' + buildFolder + '\\atari\\' + FileBase(item, '.rmt') + '.mus\n')
 
             # Info
             fp.write('\necho DONE!\n\n')
@@ -941,11 +987,11 @@ class Application:
             
             # Bitmaps
             for item in bitmaps:
-                fp.write('utils\\py27\\python utils\\scripts\\c64\\C64Bitmap.py ' + item + ' ' + buildFolder + '/c64/' + FileBase(item, '-c64.png') + '.img\n')
+                fp.write('utils\\py27\\python utils\\scripts\\c64\\C64Bitmap.py ' + item + ' ' + buildFolder + '/c64/' + FileBase(item, '.png') + '.img\n')
                 
             # Charset    
             if len(charset) > 0:
-                fb = FileBase(charset[0], '-c64.png')
+                fb = FileBase(charset[0], '.png')
                 fp.write('utils\\py27\python utils\\scripts\\c64\\C64Charset.py ' + charset[0] + ' ' + buildFolder + '/c64/' + fb + '.chr\n')
                 
             # Sprites
@@ -958,13 +1004,11 @@ class Application:
                 
             # Music
             for item in music:
-                fb = FileBase(item, '-c64.sid')
+                fb = FileBase(item, '.sid')
                 fp.write('utils\\scripts\\c64\\sidreloc.exe -v -z 30-ff -p 08 ' + item + ' ' + buildFolder + '/c64/' + fb + '.sid\n')
-                fp.write('if exist ' + buildFolder + '/c64/' + fb + '.sid (\n')
-                fp.write('    utils\\scripts\\c64\\psid64.exe -n ' + buildFolder + '/c64/' + fb + '.sid\n')
-                fp.write(') else (\n')
+                fp.write('if not exist ' + buildFolder + '/c64/' + fb + '.sid (\n')
                 fp.write('    echo Relocation impossible, using the original file instead...\n')
-                fp.write('    copy ' + item.replace('/', '\\') + ' ' + buildFolder + '\\c64\\' + fb + '.prg\n')
+                fp.write('    copy ' + item.replace('/', '\\') + ' ' + buildFolder + '\\c64\\' + fb + '.sid\n')
                 fp.write(')\n')
 
             # Info
@@ -1010,17 +1054,17 @@ class Application:
             fp.write('set C1541=utils\\scripts\\c64\\c1541 -format loader,666 d64 ' + buildFolder + '/' + diskname + '-c64.d64 -attach ' + buildFolder + '/' + diskname + '-c64.d64 ')
             fp.write('-write ' + buildFolder + '/c64/loader.prg loader.prg ')
             for item in bitmaps:
-                fb = FileBase(item, '-c64.png')
+                fb = FileBase(item, '.png')
                 fp.write('-write ' + buildFolder + '/c64/' + fb + '.img ' + fb + '.img ')
             if len(charset) > 0:
-                fb = FileBase(charset[0], '-c64.png')            
+                fb = FileBase(charset[0], '.png')            
                 fp.write('-write ' + buildFolder + '/c64/' + fb + '.chr ' + fb + '.chr ')                           
             for item in charmaps:
                 fb = FileBase(item, '')
                 fp.write('-write ' + item + ' ' + fb + ' ')
             for item in music:
-                fb = FileBase(item, '-c64.sid')
-                fp.write('-write ' + buildFolder + '/c64/' + fb + '.prg ' + fb + '.mus ')              
+                fb = FileBase(item, '.sid')
+                fp.write('-write ' + buildFolder + '/c64/' + fb + '.sid ' + fb + '.mus ')              
             for item in shared:
                 fp.write('-write ' + item + ' ' + FileBase(item, '') + ' ')                
             fp.write('\nfor /f "tokens=*" %%A in (' + buildFolder + '\c64\chunks.lst) do set C1541=!C1541!-write %%A %%~nxA \n')
@@ -1059,7 +1103,7 @@ class Application:
                 
             # Bitmaps
             for item in bitmaps:
-                fb = FileBase(item, '-lynx.png')
+                fb = FileBase(item, '.png')
                 fp.write('copy ..\\..\\' + item.replace('/', '\\') + ' ' + fb + '.png\n')
                 fp.write('..\\..\\utils\\scripts\\png2bmp ' + fb + '.png\n')
                 fp.write('..\\..\\utils\\scripts\\lynx\\sprpck -t6 -p2 -u ' + fb + '.bmp\n')
@@ -1068,7 +1112,7 @@ class Application:
                 
             # Charset
             if len(charset) > 0:
-                fb = FileBase(charset[0], '-lynx.png')
+                fb = FileBase(charset[0], '.png')
                 fp.write('..\\..\\utils\\py27\python ..\\..\\utils\\scripts\\lynx\\LynxCharset.py ..\\..\\' + charset[0].replace('/', '\\') + ' ' +fb + '.chr\n')
                 fp.write('\n')
                 
@@ -1121,13 +1165,13 @@ class Application:
             # Get Size of various files
             filelist = ''
             for i in range(len(bitmaps)):
-                fb = FileBase(bitmaps[i], '-lynx.png')
+                fb = FileBase(bitmaps[i], '.png')
                 filelist += fb + '.spr,'
             for item in charmaps:
                 fb = FileBase(item, '')
                 filelist += fb + ','
             for i in range(len(charset)):
-                fb = FileBase(charset[i], '-lynx.png')
+                fb = FileBase(charset[i], '.png')
                 filelist += fb + '.chr,'
             for i in range(len(music)):
                 filelist += 'music' + str(i).zfill(2) + '.asm,'
@@ -1192,7 +1236,7 @@ class Application:
 
                 # Write list of Bitmaps
                 for i in range(len(bitmaps)):
-                    fb = FileBase(bitmaps[i], '-lynx.png')
+                    fb = FileBase(bitmaps[i], '.png')
                     fp.write('@echo _bmpName' + str(i).zfill(2) + ': .byte "' + fb + '.img",0 >> data.asm\n')
 
                 # Write list of Charmaps/Tilesets
@@ -1202,12 +1246,12 @@ class Application:
 
                 # Write list of Charsets
                 for i in range(len(charset)):
-                    fb = FileBase(charset[i], '-lynx.png')
+                    fb = FileBase(charset[i], '.png')
                     fp.write('@echo _chrName' + str(i).zfill(2) + ': .byte "' + fb + '.chr",0 >> data.asm\n')
 
                 # Write list of Musics
                 for i in range(len(music)):
-                    fb = FileBase(music[i], '-lynx.asm')
+                    fb = FileBase(music[i], '.asm')
                     fp.write('@echo _musName' + str(i).zfill(2) + ': .byte "' + fb + '.mus",0 >> data.asm\n')
                     
                 # Write list of Shared
@@ -1223,7 +1267,7 @@ class Application:
                 # Link list of bitmaps
                 fp.write('@echo ; >> data.asm\n')
                 for i in range(len(bitmaps)):
-                    fb = FileBase(bitmaps[i], '-lynx.png')
+                    fb = FileBase(bitmaps[i], '.png')
                     fp.write('@echo .segment "BMP' + str(i) + 'DATA" >> data.asm\n')
                     fp.write('@echo _bmpData' + str(i).zfill(2) + ': .incbin "' + fb + '.spr" >> data.asm\n')                    
 
@@ -1237,7 +1281,7 @@ class Application:
                 # Link list of charsets
                 fp.write('@echo ; >> data.asm\n')
                 for i in range(len(charset)):
-                    fb = FileBase(charset[i], '-lynx.png')
+                    fb = FileBase(charset[i], '.png')
                     fp.write('@echo .segment "BMP' + str(len(bitmaps)+len(charmaps)+i) + 'DATA" >> data.asm\n')
                     fp.write('@echo _chrData' + str(i).zfill(2) + ': .incbin "' + fb + '.chr" >> data.asm\n')                    
                     
@@ -1355,12 +1399,12 @@ class Application:
             # Process Bitmaps / Chunks / Sprites / Shared
             fp.write('cd utils\\scripts\\oric\n')
             for item in bitmaps:
-                fb = FileBase(item, '-oric.png')
+                fb = FileBase(item, '.png')
                 fp.write('..\\..\\py27\\python OricBitmap.py ../../../' + item + ' ../../../' + buildFolder + '/oric/' + fb + '.dat ' + self.entry_OricDithering.get() + ' ' + self.entry_OricEnforcedColors.get() + '\n')
                 fp.write('header -a0 ../../../' + buildFolder + '/oric/' + fb + '.dat ../../../' + buildFolder + '/oric/' + fb + '.img $A000\n')
                 
             if len(charset) > 0:
-                fb = FileBase(charset[0], '-oric.png')
+                fb = FileBase(charset[0], '.png')
                 fp.write('..\\..\\py27\python OricCharset.py ../../../' + charset[0] + ' ../../../' + buildFolder + '/oric/' + fb + '.dat ' + self.entry_OricDithering.get() +  '\n') 
                 fp.write('header -a0 ../../../' + buildFolder + '/oric/' + fb + '.dat ../../../' + buildFolder + '/oric/' + fb + '.chr $A000\n')
                 
@@ -1379,7 +1423,7 @@ class Application:
                 fp.write('utils\\scripts\\oric\\header -a0 ' + buildFolder + '/oric/sprites.dat ' + buildFolder + '/oric/sprites.dat $7800\n')
                 
             for item in music:
-                fb = FileBase(item, '-oric.ym')
+                fb = FileBase(item, '.ym')
                 fp.write('utils\\scripts\\oric\\ym2mym ' + item + ' ' + buildFolder + '/oric/' + fb + '.mus\n')
                 fp.write('utils\\scripts\\oric\\header -h1 -a0 ' + buildFolder + '/oric/' + fb + '.mus ' + buildFolder + '/oric/' + fb + '.mus $8000\n')
                 
@@ -1431,13 +1475,13 @@ class Application:
             if len(sprites) > 0:
                 cmd += ' ' + buildFolder + '/oric/sprites.dat'
             for item in bitmaps:
-                cmd += ' ' + buildFolder + '/oric/' + FileBase(item, '-oric.png') + '.img'
+                cmd += ' ' + buildFolder + '/oric/' + FileBase(item, '.png') + '.img'
             if len(charset) > 0:
-                cmd += ' ' + buildFolder + '/oric/' + FileBase(charset[0], '-oric.png') + '.chr'
+                cmd += ' ' + buildFolder + '/oric/' + FileBase(charset[0], '.png') + '.chr'
             for item in charmaps:
                 cmd += ' ' + buildFolder + '/oric/' + FileBase(item, '')
             for item in music:
-                fb = FileBase(item, '-oric.ym')
+                fb = FileBase(item, '.ym')
                 cmd += ' ' + buildFolder + '/oric/' + fb + '.mus'
             for item in shared:
                 cmd += ' ' + buildFolder + '/oric/' + FileBase(item, '')

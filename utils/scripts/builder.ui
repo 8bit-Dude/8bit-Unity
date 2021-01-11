@@ -3,7 +3,7 @@
   <object class="ttk.Frame" id="mainwindow">
     <child>
       <object class="ttk.Notebook" id="Notebook_Assets">
-        <property name="height">450</property>
+        <property name="height">460</property>
         <property name="width">450</property>
         <layout>
           <property name="column">0</property>
@@ -247,8 +247,9 @@
                   <property name="row">0</property>
                 </layout>
                 <child>
-                  <object class="tk.LabelFrame" id="LabelFrame_AppleBitmaps">
-                    <property name="text" translatable="yes">Bitmaps</property>
+                  <object class="tk.LabelFrame" id="LabelFrame_AppleBitmapDHR">
+                    <property name="text" translatable="yes">Bitmaps (DHR)</property>
+                    <property name="width">100</property>
                     <layout>
                       <property name="column">0</property>
                       <property name="propagate">True</property>
@@ -256,9 +257,9 @@
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
-                      <object class="tk.Listbox" id="Listbox_AppleBitmap">
+                      <object class="tk.Listbox" id="Listbox_AppleBitmapDHR">
                         <property name="height">6</property>
-                        <property name="width">70</property>
+                        <property name="width">34</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -268,8 +269,8 @@
                       </object>
                     </child>
                     <child>
-                      <object class="ttk.Button" id="Button_AppleBitmapAdd">
-                        <property name="command">AppleBitmapAdd</property>
+                      <object class="ttk.Button" id="Button_AppleBitmapDHRAdd">
+                        <property name="command">AppleBitmapDHRAdd</property>
                         <property name="text" translatable="yes">Add File</property>
                         <layout>
                           <property name="column">0</property>
@@ -282,8 +283,8 @@
                       </object>
                     </child>
                     <child>
-                      <object class="ttk.Button" id="Button_AppleBitmapRem">
-                        <property name="command">AppleBitmapRem</property>
+                      <object class="ttk.Button" id="Button_AppleBitmapDHRRem">
+                        <property name="command">AppleBitmapDHRRem</property>
                         <property name="text" translatable="yes">Rem File</property>
                         <layout>
                           <property name="column">0</property>
@@ -298,20 +299,20 @@
                   </object>
                 </child>
                 <child>
-                  <object class="tk.LabelFrame" id="LabelFrame_AppleCharset">
-                    <property name="height">200</property>
-                    <property name="text" translatable="yes">Charset</property>
-                    <layout>
+                  <object class="tk.LabelFrame" id="LabelFrame_AppleBitmapSHR">
+                    <property name="text" translatable="yes">Bitmaps (SHR)</property>
+                    <property name="width">100</property>
+					<layout>
                       <property name="column">0</property>
-                      <property name="pady">0</property>
+                      <property name="padx">215</property>
                       <property name="propagate">True</property>
-                      <property name="row">1</property>
+                      <property name="row">0</property>
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
-                      <object class="tk.Listbox" id="Listbox_AppleCharset">
-                        <property name="height">1</property>
-                        <property name="width">70</property>
+                      <object class="tk.Listbox" id="Listbox_AppleBitmapSHR">
+                        <property name="height">6</property>
+                        <property name="width">34</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -321,8 +322,61 @@
                       </object>
                     </child>
                     <child>
-                      <object class="ttk.Button" id="Button_AppleCharsetSel">
-                        <property name="command">AppleCharsetSel</property>
+                      <object class="ttk.Button" id="Button_AppleBitmapSHRAdd">
+                        <property name="command">AppleBitmapSHRAdd</property>
+                        <property name="text" translatable="yes">Add File</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">25</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Button" id="Button_AppleBitmapSHRRem">
+                        <property name="command">AppleBitmapSHRRem</property>
+                        <property name="text" translatable="yes">Rem File</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">100</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                  </object>
+                </child>				
+                <child>
+                  <object class="tk.LabelFrame" id="LabelFrame_AppleCharsetDHR">
+                    <property name="text" translatable="yes">Charset (DHR)</property>
+                    <property name="width">100</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="pady">0</property>
+                      <property name="propagate">True</property>
+                      <property name="row">1</property>
+                      <property name="sticky">nw</property>
+                    </layout>
+                    <child>
+                      <object class="tk.Listbox" id="Listbox_AppleCharsetDHR">
+                        <property name="height">1</property>
+                        <property name="width">34</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="propagate">True</property>
+                          <property name="row">0</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Button" id="Button_AppleCharsetDHRSel">
+                        <property name="command">AppleCharsetDHRSel</property>
                         <property name="text" translatable="yes">Select File</property>
                         <layout>
                           <property name="column">0</property>
@@ -337,20 +391,21 @@
                   </object>
                 </child>
                 <child>
-                  <object class="tk.LabelFrame" id="LabelFrame_AppleSprites">
-                    <property name="height">200</property>
-                    <property name="text" translatable="yes">Sprites</property>
+                  <object class="tk.LabelFrame" id="LabelFrame_AppleCharsetSHR">
+                    <property name="width">100</property>
+                    <property name="text" translatable="yes">Charset (SHR)</property>
                     <layout>
                       <property name="column">0</property>
+                      <property name="padx">215</property>
                       <property name="pady">0</property>
                       <property name="propagate">True</property>
-                      <property name="row">2</property>
+                      <property name="row">1</property>
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
-                      <object class="tk.Listbox" id="Listbox_AppleSprites">
+                      <object class="tk.Listbox" id="Listbox_AppleCharsetSHR">
                         <property name="height">1</property>
-                        <property name="width">70</property>
+                        <property name="width">34</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -360,8 +415,8 @@
                       </object>
                     </child>
                     <child>
-                      <object class="ttk.Button" id="Button_AppleSpritesSel">
-                        <property name="command">AppleSpritesSel</property>
+                      <object class="ttk.Button" id="Button_AppleCharsetSHRSel">
+                        <property name="command">AppleCharsetSHRSel</property>
                         <property name="text" translatable="yes">Select File</property>
                         <layout>
                           <property name="column">0</property>
@@ -372,7 +427,97 @@
                           <property name="sticky">nw</property>
                         </layout>
                       </object>
+                    </child>					
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.LabelFrame" id="LabelFrame_AppleSpritesDHR">
+                    <property name="text" translatable="yes">Sprites (DHR)</property>
+                    <property name="width">100</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="pady">0</property>
+                      <property name="propagate">True</property>
+                      <property name="row">2</property>
+                      <property name="sticky">nw</property>
+                    </layout>
+                    <child>
+                      <object class="tk.Listbox" id="Listbox_AppleSpritesDHR">
+                        <property name="height">1</property>
+                        <property name="width">34</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="propagate">True</property>
+                          <property name="row">0</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
                     </child>
+                    <child>
+                      <object class="ttk.Button" id="Button_AppleSpritesDHRSel">
+                        <property name="command">AppleSpritesDHRSel</property>
+                        <property name="text" translatable="yes">Select File</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">25</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>				
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.LabelFrame" id="LabelFrame_AppleSpritesSHR">
+                    <property name="text" translatable="yes">Sprites (SHR)</property>
+                    <property name="width">100</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="padx">215</property>
+                      <property name="pady">0</property>
+                      <property name="propagate">True</property>
+                      <property name="row">2</property>
+                      <property name="sticky">nw</property>
+                    </layout>
+                    <child>
+                      <object class="tk.Listbox" id="Listbox_AppleSpritesSHR">
+                        <property name="height">1</property>
+                        <property name="width">34</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="propagate">True</property>
+                          <property name="row">0</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Button" id="Button_AppleSpritesSHRSel">
+                        <property name="command">AppleSpritesSHRSel</property>
+                        <property name="text" translatable="yes">Select File</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">25</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>				
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.LabelFrame" id="LabelFrame_AppleSprites">
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="pady">0</property>
+                      <property name="propagate">True</property>
+                      <property name="row">3</property>
+                      <property name="sticky">nw</property>
+                    </layout>
 					<child>
 					  <object class="ttk.Label" id="Label_AppleSpriteFrames">
 						<property name="text" translatable="yes">Frames=</property>
@@ -381,7 +526,7 @@
                           <property name="padx">120</property>						  
                           <property name="pady">5</property>
 						  <property name="propagate">True</property>
-						  <property name="row">1</property>
+						  <property name="row">0</property>
 						  <property name="sticky">nw</property>
 						</layout>
 					  </object>
@@ -395,7 +540,7 @@
                           <property name="padx">170</property>
                           <property name="pady">5</property>
 						  <property name="propagate">True</property>
-						  <property name="row">1</property>
+						  <property name="row">0</property>
 						  <property name="sticky">nw</property>
 						</layout>
 					  </object>
@@ -408,7 +553,7 @@
                           <property name="padx">200</property>						  
                           <property name="pady">5</property>
 						  <property name="propagate">True</property>
-						  <property name="row">1</property>
+						  <property name="row">0</property>
 						  <property name="sticky">nw</property>
 						</layout>
 					  </object>
@@ -423,7 +568,7 @@
                           <property name="padx">250</property>						  
                           <property name="pady">5</property>
 						  <property name="propagate">True</property>
-						  <property name="row">1</property>
+						  <property name="row">0</property>
 						  <property name="sticky">nw</property>
 						</layout>
 					  </object>
@@ -436,7 +581,7 @@
                           <property name="padx">280</property>						  
                           <property name="pady">5</property>
 						  <property name="propagate">True</property>
-						  <property name="row">1</property>
+						  <property name="row">0</property>
 						  <property name="sticky">nw</property>
 						</layout>
 					  </object>
@@ -450,7 +595,7 @@
                           <property name="padx">330</property>						  
                           <property name="pady">5</property>
 						  <property name="propagate">True</property>
-						  <property name="row">1</property>
+						  <property name="row">0</property>
 						  <property name="sticky">nw</property>
 						</layout>
 					  </object>
@@ -459,14 +604,14 @@
                 </child>
                 <child>
                   <object class="tk.LabelFrame" id="LabelFrame_AppleChunks">
-                    <property name="height">200</property>
                     <property name="text" translatable="yes">Chunks</property>
+                    <property name="height">200</property>
                     <property name="width">100</property>
                     <layout>
                       <property name="column">0</property>
                       <property name="pady">0</property>
                       <property name="propagate">True</property>
-                      <property name="row">3</property>
+                      <property name="row">4</property>
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
@@ -507,7 +652,7 @@
                       <property name="padx">215</property>
                       <property name="pady">0</property>
                       <property name="propagate">True</property>
-                      <property name="row">3</property>
+                      <property name="row">4</property>
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
@@ -561,7 +706,7 @@
                       <property name="column">0</property>
                       <property name="pady">0</property>
                       <property name="propagate">True</property>
-                      <property name="row">4</property>
+                      <property name="row">5</property>
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
