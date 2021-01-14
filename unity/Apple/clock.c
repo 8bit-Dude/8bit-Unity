@@ -36,7 +36,7 @@
 void dummy (void) {}
 
 #ifdef __APPLE2__
-  #pragma code-name("CODE")
+  #pragma code-name("LOWCODE")
 #endif
 
 clock_t clk;

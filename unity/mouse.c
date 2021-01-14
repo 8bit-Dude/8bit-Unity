@@ -31,7 +31,7 @@
 #endif
 
 #ifdef __APPLE2__
-  #pragma code-name("LC")
+  #pragma code-name("CODE")
 #endif
 
 #ifdef __ATARIXL__
