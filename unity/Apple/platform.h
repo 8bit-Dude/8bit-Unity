@@ -128,3 +128,7 @@ extern clock_t clk;
 void DirList(void);
 unsigned char FileOpen(const char* fname);
 void FileRead(char* buf, unsigned int len);
+
+// Auxilliary memory management (see memory.c)
+void MainToAux(unsigned char* data, unsigned int size);
+void AuxToAux(unsigned char* dst, unsigned char* src, unsigned char size);

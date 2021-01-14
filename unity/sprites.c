@@ -36,11 +36,7 @@
 
 // Platform specific function
 #if defined __APPLE2__
-  #if defined __DHR__
-	#define byteWIDTH 4		// 4 bytes per 7 pixels
-  #else
-    #define byteWIDTH 2		// 2 bytes per 7 pixels
-  #endif
+    #define byteWIDTH 2		// 2 bytes per 7 pixels (4 bytes between AUX/MAIN in DHR)
 	unsigned char  frameROWS;
     unsigned int   frameBLOCK;				// Size of sprite offset block (4 blocks)
 	unsigned char* sprData;					// Pointer to sprite data (allocated dynamically)
@@ -122,12 +118,18 @@
 
 void LoadSprites(unsigned char* filename)
 {
-#if defined(__APPLE2__)
+#if defined __APPLE2__
 	unsigned int size;
 	FILE* fp = fopen(filename, "rb");
 	fread(&size, 1, 2, fp);
 	if (sprData) free(sprData);
 	sprData = malloc(size);
+  #if defined __DHR__
+	// Load AUX data first
+	fread(sprData, 1, size, fp);
+	MainToAux(sprData, size);
+  #endif	
+	// Load MAIN data
 	fread(sprData, 1, size, fp);
 	fclose(fp);
 
@@ -303,16 +305,10 @@ void LocateSprite(unsigned int x, unsigned int y)
 				  bgPtr = sprBG[i]+yHires*byteWIDTH;				  
 				  hiresPtr = HiresLine(yptr) + xptr;
 				#if defined __DHR__  
-				  *dhraux = 0;
-				  hiresPtr[0] = bgPtr[0];
-				  hiresPtr[1] = bgPtr[1];
-				  *dhrmain = 0;
-				  hiresPtr[0] = bgPtr[2];		
-				  hiresPtr[1] = bgPtr[3];
-				#else
+				  AuxToAux(hiresPtr, bgPtr, 2);
+				#endif
 				  hiresPtr[0] = bgPtr[0];
 				  hiresPtr[1] = bgPtr[1];		
-				#endif
 				  return;
 			  }
 		  }
@@ -381,10 +377,10 @@ void LocateSprite(unsigned int x, unsigned int y)
 				bgPtr1 = sprBG[index] + y1*byteWIDTH + x1;
 				bgPtr2 = sprBG[i] + (rows-y2)*byteWIDTH + (2 - x2);
 				for (dY=y1; dY<y2; dY++) {
-					memcpy(bgPtr1, bgPtr2, dX);		// AUX
-				#if defined __DHR__
-					memcpy(bgPtr1+2, bgPtr2+2, dX);	// MAIN
-				#endif
+				  #if defined __DHR__  
+				    AuxToAux(bgPtr1, bgPtr2, dX); // AUX data
+				  #endif				
+					memcpy(bgPtr1, bgPtr2, dX);   // MAIN data
 					bgPtr1 += byteWIDTH; 
 					bgPtr2 += byteWIDTH;
 				}				
@@ -453,7 +449,7 @@ void SetSprite(unsigned char index, unsigned char frame)
 	// Compute sprite slots
 	xHires = (spriteX*2)/7u;
 
-	// Select the correct offset block (4 offset blocks per 7 pixels)
+	// Select correct offset block (4 shifted blocks for 7 pixels)
 	frameAddr = (char*)(sprData) + frame*frameROWS*byteWIDTH;
 	if (xHires%2) {
 		if (spriteX%7 > 5) { 
@@ -621,11 +617,7 @@ void EnableSprite(signed char index)
 #elif (defined __APPLE2__) || (defined __ORIC__)
 	// Allocate memory for background
 	if (!sprBG[index]) {
-	#if defined __SHR__
-		sprBG[index] = (unsigned char*)malloc(2*frameROWS);	// 2 bytes per line
-	#else
-		sprBG[index] = (unsigned char*)malloc(4*frameROWS);	// 4 bytes per line
-	#endif
+		sprBG[index] = (unsigned char*)malloc(2*frameROWS);	// 2 bytes per line (4 bytes between AUX/MAIN for Apple DHR)
 		sprDrawn[index] = 0;
 	}
 #endif

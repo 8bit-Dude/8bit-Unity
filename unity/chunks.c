@@ -53,11 +53,7 @@
 unsigned int ChunkSize(unsigned char w, unsigned char h)
 {
 #if defined __APPLE2__
-  #if defined __DHR__
-	return 4+(w*h*4)/7u;
-  #else
-	return 4+(w*h*2)/7u;
-  #endif	  
+	return 4+(w*h*2)/7u;	// For each group of 7 pixels: 2 bytes in SHR, 4 bytes in DHR (2 in AUX + 2 in MAIN)
 #elif defined __ATARI__
 	return 4+(w*h*2)/4u;
 #elif defined __ORIC__
@@ -109,7 +105,12 @@ void LoadChunk(unsigned char** chunk, char *filename)
 	// Compute chunk size and allocate memory
 	size = ChunkSize(buffer[2], buffer[3]);
 	*chunk = (unsigned char*)malloc(size);
-	memcpy(*chunk, buffer, 4);	
+	memcpy(*chunk, buffer, 4);
+  #if defined __DHR__
+	// Load AUX data first
+	fread(*chunk+4, 1, size-4, fp);
+	MainToAux(*chunk+4, size-4);
+  #endif	
 	fread(*chunk+4, 1, size-4, fp);
 	fclose(fp);
 #endif
@@ -131,7 +132,7 @@ void GetChunk(unsigned char** chunk, unsigned char x, unsigned char y, unsigned 
 
 #if defined __APPLE2__
 	// Blit data 
-	POKE(0xE3, (w*2)/7u);	// Bytes per line (x2 for MAIN/AUX)	
+	POKE(0xE3, (w*2)/7u);	// Bytes per line (x2 for DHR)	
 	POKE(0xCE, h);			// Number of lines (from screen)
 	POKE(0xEB, h);			// Number of lines (to screen)
 	POKE(0xEC, (x*2)/7u);	// Hires Offset X
@@ -165,7 +166,7 @@ void GetChunk(unsigned char** chunk, unsigned char x, unsigned char y, unsigned 
 	POKEW(0xb4, *chunk+3);	// Address of target (-1)
 	POKE(0xb6, 40); 		// Offset between source lines
 	POKE(0xb7, w/6u); 		// Offset between target lines
-	Blit();	
+	Blit();
 	
 #elif defined __C64__
 	// Copy data to bitmap, color and screen memory

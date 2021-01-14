@@ -28,7 +28,17 @@
 
 	.export _BlitSHR
 
-	.segment	"LOWCODE"
+hiresXZP = $ec
+hiresYZP = $ed
+hiresAddrZP = $fc
+inputAddrZP = $fa
+outputAddrZP = $ee
+scr2outRowsZP = $ce
+inp2scrRowsZP = $eb
+bytesPerRowZP = $e3
+toggleMainAuxZP = $42
+
+	.segment	"LC"	; MUST BE IN LANGUAGE CARD!!! (see blitDHR.s)
 
 ; ---------------------------------------------------------------
 ; void __near__ BlitSHR (void)
@@ -42,7 +52,7 @@
 ;		$ee: 16 bit output address (optional)
 ;		$fa: 16 bit input address (optional)
 ;
-;		$fc: 16 bit address of Hires line (auto-generated)
+;		$fc: 16 bit address of Hires line (generated from offsets)
 ; ---------------------------------------------------------------	
 
 .proc _BlitSHR: near
@@ -50,64 +60,65 @@
 	; X loop: Frame rows
 	ldx #0
 loopRow:
-	; Copy from Hires Tables (with Line Offset Y and Byte Offset X) to $fc/$fd
-	ldy $ed				; Y offset within table
+	; Copy Screen Address from Hires Tables (using Line Offset Y and Byte Offset X)
+	ldy hiresYZP			; Y-Offset to Hires Line
 	lda _hiresLinesHI,y
-	sta $fd
+	sta hiresAddrZP+1
 	lda _hiresLinesLO,y
-	adc $ec				; Add X Offset
-	sta $fc
+	adc hiresXZP			; X-Offset to Hires Byte
+	sta hiresAddrZP
 	
 	; Copy bytes from SHR buffer to ouput	
 screen2output:
 	lda $ef
 	beq input2screen  ; If high-byte is zero, then skip
-	ldy #0			; Y loop: Copy ? bytes (see $e3)
+	ldy #0				; Y loop: Copy xxx bytes per row
 loopCopy1:
-	lda ($fc),y		; Copy 1 byte
-	sta ($ee),y
-	iny				; Iterate Y loop
-	cpy $e3
-	bne loopCopy1
-	
-incAddress1:
-	clc				; Increment address of output block
-	lda $ee			
-	adc $e3			; Move ? bytes (see $e3)
-	sta $ee	
-	bcc nocarry1	; Check if carry to high-byte
-	inc $ef
-nocarry1:
+	lda (hiresAddrZP),y		; Copy 1 byte
+	sta (outputAddrZP),y
+	iny					
+	cpy bytesPerRowZP
+	bne loopCopy1			; Iterate Y loop
 	
 	; Copy bytes from input to SHR buffer
-	cpx $eb			; Check number of input rows (for cropped sprites)
-	bcs nextRow
+	cpx inp2scrRowsZP		; Check number of input rows (for cropped sprites)
+	bcs incAddress1
 input2screen:	
 	clc
 	lda $fb
-	beq nextRow  	; If high-byte is zero, then skip	
-	ldy #0			; Y loop: Copy ? bytes (see $e3)
+	beq incAddress1   ; If high-byte is zero, then skip	
+	ldy #0				; Y loop: Copy xxx bytes per row
 loopCopy2:
-	lda ($fa),y		; Copy 1 byte
-	sta ($fc),y
-	iny				; Iterate Y loop
-	cpy $e3
+	lda (inputAddrZP),y		; Copy 1 byte
+	sta (hiresAddrZP),y
+	iny					
+	cpy bytesPerRowZP		; Iterate Y loop
 	bne loopCopy2
+		
+incAddress1:
+	clc				; Increment address of output block
+	lda outputAddrZP			
+	adc bytesPerRowZP	; Move by xxx bytes
+	sta outputAddrZP	
+	bcc nocarry1		; Check if carry to high-byte
+	inc outputAddrZP+1
+nocarry1:
 	
 incAddress2:
 	clc				; Increment address of input block
-	lda $fa			
-	adc $e3			; Move ? bytes (see $e3)
-	sta $fa	
-	bcc nocarry2	; Check if carry to high byte
-	inc $fb
-nocarry2:	
+	lda inputAddrZP			
+	adc bytesPerRowZP	; Move by xxx bytes
+	sta inputAddrZP	
+	bcc nocarry2		; Check if carry to high byte
+	inc inputAddrZP+1
+nocarry2:
 
 nextRow:
 	; Move to next row
-	inc $ed			; Increment Y-Line offset in Hires Table
-	inx				; Iterate X loop
-	cpx $ce
-	bcc loopRow	
+	inc hiresYZP		; Increment Hires Line offset
+	inx				
+	cpx scr2outRowsZP
+	bcc loopRow		; Iterate X loop (rows)
+	
 	rts
 .endproc
