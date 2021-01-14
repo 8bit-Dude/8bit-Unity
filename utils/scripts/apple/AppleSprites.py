@@ -33,113 +33,66 @@ input = sys.argv[2]
 output = sys.argv[3]
 height = int(sys.argv[4])
 
-data = []
-
 try:
     ###################
     # Read source file
     img1 = Image.open(input)
     rawdata = list(img1.getdata())
     colors = max(rawdata)
+    main = []; aux = []
+    
+    def AddOffsetBlock(offset):
+        for row in range(0, img1.size[1], height):
+            for col in range(0, img1.size[0], 7):
+                for k in range(0, height):  
+                    pixels = rawdata[(row+k)*img1.size[0]+col:(row+k)*img1.size[0]+col+7]
+                    if mode == 'single':   
+                        # Reduce palette?
+                        if colors > 6:
+                            pixels = RemapDHR2SHR(pixels)
+                        res = AssignColorGroup(pixels)    
+                        pixels = res[0]; block = res[1]
+                        for j in range(7):
+                            SetSHRColor(block, (j+offset)%7, pixels[j])
+                        # Save blocks
+                        if offset < 3:
+                            order = [0,1]
+                        else:
+                            order = [1,0]
+                        for j in order:
+                            main.append(chr(block[j]))  
+                          
+                    else:
+                        block = [0,0,0,0]
+                        for j in range(7):
+                            SetDHRColor(block, (j+offset)%7, pixels[j])
+                        # Save blocks
+                        if offset < 3:
+                            orderAux = [0,2]
+                            orderMain = [1,3]                        
+                        else:
+                            orderAux = [2,0]
+                            orderMain = [3,1]                        
+                        for j in orderAux:
+                            aux.append(chr(block[j]))
+                        for j in orderMain:
+                            main.append(chr(block[j]))
 
-    # Shifted by 0 pix
-    for row in range(0, img1.size[1], height):
-        for col in range(0, img1.size[0], 7):
-            for k in range(0, height):  
-                pixels = rawdata[(row+k)*img1.size[0]+col:(row+k)*img1.size[0]+col+7]
-                if mode == 'single':   
-                    # Reduce palette?
-                    if colors > 6:
-                        pixels = RemapDHR2SHR(pixels)
-                    res = AssignColorGroup(pixels)    
-                    pixels = res[0]; block = res[1]
-                    for j in range(7):
-                        SetSHRColor(block, j, pixels[j])
-                    for j in [0,1]:
-                        data.append(chr(block[j]))  
-                      
-                else:
-                    block = [0,0,0,0]
-                    for j in range(7):
-                        SetDHRColor(block, j, pixels[j])
-                    for j in [0,2,1,3]:
-                        data.append(chr(block[j]))
-
-    # Shifted by 2 pix
-    for row in range(0, img1.size[1], height):
-        for col in range(0, img1.size[0], 7):
-            for k in range(0, height):  
-                pixels = rawdata[(row+k)*img1.size[0]+col:(row+k)*img1.size[0]+col+7]
-                if mode == 'single':        
-                    # Reduce palette?
-                    if colors > 6:
-                        pixels = RemapDHR2SHR(pixels)
-                    res = AssignColorGroup(pixels)    
-                    pixels = res[0]; block = res[1]
-                    for j in range(7):
-                        SetSHRColor(block, (j+2)%7, pixels[j])
-                    for j in [0,1]:
-                        data.append(chr(block[j]))  
-                      
-                else:
-                    block = [0,0,0,0]
-                    for j in range(7):
-                        SetDHRColor(block, (j+2)%7, pixels[j])
-                    for j in [0,2,1,3]:
-                        data.append(chr(block[j]))            
-            
-    # Shifted by 4 pix
-    for row in range(0, img1.size[1], height):
-        for col in range(0, img1.size[0], 7):
-            for k in range(0, height):  
-                pixels = rawdata[(row+k)*img1.size[0]+col:(row+k)*img1.size[0]+col+7]
-                if mode == 'single':        
-                    # Reduce palette?
-                    if colors > 6:
-                        pixels = RemapDHR2SHR(pixels)
-                    res = AssignColorGroup(pixels)    
-                    pixels = res[0]; block = res[1]
-                    for j in range(7):
-                        SetSHRColor(block, (j+4)%7, pixels[j])
-                    for j in [1,0]:
-                        data.append(chr(block[j]))  
-                      
-                else:
-                    block = [0,0,0,0]
-                    for j in range(7):
-                        SetDHRColor(block, (j+4)%7, pixels[j])
-                    for j in [2,0,3,1]:
-                        data.append(chr(block[j]))            
-
-    # Shifted by 5 pix
-    for row in range(0, img1.size[1], height):
-        for col in range(0, img1.size[0], 7):
-            for k in range(0, height):  
-                pixels = rawdata[(row+k)*img1.size[0]+col:(row+k)*img1.size[0]+col+7]
-                if mode == 'single':        
-                    # Reduce palette?
-                    if colors > 6:
-                        pixels = RemapDHR2SHR(pixels)
-                    res = AssignColorGroup(pixels)    
-                    pixels = res[0]; block = res[1]
-                    for j in range(7):
-                        SetSHRColor(block, (j+5)%7, pixels[j])
-                    for j in [1,0]:
-                        data.append(chr(block[j]))  
-                      
-                else:
-                    block = [0,0,0,0]
-                    for j in range(7):
-                        SetDHRColor(block, (j+5)%7, pixels[j])
-                    for j in [2,0,3,1]:
-                        data.append(chr(block[j]))            
+    #############################################
+    # Convert to offseted blocks (7 pixels wide)
+    AddOffsetBlock(0)
+    AddOffsetBlock(2)
+    AddOffsetBlock(4)
+    AddOffsetBlock(5)
 
     # Output sprite data
     f1 = io.open(output, 'wb')
-    f1.write(chr(len(data)%256))
-    f1.write(chr(len(data)/256))
-    f1.write(''.join(data))
+    f1.write(chr(len(main)%256))
+    f1.write(chr(len(main)/256))
+    if mode == 'double':
+        f1.write(''.join(aux))    
+    f1.write(''.join(main))
     f1.close()
 
 except:
-    print "Error: cannot convert " + input + "... (is it a 14x? PNG file with 6 or 16 color palette?)"
+    print "Error: cannot convert " + input + "... (is it a 140x192 PNG file with 6 or 16 color palette?)"

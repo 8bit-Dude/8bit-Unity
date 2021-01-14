@@ -139,22 +139,28 @@ def ExportApple(filename, coords, pixdata, mode):
     output.write(chr(coords[1]))
     output.write(chr(imgWidth))
     output.write(chr(imgHeight))
-    i = 0
-    while i < len(blocks):
-        if mode == 'single':
+    if mode == 'single':
+        i = 0
+        while i < len(blocks):
             for j in range(blocksPerLine):
                 output.write(chr(blocks[i+j][0]))           
                 output.write(chr(blocks[i+j][1]))           
-        else:
-            # Write MAIN data
+            i += blocksPerLine
+    else:
+        # Write AUX data
+        i = 0
+        while i < len(blocks):
             for j in range(blocksPerLine):
                 output.write(chr(blocks[i+j][0]))           
                 output.write(chr(blocks[i+j][2]))           
-            # Write AUX data
+            i += blocksPerLine
+        # Write MAIN data
+        i = 0
+        while i < len(blocks):
             for j in range(blocksPerLine):
                 output.write(chr(blocks[i+j][1]))           
                 output.write(chr(blocks[i+j][3]))           
-        i += blocksPerLine
+            i += blocksPerLine
     output.close() 
 
 
