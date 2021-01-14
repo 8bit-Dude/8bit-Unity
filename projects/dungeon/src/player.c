@@ -83,11 +83,15 @@ void ProcessPlayer()
 		mapX = mapXPRV; mapY = mapYPRV;
 	} else {		
 		#if defined(__APPLE2__) || defined(__ORIC__)
-		if (mapX/2u != mapXPRV/2u || mapY/2u != mapYPRV/2u)
+		if (mapX/2u != mapXPRV/2u || mapY/2u != mapYPRV/2u) {
 			ScrollCharmap(mapX, mapY);
+			DisplayActors();
+		}
 	#else
-		if (mapX != mapXPRV || mapY != mapYPRV)
+		if (mapX != mapXPRV || mapY != mapYPRV) {
 			ScrollCharmap(mapX, mapY);
+			DisplayActors();
+		}
 	#endif
 	}					
 	

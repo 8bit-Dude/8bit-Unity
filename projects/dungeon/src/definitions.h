@@ -118,6 +118,7 @@ typedef struct {
 
 // Actor functions (actors.c)
 void LoadActors(const char* filename);
+void DisplayActors(void);
 void ProcessActors(void);
 unsigned char CheckActorCollision(unsigned int scrX, unsigned int scrY, unsigned char flag);
 unsigned char FindActorSlot(void);

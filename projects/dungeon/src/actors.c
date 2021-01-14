@@ -92,6 +92,32 @@ void LoadActors(const char* filename)
 	}
 }
 
+void DisplayActors()
+{
+	// Display up-to SPRITE_NUM actors
+	i = 0; slot = SPRITE_ENEMY;
+	while (i<ACTOR_NUM && slot<SPRITE_NUM) {
+		// Is valid?
+		selActor = &actors[i++];
+		if (!selActor->state || selActor->frame == 255) 
+			continue;	
+		
+		// Update screen position
+		selActor->scrX = (selActor->mapX-mapX+screenCol1)*SCALE_X;
+		selActor->scrY = (selActor->mapY-mapY+screenRow1)*SCALE_Y;			
+		
+		// Assign sprite slot
+		RecolorSprite(slot, 0, selActor->color); 
+		LocateSprite(selActor->scrX, selActor->scrY);
+		SetSprite(slot, selActor->frame);	
+		EnableSprite(slot++);		
+	}
+	
+	// Reset unused sprite slots		
+	while (slot<SPRITE_NUM)
+		DisableSprite(slot++);		
+}
+
 void ProcessActors()
 {
 	unsigned char collision;
@@ -110,10 +136,9 @@ void ProcessActors()
 			selActor->mapY <= mapY || selActor->mapY >= mapY+screenHeight) {
 			// Set NULL frame
 			selActor->frame = 255;
-		} else {
-			// Update screen position
-			selActor->scrX = (selActor->mapX-mapX+screenCol1)*SCALE_X;
-			selActor->scrY = (selActor->mapY-mapY+screenRow1)*SCALE_Y;
+		} else {			
+			// Use slot
+			slot++;
 			
 			// Compute distance to player
 			deltaX = scrX; deltaX -= selActor->scrX; 
@@ -188,18 +213,8 @@ void ProcessActors()
 				}
 				break;
 			}
-			
-			// Assign sprite slot
-			RecolorSprite(slot, 0, selActor->color); 
-			LocateSprite(selActor->scrX, selActor->scrY);
-			SetSprite(slot, selActor->frame);	
-			EnableSprite(slot++);				
 		}
 	}
-	
-	// Reset unused sprite slots		
-	while (slot<SPRITE_NUM)
-		DisableSprite(slot++);	
 }
 
 unsigned char CheckActorCollision(unsigned int scrX, unsigned int scrY, unsigned char flag)

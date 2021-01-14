@@ -103,13 +103,14 @@ void GameLoop(void)
 		// Check player clock
 		if (clock() > playerClock) {			
 			playerClock = clock()+(TCK_PER_SEC/18);
-			ProcessPlayer();
+			ProcessPlayer();			
 		}
 
 		// Check actor clock
 		if (clock() > actorClock) {
 			actorClock = clock()+(TCK_PER_SEC/6);
 			ProcessActors();
+			DisplayActors();
 		}			
 	}
 }
