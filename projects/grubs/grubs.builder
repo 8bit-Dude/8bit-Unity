@@ -18,12 +18,15 @@
                 "projects/grubs/bitmaps/banner-apple.png", 
                 "projects/grubs/bitmaps/pumpkins-apple.png"
             ], 
+            "bitmapSHR": [], 
+            "charsetDHR": [], 
+            "charsetSHR": [], 
             "spritesDHR": [
                 "projects/grubs/sprites/sprites-apple.png"
             ], 
+            "spritesSHR": [], 
             "music": [], 
             "chunks": [], 
-            "charsetDHR": [], 
             "diskSize": "140KB"
         }, 
         "Atari": {
@@ -34,12 +37,12 @@
                 "projects/grubs/bitmaps/banner-atari.png", 
                 "projects/grubs/bitmaps/pumpkins-atari.png"
             ], 
+            "charset": [], 
             "sprites": [
                 "projects/grubs/sprites/sprites-atari.png"
             ], 
             "music": [], 
             "chunks": [], 
-            "charset": [], 
             "noText": true, 
             "diskSize": "180KB"
         }, 
@@ -51,12 +54,12 @@
                 "projects/grubs/bitmaps/banner-c64.png", 
                 "projects/grubs/bitmaps/pumpkins-c64.png"
             ], 
+            "charset": [], 
             "sprites": [
                 "projects/grubs/sprites/sprites-c64.png"
             ], 
             "music": [], 
-            "chunks": [], 
-            "charset": []
+            "chunks": []
         }, 
         "Lynx": {
             "spriteFrames": "16", 
@@ -68,12 +71,12 @@
                 "projects/grubs/bitmaps/banner-lynx.png", 
                 "projects/grubs/bitmaps/pumpkins-lynx.png"
             ], 
+            "charset": [], 
             "sprites": [
                 "projects/grubs/sprites/sprites-lynx.png"
             ], 
             "music": [], 
-            "chunks": [], 
-            "charset": []
+            "chunks": []
         }, 
         "Oric": {
             "spriteFrames": "16", 
@@ -85,12 +88,12 @@
                 "projects/grubs/bitmaps/banner-oric.png", 
                 "projects/grubs/bitmaps/pumpkins-oric.png"
             ], 
+            "charset": [], 
             "sprites": [
                 "projects/grubs/sprites/sprites-oric.png"
             ], 
             "music": [], 
-            "chunks": [], 
-            "charset": []
+            "chunks": []
         }
     }
 }

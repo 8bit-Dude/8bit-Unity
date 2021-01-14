@@ -259,10 +259,6 @@ void PrintBuffer(char *buffer)
 #endif
 }
 
-#ifdef __APPLE2__
-  #pragma code-name("LC")
-#endif
-
 void InputField(unsigned char col, unsigned char row, char *buffer, unsigned char len)
 {
 	// Print initial condition
@@ -459,6 +455,10 @@ void PrintLap(unsigned char i)
 	inkColor = inkColors[i];
 	PrintNum((i+2)*8-3, CHR_ROWS-1, cars[i].lap);
 }
+
+#ifdef __APPLE2__
+  #pragma code-name("LC")
+#endif
 
 // Print score after round ends
 signed int score[4];

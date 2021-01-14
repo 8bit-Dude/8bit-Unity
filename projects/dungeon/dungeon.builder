@@ -25,16 +25,19 @@
             "bitmapDHR": [
                 "projects/dungeon/bitmaps/menu-apple.png"
             ], 
+            "bitmapSHR": [], 
+            "charsetDHR": [
+                "projects/dungeon/charsets/quedex-apple.png"
+            ], 
+            "charsetSHR": [], 
             "spritesDHR": [
                 "projects/dungeon/sprites/sprites-apple.png"
             ], 
+            "spritesSHR": [], 
             "music": [
                 "projects/dungeon/music/dungeon-apple.m"
             ], 
             "chunks": [], 
-            "charsetDHR": [
-                "projects/dungeon/charsets/quedex-apple.png"
-            ], 
             "diskSize": "140KB"
         }, 
         "Atari": {
@@ -44,6 +47,9 @@
             "bitmap": [
                 "projects/dungeon/bitmaps/menu-atari.png"
             ], 
+            "charset": [
+                "projects/dungeon/charsets/quedex-atari.png"
+            ], 
             "sprites": [
                 "projects/dungeon/sprites/sprites-atari.png"
             ], 
@@ -51,9 +57,6 @@
                 "projects/dungeon/music/dungeon-atari.rmt"
             ], 
             "chunks": [], 
-            "charset": [
-                "projects/dungeon/charsets/quedex-atari.png"
-            ], 
             "noText": true, 
             "diskSize": "180KB"
         }, 
@@ -64,16 +67,16 @@
             "bitmap": [
                 "projects/dungeon/bitmaps/menu-c64.png"
             ], 
+            "charset": [
+                "projects/dungeon/charsets/quedex-c64.png"
+            ], 
             "sprites": [
                 "projects/dungeon/sprites/sprites-c64.png"
             ], 
             "music": [
                 "projects/dungeon/music/dungeon-c64.sid"
             ], 
-            "chunks": [], 
-            "charset": [
-                "projects/dungeon/charsets/quedex-c64.png"
-            ]
+            "chunks": []
         }, 
         "Lynx": {
             "spriteFrames": "32", 
@@ -84,16 +87,16 @@
             "bitmap": [
                 "projects/dungeon/bitmaps/menu-lynx.png"
             ], 
+            "charset": [
+                "projects/dungeon/charsets/quedex-lynx.png"
+            ], 
             "sprites": [
                 "projects/dungeon/sprites/sprites-lynx.png"
             ], 
             "music": [
                 "projects/dungeon/music/dungeon-lynx.asm"
             ], 
-            "chunks": [], 
-            "charset": [
-                "projects/dungeon/charsets/quedex-lynx.png"
-            ]
+            "chunks": []
         }, 
         "Oric": {
             "spriteFrames": "32", 
@@ -104,16 +107,16 @@
             "bitmap": [
                 "projects/dungeon/bitmaps/menu-oric.png"
             ], 
+            "charset": [
+                "projects/dungeon/charsets/quedex-oric.png"
+            ], 
             "sprites": [
                 "projects/dungeon/sprites/sprites-oric.png"
             ], 
             "music": [
                 "projects/dungeon/music/dungeon-oric.ym"
             ], 
-            "chunks": [], 
-            "charset": [
-                "projects/dungeon/charsets/quedex-oric.png"
-            ]
+            "chunks": []
         }
     }
 }
