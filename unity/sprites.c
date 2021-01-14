@@ -617,7 +617,11 @@ void EnableSprite(signed char index)
 #elif (defined __APPLE2__) || (defined __ORIC__)
 	// Allocate memory for background
 	if (!sprBG[index]) {
+	  #if defined __APPLE2__
 		sprBG[index] = (unsigned char*)malloc(2*frameROWS);	// 2 bytes per line (4 bytes between AUX/MAIN for Apple DHR)
+	  #else
+		sprBG[index] = (unsigned char*)malloc(4*frameROWS);	// 4 bytes per line (2 atrributes + 12 pixels)
+	  #endif
 		sprDrawn[index] = 0;
 	}
 #endif

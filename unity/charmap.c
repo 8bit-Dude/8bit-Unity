@@ -88,7 +88,12 @@ unsigned char *tilesetData;
 
 #if (defined __APPLE2__) || (defined __ORIC__)
   extern unsigned char sprDrawn[];
+ #if (defined __ORIC__)
+  void RestoreSprBG(unsigned char index);
+ #endif
 #endif
+
+
   
 // Initialize Charmap Mode
 void InitCharmap() 
@@ -380,7 +385,7 @@ void ScrollCharmap(unsigned char x, unsigned char y)
   #endif
 	clk += 20;
 
-#elif defined __ATARI__	
+#elif defined __ATARI__
 	dst = SCREENRAM + screenRow1*40 + screenCol1;
 	POKEW(charattDataZP, CHARATRRAM);
 	POKEW(charPointerZP, src);
@@ -405,7 +410,10 @@ void ScrollCharmap(unsigned char x, unsigned char y)
 #elif defined __ORIC__	
 	// Reset sprite background
 	for (i=0; i<SPRITE_NUM; i++)
-		sprDrawn[i] = 0;
+		if (sprDrawn[i]) {			
+			RestoreSprBG(i);
+			sprDrawn[i] = 0;
+		}
 	dst = BITMAPRAM + screenRow1*320 + screenCol1 + 1;
 	POKEW(charPointerZP, src);
 	POKEW(scrPointerZP, dst);
