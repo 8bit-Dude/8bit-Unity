@@ -237,7 +237,7 @@ void GameInit(const char* map)
 			#if defined __ORIC__
 				SetAttributes(slot-1, CHR_ROWS-1, inkColor);
 			#endif					
-				PrintChr(slot+1, CHR_ROWS-1, &charDigit[(i+1)*3u]);
+				PrintChr(slot+1, CHR_ROWS-1, &charDigit[(i+1)*3]);
                 PrintChr(slot, CHR_ROWS-1, &charLetter[15*3]);	// 'P'
             }
         }
@@ -247,7 +247,7 @@ void GameInit(const char* map)
         // Disable all players and reset user names...
         for (i=0; i<MAX_PLAYERS; ++i) { 
 			svUsers[i][0] = 0;
-            controlIndex[i] = 0; 
+            controlIndex[i] = 0;
         }
 		// Assign 1st Controller to Client
 		controlIndex[clIndex] = controlBackup[0];

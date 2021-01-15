@@ -228,7 +228,6 @@ void PrintBuffer(char *buffer)
 {
 	// Get length of new message
 	unsigned char len;
-	buffer[CHR_COLS] = 0;
 	len = strlen(buffer);
 	
 #if defined __ORIC__	
@@ -741,10 +740,10 @@ unsigned char MenuLogin(unsigned char serverIndex)
 	PrintStr(MENU_COL+1, MENU_ROW+6, "PASS:");
 	PrintStr(MENU_COL+2, MENU_ROW+8, "REGISTER AT");
 	PrintStr(MENU_COL+1, MENU_ROW+9, "8BIT-SLICKS.COM");
-	InputField(MENU_COL+6, MENU_ROW+4, &clUser[0], 4);
-	PrintChr(MENU_COL+6+strlen(clUser), MENU_ROW+4, &charBlank[0]);
-	InputField(MENU_COL+6, MENU_ROW+6, &clPass[0], 10);	
-	PrintChr(MENU_COL+6+strlen(clPass), MENU_ROW+6, &charBlank[0]);
+	InputField(MENU_COL+6, MENU_ROW+4, clUser, 4);
+	PrintChr(MENU_COL+6+strlen(clUser), MENU_ROW+4, charBlank);
+	InputField(MENU_COL+6, MENU_ROW+6, clPass, 10);	
+	PrintChr(MENU_COL+6+strlen(clPass), MENU_ROW+6, charBlank);
 	
 	// Show action message
 	inkColor = YELLOW;
