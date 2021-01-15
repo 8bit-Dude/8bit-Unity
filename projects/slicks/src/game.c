@@ -34,6 +34,8 @@
   void BackupPauseBg(void);
   void RestorePauseBg(void);
   unsigned char MenuPause(void);
+  extern unsigned char pauseEvt;
+  extern unsigned char gamePaused;
 #endif
 
 // See slicks.c
@@ -169,7 +171,7 @@ void GameReset()
 		#if defined __CBM__
             PrintBuffer("  WARMUP: F1-RACE, F3-NEXT MAP, C-CHAT  ");   
 		#elif defined __LYNX__
-            PrintBuffer(" WARMUP: O1-RACE, O1+O2-NEXT MAP, B-CHAT");   
+            PrintBuffer("   WARMUP: OP1-RACE, PAU-MENU, B-CHAT   ");   
 		#else
             PrintBuffer("   WARMUP: 1-RACE, 2-NEXT MAP, C-CHAT   ");   
 		#endif
@@ -177,7 +179,7 @@ void GameReset()
 		#if defined __CBM__
             PrintBuffer("  WARMUP: F1-RACE, F3-NEXT MAP, Q-Quit  ");   
 		#elif defined __LYNX__
-            PrintBuffer("WARMUP: O1-RACE, O1+O2-NEXT MAP, RS-Quit");   
+            PrintBuffer("  WARMUP: OP1-RACE, PAU-MENU, RS-Quit   ");   
 		#else
             PrintBuffer("   WARMUP: 1-RACE, 2-NEXT MAP, Q-Quit   ");   
 		#endif
@@ -747,29 +749,6 @@ char GameLoop()
 					car->x1 = car->x2;
 					car->y1 = car->y2;						
 				}			
-			}
-			
-			// Update Network?
-			if (gameMode == MODE_ONLINE) {	
-				j = NetworkUpdate();
-				if (j == EVENT_RACE) {
-					// Start Race
-					gameStep = svStep;
-					res = GameRace();
-					if (res != 1) { 
-						if (res == ERR_TIMEOUT) { return 0; } else { return 1; }
-					}
-				} else if (j == EVENT_MAP) {
-					// Go to next Map
-                    if (gameStep > STEP_WARMUP) { PrintScores(); }
-					gameMap = svMap;
-					gameStep = svStep;
-					return 1;
-				} else if (j == ERR_TIMEOUT) {
-					// Time-out error
-                    PrintTimedOut();
-                    return 0;
-                }
 			}				
 			
 			// Check Keyboard Press
@@ -790,20 +769,12 @@ char GameLoop()
 						SuzyFlip();
 						break;
 					case KB_PAUSE: 
-						if (gameMode == MODE_LOCAL) {
-							for (j=0; j<MAX_PLAYERS; ++j) { DisableSprite(j); }
-							gameMode = MODE_PAUSE; 
-							lynx_snd_pause();
-							BackupPauseBg();
-							lastKey = MenuPause();
-							RestorePauseBg(); 
-							lynx_snd_continue();
-							gameMode = MODE_LOCAL;
-							for (j=0; j<MAX_PLAYERS; ++j) { if (PlayerAvailable(j)) EnableSprite(j); }
-							paperColor = BLACK;
-						} else {
-							lastKey = KB_QUIT;
-						}
+						for (j=0; j<MAX_PLAYERS; ++j) { DisableSprite(j); }
+						gamePaused = 1; lynx_snd_pause(); BackupPauseBg();
+						lastKey = MenuPause();
+						gamePaused = 0; lynx_snd_continue(); RestorePauseBg(); 
+						for (j=0; j<MAX_PLAYERS; ++j) { if (PlayerAvailable(j)) EnableSprite(j); }
+						paperColor = BLACK;
 						break;
 					case KB_MUSIC:
 						StopMusic();
@@ -869,6 +840,38 @@ char GameLoop()
 					if (lastKey == KB_G) frameBlending ^= 2;
 				#endif
 				}
+			}
+			
+			// Update Network
+			if (gameMode == MODE_ONLINE) {
+			#if defined __LYNX__
+				if (pauseEvt) {
+					j = pauseEvt;
+					pauseEvt = 0;
+				} else {
+					j = NetworkUpdate();
+				}
+			#else
+				j = NetworkUpdate();
+			#endif
+				if (j == EVENT_RACE) {
+					// Start Race
+					gameStep = svStep;
+					res = GameRace();
+					if (res != 1) { 
+						if (res == ERR_TIMEOUT) { return 0; } else { return 1; }
+					}
+				} else if (j == EVENT_MAP) {
+					// Go to next Map
+                    if (gameStep > STEP_WARMUP) { PrintScores(); }
+					gameMap = svMap;
+					gameStep = svStep;
+					return 1;
+				} else if (j == ERR_TIMEOUT) {
+					// Time-out error
+                    PrintTimedOut();
+                    return 0;
+                }
 			}
 			
 			// Draw FPS performance?

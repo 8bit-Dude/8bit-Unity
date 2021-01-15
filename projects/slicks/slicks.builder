@@ -74,7 +74,8 @@
                 "projects/slicks/music/speednik-apple.m"
             ], 
             "chunks": [], 
-            "diskSize": "800KB"
+            "diskSize": "800KB", 
+            "ethernetDriver": "IP65(UDP)"
         }, 
         "Atari": {
             "spriteFrames": "18", 
@@ -104,7 +105,8 @@
             ], 
             "chunks": [], 
             "noText": true, 
-            "diskSize": "360KB"
+            "diskSize": "360KB", 
+            "ethernetDriver": "IP65(UDP)"
         }, 
         "C64": {
             "spriteFrames": "18", 
@@ -132,13 +134,14 @@
             "music": [
                 "projects/slicks/music/speednik-c64.sid"
             ], 
-            "chunks": []
+            "chunks": [], 
+            "ethernetDriver": "IP65(UDP)"
         }, 
         "Lynx": {
             "spriteFrames": "18", 
             "spriteWidth": "7", 
             "spriteHeight": "9", 
-            "musicMemory": "$0C00", 
+            "musicMemory": "$0B00", 
             "sharedMemory": "$0100", 
             "bitmap": [
                 "projects/slicks/bitmaps/banner-lynx.png", 

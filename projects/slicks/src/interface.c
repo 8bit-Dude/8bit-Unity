@@ -298,6 +298,7 @@ void NextMusic(unsigned char blank) {
 		musicSel = 0;
 }
 
+unsigned char gamePaused = 0;
 unsigned char cursorJoy, cursorKey, cursorBut2, cursorPressed;
 unsigned char cursorFlick, cursorCol = MENU_COL, cursorRow = MENU_ROW+2;
 unsigned char cursorTop = MENU_ROW+2, cursorHeight = MENU_HEI-2;
@@ -329,7 +330,7 @@ void LynxCursorControl()
 			SuzyFlip();
 			break;
 		case KB_MUSIC:
-			if (gameMode != MODE_PAUSE) {
+			if (!gamePaused) {
 				StopMusic();
 				NextMusic(0);
 			}
@@ -354,54 +355,64 @@ void LynxCursorControl()
 	
 	// Process next event
 	if (!(cursorJoy & JOY_LEFT)) { 
-		     if (gameMode == MODE_INFO)   { cursorKey = KB_O; cursorRow = MENU_ROW+2; }
-		else if (gameMode == MODE_ONLINE) { cursorKey = KB_L; cursorRow = MENU_ROW+2; }
+		if (!gamePaused) {
+				 if (gameMode == MODE_INFO)   { cursorKey = KB_O; cursorRow = MENU_ROW+2; }
+			else if (gameMode == MODE_ONLINE) { cursorKey = KB_L; cursorRow = MENU_ROW+2; }
+		}
 	}	
 	if (!(cursorJoy & JOY_RIGHT)) { 
-		     if (gameMode == MODE_LOCAL)  { cursorKey = KB_O; cursorRow = MENU_ROW+2; }
-		else if (gameMode == MODE_ONLINE) { cursorKey = KB_I; cursorRow = MENU_ROW+2; }
+		if (!gamePaused) {
+				 if (gameMode == MODE_LOCAL)  { cursorKey = KB_O; cursorRow = MENU_ROW+2; }
+			else if (gameMode == MODE_ONLINE) { cursorKey = KB_I; cursorRow = MENU_ROW+2; }
+		}
 	}	
 	if (!(cursorJoy & JOY_UP)) { 
 		cursorRow -= 1; 
-		if (gameMode == MODE_LOCAL) {
-			     if (cursorRow  < MENU_ROW+2)  { cursorRow = MENU_ROW+2; }			
-			else if (cursorRow == MENU_ROW+6)  { cursorRow = MENU_ROW+5; }			
-			else if (cursorRow == MENU_ROW+8)  { cursorRow = MENU_ROW+7; }			
-			else if (cursorRow == MENU_ROW+10) { cursorRow = MENU_ROW+9; }			
-		} else if (gameMode == MODE_ONLINE) {
-				 if (cursorRow  < MENU_ROW+2)  { cursorRow = MENU_ROW+2; }
-		} else if (gameMode == MODE_PAUSE) {
-				 if (cursorRow  < PAUSE_ROW)  { cursorRow = PAUSE_ROW; }
+		if (gamePaused) {
+					 if (cursorRow  < PAUSE_ROW)  { cursorRow = PAUSE_ROW; }
+		} else {		
+			if (gameMode == MODE_LOCAL) {
+					 if (cursorRow  < MENU_ROW+2)  { cursorRow = MENU_ROW+2; }			
+				else if (cursorRow == MENU_ROW+6)  { cursorRow = MENU_ROW+5; }			
+				else if (cursorRow == MENU_ROW+8)  { cursorRow = MENU_ROW+7; }			
+				else if (cursorRow == MENU_ROW+10) { cursorRow = MENU_ROW+9; }			
+			} else if (gameMode == MODE_ONLINE) {
+					 if (cursorRow  < MENU_ROW+2)  { cursorRow = MENU_ROW+2; }
+			}
 		}
 	}
 	if (!(cursorJoy & JOY_DOWN)) { 
 		cursorRow += 1; 
-		if (gameMode == MODE_LOCAL) {
-			     if (cursorRow  > MENU_ROW+11) { cursorRow = MENU_ROW+11; }
-			else if (cursorRow == MENU_ROW+10) { cursorRow = MENU_ROW+11; }
-			else if (cursorRow == MENU_ROW+8)  { cursorRow = MENU_ROW+9; }			
-			else if (cursorRow == MENU_ROW+6)  { cursorRow = MENU_ROW+7; }			
-		} else if (gameMode == MODE_ONLINE) {
-			     if (cursorRow  > MENU_ROW+13) { cursorRow = MENU_ROW+13; }
-		} else if (gameMode == MODE_PAUSE) {
-			     if (cursorRow  > PAUSE_ROW+2) { cursorRow = PAUSE_ROW+2; }
+		if (gamePaused) {
+					 if (cursorRow  > PAUSE_ROW+2) { cursorRow = PAUSE_ROW+2; }
+		} else {
+			if (gameMode == MODE_LOCAL) {
+					 if (cursorRow  > MENU_ROW+11) { cursorRow = MENU_ROW+11; }
+				else if (cursorRow == MENU_ROW+10) { cursorRow = MENU_ROW+11; }
+				else if (cursorRow == MENU_ROW+8)  { cursorRow = MENU_ROW+9; }			
+				else if (cursorRow == MENU_ROW+6)  { cursorRow = MENU_ROW+7; }			
+			} else if (gameMode == MODE_ONLINE) {
+					 if (cursorRow  > MENU_ROW+13) { cursorRow = MENU_ROW+13; }
+			}
 		}
 	}
 	if (!(cursorJoy & JOY_BTN1) || !(cursorJoy & JOY_BTN2)) { 
 		cursorBut2 = 0;
 		if (!(cursorJoy & JOY_BTN2))
 			cursorBut2 = 1;
-		if (gameMode == MODE_LOCAL) {
-			     if (cursorRow == MENU_ROW+11) { cursorKey = KB_SP; }
-			else if (cursorRow == MENU_ROW+9)  { cursorKey = KB_L; }
-			else if (cursorRow == MENU_ROW+7)  { cursorKey = KB_M; }
-			else if (cursorRow >= MENU_ROW+2)  { cursorKey = 49 + (cursorRow-(MENU_ROW+2)); }
-		} else if (gameMode == MODE_ONLINE) {
-			cursorKey = 49 + (cursorRow-(MENU_ROW+2));
-		} else if (gameMode == MODE_PAUSE) {
-			     if (cursorRow == PAUSE_ROW+0) { cursorKey = KB_PAUSE; }
-			else if (cursorRow == PAUSE_ROW+1) { cursorKey = KB_NEXT; }
-			else if (cursorRow == PAUSE_ROW+2) { cursorKey = KB_QUIT; }
+		if (gamePaused) {
+					 if (cursorRow == PAUSE_ROW+0) { cursorKey = KB_PAUSE; }
+				else if (cursorRow == PAUSE_ROW+1) { cursorKey = KB_NEXT; }
+				else if (cursorRow == PAUSE_ROW+2) { cursorKey = KB_QUIT; }
+		} else {
+			if (gameMode == MODE_LOCAL) {
+					 if (cursorRow == MENU_ROW+11) { cursorKey = KB_SP; }
+				else if (cursorRow == MENU_ROW+9)  { cursorKey = KB_L; }
+				else if (cursorRow == MENU_ROW+7)  { cursorKey = KB_M; }
+				else if (cursorRow >= MENU_ROW+2)  { cursorKey = 49 + (cursorRow-(MENU_ROW+2)); }
+			} else if (gameMode == MODE_ONLINE) {
+				cursorKey = 49 + (cursorRow-(MENU_ROW+2));
+			}
 		}
 	}
 }
@@ -422,6 +433,8 @@ void RestorePauseBg()
 	}	
 }
 
+unsigned char pauseEvt;
+
 unsigned char MenuPause()
 {
 	// Draw Menu
@@ -437,8 +450,14 @@ unsigned char MenuPause()
 	cursorTop = PAUSE_ROW;
 	cursorHeight = 3;
 	
-	// Process Cursor
 	while (!kbhit()) {
+		// In online mode, check if a race/map/timeout event occured
+		if (gameMode == MODE_ONLINE) {
+			pauseEvt = NetworkUpdate();
+			if (pauseEvt == EVENT_RACE || pauseEvt == EVENT_MAP || pauseEvt == ERR_TIMEOUT)
+				return 0;
+		}
+		// Process Cursor
 		LynxCursorControl();
 		if (cursorKey) { return cursorKey; }
 		LynxCursorFlicker(); 
@@ -732,6 +751,10 @@ unsigned char MenuLogin(unsigned char serverIndex)
 {
 	unsigned char res;
 #if defined __LYNX__ 
+	// Load from EEPROM and set Softkeyboard position
+	//for (res=0; res<2; res++) {
+	//	POKEW(&clUser[2*res], lynx_eeprom_read(res));
+	//}
 	SetKeyboardOverlay(13,70);
 #endif	
 	// Prompt for authentication
@@ -744,7 +767,12 @@ unsigned char MenuLogin(unsigned char serverIndex)
 	PrintChr(MENU_COL+6+strlen(clUser), MENU_ROW+4, charBlank);
 	InputField(MENU_COL+6, MENU_ROW+6, clPass, 10);	
 	PrintChr(MENU_COL+6+strlen(clPass), MENU_ROW+6, charBlank);
-	
+#if defined __LYNX__ 
+	// Save to EEPROM
+	//for (res=0; res<2; res++) {
+	//	lynx_eeprom_write(res, PEEKW(&clUser[2*res]));
+	//}
+#endif	
 	// Show action message
 	inkColor = YELLOW;
 	PrintStr(MENU_COL+2, MENU_ROW+11, "CONNECTING...");
