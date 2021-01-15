@@ -714,7 +714,7 @@
                         <property name="text" translatable="yes">Disk Size</property>
                         <layout>
                           <property name="column">0</property>
-                          <property name="padx">100</property>
+                          <property name="padx">25</property>
 						  <property name="pady">2</property>
                           <property name="propagate">True</property>
                           <property name="row">1</property>
@@ -729,7 +729,35 @@
                         <property name="width">8</property>
                         <layout>
                           <property name="column">1</property>
-                          <property name="padx">50</property>
+                          <property name="padx">5</property>
+						  <property name="pady">2</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="tk.Label" id="Label_AppleEthernetDriver">
+                        <property name="text" translatable="yes">Ethernet Driver</property>
+                        <layout>
+                          <property name="column">2</property>
+                          <property name="padx">25</property>
+						  <property name="pady">2</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Combobox" id="Combobox_AppleEthernetDriver">
+                        <property name="state">readonly</property>
+                        <property name="values">IP65(TCP/UDP) IP65(UDP)</property>
+                        <property name="width">14</property>
+                        <layout>
+                          <property name="column">3</property>
+                          <property name="padx">5</property>
 						  <property name="pady">2</property>
                           <property name="propagate">True</property>
                           <property name="row">1</property>
@@ -1075,11 +1103,25 @@
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
+                      <object class="ttk.Checkbutton" id="Checkbutton_AtariNoText">
+                        <property name="text" translatable="yes">No Text (+1KB)</property>
+                        <property name="variable">string:checkAtariNoText</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">0</property>
+						  <property name="pady">2</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>					
+                    <child>
                       <object class="tk.Label" id="Label_AtariDiskSize">
                         <property name="text" translatable="yes">Disk Size</property>
                         <layout>
-                          <property name="column">0</property>
-                          <property name="padx">220</property>
+                          <property name="column">1</property>
+                          <property name="padx">5</property>
 						  <property name="pady">2</property>
                           <property name="propagate">True</property>
                           <property name="row">1</property>
@@ -1093,8 +1135,8 @@
                         <property name="values">180KB 360KB</property>
                         <property name="width">8</property>
                         <layout>
-                          <property name="column">0</property>
-                          <property name="padx">280</property>
+                          <property name="column">2</property>
+                          <property name="padx">0</property>
 						  <property name="pady">2</property>
                           <property name="propagate">True</property>
                           <property name="row">1</property>
@@ -1103,12 +1145,11 @@
                       </object>
                     </child>
                     <child>
-                      <object class="ttk.Checkbutton" id="Checkbutton_AtariNoText">
-                        <property name="text" translatable="yes">No Text Mode (+1KB RAM)</property>
-                        <property name="variable">string:checkAtariNoText</property>
+                      <object class="tk.Label" id="Label_AtariEthernetDriver">
+                        <property name="text" translatable="yes">Ethernet Driver</property>
                         <layout>
-                          <property name="column">0</property>
-                          <property name="padx">20</property>
+                          <property name="column">3</property>
+                          <property name="padx">5</property>
 						  <property name="pady">2</property>
                           <property name="propagate">True</property>
                           <property name="row">1</property>
@@ -1116,6 +1157,21 @@
                         </layout>
                       </object>
                     </child>
+                    <child>
+                      <object class="ttk.Combobox" id="Combobox_AtariEthernetDriver">
+                        <property name="state">readonly</property>
+                        <property name="values">IP65(TCP/UDP) IP65(UDP) Fujinet</property>
+                        <property name="width">14</property>
+                        <layout>
+                          <property name="column">4</property>
+                          <property name="padx">0</property>
+						  <property name="pady">2</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>					
                   </object>
                 </child>
               </object>
@@ -1455,16 +1511,55 @@
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
-                      <object class="tk.Label" id="Label_C64Options">
-                        <property name="height">1</property>
-                        <property name="height">1</property>
-                        <property name="text" translatable="yes">No options for C64...</property>
-                        <property name="width">59</property>
+                     <object class="tk.Label" id="Label_C64Dummy1">
+                        <property name="text" translatable="yes"></property>
                         <layout>
                           <property name="column">0</property>
-						  <property name="pady">2</property>						  
+                          <property name="padx">45</property>
+						  <property name="pady">2</property>
                           <property name="propagate">True</property>
-                          <property name="row">0</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="tk.Label" id="Label_C64EthernetDriver">
+                        <property name="text" translatable="yes">Ethernet Driver</property>
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="padx">10</property>
+						  <property name="pady">2</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Combobox" id="Combobox_C64EthernetDriver">
+                        <property name="state">readonly</property>
+                        <property name="values">IP65(TCP/UDP) IP65(UDP)</property>
+                        <property name="width">14</property>
+                        <layout>
+                          <property name="column">2</property>
+                          <property name="padx">10</property>
+						  <property name="pady">2</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>					
+                    <child>
+                     <object class="tk.Label" id="Label_C64Dummy2">
+                        <property name="text" translatable="yes"></property>
+                        <layout>
+                          <property name="column">3</property>
+                          <property name="padx">45</property>
+						  <property name="pady">2</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
                           <property name="sticky">nw</property>
                         </layout>
                       </object>

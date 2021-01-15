@@ -161,6 +161,7 @@ class Application:
         self.entry_AppleSpriteWidth = self.builder.get_object('Entry_AppleSpriteWidth')
         self.entry_AppleSpriteHeight = self.builder.get_object('Entry_AppleSpriteHeight')
         self.Combobox_AppleDiskSize = self.builder.get_object('Combobox_AppleDiskSize');
+        self.Combobox_AppleEthernetDriver = self.builder.get_object('Combobox_AppleEthernetDriver');
         
         self.listbox_AtariBitmap = self.builder.get_object('Listbox_AtariBitmap')        
         self.listbox_AtariCharset = self.builder.get_object('Listbox_AtariCharset')        
@@ -172,6 +173,7 @@ class Application:
         self.entry_AtariSpriteHeight = self.builder.get_object('Entry_AtariSpriteHeight')
         self.Checkbutton_AtariNoText = self.builder.get_object('Checkbutton_AtariNoText');
         self.Combobox_AtariDiskSize = self.builder.get_object('Combobox_AtariDiskSize');
+        self.Combobox_AtariEthernetDriver = self.builder.get_object('Combobox_AtariEthernetDriver');
         
         self.listbox_C64Bitmap = self.builder.get_object('Listbox_C64Bitmap')        
         self.listbox_C64Charset = self.builder.get_object('Listbox_C64Charset')        
@@ -181,6 +183,7 @@ class Application:
         self.entry_C64SpriteFrames = self.builder.get_object('Entry_C64SpriteFrames')
         self.entry_C64SpriteWidth = self.builder.get_object('Entry_C64SpriteWidth')
         self.entry_C64SpriteHeight = self.builder.get_object('Entry_C64SpriteHeight')
+        self.Combobox_C64EthernetDriver = self.builder.get_object('Combobox_C64EthernetDriver');
         
         self.listbox_LynxBitmap = self.builder.get_object('Listbox_LynxBitmap')        
         self.listbox_LynxCharset = self.builder.get_object('Listbox_LynxCharset')        
@@ -206,8 +209,11 @@ class Application:
                 
         # Set some defaults
         self.Combobox_AppleDiskSize.current(0)
+        self.Combobox_AppleEthernetDriver.current(0)
         self.Combobox_AtariDiskSize.current(0)
+        self.Combobox_AtariEthernetDriver.current(0)
         self.Checkbutton_AtariNoText.state(['!selected'])
+        self.Combobox_C64EthernetDriver.current(0)
 
         # Make lists of various GUI inputs (adding new inputs to the end of each list will guarantee backward compatibility)
         self.entries = [ self.entry_Disk, 
@@ -231,7 +237,8 @@ class Application:
                            self.listbox_LynxCharset,   self.listbox_OricCharset,  self.listbox_Charmap,
                            self.listbox_AppleBitmapSHR,self.listbox_AppleSpritesSHR, self.listbox_AppleCharsetSHR ]
         self.checkbuttons = [ self.Checkbutton_AtariNoText ]
-        self.comboboxes = [ self.Combobox_AtariDiskSize, self.Combobox_AppleDiskSize ]
+        self.comboboxes = [ self.Combobox_AtariDiskSize, self.Combobox_AppleDiskSize,
+                            self.Combobox_AppleEthernetDriver, self.Combobox_AtariEthernetDriver, self.Combobox_C64EthernetDriver ]
                        
     def FileNew(self):
         # Reset all fields
@@ -412,6 +419,7 @@ class Application:
                     ('music', ('listbox', self.listbox_AppleMusic)),
                     ('chunks', ('listbox', self.listbox_AppleChunks)),
                     ('diskSize', ('Combobox', self.Combobox_AppleDiskSize)),
+                    ('ethernetDriver', ('Combobox', self.Combobox_AppleEthernetDriver)),
                 ]),
                 ('Atari', [
                     ('spriteFrames', ('entry', self.entry_AtariSpriteFrames)),
@@ -424,6 +432,7 @@ class Application:
                     ('chunks', ('listbox', self.listbox_AtariChunks)),
                     ('noText', ('Checkbutton', self.Checkbutton_AtariNoText)),
                     ('diskSize', ('Combobox', self.Combobox_AtariDiskSize)),
+                    ('ethernetDriver', ('Combobox', self.Combobox_AtariEthernetDriver)),
                 ]),
                 ('C64', [
                     ('spriteFrames', ('entry', self.entry_C64SpriteFrames)),
@@ -434,6 +443,7 @@ class Application:
                     ('sprites', ('listbox', self.listbox_C64Sprites)),
                     ('music', ('listbox', self.listbox_C64Music)),
                     ('chunks', ('listbox', self.listbox_C64Chunks)),
+                    ('ethernetDriver', ('Combobox', self.Combobox_C64EthernetDriver)),
                 ]),
                 ('Lynx', [
                     ('spriteFrames', ('entry', self.entry_LynxSpriteFrames)),
@@ -805,7 +815,10 @@ class Application:
                 comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/apple/' + diskname.lower() + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-apple' + target + '.map -Cl -O -t apple2 ' + symbols + ' -C apple2-hgr.cfg -I unity '
                 for item in code:
                     comp += item + ' '
-                fp.write(comp + buildFolder + '/apple/unity.lib unity/IP65/ip65_tcp.lib unity/IP65/ip65_apple2.lib\n\n')
+                if self.Combobox_AppleEthernetDriver.get() == 'IP65(TCP/UDP)':
+                    fp.write(comp + buildFolder + '/apple/unity.lib unity/IP65/ip65_tcp.lib unity/IP65/ip65_apple2.lib\n\n')
+                else:
+                    fp.write(comp + buildFolder + '/apple/unity.lib unity/IP65/ip65.lib unity/IP65/ip65_apple2.lib\n\n')
                 
                 # Compression
                 fp.write('utils\\scripts\\exomizer-3.0.2.exe sfx bin ' + buildFolder + '/apple/' + diskname.lower() + '.bin -o ' + buildFolder + '/apple/loader\n\n')
@@ -933,7 +946,10 @@ class Application:
             comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/atari/' + diskname.lower() + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-atari.map -Cl -O -t atarixl ' + symbols + '-C atarixl-largehimem.cfg -I unity '
             for item in code:
                 comp += (item + ' ')
-            fp.write(comp + 'unity/Atari/POKEY.s ' + buildFolder + '/atari/unity.lib unity/IP65/ip65_tcp.lib unity/IP65/ip65_atarixl.lib\n')
+            if self.Combobox_AtariEthernetDriver.get() == 'IP65(TCP/UDP)':
+                fp.write(comp + 'unity/Atari/POKEY.s ' + buildFolder + '/atari/unity.lib unity/IP65/ip65_tcp.lib unity/IP65/ip65_atarixl.lib\n')
+            else:
+                fp.write(comp + 'unity/Atari/POKEY.s ' + buildFolder + '/atari/unity.lib unity/IP65/ip65.lib unity/IP65/ip65_atarixl.lib\n')
             fp.write('utils\\cc65\\bin\\cl65 -t atarixl -C atari-asm.cfg -o ' + buildFolder + '/atari/basicoff.bin unity/Atari/BASICOFF.s\n')
             fp.write('utils\\scripts\\atari\\mads.exe -o:' + buildFolder + '/atari/rmt.bin unity/Atari/RMT.a65\n\n')
 
@@ -1038,7 +1054,10 @@ class Application:
             comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/c64/' + diskname.lower() + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-c64.map -Cl -O -t c64 -C unity/C64/c64.cfg -I unity '
             for item in code:
                 comp += (item + ' ')
-            fp.write(comp + buildFolder + '/c64/unity.lib unity/IP65/ip65_tcp.lib unity/IP65/ip65_c64.lib\n\n')
+            if self.Combobox_C64EthernetDriver.get() == 'IP65(TCP/UDP)':
+                fp.write(comp + buildFolder + '/c64/unity.lib unity/IP65/ip65_tcp.lib unity/IP65/ip65_c64.lib\n\n')
+            else:
+                fp.write(comp + buildFolder + '/c64/unity.lib unity/IP65/ip65.lib unity/IP65/ip65_c64.lib\n\n')
             
             # Compression
             if len(sprites) > 0:
