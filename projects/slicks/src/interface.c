@@ -83,7 +83,7 @@ extern char networkReady;
 void __fastcall__ SuzyFlip(void);
 
 // Build Information
-const char* buildInfo = "BUILD: 2021/01/01";
+const char* buildInfo = "BUILD: 2021/01/16";
 
 // List of available maps
 const char *mapList[LEN_MAPS] = {"arizona","arto","cramp","freeway","gta","island","mtcarlo","rally","river","stadium","suzuka","trial"};
@@ -749,12 +749,13 @@ void MenuGFX()
 // Sub-function of GameMenu()
 unsigned char MenuLogin(unsigned char serverIndex)
 {
-	unsigned char res;
+	unsigned char res = 0;
 #if defined __LYNX__ 
-	// Load from EEPROM and set Softkeyboard position
-	//for (res=0; res<2; res++) {
-	//	POKEW(&clUser[2*res], lynx_eeprom_read(res));
-	//}
+	// Load user/pass from EEPROM and set Softkeyboard position
+	while (res < 18) {
+		clUser[res] = lynx_eeprom_read(res);
+		res++;
+	}
 	SetKeyboardOverlay(13,70);
 #endif	
 	// Prompt for authentication
@@ -765,13 +766,17 @@ unsigned char MenuLogin(unsigned char serverIndex)
 	PrintStr(MENU_COL+1, MENU_ROW+9, "8BIT-SLICKS.COM");
 	InputField(MENU_COL+6, MENU_ROW+4, clUser, 4);
 	PrintChr(MENU_COL+6+strlen(clUser), MENU_ROW+4, charBlank);
+	maskInput = 1;
 	InputField(MENU_COL+6, MENU_ROW+6, clPass, 10);	
+	maskInput = 0;
 	PrintChr(MENU_COL+6+strlen(clPass), MENU_ROW+6, charBlank);
 #if defined __LYNX__ 
-	// Save to EEPROM
-	//for (res=0; res<2; res++) {
-	//	lynx_eeprom_write(res, PEEKW(&clUser[2*res]));
-	//}
+	// Save user/pass to EEPROM
+	res = 0;
+	while (res < 18) {	
+		lynx_eeprom_write(res, clUser[res]);
+		res++;
+	}
 #endif	
 	// Show action message
 	inkColor = YELLOW;
