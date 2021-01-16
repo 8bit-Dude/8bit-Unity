@@ -93,9 +93,9 @@ int tck4, accRate, decRate, jmpTCK;
   #define LIGHT_SP  24
   char rotRate = 3;
 #endif
-const char rotMax[3] = { 4, 5, 2};
+const char rotMax[4] = { 4, 5, 6, 2 };
 const int velMin = 200;
-const int velMax[3] = { 450, 510, 600 };
+const int velMax[4] = { 450, 500, 550, 600 };
 const int velDrift = 450;
 const int velRamp = 800;
 
@@ -478,8 +478,8 @@ char GameLoop()
 				
 				// Get customized physics parameters
 				if (iCtrl > 3) {
-					iVelMax = velMax[2];
-					iRotMax = rotMax[2];
+					iVelMax = velMax[3];
+					iRotMax = rotMax[3];
 				} else {
 					iVelMax = velMax[iCtrl-1];
 					iRotMax = rotMax[iCtrl-1];
@@ -586,12 +586,16 @@ char GameLoop()
 				iSpr = (iAng2+12)/23u;
 				if (iSpr>15) { iSpr=0; }			
 				iDir = iSpr;				
-			#else				
+			#else							
 				// Lerp trajectory angle to create "drift effect"
-				iAng1 = LerpAngle(iAng1, iAng2, iRotMax*steps);
-			
+				iAng1 = LerpAngle(iAng1, iAng2, iRotMax*steps);	
+				
 				// Constrain velocity (and slow down when drifting)
-				if (iVel > (iVelMax - deltaAngle)) { iVel = (iVelMax - deltaAngle); }				
+				if (iCtrl > 3) {	
+					if (iVel > (iVelMax - deltaAngle)) { iVel = (iVelMax - deltaAngle); }
+				} else {
+					if (iVel > iVelMax) { iVel = iVelMax; }
+				}
 			
 				// Constrain angle range
 				if (iAng1 > 360) { iAng1 -= 360; } else if (iAng1 < 0) { iAng1 += 360; }

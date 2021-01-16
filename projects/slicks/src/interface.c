@@ -482,8 +482,8 @@ void PrintLap(unsigned char i)
 signed int score[4];
 void PrintScores()
 {
-	signed char i,j,f,s;
 	unsigned char* string;
+	signed char i,j,f,s;
 	signed char rank[4] = {0, 1, 2, 3};
 	
 	// Play the background music
@@ -511,9 +511,8 @@ void PrintScores()
 	for (i=0; i<MAX_PLAYERS; ++i) { 
 		for (j=i+1; j<MAX_PLAYERS; ++j) { 
 			if (score[i] < score[j]) {
-				s =  rank[i];
-				rank[i] = rank[j];
-				rank[j] = s;
+				s = rank[i];  rank[i]  = rank[j];  rank[j] = s;
+				s = score[i]; score[i] = score[j]; score[j] = s;
             }
         }	
 	}
@@ -524,8 +523,8 @@ void PrintScores()
 	
 	// Print results and wait
 	for (i=0; i<MAX_PLAYERS; ++i) {
-		j = rank[i];
-		if (score[j] >= 0) {
+		if (score[i] >= 0) {
+			j = rank[i];
 			s = SCORES_ROW+2*i+1;
 			inkColor = inkColors[j];
 		#if defined __ORIC__
