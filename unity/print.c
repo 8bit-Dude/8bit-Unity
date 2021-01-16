@@ -268,11 +268,12 @@ void PrintLogo(unsigned char col, unsigned char row, unsigned char index)
 	unsigned char i;
 	
 	// Set Character data
-	addr = BITMAPRAM+1 + row*320u + col;
+	addr = BITMAPRAM+1 + row*320 + col;
 	for (i=0; i<8; ++i) {
 		POKE((char*)addr, 64+logos[index][i]); 
 		addr += 40;
-	}								  
+	}		
+	
 #elif defined __CBM__
 	// Define logos (1=Green, 2=Red, 3=Blue) 
 	unsigned char logos[6][8] = { {0,0,0, 48,204,192,200, 48}, 		// C64: (0,3,0,0) (3,0,3,0) (3,0,0,0) (3,0,2,0) (0,3,0,0)
@@ -294,9 +295,8 @@ void PrintLogo(unsigned char col, unsigned char row, unsigned char index)
 	POKE(addr3, BLUE);
 
 	// Set Character data
-	for (i=0; i<8; ++i) {
-		POKE(addr1++, logos[index][i]);
-	}
+	memcpy(addr1, logos[index], 8);
+	
 #elif defined __LYNX__	
 	// Define logos (2=Blue, 5=Green, 8=Orange, b=Red, d=White) 
 	unsigned char logos[6][6][2] = { {{0xff,0xff},{0xf2,0xff},{0x2f,0x2f},{0x2f,0xff},{0x2f,0xbf},{0xf2,0xff}}, 	// C64
@@ -306,15 +306,13 @@ void PrintLogo(unsigned char col, unsigned char row, unsigned char index)
 									 {{0xff,0xff},{0x8f,0x8f},{0x88,0xff},{0xf8,0xff},{0xf8,0x8f},{0x8f,0x8f}}, 	// LNX
 									 {{0xff,0xff},{0x2d,0xdf},{0x2d,0xd2},{0x22,0x22},{0x2d,0xd2},{0x22,0x22}} }; 	// FLP
 	unsigned int addr;
-	unsigned char i,j;
+	unsigned char i;
 								  
 	// Set Character data
 	addr = BITMAPRAM+1 + row*492 + col*2;
 	for (i=0; i<6; ++i) {
-		for (j=0; j<2; ++j) {
-			POKE(addr++, logos[index][i][j]);
-		}
-		addr += 80;
+		memcpy(addr, logos[index][i], 2);
+		addr += 82;
 	}
 #endif
 }
@@ -603,9 +601,11 @@ void CopyStr(unsigned char col1, unsigned char row1, unsigned char col2, unsigne
 }
 
 // Interactive text input function
+unsigned char maskInput = 0;
 unsigned char InputStr(unsigned char col, unsigned char row, unsigned char width, char *buffer, unsigned char len, unsigned char key)
 {
-	unsigned char i, curlen, offset;
+	unsigned char i, j, curlen, offset;
+	unsigned char *c = charStar;
 	
 	// Check current length of input
 	curlen = strlen(buffer);
@@ -618,15 +618,21 @@ unsigned char InputStr(unsigned char col, unsigned char row, unsigned char width
 	if (!key) {
 		// Initialize input field
 		PrintBlanks(col, row, width+1, 1);
-		PrintStr(col, row, &buffer[curlen-offset]);
+		i = curlen-offset; j = col;
+		while (i < curlen) {
+			if (!maskInput)
+				c = GetChr(buffer[i]);
+			PrintChr(j, row, c);
+			j++; i++;
+		}
 		
 	} else {		
 		// Process Letter keys
 		if (curlen < len) { 
 		#if (defined __ATARI__) || (defined __ORIC__)
-			if (key == 32 | key == 33 | (key > 38 & key < 59) | key == 63 | key == 92 | key == 95 | (key > 96 & key < 123)) {	// Atari/Oric
+			if (key == 32 || key == 33 || (key > 38 && key < 59) || key == 63 || key == 92 || key == 95 || (key > 96 && key < 123)) {	// Atari/Oric
 		#else
-			if (key == 32 | key == 33 | (key > 38 & key < 59) | key == 63 | (key > 64 & key < 91) | key == 92 | key == 95) {	// Apple/C64/Lynx
+			if (key == 32 || key == 33 || (key > 38 && key < 59) || key == 63 || (key > 64 && key < 91) || key == 92 || key == 95) {	// Apple/C64/Lynx
 		#endif
 				buffer[curlen] = key;
 				buffer[curlen+1] = 0;
@@ -634,7 +640,9 @@ unsigned char InputStr(unsigned char col, unsigned char row, unsigned char width
 					CopyStr(col, row, col+1, row, width-1);
 					offset--;
 				}
-				PrintChr(col+offset, row, GetChr(key));
+				if (!maskInput)
+					c = GetChr(key);
+				PrintChr(col+offset, row, c);
 				offset++;
 			}
 		}
@@ -646,9 +654,11 @@ unsigned char InputStr(unsigned char col, unsigned char row, unsigned char width
 				if 	(curlen > width) {
 					for (i=width-1; i>0; i--)
 						CopyStr(col+i, row, col+i-1, row, 1);
-					PrintChr(col, row, GetChr(buffer[curlen-width-1]));					
+					if (!maskInput)
+						c = GetChr(buffer[curlen-width-1]);
+					PrintChr(col, row, c);		
 				} else {
-					PrintChr(col+offset, row, &charBlank[0]);
+					PrintChr(col+offset, row, charBlank);
 					offset--;					
 				}
 			}

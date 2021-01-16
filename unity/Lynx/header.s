@@ -41,7 +41,7 @@
 	.byte	0					; rotation 1=left
 								; rotation 2=right
 	.byte   0                                       ; aud bits 1=in use for addressing
-	.byte   0                                       ; eeprom -> use 1 for the most common eeprom, 64 to use SD Cart saves, 65 for both
+	.byte   1                                       ; eeprom -> use 1 for the most common eeprom, 64 to use SD Cart saves, 65 for both
 													; eeprom [2:0] -
 													; 0 - no eeprom
 													; 1 - 93c46 16 bit mode (used in Ttris, SIMIS, Alpine Games, ..., MegaPak I at least)

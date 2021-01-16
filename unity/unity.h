@@ -128,6 +128,7 @@ extern unsigned char inkColor, paperColor;
 #if defined __ORIC__
   void SetAttributes(signed char col, unsigned char row, unsigned char color);
 #endif
+const char *GetChr(unsigned char chr);
 void PrintBlanks(unsigned char col, unsigned char row, unsigned char width, unsigned char height);
 void PrintChr(unsigned char col, unsigned char row, const char *chr);
 void PrintNum(unsigned char col, unsigned char row, unsigned int num);
@@ -135,7 +136,7 @@ void PrintStr(unsigned char col, unsigned char row, const char *buffer);
 void PrintLogo(unsigned char col, unsigned char row, unsigned char index);
 void CopyStr(unsigned char col1, unsigned char row1, unsigned char col2, unsigned char row2, unsigned char len);
 unsigned char InputStr(unsigned char col, unsigned char row, unsigned char width, char *buffer, unsigned char len, unsigned char key);
-const char *GetChr(unsigned char chr);
+extern unsigned char maskInput;
 
 // Joystick/Mouse definitions
 #define JOY_UP      1
