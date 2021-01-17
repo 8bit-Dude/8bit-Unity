@@ -1,10 +1,6 @@
 
 #include "definitions.h"
 
-#ifdef __ATARIXL__
-  #pragma code-name("SHADOW_RAM")
-#endif
-
 // Platform specific colors
 #if defined __APPLE2__
 	#define INK_LAPS   	 BLACK
@@ -126,6 +122,19 @@ void DrawFPS(unsigned long f)
 	PrintNum(0, 0, fps);
 	fpsClock = clock();	
 }
+#endif
+
+
+// Display lap numbers
+void PrintLap(unsigned char i)
+{
+	if (cars[i].lap < 1) { return; }
+	inkColor = inkColors[i];
+	PrintNum((i+2)*8-3, CHR_ROWS-1, cars[i].lap);
+}
+
+#ifdef __ATARIXL__
+  #pragma code-name("SHADOW_RAM")
 #endif
 
 // Paper for message Buffer
@@ -466,17 +475,60 @@ unsigned char MenuPause()
 }
 #endif
 
-// Display lap numbers
-void PrintLap(unsigned char i)
+// Print race message and laps
+void PrintRace()
+{	
+	// Print race message
+#if defined __ORIC__
+	paperColor = BLACK; 
+#else
+	paperColor = paperBuffer;
+#endif	
+	PrintBuffer("      RACE STARTED, GOAL:    LAPS!      ");
+	
+	// Print laps
+	inkColor = INK_LAPS;
+	PrintNum(26, 0, lapGoal);
+	
+	// Reset to default colors
+	inkColor = WHITE;
+	paperColor = BLACK;
+}
+
+// Sub-function for Animating Sprites in Main Menu
+void SpriteAnimation(unsigned char index, unsigned char frame)
 {
-	if (cars[i].lap < 1) { return; }
-	inkColor = inkColors[i];
-	PrintNum((i+2)*8-3, CHR_ROWS-1, cars[i].lap);
+#if defined __APPLE2__
+	frame += index*16;
+	spriteX = 90+(index*96)/8u;	
+	spriteY = 16;			
+#elif defined __ATARI__
+	spriteX = 145+index*13; 
+	spriteY = 46;
+#elif defined __ORIC__
+	spriteX = 48+index*8;
+	spriteY = 16;	
+#elif defined __CBM__
+	spriteX = 200+index*26; 
+	spriteY = 15;
+#elif defined __LYNX__
+	spriteX = 100+index*13; 
+	spriteY = 6;
+#endif		
+	SetSprite(index, frame);
 }
 
 #ifdef __APPLE2__
   #pragma code-name("LC")
 #endif
+
+// In-case connection drops out...
+void PrintTimedOut()
+{
+	inkColor = WHITE;
+    PrintStr(10,12, " CONNECTION TIMED-OUT ");
+    sleep(3);
+}
 
 // Print score after round ends
 signed int score[4];
@@ -582,57 +634,6 @@ void PrintScores()
 #ifndef __ORIC__
 	StopMusic();
 #endif	
-}
-
-// Print race message and laps
-void PrintRace()
-{	
-	// Print race message
-#if defined __ORIC__
-	paperColor = BLACK; 
-#else
-	paperColor = paperBuffer;
-#endif	
-	PrintBuffer("      RACE STARTED, GOAL:    LAPS!      ");
-	
-	// Print laps
-	inkColor = INK_LAPS;
-	PrintNum(26, 0, lapGoal);
-	
-	// Reset to default colors
-	inkColor = WHITE;
-	paperColor = BLACK;
-}
-
-// In-case connection drops out...
-void PrintTimedOut()
-{
-	inkColor = WHITE;
-    PrintStr(10,12, " CONNECTION TIMED-OUT ");
-    sleep(3);
-}
-
-// Sub-function for Animating Sprites in Main Menu
-void SpriteAnimation(unsigned char index, unsigned char frame)
-{
-#if defined __APPLE2__
-	frame += index*16;
-	spriteX = 90+(index*96)/8u;	
-	spriteY = 16;			
-#elif defined __ATARI__
-	spriteX = 145+index*13; 
-	spriteY = 46;
-#elif defined __ORIC__
-	spriteX = 48+index*8;
-	spriteY = 16;	
-#elif defined __CBM__
-	spriteX = 200+index*26; 
-	spriteY = 15;
-#elif defined __LYNX__
-	spriteX = 100+index*13; 
-	spriteY = 6;
-#endif		
-	SetSprite(index, frame);
 }
 
 // Sub-function of GameMenu()

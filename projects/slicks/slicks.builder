@@ -141,7 +141,7 @@
             "spriteFrames": "18", 
             "spriteWidth": "7", 
             "spriteHeight": "9", 
-            "musicMemory": "$0B00", 
+            "musicMemory": "$0800", 
             "sharedMemory": "$0100", 
             "bitmap": [
                 "projects/slicks/bitmaps/banner-lynx.png", 
