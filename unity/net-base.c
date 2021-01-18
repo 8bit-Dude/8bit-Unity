@@ -26,8 +26,10 @@
 
 #include "unity.h"
 
-#ifdef __HUB__
+#if defined __HUB__
   #include "hub.h"
+#elif defined __FUJINET__	
+  // Nothing
 #else
   #include "IP65/ip65.h"
 #endif
@@ -36,13 +38,9 @@
   #pragma code-name("LC")
 #endif
 
-#ifdef __ATARIXL__
-  #pragma code-name("SHADOW_RAM")
-#endif
-
 unsigned char InitNetwork(void)
 {
-#ifdef __HUB__
+#if defined __HUB__
 	// Detect if HUB is connected
 	clock_t timer = clock();
 	while ((clock()-timer) < TCK_PER_SEC) { 
@@ -51,6 +49,14 @@ unsigned char InitNetwork(void)
 		UpdateHub();
 	}
 	return ADAPTOR_ERR;
+
+#elif defined __FUJINET__
+	// Turn off SIO clicks
+	enable_rom();
+	OS.soundr = 0;
+	restore_rom();
+	return NETWORK_OK;
+	
 #else
 	// Init IP65 and DHCP
 	if (ip65_init(ETH_INIT_DEFAULT)) return ADAPTOR_ERR;
@@ -61,7 +67,7 @@ unsigned char InitNetwork(void)
 
 unsigned char GetLocalIP(unsigned char* ip)
 {
-#ifdef __HUB__
+#if defined __HUB__
 	// Check if data was received from Hub
 	clock_t timer = clock();
 	QueueHub(HUB_SYS_IP, 0, 0);
@@ -79,5 +85,11 @@ unsigned char GetLocalIP(unsigned char* ip)
 		// Check time-out
 		if ((clock() - timer) >= 20) { return 0; }	
 	}
+	
+#elif defined __FUJINET__	
+	// TODO	
+	
+#else
+	// TODO	
 #endif
 }

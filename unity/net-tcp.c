@@ -26,12 +26,10 @@
  
 #include "unity.h"
 
-#ifdef __ATARIXL__
-  #pragma code-name("SHADOW_RAM")
-#endif
-
-#ifdef __HUB__
+#if defined __HUB__
   #include "hub.h"
+#elif defined __FUJINET__
+  // Nothing
 #else
   #include "IP65/ip65.h"
   #define EncodeIP(a,b,c,d) (a+b*256+c*65536+d*16777216)
@@ -44,16 +42,21 @@
 
 void SlotTCP(unsigned char slot)
 {
-#ifdef __HUB__
+#if defined __HUB__
 	QueueHub(HUB_TCP_SLOT, &slot, 1);
-	UpdateHub();		
+	UpdateHub();
+	
+#elif defined __FUJINET__	
+	// TODO	
+	
 #else
+	// TODO
 #endif
 }
 
 void OpenTCP(unsigned char ip1, unsigned char ip2, unsigned char ip3, unsigned char ip4, unsigned int svPort)
 {
-#ifdef __HUB__
+#if defined __HUB__
 	// Ask HUB to set up connection
 	unsigned char buffer[6];
 	buffer[0] = ip1;
@@ -64,6 +67,12 @@ void OpenTCP(unsigned char ip1, unsigned char ip2, unsigned char ip3, unsigned c
 	buffer[5] = svPort >> 8;	
 	QueueHub(HUB_TCP_OPEN, buffer, 6);	
 	UpdateHub();
+	
+#elif defined __FUJINET__
+	// Open TCP address
+	strcpy(&fujiHostname[0], "N:TCP://199.47.196.106:1234/");
+	FujiOpen();
+	
 #else
 	unsigned long svIp = EncodeIP(ip1,ip2,ip3,ip4);
 	tcp_connect(svIp, svPort, PacketTCP);
@@ -72,9 +81,13 @@ void OpenTCP(unsigned char ip1, unsigned char ip2, unsigned char ip3, unsigned c
 
 void CloseTCP()
 {
-#ifdef __HUB__
+#if defined __HUB__
 	QueueHub(HUB_TCP_CLOSE, 0, 0);
 	UpdateHub();
+	
+#elif defined __FUJINET__
+	FujiClose();
+	
 #else
 	tcp_close();
 #endif
@@ -82,8 +95,12 @@ void CloseTCP()
 
 void SendTCP(unsigned char* buffer, unsigned char length) 
 {
-#ifdef __HUB__
+#if defined __HUB__
 	QueueHub(HUB_TCP_SEND, buffer, length);
+	
+#elif defined __FUJINET__
+	FujiWrite(buffer, length);
+	
 #else
 	tcp_send(buffer, length);
 #endif
@@ -92,7 +109,7 @@ void SendTCP(unsigned char* buffer, unsigned char length)
 unsigned char* RecvTCP(unsigned int timeOut)
 {	
 	clock_t timer = clock()+timeOut;
-#ifdef __HUB__
+#if defined __HUB__
 	// Wait until data is received from Hub
 	while (!recvLen || recvHub[0] != HUB_TCP_RECV) {
 		if (clock() > timer) return 0;
@@ -100,6 +117,19 @@ unsigned char* RecvTCP(unsigned int timeOut)
 	}
 	recvLen = 0;  // Clear packet
 	return &recvHub[2]; 
+
+#elif defined __FUJINET__
+	OS.dvstat[0] = 0;
+	while (!OS.dvstat[0]) {
+		// Check status once per frame
+		FujiStatus();
+		if (clock() > timer) return 0;
+	}
+	
+	// Get data
+	FujiRead();
+	return fujiBuffer;
+	
 #else
 	// Process IP65 until receiving packet
 	while (!tcp_len) {

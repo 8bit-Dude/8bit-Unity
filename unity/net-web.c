@@ -30,13 +30,17 @@
   #pragma code-name("SHADOW_RAM")
 #endif
 
-#ifdef __HUB__
+#if defined __HUB__
   #include "hub.h"
+#elif defined __FUJINET__	
+  // TODO	
+#else
+  // TODO	  
 #endif
 
 void OpenWEB(unsigned int port, unsigned int timeOut)
 {
-#ifdef __HUB__
+#if defined __HUB__
 	// Ask HUB to set up connection
 	unsigned char buffer[4];
 	buffer[0] = port & 0xFF;
@@ -45,54 +49,69 @@ void OpenWEB(unsigned int port, unsigned int timeOut)
 	buffer[3] = timeOut >> 8;	
 	QueueHub(HUB_WEB_OPEN, buffer, 4);
 	UpdateHub();
+#elif defined __FUJINET__	
+	// TODO	
 #else
+	// TODO	
 #endif
 }
 
 void CloseWEB()
 {
-#ifdef __HUB__
+#if defined __HUB__
 	while (sendLen) UpdateHub();
 	QueueHub(HUB_WEB_CLOSE, 0, 0);
 	UpdateHub(); // Send immediately
+#elif defined __FUJINET__	
+	// TODO	
 #else
+	// TODO	
 #endif
 }
 
 void HeaderWEB(unsigned char* buffer, unsigned char length) 
 {
-#ifdef __HUB__
+#if defined __HUB__
 	while (sendLen) UpdateHub();
 	QueueHub(HUB_WEB_HEADER, buffer, length);
 	UpdateHub(); // Send immediately
+#elif defined __FUJINET__	
+	// TODO	
 #else
+	// TODO	
 #endif
 }
 
 void BodyWEB(unsigned char* buffer, unsigned char length) 
 {
-#ifdef __HUB__
+#if defined __HUB__
 	while (sendLen) UpdateHub();
 	QueueHub(HUB_WEB_BODY, buffer, length);
 	UpdateHub(); // Send immediately
+#elif defined __FUJINET__	
+	// TODO	
 #else
+	// TODO	
 #endif
 }
 
 void SendWEB() 
 {
-#ifdef __HUB__
+#if defined __HUB__
 	// Flush Hub Queue
 	while (sendLen) UpdateHub();
 	QueueHub(HUB_WEB_SEND, 0, 0);
 	UpdateHub(); // Send immediately
+#elif defined __FUJINET__	
+	// TODO	
 #else
+	// TODO	
 #endif
 }
 
 unsigned char* RecvWEB(unsigned int timeOut)
 {	
-#ifdef __HUB__
+#if defined __HUB__
 	// Wait until data is received from Hub
 	clock_t timer = clock()+timeOut;
 	while (!recvLen || recvHub[0] != HUB_WEB_RECV) {
@@ -101,7 +120,11 @@ unsigned char* RecvWEB(unsigned int timeOut)
 	}
 	recvLen = 0;  // Clear packet
 	return &recvHub[2]; 
+#elif defined __FUJINET__	
+	// TODO	
+	return 0;
 #else
+	// TODO	
 	return 0;
 #endif
 }

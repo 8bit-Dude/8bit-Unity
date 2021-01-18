@@ -72,6 +72,11 @@
 // Clock
 #define TCK_PER_SEC	CLK_TCK
 
+// ROM Toggling (do not use with SHADOW_RAM!)
+void enable_rom(void);
+void disable_rom(void);
+void restore_rom(void);
+
 // Using xBios for File Management
 void DirList(void);
 unsigned char FileOpen(const char* fname);
@@ -90,3 +95,14 @@ extern unsigned char frameBlending;
 
 // Gfx functions (see scroll.s)
 void __fastcall__ Scroll(void);
+
+// Optional Fujinet functions (see fujinet.c)
+#ifdef __FUJINET__
+  void FujiOpen(void);
+  void FujiClose(void);
+  void FujiStatus(void);
+  void FujiRead(void);
+  void FujiWrite(unsigned char* buffer, unsigned char length);
+  extern char fujiHostname[256];
+  extern char fujiBuffer[256];
+#endif

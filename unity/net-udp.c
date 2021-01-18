@@ -26,12 +26,10 @@
  
 #include "unity.h"
 
-#ifdef __ATARIXL__
-  #pragma code-name("SHADOW_RAM")
-#endif
-
-#ifdef __HUB__
+#if defined __HUB__
   #include "hub.h"
+#elif defined __FUJINET__	
+  // Nothing
 #else
   #include "IP65/ip65.h"
   #define EncodeIP(a,b,c,d) (a+b*256+c*65536+d*16777216)
@@ -47,16 +45,21 @@
 
 void SlotUDP(unsigned char slot)
 {
-#ifdef __HUB__
+#if defined __HUB__
 	QueueHub(HUB_UDP_SLOT, &slot, 1);
 	UpdateHub();	
+	
+#elif defined __FUJINET__	
+	// TODO
+	
 #else
+	// TODO
 #endif
 }
 
 void OpenUDP(unsigned char ip1, unsigned char ip2, unsigned char ip3, unsigned char ip4, unsigned int svPort, unsigned int clPort)
 {
-#ifdef __HUB__
+#if defined __HUB__
 	// Ask HUB to set up connection
 	unsigned char buffer[6];
 	buffer[0] = ip1;
@@ -69,6 +72,10 @@ void OpenUDP(unsigned char ip1, unsigned char ip2, unsigned char ip3, unsigned c
 	buffer[7] = clPort >> 8;	
 	QueueHub(HUB_UDP_OPEN, buffer, 8);
 	UpdateHub();
+	
+#elif defined __FUJINET__	
+	// TODO
+  
 #else
 	// Set-up UDP params and listener
 	unsigned char dummy[1];
@@ -86,9 +93,13 @@ void OpenUDP(unsigned char ip1, unsigned char ip2, unsigned char ip3, unsigned c
 
 void CloseUDP()
 {
-#ifdef __HUB__
+#if defined __HUB__
 	QueueHub(HUB_UDP_CLOSE, 0, 0);
 	UpdateHub();	
+	
+#elif defined __FUJINET__	
+	// TODO	
+	
 #else
 	udp_remove_listener(udp_recv_port);
 #endif
@@ -96,8 +107,12 @@ void CloseUDP()
 
 void SendUDP(unsigned char* buffer, unsigned char length) 
 {
-#ifdef __HUB__
+#if defined __HUB__
 	QueueHub(HUB_UDP_SEND, buffer, length);
+	
+#elif defined __FUJINET__	
+	// TODO	
+	
 #else
 	udp_send(buffer, length, udp_send_ip, udp_send_port, udp_recv_port);
 #endif
@@ -106,14 +121,19 @@ void SendUDP(unsigned char* buffer, unsigned char length)
 unsigned char* RecvUDP(unsigned int timeOut)
 {	
 	clock_t timer = clock()+timeOut;
-#ifdef __HUB__
+#if defined __HUB__
 	// Wait until data is received from Hub
 	while (!recvLen || recvHub[0] != HUB_UDP_RECV) {
 		if (clock() > timer) return 0;
 		UpdateHub();	
 	}	
 	recvLen = 0;  // Clear packet
-	return &recvHub[2]; 	
+	return &recvHub[2]; 
+	
+#elif defined __FUJINET__	
+	// TODO
+	return 0;
+	
 #else
 	// Process IP65 until receiving packet
 	while (!udp_len) {

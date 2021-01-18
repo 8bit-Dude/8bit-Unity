@@ -23,15 +23,13 @@
  *   used to endorse or promote products derived from this software without
  *   specific prior written permission.
  */
- 
+
 #include "unity.h"
 
-#ifdef __ATARIXL__
-  #pragma code-name("SHADOW_RAM")
-#endif
-
-#ifdef __HUB__
+#if defined __HUB__
   #include "hub.h"
+#elif defined __FUJINET__	
+  // Nothing
 #else
   #include "IP65/ip65.h"  
   #define URL_LEN 512	// Note: HTTP header (parsed out) takes about 256 bytes...
@@ -41,9 +39,16 @@
 
 void GetURL(unsigned char* url)
 {
-#ifdef __HUB__
+#if defined __HUB__
 	QueueHub(HUB_URL_GET, url, strlen(url));	
 	UpdateHub();
+	
+#elif defined __FUJINET__
+	// Open HTTP address
+	strcpy(&fujiHostname[0], "N:HTTP");
+	strcpy(&fujiHostname[6], &url[4]);
+	FujiOpen();
+	
 #else
 	// Read URL and strip out HTTP header
 	url_len = url_download((const char*)url, url_buf, URL_LEN);	
@@ -59,7 +64,7 @@ void GetURL(unsigned char* url)
 
 unsigned char* ReadURL(unsigned char size, unsigned int timeOut)
 {	
-#ifdef __HUB__
+#if defined __HUB__
 	// Wait until data is received from Hub
 	clock_t timer = clock()+timeOut;
 	QueueHub(HUB_URL_READ, &size, 1);	
@@ -69,6 +74,21 @@ unsigned char* ReadURL(unsigned char size, unsigned int timeOut)
 	}
 	recvLen = 0;  // Clear packet
 	return &recvHub[2]; 
+	
+#elif defined __FUJINET__	
+	clock_t timer = clock()+timeOut;
+	OS.dvstat[0] = 0;
+	while (!OS.dvstat[0]) {
+		// Check status once per frame
+		FujiStatus();
+		if (clock() > timer) return 0;
+	}
+	
+	// Get data then close connection
+	FujiRead();
+	FujiClose();
+	return fujiBuffer;
+	
 #else
 	unsigned char *ptr;
 	if (url_len && url_ind < url_len-1) {
