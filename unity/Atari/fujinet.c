@@ -26,7 +26,7 @@
 
 #include <unity.h>
 
-#define TIMEOUT 0x00 //0x1f /* approx 30 seconds */
+#define TIMEOUT 0x01 //0x1f /* approx 30 seconds */
 
 #define DFUJI   0x71
 #define DREAD   0x40
@@ -41,7 +41,7 @@ char fujiHostname[256];
 char fujiBuffer[256];
 clock_t fujiClock;
 
-void FujiOpen() 
+void FujiOpen(unsigned char trans) 
 {
 	enable_rom();
 	OS.dcb.ddevic = DFUJI;
@@ -51,8 +51,8 @@ void FujiOpen()
 	OS.dcb.dbuf   = &fujiHostname;
 	OS.dcb.dtimlo = TIMEOUT;
 	OS.dcb.dbyt   = 256;
-	OS.dcb.daux1  = 4;
-	OS.dcb.daux2  = 3;
+	OS.dcb.daux1  = OUPDATE;
+	OS.dcb.daux2  = trans;
 	__asm__("JSR $E459");
 	restore_rom();
 }
@@ -84,11 +84,10 @@ void FujiWrite(unsigned char* buffer, unsigned char length)
 	OS.dcb.dunit  = 1;
 	OS.dcb.dcomnd = 'W';
 	OS.dcb.dstats = DWRITE;
-	OS.dcb.dbuf   = &buffer;
+	OS.dcb.dbuf   = buffer;
 	OS.dcb.dtimlo = TIMEOUT;
 	OS.dcb.dbyt   = length;
-	OS.dcb.daux1  = length;
-	OS.dcb.daux2  = 0;
+	OS.dcb.daux   = length;
 	__asm__("JSR $E459");
 	restore_rom();	
 }

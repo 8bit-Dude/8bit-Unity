@@ -71,7 +71,7 @@ void OpenTCP(unsigned char ip1, unsigned char ip2, unsigned char ip3, unsigned c
 #elif defined __FUJINET__
 	// Open TCP address
 	strcpy(&fujiHostname[0], "N:TCP://199.47.196.106:1234/");
-	FujiOpen();
+	FujiOpen(0);
 	
 #else
 	unsigned long svIp = EncodeIP(ip1,ip2,ip3,ip4);

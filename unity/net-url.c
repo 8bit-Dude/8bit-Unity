@@ -47,7 +47,7 @@ void GetURL(unsigned char* url)
 	// Open HTTP address
 	strcpy(&fujiHostname[0], "N:HTTP");
 	strcpy(&fujiHostname[6], &url[4]);
-	FujiOpen();
+	FujiOpen(3); // Translate CR and LF
 	
 #else
 	// Read URL and strip out HTTP header
