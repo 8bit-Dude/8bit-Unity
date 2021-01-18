@@ -919,9 +919,16 @@ class Application:
             # Build Unity Library
             CList = ['bitmap.c', 'charmap.c', 'chunks.c', 'geom2d.c', 'joystick.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'scaling.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Atari\\directory.c', 'Atari\\files.c']
             SList = ['atan2.s', 'chars.s', 'tiles.s', 'Atari\\DLI.s', 'Atari\\ROM.s', 'Atari\\scroll.s', 'Atari\\xbios.s']
-                         
+            if self.Combobox_AtariEthernetDriver.get() == 'Fujinet':    
+                CList.append('Atari\\fujinet.c')
+               
+            if self.Combobox_AtariEthernetDriver.get() == 'Fujinet':    
+                symbols = '-D __FUJINET__ '
+            else:
+                symbols = ''
+                
             for file in CList:
-                fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atarixl -I unity unity\\' + file + '\n')
+                fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atarixl ' + symbols + '-I unity unity\\' + file + '\n')
                 fp.write('utils\\cc65\\bin\\ca65 -t atarixl unity\\' + file[0:-2] + '.s\n')
                 fp.write('del unity\\' + file[0:-2] + '.s\n')
 
@@ -943,13 +950,17 @@ class Application:
             else:
                 fp.write('copy utils\\cc65\\lib\\atarixl-text.lib utils\\cc65\\lib\\atarixl.lib\n')
                 symbols = '-Wl -D,__STACKSIZE__=$0400 '
+            if self.Combobox_AtariEthernetDriver.get() == 'Fujinet':    
+                symbols += '-D __FUJINET__ '
             comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/atari/' + diskname.lower() + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-atari.map -Cl -O -t atarixl ' + symbols + '-C atarixl-largehimem.cfg -I unity '
             for item in code:
                 comp += (item + ' ')
             if self.Combobox_AtariEthernetDriver.get() == 'IP65(TCP/UDP)':
                 fp.write(comp + 'unity/Atari/POKEY.s ' + buildFolder + '/atari/unity.lib unity/IP65/ip65_tcp.lib unity/IP65/ip65_atarixl.lib\n')
-            else:
+            elif self.Combobox_AtariEthernetDriver.get() == 'IP65(UDP)':
                 fp.write(comp + 'unity/Atari/POKEY.s ' + buildFolder + '/atari/unity.lib unity/IP65/ip65.lib unity/IP65/ip65_atarixl.lib\n')
+            else:
+                fp.write(comp + 'unity/Atari/POKEY.s ' + buildFolder + '/atari/unity.lib\n')
             fp.write('utils\\cc65\\bin\\cl65 -t atarixl -C atari-asm.cfg -o ' + buildFolder + '/atari/basicoff.bin unity/Atari/BASICOFF.s\n')
             fp.write('utils\\scripts\\atari\\mads.exe -o:' + buildFolder + '/atari/rmt.bin unity/Atari/RMT.a65\n\n')
 
