@@ -36,7 +36,6 @@ outputAddrZP = $ee
 scr2outRowsZP = $ce
 inp2scrRowsZP = $eb
 bytesPerRowZP = $e3
-toggleMainAuxZP = $42
 
 	.segment	"LC"	; MUST BE IN LANGUAGE CARD!!! (see blitDHR.s)
 
@@ -56,7 +55,7 @@ toggleMainAuxZP = $42
 ; ---------------------------------------------------------------	
 
 .proc _BlitSHR: near
-
+	
 	; X loop: Frame rows
 	ldx #0
 loopRow:
@@ -64,14 +63,15 @@ loopRow:
 	ldy hiresYZP			; Y-Offset to Hires Line
 	lda _hiresLinesHI,y
 	sta hiresAddrZP+1
+	clc
 	lda _hiresLinesLO,y
 	adc hiresXZP			; X-Offset to Hires Byte
 	sta hiresAddrZP
 	
 	; Copy bytes from SHR buffer to ouput	
 screen2output:
-	lda $ef
-	beq input2screen  ; If high-byte is zero, then skip
+	lda outputAddrZP+1 ; If high-byte is zero, then skip
+	beq input2screen  
 	ldy #0				; Y loop: Copy xxx bytes per row
 loopCopy1:
 	lda (hiresAddrZP),y		; Copy 1 byte
@@ -80,21 +80,6 @@ loopCopy1:
 	cpy bytesPerRowZP
 	bne loopCopy1			; Iterate Y loop
 	
-	; Copy bytes from input to SHR buffer
-	cpx inp2scrRowsZP		; Check number of input rows (for cropped sprites)
-	bcs incAddress1
-input2screen:	
-	clc
-	lda $fb
-	beq incAddress1   ; If high-byte is zero, then skip	
-	ldy #0				; Y loop: Copy xxx bytes per row
-loopCopy2:
-	lda (inputAddrZP),y		; Copy 1 byte
-	sta (hiresAddrZP),y
-	iny					
-	cpy bytesPerRowZP		; Iterate Y loop
-	bne loopCopy2
-		
 incAddress1:
 	clc				; Increment address of output block
 	lda outputAddrZP			
@@ -104,6 +89,20 @@ incAddress1:
 	inc outputAddrZP+1
 nocarry1:
 	
+	; Copy bytes from input to SHR buffer
+input2screen:
+	cpx inp2scrRowsZP ; Check number of input rows (for cropped sprites)
+	bcs nextRow
+	lda inputAddrZP+1 ; If high-byte is zero, then skip	
+	beq nextRow   
+	ldy #0				; Y loop: Copy xxx bytes per row
+loopCopy2:
+	lda (inputAddrZP),y		; Copy 1 byte
+	sta (hiresAddrZP),y	
+	iny
+	cpy bytesPerRowZP		; Iterate Y loop
+	bne loopCopy2
+	
 incAddress2:
 	clc				; Increment address of input block
 	lda inputAddrZP			
@@ -112,7 +111,7 @@ incAddress2:
 	bcc nocarry2		; Check if carry to high byte
 	inc inputAddrZP+1
 nocarry2:
-
+	
 nextRow:
 	; Move to next row
 	inc hiresYZP		; Increment Hires Line offset

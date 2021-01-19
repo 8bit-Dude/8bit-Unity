@@ -279,12 +279,12 @@ void LocateSprite(unsigned int x, unsigned int y)
   void RestoreSprBG(unsigned char index)
   {
 	  POKE(0xE3, 2);				// Bytes per line (x2 for MAIN/AUX)	
-	  POKE(0xCE, sprROWS[index]);	// Number of lines
-	  POKE(0xEB, sprROWS[index]);	// Number of lines
+	  POKE(0xCE, sprROWS[index]);	// Number of lines Hires > Output
+	  POKE(0xEB, sprROWS[index]);	// Number of lines Input > Hires
 	  POKE(0xEC, sprHiresX[index]);	// Hires Offset X
 	  POKE(0xED, sprY[index]);		// Hires Offset Y
-	  POKEW(0xEE, 0);				// Address for copying Hires > Output
-	  POKEW(0xFA, sprBG[index]);	// Address for copying Input > DHR
+	  POKEW(0xEE, 0);				// Disable copying Hires > Output
+	  POKEW(0xFA, sprBG[index]);	// Address for copying Input > Hires
     #if defined __DHR__	  
 	  BlitDHR();
 	#else
@@ -319,6 +319,17 @@ void LocateSprite(unsigned int x, unsigned int y)
 // Oric specific background redrawing function
 #if defined __ORIC__
   void __fastcall__ Blit(void);	// (see Oric/blit.s)
+  void BackupSprBG(unsigned char index)
+  {
+	// Backup new background
+	POKE(0xb0, frameROWS); 			// Number of lines
+	POKE(0xb1, 4);					// Bytes per line
+	POKEW(0xb2, scrAddr[index]-1);	// Address of source (-1)
+	POKEW(0xb4, sprBG[index]-1);	// Address of target (-1)
+	POKE(0xb6, 40); 				// Offset between source lines
+	POKE(0xb7, 4); 					// Offset between target lines
+	Blit();	
+  }	
   void RestoreSprBG(unsigned char index)
   {
 	// Restore sprite background
@@ -463,29 +474,37 @@ void SetSprite(unsigned char index, unsigned char frame)
 		}
 	}
 	
-	// Check that sprite was enabled
-	if (!sprBG[index]) EnableSprite(index);
+	// Check that sprite was safely enabled
+	if (!sprBG[index]) { EnableSprite(index); }
 
 	// Restore background if sprite was previously drawn
-	if (sprDrawn[index]) RestoreSprBG(index);
-
-	// Backup new background and draw sprite
+	if (sprDrawn[index]) {
+		if (sprHiresX[index] == xHires && sprY[index] == spriteY) {
+			POKEW(0xEE, 0);		// We already have the correct BG data!
+		} else {
+			RestoreSprBG(index);
+			POKEW(0xEE, sprBG[index]);	// Address for copying Hires > Output (background backup)
+		}
+	} else {
+		POKEW(0xEE, sprBG[index]);	// Address for copying Hires > Output (background backup)
+	}
+	
+	// (Optionally) backup new background, then draw sprite
 	POKE(0xE3, 2);				// Bytes per line (x2 for MAIN/AUX)
-	POKE(0xCE, frameROWS);		// Number of lines to backup from screen
-	POKE(0xEB, rows);			// Number of lines to write to screen
+	POKE(0xCE, frameROWS);		// Number of lines Hires > Output
+	POKE(0xEB, rows);			// Number of lines Input > Hires
 	POKE(0xEC, xHires);			// Hires Offset X
 	POKE(0xED, spriteY);		// Hires Offset Y
-	POKEW(0xEE, sprBG[index]);	// Address for copying Hires > Output
 	POKEW(0xFA, frameAddr);		// Address for copying Input > Hires
-  #if defined __DHR__	
+  #if defined __DHR__
 	BlitDHR();
   #else
-	BlitSHR();  
-  #endif	  
-
+	BlitSHR();
+  #endif
+	
 	// Check collisions with other sprites
 	SpriteCollisions(index);	
-		
+	
 	// Save sprite information
 	sprHiresX[index] = xHires;
 	sprX[index] = spriteX;
@@ -498,7 +517,7 @@ void SetSprite(unsigned char index, unsigned char frame)
 	sprFrame[index] = &sprData[frame*sprRows];
 	
 #elif defined __ORIC__
-	unsigned char i, inkVAL, inkMUL;
+	unsigned char i, inkVAL, inkMUL, backup = 1;
 	unsigned int frameAddr, inkAddr;
 	unsigned char rows = sprROWS[index];
 	
@@ -520,20 +539,20 @@ void SetSprite(unsigned char index, unsigned char frame)
 	// Check that sprite was enabled
 	if (!sprBG[index]) EnableSprite(index);
 
-	// Restore background if sprite was previously drawn
-	if (sprDrawn[index]) RestoreSprBG(index);
-	
+	// Restore background only if sprite moved
+	if (sprDrawn[index]) {
+		if (sprX[index] != spriteX || sprY[index] != spriteY) {
+			RestoreSprBG(index);
+		} else {
+			backup = 0;
+		}
+	}
+
 	// Compute new memory address
 	scrAddr[index] = BITMAPRAM + spriteY*40 + spriteX;
 	
-	// Backup new background
-	POKE(0xb0, frameROWS); 			// Number of lines
-	POKE(0xb1, 4);					// Bytes per line
-	POKEW(0xb2, scrAddr[index]-1);	// Address of source (-1)
-	POKEW(0xb4, sprBG[index]-1);	// Address of target (-1)
-	POKE(0xb6, 40); 				// Offset between source lines
-	POKE(0xb7, 4); 					// Offset between target lines
-	Blit();	
+	// Backup background if necessary
+	if (backup) BackupSprBG(index);
 	
 	// Draw new sprite frame
 	POKE(0xb0, rows); 				// Number of lines
@@ -628,9 +647,10 @@ void EnableSprite(signed char index)
 }
 
 #if (defined __APPLE2__) || (defined __ORIC__)
-  void EraseSprite(signed char index) {
+  void ClearSprite(signed char index) {
 	if (sprBG[index]) {
-		if (sprDrawn[index]) RestoreSprBG(index); 
+		if (sprDrawn[index]) 
+			RestoreSprBG(index); 
 		free(sprBG[index]);
 		sprBG[index] = 0;
 	}
@@ -665,7 +685,7 @@ void DisableSprite(signed char index)
 	#else
 		// Soft sprites: Restore background if neccessary
 	  #if (defined __APPLE2__) || (defined __ORIC__)
-		EraseSprite(index);
+		ClearSprite(index);
 	  #endif
 		sprDrawn[index] = 0;
 	#endif
@@ -681,7 +701,7 @@ void DisableSprite(signed char index)
 		// Soft sprites: Restore background if necessary
 		for (index=0; index<SPRITE_NUM; index++) {
 		#if (defined __APPLE2__) || (defined __ORIC__)
-			EraseSprite(index);
+			ClearSprite(index);
 		#endif
 			sprDrawn[index] = 0;
 		}

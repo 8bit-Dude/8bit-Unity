@@ -65,6 +65,7 @@ loopRow:
 	ldy hiresYZP			; Y-Offset to Hires Line
 	lda _hiresLinesHI,y
 	sta hiresAddrZP+1
+	clc
 	lda _hiresLinesLO,y
 	adc hiresXZP			; X-Offset to Hires Byte
 	sta hiresAddrZP
@@ -96,10 +97,9 @@ loopCopy1:
 	bne loopCopy1			; Iterate Y loop
 	
 	; Copy bytes from input to DHR buffer
+input2screen:	
 	cpx inp2scrRowsZP		; Check number of input rows (for cropped sprites)
 	bcs toggleBlocks
-input2screen:	
-	clc
 	lda $fb
 	beq toggleBlocks  ; If high-byte is zero, then skip	
 	ldy #0				; Y loop: Copy xxx bytes per row
@@ -112,7 +112,6 @@ loopCopy2:
 	
 	; Toggle AUX/MAIN
 toggleBlocks:
-	clc
 	lda toggleMainAuxZP
 	eor #1
 	sta toggleMainAuxZP
