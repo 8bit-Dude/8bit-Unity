@@ -193,10 +193,10 @@ unsigned char atan2(unsigned char y, unsigned char x);
 void LoadMusic(const char* filename, char* addr);
 void PlayMusic(void);
 void StopMusic(void);
+void PauseMusic(unsigned char state);
 #if defined __APPLE2__
   void UpdateMusic(void);
 #endif
-extern unsigned char musicPaused;
 
 // SFX functions (see sfx.c)
 #define SFX_BLEEP   0

@@ -28,8 +28,11 @@
 
 #ifdef __APPLE2__
   #pragma code-name("LC")
-  unsigned char musicPaused;	// dummy
 #endif	
+
+#ifdef __ATARIXL__
+  #pragma code-name("SHADOW_RAM")
+#endif
 
 #ifdef __CBM__
   // see C64/SID.s
@@ -37,13 +40,9 @@
   extern unsigned int sidPlayAddr;	// Defelmask default: $0806
 #endif	
 
-#ifdef __ATARIXL__
-  #pragma code-name("SHADOW_RAM")
-#endif	
-
-#ifdef __LYNX__
-  unsigned char musicPaused;	// dummy
-#endif	
+#if defined(__ATARI__) || defined(__CBM__) || defined(__ORIC__)
+  extern unsigned char musicPaused;
+#endif
 
 char* musicAddr;
 
@@ -104,6 +103,18 @@ void LoadMusic(const char* filename, char* addr)
 	}
 #endif
 	musicAddr = addr;
+}
+
+void PauseMusic(unsigned char state)
+{
+#if defined(__ATARI__) || defined(__CBM__) || defined(__ORIC__)
+	musicPaused = state;
+#elif defined(__LYNX__)
+	if (state)
+		lynx_snd_pause();
+	else
+		lynx_snd_continue();
+#endif	
 }
 
 #ifndef __ATARI__	
