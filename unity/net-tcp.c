@@ -26,6 +26,10 @@
  
 #include "unity.h"
 
+#ifdef __ATARIXL__
+  #pragma code-name("SHADOW_RAM")
+#endif
+
 #if defined __HUB__
   #include "hub.h"
 #elif defined __FUJINET__
@@ -70,7 +74,7 @@ void OpenTCP(unsigned char ip1, unsigned char ip2, unsigned char ip3, unsigned c
 	
 #elif defined __FUJINET__
 	// Open TCP address
-	strcpy(&fujiHostname[0], "N:TCP://199.47.196.106:1234/");
+	sprintf(fujiBuffer, "N:TCP://%i.%i.%i.%i:%i/", ip1, ip2, ip3, ip4, svPort);
 	FujiOpen(0);
 	
 #else
@@ -99,7 +103,8 @@ void SendTCP(unsigned char* buffer, unsigned char length)
 	QueueHub(HUB_TCP_SEND, buffer, length);
 	
 #elif defined __FUJINET__
-	FujiWrite(buffer, length);
+	memcpy(fujiBuffer, buffer, length);
+	FujiWrite(length);
 	
 #else
 	tcp_send(buffer, length);
@@ -119,15 +124,11 @@ unsigned char* RecvTCP(unsigned int timeOut)
 	return &recvHub[2]; 
 
 #elif defined __FUJINET__
-	OS.dvstat[0] = 0;
-	while (!OS.dvstat[0]) {
-		// Check status once per frame
-		FujiStatus();
+	// Wait until timeout expires...
+	while (!fujiReady) {
 		if (clock() > timer) return 0;
 	}
-	
-	// Get data
-	FujiRead();
+	FujiRead();	// Get data
 	return fujiBuffer;
 	
 #else

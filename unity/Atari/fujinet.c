@@ -26,7 +26,7 @@
 
 #include <unity.h>
 
-#define TIMEOUT 0x01 //0x1f /* approx 30 seconds */
+#define TIMEOUT 0x01 // 0x1f == approx 30 seconds
 
 #define DFUJI   0x71
 #define DREAD   0x40
@@ -37,80 +37,106 @@
 #define OWRITE  0x08
 #define OUPDATE 0x0C
 
-char fujiHostname[256];
-char fujiBuffer[256];
-clock_t fujiClock;
+char dcbBackup[12];
+char *fujiBuffer = (char*)0x0400;	// Memory page shared with xBios buffer
 
-void FujiOpen(unsigned char trans) 
+void BackupDCB()
 {
-	enable_rom();
+	memcpy(dcbBackup, 0x300, 12);
+}
+
+void RestoreDCB()
+{
+	memcpy(0x300, dcbBackup, 12);
+}
+
+unsigned char FujiOpen(unsigned char trans) 
+{
+	BackupDCB();
 	OS.dcb.ddevic = DFUJI;
 	OS.dcb.dunit  = 1;
 	OS.dcb.dcomnd = 'O';
 	OS.dcb.dstats = DWRITE;
-	OS.dcb.dbuf   = &fujiHostname;
+	OS.dcb.dbuf   = fujiBuffer;
 	OS.dcb.dtimlo = TIMEOUT;
 	OS.dcb.dbyt   = 256;
 	OS.dcb.daux1  = OUPDATE;
 	OS.dcb.daux2  = trans;
-	__asm__("JSR $E459");
-	restore_rom();
-}
-
-void FujiStatus() 
-{
-	// Only check once per frame...
-	if (clock() != fujiClock) {
-		enable_rom();
-		OS.dcb.ddevic = DFUJI;
-		OS.dcb.dunit  = 1;
-		OS.dcb.dcomnd = 'S';
-		OS.dcb.dstats = DREAD;
-		OS.dcb.dbuf   = OS.dvstat;
-		OS.dcb.dtimlo = TIMEOUT;
-		OS.dcb.dbyt   = 4;
-		OS.dcb.daux1  = 0;
-		OS.dcb.daux2  = 0;
-		__asm__("JSR $E459");
-		restore_rom();
-		fujiClock = clock();
-	}
-}
-
-void FujiWrite(unsigned char* buffer, unsigned char length)
-{
+#ifdef __ATARIXL__	
 	enable_rom();
+#endif
+	__asm__("JSR $E459");
+#ifdef __ATARIXL__	
+	restore_rom();
+#endif
+	RestoreDCB();
+	return (OS.dcb.dstats == 1);
+}
+
+void FujiWrite(unsigned char length)
+{
+	BackupDCB();
 	OS.dcb.ddevic = DFUJI;
 	OS.dcb.dunit  = 1;
 	OS.dcb.dcomnd = 'W';
 	OS.dcb.dstats = DWRITE;
-	OS.dcb.dbuf   = buffer;
+	OS.dcb.dbuf   = fujiBuffer;
 	OS.dcb.dtimlo = TIMEOUT;
 	OS.dcb.dbyt   = length;
 	OS.dcb.daux   = length;
+#ifdef __ATARIXL__	
+	enable_rom();
+#endif
 	__asm__("JSR $E459");
-	restore_rom();	
+#ifdef __ATARIXL__	
+	restore_rom();
+#endif
+	RestoreDCB();
 }
 
-void FujiRead() 
+unsigned char FujiRead() 
 {
-	enable_rom();
+	// Check status
+	BackupDCB();
+	OS.dvstat[0] = 0;
 	OS.dcb.ddevic = DFUJI;
 	OS.dcb.dunit  = 1;
-	OS.dcb.dcomnd = 'R';
+	OS.dcb.dcomnd = 'S';
 	OS.dcb.dstats = DREAD;
-	OS.dcb.dbuf   = fujiBuffer;
+	OS.dcb.dbuf   = OS.dvstat;
 	OS.dcb.dtimlo = TIMEOUT;
-	OS.dcb.dbyt   = OS.dvstat[0];
-	OS.dcb.daux   = OS.dvstat[0];
+	OS.dcb.dbyt   = 4;
+	OS.dcb.daux   = 0;
+#ifdef __ATARIXL__	
+	enable_rom();
+#endif
 	__asm__("JSR $E459");
-	restore_rom();	
+	if (OS.dvstat[0]) {
+		// Read actual data
+		OS.dcb.ddevic = DFUJI;
+		OS.dcb.dunit  = 1;
+		OS.dcb.dcomnd = 'R';
+		OS.dcb.dstats = DREAD;
+		OS.dcb.dbuf   = fujiBuffer;
+		OS.dcb.dtimlo = TIMEOUT;
+		OS.dcb.dbyt   = OS.dvstat[0];
+		OS.dcb.daux   = OS.dvstat[0];
+		__asm__("JSR $E459");
+	}
+#ifdef __ATARIXL__	
+	restore_rom();
+#endif
+	RestoreDCB();
+	
+	// Flag interrupt as serviced
+	fujiReady = 0; PIA.pactl |= 1; 
 	fujiBuffer[OS.dvstat[0]] = 0;	
+	return OS.dvstat[0];
 }
 
 void FujiClose()
 {
-	enable_rom();
+	BackupDCB();
 	OS.dcb.ddevic = DFUJI;
 	OS.dcb.dunit  = 1;
 	OS.dcb.dcomnd = 'C';
@@ -120,6 +146,12 @@ void FujiClose()
 	OS.dcb.dbyt   = 0;
 	OS.dcb.daux1  = 0;
 	OS.dcb.daux2  = 0;
+#ifdef __ATARIXL__	
+	enable_rom();
+#endif
 	__asm__("JSR $E459");
-	restore_rom();	
+#ifdef __ATARIXL__	
+	restore_rom();
+#endif
+	RestoreDCB();
 }

@@ -26,6 +26,10 @@
  
 #include "unity.h"
 
+#ifdef __ATARIXL__
+  #pragma code-name("SHADOW_RAM")
+#endif
+
 #if defined __HUB__
   #include "hub.h"
 #elif defined __FUJINET__	
@@ -74,7 +78,9 @@ void OpenUDP(unsigned char ip1, unsigned char ip2, unsigned char ip3, unsigned c
 	UpdateHub();
 	
 #elif defined __FUJINET__	
-	// TODO
+	// Open UDP address
+	sprintf(fujiBuffer, "N:UDP://%i.%i.%i.%i:%i/", ip1, ip2, ip3, ip4, svPort);
+	FujiOpen(0);
   
 #else
 	// Set-up UDP params and listener
@@ -98,7 +104,7 @@ void CloseUDP()
 	UpdateHub();	
 	
 #elif defined __FUJINET__	
-	// TODO	
+	FujiClose();
 	
 #else
 	udp_remove_listener(udp_recv_port);
@@ -111,7 +117,8 @@ void SendUDP(unsigned char* buffer, unsigned char length)
 	QueueHub(HUB_UDP_SEND, buffer, length);
 	
 #elif defined __FUJINET__	
-	// TODO	
+	memcpy(fujiBuffer, buffer, length);
+	FujiWrite(length);
 	
 #else
 	udp_send(buffer, length, udp_send_ip, udp_send_port, udp_recv_port);
@@ -131,8 +138,12 @@ unsigned char* RecvUDP(unsigned int timeOut)
 	return &recvHub[2]; 
 	
 #elif defined __FUJINET__	
-	// TODO
-	return 0;
+	// Wait until timeout expires...
+	while (!fujiReady) {
+		if (clock() > timer) return 0;
+	}
+	FujiRead();	// Get data
+	return fujiBuffer;
 	
 #else
 	// Process IP65 until receiving packet

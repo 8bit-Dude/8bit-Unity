@@ -26,16 +26,20 @@
 
 #include "unity.h"
 
+#ifdef __APPLE2__
+  #pragma code-name("LC")
+#endif
+
+#ifdef __ATARIXL__
+  #pragma code-name("SHADOW_RAM")
+#endif
+
 #if defined __HUB__
   #include "hub.h"
 #elif defined __FUJINET__	
   // Nothing
 #else
   #include "IP65/ip65.h"
-#endif
-
-#ifdef __APPLE2__
-  #pragma code-name("LC")
 #endif
 
 unsigned char InitNetwork(void)
@@ -51,10 +55,11 @@ unsigned char InitNetwork(void)
 	return ADAPTOR_ERR;
 
 #elif defined __FUJINET__
-	// Turn off SIO clicks
-	enable_rom();
-	OS.soundr = 0;
-	restore_rom();
+	// Turn off SIO clicks and setup interrupt
+	OS.soundr  = 0;
+	PIA.pactl &= (~1);          // Turn off interrupts before changing vector
+	OS.vprced  = FujiIRQ;       // Set PROCEED interrupt vector to our interrupt handler.
+	PIA.pactl |= 1;             // Indicate to PIA we are ready for PROCEED interrupt.	
 	return NETWORK_OK;
 	
 #else

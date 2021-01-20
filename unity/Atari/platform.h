@@ -98,11 +98,11 @@ void __fastcall__ Scroll(void);
 
 // Optional Fujinet functions (see fujinet.c)
 #ifdef __FUJINET__
-  void FujiOpen(unsigned char trans);
+  unsigned char FujiOpen(unsigned char trans);
+  unsigned char FujiRead(void);
+  void FujiWrite(unsigned char length);
   void FujiClose(void);
-  void FujiStatus(void);
-  void FujiRead(void);
-  void FujiWrite(unsigned char* buffer, unsigned char length);
-  extern char fujiHostname[256];
-  extern char fujiBuffer[256];
+  void FujiIRQ(void);
+  extern char fujiReady;
+  extern char *fujiBuffer;
 #endif
