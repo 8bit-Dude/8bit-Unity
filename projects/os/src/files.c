@@ -10,9 +10,8 @@ extern unsigned char* fileNames[];
 extern unsigned char* appChunk[NUM_APPS];
 extern unsigned char* icoChunk[NUM_ICOS];
 
-// See image.c / music.c
+// See image.c
 extern char imageShowing;
-extern char musicPlaying;
 
 unsigned char  listNum = 0;
 unsigned char* listNames[16];
@@ -113,9 +112,9 @@ char *currFile, *currExt;
 void PreviewImage(void)
 {
 	ClearScreen();
-	musicPaused = 1;
+	PauseTrack();
 	LoadBitmap(currFile);
-	musicPaused = 0;
+	UnpauseTrack();
 	DrawTaskBar();
 	callImg = PushCallback(0, 0, CHR_COLS, CHR_ROWS, CALLTYPE_ICON);
 	imageShowing = 1;
@@ -127,16 +126,15 @@ void PreviewText(void)
 	unsigned int addr, end;
 	
 	// Read text file
+	PauseTrack();	
 #if (defined __APPLE2__)
 	// Try to open file
 	FILE* fp = fopen(currFile, "rb");
 	fread(textBuffer, 1, 256, fp);
 	fclose(fp);
 #elif (defined __ATARI__)
-	musicPaused = 1;
 	if (FileOpen(currFile))
 		FileRead(textBuffer, 256);
-	musicPaused = 0;
 #elif (defined __CBM__)
 	FILE* fp = fopen(currFile, "rb");
 	fread(textBuffer, 1, 256, fp);
@@ -146,10 +144,9 @@ void PreviewText(void)
 	bzero(SHAREDRAM, 256);
 	FileRead(currFile);
 #elif (defined __ORIC__)
-	musicPaused = 1;
 	FileRead(currFile, textBuffer);
-	musicPaused = 0;
 #endif
+	UnpauseTrack();
 
 	// Display in preview box
 	paperColor = DESK_COLOR; inkColor = BLACK;
@@ -231,9 +228,6 @@ void FileCallback(callback* call)
 		}
 	} else 
 	if (call == callMus) {
-		if (musicPlaying)
-			StopTrack();
-		else
-			PlayTrack(currFile);
+		PlayTrack(currFile);
 	}
 }

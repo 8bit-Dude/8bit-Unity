@@ -14,9 +14,9 @@ void ImageDisplay()
 	ClearScreen();
 	
 	// Disable music and display bitmap
-	musicPaused = 1;
+	PauseTrack();
 	LoadBitmap(fileNames[imageSel]);
-	musicPaused = 0;
+	UnpauseTrack();
 	DrawTaskBar();
 		
 	// Display file name

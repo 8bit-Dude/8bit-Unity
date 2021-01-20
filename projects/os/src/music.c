@@ -13,6 +13,10 @@
 #define BUTT_ROW1   11
 #define BUTT_HSPAN  7
 
+#define MUSIC_STOPPED 0
+#define MUSIC_PLAYING 1
+#define MUSIC_PAUSED  2
+
 // See Unity
 extern unsigned char* fileNames[];
 
@@ -20,18 +24,18 @@ extern unsigned char* fileNames[];
 extern unsigned char* appChunk[NUM_APPS];
 extern unsigned char* icoChunk[NUM_ICOS];
 
-char musicSel = 127, musicPlaying = 0;
+char musicSel = 127, musicState = 0;
 
 callback* musicCall[4];
 
 void PlayTrack(char *fname)
 {
-	if (musicPlaying)
+	if (musicState)
 		StopMusic();
 	LoadMusic(fname, MUSICRAM);
 	PlayMusic();
 #ifndef __APPLE2__	
-	musicPlaying = 1;
+	musicState = MUSIC_PLAYING;
 #else
 	if (kbhit())
 		cgetc();
@@ -43,9 +47,25 @@ void PlayTrack(char *fname)
 
 void StopTrack()
 {
-	if (musicPlaying)
+	if (musicState)
 		StopMusic();
-	musicPlaying = 0;
+	musicState = MUSIC_STOPPED;
+}
+
+void PauseTrack()
+{
+	if (musicState == MUSIC_PLAYING) {
+		musicState = MUSIC_PAUSED;
+		PauseMusic(1);
+	}
+}
+
+void UnpauseTrack()
+{
+	if (musicState == MUSIC_PAUSED) {
+		musicState = MUSIC_PLAYING;
+		PauseMusic(0);
+	}
 }
 
 void MusicTitle()
