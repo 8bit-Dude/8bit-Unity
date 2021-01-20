@@ -40,7 +40,8 @@
                 "projects/demos/music/demo-apple.m"
             ], 
             "chunks": [], 
-            "diskSize": "140KB"
+            "diskSize": "140KB", 
+            "ethernetDriver": "IP65(TCP/UDP)"
         }, 
         "Atari": {
             "spriteFrames": "16", 
@@ -58,8 +59,8 @@
                 "projects/demos/music/demo-atari.rmt"
             ], 
             "chunks": [], 
-            "noText": false, 
-            "diskSize": "180KB"
+            "diskSize": "180KB", 
+            "ethernetDriver": "IP65(TCP/UDP)"
         }, 
         "C64": {
             "spriteFrames": "16", 
@@ -76,7 +77,8 @@
             "music": [
                 "projects/demos/music/demo-c64.sid"
             ], 
-            "chunks": []
+            "chunks": [], 
+            "ethernetDriver": "IP65(TCP/UDP)"
         }, 
         "Lynx": {
             "spriteFrames": "16", 

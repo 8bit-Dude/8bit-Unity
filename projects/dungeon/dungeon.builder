@@ -38,7 +38,8 @@
                 "projects/dungeon/music/dungeon-apple.m"
             ], 
             "chunks": [], 
-            "diskSize": "140KB"
+            "diskSize": "140KB", 
+            "ethernetDriver": "IP65(TCP/UDP)"
         }, 
         "Atari": {
             "spriteFrames": "32", 
@@ -57,8 +58,8 @@
                 "projects/dungeon/music/dungeon-atari.rmt"
             ], 
             "chunks": [], 
-            "noText": true, 
-            "diskSize": "180KB"
+            "diskSize": "180KB", 
+            "ethernetDriver": "IP65(TCP/UDP)"
         }, 
         "C64": {
             "spriteFrames": "32", 
@@ -74,9 +75,11 @@
                 "projects/dungeon/sprites/sprites-c64.png"
             ], 
             "music": [
+                "projects/dungeon/music/title-c64.sid", 
                 "projects/dungeon/music/dungeon-c64.sid"
             ], 
-            "chunks": []
+            "chunks": [], 
+            "ethernetDriver": "IP65(TCP/UDP)"
         }, 
         "Lynx": {
             "spriteFrames": "32", 

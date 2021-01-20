@@ -203,10 +203,10 @@ void ProcessActors()
 					// Check attack timer
 					if (clock() > selActor->timer) {
 						selActor->timer = clock() + TCK_PER_SEC;
+						PlaySFX(SFX_BUMP, 8, 120, 2);	
 						if (health >= 5) {
 							health -= 5; 
 							PrintHealth();
-							//BumpSFX();
 						}
 					}
 					selActor->frame += 2;								
@@ -296,7 +296,7 @@ void GenerateReward(unsigned char mapX, unsigned char mapY)
 void DamageMonster(Actor* actor) 
 {
 	// Apply damage and check if killed
-	PlaySFX(SFX_BUMP, 32, 120, 2);
+	PlaySFX(SFX_BUMP, 16, 120, 2);
 	selActor->health -= 5;
 	if (selActor->health)
 		return;

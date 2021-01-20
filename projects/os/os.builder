@@ -29,9 +29,13 @@
                 "projects/os/bitmaps/picasso-apple.png", 
                 "projects/os/bitmaps/vangogh-apple.png"
             ], 
+            "bitmapSHR": [], 
+            "charsetDHR": [], 
+            "charsetSHR": [], 
             "spritesDHR": [
                 "projects/os/sprites/sprites-apple.png"
             ], 
+            "spritesSHR": [], 
             "music": [
                 "projects/os/music/dungeon-apple.m", 
                 "projects/os/music/goblin-apple.m", 
@@ -40,8 +44,8 @@
             "chunks": [
                 "projects/os/chunks/chunks-apple.txt"
             ], 
-            "charsetDHR": [], 
-            "diskSize": "140KB"
+            "diskSize": "140KB", 
+            "ethernetDriver": "IP65(TCP/UDP)"
         }, 
         "Atari": {
             "spriteFrames": "2", 
@@ -53,6 +57,7 @@
                 "projects/os/bitmaps/picasso-atari.png", 
                 "projects/os/bitmaps/vangogh-atari.png"
             ], 
+            "charset": [], 
             "sprites": [
                 "projects/os/sprites/sprites-atari.png"
             ], 
@@ -63,9 +68,8 @@
             "chunks": [
                 "projects/os/chunks/chunks-atari.txt"
             ], 
-            "charset": [], 
-            "noText": true, 
-            "diskSize": "180KB"
+            "diskSize": "180KB", 
+            "ethernetDriver": "IP65(TCP/UDP)"
         }, 
         "C64": {
             "spriteFrames": "2", 
@@ -77,6 +81,7 @@
                 "projects/os/bitmaps/picasso-c64.png", 
                 "projects/os/bitmaps/vangogh-c64.png"
             ], 
+            "charset": [], 
             "sprites": [
                 "projects/os/sprites/sprites-c64.png"
             ], 
@@ -87,7 +92,7 @@
             "chunks": [
                 "projects/os/chunks/chunks-c64.txt"
             ], 
-            "charset": []
+            "ethernetDriver": "IP65(TCP/UDP)"
         }, 
         "Lynx": {
             "spriteFrames": "2", 
@@ -101,6 +106,7 @@
                 "projects/os/bitmaps/picasso-lynx.png", 
                 "projects/os/bitmaps/vangogh-lynx.png"
             ], 
+            "charset": [], 
             "sprites": [
                 "projects/os/sprites/sprites-lynx.png"
             ], 
@@ -113,8 +119,7 @@
             ], 
             "chunks": [
                 "projects/os/chunks/chunks-lynx.txt"
-            ], 
-            "charset": []
+            ]
         }, 
         "Oric": {
             "spriteFrames": "2", 
@@ -128,6 +133,7 @@
                 "projects/os/bitmaps/picasso-oric.png", 
                 "projects/os/bitmaps/vangogh-oric.png"
             ], 
+            "charset": [], 
             "sprites": [
                 "projects/os/sprites/sprites-oric.png"
             ], 
@@ -138,8 +144,7 @@
             ], 
             "chunks": [
                 "projects/os/chunks/chunks-oric.txt"
-            ], 
-            "charset": []
+            ]
         }
     }
 }

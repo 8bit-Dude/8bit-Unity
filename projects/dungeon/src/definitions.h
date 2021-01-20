@@ -22,8 +22,8 @@
 #else
 	#define SCALE_X 8
 	#define SCALE_Y 8
-	#define STEP_X  3
-	#define STEP_Y  2 
+	#define STEP_X  4
+	#define STEP_Y  3 
 #endif
 
 // Sprite definitions

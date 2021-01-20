@@ -125,7 +125,7 @@ void ProcessPlayer()
 void TriggerAction()
 {
 	ScrollCharmap(mapX, mapY);
-	PlaySFX(SFX_BUMP, 32, 120, 2);	
+	PlaySFX(SFX_BUMP, 16, 120, 2);	
 }
 
 void ProcessWeapon()

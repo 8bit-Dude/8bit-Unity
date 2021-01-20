@@ -23,9 +23,9 @@ void SplashScreen(void)
 #else		
 	inkColor = RED; 
 #endif
-	PrintStr(CHR_COLS-12, CHR_ROWS-4, "TECH DEMO");		
-	PrintStr(CHR_COLS-13, CHR_ROWS-3, "BY 8BIT-DUDE");		
-	PrintStr(CHR_COLS-12, CHR_ROWS-2,  "2020/11/16");
+	PrintStr(CHR_COLS-12, CHR_ROWS-4, "8BIT-DUNGEON");		
+	PrintStr(CHR_COLS-12, CHR_ROWS-3, " TECH DEMO  ");		
+	PrintStr(CHR_COLS-12, CHR_ROWS-2, " 2021/01/16 ");
 	
 	// Start music
 	PlayMusic();
