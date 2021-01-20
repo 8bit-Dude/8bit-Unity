@@ -1103,25 +1103,11 @@
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
-                      <object class="ttk.Checkbutton" id="Checkbutton_AtariNoText">
-                        <property name="text" translatable="yes">No Text (+1KB)</property>
-                        <property name="variable">string:checkAtariNoText</property>
-                        <layout>
-                          <property name="column">0</property>
-                          <property name="padx">0</property>
-						  <property name="pady">2</property>
-                          <property name="propagate">True</property>
-                          <property name="row">1</property>
-                          <property name="sticky">nw</property>
-                        </layout>
-                      </object>
-                    </child>					
-                    <child>
                       <object class="tk.Label" id="Label_AtariDiskSize">
                         <property name="text" translatable="yes">Disk Size</property>
                         <layout>
-                          <property name="column">1</property>
-                          <property name="padx">5</property>
+                          <property name="column">0</property>
+                          <property name="padx">25</property>
 						  <property name="pady">2</property>
                           <property name="propagate">True</property>
                           <property name="row">1</property>
@@ -1135,8 +1121,8 @@
                         <property name="values">180KB 360KB</property>
                         <property name="width">8</property>
                         <layout>
-                          <property name="column">2</property>
-                          <property name="padx">0</property>
+                          <property name="column">1</property>
+                          <property name="padx">5</property>
 						  <property name="pady">2</property>
                           <property name="propagate">True</property>
                           <property name="row">1</property>
@@ -1148,8 +1134,8 @@
                       <object class="tk.Label" id="Label_AtariEthernetDriver">
                         <property name="text" translatable="yes">Ethernet Driver</property>
                         <layout>
-                          <property name="column">3</property>
-                          <property name="padx">5</property>
+                          <property name="column">2</property>
+                          <property name="padx">25</property>
 						  <property name="pady">2</property>
                           <property name="propagate">True</property>
                           <property name="row">1</property>
@@ -1163,8 +1149,8 @@
                         <property name="values">IP65(TCP/UDP) IP65(UDP) Fujinet</property>
                         <property name="width">14</property>
                         <layout>
-                          <property name="column">4</property>
-                          <property name="padx">0</property>
+                          <property name="column">3</property>
+                          <property name="padx">5</property>
 						  <property name="pady">2</property>
                           <property name="propagate">True</property>
                           <property name="row">1</property>

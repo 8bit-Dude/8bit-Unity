@@ -171,7 +171,6 @@ class Application:
         self.entry_AtariSpriteFrames = self.builder.get_object('Entry_AtariSpriteFrames')
         self.entry_AtariSpriteWidth = self.builder.get_object('Entry_AtariSpriteWidth')
         self.entry_AtariSpriteHeight = self.builder.get_object('Entry_AtariSpriteHeight')
-        self.Checkbutton_AtariNoText = self.builder.get_object('Checkbutton_AtariNoText');
         self.Combobox_AtariDiskSize = self.builder.get_object('Combobox_AtariDiskSize');
         self.Combobox_AtariEthernetDriver = self.builder.get_object('Combobox_AtariEthernetDriver');
         
@@ -212,7 +211,6 @@ class Application:
         self.Combobox_AppleEthernetDriver.current(0)
         self.Combobox_AtariDiskSize.current(0)
         self.Combobox_AtariEthernetDriver.current(0)
-        self.Checkbutton_AtariNoText.state(['!selected'])
         self.Combobox_C64EthernetDriver.current(0)
 
         # Make lists of various GUI inputs (adding new inputs to the end of each list will guarantee backward compatibility)
@@ -236,9 +234,9 @@ class Application:
                            self.listbox_AppleCharsetDHR,self.listbox_AtariCharset, self.listbox_C64Charset,
                            self.listbox_LynxCharset,   self.listbox_OricCharset,  self.listbox_Charmap,
                            self.listbox_AppleBitmapSHR,self.listbox_AppleSpritesSHR, self.listbox_AppleCharsetSHR ]
-        self.checkbuttons = [ self.Checkbutton_AtariNoText ]
         self.comboboxes = [ self.Combobox_AtariDiskSize, self.Combobox_AppleDiskSize,
                             self.Combobox_AppleEthernetDriver, self.Combobox_AtariEthernetDriver, self.Combobox_C64EthernetDriver ]
+        self.checkbuttons = []
                        
     def FileNew(self):
         # Reset all fields
@@ -430,7 +428,6 @@ class Application:
                     ('sprites', ('listbox', self.listbox_AtariSprites)),
                     ('music', ('listbox', self.listbox_AtariMusic)),
                     ('chunks', ('listbox', self.listbox_AtariChunks)),
-                    ('noText', ('Checkbutton', self.Checkbutton_AtariNoText)),
                     ('diskSize', ('Combobox', self.Combobox_AtariDiskSize)),
                     ('ethernetDriver', ('Combobox', self.Combobox_AtariEthernetDriver)),
                 ]),
@@ -921,12 +918,13 @@ class Application:
             SList = ['atan2.s', 'chars.s', 'tiles.s', 'Atari\\DLI.s', 'Atari\\ROM.s', 'Atari\\scroll.s', 'Atari\\xbios.s']
             if self.Combobox_AtariEthernetDriver.get() == 'Fujinet':    
                 CList.append('Atari\\fujinet.c')
+                SList.append('Atari\\fujiIRQ.s')
                
             if self.Combobox_AtariEthernetDriver.get() == 'Fujinet':    
                 symbols = '-D __FUJINET__ '
             else:
                 symbols = ''
-                
+            
             for file in CList:
                 fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atarixl ' + symbols + '-I unity unity\\' + file + '\n')
                 fp.write('utils\\cc65\\bin\\ca65 -t atarixl unity\\' + file[0:-2] + '.s\n')
@@ -943,13 +941,7 @@ class Application:
             fp.write('\n')
             
             # Compilation
-            fp.write('del utils\\cc65\\lib\\atarixl.lib\n')
-            if len(self.Checkbutton_AtariNoText.state()):
-                fp.write('copy utils\\cc65\\lib\\atarixl-notext.lib utils\\cc65\\lib\\atarixl.lib\n')
-                symbols = '-Wl -D,__STACKSIZE__=$0400,-D,__CHARGENSIZE__=$0000 '
-            else:
-                fp.write('copy utils\\cc65\\lib\\atarixl-text.lib utils\\cc65\\lib\\atarixl.lib\n')
-                symbols = '-Wl -D,__STACKSIZE__=$0400 '
+            symbols = '-Wl -D,__STACKSIZE__=$0400 '
             if self.Combobox_AtariEthernetDriver.get() == 'Fujinet':    
                 symbols += '-D __FUJINET__ '
             comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/atari/' + diskname.lower() + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-atari.map -Cl -O -t atarixl ' + symbols + '-C atarixl-largehimem.cfg -I unity '
