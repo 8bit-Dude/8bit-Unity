@@ -124,19 +124,22 @@ void PreviewText(void)
 {
 	unsigned char x, y; 
 	unsigned int addr, end;
+#if (defined __APPLE2__) || (defined __CBM__)	
+	FILE* fp;
+#endif
 	
 	// Read text file
 	PauseTrack();	
 #if (defined __APPLE2__)
 	// Try to open file
-	FILE* fp = fopen(currFile, "rb");
+	fp = fopen(currFile, "rb");
 	fread(textBuffer, 1, 256, fp);
 	fclose(fp);
 #elif (defined __ATARI__)
 	if (FileOpen(currFile))
 		FileRead(textBuffer, 256);
 #elif (defined __CBM__)
-	FILE* fp = fopen(currFile, "rb");
+	fp = fopen(currFile, "rb");
 	fread(textBuffer, 1, 256, fp);
 	fclose(fp);
 #elif (defined __LYNX__)

@@ -226,6 +226,11 @@ void ChatPacket(unsigned char *packet)
 void ChatCallback(callback* call)
 {
 	if (!chatLogged) {
+		if (call == callPass) {
+			maskInput = 1;
+		} else {
+			maskInput = 0;
+		}
 		if (call == callLogin) {
 			ChatLogin();
 			return;
