@@ -87,7 +87,7 @@ int main (void)
         LoadBitmap("menu.img");
 		
 		// Show menu
-		LoadMusic("speednik.mus", MUSICRAM);
+		LoadMusic("speednik.mus");
 		PlayMusic();
 		ShowBitmap();
 		GameMenu(); 

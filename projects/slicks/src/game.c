@@ -415,7 +415,7 @@ char GameLoop()
 {		
 	// Game Management
 	Vehicle *car;
-#if (defined __ATARI__) || (defined __C64__) || (defined __LYNX__)
+#if (defined __C64__) || (defined __LYNX__)
 	unsigned char sprShadow;
 #endif
 	int iX, iY, iVel, iVelMax, iAng1, iAng2, iCos, iSin, iTmp, steps;
@@ -663,8 +663,17 @@ char GameLoop()
 			}
 
 			// Display sprite
+		#if (defined __ATARI__)
+			iTmp = 4+5*(i%2);
+		#endif
 			if (iJmp) {
-			#if (defined __ATARI__) || (defined __C64__) || (defined __LYNX__)
+			#if (defined __ATARI__)
+				SetSprite(iTmp, 17);	// Display shadow Sprite
+				EnableSprite(iTmp);
+				spriteY -= 2;		    // Offset player sprite vertically
+			} else {
+				DisableSprite(iTmp); 
+			#elif (defined __C64__) || (defined __LYNX__)
 				sprShadow |= (1<<i);
 				SetSprite(SPR2_SLOT+i, 17);	// Display shadow Sprite
 				EnableSprite(SPR2_SLOT+i);

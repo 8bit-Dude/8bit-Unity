@@ -124,6 +124,24 @@ void DrawFPS(unsigned long f)
 }
 #endif
 
+#if defined __ATARIXL__
+// Sub-function of GameMenu()
+void MenuGFX()
+{
+	// Clear previous
+	PrintStr(MENU_COL+7, MENU_ROW+11, "   ");
+	
+	// GFX mode selection
+	inkColor = INK_HIGHLT; paperColor = PAPER_HIGHLT;
+	PrintStr(MENU_COL+2, MENU_ROW+11, "G");
+	inkColor = WHITE; paperColor = BLACK;
+	if (frameBlending & 2) {
+		PrintStr(MENU_COL+3, MENU_ROW+11, "FX: OFF  ");				
+	} else {
+		PrintStr(MENU_COL+3, MENU_ROW+11, "FX: BLEND");				
+	}	
+}
+#endif
 
 // Display lap numbers
 void PrintLap(unsigned char i)
@@ -131,6 +149,14 @@ void PrintLap(unsigned char i)
 	if (cars[i].lap < 1) { return; }
 	inkColor = inkColors[i];
 	PrintNum((i+2)*8-3, CHR_ROWS-1, cars[i].lap);
+}
+
+// In-case connection drops out...
+void PrintTimedOut()
+{
+	inkColor = WHITE;
+    PrintStr(10,12, " CONNECTION TIMED-OUT ");
+    sleep(3);
 }
 
 #ifdef __ATARIXL__
@@ -300,7 +326,7 @@ void NextMusic(unsigned char blank) {
 	if (!blank && musicSel > 3)
 		musicSel = 0;
 	if (musicSel <= 3) {
-		LoadMusic(musicList[musicSel], MUSICRAM);
+		LoadMusic(musicList[musicSel]);
 		PlayMusic();
 	}
 	if (++musicSel > 3+blank) 
@@ -522,14 +548,6 @@ void SpriteAnimation(unsigned char index, unsigned char frame)
   #pragma code-name("LC")
 #endif
 
-// In-case connection drops out...
-void PrintTimedOut()
-{
-	inkColor = WHITE;
-    PrintStr(10,12, " CONNECTION TIMED-OUT ");
-    sleep(3);
-}
-
 // Print score after round ends
 signed int score[4];
 void PrintScores()
@@ -542,7 +560,7 @@ void PrintScores()
 	StopSFX();
 #if defined(__LYNX__)
 	StopMusic();
-	LoadMusic("speednik.mus", MUSICRAM);
+	LoadMusic("speednik.mus");
 #endif	
 #ifndef __ORIC__
 	PlayMusic();
@@ -678,6 +696,7 @@ unsigned char MenuWait()
 // Sub-function of GameMenu()
 void MenuServers()
 {
+	clock_t timeout;
 	unsigned char j,k,n;
 	char buffer[16];
 	
@@ -693,7 +712,11 @@ void MenuServers()
 	udpBuffer[0] = CL_LIST;
 	ServerConnect();
 	SendUDP(udpBuffer, 1);
-	packet = RecvUDP(2*TCK_PER_SEC); // Allow some time-out
+	timeout = clock()+2*TCK_PER_SEC;
+	while (!packet || PEEK(packet) != 1) {
+		packet = RecvUDP(0); // Allow some time-out
+		if (clock() > timeout) break;
+	}
 	ServerDisconnect();
 #endif
 
@@ -701,12 +724,13 @@ void MenuServers()
 	if (!packet) {
 		// Timeout error
 		PrintStr(MENU_COL+2, MENU_ROW+7, "ERROR: TIMEOUT");
-	} else if (PEEK(packet) != 1) {
+	} else if (PEEK(packet) != 1 || PEEK(packet+2) != '-') {
 		// Unexpected error
 		PrintStr(MENU_COL+0, MENU_ROW+7, "ERROR: CORRUPTION");
 	} else {
 		// Show server list				
 		n = PEEK(++packet);
+		n = MIN(n,12);
 		j = 0;
 		while (j<n) {
 			// Separate at return carriage (char 10)
@@ -718,6 +742,7 @@ void MenuServers()
 			while (PEEK(++packet) != 10 && PEEK(packet) !=0) {
 				buffer[k++] = PEEK(packet);
 			}
+			k = MIN(k,15);
 			buffer[k] = 0;
 			inkColor = WHITE; paperColor = BLACK;
 			PrintStr(MENU_COL+2, (MENU_ROW+2)+j, &buffer[0]);
@@ -726,25 +751,6 @@ void MenuServers()
 		serversLoaded = 1;
 	}
 }
-
-#if defined __ATARI__
-// Sub-function of GameMenu()
-void MenuGFX()
-{
-	// Clear previous
-	PrintStr(MENU_COL+7, MENU_ROW+11, "   ");
-	
-	// GFX mode selection
-	inkColor = INK_HIGHLT; paperColor = PAPER_HIGHLT;
-	PrintStr(MENU_COL+2, MENU_ROW+11, "G");
-	inkColor = WHITE; paperColor = BLACK;
-	if (frameBlending & 2) {
-		PrintStr(MENU_COL+3, MENU_ROW+11, "FX: OFF  ");				
-	} else {
-		PrintStr(MENU_COL+3, MENU_ROW+11, "FX: BLEND");				
-	}	
-}
-#endif
 
 // Sub-function of GameMenu()
 unsigned char MenuLogin(unsigned char serverIndex)
@@ -1013,8 +1019,8 @@ void GameMenu()
         
 		// Display ONLINE menu
         else if (gameMode == MODE_ONLINE) {
-		#ifdef __ORIC__
-			// VIA not happy with music...
+		#if defined(__ORIC__) || defined(__FUJINET__)
+			// FujiNet and VIA are not happy with music...
 			StopMusic();
 		#endif			
 			// Display menu options
