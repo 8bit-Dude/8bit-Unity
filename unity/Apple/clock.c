@@ -45,18 +45,15 @@ clock_t clk;
 void wait(unsigned char ticks)
 {
 	unsigned int i = 0;
-	while (i<220*ticks) { i++; }
-	clk++;		
+	while (i<45*ticks) { i++; }
+	clk += ticks;		
 }
 
 // Sleep for x seconds
 unsigned sleep(unsigned seconds)
 {
-	unsigned int i;
 	while (seconds) {
-		i = 0;
-		while (i<13200) { i++; }
-		clk += TCK_PER_SEC;
+		wait(TCK_PER_SEC);
 		seconds--;
 	}
 	return 1;

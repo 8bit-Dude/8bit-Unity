@@ -140,7 +140,7 @@ unsigned char* RecvTCP(unsigned int timeOut)
 		if (clock() > timer) return 0;
 		ip65_process();
 	#if defined __APPLE2__
-		wait(1);
+		if (timeOut) { wait(1); } else { clk += 1; }
 	#endif
 	}
 	tcp_len = 0;
