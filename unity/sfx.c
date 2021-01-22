@@ -104,8 +104,8 @@
 #elif defined __ATARI__			  //  Period  Control (7,6,5,4:noise/3,2,1,0:volume)
 	unsigned char sfxData[4][2] = { { 	24,	   			0b10101010		},		// SFX_BLEEP						
 									{    8,	   			0b11101000		},		// SFX_BUMP							
-									{    0,    			0b10000111		},		// SFX_ENGINE						
-									{    0,	   			0b10000111   	} };	// SFX_SCREECH						
+									{  255,    			0b10000111		},		// SFX_ENGINE						
+									{  255,	   			0b10000111   	} };	// SFX_SCREECH						
 
 	void SetupSFX(); // VBI for SFX samples	(see Atari/POKEY.s)
 	extern unsigned char sampleTimer[4];
@@ -296,11 +296,12 @@ void StopSFX()
 #elif defined __CBM__	
 	StopMusic();
 #elif defined __ATARI__
+	unsigned char i;
 	StopMusic();
-	POKE((char*)(0xD200), 0);
-	POKE((char*)(0xD202), 0);
-	POKE((char*)(0xD204), 0);
-	POKE((char*)(0xD208), 0);
+	for (i=0; i<4; i++) {
+		sampleTimer[i] = 0;
+		POKE((char*)(0xD200+2*i), 0);
+	}
 #elif defined __ORIC__
 	DisableChannels();
 #elif defined __LYNX__

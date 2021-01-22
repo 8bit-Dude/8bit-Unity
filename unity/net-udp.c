@@ -79,8 +79,14 @@ void OpenUDP(unsigned char ip1, unsigned char ip2, unsigned char ip3, unsigned c
 	
 #elif defined __FUJINET__	
 	// Open UDP address
-	sprintf(fujiBuffer, "N:UDP://%i.%i.%i.%i:%i/", ip1, ip2, ip3, ip4, svPort);
+	unsigned char dummy[1];
+	sprintf(fujiHost, "N:UDP://%i.%i.%i.%i:%i/", ip1, ip2, ip3, ip4, svPort);
 	FujiOpen(0);
+	
+	// Send dummy packet, as first one is always lost!
+	dummy[0] = 0;
+	SendUDP(dummy, 1);
+	RecvUDP(TCK_PER_SEC);	
   
 #else
 	// Set-up UDP params and listener
@@ -142,8 +148,11 @@ unsigned char* RecvUDP(unsigned int timeOut)
 	while (!fujiReady) {
 		if (clock() > timer) return 0;
 	}
-	FujiRead();	// Get data
-	return fujiBuffer;
+	if (FujiRead()) {
+		return fujiBuffer;
+	} else {
+		return 0;
+	}
 	
 #else
 	// Process IP65 until receiving packet

@@ -29,6 +29,9 @@
 	.export _PlayMusic
 	.export _StopMusic
 	.export _SetupSFX
+	
+	.export _musicVBI
+	.export _sfxVBI
 
 	.export _musicPaused
 	
@@ -39,15 +42,17 @@
 	.import _disable_rom
 	.import _restore_rom	
 
-	.import _musicAddr
-
 RMTPlayer = $9400
 
 	.segment	"DATA"	
 
-_musicPaused: .byte 0
+; VBI toggles
 _musicVBI:    .byte 0
 _sfxVBI:      .byte 0
+
+; Music parameters
+_musicAddr:   .byte $00,$C0
+_musicPaused: .byte 0
 
 	.segment	"BSS"	
 
@@ -139,10 +144,15 @@ skipMusicVBI:
 		cpx #0
 		beq nextY
 
+		; Continuous sound?
+		cpx #255
+		beq skipTimer
+		
 		; Decrement timer
 		dex
 		txa
 		sta _sampleTimer,y
+	skipTimer:		
 
 		; Register offset (2*y)
 		tya

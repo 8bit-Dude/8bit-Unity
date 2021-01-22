@@ -65,18 +65,20 @@ colorHARDWR4 = $d019
 	
 	.segment	"DATA"	
 
+; DLI toggles
+_bitmapDLI:  .byte 0
+_charmapDLI: .byte 0
+_spriteDLI:  .byte 0
+
 ; Bitmap parameters
-_bitmapDLI:     .byte 0
 _bmpPalette: 	.byte $00, $24, $86, $d8
 _frameBlending: .byte 0
 
 ; Bitmap paramerers
-_charmapDLI: .byte 0
 _chrPalette: .res  5
 _chrToggle:  .byte 0
 
 ; Sprite parameters
-_spriteDLI: .byte 0
 _doubleHeight:  .byte 0,0,0,0,0,0,0,0,0,0
 _sprRows:  		.byte 0
 _sprMask:  		.byte 0,0,0,0,0

@@ -190,7 +190,7 @@ unsigned char atan2(unsigned char y, unsigned char x);
 // C64:   SID track (see C64/SID.s)
 // Lynx:  Chipper   (see Lynx/CHIPPER.s)
 // Oric:  YM track  (see Oric/MYM.s)
-void LoadMusic(const char* filename, char* addr);
+void LoadMusic(const char* filename);
 void PlayMusic(void);
 void StopMusic(void);
 void PauseMusic(unsigned char state);

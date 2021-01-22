@@ -55,11 +55,8 @@ unsigned char InitNetwork(void)
 	return ADAPTOR_ERR;
 
 #elif defined __FUJINET__
-	// Turn off SIO clicks and setup interrupt
-	OS.soundr  = 0;
-	PIA.pactl &= (~1);          // Turn off interrupts before changing vector
-	OS.vprced  = FujiIRQ;       // Set PROCEED interrupt vector to our interrupt handler.
-	PIA.pactl |= 1;             // Indicate to PIA we are ready for PROCEED interrupt.	
+	// Initialize Fujinet
+	FujiInit();
 	return NETWORK_OK;
 	
 #else

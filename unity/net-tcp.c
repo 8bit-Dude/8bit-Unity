@@ -74,7 +74,7 @@ void OpenTCP(unsigned char ip1, unsigned char ip2, unsigned char ip3, unsigned c
 	
 #elif defined __FUJINET__
 	// Open TCP address
-	sprintf(fujiBuffer, "N:TCP://%i.%i.%i.%i:%i/", ip1, ip2, ip3, ip4, svPort);
+	sprintf(fujiHost, "N:TCP://%i.%i.%i.%i:%i/", ip1, ip2, ip3, ip4, svPort);
 	FujiOpen(0);
 	
 #else
@@ -128,8 +128,11 @@ unsigned char* RecvTCP(unsigned int timeOut)
 	while (!fujiReady) {
 		if (clock() > timer) return 0;
 	}
-	FujiRead();	// Get data
-	return fujiBuffer;
+	if (FujiRead()) {
+		return fujiBuffer;
+	} else {
+		return 0;
+	}
 	
 #else
 	// Process IP65 until receiving packet

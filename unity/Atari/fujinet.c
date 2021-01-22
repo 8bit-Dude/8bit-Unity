@@ -26,9 +26,12 @@
 
 #include <unity.h>
 
-#define TIMEOUT 0x01 // 0x1f == approx 30 seconds
+#define SIO_TIMEOUT 0x01	// seconds (approximately)
+#define IRQ_TIMER      1	// milliseconds
 
 #define DFUJI   0x71
+
+#define DNULL   0x00
 #define DREAD   0x40
 #define DWRITE  0x80
 #define DUPDATE 0xC0
@@ -37,28 +40,73 @@
 #define OWRITE  0x08
 #define OUPDATE 0x0C
 
-char dcbBackup[12];
+extern unsigned char spriteDLI;
+extern unsigned char musicVBI;
+extern unsigned char sfxVBI;
+
+char spriteBackup, musicBackup, sfxBackup, dcbBackup[12];
+char *fujiHost = (char*)0x0360;		// Is that safe??
 char *fujiBuffer = (char*)0x0400;	// Memory page shared with xBios buffer
 
-void BackupDCB()
+void FujiIRQ(void);		// See fujiIRQ.s
+
+void BackupSystem()
 {
-	memcpy(dcbBackup, 0x300, 12);
+	// Disable DLI/VBI (they interfere with SIO) and backup DCB for xBIOS
+	spriteBackup = spriteDLI; spriteDLI = 0;
+	musicBackup = musicVBI; musicVBI = 0;
+	sfxBackup = sfxVBI; sfxVBI = 0;
+	memcpy(&dcbBackup[0], 0x0300, 12);
+	
 }
 
-void RestoreDCB()
+void RestoreSystem()
 {
+	sfxVBI = sfxBackup;
+	musicVBI = musicBackup;
+	spriteDLI = spriteBackup;
 	memcpy(0x300, dcbBackup, 12);
+}
+
+void FujiInit() 
+{
+	// Turn off SIO clicks
+	OS.soundr  = 0;
+	
+	// Setup data interrupt
+	PIA.pactl &= (~1);          // Turn off interrupts before changing vector
+	OS.vprced  = FujiIRQ;       // Set PROCEED interrupt vector to our interrupt handler.
+	PIA.pactl |= 1;             // Indicate to PIA we are ready for PROCEED interrupt.	
+
+	// Set interrupt timer
+	BackupSystem();
+	OS.dcb.ddevic = DFUJI;
+	OS.dcb.dunit  = 1;
+	OS.dcb.dcomnd = 'Z';
+	OS.dcb.dstats = DNULL;
+	OS.dcb.dbuf   = NULL;
+	OS.dcb.dtimlo = SIO_TIMEOUT;
+	OS.dcb.dbyt   = 0;
+	OS.dcb.daux   = IRQ_TIMER;
+#ifdef __ATARIXL__	
+	enable_rom();
+#endif
+	__asm__("JSR $E459");
+#ifdef __ATARIXL__	
+	restore_rom();
+#endif
+	RestoreSystem();
 }
 
 unsigned char FujiOpen(unsigned char trans) 
 {
-	BackupDCB();
+	BackupSystem();
 	OS.dcb.ddevic = DFUJI;
 	OS.dcb.dunit  = 1;
 	OS.dcb.dcomnd = 'O';
 	OS.dcb.dstats = DWRITE;
-	OS.dcb.dbuf   = fujiBuffer;
-	OS.dcb.dtimlo = TIMEOUT;
+	OS.dcb.dbuf   = fujiHost;
+	OS.dcb.dtimlo = SIO_TIMEOUT;
 	OS.dcb.dbyt   = 256;
 	OS.dcb.daux1  = OUPDATE;
 	OS.dcb.daux2  = trans;
@@ -69,19 +117,19 @@ unsigned char FujiOpen(unsigned char trans)
 #ifdef __ATARIXL__	
 	restore_rom();
 #endif
-	RestoreDCB();
+	RestoreSystem();
 	return (OS.dcb.dstats == 1);
 }
 
 void FujiWrite(unsigned char length)
 {
-	BackupDCB();
+	BackupSystem();
 	OS.dcb.ddevic = DFUJI;
 	OS.dcb.dunit  = 1;
 	OS.dcb.dcomnd = 'W';
 	OS.dcb.dstats = DWRITE;
 	OS.dcb.dbuf   = fujiBuffer;
-	OS.dcb.dtimlo = TIMEOUT;
+	OS.dcb.dtimlo = SIO_TIMEOUT;
 	OS.dcb.dbyt   = length;
 	OS.dcb.daux   = length;
 #ifdef __ATARIXL__	
@@ -91,20 +139,20 @@ void FujiWrite(unsigned char length)
 #ifdef __ATARIXL__	
 	restore_rom();
 #endif
-	RestoreDCB();
+	RestoreSystem();
 }
 
 unsigned char FujiRead() 
 {
 	// Check status
-	BackupDCB();
+	BackupSystem();
 	OS.dvstat[0] = 0;
 	OS.dcb.ddevic = DFUJI;
 	OS.dcb.dunit  = 1;
 	OS.dcb.dcomnd = 'S';
 	OS.dcb.dstats = DREAD;
 	OS.dcb.dbuf   = OS.dvstat;
-	OS.dcb.dtimlo = TIMEOUT;
+	OS.dcb.dtimlo = SIO_TIMEOUT;
 	OS.dcb.dbyt   = 4;
 	OS.dcb.daux   = 0;
 #ifdef __ATARIXL__	
@@ -118,7 +166,7 @@ unsigned char FujiRead()
 		OS.dcb.dcomnd = 'R';
 		OS.dcb.dstats = DREAD;
 		OS.dcb.dbuf   = fujiBuffer;
-		OS.dcb.dtimlo = TIMEOUT;
+		OS.dcb.dtimlo = SIO_TIMEOUT;
 		OS.dcb.dbyt   = OS.dvstat[0];
 		OS.dcb.daux   = OS.dvstat[0];
 		__asm__("JSR $E459");
@@ -126,7 +174,7 @@ unsigned char FujiRead()
 #ifdef __ATARIXL__	
 	restore_rom();
 #endif
-	RestoreDCB();
+	RestoreSystem();
 	
 	// Flag interrupt as serviced
 	fujiReady = 0; PIA.pactl |= 1; 
@@ -136,13 +184,13 @@ unsigned char FujiRead()
 
 void FujiClose()
 {
-	BackupDCB();
+	BackupSystem();
 	OS.dcb.ddevic = DFUJI;
 	OS.dcb.dunit  = 1;
 	OS.dcb.dcomnd = 'C';
 	OS.dcb.dstats = 0x00;
 	OS.dcb.dbuf   = 0;
-	OS.dcb.dtimlo = TIMEOUT;
+	OS.dcb.dtimlo = SIO_TIMEOUT;
 	OS.dcb.dbyt   = 0;
 	OS.dcb.daux1  = 0;
 	OS.dcb.daux2  = 0;
@@ -153,5 +201,5 @@ void FujiClose()
 #ifdef __ATARIXL__	
 	restore_rom();
 #endif
-	RestoreDCB();
+	RestoreSystem();
 }

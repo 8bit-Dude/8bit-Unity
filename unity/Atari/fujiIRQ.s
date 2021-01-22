@@ -27,11 +27,9 @@
 	.export _FujiIRQ
 	.export _fujiReady
 	
-	.segment	"DATA"	
-	
-_fujiReady: .byte 0
-
 	.segment	"CODE"	
+
+_fujiReady: .byte 0
 
 _FujiIRQ:	
 	LDA #$01

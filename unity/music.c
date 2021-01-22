@@ -44,22 +44,14 @@
   extern unsigned char musicPaused;
 #endif
 
-char* musicAddr;
-
-void LoadMusic(const char* filename, char* addr)
+void LoadMusic(const char* filename)
 {
 #if defined __ORIC__
 	// Load from File
-	FileRead(filename, addr);
+	FileRead(filename, (char*)MUSICRAM);
 #elif defined __LYNX__
 	// Load from CART file system
 	FileRead(filename);
-/* #elif defined __APPLE2__
-	if (FileOpen(filename)) {
-		// Consume 2 bytes of header then read data
-		FileRead(addr, 2);	
-		FileRead(addr, -1);	
-	} */
 #elif defined __ATARI__
 	unsigned int end, pos = MUSICRAM;
 	if (FileOpen(filename)) {
@@ -91,7 +83,12 @@ void LoadMusic(const char* filename, char* addr)
 		fread((char*)(loadaddr), 1, -1, fp);
 		fclose(fp);
 	}
-#else
+#elif defined __APPLE2__
+	/*if (FileOpen(filename)) {
+		// Consume 2 bytes of header then read data
+		FileRead((char*)MUSICRAM, 2);	
+		FileRead((char*)MUSICRAM, -1);	
+	} */	
 	// Try to open file
 	unsigned int loadaddr;
 	FILE* fp = fopen(filename, "rb");	
@@ -102,7 +99,6 @@ void LoadMusic(const char* filename, char* addr)
 		fclose(fp);
 	}
 #endif
-	musicAddr = addr;
 }
 
 void PauseMusic(unsigned char state)
@@ -128,12 +124,12 @@ void PlayMusic()
 	if (hasMocking == 255)
 		DetectMocking();
 	if (hasMocking) 
-		PlayMocking(musicAddr); 
+		PlayMocking((char*)MUSICRAM); 
 	else 
-		PlaySpeaker(musicAddr);
+		PlaySpeaker((char*)MUSICRAM);
 #elif defined __LYNX__	
 	unsigned char i = 0;
-	char* addr = musicAddr;
+	char* addr = (char*)MUSICRAM;
 	lynx_snd_pause();
 	while (i<4) {
 		if PEEKW(addr) 

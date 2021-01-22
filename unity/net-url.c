@@ -49,8 +49,8 @@ void GetURL(unsigned char* url)
 	
 #elif defined __FUJINET__
 	// Open HTTP address
-	strcpy(&fujiBuffer[0], "N:HTTP");
-	strcpy(&fujiBuffer[6], &url[4]);
+	strcpy(&fujiHost[0], "N:HTTP");
+	strcpy(&fujiHost[6], &url[4]);
 	FujiOpen(3); // Translate CR and LF
 	
 #else
@@ -81,13 +81,18 @@ unsigned char* ReadURL(unsigned char size, unsigned int timeOut)
 	
 #elif defined __FUJINET__	
 	// Wait until timeout expires...
+	unsigned char len;
 	clock_t timer = clock()+timeOut;
 	while (!fujiReady) {
 		if (clock() > timer) return 0;
 	}
-	FujiRead();	  // Get data
+	len = FujiRead();	  // Get data
 	FujiClose();  // Immediately close connection
-	return fujiBuffer;
+	if (len) {
+		return fujiBuffer;
+	} else {
+		return 0;
+	}
 	
 #else
 	unsigned char *ptr;

@@ -76,6 +76,9 @@ _xbios_get_entry:
 	rts
 	
 _xbios_open_file:
+	; Disable OS clicks
+	lda #0
+	sta $41
 	;jsr _xbios_set_device
 	jsr _enable_rom
 	ldy _xbios_fname

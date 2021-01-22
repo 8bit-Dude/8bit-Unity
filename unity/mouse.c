@@ -65,7 +65,11 @@ unsigned char* GetMouse(void)
 	} else {
 #endif
 	// Read mouse state from joystick #1
-	step = clock()-mouseClock;
+#if (defined __ORIC__)	
+	step = (clock()-mouseClock);
+#else
+	step = 2*(clock()-mouseClock);
+#endif
 	if (step > 30) step = 0;
 	mouseClock = clock();
 	joy = GetJoy(0);
