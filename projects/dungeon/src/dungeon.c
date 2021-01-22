@@ -102,7 +102,7 @@ void GameLoop(void)
 		
 		// Check player clock
 		if (clock() > playerClock) {			
-			playerClock = clock()+(TCK_PER_SEC/18);
+			playerClock = clock()+(TCK_PER_SEC/20);
 			ProcessPlayer();			
 		}
 
@@ -123,11 +123,18 @@ int main (void)
     bgcolor(COLOR_BLACK);
 	clrscr();
 
-	// Load music track
-	LoadMusic("dungeon.mus", MUSICRAM);
-	
-	// Run Game
+	// Show Title Screen
+#ifdef __CBM___
+	LoadMusic("title.mus");
+#elifndef __ORIC__
+	LoadMusic("dungeon.mus");
+#endif
 	SplashScreen();
+
+	// Run Game	
+#ifdef __CBM__	
+	LoadMusic("dungeon.mus");
+#endif
 	GameInit();
 	GameLoop();
 		

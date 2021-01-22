@@ -222,7 +222,7 @@ int main(void)
 #endif	
 
 	// Load music
-	LoadMusic("goblin.mus", MUSICRAM);
+	LoadMusic("goblin.mus");
 	
 	// Show splash screen
 	SplashScreen();

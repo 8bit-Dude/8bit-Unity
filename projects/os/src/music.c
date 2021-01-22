@@ -32,7 +32,7 @@ void PlayTrack(char *fname)
 {
 	if (musicState)
 		StopMusic();
-	LoadMusic(fname, MUSICRAM);
+	LoadMusic(fname);
 	PlayMusic();
 #ifndef __APPLE2__	
 	musicState = MUSIC_PLAYING;

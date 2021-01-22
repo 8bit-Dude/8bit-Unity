@@ -28,8 +28,9 @@ void SplashScreen(void)
 	PrintStr(CHR_COLS-12, CHR_ROWS-2, " 2021/01/16 ");
 	
 	// Start music
+#ifndef __ORIC__
 	PlayMusic();
-
+#endif
 	// Wait until key is pressed
 	while (!kbhit()) {	
 	#if defined __APPLE2__
@@ -41,7 +42,9 @@ void SplashScreen(void)
 	
 	// Exit banner screen
 	HideBitmap();
+#ifndef __ORIC__
 	StopMusic();	
+#endif
 }
 
 void PrintHealth(void)

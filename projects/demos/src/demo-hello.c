@@ -37,7 +37,7 @@ int DemoHello(void)
     cprintf(pressKeyMsg);
 	
 	// Play music until keyboard is pressed
-	LoadMusic("demo.mus", MUSICRAM);
+	LoadMusic("demo.mus");
 	PlayMusic();
 	
 	// Wait until 'SPACE' is pressed

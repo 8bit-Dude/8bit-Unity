@@ -9,7 +9,7 @@ unsigned char* appChunk[NUM_APPS];
 unsigned char* icoChunk[NUM_ICOS];
 
 // Version definitions
-char version[] = "8BIT-OS 2020/11/22";
+char version[] = "8BIT-OS 2021/01/20";
 
 void LoadChunks()
 {
@@ -72,7 +72,7 @@ void HomeScreen(void)
 	DrawTaskBar();	
 	
 	// Register App icons
-	for (i=0; i<4; i++)
+	for (i=0; i<NUM_APPS; i++)
 		appCall[i] = Icon(APP_COL1+i*APP_HSPAN, APP_ROW1, appChunk[i]);
 
 	// Add Taskbar Message
