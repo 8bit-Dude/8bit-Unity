@@ -293,11 +293,13 @@ unsigned char GameRace()
 #ifndef __APPLE2__
 	gameClock = clock();
   #if defined __CBM__    
-	while ((clock()-gameClock) < 44) {}
+	while ((clock()-gameClock) < 25) {}
   #elif defined __ATARI__    
 	while ((clock()-gameClock) < 11) {}
-  #else
-	while ((clock()-gameClock) < 44) {}
+  #elif defined __LYNX__    
+	while ((clock()-gameClock) < 35) {}
+  #elif defined __ORIC__    
+	while ((clock()-gameClock) < 25) {}
   #endif	
 #endif	
 
@@ -315,7 +317,11 @@ unsigned char GameRace()
 	UpdateDisplay();
 #endif	
 	BleepSFX(64); 
+#ifndef __APPLE2__
     sleep(1);
+#else
+	wait(30);
+#endif	
 
     // Orange light	
 #if defined __ORIC__ 
@@ -331,7 +337,11 @@ unsigned char GameRace()
 	UpdateDisplay();
 #endif	
 	BleepSFX(64); 
+#ifndef __APPLE2__
     sleep(1);
+#else
+	wait(30);
+#endif	
 
     // Green light
 #if defined __ORIC__ 
@@ -358,7 +368,11 @@ unsigned char GameRace()
 			return EVENT_MAP;
 		}
     } else {
+	#ifndef __APPLE2__
 		sleep(1);
+	#else
+		wait(30);
+	#endif	
 	}
 	
     // Hide light sprites
@@ -463,7 +477,15 @@ char GameLoop()
 			iCtrl = controlIndex[i];
 		#if defined __APPLE2__
 			// Regulate clock approximately...
-			if (gameFrame%7) { clk += 2; } else { clk += 1; }
+			if (gameMode == MODE_ONLINE) {
+			  #if define __DHR_	
+				if (gameFrame%3) { clk += 1; } else { clk += 2; }
+			  #else
+				if (gameFrame%4) { clk += 1; } else { clk += 2; }
+			  #endif
+			} else {
+				if (gameFrame%2) { clk += 1; } else { clk += 2; }
+			}				
 		#endif
 			// Get player parameters
 			car = &cars[i];

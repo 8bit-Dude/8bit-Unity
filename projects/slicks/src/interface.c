@@ -544,6 +544,20 @@ void SpriteAnimation(unsigned char index, unsigned char frame)
 	SetSprite(index, frame);
 }
 
+// Sub-function of GameMenu()
+void MenuMap()
+{
+	// Clear previous
+	PrintBlanks(MENU_COL+7, MENU_ROW+7, MENU_WID-7, 1);
+	
+	// Print Characters
+	inkColor = INK_HIGHLT; paperColor = PAPER_HIGHLT;
+	PrintChr(MENU_COL+2, MENU_ROW+7, &charLetter[12*3]);	// 'M'
+	inkColor = WHITE; paperColor = BLACK;
+	PrintStr(MENU_COL+3, MENU_ROW+7, "AP:");
+	PrintStr(MENU_COL+7, MENU_ROW+7, mapList[gameMap]);	
+}
+
 #ifdef __APPLE2__
   #pragma code-name("LC")
 #endif
@@ -827,20 +841,6 @@ void MenuPlayer(unsigned char i)
 	inkColor = WHITE; paperColor = BLACK;
 	PrintChr(MENU_COL+4, row, charColon);			// ':'
 	PrintStr(MENU_COL+6, row, controlList[controlIndex[i]]);	
-}
-
-// Sub-function of GameMenu()
-void MenuMap()
-{
-	// Clear previous
-	PrintBlanks(MENU_COL+7, MENU_ROW+7, MENU_WID-7, 1);
-	
-	// Print Characters
-	inkColor = INK_HIGHLT; paperColor = PAPER_HIGHLT;
-	PrintChr(MENU_COL+2, MENU_ROW+7, &charLetter[12*3]);	// 'M'
-	inkColor = WHITE; paperColor = BLACK;
-	PrintStr(MENU_COL+3, MENU_ROW+7, "AP:");
-	PrintStr(MENU_COL+7, MENU_ROW+7, mapList[gameMap]);	
 }
 
 // Sub-function of GameMenu()
