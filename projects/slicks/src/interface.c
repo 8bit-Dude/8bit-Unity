@@ -909,17 +909,26 @@ void MenuTab(unsigned char tab)
 	if (tab == 2) { inkColor = INK_TAB; }
 	PrintStr(MENU_COL+13, MENU_ROW, "INFO");
 	inkColor = WHITE; 
+#elif defined __ORIC__
+	inkColor = BLACK; paperColor = AIC;
+	PrintStr(MENU_COL+0,  MENU_ROW, "L");			
+	PrintStr(MENU_COL+6,  MENU_ROW, "O");
+	PrintStr(MENU_COL+13, MENU_ROW, "I");
+	inkColor = AIC; paperColor = BLACK;
+	PrintStr(MENU_COL+1, MENU_ROW, "OCAL");
+	PrintStr(MENU_COL+7, MENU_ROW, "NLINE");
+	PrintStr(MENU_COL+14, MENU_ROW, "NFO");
 #else
 	inkColor = INK_HIGHLT; paperColor = PAPER_HIGHLT;
 	PrintStr(MENU_COL+0,  MENU_ROW, "L");			
 	PrintStr(MENU_COL+6,  MENU_ROW, "O");
 	PrintStr(MENU_COL+13, MENU_ROW, "I");
 	inkColor = WHITE; paperColor = BLACK;
-	
+
 	if (tab == 0) { inkColor = INK_TAB; };
 	PrintStr(MENU_COL+1, MENU_ROW, "OCAL");
 	inkColor = WHITE;
-	
+
 	if (tab == 1) { inkColor = INK_TAB; }
 	PrintStr(MENU_COL+7, MENU_ROW, "NLINE");
 	inkColor = WHITE;
