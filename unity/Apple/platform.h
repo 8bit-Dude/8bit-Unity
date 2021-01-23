@@ -36,6 +36,7 @@
 
 // Memory Map
 #define BITMAPRAM  (0x2000)	// 2000-3FFF (hires screen)
+#define FILERAM    (0xb800) // B800-BBFF (Prodos file buffer)
 #define MUSICRAM   (0xbc00) // BC00-BEFF (electric duet track)
 
 // Character Mode
@@ -127,7 +128,8 @@ extern clock_t clk;
 // Using ProDos for File Management (see files.c)
 void DirList(void);
 unsigned char FileOpen(const char* fname);
-void FileRead(char* buf, unsigned int len);
+void FileRead(char* buffer, unsigned int len);
+void FileClose(void);
 
 // Auxilliary memory management (see memory.c)
 void MainToAux(unsigned char* data, unsigned int size);

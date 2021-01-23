@@ -187,11 +187,16 @@ void LoadBitmap(char *filename)
 	// Load from CART file system
 	if (FileRead(filename) && autoRefresh) 
 		UpdateDisplay();	
-/*#elif defined __APPLE2__
+#elif defined __APPLE2__
 	if (FileOpen(filename)) {
-		*dhraux = 0;  FileRead((char*)BITMAPRAM, 8192);	// Read 8192 bytes to AUX	
-		*dhrmain = 0; FileRead((char*)BITMAPRAM, 8192); // Read 8192 bytes to MAIN
-	}*/
+	  #if defined __DHR__	
+		*dhraux = 0;  
+		FileRead((char*)BITMAPRAM, 8192); // Read 8192 bytes to AUX
+		*dhrmain = 0; 
+	  #endif
+		FileRead((char*)BITMAPRAM, 8192); // Read 8192 bytes to MAIN
+		FileClose();
+	}
 #elif defined __ATARI__
 	if (FileOpen(filename)) {		
 		FileRead(bmpPalette, 4);			// 4 bytes palette
@@ -199,36 +204,14 @@ void LoadBitmap(char *filename)
 		FileRead((char*)BITMAPRAM2, 8000);	// 8000 bytes for frame 2
 		SetPalette();
 	}
-#else
+#elif defined __CBM__
 	// Open Map File
-	FILE* fp = fopen(filename, "rb");	
-  #if defined __CBM__
-	// Consume two bytes of header
-	fread((char*)(BITMAPRAM), 1, 2, fp);
-	
-	// 8000 bytes bitmap ram
-	fread((char*)(BITMAPRAM), 1, 8000, fp);
-
-	// 1000 bytes char ram
-	fread((char*)(SCREENRAM), 1, 1000, fp);
-	
-	// 1000 bytes color ram
-	fread((char*)(COLORRAM), 1, 1000, fp);
-	
-	// 1 byte background color
-	fread(&bg, 1, 1, fp);
-
-  #elif defined __APPLE2__
-	// Read 8192 bytes to AUX
-  #if defined __DHR__
-	*dhraux = 0;
-	fread((char*)BITMAPRAM, 1, 8192, fp);
-	*dhrmain = 0;
-  #endif	
-	// Read 8192 bytes to MAIN
-	fread((char*)BITMAPRAM, 1, 8192, fp);
-  #endif
-	// Close file
+	FILE* fp = fopen(filename, "rb");  
+	fread((char*)(BITMAPRAM), 1, 2, fp);	// 2 bytes header
+	fread((char*)(BITMAPRAM), 1, 8000, fp);	// 8000 bytes bitmap ram
+	fread((char*)(SCREENRAM), 1, 1000, fp); // 1000 bytes char ram
+	fread((char*)(COLORRAM), 1, 1000, fp);	// 1000 bytes color ram
+	fread(&bg, 1, 1, fp);					// 1 byte background color
 	fclose(fp);
 #endif
 }

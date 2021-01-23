@@ -26,6 +26,10 @@
  * Adapted from: Bill Buckels
  */
  
+ #ifdef __APPLE2__
+  #pragma code-name("LOWCODE")
+#endif
+ 
  // Addresses for AUX bank copying
 unsigned char *hiresPtr, hiresPixel;
 unsigned int HiresLine(unsigned char y);	// (see Apple/sprite.c)

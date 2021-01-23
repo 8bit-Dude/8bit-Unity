@@ -120,19 +120,19 @@ void LoadSprites(unsigned char* filename)
 {
 #if defined __APPLE2__
 	unsigned int size;
-	FILE* fp = fopen(filename, "rb");
-	fread(&size, 1, 2, fp);
-	if (sprData) free(sprData);
-	sprData = malloc(size);
-  #if defined __DHR__
-	// Load AUX data first
-	fread(sprData, 1, size, fp);
-	MainToAux(sprData, size);
-  #endif	
-	// Load MAIN data
-	fread(sprData, 1, size, fp);
-	fclose(fp);
-
+	if (sprData) 
+		free(sprData);
+	if (FileOpen(filename)) {
+		FileRead((char*)&size, 2); 
+		sprData = malloc(size);
+	  #if defined __DHR__
+		FileRead(sprData, size);	// Load AUX data
+		MainToAux(sprData, size);	// Transfer MAIN -> AUX
+	  #endif	
+		// Load MAIN data
+		FileRead(sprData, size);	// Load MAIN data
+		FileClose();
+	}
 #elif defined __ATARI__	
 	unsigned int size;
 	if (FileOpen(filename)) {

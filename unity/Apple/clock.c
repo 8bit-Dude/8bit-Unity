@@ -36,10 +36,20 @@
 void dummy (void) {}
 
 #ifdef __APPLE2__
-  #pragma code-name("LOWCODE")
+  #pragma code-name("CODE")
 #endif
 
 clock_t clk;
+
+// Return clock state
+clock_t clock()
+{
+	return clk;
+}
+
+#ifdef __APPLE2__
+  #pragma code-name("LOWCODE")
+#endif
 
 // Wait for X clock ticks
 void wait(unsigned char ticks)
@@ -57,10 +67,4 @@ unsigned sleep(unsigned seconds)
 		seconds--;
 	}
 	return 1;
-}
-
-// Return clock state
-clock_t clock()
-{
-	return clk;
 }

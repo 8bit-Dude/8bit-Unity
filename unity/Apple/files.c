@@ -25,9 +25,10 @@
  */
 
 #include <string.h>
+#include "unity.h"
 
 #ifdef __APPLE2__
-  #pragma code-name("CODE")
+  #pragma code-name("LC")
 #endif
 
 // Externals: see prodos.s
@@ -42,21 +43,9 @@ unsigned char mli(unsigned char call, void* ptr_parameter);
 #define FLUSH    0xCD
 #define SET_MARK 0xCE
 
-const char* VOLUME_NAME = "/SYSTEM/";
-
 // File handle
 unsigned char* ref_num;
-char Filename[65];
-static unsigned char Io[ 1024+256 ]; //I need an adress aligned on 256: I'll use the 1st one inside Io
-static unsigned char Error = 0u;
-
-void EncodePath( const char* p_filename )
-{
-  strcpy(Filename[1], VOLUME_NAME );
-  Filename[0] = strlen(VOLUME_NAME);
-  strcpy(Filename[1+Filename[0]], p_filename );
-  Filename[0] += strlen(p_filename);
-}
+//static unsigned char Error = 0u;
 
 typedef struct {
 	unsigned char param_count;
@@ -68,14 +57,17 @@ typedef struct {
 unsigned char FileOpen( const char* p_filename )
 {
 	open_param_t param;
-	EncodePath( p_filename );
+	char Filename[16];
+	Filename[0] = strlen(p_filename);	// Encode filename for MLI
+	strcpy(&Filename[1], p_filename );	
 	param.param_count = 3u;
 	param.pathname = Filename;
-	param.io_buffer = (unsigned char*)((unsigned int)(Io)+256-(unsigned int)(Io)%256); //Getting the 256byte aligned adrress
-	Error = mli( OPEN, &param );
-	if(!Error)
+	param.io_buffer = (unsigned char*)FILERAM;
+	if (!mli( OPEN, &param )) {
 		ref_num = param.ref_num;
-	return Error;
+		return 1;
+	}
+	return 0;
 }
 
 typedef struct {
@@ -86,15 +78,16 @@ typedef struct {
 	unsigned int trans_count;
 } read_param_t;
 
-unsigned int FileRead( char* buffer, unsigned int len )
+void FileRead( char* buffer, unsigned int len )
 {
 	read_param_t param;
 	param.param_count = 4u;
 	param.ref_num = ref_num;
 	param.data_buffer = buffer;
 	param.request_count = len;
-	Error = mli( READ, &param );
-	return param.trans_count;
+	mli( READ, &param );
+	//Error = mli( READ, &param );
+	//return param.trans_count;
 }
 
 typedef struct {
@@ -102,10 +95,11 @@ typedef struct {
 	unsigned char ref_num;
 } close_param_t;
 
-void file_close( void )
+void FileClose( void )
 {
 	close_param_t param;
 	param.param_count = 1u;
 	param.ref_num = ref_num;
-	Error = mli( CLOSE, &param );
+	mli( CLOSE, &param );
+	//Error = mli( CLOSE, &param );
 }

@@ -84,20 +84,12 @@ void LoadMusic(const char* filename)
 		fclose(fp);
 	}
 #elif defined __APPLE2__
-	/*if (FileOpen(filename)) {
+	if (FileOpen(filename)) {
 		// Consume 2 bytes of header then read data
 		FileRead((char*)MUSICRAM, 2);	
 		FileRead((char*)MUSICRAM, -1);	
-	} */	
-	// Try to open file
-	unsigned int loadaddr;
-	FILE* fp = fopen(filename, "rb");	
-	if (fp) {
-		// Consume 2 bytes of header then read data
-		fread((char*)&loadaddr, 1, 2, fp);
-		fread((char*)loadaddr, 1, -1, fp);
-		fclose(fp);
-	}
+		FileClose();
+	}	
 #endif
 }
 

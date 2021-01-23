@@ -31,7 +31,7 @@
 
 	.export _mli
 
-.code
+	.segment	"LOWCODE"	
 
 _mli:
         ; Store parameters

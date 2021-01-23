@@ -30,6 +30,10 @@
   #pragma code-name("LC")
 #endif
 
+#ifdef __ATARIXL__
+  #pragma code-name("SHADOW_RAM")
+#endif
+
 // Zero Page pointers (tile decoding and map scrolling)
 #if defined(__APPLE2__)
   #define tilesetDataZP 0xef
@@ -185,19 +189,20 @@ void DisplayCharmap(unsigned char c1, unsigned char c2, unsigned char r1, unsign
 void LoadCharset(char* filename, char* palette)
 {
 #if defined __APPLE2__
-	FILE* fp = fopen(filename, "rb");
-  #if defined __DHR__	
-	if (!charsetData)
-		charsetData = malloc(0x1080);
-	fread((char*)charsetData, 1, 0x1080, fp);
-	charflagData = (char*)(charsetData+0x1000);
-  #else	
-	if (!charsetData)
-		charsetData = malloc(0x0880);
-	fread((char*)charsetData, 1, 0x0880, fp);
-	charflagData = (char*)(charsetData+0x0800);
-  #endif
-	fclose(fp);
+	if (FileOpen(filename)) {
+	  #if defined __DHR__	
+		if (!charsetData)
+			charsetData = malloc(0x1080);
+		FileRead((char*)charsetData, 0x1080);
+		charflagData = (char*)(charsetData+0x1000);
+	  #else	
+		if (!charsetData)
+			charsetData = malloc(0x0880);
+		FileRead((char*)charsetData, 0x0880);
+		charflagData = (char*)(charsetData+0x0800);
+	  #endif		
+		FileClose();
+	}
 	
 #elif defined __ATARI__
 	if (FileOpen(filename)) {
@@ -242,7 +247,7 @@ void LoadCharset(char* filename, char* palette)
 // Load charmap from file
 void LoadCharmap(char *filename, unsigned int w, unsigned int h) 
 {
-#if (defined __APPLE2__) || (defined __CBM__)
+#if (defined __CBM__)
 	FILE* fp;
 #endif
 	unsigned int size = w*h;
@@ -262,14 +267,20 @@ void LoadCharmap(char *filename, unsigned int w, unsigned int h)
 #endif	
 	
 	// Load data from file
-#if (defined __APPLE2__) || (defined __CBM__)
-	fp = fopen(filename, "rb");	
-	fread(charmapData, 1, size, fp);
-	fclose(fp);
+#if (defined __APPLE2__)
+	if (FileOpen(filename)) {
+		FileRead(charmapData, size);
+		FileClose();
+	}
 
 #elif defined __ATARI__
 	if (FileOpen(filename))
 		FileRead(charmapData, size);
+
+#eilf (defined __CBM__)
+	fp = fopen(filename, "rb");	
+	fread(charmapData, 1, size, fp);
+	fclose(fp);
 	
 #elif defined __LYNX__
 	if (FileRead(filename))
@@ -284,7 +295,7 @@ void LoadCharmap(char *filename, unsigned int w, unsigned int h)
 // Load tileset from file
 void LoadTileset(char *filename, unsigned int n, unsigned int w, unsigned int h) 
 {
-#if (defined __APPLE2__) || (defined __CBM__)
+#if (defined __CBM__)
 	FILE* fp;
 #endif	
 	unsigned int size = n*w*h;
@@ -294,15 +305,21 @@ void LoadTileset(char *filename, unsigned int n, unsigned int w, unsigned int h)
 	if (tilesetData) free(tilesetData);	
 	tilesetData = malloc(size);
 	
-#if (defined __APPLE2__) || (defined __CBM__)
-	fp = fopen(filename, "rb");	
-	fread(tilesetData, 1, size, fp);
-	fclose(fp);
+#if (defined __APPLE2__)
+	if (FileOpen(filename)) {
+		FileRead(tilesetData, size);
+		FileClose();
+	}
 	
 #elif defined __ATARI__
 	if (FileOpen(filename))
 		FileRead(tilesetData, size);
-	
+
+#elif (defined __CBM__)
+	fp = fopen(filename, "rb");	
+	fread(tilesetData, 1, size, fp);
+	fclose(fp);
+		
 #elif defined __LYNX__
 	if (FileRead(filename))
 		memcpy(tilesetData, BITMAPRAM, size);
