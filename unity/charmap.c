@@ -267,7 +267,7 @@ void LoadCharmap(char *filename, unsigned int w, unsigned int h)
 #endif	
 	
 	// Load data from file
-#if (defined __APPLE2__)
+#if defined __APPLE2__
 	if (FileOpen(filename)) {
 		FileRead(charmapData, size);
 		FileClose();
@@ -277,7 +277,7 @@ void LoadCharmap(char *filename, unsigned int w, unsigned int h)
 	if (FileOpen(filename))
 		FileRead(charmapData, size);
 
-#eilf (defined __CBM__)
+#elif defined __CBM__
 	fp = fopen(filename, "rb");	
 	fread(charmapData, 1, size, fp);
 	fclose(fp);
