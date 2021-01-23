@@ -27,7 +27,12 @@ void LoadNavigation(char *filename)
 {
 	// Read nav file contents
 	unsigned char i,n,*p;
-  #if defined __ATARI__
+  #if defined __APPLE2__
+	if (FileOpen(filename)) {
+		FileRead(buffer, 128);
+		FileClose();
+	}
+  #elif defined __ATARI__
 	FileOpen(filename);
 	FileRead(buffer, 128);
   #elif defined __ORIC__

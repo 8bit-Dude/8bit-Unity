@@ -22,9 +22,10 @@ void LoadActors(const char* filename)
 	unsigned char offset, i=0;
 #if (defined __APPLE2__)
 	unsigned char navBuffer[128];
-	FILE* fp = fopen(filename, "rb");
-	fread(navBuffer, 1, 128, fp);
-	fclose(fp);
+	if (FileOpen(filename)) {
+		FileRead(navBuffer, 128);
+		FileClose();
+	}
 #elif (defined __ATARI__)
 	unsigned char navBuffer[128];
 	if (FileOpen(filename))

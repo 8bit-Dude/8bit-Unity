@@ -114,7 +114,7 @@ void GameLoop(void)
 		}			
 	}
 }
-	
+
 int main (void)
 {		
 	// Set text mode colors
@@ -124,9 +124,10 @@ int main (void)
 	clrscr();
 
 	// Show Title Screen
-#ifdef __CBM___
+#if defined(__ORIC__)
+#elif defined(__CBM__)
 	LoadMusic("title.mus");
-#elifndef __ORIC__
+#else
 	LoadMusic("dungeon.mus");
 #endif
 	SplashScreen();
