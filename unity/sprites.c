@@ -129,7 +129,6 @@ void LoadSprites(unsigned char* filename)
 		FileRead(sprData, size);	// Load AUX data
 		MainToAux(sprData, size);	// Transfer MAIN -> AUX
 	  #endif	
-		// Load MAIN data
 		FileRead(sprData, size);	// Load MAIN data
 		FileClose();
 	}

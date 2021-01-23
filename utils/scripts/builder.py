@@ -161,6 +161,7 @@ class Application:
         self.entry_AppleSpriteWidth = self.builder.get_object('Entry_AppleSpriteWidth')
         self.entry_AppleSpriteHeight = self.builder.get_object('Entry_AppleSpriteHeight')
         self.Combobox_AppleDiskSize = self.builder.get_object('Combobox_AppleDiskSize');
+        self.Combobox_AppleCrunchAssets = self.builder.get_object('Combobox_AppleCrunchAssets');
         self.Combobox_AppleEthernetDriver = self.builder.get_object('Combobox_AppleEthernetDriver');
         
         self.listbox_AtariBitmap = self.builder.get_object('Listbox_AtariBitmap')        
@@ -208,6 +209,7 @@ class Application:
                 
         # Set some defaults
         self.Combobox_AppleDiskSize.current(0)
+        self.Combobox_AppleCrunchAssets.current(0)
         self.Combobox_AppleEthernetDriver.current(0)
         self.Combobox_AtariDiskSize.current(0)
         self.Combobox_AtariEthernetDriver.current(0)
@@ -235,7 +237,8 @@ class Application:
                            self.listbox_LynxCharset,   self.listbox_OricCharset,  self.listbox_Charmap,
                            self.listbox_AppleBitmapSHR,self.listbox_AppleSpritesSHR, self.listbox_AppleCharsetSHR ]
         self.comboboxes = [ self.Combobox_AtariDiskSize, self.Combobox_AppleDiskSize,
-                            self.Combobox_AppleEthernetDriver, self.Combobox_AtariEthernetDriver, self.Combobox_C64EthernetDriver ]
+                            self.Combobox_AppleEthernetDriver, self.Combobox_AtariEthernetDriver, self.Combobox_C64EthernetDriver,
+                            self.Combobox_AppleCrunchAssets ]
         self.checkbuttons = []
                        
     def FileNew(self):
@@ -417,6 +420,7 @@ class Application:
                     ('music', ('listbox', self.listbox_AppleMusic)),
                     ('chunks', ('listbox', self.listbox_AppleChunks)),
                     ('diskSize', ('Combobox', self.Combobox_AppleDiskSize)),
+                    ('crunchAssets', ('Combobox', self.Combobox_AppleCrunchAssets)),
                     ('ethernetDriver', ('Combobox', self.Combobox_AppleEthernetDriver)),
                 ]),
                 ('Atari', [
@@ -737,32 +741,82 @@ class Application:
         # Build Single and Double Hires Scripts
         for target in ['64k', '128k']:
         
+            # Assign GFX mode and assets
+            bitmaps = bitmapsDHR
+            charset = charsetDHR
+            sprites = spritesDHR
+            if target == '128k':
+                graphics = 'double'
+            else:
+                graphics = 'single'
+                if len(bitmapsSHR) > 0:
+                    bitmaps = bitmapsSHR
+                if len(charsetSHR) > 0:
+                    charset = charsetSHR
+                if len(spritesSHR) > 0:
+                    sprites = spritesSHR        
+        
             with open('../../' + buildFolder+'/'+diskname+"-apple"+target+".bat", "wb") as fp:
                 # Info
                 fp.write('echo off\n\n')
                 fp.write('mkdir apple\n')            
                 fp.write('cd ..\n\n')
                 fp.write('del build\\apple\\*.* /F /Q\n\n')
-                fp.write('echo --------------- CONVERT ASSETS ---------------  \n\n')
-                
-                # Assign GFX mode and assets
-                bitmaps = bitmapsDHR
-                charset = charsetDHR
-                sprites = spritesDHR
-                if target == '128k':
-                    graphics = 'double'
+                fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
+
+                # Build Unity Library
+                CList = ['bitmap.c', 'charmap.c', 'chunks.c', 'geom2d.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'scaling.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Apple\\CLOCK.c', 'Apple\\directory.c', 'Apple\\files.c', 'Apple\\hires.c', 'Apple\\memory.c', 'Apple\\pixelDHR.c', 'Apple\\pixelSHR.c']
+                SList = ['atan2.s', 'chars.s', 'tiles.s', 'Apple\\blitDHR.s', 'Apple\\blitSHR.s', 'Apple\\decrunch.s', 'Apple\\DUET.s', 'Apple\\hiresLines.s', 'Apple\\joystick.s', 'Apple\\MOCKING.s', 'Apple\\PADDLE.s', 'Apple\\prodos.s', 'Apple\\scrollDHR.s', 'Apple\\scrollSHR.s']
+
+                # Prepare symbols
+                if graphics == 'double':
+                    symbols = '-D __DHR__'
                 else:
-                    graphics = 'single'
-                    if len(bitmapsSHR) > 0:
-                        bitmaps = bitmapsSHR
-                    if len(charsetSHR) > 0:
-                        charset = charsetSHR
-                    if len(spritesSHR) > 0:
-                        sprites = spritesSHR
+                    symbols = '-D __SHR__'
+                if self.Combobox_AppleCrunchAssets.get() == 'Yes':
+                    symbols += ' -D __DECRUNCH__'                        
                 
+                # Compile C files
+                for file in CList:
+                    fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t apple2 '+ symbols + ' -I unity unity\\' + file + '\n')
+                    fp.write('utils\\cc65\\bin\\ca65 -t apple2 unity\\' + file[0:-2] + '.s\n')
+                    fp.write('del unity\\' + file[0:-2] + '.s\n')
+
+                # Compile S files
+                for file in SList:            
+                    fp.write('utils\\cc65\\bin\\ca65 -t apple2 unity\\' + file + '\n')
+                
+                # Prepare lib file
+                fp.write('utils\\cc65\\bin\\ar65 r ' + buildFolder + '/apple/unity.lib ')
+                for file in CList:
+                    fp.write('unity\\' + file[0:-2] + '.o ')
+                for file in SList:            
+                    fp.write('unity\\' + file[0:-2] + '.o ')
+                fp.write('\n')
+                
+                # Actual Program Compilation
+                symbols += ' -Wl -D,__STACKSIZE__=$0400,-D,__HIMEM__=$B800,-D,__LCADDR__=$D000,-D,__LCSIZE__=$1000'
+                comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/apple/' + diskname.lower() + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-apple' + target + '.map -Cl -O -t apple2 ' + symbols + ' -C apple2-hgr.cfg -I unity '
+                for item in code:
+                    comp += item + ' '
+                if self.Combobox_AppleEthernetDriver.get() == 'IP65(TCP/UDP)':
+                    fp.write(comp + buildFolder + '/apple/unity.lib unity/IP65/ip65_tcp.lib unity/IP65/ip65_apple2.lib\n\n')
+                else:
+                    fp.write(comp + buildFolder + '/apple/unity.lib unity/IP65/ip65.lib unity/IP65/ip65_apple2.lib\n\n')
+                
+                # Compression
+                fp.write('utils\\scripts\\exomizer-3.1.0.exe sfx bin ' + buildFolder + '/apple/' + diskname.lower() + '.bin -o ' + buildFolder + '/apple/loader\n\n')
+
+                # Info
+                fp.write('echo DONE!\n\n')
+                fp.write('echo --------------- CONVERT ASSETS ---------------  \n\n')
+
                 # Bitmaps
                 for item in bitmaps:
-                    fp.write('utils\\py27\\python utils\\scripts\\apple\\AppleBitmap.py ' + graphics + ' ' + item + ' ' + buildFolder + '/apple/' + FileBase(item, '.png') + '.img\n')
+                    if self.Combobox_AppleCrunchAssets.get() == 'Yes':
+                        fp.write('utils\\py27\\python utils\\scripts\\apple\\AppleBitmap.py ' + graphics + ' crunch ' + item + ' ' + buildFolder + '/apple/' + FileBase(item, '.png') + '.img\n')
+                    else:
+                        fp.write('utils\\py27\\python utils\\scripts\\apple\\AppleBitmap.py ' + graphics + ' raw ' + item + ' ' + buildFolder + '/apple/' + FileBase(item, '.png') + '.img\n')
 
                 # Charset
                 if len(charset) > 0:
@@ -780,48 +834,6 @@ class Application:
 
                 # Info
                 fp.write('\necho DONE!\n\n')
-                fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
-
-                # Build Unity Library
-                CList = ['bitmap.c', 'charmap.c', 'chunks.c', 'geom2d.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'scaling.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Apple\\CLOCK.c', 'Apple\\directory.c', 'Apple\\files.c', 'Apple\\hires.c', 'Apple\\memory.c', 'Apple\\pixelDHR.c', 'Apple\\pixelSHR.c']
-                SList = ['atan2.s', 'chars.s', 'tiles.s', 'Apple\\blitDHR.s', 'Apple\\blitSHR.s', 'Apple\\DUET.s', 'Apple\\hiresLines.s', 'Apple\\joystick.s', 'Apple\\MOCKING.s', 'Apple\\PADDLE.s', 'Apple\\prodos.s', 'Apple\\scrollDHR.s', 'Apple\\scrollSHR.s']
-                             
-                for file in CList:
-                    if graphics == 'double':
-                        fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t apple2 -D __DHR__ -I unity unity\\' + file + '\n')
-                    else:
-                        fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t apple2 -D __SHR__ -I unity unity\\' + file + '\n')
-                    fp.write('utils\\cc65\\bin\\ca65 -t apple2 unity\\' + file[0:-2] + '.s\n')
-                    fp.write('del unity\\' + file[0:-2] + '.s\n')
-
-                for file in SList:            
-                    fp.write('utils\\cc65\\bin\\ca65 -t apple2 unity\\' + file + '\n')
-                
-                fp.write('utils\\cc65\\bin\\ar65 r ' + buildFolder + '/apple/unity.lib ')
-                for file in CList:
-                    fp.write('unity\\' + file[0:-2] + '.o ')
-                for file in SList:            
-                    fp.write('unity\\' + file[0:-2] + '.o ')
-                fp.write('\n')
-                
-                # Compilation
-                if graphics == 'double':
-                    symbols = '-D __DHR__ -Wl -D,__STACKSIZE__=$0400,-D,__HIMEM__=$B800,-D,__LCADDR__=$D000,-D,__LCSIZE__=$1000'
-                else:
-                    symbols = '-D __SHR__ -Wl -D,__STACKSIZE__=$0400,-D,__HIMEM__=$B800,-D,__LCADDR__=$D000,-D,__LCSIZE__=$1000'
-                comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/apple/' + diskname.lower() + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-apple' + target + '.map -Cl -O -t apple2 ' + symbols + ' -C apple2-hgr.cfg -I unity '
-                for item in code:
-                    comp += item + ' '
-                if self.Combobox_AppleEthernetDriver.get() == 'IP65(TCP/UDP)':
-                    fp.write(comp + buildFolder + '/apple/unity.lib unity/IP65/ip65_tcp.lib unity/IP65/ip65_apple2.lib\n\n')
-                else:
-                    fp.write(comp + buildFolder + '/apple/unity.lib unity/IP65/ip65.lib unity/IP65/ip65_apple2.lib\n\n')
-                
-                # Compression
-                fp.write('utils\\scripts\\exomizer-3.0.2.exe sfx bin ' + buildFolder + '/apple/' + diskname.lower() + '.bin -o ' + buildFolder + '/apple/loader\n\n')
-
-                # Info
-                fp.write('echo DONE!\n\n')
                 fp.write('echo --------------- APPLE DISK BUILDER --------------- \n\n')
 
                 # Disk builder

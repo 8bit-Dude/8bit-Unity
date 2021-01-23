@@ -134,3 +134,6 @@ void FileClose(void);
 // Auxilliary memory management (see memory.c)
 void MainToAux(unsigned char* data, unsigned int size);
 void AuxToAux(unsigned char* dst, unsigned char* src, unsigned char size);
+
+// Decrunch data compressed with Exomizer (see decrunch.s)
+void Decrunch(unsigned int address);

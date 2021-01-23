@@ -188,6 +188,22 @@ void LoadBitmap(char *filename)
 	if (FileRead(filename) && autoRefresh) 
 		UpdateDisplay();	
 #elif defined __APPLE2__
+  #if defined __DECRUNCH__	
+	unsigned int size;
+	if (FileOpen(filename)) {
+	  #if defined __DHR__	
+		FileRead(&size, 2);
+		*dhraux = 0;  
+		FileRead((char*)BITMAPRAM-8, size);	// Read and decrunch to AUX
+		Decrunch(BITMAPRAM-8+size);		
+		*dhrmain = 0; 
+	  #endif
+		FileRead(&size, 2);
+		FileRead((char*)BITMAPRAM-8, size);	// Read and decrunch to MAIN
+		Decrunch(BITMAPRAM-8+size);		
+		FileClose();
+	}
+  #else
 	if (FileOpen(filename)) {
 	  #if defined __DHR__	
 		*dhraux = 0;  
@@ -196,7 +212,8 @@ void LoadBitmap(char *filename)
 	  #endif
 		FileRead((char*)BITMAPRAM, 8192); // Read 8192 bytes to MAIN
 		FileClose();
-	}
+	}	  
+  #endif
 #elif defined __ATARI__
 	if (FileOpen(filename)) {		
 		FileRead(bmpPalette, 4);			// 4 bytes palette

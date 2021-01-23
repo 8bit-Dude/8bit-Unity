@@ -711,10 +711,10 @@
                     </layout>
                     <child>
                       <object class="tk.Label" id="Label_AppleDiskSize">
-                        <property name="text" translatable="yes">Disk Size</property>
+                        <property name="text" translatable="yes">Disk</property>
                         <layout>
                           <property name="column">0</property>
-                          <property name="padx">25</property>
+                          <property name="padx">5</property>
 						  <property name="pady">2</property>
                           <property name="propagate">True</property>
                           <property name="row">1</property>
@@ -738,11 +738,39 @@
                       </object>
                     </child>
                     <child>
-                      <object class="tk.Label" id="Label_AppleEthernetDriver">
-                        <property name="text" translatable="yes">Ethernet Driver</property>
+                      <object class="tk.Label" id="Label_AppleCrunchAssets">
+                        <property name="text" translatable="yes">Crunch</property>
                         <layout>
                           <property name="column">2</property>
-                          <property name="padx">25</property>
+                          <property name="padx">5</property>
+						  <property name="pady">2</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Combobox" id="Combobox_AppleCrunchAssets">
+                        <property name="state">readonly</property>
+                        <property name="values">No Yes</property>
+                        <property name="width">6</property>
+                        <layout>
+                          <property name="column">3</property>
+                          <property name="padx">5</property>
+						  <property name="pady">2</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="tk.Label" id="Label_AppleEthernetDriver">
+                        <property name="text" translatable="yes">Ethernet</property>
+                        <layout>
+                          <property name="column">4</property>
+                          <property name="padx">5</property>
 						  <property name="pady">2</property>
                           <property name="propagate">True</property>
                           <property name="row">1</property>
@@ -756,7 +784,7 @@
                         <property name="values">IP65(TCP/UDP) IP65(UDP)</property>
                         <property name="width">14</property>
                         <layout>
-                          <property name="column">3</property>
+                          <property name="column">5</property>
                           <property name="padx">5</property>
 						  <property name="pady">2</property>
                           <property name="propagate">True</property>

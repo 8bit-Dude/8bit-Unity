@@ -26,11 +26,13 @@
 
 from AppleHires import *
 from PIL import Image
-import io, sys
+import io, os, sys
+import subprocess
 
-mode = sys.argv[1]
-input = sys.argv[2]
-output = sys.argv[3]
+resolution = sys.argv[1]
+compress = sys.argv[2]
+input = sys.argv[3]
+output = sys.argv[4]
 
 try:
     ###################
@@ -41,14 +43,14 @@ try:
 
     # Prepare data lists
     main = [chr(0)]*8192
-    if mode == 'double':
+    if resolution == 'double':
         aux = [chr(0)]*8192
 
     # Convert bitmap
     for i in range(192):
         for j in range(0,140,7):
             pixels = rawdata[i*140+j:i*140+j+7]
-            if mode == 'single':
+            if resolution == 'single':
                 # Reduce palette?
                 if colors > 6:
                     pixels = RemapDHR2SHR(pixels)
@@ -72,11 +74,44 @@ try:
                 main[HiresLines[i]+(j*2)/7+1] = (chr(block[3]))
 
     # Write to file
-    f2 = io.open(output, 'wb')
-    if mode == 'double':
-        f2.write(''.join(aux))
-    f2.write(''.join(main))
-    f2.close()
+    if compress == 'crunch':
+        # Compress main data (target address $2000-$4000)
+        if resolution == 'double':
+            f = io.open(output.replace('.img','.aux'), 'wb')
+            f.write(''.join([chr(0), chr(32)])); f.write(''.join(aux)); f.close()
+            subprocess.call(["utils/scripts/exomizer-3.1.0.exe", "mem", "-lnone", output.replace('.img','.aux'), "-o", output.replace('.img','.aux.sfx')])
+        f = io.open(output.replace('.img','.main'), 'wb')
+        f.write(''.join([chr(0), chr(32)])); f.write(''.join(main)); f.close()
+        subprocess.call(["utils/scripts/exomizer-3.1.0.exe", "mem", "-lnone", output.replace('.img','.main'), "-o", output.replace('.img','.main.sfx')])
+        
+        # Read back compressed data
+        if resolution == 'double':
+            f = io.open(output.replace('.img','.aux.sfx'), 'rb')
+            aux = f.read(); f.close()
+        f = io.open(output.replace('.img','.main.sfx'), 'rb')
+        main = f.read(); f.close()
+        
+        # Clean-up
+        if resolution == 'double':
+            os.remove(output.replace('.img','.aux'))
+            os.remove(output.replace('.img','.aux.sfx'))
+        os.remove(output.replace('.img','.main'))
+        os.remove(output.replace('.img','.main.sfx'))
+
+        # Write compressed data with header (file length)
+        f = io.open(output, 'wb')
+        if resolution == 'double':
+            f.write(''.join([chr(len(aux)%256), chr(len(aux)/256)])); f.write(aux);
+        f.write(''.join([chr(len(main)%256), chr(len(main)/256)])); f.write(main);
+        f.close()
+    
+    else:
+        # Just write raw data
+        f = io.open(output, 'wb')
+        if resolution == 'double':
+            f.write(''.join(aux))
+        f.write(''.join(main))
+        f.close()
 
 except:
     print "Error: cannot convert " + input + "... (is it a 140x192 PNG file with 6 or 16 color palette?)"
