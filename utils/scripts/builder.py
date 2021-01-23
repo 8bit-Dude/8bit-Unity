@@ -806,9 +806,9 @@ class Application:
                 
                 # Compilation
                 if graphics == 'double':
-                    symbols = '-D __DHR__ -Wl -D,__STACKSIZE__=$0400,-D,__HIMEM__=$BC00,-D,__LCADDR__=$D000,-D,__LCSIZE__=$1000'
+                    symbols = '-D __DHR__ -Wl -D,__STACKSIZE__=$0400,-D,__HIMEM__=$B800,-D,__LCADDR__=$D000,-D,__LCSIZE__=$1000'
                 else:
-                    symbols = '-D __SHR__ -Wl -D,__STACKSIZE__=$0400,-D,__HIMEM__=$BC00,-D,__LCADDR__=$D000,-D,__LCSIZE__=$1000'
+                    symbols = '-D __SHR__ -Wl -D,__STACKSIZE__=$0400,-D,__HIMEM__=$B800,-D,__LCADDR__=$D000,-D,__LCSIZE__=$1000'
                 comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/apple/' + diskname.lower() + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-apple' + target + '.map -Cl -O -t apple2 ' + symbols + ' -C apple2-hgr.cfg -I unity '
                 for item in code:
                     comp += item + ' '
