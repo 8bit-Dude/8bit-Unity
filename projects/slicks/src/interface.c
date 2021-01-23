@@ -48,12 +48,20 @@
 	#define MENU_WID 17
 	#define MENU_HEI 13
 	#define MENU_BLD CHR_ROWS-1
+	#define CREDIT_ROWS 8
+	unsigned char  creditCol[] = { MENU_COL+2, MENU_COL+0, MENU_COL+1, MENU_COL+0, MENU_COL+1, MENU_COL+1, MENU_COL+0, MENU_COL+1 };
+	unsigned char  creditRow[] = { MENU_ROW+2, MENU_ROW+4, MENU_ROW+5, MENU_ROW+7, MENU_ROW+8, MENU_ROW+9, MENU_ROW+11, MENU_ROW+12 };
+	unsigned char *creditTxt[] = { "2021 SONGBIRD", "CODE/GFX:", "ANTHONY BEAUCAMP", "MUSIC:", "ANDREW FISHER", "CARL FORHAN", "ORIGINAL IDEA:", "TIMO KAUPPINEN" };
 #else
 	#define MENU_COL 22
 	#define MENU_ROW  4
 	#define MENU_WID 17
 	#define MENU_HEI 16
 	#define MENU_BLD CHR_ROWS-2
+	#define CREDIT_ROWS 7
+	unsigned char  creditCol[] = { MENU_COL+5, MENU_COL+0, MENU_COL+1, MENU_COL+0, MENU_COL+1, MENU_COL+0, MENU_COL+1 };
+	unsigned char  creditRow[] = { MENU_ROW+2, MENU_ROW+4, MENU_ROW+5, MENU_ROW+7, MENU_ROW+8, MENU_ROW+10, MENU_ROW+11 };
+	unsigned char *creditTxt[] = { "CREDITS", "CODE/GFX:", "ANTHONY BEAUCAMP", "MUSIC:", "ANDREW FISHER", "ORIGINAL IDEA:", "TIMO KAUPPINEN" };	
 #endif
 
 // See slicks.c
@@ -143,6 +151,10 @@ void MenuGFX()
 }
 #endif
 
+#ifdef __ATARIXL__
+  #pragma code-name("SHADOW_RAM")
+#endif
+
 // Display lap numbers
 void PrintLap(unsigned char i)
 {
@@ -150,18 +162,6 @@ void PrintLap(unsigned char i)
 	inkColor = inkColors[i];
 	PrintNum((i+2)*8-3, CHR_ROWS-1, cars[i].lap);
 }
-
-// In-case connection drops out...
-void PrintTimedOut()
-{
-	inkColor = WHITE;
-    PrintStr(10,12, " CONNECTION TIMED-OUT ");
-    sleep(3);
-}
-
-#ifdef __ATARIXL__
-  #pragma code-name("SHADOW_RAM")
-#endif
 
 // Paper for message Buffer
 unsigned char paperBuffer;
@@ -171,7 +171,11 @@ unsigned char serversLoaded;
 
 // Chat Row Management
 #if defined __APPLE2__
+#if defined __DHR__
 static char chatBG[320];
+#else
+static char chatBG[160];
+#endif
 #elif defined __ATARI__
 static char chatBG[320];
 #elif defined __ORIC__
@@ -208,10 +212,10 @@ void BackupChatRow()
 		SetHiresPointer(0, 8*ROW_CHAT+i);		
 	  #if defined __DHR__
 		*dhraux = 0;
-		memcpy(&chatBG[0]+i*20,   (char*)(hiresPtr), 20);
+		memcpy(&chatBG[160]+i*20, (char*)(hiresPtr), 20);
 		*dhrmain = 0;
 	  #endif
-		memcpy(&chatBG[160]+i*20, (char*)(hiresPtr), 20);
+		memcpy(&chatBG[0]+i*20,   (char*)(hiresPtr), 20);
 	}	
 #elif defined __LYNX__
  	unsigned char i;
@@ -245,10 +249,10 @@ void RedrawChatRow()
 		SetHiresPointer(0, 8*ROW_CHAT+i);		
 	  #if defined __DHR__
 		*dhraux = 0;
-		memcpy((char*)(hiresPtr),	&chatBG[0]+i*20, 20);
+		memcpy((char*)(hiresPtr), &chatBG[0]+i*20+160, 20);
 		*dhrmain = 0;
 	  #endif	
-		memcpy((char*)(hiresPtr), &chatBG[0]+i*20+160, 20);
+		memcpy((char*)(hiresPtr), &chatBG[0]+i*20, 20);
 	}		
 #elif defined __LYNX__
  	unsigned char i;
@@ -544,6 +548,10 @@ void SpriteAnimation(unsigned char index, unsigned char frame)
 	SetSprite(index, frame);
 }
 
+#ifdef __APPLE2__
+  #pragma code-name("LC")
+#endif
+
 // Sub-function of GameMenu()
 void MenuMap()
 {
@@ -558,9 +566,13 @@ void MenuMap()
 	PrintStr(MENU_COL+7, MENU_ROW+7, mapList[gameMap]);	
 }
 
-#ifdef __APPLE2__
-  #pragma code-name("LC")
-#endif
+// In-case connection drops out...
+void PrintTimedOut()
+{
+	inkColor = WHITE;
+    PrintStr(10,12, " CONNECTION TIMED-OUT ");
+    sleep(3);
+}
 
 // Print score after round ends
 signed int score[4];
@@ -659,7 +671,7 @@ void PrintScores()
 #if defined __APPLE2__
 	UpdateMusic();
 #else
-    sleep(7);
+    sleep(8);
 #endif
 	
 	// Stop music if needed
@@ -862,22 +874,59 @@ void MenuConnect()
 {
 	// Init network
 	unsigned char state = 1;
+	unsigned char *report;
 #ifdef NETCODE
-	PrintStr(MENU_COL+2, MENU_ROW+2, "INIT NETWORK...");
+	PrintStr(MENU_COL+2, MENU_ROW+2, "NETWORK INIT");
 	state = InitNetwork();
 	if (state == ADAPTOR_ERR) {
-		PrintStr(MENU_COL+4, MENU_ROW+3, "ADAPTOR ERROR");
-		
+		report = "ADAPTOR ERROR";		
 	} else if (state == DHCP_ERR) {
-		PrintStr(MENU_COL+4, MENU_ROW+3, "DHCP ERROR");
-	
+		report = "DHCP ERROR";		
 	} else {
-		PrintStr(MENU_COL+4, MENU_ROW+3, "ADAPTOR OK!");
-		PrintStr(MENU_COL+4, MENU_ROW+4, "DHCP OK!");
+		report = "DHCP OK!";
 		networkReady = 1;
-	}	
+	}
+	PrintStr(MENU_COL+4, MENU_ROW+3, report);
 #else
 	PrintStr(MENU_COL+2, MENU_ROW+2, "NOT SUPPORTED");	
+#endif
+}
+
+// Display menu options
+void MenuTab(unsigned char tab)
+{
+#if defined __LYNX__			
+	inkColor = WHITE; paperColor = BLACK;
+	
+	if (tab == 0) { inkColor = INK_TAB; };
+	PrintStr(MENU_COL+0, MENU_ROW, "LOCAL");
+	inkColor = WHITE;
+	
+	if (tab == 1) { inkColor = INK_TAB; }
+	PrintStr(MENU_COL+6, MENU_ROW, "ONLINE");
+	inkColor = WHITE;
+	
+	if (tab == 2) { inkColor = INK_TAB; }
+	PrintStr(MENU_COL+13, MENU_ROW, "INFO");
+	inkColor = WHITE; 
+#else
+	inkColor = INK_HIGHLT; paperColor = PAPER_HIGHLT;
+	PrintStr(MENU_COL+0,  MENU_ROW, "L");			
+	PrintStr(MENU_COL+6,  MENU_ROW, "O");
+	PrintStr(MENU_COL+13, MENU_ROW, "I");
+	inkColor = WHITE; paperColor = BLACK;
+	
+	if (tab == 0) { inkColor = INK_TAB; };
+	PrintStr(MENU_COL+1, MENU_ROW, "OCAL");
+	inkColor = WHITE;
+	
+	if (tab == 1) { inkColor = INK_TAB; }
+	PrintStr(MENU_COL+7, MENU_ROW, "NLINE");
+	inkColor = WHITE;
+	
+	if (tab == 2) { inkColor = INK_TAB; }
+	PrintStr(MENU_COL+14, MENU_ROW, "NFO");
+	inkColor = WHITE; 
 #endif
 }
 
@@ -911,28 +960,14 @@ void GameMenu()
 		// Make Black Panel Area
 		PrintBlanks(MENU_COL, MENU_ROW, MENU_WID, MENU_HEI);
 	
-		// Display TAB keys
-		inkColor = INK_HIGHLT; paperColor = PAPER_HIGHLT;
-		PrintStr(MENU_COL+0,  MENU_ROW, "L");
-		PrintStr(MENU_COL+6,  MENU_ROW, "O");
-		PrintStr(MENU_COL+13, MENU_ROW, "I");
-
-		// Display LOCAL menu
 		if (gameMode == MODE_LOCAL) {    
+			// Display LOCAL menu
+			MenuTab(0);
+			
 			// Restore controls
 			for (i=0; i<4; i++)
 				controlIndex[i] = controlBackup[i];
-					
-			// Display menu options
-			inkColor = INK_TAB; paperColor = BLACK;
-		#if defined __LYNX__			
-			PrintStr(MENU_COL+0,  MENU_ROW, "L");			
-		#endif
-			PrintStr(MENU_COL+1,  MENU_ROW, "OCAL");
-			inkColor = WHITE; 
-			PrintStr(MENU_COL+7,  MENU_ROW, "NLINE");
-			PrintStr(MENU_COL+14, MENU_ROW, "NFO");
-			
+								
 			// Display game info
 			for (i=0; i<MAX_PLAYERS; ++i) { MenuPlayer(i); }
 			MenuMap(); 
@@ -1017,21 +1052,14 @@ void GameMenu()
 			}
 		} 
         
-		// Display ONLINE menu
         else if (gameMode == MODE_ONLINE) {
+			// Display ONLINE menu
+			MenuTab(1);
+			
 		#if defined(__ORIC__) || defined(__FUJINET__)
 			// FujiNet and VIA are not happy with music...
 			StopMusic();
 		#endif			
-			// Display menu options
-			inkColor = INK_TAB; paperColor = BLACK;	
-		#if defined __LYNX__			
-			PrintStr(MENU_COL+6, MENU_ROW, "O");
-		#endif
-			PrintStr(MENU_COL+7, MENU_ROW, "NLINE");
-			inkColor = WHITE;
-			PrintStr(MENU_COL+1, MENU_ROW, "OCAL");
-			PrintStr(MENU_COL+14, MENU_ROW, "NFO");
 
 			// Is network ready?
 			if (!networkReady)
@@ -1073,36 +1101,12 @@ void GameMenu()
 			}
 		}
 
-        // Display CREDIT menu
         else {
-			// Display menu options
-			inkColor = INK_TAB; paperColor = BLACK;
-		#if defined __LYNX__			
-			PrintStr(MENU_COL+13, MENU_ROW, "I");
-		#endif			
-			PrintStr(MENU_COL+14, MENU_ROW, "NFO");
-			inkColor = WHITE; 
-			PrintStr(MENU_COL+1,  MENU_ROW, "OCAL");
-			PrintStr(MENU_COL+7,  MENU_ROW, "NLINE");
-          
-		#if defined __LYNX__			
-            PrintStr(MENU_COL+2, MENU_ROW+2,  "2021 SONGBIRD");
-		#else
-            PrintStr(MENU_COL+5, MENU_ROW+2,  "CREDITS");
-		#endif
-            PrintStr(MENU_COL+0, MENU_ROW+4,  "CODE/GFX:");
-            PrintStr(MENU_COL+1, MENU_ROW+5,  "ANTHONY BEAUCAMP");
-            PrintStr(MENU_COL+0, MENU_ROW+7,  "MUSIC:");
-            PrintStr(MENU_COL+1, MENU_ROW+8,  "ANDREW FISHER");
-		#if defined __LYNX__			
-            PrintStr(MENU_COL+1, MENU_ROW+9,  "CARL FORHAN");
-            PrintStr(MENU_COL+0, MENU_ROW+11, "ORIGINAL IDEA:");
-            PrintStr(MENU_COL+1, MENU_ROW+12, "TIMO KAUPPINEN");            
-		#else
-            PrintStr(MENU_COL+0, MENU_ROW+10, "ORIGINAL IDEA:");
-            PrintStr(MENU_COL+1, MENU_ROW+11, "TIMO KAUPPINEN");            
-		#endif			
-            
+			// Display CREDITS
+			MenuTab(2);
+			for (i=0; i<CREDIT_ROWS; i++)
+				PrintStr(creditCol[i], creditRow[i], creditTxt[i]);
+
 			// Process user input
 			while (1) { 
 				// Get Character
