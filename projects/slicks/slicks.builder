@@ -60,7 +60,7 @@
                 "projects/slicks/bitmaps/river-apple-shr.png", 
                 "projects/slicks/bitmaps/stadium-apple-shr.png", 
                 "projects/slicks/bitmaps/suzuka-apple-shr.png", 
-                "projects/slicks/bitmaps/suzuka-apple-shr.png"
+                "projects/slicks/bitmaps/trial-apple-shr.png"
             ], 
             "charsetDHR": [], 
             "charsetSHR": [], 

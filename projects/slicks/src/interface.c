@@ -87,7 +87,7 @@ extern char networkReady;
 void __fastcall__ SuzyFlip(void);
 
 // Build Information
-const char* buildInfo = "BUILD: 2021/01/16";
+const char* buildInfo = "BUILD: 2021/01/23";
 
 // List of available maps
 const char *mapList[LEN_MAPS] = {"arizona","arto","cramp","freeway","gta","island","mtcarlo","rally","river","stadium","suzuka","trial"};
