@@ -74,7 +74,8 @@
                 "projects/slicks/music/speednik-apple.m"
             ], 
             "chunks": [], 
-            "diskSize": "800KB", 
+            "diskSize": "140KB", 
+            "crunchAssets": "Yes", 
             "ethernetDriver": "IP65(UDP)"
         }, 
         "Atari": {
@@ -104,7 +105,6 @@
                 "projects/slicks/music/speednik-atari.rmt"
             ], 
             "chunks": [], 
-            "noText": true, 
             "diskSize": "360KB", 
             "ethernetDriver": "IP65(UDP)"
         }, 

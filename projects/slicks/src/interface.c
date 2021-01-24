@@ -539,9 +539,13 @@ void MenuMap()
 	PrintStr(MENU_COL+7, MENU_ROW+7, mapList[gameMap]);	
 }
 
-#ifdef __APPLE2__
-  #pragma code-name("LC")
-#endif
+// In-case connection drops out...
+void PrintTimedOut()
+{
+	inkColor = WHITE;
+    PrintStr(10,12, " CONNECTION TIMED-OUT ");
+    sleep(3);
+}
 
 // Sub-function for Animating Sprites in Main Menu
 void SpriteAnimation(unsigned char index, unsigned char frame)
@@ -566,13 +570,9 @@ void SpriteAnimation(unsigned char index, unsigned char frame)
 	SetSprite(index, frame);
 }
 
-// In-case connection drops out...
-void PrintTimedOut()
-{
-	inkColor = WHITE;
-    PrintStr(10,12, " CONNECTION TIMED-OUT ");
-    sleep(3);
-}
+#ifdef __APPLE2__
+  #pragma code-name("LC")
+#endif
 
 // Print score after round ends
 signed int score[4];
