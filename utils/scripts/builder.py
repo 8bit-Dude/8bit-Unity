@@ -39,6 +39,34 @@ def FileBase(filepath, suffix):
     name = os.path.basename(filepath).lower().replace(suffix, '')
     name = name.split("-")
     return name[0]
+    
+def BuildUnityLibrary(fp, target, symbols, cList, sList, buildFolder):
+
+    # Compile .c files
+    for file in cList:
+        fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t ' + target + ' ' + symbols + ' -I unity unity\\' + file + '\n')
+        fp.write('utils\\cc65\\bin\\ca65 -t ' + target + ' unity\\' + file[0:-2] + '.s\n')
+
+    # Compile .s files
+    for file in sList:            
+        fp.write('utils\\cc65\\bin\\ca65 -t ' + target + ' unity\\' + file + '\n')
+    
+    # Package into .lib
+    fp.write('utils\\cc65\\bin\\ar65 r ' + buildFolder + '/unity.lib ')
+    for file in cList:
+        fp.write('unity\\' + file[0:-2] + '.o ')
+    for file in sList:            
+        fp.write('unity\\' + file[0:-2] + '.o ')
+    fp.write('\n')
+    
+    # Clean-up
+    fp.write('del ')
+    for file in cList:
+        fp.write('unity\\' + file[0:-2] + '.s ')
+        fp.write('unity\\' + file[0:-2] + '.o ')
+    for file in sList:            
+        fp.write('unity\\' + file[0:-2] + '.o ')
+    fp.write('\n')    
 
 # Constants
 PROJECT_FILE_FORMATS = (("Project files","*.builder"), )
@@ -762,39 +790,21 @@ class Application:
                 fp.write('mkdir apple\n')            
                 fp.write('cd ..\n\n')
                 fp.write('del build\\apple\\*.* /F /Q\n\n')
+                
                 fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
                 # Build Unity Library
-                CList = ['bitmap.c', 'charmap.c', 'chunks.c', 'geom2d.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'scaling.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Apple\\CLOCK.c', 'Apple\\directory.c', 'Apple\\files.c', 'Apple\\hires.c', 'Apple\\memory.c', 'Apple\\pixelDHR.c', 'Apple\\pixelSHR.c']
-                SList = ['atan2.s', 'chars.s', 'tiles.s', 'Apple\\blitDHR.s', 'Apple\\blitSHR.s', 'Apple\\decrunch.s', 'Apple\\DUET.s', 'Apple\\hiresLines.s', 'Apple\\joystick.s', 'Apple\\MOCKING.s', 'Apple\\PADDLE.s', 'Apple\\prodos.s', 'Apple\\scrollDHR.s', 'Apple\\scrollSHR.s']
-
-                # Prepare symbols
+                cList = ['bitmap.c', 'charmap.c', 'chunks.c', 'geom2d.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'scaling.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Apple\\CLOCK.c', 'Apple\\directory.c', 'Apple\\files.c', 'Apple\\hires.c', 'Apple\\memory.c', 'Apple\\pixelDHR.c', 'Apple\\pixelSHR.c']
+                sList = ['atan2.s', 'chars.s', 'tiles.s', 'Apple\\blitDHR.s', 'Apple\\blitSHR.s', 'Apple\\decrunch.s', 'Apple\\DUET.s', 'Apple\\hiresLines.s', 'Apple\\joystick.s', 'Apple\\MOCKING.s', 'Apple\\PADDLE.s', 'Apple\\prodos.s', 'Apple\\scrollDHR.s', 'Apple\\scrollSHR.s']
                 if graphics == 'double':
                     symbols = '-D __DHR__'
                 else:
                     symbols = '-D __SHR__'
                 if self.Combobox_AppleCrunchAssets.get() == 'Yes':
                     symbols += ' -D __DECRUNCH__'                        
-                
-                # Compile C files
-                for file in CList:
-                    fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t apple2 '+ symbols + ' -I unity unity\\' + file + '\n')
-                    fp.write('utils\\cc65\\bin\\ca65 -t apple2 unity\\' + file[0:-2] + '.s\n')
-                    fp.write('del unity\\' + file[0:-2] + '.s\n')
-
-                # Compile S files
-                for file in SList:            
-                    fp.write('utils\\cc65\\bin\\ca65 -t apple2 unity\\' + file + '\n')
-                
-                # Prepare lib file
-                fp.write('utils\\cc65\\bin\\ar65 r ' + buildFolder + '/apple/unity.lib ')
-                for file in CList:
-                    fp.write('unity\\' + file[0:-2] + '.o ')
-                for file in SList:            
-                    fp.write('unity\\' + file[0:-2] + '.o ')
-                fp.write('\n')
-                
-                # Actual Program Compilation
+                BuildUnityLibrary(fp, 'apple2', symbols, cList, sList, buildFolder+'/apple')
+        
+                # Compile Program
                 symbols += ' -Wl -D,__STACKSIZE__=$0400,-D,__HIMEM__=$B800,-D,__LCADDR__=$D000,-D,__LCSIZE__=$1000'
                 comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/apple/' + diskname.lower() + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-apple' + target + '.map -Cl -O -t apple2 ' + symbols + ' -C apple2-hgr.cfg -I unity '
                 for item in code:
@@ -804,11 +814,9 @@ class Application:
                 else:
                     fp.write(comp + buildFolder + '/apple/unity.lib unity/IP65/ip65.lib unity/IP65/ip65_apple2.lib\n\n')
                 
-                # Compression
-                fp.write('utils\\scripts\\exomizer-3.1.0.exe sfx bin ' + buildFolder + '/apple/' + diskname.lower() + '.bin -o ' + buildFolder + '/apple/loader\n\n')
-
                 # Info
                 fp.write('echo DONE!\n\n')
+                
                 fp.write('echo --------------- CONVERT ASSETS ---------------  \n\n')
 
                 # Bitmaps
@@ -834,7 +842,11 @@ class Application:
 
                 # Info
                 fp.write('\necho DONE!\n\n')
+                
                 fp.write('echo --------------- APPLE DISK BUILDER --------------- \n\n')
+
+                # Compress Program
+                fp.write('utils\\scripts\\exomizer-3.1.0.exe sfx bin ' + buildFolder + '/apple/' + diskname.lower() + '.bin -o ' + buildFolder + '/apple/loader\n\n')
 
                 # Disk builder
                 if self.Combobox_AppleDiskSize.get() == '140KB':                
@@ -889,6 +901,43 @@ class Application:
             fp.write('mkdir atari\n')            
             fp.write('cd ..\n\n')
             fp.write('del ' + buildFolder + '\\atari\\*.* /F /Q\n\n')
+            
+            fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
+
+            # Build Unity Library
+            cList = ['bitmap.c', 'charmap.c', 'chunks.c', 'geom2d.c', 'joystick.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'scaling.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Atari\\directory.c', 'Atari\\files.c']
+            sList = ['atan2.s', 'chars.s', 'tiles.s', 'Atari\\DLI.s', 'Atari\\ROM.s', 'Atari\\scroll.s', 'Atari\\xbios.s']
+            if self.Combobox_AtariEthernetDriver.get() == 'Fujinet':    
+                cList.append('Atari\\fujinet.c')
+                sList.append('Atari\\fujiIRQ.s')
+            if self.Combobox_AtariEthernetDriver.get() == 'Fujinet':    
+                symbols = '-D __FUJINET__ '
+            else:
+                symbols = ''
+            BuildUnityLibrary(fp, 'atarixl', symbols, cList, sList, buildFolder+'/atari')
+                        
+            # Compile Program
+            symbols = '-Wl -D,__STACKSIZE__=$0400 '
+            if self.Combobox_AtariEthernetDriver.get() == 'Fujinet':    
+                symbols += '-D __FUJINET__ '
+            comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/atari/' + diskname.lower() + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-atari.map -Cl -O -t atarixl ' + symbols + '-C atarixl-largehimem.cfg -I unity '
+            for item in code:
+                comp += (item + ' ')
+            if self.Combobox_AtariEthernetDriver.get() == 'IP65(TCP/UDP)':
+                fp.write(comp + 'unity/Atari/POKEY.s ' + buildFolder + '/atari/unity.lib unity/IP65/ip65_tcp.lib unity/IP65/ip65_atarixl.lib\n')
+            elif self.Combobox_AtariEthernetDriver.get() == 'IP65(UDP)':
+                fp.write(comp + 'unity/Atari/POKEY.s ' + buildFolder + '/atari/unity.lib unity/IP65/ip65.lib unity/IP65/ip65_atarixl.lib\n')
+            else:
+                fp.write(comp + 'unity/Atari/POKEY.s ' + buildFolder + '/atari/unity.lib\n')
+            fp.write('utils\\cc65\\bin\\cl65 -t atarixl -C atari-asm.cfg -o ' + buildFolder + '/atari/basicoff.bin unity/Atari/BASICOFF.s\n')
+            fp.write('utils\\scripts\\atari\\mads.exe -o:' + buildFolder + '/atari/rmt.bin unity/Atari/RMT.a65\n\n')
+
+            # Merging
+            fp.write('utils\\py27\\python utils\\scripts\\atari\\AtariMerge.py ' + buildFolder + '/atari/xautorun ' + buildFolder + '/atari/basicoff.bin ' + buildFolder + '/atari/' + diskname.lower() + '.bin ' + buildFolder + '/atari/rmt.bin\n')
+
+            # Info
+            fp.write('\necho DONE!\n\n')    
+            
             fp.write('echo --------------- CONVERT ASSETS ---------------  \n\n')
             
             # Bitmaps
@@ -923,56 +972,7 @@ class Application:
 
             # Info
             fp.write('\necho DONE!\n\n')
-            fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
-
-            # Build Unity Library
-            CList = ['bitmap.c', 'charmap.c', 'chunks.c', 'geom2d.c', 'joystick.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'scaling.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Atari\\directory.c', 'Atari\\files.c']
-            SList = ['atan2.s', 'chars.s', 'tiles.s', 'Atari\\DLI.s', 'Atari\\ROM.s', 'Atari\\scroll.s', 'Atari\\xbios.s']
-            if self.Combobox_AtariEthernetDriver.get() == 'Fujinet':    
-                CList.append('Atari\\fujinet.c')
-                SList.append('Atari\\fujiIRQ.s')
-               
-            if self.Combobox_AtariEthernetDriver.get() == 'Fujinet':    
-                symbols = '-D __FUJINET__ '
-            else:
-                symbols = ''
             
-            for file in CList:
-                fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atarixl ' + symbols + '-I unity unity\\' + file + '\n')
-                fp.write('utils\\cc65\\bin\\ca65 -t atarixl unity\\' + file[0:-2] + '.s\n')
-                fp.write('del unity\\' + file[0:-2] + '.s\n')
-
-            for file in SList:            
-                fp.write('utils\\cc65\\bin\\ca65 -t atarixl unity\\' + file + '\n')
-            
-            fp.write('utils\\cc65\\bin\\ar65 r ' + buildFolder + '/atari/unity.lib ')
-            for file in CList:
-                fp.write('unity\\' + file[0:-2] + '.o ')
-            for file in SList:            
-                fp.write('unity\\' + file[0:-2] + '.o ')
-            fp.write('\n')
-            
-            # Compilation
-            symbols = '-Wl -D,__STACKSIZE__=$0400 '
-            if self.Combobox_AtariEthernetDriver.get() == 'Fujinet':    
-                symbols += '-D __FUJINET__ '
-            comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/atari/' + diskname.lower() + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-atari.map -Cl -O -t atarixl ' + symbols + '-C atarixl-largehimem.cfg -I unity '
-            for item in code:
-                comp += (item + ' ')
-            if self.Combobox_AtariEthernetDriver.get() == 'IP65(TCP/UDP)':
-                fp.write(comp + 'unity/Atari/POKEY.s ' + buildFolder + '/atari/unity.lib unity/IP65/ip65_tcp.lib unity/IP65/ip65_atarixl.lib\n')
-            elif self.Combobox_AtariEthernetDriver.get() == 'IP65(UDP)':
-                fp.write(comp + 'unity/Atari/POKEY.s ' + buildFolder + '/atari/unity.lib unity/IP65/ip65.lib unity/IP65/ip65_atarixl.lib\n')
-            else:
-                fp.write(comp + 'unity/Atari/POKEY.s ' + buildFolder + '/atari/unity.lib\n')
-            fp.write('utils\\cc65\\bin\\cl65 -t atarixl -C atari-asm.cfg -o ' + buildFolder + '/atari/basicoff.bin unity/Atari/BASICOFF.s\n')
-            fp.write('utils\\scripts\\atari\\mads.exe -o:' + buildFolder + '/atari/rmt.bin unity/Atari/RMT.a65\n\n')
-
-            # Merging
-            fp.write('utils\\py27\\python utils\\scripts\\atari\\AtariMerge.py ' + buildFolder + '/atari/xautorun ' + buildFolder + '/atari/basicoff.bin ' + buildFolder + '/atari/' + diskname.lower() + '.bin ' + buildFolder + '/atari/rmt.bin\n')
-
-            # Info
-            fp.write('\necho DONE!\n\n')
             fp.write('echo --------------- ATARI DISK BUILDER --------------- \n\n')
 
             # Clean-up build folder
@@ -1014,6 +1014,26 @@ class Application:
             fp.write('mkdir c64\n')            
             fp.write('cd ..\n\n')            
             fp.write('del ' + buildFolder + '\\c64\\*.* /F /Q\n\n')
+            
+            fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
+
+            # Build Unity Library
+            cList = ['bitmap.c', 'charmap.c', 'chunks.c', 'geom2d.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'scaling.c', 'sfx.c', 'sprites.c', 'widgets.c', 'C64\\directory.c', 'C64\\VIC2.c']
+            sList = ['atan2.s', 'chars.s', 'tiles.s', 'C64\\joystick.s', 'C64\\scroll.s', 'C64\\ROM.s', 'C64\\SID.s']
+            BuildUnityLibrary(fp, 'c64', '', cList, sList, buildFolder+'/c64')
+            
+            # Compile Program                        
+            comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/c64/' + diskname.lower() + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-c64.map -Cl -O -t c64 -C unity/C64/c64.cfg -I unity '
+            for item in code:
+                comp += (item + ' ')
+            if self.Combobox_C64EthernetDriver.get() == 'IP65(TCP/UDP)':
+                fp.write(comp + buildFolder + '/c64/unity.lib unity/IP65/ip65_tcp.lib unity/IP65/ip65_c64.lib\n\n')
+            else:
+                fp.write(comp + buildFolder + '/c64/unity.lib unity/IP65/ip65.lib unity/IP65/ip65_c64.lib\n\n')
+            
+            # Info
+            fp.write('\necho DONE!\n\n')
+            
             fp.write('echo --------------- CONVERT ASSETS ---------------  \n\n')
             
             # Bitmaps
@@ -1044,45 +1064,14 @@ class Application:
 
             # Info
             fp.write('\necho DONE!\n\n')
-            fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
+                        
+            fp.write('echo --------------- C64 DISK BUILDER --------------- \n\n')
 
-            # Build Unity Library
-            CList = ['bitmap.c', 'charmap.c', 'chunks.c', 'geom2d.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'scaling.c', 'sfx.c', 'sprites.c', 'widgets.c', 'C64\\directory.c', 'C64\\VIC2.c']
-            SList = ['atan2.s', 'chars.s', 'tiles.s', 'C64\\joystick.s', 'C64\\scroll.s', 'C64\\ROM.s', 'C64\\SID.s']
-                         
-            for file in CList:
-                fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t c64 -I unity unity\\' + file + '\n')
-                fp.write('utils\\cc65\\bin\\ca65 -t c64 unity\\' + file[0:-2] + '.s\n')
-                fp.write('del unity\\' + file[0:-2] + '.s\n')
-
-            for file in SList:            
-                fp.write('utils\\cc65\\bin\\ca65 -t c64 unity\\' + file + '\n')
-            
-            fp.write('utils\\cc65\\bin\\ar65 r ' + buildFolder + '/c64/unity.lib ')
-            for file in CList:
-                fp.write('unity\\' + file[0:-2] + '.o ')
-            for file in SList:            
-                fp.write('unity\\' + file[0:-2] + '.o ')
-            fp.write('\n')
-            
-            # Compilation                        
-            comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/c64/' + diskname.lower() + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-c64.map -Cl -O -t c64 -C unity/C64/c64.cfg -I unity '
-            for item in code:
-                comp += (item + ' ')
-            if self.Combobox_C64EthernetDriver.get() == 'IP65(TCP/UDP)':
-                fp.write(comp + buildFolder + '/c64/unity.lib unity/IP65/ip65_tcp.lib unity/IP65/ip65_c64.lib\n\n')
-            else:
-                fp.write(comp + buildFolder + '/c64/unity.lib unity/IP65/ip65.lib unity/IP65/ip65_c64.lib\n\n')
-            
-            # Compression
+            # Compress files
             if len(sprites) > 0:
                 fp.write('utils\\scripts\\exomizer-3.0.2.exe sfx $180d ' + buildFolder + '/c64/' + diskname.lower() + '.bin ' + buildFolder + '/c64/sprites.dat -o ' + buildFolder + '/c64/loader.prg\n')          
             else:
                 fp.write('utils\\scripts\\exomizer-3.0.2.exe sfx $180d ' + buildFolder + '/c64/' + diskname.lower() + '.bin -o ' + buildFolder + '/c64/loader.prg\n')
-
-            # Info
-            fp.write('\necho DONE!\n\n')
-            fp.write('echo --------------- C64 DISK BUILDER --------------- \n\n')
 
             # Disk builder
             fp.write('set C1541=utils\\scripts\\c64\\c1541 -format loader,666 d64 ' + buildFolder + '/' + diskname + '-c64.d64 -attach ' + buildFolder + '/' + diskname + '-c64.d64 ')
@@ -1127,6 +1116,7 @@ class Application:
             fp.write('mkdir lynx\n')           
             fp.write('cd lynx\n')
             fp.write('del *.* /F /Q\n\n')
+            
             fp.write('echo --------------- CONVERT ASSETS ---------------  \n\n')
             
             # Keyboard
@@ -1373,31 +1363,18 @@ class Application:
                         
             # Info
             fp.write('\necho DONE!\n\n')
+            
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Build Unity Library
+            cList = ['bitmap.c', 'charmap.c', 'chunks.c', 'geom2d.c', 'hub.c', 'joystick.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'scaling.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Lynx\\display.c', 'Lynx\\files.c']
+            sList = ['atan2.s', 'chars.s', 'tiles.s', 'Lynx\\header.s', 'Lynx\\scroll.s', 'Lynx\\serial.s', 'Lynx\\suzy.s']
             symbols = ' -D __MUSSIZE__='  + self.entry_LynxMusicMemory.get().replace('$','0x') + ' -D __SHRSIZE__='  + self.entry_LynxSharedMemory.get().replace('$','0x')
-            config  = ' -Wl -D,__MUSSIZE__='  + self.entry_LynxMusicMemory.get() + ',-D,__SHRSIZE__='  + self.entry_LynxSharedMemory.get()
-            CList = ['bitmap.c', 'charmap.c', 'chunks.c', 'geom2d.c', 'hub.c', 'joystick.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'scaling.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Lynx\\display.c', 'Lynx\\files.c']
-            SList = ['atan2.s', 'chars.s', 'tiles.s', 'Lynx\\header.s', 'Lynx\\scroll.s', 'Lynx\\serial.s', 'Lynx\\suzy.s']
-                         
-            for file in CList:
-                fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t lynx' + symbols + ' -I unity unity\\' + file + '\n')
-                fp.write('utils\\cc65\\bin\\ca65 -t lynx --cpu 65SC02 unity\\' + file[0:-2] + '.s\n')
-                fp.write('del unity\\' + file[0:-2] + '.s\n')
-
-            for file in SList:            
-                fp.write('utils\\cc65\\bin\\ca65 -t lynx --cpu 65SC02 unity\\' + file + '\n')
-            
-            fp.write('utils\\cc65\\bin\\ar65 r ' + buildFolder + '/lynx/unity.lib ')
-            for file in CList:
-                fp.write('unity\\' + file[0:-2] + '.o ')
-            for file in SList:            
-                fp.write('unity\\' + file[0:-2] + '.o ')
-            fp.write('\n')
-            
-            # Compilation 
-            comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/' + diskname.lower() + '-lynx.lnx -m ' + buildFolder + '/' + diskname.lower() + '-lynx.map -Cl -O -t lynx' + symbols + config + ' -C ' + buildFolder + '/lynx/lynx.cfg -I unity '
+            BuildUnityLibrary(fp, 'lynx --cpu 65SC02', symbols, cList, sList, buildFolder+'/lynx')
+                                     
+            # Compile Program 
+            symbols += ' -Wl -D,__MUSSIZE__='  + self.entry_LynxMusicMemory.get() + ',-D,__SHRSIZE__='  + self.entry_LynxSharedMemory.get()
+            comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/' + diskname.lower() + '-lynx.lnx -m ' + buildFolder + '/' + diskname.lower() + '-lynx.map -Cl -O -t lynx' + symbols + ' -C ' + buildFolder + '/lynx/lynx.cfg -I unity '
             for item in code:
                 comp += (item + ' ')
             for i in range(len(music)):
@@ -1407,6 +1384,8 @@ class Application:
             # Info
             fp.write('\necho DONE!\n\n')
             
+            fp.write('echo --------------- LYNX ROM READY --------------- \n\n')
+                        
             # Start emulator?
             if callEmu:
                 fp.write('pause\n\n')
@@ -1428,6 +1407,26 @@ class Application:
             fp.write('mkdir oric\n')            
             fp.write('cd ..\n\n')            
             fp.write('del ' + buildFolder + '\\oric\\*.* /F /Q\n\n')
+
+            fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
+    
+            # Build Unity Library
+            cList = ['bitmap.c', 'charmap.c', 'chunks.c', 'geom2d.c', 'hub.c', 'joystick.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'scaling.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Oric\\directory.c', 'Oric\\files.c']
+            sList = ['atan2.s', 'chars.s', 'tiles.s', 'Oric\\blit.s', 'Oric\\paseIJK.s', 'Oric\\keyboard.s', 'Oric\\scroll.s', 'Oric\\sedoric.s', 'Oric\\MYM.s']
+            BuildUnityLibrary(fp, 'atmos', '', cList, sList, buildFolder+'/oric')
+                        
+            # Compile Program
+            comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/oric/' + diskname.lower() + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-oric48k.map -Cl -O -t atmos -C unity/Oric/oric.cfg -I unity '
+            for item in code:
+                comp += (item + ' ')
+            fp.write(comp + buildFolder + '/oric/unity.lib\n\n')
+
+            # Fix header
+            fp.write('utils\\scripts\\oric\\header.exe ' + buildFolder + '/oric/' + diskname.lower() + '.bin ' + buildFolder + '/oric/' + diskname.lower() + '.com $0501\n\n')
+                        
+            # Info
+            fp.write('\necho DONE!\n\n')
+
             fp.write('echo --------------- CONVERT ASSETS ---------------  \n\n')
             
             # Process Bitmaps / Chunks / Sprites / Shared
@@ -1467,42 +1466,11 @@ class Application:
                 
             # Info
             fp.write('\necho DONE!\n\n')
-            fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
-
-            # Build Unity Library
-            CList = ['bitmap.c', 'charmap.c', 'chunks.c', 'geom2d.c', 'hub.c', 'joystick.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'scaling.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Oric\\directory.c', 'Oric\\files.c']
-            SList = ['atan2.s', 'chars.s', 'tiles.s', 'Oric\\blit.s', 'Oric\\paseIJK.s', 'Oric\\keyboard.s', 'Oric\\scroll.s', 'Oric\\sedoric.s', 'Oric\\MYM.s']
-                         
-            for file in CList:
-                fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t atmos -I unity unity\\' + file + '\n')
-                fp.write('utils\\cc65\\bin\\ca65 -t atmos unity\\' + file[0:-2] + '.s\n')
-                fp.write('del unity\\' + file[0:-2] + '.s\n')
-
-            for file in SList:            
-                fp.write('utils\\cc65\\bin\\ca65 -t atmos unity\\' + file + '\n')
             
-            fp.write('utils\\cc65\\bin\\ar65 r ' + buildFolder + '/oric/unity.lib ')
-            for file in CList:
-                fp.write('unity\\' + file[0:-2] + '.o ')
-            for file in SList:            
-                fp.write('unity\\' + file[0:-2] + '.o ')
-            fp.write('\n')
-            
-            # Compilation 
-            comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/oric/' + diskname.lower() + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-oric48k.map -Cl -O -t atmos -C unity/Oric/oric.cfg -I unity '
-            for item in code:
-                comp += (item + ' ')
-            fp.write(comp + buildFolder + '/oric/unity.lib\n\n')
-
-            # Fix header
-            fp.write('utils\\scripts\\oric\\header.exe ' + buildFolder + '/oric/' + diskname.lower() + '.bin ' + buildFolder + '/oric/' + diskname.lower() + '.com $0501\n\n')
-            
-            # Compression
-            fp.write('utils\\scripts\\exomizer-3.0.2.exe sfx bin ' + buildFolder + '/oric/' + diskname.lower() + '.com -o ' + buildFolder + '/oric/launch.com\n\n')            
-            
-            # Info
-            fp.write('\necho DONE!\n\n')
             fp.write('echo --------------- ORIC DISK BUILDER --------------- \n\n')
+
+            # Compress program
+            fp.write('utils\\scripts\\exomizer-3.0.2.exe sfx bin ' + buildFolder + '/oric/' + diskname.lower() + '.com -o ' + buildFolder + '/oric/launch.com\n\n')            
             
             # Disk builder
             cmd = 'set TAP2DSK=utils\\scripts\\oric\\tap2dsk.exe -iLAUNCH.COM ' + buildFolder + '/oric/launch.com'
