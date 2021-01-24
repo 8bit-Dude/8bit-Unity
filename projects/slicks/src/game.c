@@ -835,7 +835,7 @@ char GameLoop()
 					chatting = 0;
 					RedrawChatRow();
 				#if defined __LYNX__
-					HideKeyboardOverlay();						
+					HideKeyboardOverlay();
 				#endif						
 				}
 			} else {
