@@ -60,7 +60,6 @@ int main (void)
 #if defined __LYNX__
 	clock_t bannerClock;
 #endif   
-	
 	// Reset screen
 	clrscr();
 	bordercolor(COLOR_BLACK);
