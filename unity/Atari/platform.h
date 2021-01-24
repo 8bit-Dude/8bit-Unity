@@ -105,3 +105,6 @@ void __fastcall__ Scroll(void);
   void FujiClose(void);
   extern char fujiReady, *fujiHost, *fujiBuffer;
 #endif
+
+// Decrunch data compressed with Exomizer (see decrunch.s)
+void Decrunch(unsigned int address);

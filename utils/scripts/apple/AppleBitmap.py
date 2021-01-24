@@ -75,21 +75,30 @@ try:
 
     # Write to file
     if compress == 'crunch':
-        # Compress main data (target address $2000-$4000)
+        # Write raw data (target address $2000-$4000)
         if resolution == 'double':
             f = io.open(output.replace('.img','.aux'), 'wb')
-            f.write(''.join([chr(0), chr(32)])); f.write(''.join(aux)); f.close()
-            subprocess.call(["utils/scripts/exomizer-3.1.0.exe", "mem", "-lnone", output.replace('.img','.aux'), "-o", output.replace('.img','.aux.sfx')])
+            f.write(''.join([chr(0), chr(32)])); 
+            f.write(''.join(aux)); 
+            f.close()
         f = io.open(output.replace('.img','.main'), 'wb')
-        f.write(''.join([chr(0), chr(32)])); f.write(''.join(main)); f.close()
+        f.write(''.join([chr(0), chr(32)])); 
+        f.write(''.join(main)); 
+        f.close()
+        
+        # Compress data
+        if resolution == 'double':
+            subprocess.call(["utils/scripts/exomizer-3.1.0.exe", "mem", "-lnone", output.replace('.img','.aux'), "-o", output.replace('.img','.aux.sfx')])
         subprocess.call(["utils/scripts/exomizer-3.1.0.exe", "mem", "-lnone", output.replace('.img','.main'), "-o", output.replace('.img','.main.sfx')])
         
         # Read back compressed data
         if resolution == 'double':
             f = io.open(output.replace('.img','.aux.sfx'), 'rb')
-            aux = f.read(); f.close()
+            aux = f.read(); 
+            f.close()
         f = io.open(output.replace('.img','.main.sfx'), 'rb')
-        main = f.read(); f.close()
+        main = f.read(); 
+        f.close()
         
         # Clean-up
         if resolution == 'double':
@@ -98,7 +107,7 @@ try:
         os.remove(output.replace('.img','.main'))
         os.remove(output.replace('.img','.main.sfx'))
 
-        # Write compressed data with header (file length)
+        # Consolidate to single file
         f = io.open(output, 'wb')
         if resolution == 'double':
             f.write(''.join([chr(len(aux)%256), chr(len(aux)/256)])); f.write(aux);

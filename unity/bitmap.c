@@ -192,13 +192,13 @@ void LoadBitmap(char *filename)
 	unsigned int size;
 	if (FileOpen(filename)) {
 	  #if defined __DHR__	
-		FileRead(&size, 2);
+		FileRead((char*)&size, 2);
 		*dhraux = 0;  
 		FileRead((char*)BITMAPRAM-8, size);	// Read and decrunch to AUX
 		Decrunch(BITMAPRAM-8+size);		
 		*dhrmain = 0; 
 	  #endif
-		FileRead(&size, 2);
+		FileRead((char*)&size, 2);
 		FileRead((char*)BITMAPRAM-8, size);	// Read and decrunch to MAIN
 		Decrunch(BITMAPRAM-8+size);		
 		FileClose();
@@ -215,12 +215,26 @@ void LoadBitmap(char *filename)
 	}	  
   #endif
 #elif defined __ATARI__
+  #if defined __DECRUNCH__	
+	unsigned int size;
+	if (FileOpen(filename)) {		
+		FileRead(bmpPalette, 4);				// 4 bytes palette
+		FileRead((char*)&size, 2);
+		FileRead((char*)BITMAPRAM1-8, size);	// Read and decrunch frame 1
+		Decrunch(BITMAPRAM1-8+size);		
+		FileRead((char*)&size, 2);
+		FileRead((char*)BITMAPRAM2-8, size);	// Read and decrunch frame 2
+		Decrunch(BITMAPRAM2-8+size);		
+		SetPalette();
+	}
+  #else
 	if (FileOpen(filename)) {		
 		FileRead(bmpPalette, 4);			// 4 bytes palette
 		FileRead((char*)BITMAPRAM1, 8000);	// 8000 bytes for frame 1
 		FileRead((char*)BITMAPRAM2, 8000);	// 8000 bytes for frame 2
 		SetPalette();
 	}
+  #endif
 #elif defined __CBM__
 	// Open Map File
 	FILE* fp = fopen(filename, "rb");  

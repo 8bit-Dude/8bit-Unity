@@ -24,11 +24,13 @@
  *   specific prior written permission.
 """
  
-import io,struct, sys
 from PIL import Image
+import io, os, sys
+import subprocess
 
-input = sys.argv[1]
-output = sys.argv[2]
+compress = sys.argv[1]
+input = sys.argv[2]
+output = sys.argv[3]
 
 try:
     ######################
@@ -70,11 +72,49 @@ try:
             
     ########################
     # Write output INP file
-    f2 = io.open(output, 'wb')	
-    f2.write(''.join(palette))
-    f2.write(''.join(buf1))
-    f2.write(''.join(buf2))
-    f2.close()
+    if compress == 'crunch':
+        # Write raw data files
+        f = io.open(output.replace('.img','.raw1'), 'wb')
+        f.write(''.join([chr(16), chr(112)]))     # Load Address: $7010  
+        f.write(''.join(buf1))
+        f.close()    
+        f = io.open(output.replace('.img','.raw2'), 'wb')	
+        f.write(''.join([chr(16), chr(160)]))     # Load Address: $a010         
+        f.write(''.join(buf2))
+        f.close()    
+        
+        # Crunch data and read back
+        subprocess.call(["utils/scripts/exomizer-3.1.0.exe", "mem", "-lnone", output.replace('.img','.raw1'), "-o", output.replace('.img','.sfx1')])
+        subprocess.call(["utils/scripts/exomizer-3.1.0.exe", "mem", "-lnone", output.replace('.img','.raw2'), "-o", output.replace('.img','.sfx2')])
+        
+        # Read back compressed data
+        f = io.open(output.replace('.img','.sfx1'), 'rb')
+        sfx1 = f.read(); 
+        f.close()
+        f = io.open(output.replace('.img','.sfx2'), 'rb')
+        sfx2 = f.read(); 
+        f.close()
+        
+        # Consolidate to single file
+        f = io.open(output, 'wb')	
+        f.write(''.join(palette))
+        f.write(''.join([chr(len(sfx1)%256), chr(len(sfx1)/256)])); f.write(sfx1)
+        f.write(''.join([chr(len(sfx2)%256), chr(len(sfx2)/256)])); f.write(sfx2)
+        f.close()    
+        
+        # Clean-up
+        os.remove(output.replace('.img','.raw1'))
+        os.remove(output.replace('.img','.raw2'))        
+        os.remove(output.replace('.img','.sfx1'))
+        os.remove(output.replace('.img','.sfx2'))        
+        
+    else:
+        # Just write raw data
+        f = io.open(output, 'wb')	
+        f.write(''.join(palette))
+        f.write(''.join(buf1))
+        f.write(''.join(buf2))
+        f.close()    
 
 except:
     print "Error: cannot convert " + input + "... (is it a 160x200 PNG file with 16 color palette?)"

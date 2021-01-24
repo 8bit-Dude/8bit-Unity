@@ -83,18 +83,18 @@ ENABLE_SPLIT_ENCODING = 0
 ; -------------------------------------------------------------------
 ; zero page addresses used
 ; -------------------------------------------------------------------
-zp_len_lo = $ec
+zp_len_lo = $e0
 zp_len_hi = zp_len_lo + 1
 
-zp_src_lo  = $ee
+zp_src_lo  = $e2
 zp_src_hi  = zp_src_lo + 1
 
-zp_bits_hi = $eb
+zp_bits_hi = $e4
 .IF DONT_REUSE_OFFSET = 0
-zp_ro_state = $e3
+zp_ro_state = $e5
 .ENDIF
 
-zp_bitbuf  = $fa
+zp_bitbuf  = $e6
 zp_dest_lo = zp_bitbuf + 1      ; dest addr lo
 zp_dest_hi = zp_bitbuf + 2      ; dest addr hi
 ; -------------------------------------------------------------------

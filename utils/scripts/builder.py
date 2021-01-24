@@ -201,6 +201,7 @@ class Application:
         self.entry_AtariSpriteWidth = self.builder.get_object('Entry_AtariSpriteWidth')
         self.entry_AtariSpriteHeight = self.builder.get_object('Entry_AtariSpriteHeight')
         self.Combobox_AtariDiskSize = self.builder.get_object('Combobox_AtariDiskSize');
+        self.Combobox_AtariCrunchAssets = self.builder.get_object('Combobox_AtariCrunchAssets');
         self.Combobox_AtariEthernetDriver = self.builder.get_object('Combobox_AtariEthernetDriver');
         
         self.listbox_C64Bitmap = self.builder.get_object('Listbox_C64Bitmap')        
@@ -240,6 +241,7 @@ class Application:
         self.Combobox_AppleCrunchAssets.current(0)
         self.Combobox_AppleEthernetDriver.current(0)
         self.Combobox_AtariDiskSize.current(0)
+        self.Combobox_AtariCrunchAssets.current(0)
         self.Combobox_AtariEthernetDriver.current(0)
         self.Combobox_C64EthernetDriver.current(0)
 
@@ -266,7 +268,7 @@ class Application:
                            self.listbox_AppleBitmapSHR,self.listbox_AppleSpritesSHR, self.listbox_AppleCharsetSHR ]
         self.comboboxes = [ self.Combobox_AtariDiskSize, self.Combobox_AppleDiskSize,
                             self.Combobox_AppleEthernetDriver, self.Combobox_AtariEthernetDriver, self.Combobox_C64EthernetDriver,
-                            self.Combobox_AppleCrunchAssets ]
+                            self.Combobox_AppleCrunchAssets, self.Combobox_AtariCrunchAssets ]
         self.checkbuttons = []
                        
     def FileNew(self):
@@ -461,6 +463,7 @@ class Application:
                     ('music', ('listbox', self.listbox_AtariMusic)),
                     ('chunks', ('listbox', self.listbox_AtariChunks)),
                     ('diskSize', ('Combobox', self.Combobox_AtariDiskSize)),
+                    ('crunchAssets', ('Combobox', self.Combobox_AtariCrunchAssets)),
                     ('ethernetDriver', ('Combobox', self.Combobox_AtariEthernetDriver)),
                 ]),
                 ('C64', [
@@ -906,7 +909,7 @@ class Application:
 
             # Build Unity Library
             cList = ['bitmap.c', 'charmap.c', 'chunks.c', 'geom2d.c', 'joystick.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'scaling.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Atari\\directory.c', 'Atari\\files.c']
-            sList = ['atan2.s', 'chars.s', 'tiles.s', 'Atari\\DLI.s', 'Atari\\ROM.s', 'Atari\\scroll.s', 'Atari\\xbios.s']
+            sList = ['atan2.s', 'chars.s', 'tiles.s', 'Atari\\decrunch.s', 'Atari\\DLI.s', 'Atari\\ROM.s', 'Atari\\scroll.s', 'Atari\\xbios.s']
             if self.Combobox_AtariEthernetDriver.get() == 'Fujinet':    
                 cList.append('Atari\\fujinet.c')
                 sList.append('Atari\\fujiIRQ.s')
@@ -914,6 +917,8 @@ class Application:
                 symbols = '-D __FUJINET__ '
             else:
                 symbols = ''
+            if self.Combobox_AtariCrunchAssets.get() == 'Yes':
+                symbols += '-D __DECRUNCH__ '                
             BuildUnityLibrary(fp, 'atarixl', symbols, cList, sList, buildFolder+'/atari')
                         
             # Compile Program
@@ -942,7 +947,10 @@ class Application:
             
             # Bitmaps
             for item in bitmaps:
-                fp.write('utils\\py27\\python utils\\scripts\\atari\\AtariBitmap.py ' + item + ' ' + buildFolder + '/atari/' + FileBase(item, '.png') + '.img\n')
+                if self.Combobox_AtariCrunchAssets.get() == 'Yes':
+                    fp.write('utils\\py27\\python utils\\scripts\\atari\\AtariBitmap.py crunch ' + item + ' ' + buildFolder + '/atari/' + FileBase(item, '.png') + '.img\n')
+                else:
+                    fp.write('utils\\py27\\python utils\\scripts\\atari\\AtariBitmap.py raw ' + item + ' ' + buildFolder + '/atari/' + FileBase(item, '.png') + '.img\n')
                 
             # Charmaps/Tilesets
             for item in charmaps:
