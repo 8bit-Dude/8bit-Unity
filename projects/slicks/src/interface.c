@@ -3,21 +3,21 @@
 
 // Platform specific colors
 #if defined __APPLE2__
-	#define INK_LAPS   	 BLACK
+	#define INK_LAPS   	 GREEN
 	#define INK_TAB		 GREEN
 	#define INK_HIGHLT	 BLACK
 	#define PAPER_HIGHLT YELLOW
 	#define PAPER_SCORES BLACK
 	#define SCORES_ROW   8
 #elif defined __ATARI__
-	#define INK_LAPS   	 RED
+	#define INK_LAPS   	 GREEN
 	#define INK_TAB		 GREEN
 	#define INK_HIGHLT	 BLACK
 	#define PAPER_HIGHLT YELLOW
 	#define PAPER_SCORES BLACK
 	#define SCORES_ROW   8
 #elif defined __ORIC__
-	#define INK_LAPS   	 RED
+	#define INK_LAPS   	 GREEN
 	#define INK_TAB		 GREEN
 	#define INK_HIGHLT	 BLACK
 	#define PAPER_HIGHLT YELLOW
@@ -87,7 +87,7 @@ extern char networkReady;
 void __fastcall__ SuzyFlip(void);
 
 // Build Information
-const char* buildInfo = "BUILD: 2021/01/23";
+const char* buildInfo = "BUILD: 2021/01/24";
 
 // List of available maps
 const char *mapList[LEN_MAPS] = {"arizona","arto","cramp","freeway","gta","island","mtcarlo","rally","river","stadium","suzuka","trial"};
@@ -164,7 +164,9 @@ void PrintLap(unsigned char i)
 }
 
 // Paper for message Buffer
-unsigned char paperBuffer;
+#if defined(__CBM__) || defined(__LYNX__)
+  unsigned char paperBuffer;
+#endif 
 
 // Flag for Server load status
 unsigned char serversLoaded;
@@ -509,10 +511,10 @@ unsigned char MenuPause()
 void PrintRace()
 {	
 	// Print race message
-#if defined __ORIC__
-	paperColor = BLACK; 
-#else
+#if defined(__CBM__) || defined(__LYNX__)
 	paperColor = paperBuffer;
+#else
+	paperColor = BLACK; 
 #endif	
 	PrintBuffer("      RACE STARTED, GOAL:    LAPS!      ");
 	

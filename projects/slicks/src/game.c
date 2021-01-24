@@ -15,7 +15,7 @@
   #define RACE_ROAD BLACK
   #define RACE_MARK GREY
   #define RACE_WALL BROWN
-  #define SPR2_SLOT 5
+  #define SPR2_SLOT 7
 #elif defined __ORIC__
   #define RACE_ROAD BLACK
   #define RACE_MARK LGREEN
@@ -46,7 +46,9 @@ extern unsigned char controlIndex[MAX_PLAYERS];
 extern unsigned char controlBackup[MAX_PLAYERS];
 extern unsigned char lapNumber[LEN_LAPS];
 extern const char *mapList[LEN_MAPS];
-extern unsigned char paperBuffer;
+#if defined(__CBM__) || defined(__LYNX__)
+  extern unsigned char paperBuffer;
+#endif
 #if defined __LYNX__
   void NextMusic(unsigned char blank);
 #endif
@@ -161,10 +163,10 @@ void GameReset()
     
 	// Display warmup message
 	inkColor = WHITE; 
-#if defined __ORIC__
-	paperColor = BLACK; 
-#else
+#if defined(__CBM__) || defined(__LYNX__)
 	paperColor = paperBuffer;
+#else
+	paperColor = BLACK; 
 #endif
 	if (gameStep == STEP_WARMUP) {
         if (gameMode == MODE_ONLINE) {
@@ -218,8 +220,9 @@ void GameInit(const char* map)
 
 	// Get paper color of top buffer
 	pixelX = 0; pixelY = 0;
+#if defined(__CBM__) || defined(__LYNX__)
 	paperBuffer = GetPixel();	
-		
+#endif		
 	// Print map name in lower left corner
 	inkColor = WHITE; paperColor = BLACK;
 	PrintStr(0, CHR_ROWS-1, mapList[gameMap]);
@@ -309,7 +312,7 @@ unsigned char GameRace()
 	RecolorSprite(4, 0, SPR_RED);
 	SetSprite(4, 16);
 #elif defined __ATARI__  
-	RecolorSprite(5, 0, 0x22);  
+	RecolorSprite(7, 0, 0x22);  
 #elif defined __CBM__  
 	RecolorSprite(4, 0, RED);  
 #elif defined __LYNX__
@@ -329,7 +332,7 @@ unsigned char GameRace()
 	RecolorSprite(5, 0, SPR_RED);
 	SetSprite(5, 16);	
 #elif defined __ATARI__  
-	RecolorSprite(6, 0, 0x1a);  
+	RecolorSprite(8, 0, 0x1a);  
 #elif defined __CBM__  
 	RecolorSprite(5, 0, ORANGE);  
 #elif defined __LYNX__
@@ -349,7 +352,7 @@ unsigned char GameRace()
 	RecolorSprite(6, 0, SPR_GREEN);
 	SetSprite(6, 16);	
 #elif defined __ATARI__  
-	RecolorSprite(7, 0, 0xc4);  
+	RecolorSprite(9, 0, 0xc4);  
 #elif defined __CBM__  
 	RecolorSprite(6, 0, GREEN);  
 #elif defined __LYNX__
@@ -484,7 +487,11 @@ char GameLoop()
 				if (gameFrame%4) { clk += 1; } else { clk += 2; }
 			  #endif
 			} else {
-				if (gameFrame%2) { clk += 1; } else { clk += 2; }
+			  #if define __DHR_	
+				if (gameFrame%4) { clk += 2; } else { clk += 1; }
+			  #else
+				if (gameFrame%3) { clk += 2; } else { clk += 1; }
+			  #endif
 			}				
 		#endif
 			// Get player parameters
