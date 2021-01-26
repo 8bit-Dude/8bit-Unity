@@ -106,6 +106,7 @@
             ], 
             "chunks": [], 
             "diskSize": "360KB", 
+            "crunchAssets": "No", 
             "networkDriver": "IP65(UDP)"
         }, 
         "C64": {
@@ -135,6 +136,7 @@
                 "projects/slicks/music/speednik-c64.sid"
             ], 
             "chunks": [], 
+            "crunchAssets": "Yes", 
             "networkDriver": "IP65(UDP)"
         }, 
         "Lynx": {

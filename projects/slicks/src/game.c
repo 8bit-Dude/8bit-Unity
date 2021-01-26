@@ -63,9 +63,6 @@ extern unsigned char svUsers[MAX_PLAYERS][5];
 extern unsigned char svMap, svStep; 
 extern char chatBuffer[20];
 
-// See Unity/Lynx/Suzy.s
-void __fastcall__ SuzyFlip(void);
-
 // Map boundaries
 int xMin = 3*8;
 int yMin = 11*8;
@@ -102,8 +99,8 @@ const int velDrift = 450;
 const int velRamp = 800;
 
 // Fast tables for cos/sin
-const int cos[16] = {16,14,11,6,0,-6,-11,-14,-16,-14,-11,-6,0,6,11,14};
-const int sin[16] = {0,6,11,14,16,14,11,6,0,-6,-11,-14,-16,-14,-11,-6};
+const signed char cos[16] = {16,14,11,6,0,-6,-11,-14,-16,-14,-11,-6,0,6,11,14};
+const signed char sin[16] = {0,6,11,14,16,14,11,6,0,-6,-11,-14,-16,-14,-11,-6};
 
 // Clock management
 clock_t gameClock;
@@ -255,7 +252,10 @@ void GameInit(const char* map)
             controlIndex[i] = 0;
         }
 		// Assign 1st Controller to Client
-		controlIndex[clIndex] = controlBackup[0];
+		if (controlBackup[0] > 3) 
+			controlIndex[clIndex] = controlBackup[0];
+		else 
+			controlIndex[clIndex] = 4;		
     }
 #if defined __LYNX__
 	// Overlay for in-game chat
@@ -740,9 +740,9 @@ char GameLoop()
 			
 			// Update sound
 		#if defined __LYNX__	
-			if (iJmp) {		
+			if (iJmp)	
 				JumpSFX(i);
-			} else
+			else
 		#endif
 			if (iVel < velDrift || deltaAngle < 25)
 				EngineSFX(i, iVel);
@@ -814,7 +814,7 @@ char GameLoop()
 					lastKey = MenuPause();
 					gamePaused = 0; lynx_snd_continue(); RestorePauseBg(); 
 					for (j=0; j<MAX_PLAYERS; ++j) { if (PlayerAvailable(j)) EnableSprite(j); }
-					paperColor = BLACK;
+					gameClock = clock(); paperColor = BLACK;
 					break;
 				case KB_MUSIC:
 					StopMusic();

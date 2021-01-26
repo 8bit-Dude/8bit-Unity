@@ -1111,7 +1111,7 @@ void GameMenu()
 		#if defined(__ORIC__) || defined(__FUJINET__)
 			// FujiNet and VIA are not happy with music...
 			StopMusic();
-		#endif			
+		#endif
 
 			// Is network ready?
 			if (!networkReady)

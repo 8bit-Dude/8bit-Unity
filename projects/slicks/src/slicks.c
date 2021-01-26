@@ -52,9 +52,9 @@ int main (void)
 	unsigned char carryon;
 #if defined __LYNX__
 	clock_t bannerClock;
-	spriteColors[ 8] = 0x08;	// BLUE -> ORANGE
-	spriteColors[16] = 0x05;	// BLUE -> GREEN
-	spriteColors[24] = 0x09;	// BLUE -> YELLOW
+	spriteColors[ 8] = 0x08;	// Sprite 2: BLUE -> ORANGE
+	spriteColors[16] = 0x05;	// Sprite 3: BLUE -> GREEN
+	spriteColors[24] = 0x09;	// Sprite 4: BLUE -> YELLOW
 #endif   
 	// Reset screen
 	clrscr();
