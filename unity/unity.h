@@ -309,9 +309,7 @@ void ClearCallbacks(void);
 unsigned char InitNetwork(void);							// Initialize network adapter
 unsigned char GetLocalIP(unsigned char* ip);				// Fetch local IP
 void SlotTCP(unsigned char slot);							// Set TCP slot (0~15)
-void OpenTCP(unsigned char ip1, unsigned char ip2, 			// Open connection on current TCP slot (local port allocated automatically)
-			 unsigned char ip3, unsigned char ip4, 
-			 unsigned int svPort);
+void OpenTCP(unsigned char *ip, unsigned int svPort);		// Open connection on current TCP slot (local port allocated automatically)
 void CloseTCP(void);										// Close current TCP slot
 void SendTCP(unsigned char* buffer, unsigned char length);  // Send contents of buffer on current TCP slot
 unsigned char* RecvTCP(unsigned int timeOut);				// Check all slots for incoming TCP packet (within time-out period)

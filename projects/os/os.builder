@@ -45,7 +45,7 @@
                 "projects/os/chunks/chunks-apple.txt"
             ], 
             "diskSize": "140KB", 
-            "ethernetDriver": "IP65(TCP/UDP)"
+            "networkDriver": "IP65(TCP/UDP)"
         }, 
         "Atari": {
             "spriteFrames": "2", 
@@ -69,7 +69,7 @@
                 "projects/os/chunks/chunks-atari.txt"
             ], 
             "diskSize": "180KB", 
-            "ethernetDriver": "IP65(TCP/UDP)"
+            "networkDriver": "IP65(TCP/UDP)"
         }, 
         "C64": {
             "spriteFrames": "2", 
@@ -92,7 +92,7 @@
             "chunks": [
                 "projects/os/chunks/chunks-c64.txt"
             ], 
-            "ethernetDriver": "IP65(TCP/UDP)"
+            "networkDriver": "IP65(TCP/UDP)"
         }, 
         "Lynx": {
             "spriteFrames": "2", 

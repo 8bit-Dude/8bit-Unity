@@ -3,6 +3,7 @@
 
 extern const char keyNext, pressKeyMsg[];
 
+unsigned char svIp[] = { 199, 47, 196, 106 };
 unsigned char message[] = "Packet received"; //Messages can be up-to 256 bytes long (this string is NULL ended for printing convenience)
 
 int DemoNetwork(void)
@@ -33,7 +34,7 @@ int DemoNetwork(void)
 		
 		///////////////////////////////////////////////////////
 		// Setup connection to TCP echo server
-		SlotTCP(0); OpenTCP(199, 47, 196, 106, 1234);
+		SlotTCP(0); OpenTCP(svIp, 1234);
 		
 		// Send TCP packet
 		SendTCP(message, 16);
@@ -53,7 +54,7 @@ int DemoNetwork(void)
 
 		///////////////////////////////////////////////////////
 		// Setup connection to UDP echo server
-		SlotUDP(0); OpenUDP(199, 47, 196, 106, 1234, 4321);
+		SlotUDP(0); OpenUDP(svIp, 1234, 4321);
 		
 		// Send UDP packet
 		SendUDP(message, 16);

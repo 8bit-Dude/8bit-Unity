@@ -76,7 +76,7 @@
             "chunks": [], 
             "diskSize": "140KB", 
             "crunchAssets": "Yes", 
-            "ethernetDriver": "IP65(UDP)"
+            "networkDriver": "IP65(UDP)"
         }, 
         "Atari": {
             "spriteFrames": "18", 
@@ -106,7 +106,7 @@
             ], 
             "chunks": [], 
             "diskSize": "360KB", 
-            "ethernetDriver": "IP65(UDP)"
+            "networkDriver": "IP65(UDP)"
         }, 
         "C64": {
             "spriteFrames": "18", 
@@ -135,7 +135,7 @@
                 "projects/slicks/music/speednik-c64.sid"
             ], 
             "chunks": [], 
-            "ethernetDriver": "IP65(UDP)"
+            "networkDriver": "IP65(UDP)"
         }, 
         "Lynx": {
             "spriteFrames": "18", 

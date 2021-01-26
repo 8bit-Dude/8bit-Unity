@@ -62,7 +62,7 @@ void OpenUDP(unsigned char* ip, unsigned int svPort, unsigned int clPort)
 {
 #if defined __HUB__
 	// Ask HUB to set up connection
-	unsigned char buffer[6];
+	unsigned char buffer[8];
 	memcpy(buffer, ip, 4);
 	buffer[4] = svPort & 0xFF;
 	buffer[5] = svPort >> 8;	

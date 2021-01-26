@@ -55,15 +55,12 @@ void SlotTCP(unsigned char slot)
 #endif
 }
 
-void OpenTCP(unsigned char ip1, unsigned char ip2, unsigned char ip3, unsigned char ip4, unsigned int svPort)
+void OpenTCP(unsigned char* ip, unsigned int svPort)
 {
 #if defined __HUB__
 	// Ask HUB to set up connection
 	unsigned char buffer[6];
-	buffer[0] = ip1;
-	buffer[1] = ip2;
-	buffer[2] = ip3;
-	buffer[3] = ip4;
+	memcpy(buffer, ip, 4);
 	buffer[4] = svPort & 0xFF;
 	buffer[5] = svPort >> 8;	
 	QueueHub(HUB_TCP_OPEN, buffer, 6);	
@@ -71,11 +68,11 @@ void OpenTCP(unsigned char ip1, unsigned char ip2, unsigned char ip3, unsigned c
 	
 #elif defined __FUJINET__
 	// Open TCP address
-	sprintf(fujiHost, "N:TCP://%i.%i.%i.%i:%i/", ip1, ip2, ip3, ip4, svPort);
+	sprintf(fujiHost, "N:TCP://%i.%i.%i.%i:%i/", ip[0], ip[1], ip[2], ip[3], svPort);
 	FujiOpen(0);
 	
 #else
-	unsigned long svIp = EncodeIP(ip1,ip2,ip3,ip4);
+	unsigned long svIp = EncodeIP(ip[0], ip[1], ip[2], ip[3]);
 	tcp_connect(svIp, svPort, PacketTCP);
 #endif
 }

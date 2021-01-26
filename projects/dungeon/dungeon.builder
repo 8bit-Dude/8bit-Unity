@@ -39,7 +39,7 @@
             ], 
             "chunks": [], 
             "diskSize": "140KB", 
-            "ethernetDriver": "IP65(TCP/UDP)"
+            "networkDriver": "IP65(TCP/UDP)"
         }, 
         "Atari": {
             "spriteFrames": "32", 
@@ -59,7 +59,7 @@
             ], 
             "chunks": [], 
             "diskSize": "180KB", 
-            "ethernetDriver": "IP65(TCP/UDP)"
+            "networkDriver": "IP65(TCP/UDP)"
         }, 
         "C64": {
             "spriteFrames": "32", 
@@ -79,7 +79,7 @@
                 "projects/dungeon/music/dungeon-c64.sid"
             ], 
             "chunks": [], 
-            "ethernetDriver": "IP65(TCP/UDP)"
+            "networkDriver": "IP65(TCP/UDP)"
         }, 
         "Lynx": {
             "spriteFrames": "32", 
