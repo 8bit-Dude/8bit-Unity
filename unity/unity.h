@@ -191,6 +191,7 @@ unsigned char PointInsidePolygon(signed int pX, signed int pY, unsigned char vN,
 #define ABS(a)   (a<0 ? -a : a)
 #define SIGN(a)  (a<0 ? -1 : 1)
 #define DOT(a,b) (a[0]*b[0]+a[1]*b[1])
+signed int dot(signed char *v1, signed char *v2);
 unsigned char atan2(unsigned char y, unsigned char x);
 
 // Music functions (see music.c)
