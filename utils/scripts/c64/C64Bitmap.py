@@ -116,7 +116,6 @@ try:
         f = io.open(output.replace('.img','.raw1'), 'wb')
         f.write(''.join([chr(0x00), chr(0xE0)]))     # Load Address: $E000  
         f.write(''.join(scr))
-        f.write(''.join(col))
         f.close()
         f = io.open(output.replace('.img','.raw2'), 'wb')
         f.write(''.join([chr(0x00), chr(0xE0)]))     # Load Address: $E000  
@@ -139,6 +138,7 @@ try:
         f = io.open(output, 'wb')	
         f.write(''.join([chr(len(sfx1)%256), chr(len(sfx1)/256)])); f.write(sfx1)
         f.write(''.join([chr(len(sfx2)%256), chr(len(sfx2)/256)])); f.write(sfx2)
+        f.write(''.join(col))
         f.close()
         
         # Clean-up
