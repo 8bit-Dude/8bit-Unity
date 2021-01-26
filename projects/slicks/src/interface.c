@@ -1,6 +1,10 @@
 
 #include "definitions.h"
 
+#ifdef __ATARIXL__
+  #pragma code-name("SHADOW_RAM")
+#endif
+
 // Platform specific colors
 #if defined __APPLE2__
 	#define INK_LAPS   	 GREEN
@@ -49,20 +53,12 @@
 	#define MENU_WID 17
 	#define MENU_HEI 13
 	#define MENU_BLD CHR_ROWS-1
-	#define CREDIT_ROWS 8
-	unsigned char  creditCol[] = { MENU_COL+2, MENU_COL+0, MENU_COL+1, MENU_COL+0, MENU_COL+1, MENU_COL+1, MENU_COL+0, MENU_COL+1 };
-	unsigned char  creditRow[] = { MENU_ROW+2, MENU_ROW+4, MENU_ROW+5, MENU_ROW+7, MENU_ROW+8, MENU_ROW+9, MENU_ROW+11, MENU_ROW+12 };
-	unsigned char *creditTxt[] = { "2021 SONGBIRD", "CODE/GFX:", "ANTHONY BEAUCAMP", "MUSIC:", "ANDREW FISHER", "CARL FORHAN", "ORIGINAL IDEA:", "TIMO KAUPPINEN" };
 #else
 	#define MENU_COL 22
 	#define MENU_ROW  4
 	#define MENU_WID 17
 	#define MENU_HEI 16
 	#define MENU_BLD CHR_ROWS-2
-	#define CREDIT_ROWS 7
-	unsigned char  creditCol[] = { MENU_COL+5, MENU_COL+0, MENU_COL+1, MENU_COL+0, MENU_COL+1, MENU_COL+0, MENU_COL+1 };
-	unsigned char  creditRow[] = { MENU_ROW+2, MENU_ROW+4, MENU_ROW+5, MENU_ROW+7, MENU_ROW+8, MENU_ROW+10, MENU_ROW+11 };
-	unsigned char *creditTxt[] = { "CREDITS", "CODE/GFX:", "ANTHONY BEAUCAMP", "MUSIC:", "ANDREW FISHER", "ORIGINAL IDEA:", "TIMO KAUPPINEN" };	
 #endif
 
 // See slicks.c
@@ -161,10 +157,6 @@ void PrintLap(unsigned char i)
 	PrintNum((i+2)*8-3, CHR_ROWS-1, cars[i].lap);
 }
 
-#ifdef __ATARIXL__
-  #pragma code-name("SHADOW_RAM")
-#endif
-
 // Paper for message Buffer
 #if defined(__CBM__) || defined(__LYNX__)
   unsigned char paperBuffer;
@@ -202,13 +194,13 @@ void BackupChatRow()
 #elif defined __ATARI__
 	unsigned char i;
 	for (i=0; i<8; ++i) {
-		memcpy(&chatBG[0]+i*20,   (char*)(BITMAPRAM1+320*ROW_CHAT+i*40u), 20);
-		memcpy(&chatBG[160]+i*20, (char*)(BITMAPRAM2+320*ROW_CHAT+i*40u), 20);
+		memcpy(&chatBG[0]+i*20,   (char*)(BITMAPRAM1+320*ROW_CHAT+i*40), 20);
+		memcpy(&chatBG[160]+i*20, (char*)(BITMAPRAM2+320*ROW_CHAT+i*40), 20);
 	}	
 #elif defined __ORIC__
 	unsigned char i;
 	for (i=0; i<8; ++i) {
-		memcpy(&chatBG[0]+i*20, (char*)(BITMAPRAM+1+320*ROW_CHAT+i*40u), 20);
+		memcpy(&chatBG[0]+i*20, (char*)(BITMAPRAM+1+320*ROW_CHAT+i*40), 20);
 	}
 #elif defined __APPLE2__
 	unsigned char i;	
@@ -446,7 +438,7 @@ void LynxCursorControl()
 				else if (cursorRow == MENU_ROW+8)  { cursorRow = MENU_ROW+9; }			
 				else if (cursorRow == MENU_ROW+6)  { cursorRow = MENU_ROW+7; }			
 			} else if (gameMode == MODE_ONLINE) {
-					 if (cursorRow  > MENU_ROW+13) { cursorRow = MENU_ROW+13; }
+					 if (cursorRow  > MENU_ROW+10) { cursorRow = MENU_ROW+10; }
 			}
 		}
 	}
@@ -574,6 +566,21 @@ void MenuMap()
 	PrintStr(MENU_COL+7, MENU_ROW+7, mapList[gameMap]);	
 }
 
+
+// Sub-function of GameMenu()
+void MenuLaps()
+{
+	// Clear previous
+	PrintStr(MENU_COL+7, MENU_ROW+9, "  ");
+	
+	// Print Characters
+	inkColor = INK_HIGHLT; paperColor = PAPER_HIGHLT;
+	PrintChr(MENU_COL+2, MENU_ROW+9, &charLetter[11*3]);	// 'L'
+	inkColor = WHITE; paperColor = BLACK;
+	PrintStr(MENU_COL+3, MENU_ROW+9, "AP:");
+	PrintNum(MENU_COL+7, MENU_ROW+9, lapNumber[lapIndex]);
+}
+
 // In-case connection drops out...
 void PrintTimedOut()
 {
@@ -613,9 +620,13 @@ void SpriteAnimation(unsigned char index, unsigned char frame)
 signed int score[4];
 void PrintScores()
 {
+	Vehicle *car;
+	signed int s;
+	unsigned int d;
+	unsigned char i, j;
+	unsigned int dist[4] = {0, 0, 0, 0};
+	unsigned char rank[4] = {0, 1, 2, 3};
 	unsigned char* string;
-	signed char i,j,f,s;
-	signed char rank[4] = {0, 1, 2, 3};
 	
 	// Play the background music
 	StopSFX();
@@ -627,30 +638,49 @@ void PrintScores()
 	PlayMusic();
 #endif	
 				
-	// Compute scores
+	// Compute scores and waypoint distances
 	for (i=0; i<MAX_PLAYERS; ++i) {
 		if (controlIndex[i] > 0) {
-			if (cars[i].lap < 0) 
-				cars[i].lap = 0;
-			score[i] = cars[i].lap*16+cars[i].way;
+			car = &cars[i];
+			if (car->lap < 0) { car->lap = 0; }
+			score[i] = car->lap*18;
+			if (car->way) {
+				score[i] += car->way;
+			} else {
+				score[i] += 16;
+			}
+			dist[i] = GetWaypointDistance(car);
+		#if defined(__ATARI__) || defined(__CBM__)
+			if (car->x2 > 15*64-32 && car->x2 < 25*64+32 && car->y2 > 8*64-32 && car->y2 < 17*64+32)
+				DisableSprite(i);
+		#elif defined(__LYNX__)
+			if (car->x2 > 15*64-32 && car->x2 < 25*64+32 && car->y2 > 4*96-48 && car->y2 < 13*96+48) {
+				DisableSprite(i);
+			} else {
+				spriteX = car->x2/16u; 
+				spriteY = car->y2/16u;				
+				SetSprite(i, (car->ang2+12)/23u);
+			}
+		#endif	
 		} else {
 			score[i] = -1;
 		}
 	}
 		
-	// Compute ranks
+	// Compute ranks (in case of same scores, check waypoint distance)
 	for (i=0; i<MAX_PLAYERS; ++i) { 
 		for (j=i+1; j<MAX_PLAYERS; ++j) { 
-			if (score[i] < score[j]) {
-				s = rank[i];  rank[i]  = rank[j];  rank[j] = s;
+			if ( (score[i] < score[j]) || ((score[i] == score[j]) && (dist[i] > dist[j])) ) {
+				d = rank[i];  rank[i]  = rank[j];  rank[j] = d;
+				d = dist[i];  dist[i]  = dist[j];  dist[j] = d;
 				s = score[i]; score[i] = score[j]; score[j] = s;
             }
-        }	
+        }				
 	}
-	
+		
 	// Create blank area
 	paperColor = PAPER_SCORES;
-	PrintBlanks(13,SCORES_ROW,14,9);
+	PrintBlanks(15, SCORES_ROW, 10, 9);
 	
 	// Print results and wait
 	for (i=0; i<MAX_PLAYERS; ++i) {
@@ -659,43 +689,23 @@ void PrintScores()
 			s = SCORES_ROW+2*i+1;
 			inkColor = inkColors[j];
 		#if defined __ORIC__
-			SetAttributes(17, s, inkColor);
+			SetAttributes(15, s, inkColor);
 		#endif			
 			if (gameMode == MODE_ONLINE) {
 				string = svUsers[j];
 			} else {
 				if (i == 0) { string = "WIN"; } else { string = "LOSE"; } 
 			}
-			PrintStr(18, s, string);
+			PrintStr(16, s, string);
 			inkColor = WHITE;
 		#if defined __ORIC__
-			SetAttributes(22, s, inkColor);
+			SetAttributes(20, s, inkColor);
 		#endif			
-			PrintChr(23, s, charHyphen);
-			PrintNum(24, s, i+1);
-			PrintChr(25, s, charHyphen);
+			PrintStr(21, s, "- -");
+			PrintNum(22, s, i+1);
 		#if defined __ORIC__
-			SetAttributes(26, s, AIC);
+			SetAttributes(24, s, AIC);
 		#endif			
-			f = 0;
-		#if defined __APPLE2__
-			f += j*16;
-			spriteX = 55;				// ((    15*8   )*140)/320;
-			spriteY = 76+(i*384)/25u;	// (((9+2*i)*8+3)*192)/200;
-		#elif defined __ATARI__
-			spriteX = 105; 
-			spriteY = s*8+36;
-		#elif defined __ORIC__
-			spriteX = 30;	
-			spriteY = s*8+3;
-		#elif defined __CBM__	
-			spriteX = 120; 
-			spriteY = s*8+3;
-		#elif defined __LYNX__
-			spriteX = 60; 
-			spriteY = s*6+3;			
-		#endif	
-			SetSprite(j, f);
 		}
 	}
 #if defined __LYNX__
@@ -706,9 +716,8 @@ void PrintScores()
 #if defined __APPLE2__
 	UpdateMusic();
 #else
-    sleep(8);
+    sleep(9);
 #endif
-	
 	// Stop music if needed
 #ifndef __ORIC__
 	StopMusic();
@@ -813,6 +822,10 @@ void MenuServers()
 	}
 }
 
+unsigned char  loginCol[] = { MENU_COL+2, MENU_COL+1, MENU_COL+1, MENU_COL+2, MENU_COL+1 };
+unsigned char  loginRow[] = { MENU_ROW+2, MENU_ROW+4, MENU_ROW+6, MENU_ROW+8, MENU_ROW+9 };
+unsigned char *loginTxt[] = { "PLEASE LOGIN", "USER:", "PASS:", "REGISTER AT", "8BIT-SLICKS.COM" };
+
 // Sub-function of GameMenu()
 unsigned char MenuLogin(unsigned char serverIndex)
 {
@@ -826,11 +839,8 @@ unsigned char MenuLogin(unsigned char serverIndex)
 	SetKeyboardOverlay(13,70);
 #endif	
 	// Prompt for authentication
-	PrintStr(MENU_COL+2, MENU_ROW+2, "PLEASE LOGIN");
-	PrintStr(MENU_COL+1, MENU_ROW+4, "USER:");
-	PrintStr(MENU_COL+1, MENU_ROW+6, "PASS:");
-	PrintStr(MENU_COL+2, MENU_ROW+8, "REGISTER AT");
-	PrintStr(MENU_COL+1, MENU_ROW+9, "8BIT-SLICKS.COM");
+	for (res=0; res<5; res++)
+		PrintStr(loginCol[res], loginRow[res], loginTxt[res]);
 	InputField(MENU_COL+6, MENU_ROW+4, clUser, 4);
 	PrintChr(MENU_COL+6+strlen(clUser), MENU_ROW+4, charBlank);
 	maskInput = 1;
@@ -888,20 +898,6 @@ void MenuPlayer(unsigned char i)
 	inkColor = WHITE; paperColor = BLACK;
 	PrintChr(MENU_COL+4, row, charColon);			// ':'
 	PrintStr(MENU_COL+6, row, controlList[controlIndex[i]]);	
-}
-
-// Sub-function of GameMenu()
-void MenuLaps()
-{
-	// Clear previous
-	PrintStr(MENU_COL+7, MENU_ROW+9, "  ");
-	
-	// Print Characters
-	inkColor = INK_HIGHLT; paperColor = PAPER_HIGHLT;
-	PrintChr(MENU_COL+2, MENU_ROW+9, &charLetter[11*3]);	// 'L'
-	inkColor = WHITE; paperColor = BLACK;
-	PrintStr(MENU_COL+3, MENU_ROW+9, "AP:");
-	PrintNum(MENU_COL+7, MENU_ROW+9, lapNumber[lapIndex]);
 }
 
 // Sub-function of GameMenu()
@@ -973,6 +969,18 @@ void MenuTab(unsigned char tab)
 	inkColor = WHITE; 
 #endif
 }
+
+#if defined __LYNX__
+  #define CREDIT_ROWS 8
+  unsigned char  creditCol[] = { MENU_COL+2, MENU_COL+0, MENU_COL+1, MENU_COL+0, MENU_COL+1, MENU_COL+1, MENU_COL+0, MENU_COL+1 };
+  unsigned char  creditRow[] = { MENU_ROW+2, MENU_ROW+4, MENU_ROW+5, MENU_ROW+7, MENU_ROW+8, MENU_ROW+9, MENU_ROW+11, MENU_ROW+12 };
+  unsigned char *creditTxt[] = { "2021 SONGBIRD", "CODE/GFX:", "ANTHONY BEAUCAMP", "MUSIC:", "ANDREW FISHER", "CARL FORHAN", "ORIGINAL IDEA:", "TIMO KAUPPINEN" };
+#else
+  #define CREDIT_ROWS 7
+  unsigned char  creditCol[] = { MENU_COL+5, MENU_COL+0, MENU_COL+1, MENU_COL+0, MENU_COL+1, MENU_COL+0, MENU_COL+1 };
+  unsigned char  creditRow[] = { MENU_ROW+2, MENU_ROW+4, MENU_ROW+5, MENU_ROW+7, MENU_ROW+8, MENU_ROW+10, MENU_ROW+11 };
+  unsigned char *creditTxt[] = { "CREDITS", "CODE/GFX:", "ANTHONY BEAUCAMP", "MUSIC:", "ANDREW FISHER", "ORIGINAL IDEA:", "TIMO KAUPPINEN" };	
+#endif
 
 // Main menu function
 void GameMenu()

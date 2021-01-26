@@ -26,7 +26,7 @@ unsigned int lineupAng[MAX_PLAYERS];
 void LoadNavigation(char *filename)
 {
 	// Read nav file contents
-	unsigned char i,n,*p;
+	unsigned char n,*p;
   #if defined __APPLE2__
 	if (FileOpen(filename)) {
 		FileRead(buffer, 128);
@@ -54,18 +54,18 @@ void LoadNavigation(char *filename)
 	
 	// Read Navigation Cylinders
 	numWays = *p; p++;
-	memcpy(&ways[0].x, p, numWays*12); p += numWays*12;
+	memcpy(&ways[0].x, p, numWays*8); p += numWays*8;
 	
 	// Read Jump Ramps
 	numRamps = *p; p++;
 	memcpy(&ramps[0].x[0], p, numRamps*8);
 	
 #ifdef DEBUG_NAV
-	for (i=0; i<numWays; ++i) {
+	for (n=0; n<numWays; ++n) {
 		// Display waypoints (debugging)
-		LocatePixel(ways[i].x/8u, ways[i].y/8u); SetPixel(BLACK);
-		LocatePixel(ways[i].x/8u+ways[i].v[0][0], ways[i].y/8u+ways[i].v[0][1]); SetPixel(BLACK); 
-		LocatePixel(ways[i].x/8u+ways[i].v[1][0], ways[i].y/8u+ways[i].v[1][1]); SetPixel(BLACK);         
+		LocatePixel(ways[n].x/8u, ways[n].y/8u); SetPixel(BLACK);
+		LocatePixel(ways[n].x/8u+ways[n].v[0][0], ways[n].y/8u+ways[n].v[0][1]); SetPixel(BLACK); 
+		LocatePixel(ways[n].x/8u+ways[n].v[1][0], ways[n].y/8u+ways[n].v[1][1]); SetPixel(BLACK);         
 	}
 #endif
 }
@@ -76,8 +76,8 @@ void ResetLineUp()
 	unsigned char i,j;
 	for (i=0; i<MAX_PLAYERS; ++i) {
 		j = gameLineUp[i];
-		cars[i].x2 = 8*lineupX[j]; 
-		cars[i].y2 = 8*lineupY[j];
+		cars[i].x2 =   lineupX[j]; 
+		cars[i].y2 =   lineupY[j];
 		cars[i].ang1 = lineupAng[j];
 		cars[i].ang2 = lineupAng[j];
 		cars[i].vel = 0;		
@@ -85,62 +85,6 @@ void ResetLineUp()
         cars[i].lap = -1;
         cars[i].joy = 0;             
 	}
-}
-
-// Functions to check navigation around cylinders
-static int iVec, v1[2], v2[2], v90[2];
-unsigned char dx, dy;
-Waypoint *way;
-
-char CheckWaypoint(Vehicle *car)
-{
-	// Initiate variables
-	way = &ways[car->way/2u];
-	iVec = car->way%2;
-	
-	// Compute vectors with Waypoint centre
-	v1[0] = (car->x1 - way->x)/8;
-	v1[1] = (car->y1 - way->y)/8;
-	v2[0] = (car->x2 - way->x)/8;
-	v2[1] = (car->y2 - way->y)/8;				
-		
-	// Check dot products against Waypoint vector
-	if ( (DOT(v1, way->v[iVec]) > 0) && (DOT(v2, way->v[iVec]) > 0) ) {
-		// Compute 90 deg rotated vector
-		v90[0] = -way->v[iVec][1];
-		v90[1] =  way->v[iVec][0];
-
-		// Check dot products with 90 deg rotated vector
-		if ((DOT(v1, v90) >= 0) & (DOT(v2, v90) <= 0)) { 
-		#ifdef DEBUG_NAV
-			PrintBlanks(0, 0, 2, 0);
-			PrintNum(0, 0, car->way+1);
-		#endif
-			return 1; 
-		}
-		if ((DOT(v1, v90) <= 0) & (DOT(v2, v90) >= 0)) { 
-		#ifdef DEBUG_NAV
-			PrintBlanks(0, 0, 2, 0);
-			PrintNum(0, 0, car->way+1);
-		#endif
-			return 1; 
-		}
-	}
-	return 0;
-}
-
-#ifdef __ATARIXL__
-  #pragma code-name("SHADOW_RAM")
-#endif
-
-int GetWaypointAngle(Vehicle *car)
-{
-	// Get target
-	way = &ways[car->way/2u];
-	iVec = car->way%2;
-	dx = 128 + (way->x + 8*way->v[iVec][0] - car->x2) / 16u;
-	dy = 128 - (way->y + 8*way->v[iVec][1] - car->y2) / 16u;
-	return (45*(unsigned int)atan2(dy,dx))/32u;
 }
 
 // Function to check ramp logics
@@ -151,11 +95,84 @@ char CheckRamps(Vehicle *car)
     unsigned char i;
 	for (i=0; i<numRamps; ++i) {
         ramp = &ramps[i];
-        if (car->x2 < ramp->x[0] & car->x2 < ramp->x[1]) { continue; }
-        if (car->x2 > ramp->x[0] & car->x2 > ramp->x[1]) { continue; }
-        if (car->y2 < ramp->y[0] & car->y2 < ramp->y[1]) { continue; }
-        if (car->y2 > ramp->y[0] & car->y2 > ramp->y[1]) { continue; }
+        if (car->x2 < ramp->x[0] && car->x2 < ramp->x[1]) { continue; }
+        if (car->x2 > ramp->x[0] && car->x2 > ramp->x[1]) { continue; }
+        if (car->y2 < ramp->y[0] && car->y2 < ramp->y[1]) { continue; }
+        if (car->y2 > ramp->y[0] && car->y2 > ramp->y[1]) { continue; }
         return 1;
     }
     return 0;
+}
+
+// Functions to check navigation around cylinders
+signed char v1[2], v2[2], v90[2];
+unsigned char step;
+Waypoint *way;
+
+void GetWaypoint(Vehicle *car)
+{
+	// Prepare waypoint variables
+	way = &ways[car->way/2u];
+	step = car->way%2;
+}
+
+char CheckWaypoint(Vehicle *car)
+{
+	// Fetch waypoint
+	GetWaypoint(car);
+	
+	// Check dot products against 1st Waypoint vector
+	v1[0] = (car->x1 - way->x)/16u;
+	v1[1] = (car->y1 - way->y)/16u;		
+	if ( (dot(v1, way->v[step]) > 0) ) {
+
+		// Check dot products against 2nd Waypoint vector
+		v2[0] = (car->x2 - way->x)/16u;
+		v2[1] = (car->y2 - way->y)/16u;				
+		if ( (dot(v2, way->v[step]) > 0) ) {
+			
+			// Compute 90 deg rotated vector
+			v90[0] = -way->v[step][1];
+			v90[1] =  way->v[step][0];
+
+			// Check dot products with 90 deg rotated vector
+			if ((dot(v1, v90) >= 0) & (dot(v2, v90) <= 0)) { 
+			#ifdef DEBUG_NAV
+				PrintBlanks(0, 0, 2, 0);
+				PrintNum(0, 0, car->way+1);
+			#endif
+				return 1; 
+			}
+			if ((dot(v1, v90) <= 0) & (dot(v2, v90) >= 0)) { 
+			#ifdef DEBUG_NAV
+				PrintBlanks(0, 0, 2, 0);
+				PrintNum(0, 0, car->way+1);
+			#endif
+				return 1; 
+			}
+		}
+	}
+	return 0;
+}
+
+int GetWaypointDistance(Vehicle *car)
+{
+	signed char dx, dy;	
+	GetWaypoint(car);
+	dx = (car->x2 - way->x)/16u;
+	dy = (car->y2 - way->y)/16u;	
+	return ABS(dx)+ABS(dy);
+}
+
+#ifdef __ATARIXL__
+  #pragma code-name("SHADOW_RAM")
+#endif
+
+int GetWaypointAngle(Vehicle *car)
+{
+	unsigned char dx = 128, dy = 128;	
+	GetWaypoint(car);
+	dx += (way->x + 8*way->v[step][0] - car->x2)/16u;
+	dy -= (way->y + 8*way->v[step][1] - car->y2)/16u;
+	return (45*(unsigned int)atan2(dy,dx))/32u;
 }

@@ -7,7 +7,7 @@
 //#define DEBUG_NAV
 
 // NetCode Toggle
-//#define NETCODE		
+//#define NETCODE
 
 // Keyboard definitions
 #if defined __LYNX__
@@ -63,7 +63,7 @@
 #define NET_CONTROL (LEN_CONTROL-1)
 
 // Network definitions
-#define CL_VER  8
+#define CL_VER	  0
 
 #define CL_ERROR  0
 #define CL_LIST   1
@@ -110,7 +110,7 @@ typedef struct {
 // Waypoint structure
 typedef struct {
 	int x, y;		// Position
-	int v[2][2];	// In/Out Vectors
+	signed char v[2][2];	// In/Out Vectors
 } Waypoint;
 
 // Ramp structure
@@ -140,6 +140,7 @@ void GameMenu(void);
 // See navigation.c
 void LoadNavigation(char *filename);
 void ResetLineUp(void);
+int GetWaypointDistance(Vehicle *car);
 int GetWaypointAngle(Vehicle *car);
 char CheckWaypoint(Vehicle *car);
 char CheckRamps(Vehicle *car);

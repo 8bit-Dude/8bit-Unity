@@ -66,14 +66,14 @@ for map in maps:
 	f2.write(struct.pack('B', len(grid)))	# Number of grid points
 	for j in range(0,3):
 		for i in range(len(grid)):
-			f2.write(struct.pack('h', int(grid[i][j])))
+			f2.write(struct.pack('h', 8*int(grid[i][j])))
 
 	f2.write(struct.pack('B', len(cyls)))	# Number of waypoints
 	for i in range(len(cyls)):
 		for j in range(0,2):
 			f2.write(struct.pack('h', 8*int(cyls[i][j])))   # Coords of waypoint * 8
 		for j in range(2,6):
-			f2.write(struct.pack('h', int(cyls[i][j])))     # In/Out vectors
+			f2.write(struct.pack('b', int(cyls[i][j])))     # In/Out vectors
 
 	f2.write(struct.pack('B', len(ramps)))	# Number of ramps
 	for i in range(len(ramps)):

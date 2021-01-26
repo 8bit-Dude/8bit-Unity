@@ -501,7 +501,7 @@ char GameLoop()
 			iAng1 = car->ang1;
 			iAng2 = car->ang2;
 			iVel = car->vel;
-			iJmp = 0;
+			iJmp = 0;	
 			
 			// Get customized physics parameters
 			if (iCtrl > 3) {
@@ -710,7 +710,7 @@ char GameLoop()
 			} else {
 				if (sprShadow & (1<<i)) { 
 					DisableSprite(SPR2_SLOT+i); 
-					sprShadow &= !(1<<i);
+					sprShadow &= ~(1<<i);
 				}
 			# else
 				spriteY -= 3;		// Offset player sprite vertically					
