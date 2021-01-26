@@ -78,11 +78,11 @@ try:
         # Write raw data (target address $2000-$4000)
         if resolution == 'double':
             f = io.open(output.replace('.img','.aux'), 'wb')
-            f.write(''.join([chr(0), chr(32)])); 
+            f.write(''.join([chr(0x00), chr(0x20)])); 
             f.write(''.join(aux)); 
             f.close()
         f = io.open(output.replace('.img','.main'), 'wb')
-        f.write(''.join([chr(0), chr(32)])); 
+        f.write(''.join([chr(0x00), chr(0x20)])); 
         f.write(''.join(main)); 
         f.close()
         

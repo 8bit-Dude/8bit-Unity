@@ -44,26 +44,35 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
-#include "chars.h"
+#include "graphics/chars.h"
 
 // Platform IDs
 #if defined __CBM__
 	#define PLATFORM   0	
-    #include "C64/platform.h"		
+    #include "targets/c64/platform.h"		
 #elif defined __ATARI__
 	#define PLATFORM   1
-    #include "Atari/platform.h"	
+    #include "targets/atari/platform.h"	
 #elif defined __APPLE2__
 	#define PLATFORM   2
-    #include "Apple/platform.h"		
+    #include "targets/apple2/platform.h"		
 #elif defined __ATMOS__
 	#define __HUB__
 	#define PLATFORM   3
-    #include "Oric/platform.h"	
+    #include "targets/oric/platform.h"	
 #elif defined __LYNX__
 	#define __HUB__
 	#define PLATFORM   4
-    #include "Lynx/platform.h"	
+    #include "targets/lynx/platform.h"	
+#endif
+
+// Adaptors
+#if defined __HUB__
+  #include "adaptors/hub.h"
+#elif defined __FUJINET__	
+  // Nothing
+#else
+  #include "adaptors/ip65.h"
 #endif
 
 // Video State (auto-set by ShowBitmap()/HideBitmap()...)
@@ -185,11 +194,11 @@ unsigned char PointInsidePolygon(signed int pX, signed int pY, unsigned char vN,
 unsigned char atan2(unsigned char y, unsigned char x);
 
 // Music functions (see music.c)
-// Apple: ElectricDuet (see Apple/DUET.s) 
-// Atari: RMT track (see Atari/POKEY.s)
-// C64:   SID track (see C64/SID.s)
-// Lynx:  Chipper   (see Lynx/CHIPPER.s)
-// Oric:  YM track  (see Oric/MYM.s)
+// Apple: ElectDuet (see apple/DUET.s) 
+// Atari: RMT track (see atari/POKEY.s)
+// C64:   SID track (see c64/SID.s)
+// Lynx:  Chipper   (see lynx/CHIPPER.s)
+// Oric:  YM track  (see oric/MYM.s)
 void LoadMusic(const char* filename);
 void PlayMusic(void);
 void StopMusic(void);
@@ -307,9 +316,8 @@ void SendTCP(unsigned char* buffer, unsigned char length);  // Send contents of 
 unsigned char* RecvTCP(unsigned int timeOut);				// Check all slots for incoming TCP packet (within time-out period)
 
 void SlotUDP(unsigned char slot);							// Set UDP slot (0~15)
-void OpenUDP(unsigned char ip1, unsigned char ip2, 			// Open connection on current UDP slot (local port allocated on clPort)
-			 unsigned char ip3, unsigned char ip4, 
-			 unsigned int svPort, unsigned int clPort);
+void OpenUDP(unsigned char *ip, unsigned int svPort,     	// Open connection on current UDP slot (local port allocated on clPort)
+								unsigned int clPort);
 void CloseUDP(void);										// Close current UDP slot
 void SendUDP(unsigned char* buffer, unsigned char length);  // Send contents of buffer on current UDP slot
 unsigned char* RecvUDP(unsigned int timeOut);				// Check all slots for incoming UDP packet (within time-out period)

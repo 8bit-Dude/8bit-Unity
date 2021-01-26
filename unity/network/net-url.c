@@ -31,11 +31,8 @@
 #endif
 
 #if defined __HUB__
-  #include "hub.h"
 #elif defined __FUJINET__	
-  // Nothing
 #else
-  #include "IP65/ip65.h"  
   #define URL_LEN 512	// Note: HTTP header (parsed out) takes about 256 bytes...
   unsigned char url_buf[URL_LEN];
   unsigned int url_ind, url_len;

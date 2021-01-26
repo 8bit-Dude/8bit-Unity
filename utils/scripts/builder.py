@@ -212,6 +212,7 @@ class Application:
         self.entry_C64SpriteFrames = self.builder.get_object('Entry_C64SpriteFrames')
         self.entry_C64SpriteWidth = self.builder.get_object('Entry_C64SpriteWidth')
         self.entry_C64SpriteHeight = self.builder.get_object('Entry_C64SpriteHeight')
+        self.Combobox_C64CrunchAssets = self.builder.get_object('Combobox_C64CrunchAssets');
         self.Combobox_C64EthernetDriver = self.builder.get_object('Combobox_C64EthernetDriver');
         
         self.listbox_LynxBitmap = self.builder.get_object('Listbox_LynxBitmap')        
@@ -243,6 +244,7 @@ class Application:
         self.Combobox_AtariDiskSize.current(0)
         self.Combobox_AtariCrunchAssets.current(0)
         self.Combobox_AtariEthernetDriver.current(0)
+        self.Combobox_C64CrunchAssets.current(0)
         self.Combobox_C64EthernetDriver.current(0)
 
         # Make lists of various GUI inputs (adding new inputs to the end of each list will guarantee backward compatibility)
@@ -268,7 +270,7 @@ class Application:
                            self.listbox_AppleBitmapSHR,self.listbox_AppleSpritesSHR, self.listbox_AppleCharsetSHR ]
         self.comboboxes = [ self.Combobox_AtariDiskSize, self.Combobox_AppleDiskSize,
                             self.Combobox_AppleEthernetDriver, self.Combobox_AtariEthernetDriver, self.Combobox_C64EthernetDriver,
-                            self.Combobox_AppleCrunchAssets, self.Combobox_AtariCrunchAssets ]
+                            self.Combobox_AppleCrunchAssets, self.Combobox_AtariCrunchAssets, self.Combobox_C64CrunchAssets ]
         self.checkbuttons = []
                        
     def FileNew(self):
@@ -475,6 +477,7 @@ class Application:
                     ('sprites', ('listbox', self.listbox_C64Sprites)),
                     ('music', ('listbox', self.listbox_C64Music)),
                     ('chunks', ('listbox', self.listbox_C64Chunks)),
+                    ('crunchAssets', ('Combobox', self.Combobox_C64CrunchAssets)),
                     ('ethernetDriver', ('Combobox', self.Combobox_C64EthernetDriver)),
                 ]),
                 ('Lynx', [
@@ -797,8 +800,8 @@ class Application:
                 fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
                 # Build Unity Library
-                cList = ['bitmap.c', 'charmap.c', 'chunks.c', 'geom2d.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'scaling.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Apple\\CLOCK.c', 'Apple\\directory.c', 'Apple\\files.c', 'Apple\\hires.c', 'Apple\\memory.c', 'Apple\\pixelDHR.c', 'Apple\\pixelSHR.c']
-                sList = ['atan2.s', 'chars.s', 'tiles.s', 'Apple\\blitDHR.s', 'Apple\\blitSHR.s', 'Apple\\decrunch.s', 'Apple\\DUET.s', 'Apple\\hiresLines.s', 'Apple\\joystick.s', 'Apple\\MOCKING.s', 'Apple\\PADDLE.s', 'Apple\\prodos.s', 'Apple\\scrollDHR.s', 'Apple\\scrollSHR.s']
+                cList = ['graphics\\bitmap.c', 'graphics\\charmap.c', 'graphics\\chunks.c', 'geom\\geom2d.c', 'adaptors\\mouse.c', 'sound\\music.c', 'network\\net-base.c', 'network\\net-url.c', 'network\\net-tcp.c', 'network\\net-udp.c', 'network\\net-web.c', 'graphics\\pixel.c', 'graphics\\print.c', 'graphics\\scaling.c', 'sound\\sfx.c', 'graphics\\sprites.c', 'graphics\\widgets.c', 'targets\\apple2\\CLOCK.c', 'targets\\apple2\\directory.c', 'targets\\apple2\\files.c', 'targets\\apple2\\hires.c', 'targets\\apple2\\memory.c', 'targets\\apple2\\pixelDHR.c', 'targets\\apple2\\pixelSHR.c']
+                sList = ['math\\atan2.s', 'graphics\\chars.s', 'graphics\\tiles.s', 'targets\\apple2\\blitDHR.s', 'targets\\apple2\\blitSHR.s', 'targets\\apple2\\decrunch.s', 'targets\\apple2\\DUET.s', 'targets\\apple2\\hiresLines.s', 'targets\\apple2\\joystick.s', 'targets\\apple2\\MOCKING.s', 'targets\\apple2\\PADDLE.s', 'targets\\apple2\\prodos.s', 'targets\\apple2\\scrollDHR.s', 'targets\\apple2\\scrollSHR.s']
                 if graphics == 'double':
                     symbols = '-D __DHR__'
                 else:
@@ -813,9 +816,9 @@ class Application:
                 for item in code:
                     comp += item + ' '
                 if self.Combobox_AppleEthernetDriver.get() == 'IP65(TCP/UDP)':
-                    fp.write(comp + buildFolder + '/apple/unity.lib unity/IP65/ip65_tcp.lib unity/IP65/ip65_apple2.lib\n\n')
+                    fp.write(comp + buildFolder + '/apple/unity.lib unity/adaptors/ip65_tcp.lib unity/adaptors/ip65_apple2.lib\n\n')
                 else:
-                    fp.write(comp + buildFolder + '/apple/unity.lib unity/IP65/ip65.lib unity/IP65/ip65_apple2.lib\n\n')
+                    fp.write(comp + buildFolder + '/apple/unity.lib unity/adaptors/ip65.lib unity/adaptors/ip65_apple2.lib\n\n')
                 
                 # Info
                 fp.write('echo DONE!\n\n')
@@ -908,11 +911,11 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Build Unity Library
-            cList = ['bitmap.c', 'charmap.c', 'chunks.c', 'geom2d.c', 'joystick.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'scaling.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Atari\\directory.c', 'Atari\\files.c']
-            sList = ['atan2.s', 'chars.s', 'tiles.s', 'Atari\\decrunch.s', 'Atari\\DLI.s', 'Atari\\ROM.s', 'Atari\\scroll.s', 'Atari\\xbios.s']
+            cList = ['graphics\\bitmap.c', 'graphics\\charmap.c', 'graphics\\chunks.c', 'geom\\geom2d.c', 'adaptors\\joystick.c', 'adaptors\\mouse.c', 'sound\\music.c', 'network\\net-base.c', 'network\\net-url.c', 'network\\net-tcp.c', 'network\\net-udp.c', 'network\\net-web.c', 'graphics\\pixel.c', 'graphics\\print.c', 'graphics\\scaling.c', 'sound\\sfx.c', 'graphics\\sprites.c', 'graphics\\widgets.c', 'targets\\atari\\directory.c', 'targets\\atari\\files.c']
+            sList = ['math\\atan2.s', 'graphics\\chars.s', 'graphics\\tiles.s', 'targets\\atari\\decrunch.s', 'targets\\atari\\DLI.s', 'targets\\atari\\ROM.s', 'targets\\atari\\scroll.s', 'targets\\atari\\xbios.s']
             if self.Combobox_AtariEthernetDriver.get() == 'Fujinet':    
-                cList.append('Atari\\fujinet.c')
-                sList.append('Atari\\fujiIRQ.s')
+                cList.append('targets\\atari\\fujinet.c')
+                sList.append('targets\\atari\\fujiIRQ.s')
             if self.Combobox_AtariEthernetDriver.get() == 'Fujinet':    
                 symbols = '-D __FUJINET__ '
             else:
@@ -929,13 +932,13 @@ class Application:
             for item in code:
                 comp += (item + ' ')
             if self.Combobox_AtariEthernetDriver.get() == 'IP65(TCP/UDP)':
-                fp.write(comp + 'unity/Atari/POKEY.s ' + buildFolder + '/atari/unity.lib unity/IP65/ip65_tcp.lib unity/IP65/ip65_atarixl.lib\n')
+                fp.write(comp + 'unity/targets/atari/POKEY.s ' + buildFolder + '/atari/unity.lib unity/adaptors/ip65_tcp.lib unity/adaptors/ip65_atarixl.lib\n')
             elif self.Combobox_AtariEthernetDriver.get() == 'IP65(UDP)':
-                fp.write(comp + 'unity/Atari/POKEY.s ' + buildFolder + '/atari/unity.lib unity/IP65/ip65.lib unity/IP65/ip65_atarixl.lib\n')
+                fp.write(comp + 'unity/targets/atari/POKEY.s ' + buildFolder + '/atari/unity.lib unity/adaptors/ip65.lib unity/adaptors/ip65_atarixl.lib\n')
             else:
-                fp.write(comp + 'unity/Atari/POKEY.s ' + buildFolder + '/atari/unity.lib\n')
-            fp.write('utils\\cc65\\bin\\cl65 -t atarixl -C atari-asm.cfg -o ' + buildFolder + '/atari/basicoff.bin unity/Atari/BASICOFF.s\n')
-            fp.write('utils\\scripts\\atari\\mads.exe -o:' + buildFolder + '/atari/rmt.bin unity/Atari/RMT.a65\n\n')
+                fp.write(comp + 'unity/targets/atari/POKEY.s ' + buildFolder + '/atari/unity.lib\n')
+            fp.write('utils\\cc65\\bin\\cl65 -t atarixl -C atari-asm.cfg -o ' + buildFolder + '/atari/basicoff.bin unity/targets/atari/BASICOFF.s\n')
+            fp.write('utils\\scripts\\atari\\mads.exe -o:' + buildFolder + '/atari/rmt.bin unity/targets/atari/RMT.a65\n\n')
 
             # Merging
             fp.write('utils\\py27\\python utils\\scripts\\atari\\AtariMerge.py ' + buildFolder + '/atari/xautorun ' + buildFolder + '/atari/basicoff.bin ' + buildFolder + '/atari/' + diskname.lower() + '.bin ' + buildFolder + '/atari/rmt.bin\n')
@@ -1026,18 +1029,22 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Build Unity Library
-            cList = ['bitmap.c', 'charmap.c', 'chunks.c', 'geom2d.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'scaling.c', 'sfx.c', 'sprites.c', 'widgets.c', 'C64\\directory.c', 'C64\\VIC2.c']
-            sList = ['atan2.s', 'chars.s', 'tiles.s', 'C64\\joystick.s', 'C64\\scroll.s', 'C64\\ROM.s', 'C64\\SID.s']
-            BuildUnityLibrary(fp, 'c64', '', cList, sList, buildFolder+'/c64')
+            cList = ['graphics\\bitmap.c', 'graphics\\charmap.c', 'graphics\\chunks.c', 'geom\\geom2d.c', 'adaptors\\mouse.c', 'sound\\music.c', 'network\\net-base.c', 'network\\net-url.c', 'network\\net-tcp.c', 'network\\net-udp.c', 'network\\net-web.c', 'graphics\\pixel.c', 'graphics\\print.c', 'graphics\\scaling.c', 'sound\\sfx.c', 'graphics\\sprites.c', 'graphics\\widgets.c', 'targets\\c64\\directory.c', 'targets\\c64\\VIC2.c']
+            sList = ['math\\atan2.s', 'graphics\\chars.s', 'graphics\\tiles.s', 'targets\\c64\\decrunch.s', 'targets\\c64\\joystick.s', 'targets\\c64\\scroll.s', 'targets\\c64\\ROM.s', 'targets\\c64\\SID.s']
+            if self.Combobox_C64CrunchAssets.get() == 'Yes':
+                symbols = '-D __DECRUNCH__ '
+            else:
+                symbols = ''
+            BuildUnityLibrary(fp, 'c64', symbols, cList, sList, buildFolder+'/c64')
             
             # Compile Program                        
-            comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/c64/' + diskname.lower() + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-c64.map -Cl -O -t c64 -C unity/C64/c64.cfg -I unity '
+            comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/c64/' + diskname.lower() + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-c64.map -Cl -O -t c64 -C unity/targets/c64/c64.cfg -I unity '
             for item in code:
                 comp += (item + ' ')
             if self.Combobox_C64EthernetDriver.get() == 'IP65(TCP/UDP)':
-                fp.write(comp + buildFolder + '/c64/unity.lib unity/IP65/ip65_tcp.lib unity/IP65/ip65_c64.lib\n\n')
+                fp.write(comp + buildFolder + '/c64/unity.lib unity/adaptors/ip65_tcp.lib unity/adaptors/ip65_c64.lib\n\n')
             else:
-                fp.write(comp + buildFolder + '/c64/unity.lib unity/IP65/ip65.lib unity/IP65/ip65_c64.lib\n\n')
+                fp.write(comp + buildFolder + '/c64/unity.lib unity/adaptors/ip65.lib unity/adaptors/ip65_c64.lib\n\n')
             
             # Info
             fp.write('\necho DONE!\n\n')
@@ -1046,8 +1053,11 @@ class Application:
             
             # Bitmaps
             for item in bitmaps:
-                fp.write('utils\\py27\\python utils\\scripts\\c64\\C64Bitmap.py ' + item + ' ' + buildFolder + '/c64/' + FileBase(item, '.png') + '.img\n')
-                
+                if self.Combobox_C64CrunchAssets.get() == 'Yes':
+                    fp.write('utils\\py27\\python utils\\scripts\\c64\\C64Bitmap.py crunch ' + item + ' ' + buildFolder + '/c64/' + FileBase(item, '.png') + '.img\n')
+                else:
+                    fp.write('utils\\py27\\python utils\\scripts\\c64\\C64Bitmap.py raw ' + item + ' ' + buildFolder + '/c64/' + FileBase(item, '.png') + '.img\n')
+
             # Charset    
             if len(charset) > 0:
                 fb = FileBase(charset[0], '.png')
@@ -1177,7 +1187,7 @@ class Application:
             fp.write('set /a FILENUM=!CHUNKNUM!+' + str(len(bitmaps)+len(charmaps)+len(charset)+len(music)+len(shared)) + '\n')
 
             # Copy Chipper sfx and music data
-            fp.write('copy ..\\..\\unity\\Lynx\\chipper.s soundbs.mac\n')    
+            fp.write('copy ..\\..\\unity\\targets\\lynx\\chipper.s soundbs.mac\n')    
             for i in range(len(music)):
                 fp.write('..\\..\\utils\\py27\\python ../../utils/scripts/lynx/LynxChipper.py ../../' + music[i] + ' music' + str(i).zfill(2) + '.asm _musData' + str(i).zfill(2) + ' MUS' + str(i) + 'DATA"\n')
                 
@@ -1366,8 +1376,8 @@ class Application:
             fp.write('\n')
 
             # Generate config and directory Files
-            fp.write('utils\\py27\\python utils/scripts/lynx/LynxConfig.py unity/Lynx/lynx.cfg ' + buildFolder + '/lynx/lynx.cfg ' + str(len(bitmaps)+len(charmaps)+len(charset)) + ' ' + str(len(music)) + ' ' + str(len(shared)) + ' %CHUNKNUM%\n')
-            fp.write('utils\\py27\\python utils/scripts/lynx/LynxDirectory.py unity/Lynx/directory.s ' + buildFolder + '/lynx/directory.asm ' + str(len(bitmaps)+len(charmaps)+len(charset)) + ' ' + str(len(music)) + ' ' + str(len(shared)) + ' %CHUNKNUM%\n')
+            fp.write('utils\\py27\\python utils/scripts/lynx/LynxConfig.py unity/targets/lynx/lynx.cfg ' + buildFolder + '/lynx/lynx.cfg ' + str(len(bitmaps)+len(charmaps)+len(charset)) + ' ' + str(len(music)) + ' ' + str(len(shared)) + ' %CHUNKNUM%\n')
+            fp.write('utils\\py27\\python utils/scripts/lynx/LynxDirectory.py unity/targets/lynx/directory.s ' + buildFolder + '/lynx/directory.asm ' + str(len(bitmaps)+len(charmaps)+len(charset)) + ' ' + str(len(music)) + ' ' + str(len(shared)) + ' %CHUNKNUM%\n')
                         
             # Info
             fp.write('\necho DONE!\n\n')
@@ -1375,8 +1385,8 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Build Unity Library
-            cList = ['bitmap.c', 'charmap.c', 'chunks.c', 'geom2d.c', 'hub.c', 'joystick.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'scaling.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Lynx\\display.c', 'Lynx\\files.c']
-            sList = ['atan2.s', 'chars.s', 'tiles.s', 'Lynx\\header.s', 'Lynx\\scroll.s', 'Lynx\\serial.s', 'Lynx\\suzy.s']
+            cList = ['graphics\\bitmap.c', 'graphics\\charmap.c', 'graphics\\chunks.c', 'geom\\geom2d.c', 'adaptors\\hub.c', 'adaptors\\joystick.c', 'adaptors\\mouse.c', 'sound\\music.c', 'network\\net-base.c', 'network\\net-url.c', 'network\\net-tcp.c', 'network\\net-udp.c', 'network\\net-web.c', 'graphics\\pixel.c', 'graphics\\print.c', 'graphics\\scaling.c', 'sound\\sfx.c', 'graphics\\sprites.c', 'graphics\\widgets.c', 'targets\\lynx\\display.c', 'targets\\lynx\\files.c', 'targets\\lynx\\screen.c', 'targets\\lynx\\text.c']
+            sList = ['math\\atan2.s', 'graphics\\chars.s', 'graphics\\tiles.s', 'targets\\lynx\\header.s', 'targets\\lynx\\scroll.s', 'targets\\lynx\\serial.s', 'targets\\lynx\\suzy.s']
             symbols = ' -D __MUSSIZE__='  + self.entry_LynxMusicMemory.get().replace('$','0x') + ' -D __SHRSIZE__='  + self.entry_LynxSharedMemory.get().replace('$','0x')
             BuildUnityLibrary(fp, 'lynx --cpu 65SC02', symbols, cList, sList, buildFolder+'/lynx')
                                      
@@ -1387,7 +1397,7 @@ class Application:
                 comp += (item + ' ')
             for i in range(len(music)):
                 comp += buildFolder + '/lynx/music' + str(i).zfill(2) + '.asm '
-            fp.write(comp + 'unity/Lynx/sfx.s ' + buildFolder + '/lynx/directory.asm ' + buildFolder + '/lynx/data.asm ' + buildFolder + '/lynx/unity.lib\n')
+            fp.write(comp + 'unity/targets/lynx/sfx.s ' + buildFolder + '/lynx/directory.asm ' + buildFolder + '/lynx/data.asm ' + buildFolder + '/lynx/unity.lib\n')
             
             # Info
             fp.write('\necho DONE!\n\n')
@@ -1419,12 +1429,12 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
     
             # Build Unity Library
-            cList = ['bitmap.c', 'charmap.c', 'chunks.c', 'geom2d.c', 'hub.c', 'joystick.c', 'mouse.c', 'music.c', 'net-base.c', 'net-url.c', 'net-tcp.c', 'net-udp.c', 'net-web.c', 'pixel.c', 'print.c', 'scaling.c', 'sfx.c', 'sprites.c', 'widgets.c', 'Oric\\directory.c', 'Oric\\files.c']
-            sList = ['atan2.s', 'chars.s', 'tiles.s', 'Oric\\blit.s', 'Oric\\paseIJK.s', 'Oric\\keyboard.s', 'Oric\\scroll.s', 'Oric\\sedoric.s', 'Oric\\MYM.s']
+            cList = ['graphics\\bitmap.c', 'graphics\\charmap.c', 'graphics\\chunks.c', 'geom\\geom2d.c', 'adaptors\\hub.c', 'adaptors\\joystick.c', 'adaptors\\mouse.c', 'sound\\music.c', 'network\\net-base.c', 'network\\net-url.c', 'network\\net-tcp.c', 'network\\net-udp.c', 'network\\net-web.c', 'graphics\\pixel.c', 'graphics\\print.c', 'graphics\\scaling.c', 'sound\\sfx.c', 'graphics\\sprites.c', 'graphics\\widgets.c', 'targets\\oric\\directory.c', 'targets\\oric\\files.c']
+            sList = ['math\\atan2.s', 'graphics\\chars.s', 'graphics\\tiles.s', 'targets\\oric\\blit.s', 'targets\\oric\\paseIJK.s', 'targets\\oric\\keyboard.s', 'targets\\oric\\scroll.s', 'targets\\oric\\sedoric.s', 'targets\\oric\\MYM.s']
             BuildUnityLibrary(fp, 'atmos', '', cList, sList, buildFolder+'/oric')
                         
             # Compile Program
-            comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/oric/' + diskname.lower() + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-oric48k.map -Cl -O -t atmos -C unity/Oric/oric.cfg -I unity '
+            comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/oric/' + diskname.lower() + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-oric48k.map -Cl -O -t atmos -C unity/targets/oric/oric.cfg -I unity '
             for item in code:
                 comp += (item + ' ')
             fp.write(comp + buildFolder + '/oric/unity.lib\n\n')

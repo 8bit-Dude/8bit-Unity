@@ -140,7 +140,6 @@ void LoadSprites(unsigned char* filename)
 		sprData = malloc(size);
 		FileRead(sprData, -1);
 	}
-
 #elif defined(__CBM__)
 	// NEED SOLUTION: sprite sheets larger than $700
 	// can be loaded by exomizer, but not cc65!
@@ -346,10 +345,11 @@ void LocateSprite(unsigned int x, unsigned int y)
 #if (defined __APPLE2__) || (defined __ORIC__)  || (defined __LYNX__)
   void SpriteCollisions(unsigned char index)
   {
-	unsigned char i, dX, dY, rows;
-	unsigned char x1, x2, y1, y2;
+	unsigned char i, dX, dY;
+  #if (defined __APPLE2__) || (defined __ORIC__)
+	unsigned char x1, x2, y1, y2, rows;
 	unsigned int bgPtr1, bgPtr2;
-	
+  #endif	
 	// Check for collisions
 	sprCollision[index] = 0;
 	for (i=0; i<SPRITE_NUM; i++) {

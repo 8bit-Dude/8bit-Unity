@@ -75,11 +75,11 @@ try:
     if compress == 'crunch':
         # Write raw data files
         f = io.open(output.replace('.img','.raw1'), 'wb')
-        f.write(''.join([chr(16), chr(112)]))     # Load Address: $7010  
+        f.write(''.join([chr(0x10), chr(0x70)]))     # Load Address: $7010  
         f.write(''.join(buf1))
         f.close()    
         f = io.open(output.replace('.img','.raw2'), 'wb')	
-        f.write(''.join([chr(16), chr(160)]))     # Load Address: $a010         
+        f.write(''.join([chr(0x10), chr(0xa0)]))     # Load Address: $a010         
         f.write(''.join(buf2))
         f.close()    
         

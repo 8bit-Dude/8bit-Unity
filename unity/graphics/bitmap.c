@@ -43,10 +43,6 @@
   }
 #endif
 
-#if defined __CBM__  
-  unsigned char bg = 0;
-#endif
-
 // Initialize Bitmap Screen
 void InitBitmap() 
 {
@@ -181,10 +177,8 @@ void ClearBitmap()
 void LoadBitmap(char *filename) 
 {
 #if defined __ORIC__
-	// Load directly to bitmap ram
 	FileRead(filename, (void*)(BITMAPRAM));
 #elif defined __LYNX__
-	// Load from CART file system
 	if (FileRead(filename) && autoRefresh) 
 		UpdateDisplay();	
 #elif defined __APPLE2__
@@ -236,13 +230,29 @@ void LoadBitmap(char *filename)
 	}
   #endif
 #elif defined __CBM__
-	// Open Map File
+	unsigned char i;
+	unsigned int size;
 	FILE* fp = fopen(filename, "rb");  
-	fread((char*)(BITMAPRAM), 1, 2, fp);	// 2 bytes header
+  #if defined __DECRUNCH__	
+	for (i=0; i<2; i++) {
+		// Process 2 crunched blocks (screen+color, bitmap)
+		fread((char*)&size, 1, 2, fp);				// Get crunch data size
+		fread((char*)(0xff40), 1, 8, fp);			// Read first 8 bytes to temporary location
+		fread((char*)(BITMAPRAM), 1, size-8, fp);	// Read crunched data
+		rom_disable();								// Disable ROM to access $dff8-$dfff
+		memcpy((char*)(BITMAPRAM-8), (char*)(0xff40), 8);  // Copy back first 8 bytes
+		Decrunch(BITMAPRAM-8+size);					// Decrunch data		
+		if (i==0) {	// Copy first block to screen+color address locations
+			memcpy((char*)(SCREENRAM), (char*)(BITMAPRAM), 1000);
+			memcpy((char*)(COLORRAM), (char*)(BITMAPRAM+1000), 1000);
+		}
+		rom_enable();
+	}
+  #else
 	fread((char*)(BITMAPRAM), 1, 8000, fp);	// 8000 bytes bitmap ram
 	fread((char*)(SCREENRAM), 1, 1000, fp); // 1000 bytes char ram
-	fread((char*)(COLORRAM), 1, 1000, fp);	// 1000 bytes color ram
-	fread(&bg, 1, 1, fp);					// 1 byte background color
+	fread((char*)(COLORRAM),  1, 1000, fp);	// 1000 bytes color ram
+  #endif
 	fclose(fp);
 #endif
 }

@@ -30,14 +30,6 @@
   #pragma code-name("SHADOW_RAM")
 #endif
 
-#if defined __HUB__
-  #include "hub.h"
-#elif defined __FUJINET__	
-  // TODO	
-#else
-  // TODO	  
-#endif
-
 void OpenWEB(unsigned int port, unsigned int timeOut)
 {
 #if defined __HUB__

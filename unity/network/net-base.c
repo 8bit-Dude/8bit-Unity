@@ -34,14 +34,6 @@
   #pragma code-name("SHADOW_RAM")
 #endif
 
-#if defined __HUB__
-  #include "hub.h"
-#elif defined __FUJINET__	
-  // Nothing
-#else
-  #include "IP65/ip65.h"
-#endif
-
 unsigned char InitNetwork(void)
 {
 #if defined __HUB__

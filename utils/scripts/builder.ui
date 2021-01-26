@@ -1553,11 +1553,11 @@
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
-                     <object class="tk.Label" id="Label_C64Dummy1">
-                        <property name="text" translatable="yes"></property>
+                      <object class="tk.Label" id="Label_C64CrunchAssets">
+                        <property name="text" translatable="yes">Crunch</property>
                         <layout>
                           <property name="column">0</property>
-                          <property name="padx">45</property>
+                          <property name="padx">20</property>
 						  <property name="pady">2</property>
                           <property name="propagate">True</property>
                           <property name="row">1</property>
@@ -1566,11 +1566,26 @@
                       </object>
                     </child>
                     <child>
-                      <object class="tk.Label" id="Label_C64EthernetDriver">
-                        <property name="text" translatable="yes">Ethernet Driver</property>
+                      <object class="ttk.Combobox" id="Combobox_C64CrunchAssets">
+                        <property name="state">readonly</property>
+                        <property name="values">No Yes</property>
+                        <property name="width">6</property>
                         <layout>
                           <property name="column">1</property>
-                          <property name="padx">10</property>
+                          <property name="padx">20</property>
+						  <property name="pady">2</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>					
+                    <child>
+                      <object class="tk.Label" id="Label_C64EthernetDriver">
+                        <property name="text" translatable="yes">Ethernet</property>
+                        <layout>
+                          <property name="column">2</property>
+                          <property name="padx">20</property>
 						  <property name="pady">2</property>
                           <property name="propagate">True</property>
                           <property name="row">1</property>
@@ -1584,8 +1599,8 @@
                         <property name="values">IP65(TCP/UDP) IP65(UDP)</property>
                         <property name="width">14</property>
                         <layout>
-                          <property name="column">2</property>
-                          <property name="padx">10</property>
+                          <property name="column">3</property>
+                          <property name="padx">20</property>
 						  <property name="pady">2</property>
                           <property name="propagate">True</property>
                           <property name="row">1</property>
@@ -1593,19 +1608,6 @@
                         </layout>
                       </object>
                     </child>					
-                    <child>
-                     <object class="tk.Label" id="Label_C64Dummy2">
-                        <property name="text" translatable="yes"></property>
-                        <layout>
-                          <property name="column">3</property>
-                          <property name="padx">45</property>
-						  <property name="pady">2</property>
-                          <property name="propagate">True</property>
-                          <property name="row">1</property>
-                          <property name="sticky">nw</property>
-                        </layout>
-                      </object>
-                    </child>
                   </object>
                 </child>
               </object>

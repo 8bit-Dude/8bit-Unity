@@ -39,11 +39,6 @@
   extern void RestoreSprLine(unsigned char x, unsigned char y);
 #endif
 
-#ifdef __CBM__
-  extern unsigned char bg;
-#endif
-
-
 // Location of current pixel 
 unsigned char pixelX, pixelY;
 
@@ -82,7 +77,7 @@ unsigned char GetPixel()
 	rom_enable();
 	
 	// Is background color?
-	if (index==0) { return bg; }
+	if (index==0) { return 0; }
 	
 	// Analyze color index
 	offset = (pixelY/8u)*40+(pixelX/4u);

@@ -24,7 +24,7 @@
  *   specific prior written permission.
  */
  
-#include "../unity.h"
+#include "../../unity.h"
 
 // See suzy.s
 unsigned char videoInit = 0;	 
@@ -53,35 +53,6 @@ SCB_REHV_PAL cursorSCB =  { BPP_4 | TYPE_NONCOLL, REHV | LITERAL, 0, 0, (char*)&
 						    0x0100, 0x0100, { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef } };							
 SCB_REHV_PAL keybrdSCB =  { BPP_4 | TYPE_NONCOLL, REHV | LITERAL, 0, 0, (char*)&keybrdData, 0, 0, 
 						    0x0100, 0x0100, { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef } };							
-
-// Workaround for missing char printing (including palette remapping)
-unsigned char textColors[] = { BLACK, RED, PINK, GREY, GREY, GREY, BROWN, ORANGE, YELLOW, LGREEN, GREEN, DRED, PURPLE, BLUE, LBLUE, WHITE };
-unsigned char chrCol, chrRow;
-void clrscr(void) {
-	InitBitmap(); ClearBitmap();
-}
-unsigned char textcolor(unsigned char color) {
-	inkColor = textColors[color];
-}
-unsigned char bgcolor(unsigned char color) {
-	paperColor = textColors[color];
-}
-unsigned char bordercolor(unsigned char color) {
-}
-void screensize(unsigned char *xSize, unsigned char *ySize) {
-	*xSize = 40; *ySize = 17;
-}
-void gotoxy(unsigned char col, unsigned char row) {
-	chrCol = col; chrRow = row;
-}
-int cprintf (const char* format, ...) {
-	PrintStr(chrCol, chrRow, format);
-	chrCol += strlen(format);
-	while (chrCol > 39) {
-		chrCol -= 40;
-		chrRow++;
-	}
-}
 
 // Soft keyboard functions
 clock_t keybrdClock = 0;
