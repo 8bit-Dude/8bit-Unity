@@ -63,6 +63,8 @@
 
 // See slicks.c
 extern unsigned char inkColors[];
+extern const char *mapList[LEN_MAPS];
+extern unsigned char lapNumber[LEN_LAPS];
 
 // See game.c
 extern unsigned char gameMode, gameMap, gameStep;
@@ -85,13 +87,7 @@ extern char networkReady;
 void __fastcall__ SuzyFlip(void);
 
 // Build Information
-const char* buildInfo = "BUILD: 2021/01/24";
-
-// List of available maps
-const char *mapList[LEN_MAPS] = {"arizona","arto","cramp","freeway","gta","island","mtcarlo","rally","river","stadium","suzuka","trial"};
-
-// List of lap goals
-unsigned char lapNumber[LEN_LAPS] = { 5, 10, 20, 50 };
+const char* buildInfo = "BUILD: 2021/01/26";
 
 // List of controller types
 #if defined __LYNX__
@@ -319,20 +315,6 @@ void InputField(unsigned char col, unsigned char row, char *buffer, unsigned cha
 }
 
 #if defined __LYNX__
-const char *musicList[4] = {"chase.mus","driven.mus","stroll.mus","whirlwnd.mus"};
-unsigned char musicSel = 0;
-void NextMusic(unsigned char blank) {
-	// Change music track
-	if (!blank && musicSel > 3)
-		musicSel = 0;
-	if (musicSel <= 3) {
-		LoadMusic(musicList[musicSel]);
-		PlayMusic();
-	}
-	if (++musicSel > 3+blank) 
-		musicSel = 0;
-}
-
 unsigned char gamePaused = 0;
 unsigned char cursorJoy, cursorKey, cursorBut2, cursorPressed;
 unsigned char cursorFlick, cursorCol = MENU_COL, cursorRow = MENU_ROW+2;
@@ -368,10 +350,8 @@ void LynxCursorControl()
 			SuzyFlip();
 			break;
 		case KB_MUSIC:
-			if (!gamePaused) {
-				StopMusic();
+			if (!gamePaused)
 				NextMusic(0);
-			}
 			break;
 		case KB_PAUSE:
 			cursorKey = KB_PAUSE;

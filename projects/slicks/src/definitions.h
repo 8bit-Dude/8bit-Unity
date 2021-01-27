@@ -118,6 +118,11 @@ typedef struct {
 	int x[2], y[2];	// Coordinates
 } Ramp;
 
+// See slicks.s
+#if defined __LYNX__
+  void NextMusic(unsigned char blank);
+#endif
+
 // See game.c
 void GameReset(void);
 void GameInit(const char* map);

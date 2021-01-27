@@ -38,14 +38,19 @@
 	unsigned char inkColors[] = { DBLUE, ORANGE, LGREEN, YELLOW, WHITE };	// P1, P2, P3, P4, SERVER INFO
 #endif
 
-// See interface.c
-extern unsigned char gameMap, gameMode, gameStep;
-#if defined __LYNX__
-  void NextMusic(unsigned char blank);
-#endif
+// List of available maps
+const char *mapList[LEN_MAPS] = {"arizona","arto","cramp","freeway","gta","island","mtcarlo","rally","river","stadium","suzuka","trial"};
 
-// See interface.c
-extern const char *mapList[LEN_MAPS];
+// List of lap goals
+unsigned char lapNumber[LEN_LAPS] = { 5, 10, 20, 50 };
+
+// Game state
+extern unsigned char gameMap, gameMode, gameStep;
+
+#if defined __LYNX__
+  void NextMusic(unsigned char blank) {
+  }
+#endif
 
 int main (void) 
 {

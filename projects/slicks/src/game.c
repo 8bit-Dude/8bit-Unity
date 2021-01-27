@@ -49,9 +49,6 @@ extern const char *mapList[LEN_MAPS];
 #if defined(__CBM__) || defined(__LYNX__)
   extern unsigned char paperBuffer;
 #endif
-#if defined __LYNX__
-  void NextMusic(unsigned char blank);
-#endif
 
 // See navigation.c
 extern Vehicle cars[MAX_PLAYERS];
@@ -817,7 +814,6 @@ char GameLoop()
 					gameClock = clock(); paperColor = BLACK;
 					break;
 				case KB_MUSIC:
-					StopMusic();
 					NextMusic(1);
 					break;
 				}

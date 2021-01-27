@@ -166,11 +166,7 @@
                 "projects/slicks/sprites/sprites-lynx.png"
             ], 
             "music": [
-                "projects/slicks/music/speednik-lynx.asm", 
-                "projects/slicks/music/chase-lynx.asm", 
-                "projects/slicks/music/driven-lynx.asm", 
-                "projects/slicks/music/stroll-lynx.asm", 
-                "projects/slicks/music/whirlwnd-lynx.asm"
+                "projects/slicks/music/speednik-lynx.asm"
             ], 
             "chunks": []
         }, 
