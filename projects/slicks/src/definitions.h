@@ -50,15 +50,19 @@
 
 // Controller definitions
 #if defined __APPLE2__
-	#define LEN_CONTROL 9
+  #define LEN_CONTROL 9
 #elif defined __ATARI__
-	#define LEN_CONTROL 9
-#elif defined __ORIC__
-	#define LEN_CONTROL 9
+  #define LEN_CONTROL 9
+  #define SPR2_SLOT   7
 #elif defined __CBM__
-	#define LEN_CONTROL 9
+  #define LEN_CONTROL 9
+  #define SPR2_SLOT   4  
 #elif defined __LYNX__
-	#define LEN_CONTROL 8
+  #define LEN_CONTROL 8
+  #define SPR2_SLOT   4
+#elif defined __ORIC__
+  #define LEN_CONTROL 9
+  #define SPR2_SLOT   4
 #endif
 #define NET_CONTROL (LEN_CONTROL-1)
 

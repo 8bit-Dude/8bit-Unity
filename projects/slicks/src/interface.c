@@ -75,13 +75,10 @@ extern Vehicle cars[MAX_PLAYERS];
 
 // See network.c
 extern unsigned int packet;
-extern unsigned char clUser[5];
-extern unsigned char clPass[13];
-extern unsigned char svUsers[MAX_PLAYERS][5];
 extern unsigned char svMap, svStep; 
-extern char chatBuffer[20];
-extern char udpBuffer[28];
-extern char networkReady;
+extern unsigned char svUsers[MAX_PLAYERS][5];
+extern unsigned char clIndex, clUser[5], clPass[13];
+extern char networkReady, chatBuffer[20], udpBuffer[28];
 
 // See Unity/Lynx/Suzy.s
 void __fastcall__ SuzyFlip(void);
@@ -315,11 +312,13 @@ void InputField(unsigned char col, unsigned char row, char *buffer, unsigned cha
 }
 
 #if defined __LYNX__
-unsigned char gamePaused = 0;
+clock_t cursorClock;
 unsigned char cursorJoy, cursorKey, cursorBut2, cursorPressed;
 unsigned char cursorFlick, cursorCol = MENU_COL, cursorRow = MENU_ROW+2;
 unsigned char cursorTop = MENU_ROW+2, cursorHeight = MENU_HEI-2;
-clock_t cursorClock;
+unsigned char *pauseLabel[] = { "resume", "race!", "next!", "quit", "hello!", "bye!", "congrat", "thanks!" };
+unsigned char pauseAction[] = { KB_PAUSE, KB_START, KB_NEXT, KB_QUIT, 4, 5, 6, 7 };
+unsigned char gamePaused = 0;
 
 void LynxCursorFlicker()
 {
@@ -337,9 +336,6 @@ void LynxCursorFlicker()
 	}
 	cursorFlick = !cursorFlick;
 }
-
-unsigned char pauseLocal[] =  { KB_PAUSE, KB_NEXT, KB_QUIT };
-unsigned char pauseOnline[] = { KB_PAUSE, KB_START, KB_NEXT, 3, 4, 5, 6, KB_QUIT };
 
 void LynxCursorControl()
 {
@@ -387,11 +383,7 @@ void LynxCursorControl()
 	if (!(cursorJoy & JOY_UP)) { 
 		cursorRow -= 1; 
 		if (gamePaused) {
-			if (gameMode == MODE_LOCAL) {
-					 if (cursorRow  < PAUSE_LOCAL_ROW)  { cursorRow = PAUSE_LOCAL_ROW; }
-			} else {
-					 if (cursorRow  < PAUSE_ONLINE_ROW) { cursorRow = PAUSE_ONLINE_ROW; }
-			}
+			if (cursorRow < cursorTop)			   { cursorRow = cursorTop; }
 		} else {		
 			if (gameMode == MODE_LOCAL) {
 					 if (cursorRow  < MENU_ROW+2)  { cursorRow = MENU_ROW+2; }			
@@ -407,9 +399,9 @@ void LynxCursorControl()
 		cursorRow += 1; 
 		if (gamePaused) {
 			if (gameMode == MODE_LOCAL) {
-					 if (cursorRow  > PAUSE_LOCAL_ROW+2)  { cursorRow = PAUSE_LOCAL_ROW+2; }
+			    if (cursorRow  > PAUSE_LOCAL_ROW+3)  { cursorRow = PAUSE_LOCAL_ROW+2; }
 			} else {
-					 if (cursorRow  > PAUSE_ONLINE_ROW+7) { cursorRow = PAUSE_ONLINE_ROW+7; }
+				if (cursorRow  > PAUSE_ONLINE_ROW+7) { cursorRow = PAUSE_ONLINE_ROW+7; }
 			}
 		} else {
 			if (gameMode == MODE_LOCAL) {
@@ -427,11 +419,7 @@ void LynxCursorControl()
 		if (!(cursorJoy & JOY_BTN2))
 			cursorBut2 = 1;
 		if (gamePaused) {
-			if (gameMode == MODE_LOCAL) {
-				cursorKey = pauseLocal[cursorRow-PAUSE_LOCAL_ROW];
-			} else {
-				cursorKey = pauseOnline[cursorRow-PAUSE_ONLINE_ROW];
-			}
+				cursorKey = pauseAction[cursorRow-cursorTop];
 		} else {
 			if (gameMode == MODE_LOCAL) {
 					 if (cursorRow == MENU_ROW+11) { cursorKey = KB_SP; }
@@ -459,33 +447,31 @@ void RestorePauseBg()
 	}	
 }
 
-unsigned char *localMsg[] = { "resume", "next!", "quit" };
-unsigned char *onlineMsg[] = { "resume", "race!", "next!", "hello!", "bye!", "congrat", "thanks!", "quit" };
 unsigned char pauseEvt;
 
 unsigned char MenuPause()
 {
-	// Draw Menu
-	unsigned char i, num = 3, row = PAUSE_LOCAL_ROW, **msg = localMsg;
+	unsigned char i;
 	
-	// Set Cursor and Print Options
+	// Set Cursor and Print options
 	cursorCol = PAUSE_COL;
 	if (gameMode == MODE_LOCAL) {
-		cursorHeight = 3;	
+		cursorHeight = 4;	
 		cursorRow = PAUSE_LOCAL_ROW;
 		cursorTop = PAUSE_LOCAL_ROW;
 	} else {
 		cursorHeight = 8;	
 		cursorRow = PAUSE_ONLINE_ROW;
 		cursorTop = PAUSE_ONLINE_ROW;
-		row = PAUSE_ONLINE_ROW;
-		msg = onlineMsg;
-		num = 8;
 	}		
-	paperColor = PAPER_SCORES; inkColor = WHITE;
-	PrintBlanks(PAUSE_COL, row, 9, num);
-	for (i=0; i<num; i++)
-		PrintStr(PAUSE_COL+2, row+i, msg[i]);
+	paperColor = PAPER_SCORES;
+	PrintBlanks(PAUSE_COL, cursorRow, 9, cursorHeight);
+	inkColor = WHITE;
+	for (i=0; i<cursorHeight; i++) {
+		if (i>3) inkColor = inkColors[clIndex];
+		PrintStr(PAUSE_COL+2, cursorRow+i, pauseLabel[i]);
+	}
+	inkColor = WHITE;
 			
 	while (!kbhit()) {
 		// In online mode, check if a race/map/timeout event occured
@@ -499,7 +485,7 @@ unsigned char MenuPause()
 		if (cursorKey) { 
 			if (gameMode == MODE_ONLINE && cursorKey < 8) {
 				// Process chat event then exit menu
-				memcpy(chatBuffer, onlineMsg[cursorKey], 8);
+				memcpy(chatBuffer, pauseLabel[cursorKey], 8);
 				ClientEvent(EVENT_CHAT);
 				return KB_PAUSE;
 			} else {
@@ -631,11 +617,18 @@ void PrintScores()
 			}
 			dist[i] = GetWaypointDistance(car);
 		#if defined(__ATARI__) || defined(__CBM__)
-			if (car->x2 > 15*64-32 && car->x2 < 25*64+32 && car->y2 > 8*64-32 && car->y2 < 17*64+32)
-				DisableSprite(i);
+			if (car->x2 > 15*64-32 && car->x2 < 25*64+32 && car->y2 > 8*64-32 && car->y2 < 17*64+32) {
+				DisableSprite(i);			// Main sprite
+			#if defined(__ATARI__)
+				DisableSprite(4+5*(i%2));	// Jump sprite			
+			#elif defined(__CBM__)
+				DisableSprite(SPR2_SLOT+i);	// Jump sprite			
+			#endif
+			}
 		#elif defined(__LYNX__)
 			if (car->x2 > 15*64-32 && car->x2 < 25*64+32 && car->y2 > 4*96-48 && car->y2 < 13*96+48) {
-				DisableSprite(i);
+				DisableSprite(i);			// Main sprite
+				DisableSprite(SPR2_SLOT+i);	// Jump sprite			
 			} else {
 				spriteX = car->x2/16u; 
 				spriteY = car->y2/16u;				

@@ -121,29 +121,29 @@ char CheckWaypoint(Vehicle *car)
 	// Fetch waypoint
 	GetWaypoint(car);
 	
-	// Check dot products against 1st Waypoint vector
+	// Check waypoint vector dot products against old position
 	v1[0] = (car->x1 - way->x)/16u;
 	v1[1] = (car->y1 - way->y)/16u;		
-	if ( (dot(v1, way->v[step]) > 0) ) {
+	if ( (dot(v1, way->v[step]) >= 0) ) {
 
-		// Check dot products against 2nd Waypoint vector
+		// Check waypoint vector dot products against new position
 		v2[0] = (car->x2 - way->x)/16u;
 		v2[1] = (car->y2 - way->y)/16u;				
-		if ( (dot(v2, way->v[step]) > 0) ) {
+		if ( (dot(v2, way->v[step]) >= 0) ) {
 			
 			// Compute 90 deg rotated vector
 			v90[0] = -way->v[step][1];
 			v90[1] =  way->v[step][0];
 
 			// Check dot products with 90 deg rotated vector
-			if ((dot(v1, v90) >= 0) & (dot(v2, v90) <= 0)) { 
+			if ((dot(v1, v90) >= 0) && (dot(v2, v90) <= 0)) { 
 			#ifdef DEBUG_NAV
 				PrintBlanks(0, 0, 2, 0);
 				PrintNum(0, 0, car->way+1);
 			#endif
 				return 1; 
 			}
-			if ((dot(v1, v90) <= 0) & (dot(v2, v90) >= 0)) { 
+			if ((dot(v1, v90) <= 0) && (dot(v2, v90) >= 0)) { 
 			#ifdef DEBUG_NAV
 				PrintBlanks(0, 0, 2, 0);
 				PrintNum(0, 0, car->way+1);
@@ -163,10 +163,6 @@ int GetWaypointDistance(Vehicle *car)
 	dy = (car->y2 - way->y)/16u;	
 	return ABS(dx)+ABS(dy);
 }
-
-#ifdef __ATARIXL__
-  #pragma code-name("SHADOW_RAM")
-#endif
 
 int GetWaypointAngle(Vehicle *car)
 {

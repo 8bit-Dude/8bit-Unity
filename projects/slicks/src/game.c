@@ -15,22 +15,18 @@
   #define RACE_ROAD BLACK
   #define RACE_MARK GREY
   #define RACE_WALL BROWN
-  #define SPR2_SLOT 7
 #elif defined __ORIC__
   #define RACE_ROAD BLACK
   #define RACE_MARK LGREEN
   #define RACE_WALL PURPLE
-  #define SPR2_SLOT 4
 #elif defined __CBM__
   #define RACE_ROAD LGREY
   #define RACE_MARK YELLOW
   #define RACE_WALL PURPLE
-  #define SPR2_SLOT 4
 #elif defined __LYNX__
   #define RACE_ROAD GREY
   #define RACE_MARK YELLOW
   #define RACE_WALL PURPLE
-  #define SPR2_SLOT 4
   void BackupPauseBg(void);
   void RestorePauseBg(void);
   unsigned char MenuPause(void);
@@ -682,6 +678,7 @@ char GameLoop()
 				// Hit a wall: return to previous position
 				if (iVel > velMin) { iVel = velMin; }
 				if (iCtrl > 3) {
+					if (iJmp) { iJmp = 0; }
 					iX = car->x2;
 					iY = car->y2;
 					BumpSFX();

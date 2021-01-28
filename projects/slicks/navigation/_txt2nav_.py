@@ -24,13 +24,13 @@
  *   specific prior written permission.
 """
 
-import io,struct
-
-maps = ['arizona','arto','cramp','freeway','gta','island','mtcarlo','rally','river','stadium','suzuka','trial']
+import io, os, struct
+maps = [f.replace('.txt','') for f in os.listdir('.') if f.endswith('.txt')]
 
 for map in maps:
 	#######################
 	# Read ascii txt file
+	print "Converting: " + map
 	f1 = io.open(map+'.txt', 'r')
 
 	header = f1.readline()
