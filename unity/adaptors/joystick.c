@@ -60,7 +60,6 @@ void InitJoy(void)
 		InitPaseIJK(joyAdaptor);
 	}
 #else
-	return;
 #endif
 }
 

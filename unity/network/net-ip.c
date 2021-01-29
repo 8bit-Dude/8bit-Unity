@@ -34,27 +34,31 @@
   #pragma code-name("SHADOW_RAM")
 #endif
 
-unsigned char InitNetwork(void)
+unsigned char GetLocalIP(unsigned char* ip)
 {
 #if defined __HUB__
-	// Detect if HUB is connected
+	// Check if data was received from Hub
 	clock_t timer = clock();
-	while ((clock()-timer) < TCK_PER_SEC) { 
-		if (hubState[0] == COM_ERR_OK)
-			return NETWORK_OK;
-		UpdateHub();
-	}
-	return ADAPTOR_ERR;
+	QueueHub(HUB_SYS_IP, 0, 0);
+	while (1) {
+		// Inquire next packet
+		UpdateHub();	
 
-#elif defined __FUJINET__
-	// Initialize Fujinet
-	FujiInit();
-	return NETWORK_OK;
+		// Check if we received packet
+		if (recvLen && recvHub[0] == HUB_SYS_IP) { 
+			recvLen = 0;  // Clear packet
+			memcpy(ip, &recvHub[2], recvHub[1]);
+			return 1; 
+		}		
+		
+		// Check time-out
+		if ((clock() - timer) >= 20) { return 0; }	
+	}
+	
+#elif defined __FUJINET__	
+	// TODO	
 	
 #else
-	// Init IP65 and DHCP
-	if (ip65_init(ETH_INIT_DEFAULT)) return ADAPTOR_ERR;
-	if (dhcp_init()) return DHCP_ERR;
-	return NETWORK_OK;
+	// TODO	
 #endif
 }
