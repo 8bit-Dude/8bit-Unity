@@ -163,11 +163,12 @@ void ClearBitmap()
 	bzero((char*)COLORRAM,  1000);
 	
 #elif defined __LYNX__
-	unsigned int i;
-	memset(BITMAPRAM, 0xff, 8364); 
+	unsigned char i;
+	unsigned int addr = BITMAPRAM;
+	memset(addr, 0xff, 8364); 
 	for (i=0; i<102; i++) { 
-		POKE((char*)BITMAPRAM+i*82,    0x52); 
-		POKE((char*)BITMAPRAM+i*82+81, 0x00); 
+		POKE((char*)addr, 0x52); addr+=81;
+		POKE((char*)addr, 0x00); addr+=1;
 	}
 	UpdateDisplay();
 #endif
