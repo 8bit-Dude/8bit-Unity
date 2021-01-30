@@ -105,45 +105,54 @@ char CheckRamps(Vehicle *car)
 }
 
 // Functions to check navigation around cylinders
-signed char v1[2], v2[2], v90[2];
-unsigned char step;
+signed char v1[2], v2[2], dist[2], cross[2], *vWay;
 Waypoint *way;
 
 void GetWaypoint(Vehicle *car)
 {
 	// Prepare waypoint variables
 	way = &ways[car->way/2u];
-	step = car->way%2;
+	vWay = way->v[car->way%2];
 }
 
 char CheckWaypoint(Vehicle *car)
 {
+	signed int dotCross1, dotCross2;
+	
 	// Fetch waypoint
 	GetWaypoint(car);
 	
 	// Check waypoint vector dot products against old position
 	v1[0] = (car->x1 - way->x)/16u;
-	v1[1] = (car->y1 - way->y)/16u;		
-	if ( (dot(v1, way->v[step]) >= 0) ) {
-
+	v1[1] = (car->y1 - way->y)/16u;	
+	if ( (dot(v1, vWay) >= 0) ) {
+		
 		// Check waypoint vector dot products against new position
 		v2[0] = (car->x2 - way->x)/16u;
 		v2[1] = (car->y2 - way->y)/16u;				
-		if ( (dot(v2, way->v[step]) >= 0) ) {
+		if ( (dot(v2, vWay) >= 0) ) {
 			
-			// Compute 90 deg rotated vector
-			v90[0] = -way->v[step][1];
-			v90[1] =  way->v[step][0];
+			// Check proximty to waypoint
+			dist[0] = v2[0] - vWay[0]/2u;
+			dist[1] = v2[1] - vWay[1]/2u;
+			if (dot(dist, dist) < 50)
+				return 1;
+			
+			// Compute dot products with 90 deg rotated vector
+			cross[0] = -vWay[1];
+			cross[1] =  vWay[0];
+			dotCross1 = dot(v1, cross);
+			dotCross2 = dot(v2, cross);
 
 			// Check dot products with 90 deg rotated vector
-			if ((dot(v1, v90) >= 0) && (dot(v2, v90) <= 0)) { 
+			if (dotCross1 >= 0 && dotCross2 <= 0) { 
 			#ifdef DEBUG_NAV
 				PrintBlanks(0, 0, 2, 0);
 				PrintNum(0, 0, car->way+1);
 			#endif
 				return 1; 
 			}
-			if ((dot(v1, v90) <= 0) && (dot(v2, v90) >= 0)) { 
+			if (dotCross1 <= 0 && dotCross2 >= 0) { 
 			#ifdef DEBUG_NAV
 				PrintBlanks(0, 0, 2, 0);
 				PrintNum(0, 0, car->way+1);
@@ -168,7 +177,7 @@ int GetWaypointAngle(Vehicle *car)
 {
 	unsigned char dx = 128, dy = 128;	
 	GetWaypoint(car);
-	dx += (way->x + 8*way->v[step][0] - car->x2)/16u;
-	dy -= (way->y + 8*way->v[step][1] - car->y2)/16u;
+	dx += (way->x + 8*vWay[0] - car->x2)/16u;
+	dy -= (way->y + 8*vWay[1] - car->y2)/16u;
 	return (45*(unsigned int)atan2(dy,dx))/32u;
 }

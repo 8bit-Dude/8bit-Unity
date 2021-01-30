@@ -95,15 +95,15 @@ const char* buildInfo = "BUILD: 2021/01/26";
 	unsigned char controlBackup[MAX_PLAYERS] = { 4, 1, 0, 0 };
 #endif
 #if defined __APPLE2__
-	const char* controlList[LEN_CONTROL] = { "NONE", "CPU EASY", "CPU MED.", "CPU HARD", "PADDLE 1", "PADDLE 2", "PADDLE 3", "PADDLE 4", "NETWORK" };
+	const char* controlList[LEN_CONTROL] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "PADDLE 1", "PADDLE 2", "PADDLE 3", "PADDLE 4", "NETWORK" };
 #elif defined __ATARI__
-	const char* controlList[LEN_CONTROL] = { "NONE", "CPU EASY", "CPU MED.", "CPU HARD", "JOY 1", "JOY 2", "HUB 1", "HUB 2", "NETWORK" };
+	const char* controlList[LEN_CONTROL] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "JOY 1", "JOY 2", "HUB 1", "HUB 2", "NETWORK" };
 #elif defined __ORIC__
-	const char* controlList[LEN_CONTROL] = { "NONE", "CPU EASY", "CPU MED.", "CPU HARD", "A,D,CTRL", "J,L,RET", "HUB/IJK 1", "HUB/IJK 2", "NETWORK" };
+	const char* controlList[LEN_CONTROL] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "A,D,CTRL", "J,L,RET", "HUB/IJK 1", "HUB/IJK 2", "NETWORK" };
 #elif defined __CBM__
-	const char* controlList[LEN_CONTROL] = { "NONE", "CPU EASY", "CPU MED.", "CPU HARD", "JOY 1", "JOY 2", "JOY 3", "JOY 4", "NETWORK" };
+	const char* controlList[LEN_CONTROL] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "JOY 1", "JOY 2", "JOY 3", "JOY 4", "NETWORK" };
 #elif defined __LYNX__
-	const char* controlList[LEN_CONTROL] = { "NONE", "CPU EASY", "CPU MED.", "CPU HARD", "JOY 1", "HUB 1", "HUB 2", "NETWORK" };
+	const char* controlList[LEN_CONTROL] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "JOY 1", "HUB 1", "HUB 2", "HUB 3", "NETWORK" };
 #endif
 
 // Performance Drawing
@@ -399,7 +399,7 @@ void LynxCursorControl()
 		cursorRow += 1; 
 		if (gamePaused) {
 			if (gameMode == MODE_LOCAL) {
-			    if (cursorRow  > PAUSE_LOCAL_ROW+3)  { cursorRow = PAUSE_LOCAL_ROW+2; }
+			    if (cursorRow  > PAUSE_LOCAL_ROW+3)  { cursorRow = PAUSE_LOCAL_ROW+3; }
 			} else {
 				if (cursorRow  > PAUSE_ONLINE_ROW+7) { cursorRow = PAUSE_ONLINE_ROW+7; }
 			}
@@ -425,26 +425,25 @@ void LynxCursorControl()
 					 if (cursorRow == MENU_ROW+11) { cursorKey = KB_SP; }
 				else if (cursorRow == MENU_ROW+9)  { cursorKey = KB_L; }
 				else if (cursorRow == MENU_ROW+7)  { cursorKey = KB_M; }
-				else if (cursorRow >= MENU_ROW+2)  { cursorKey = 49 + (cursorRow-(MENU_ROW+2)); }
-			}   else if (gameMode == MODE_ONLINE)  { cursorKey = 49 + (cursorRow-(MENU_ROW+2)); }
+				else if (cursorRow >= MENU_ROW+2)  { cursorKey = 49 - (MENU_ROW+2) + cursorRow; }
+			}   else if (gameMode == MODE_ONLINE)  { cursorKey = 49 - (MENU_ROW+2) + cursorRow; }
 		}
 	}
 }
 
-void BackupPauseBg()
+void BackupRestorePauseBg(unsigned char mode)
 {
 	unsigned char i;
+	unsigned int addr1 = chatBG;
+	unsigned int addr2 = BITMAPRAM+1+2*PAUSE_COL+492*PAUSE_ONLINE_ROW;
 	for (i=0; i<(8*6); ++i) {
-		memcpy(&chatBG[0]+i*18, (char*)(BITMAPRAM+1+2*PAUSE_COL+492*PAUSE_ONLINE_ROW+i*82), 18);
+		if (!mode)
+			memcpy(addr1, addr2, 18);
+		else
+			memcpy(addr2, addr1, 18);
+		addr1 += 18; addr2 += 82;
 	}		
-}
-
-void RestorePauseBg()
-{
- 	unsigned char i;
-	for (i=0; i<(8*6); ++i) {
-		memcpy((char*)(BITMAPRAM+1+2*PAUSE_COL+492*PAUSE_ONLINE_ROW+i*82), &chatBG[0]+i*18, 18);
-	}	
+	
 }
 
 unsigned char pauseEvt;
@@ -809,7 +808,7 @@ unsigned char MenuLogin(unsigned char serverIndex)
 		clUser[res] = lynx_eeprom_read(res);
 		res++;
 	}
-	SetKeyboardOverlay(13,70);
+	SetKeyboardOverlay(11,60);
 #endif	
 	// Prompt for authentication
 	for (res=0; res<5; res++)

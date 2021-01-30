@@ -27,8 +27,7 @@
   #define RACE_ROAD GREY
   #define RACE_MARK YELLOW
   #define RACE_WALL PURPLE
-  void BackupPauseBg(void);
-  void RestorePauseBg(void);
+  void BackupRestorePauseBg(unsigned char);
   unsigned char MenuPause(void);
   extern unsigned char pauseEvt;
   extern unsigned char gamePaused;
@@ -185,7 +184,7 @@ void GameReset()
 // Initialize Game
 void GameInit(const char* map)
 {
-	char i, slot, len, buffer[12];
+	char i, slot, len, buffer[13];
 	
 	// Assign clock dependent physics params
 	tck4 = 4*TCK_PER_SEC;
@@ -201,8 +200,7 @@ void GameInit(const char* map)
 	// Copy Filename into Buffer
 	len = strlen(map);
 	memcpy(&buffer[0], map, len);
-	memcpy(&buffer[len], ".img", 4);
-	buffer[len+4] = 0;
+	memcpy(&buffer[len], ".img", 5);
 	
 	// Load Bitmap and backup chat row
 	LoadBitmap(&buffer[0]);
@@ -250,10 +248,6 @@ void GameInit(const char* map)
 		else 
 			controlIndex[clIndex] = 4;		
     }
-#if defined __LYNX__
-	// Overlay for in-game chat
-	SetKeyboardOverlay(13,13);
-#endif	
 }
 
 // Game step
@@ -804,9 +798,9 @@ char GameLoop()
 					break;
 				case KB_PAUSE: 
 					for (j=0; j<MAX_PLAYERS; ++j) { DisableSprite(j); }
-					gamePaused = 1; lynx_snd_pause(); BackupPauseBg();
+					gamePaused = 1; lynx_snd_pause(); BackupRestorePauseBg(0);
 					lastKey = MenuPause();
-					gamePaused = 0; lynx_snd_continue(); RestorePauseBg(); 
+					gamePaused = 0; lynx_snd_continue(); BackupRestorePauseBg(1); 
 					for (j=0; j<MAX_PLAYERS; ++j) { if (PlayerAvailable(j)) EnableSprite(j); }
 					gameClock = clock(); paperColor = BLACK;
 					break;

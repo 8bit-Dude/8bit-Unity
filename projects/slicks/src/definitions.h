@@ -58,7 +58,7 @@
   #define LEN_CONTROL 9
   #define SPR2_SLOT   4  
 #elif defined __LYNX__
-  #define LEN_CONTROL 8
+  #define LEN_CONTROL 9
   #define SPR2_SLOT   4
 #elif defined __ORIC__
   #define LEN_CONTROL 9
