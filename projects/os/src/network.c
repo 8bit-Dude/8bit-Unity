@@ -1,6 +1,7 @@
 
 #include "definitions.h"
 
+unsigned char svIP[] = {199, 47, 196, 106};
 char netConnected = 0;
 
 void ServerConnect()
@@ -9,6 +10,6 @@ void ServerConnect()
 	netConnected = !InitNetwork();
 	if (netConnected) {
 		SlotTCP(0);
-		OpenTCP(199, 47, 196, 106, 1999);
+		OpenTCP(svIP, 1999);
 	}
 }
