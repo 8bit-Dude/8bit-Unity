@@ -124,18 +124,9 @@ int main (void)
 	clrscr();
 
 	// Show Title Screen
-#if defined(__ORIC__)
-#elif defined(__CBM__)
-	LoadMusic("title.mus");
-#else
-	LoadMusic("dungeon.mus");
-#endif
 	SplashScreen();
 
 	// Run Game	
-#ifdef __CBM__	
-	LoadMusic("dungeon.mus");
-#endif
 	GameInit();
 	GameLoop();
 		

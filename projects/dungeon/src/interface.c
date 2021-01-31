@@ -28,9 +28,13 @@ void SplashScreen(void)
 	PrintStr(CHR_COLS-12, CHR_ROWS-2, " 2021/01/16 ");
 	
 	// Start music
-#ifndef __ORIC__
+#ifdef __CBM__	
+	LoadMusic("title.mus");
+#else
+	LoadMusic("dungeon.mus");
+#endif	
 	PlayMusic();
-#endif
+
 	// Wait until key is pressed
 	while (!kbhit()) {	
 	#if defined __APPLE2__
@@ -42,8 +46,9 @@ void SplashScreen(void)
 	
 	// Exit banner screen
 	HideBitmap();
-#ifndef __ORIC__
-	StopMusic();	
+	StopMusic();		
+#ifdef __CBM__	
+	LoadMusic("dungeon.mus");
 #endif
 }
 

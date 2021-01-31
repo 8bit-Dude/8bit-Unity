@@ -48,7 +48,9 @@ void LoadMusic(const char* filename)
 {
 #if defined __ORIC__
 	// Load from File
+	unsigned char weird;
 	FileRead(filename, (char*)MUSICRAM);
+	weird = 0;	// without this code, Oric gets jammed!
 #elif defined __LYNX__
 	// Load from CART file system
 	FileRead(filename);
