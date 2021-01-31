@@ -105,7 +105,7 @@
 									   0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef }; 
 	unsigned char sprX[SPRITE_NUM], sprY[SPRITE_NUM];	// Screen coordinates
 	unsigned char sprDrawn[SPRITE_NUM], sprCollision[SPRITE_NUM]; // Enable and Collision status
-	unsigned char sprCOLS, sprROWS;					    // Sprite dimensions
+	unsigned char sprCOLS, sprROWS, sprCUSHION=2;		// Sprite dimensions and cushioning
 	SCB_REHV_PAL sprSCB[SPRITE_NUM];					// Frame data
 	extern unsigned int spriteData[]; 
 	void ScaleSprite(unsigned char index, unsigned int xPercent, unsigned int yPercent) {
@@ -349,6 +349,8 @@ void LocateSprite(unsigned int x, unsigned int y)
   #if (defined __APPLE2__) || (defined __ORIC__)
 	unsigned char x1, x2, y1, y2, rows;
 	unsigned int bgPtr1, bgPtr2;
+  #elif (defined __LYNX__)
+	unsigned char cushion;
   #endif	
 	// Check for collisions
 	sprCollision[index] = 0;
@@ -358,12 +360,14 @@ void LocateSprite(unsigned int x, unsigned int y)
 		if (!sprDrawn[i]) { continue; }
 		
 		// Check Y distance
-		dY = sprY[i] - spriteY;
 	#if defined __APPLE2__
+		dY = sprY[i] - spriteY;
 		rows = MAX(sprROWS[index], sprROWS[i]);
 		if (dY < rows || dY>(256-rows)) {
+			
 			dX = sprHiresX[i] - xHires;
 			if (dX < 2 || dX>254) {
+				
 				// Apply collision
 				sprCollision[index] |= 1 << i;
 				sprCollision[i] |= 1 << index;
@@ -397,10 +401,13 @@ void LocateSprite(unsigned int x, unsigned int y)
 			}
 		}
 	#elif defined __ORIC__
+		dY = sprY[i] - spriteY;
 		rows = MAX(sprROWS[index], sprROWS[i]);
 		if (dY < rows || dY>(256-rows)) {
+			
 			dX = sprX[i] - spriteX;		
 			if (dX < 4 || dX>252) {	// Including INK bytes
+			
 				// Check narrower collision sector
 				if (dX < 2 || dX>254) {	// Not including INK bytes
 					sprCollision[index] |= 1 << i;
@@ -433,9 +440,14 @@ void LocateSprite(unsigned int x, unsigned int y)
 			}
 		}
 	#elif defined __LYNX__
-		if (dY < (sprROWS-3) || dY>(256-(sprROWS-3))) {
+		dY = sprY[i] - spriteY;
+		cushion = sprROWS-sprCUSHION;
+		if (dY < cushion || dY>(256-cushion)) {
+			
 			dX = sprX[i] - spriteX;
-			if (dX < (sprCOLS-3) || dX>(256-(sprCOLS-3))) {
+			cushion = sprCOLS-sprCUSHION;
+			if (dX < cushion || dX>(256-cushion)) {
+				
 				// Apply collision
 				sprCollision[index] |= 1 << i;
 				sprCollision[i] |= 1 << index;

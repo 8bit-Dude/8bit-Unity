@@ -71,6 +71,9 @@ void InitDisplay(void);
 void __fastcall__ SuzyFlip(void);
 extern unsigned char autoRefresh; // Toggle for automatic screen refresh after LoadBitmap(), PrintStr(), PrintNum(), PrintBlanks()
 
+// Sprite parameters
+extern unsigned char sprCUSHION;
+
 // Gfx functions (see scroll.s)
 void __fastcall__ Scroll(void);
 
