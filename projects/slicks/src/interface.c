@@ -62,9 +62,8 @@
 #endif
 
 // See slicks.c
-extern unsigned char inkColors[];
-extern const char *mapList[LEN_MAPS];
-extern unsigned char lapNumber[LEN_LAPS];
+extern const char* buildInfo, *mapList[]; 
+extern unsigned char mapNum, lapNumber[], inkColors[];
 
 // See game.c
 extern unsigned char gameMode, gameMap, gameStep;
@@ -82,9 +81,6 @@ extern char networkReady, chatBuffer[20], udpBuffer[28];
 
 // See Unity/Lynx/Suzy.s
 void __fastcall__ SuzyFlip(void);
-
-// Build Information
-const char* buildInfo = "BUILD: 2021/01/26";
 
 // List of controller types
 #if defined __LYNX__
@@ -631,7 +627,9 @@ void PrintScores()
 			} else {
 				spriteX = car->x2/16u; 
 				spriteY = car->y2/16u;				
-				SetSprite(i, (car->ang2+12)/23u);
+				j = (car->ang2+12)/23u;
+				if (j>15) { j=0; }
+				SetSprite(i, j);
 			}
 		#endif	
 		} else {
@@ -766,7 +764,7 @@ void MenuServers()
 	if (!packet) {
 		// Timeout error
 		PrintStr(MENU_COL+2, MENU_ROW+7, "ERROR: TIMEOUT");
-	} else if (PEEK(packet) != 1 || PEEK(packet+2) != '-') {
+	} else if (PEEK(packet) != 1) {
 		// Unexpected error
 		PrintStr(MENU_COL+0, MENU_ROW+7, "ERROR: CORRUPTION");
 	} else {
@@ -844,7 +842,7 @@ unsigned char MenuLogin(unsigned char serverIndex)
 		PrintStr(MENU_COL+1, MENU_ROW+12, "ERROR: CORRUPTION");
 	} else {
 		// All good			
-		PrintStr(MENU_COL+2, MENU_ROW+12, "OK");
+		PrintStr(MENU_COL+2, MENU_ROW+12, "JOINING SERVER");
 		gameMap = svMap;
 		gameStep = svStep;
 		return 1;
@@ -1035,12 +1033,12 @@ void GameMenu()
 				if (lastchar == KB_M) { 
 				#if defined __LYNX__
 					if (cursorBut2) {
-						gameMap--; if (gameMap >= LEN_MAPS) gameMap = LEN_MAPS-1;
+						gameMap--; if (gameMap >= mapNum) gameMap = mapNum-1;
 					} else {
-						gameMap++; if (gameMap >= LEN_MAPS) gameMap = 0;
+						gameMap++; if (gameMap >= mapNum) gameMap = 0;
 					}
 				#else
-					gameMap++; if (gameMap >= LEN_MAPS) gameMap = 0;
+					gameMap++; if (gameMap >= mapNum) gameMap = 0;
 				#endif				
 					MenuMap();
 				}			

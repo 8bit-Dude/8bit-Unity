@@ -105,8 +105,8 @@
                 "projects/slicks/music/speednik-atari.rmt"
             ], 
             "chunks": [], 
-            "diskSize": "360KB", 
-            "crunchAssets": "No", 
+            "diskSize": "180KB", 
+            "crunchAssets": "Yes", 
             "networkDriver": "IP65(UDP)"
         }, 
         "C64": {
@@ -146,7 +146,7 @@
             "musicMemory": "$0800", 
             "sharedMemory": "$0100", 
             "bitmap": [
-                "projects/slicks/bitmaps/banner-lynx.png", 
+                "projects/slicks/bitmaps/promo-lynx.png", 
                 "projects/slicks/bitmaps/menu-lynx.png", 
                 "projects/slicks/bitmaps/arizona-lynx.png", 
                 "projects/slicks/bitmaps/arto-lynx.png", 

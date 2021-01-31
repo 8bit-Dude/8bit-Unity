@@ -37,10 +37,8 @@
 extern unsigned char inkColors[];
 
 // See interface.c
-extern unsigned char controlIndex[MAX_PLAYERS];
-extern unsigned char controlBackup[MAX_PLAYERS];
-extern unsigned char lapNumber[LEN_LAPS];
-extern const char *mapList[LEN_MAPS];
+extern const char *mapList[];
+extern unsigned char controlIndex[], controlBackup[], lapNumber[];
 #if defined(__CBM__) || defined(__LYNX__)
   extern unsigned char paperBuffer;
 #endif
@@ -84,9 +82,9 @@ int tck4, accRate, decRate, jmpTCK;
   #define LIGHT_SP  24
   char rotRate = 3;
 #endif
-const char rotMax[4] = { 4, 5, 6, 2 };
+const char rotMax[4] = { 3, 4, 5, 2 };
 const int velMin = 200;
-const int velMax[4] = { 450, 510, 570, 600 };
+const int velMax[4] = { 420, 480, 540, 600 };
 const int velDrift = 450;
 const int velRamp = 800;
 
@@ -578,7 +576,7 @@ char GameLoop()
 					// Check navigation? (not every frames)
 					if (gameFrame % MAX_PLAYERS == i)					
 						// Get angle to next waypoint
-						car->ang3 = GetWaypointAngle(car);
+						car->ang3 = GetWaypointAngle(car) + 3*i;
 					
 					// Lerp to navigation target
 					iAng2 = LerpAngle(iAng2, car->ang3, 2*iTmp);
@@ -799,7 +797,7 @@ char GameLoop()
 				case KB_PAUSE: 
 					for (j=0; j<MAX_PLAYERS; ++j) { DisableSprite(j); }
 					gamePaused = 1; lynx_snd_pause(); BackupRestorePauseBg(0);
-					lastKey = MenuPause();
+					lastKey = MenuPause(); while (kbhit()) cgetc();
 					gamePaused = 0; lynx_snd_continue(); BackupRestorePauseBg(1); 
 					for (j=0; j<MAX_PLAYERS; ++j) { if (PlayerAvailable(j)) EnableSprite(j); }
 					gameClock = clock(); paperColor = BLACK;

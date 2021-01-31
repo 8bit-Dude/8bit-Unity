@@ -38,11 +38,15 @@
 	unsigned char inkColors[] = { DBLUE, ORANGE, LGREEN, YELLOW, WHITE };	// P1, P2, P3, P4, SERVER INFO
 #endif
 
+// Build Information
+const char* buildInfo = "BUILD: 2021/02/01";
+
 // List of available maps
-const char *mapList[LEN_MAPS] = {"arizona","arto","cramp","freeway","gta","island","mtcarlo","rally","river","stadium","suzuka","trial"};
+unsigned char mapNum  = 12;
+const char *mapList[] = {"arizona","arto","cramp","freeway","gta","island","mtcarlo","rally","river","stadium","suzuka","trial"};
 
 // List of lap goals
-unsigned char lapNumber[LEN_LAPS] = { 5, 10, 20, 50 };
+unsigned char lapNumber[] = { 5, 10, 20, 50 };
 
 // Game state
 extern unsigned char gameMap, gameMode, gameStep;
@@ -60,6 +64,7 @@ int main (void)
 	spriteColors[ 8] = 0x08;	// Sprite 2: BLUE -> ORANGE
 	spriteColors[16] = 0x05;	// Sprite 3: BLUE -> GREEN
 	spriteColors[24] = 0x09;	// Sprite 4: BLUE -> YELLOW
+	sprCUSHION = 5;
 #endif   
 	// Reset screen
 	clrscr();
@@ -72,8 +77,8 @@ int main (void)
 	
 	// Show banner
 #if defined __LYNX__
-    LoadBitmap("banner.img");
-	bannerClock = clock()+2*TCK_PER_SEC;
+    LoadBitmap("promo.img");
+	bannerClock = clock()+8*TCK_PER_SEC;
     while (clock()<bannerClock && !kbhit());
 #endif
 	
@@ -119,7 +124,7 @@ int main (void)
 			if (gameMode == MODE_LOCAL) {
 				// Go to next map
 				gameMap += 1;
-				if (gameMap >= LEN_MAPS) { gameMap=0; }
+				if (gameMap >= mapNum) { gameMap=0; }
 			}
 		}
 	}

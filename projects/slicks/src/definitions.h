@@ -7,7 +7,7 @@
 //#define DEBUG_NAV
 
 // NetCode Toggle
-//#define NETCODE
+#define NETCODE
 
 // Keyboard definitions
 #if defined __LYNX__
@@ -31,7 +31,6 @@
 #endif
 
 // Game definitions
-#define LEN_MAPS        12
 #define LEN_LAPS         4
 #define MAX_PLAYERS      4
 #define MAX_WAYPOINTS    8
@@ -67,8 +66,6 @@
 #define NET_CONTROL (LEN_CONTROL-1)
 
 // Network definitions
-#define CL_VER	  0
-
 #define CL_ERROR  0
 #define CL_LIST   1
 #define CL_JOIN   2
