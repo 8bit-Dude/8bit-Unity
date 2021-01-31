@@ -133,8 +133,7 @@ char GameLoop(void);
 #ifdef DEBUG_FPS
   void DrawFPS(unsigned long f);
 #endif
-void BackupChatRow(void);
-void RedrawChatRow(void);
+void BackupRestoreChatRow(unsigned char mode);
 void PrintBuffer(char *buffer);
 void InputField(unsigned char col, unsigned char row, char *buffer, unsigned char len);
 void PrintScores(void);

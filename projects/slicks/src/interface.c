@@ -119,33 +119,6 @@ void DrawFPS(unsigned long f)
 }
 #endif
 
-#if defined __ATARIXL__
-// Sub-function of GameMenu()
-void MenuGFX()
-{
-	// Clear previous
-	PrintStr(MENU_COL+7, MENU_ROW+11, "   ");
-	
-	// GFX mode selection
-	inkColor = INK_HIGHLT; paperColor = PAPER_HIGHLT;
-	PrintStr(MENU_COL+2, MENU_ROW+11, "G");
-	inkColor = WHITE; paperColor = BLACK;
-	if (frameBlending & 2) {
-		PrintStr(MENU_COL+3, MENU_ROW+11, "FX: OFF  ");				
-	} else {
-		PrintStr(MENU_COL+3, MENU_ROW+11, "FX: BLEND");				
-	}	
-}
-#endif
-
-// Display lap numbers
-void PrintLap(unsigned char i)
-{
-	if (cars[i].lap < 1) { return; }
-	inkColor = inkColors[i];
-	PrintNum((i+2)*8-3, CHR_ROWS-1, cars[i].lap);
-}
-
 // Paper for message Buffer
 #if defined(__CBM__) || defined(__LYNX__)
   unsigned char paperBuffer;
@@ -171,79 +144,75 @@ static char chatBG[180];
 static char chatBG[864];
 #endif
 
-// Backup Chat Row
-void BackupChatRow()
+void BackupRestoreChatRow(unsigned char mode)
 {
-#ifdef __CBM__
-	// Make backup of chat row
-	rom_disable();
-	memcpy(&chatBG[0],   (char*)(BITMAPRAM+320*ROW_CHAT), 160);
-	rom_enable();
-	memcpy(&chatBG[160], (char*)(SCREENRAM+40*ROW_CHAT), 20);
+	unsigned char i;
+	unsigned char *buf = chatBG;
+#if defined __APPLE2__
+	unsigned char *line = 8*ROW_CHAT;
+	for (i=0; i<8; ++i) {
+		SetHiresPointer(0, line);		
+		if (!mode) {
+		  #if defined __DHR__
+			*dhraux = 0;
+			memcpy((char*)(buf+160), (char*)(hiresPtr), 20);
+			*dhrmain = 0;
+		  #endif
+			memcpy((char*)(buf),     (char*)(hiresPtr), 20);
+		} else {
+		  #if defined __DHR__
+			*dhraux = 0;
+			memcpy((char*)(hiresPtr), (char*)(buf+160), 20);
+			*dhrmain = 0;
+		  #endif
+			memcpy((char*)(hiresPtr), (char*)(buf),     20);
+		}
+		line++; buf += 20;
+	}	
 #elif defined __ATARI__
-	unsigned char i;
+	unsigned char *bmp = BITMAPRAM1+320*ROW_CHAT;
 	for (i=0; i<8; ++i) {
-		memcpy(&chatBG[0]+i*20,   (char*)(BITMAPRAM1+320*ROW_CHAT+i*40), 20);
-		memcpy(&chatBG[160]+i*20, (char*)(BITMAPRAM2+320*ROW_CHAT+i*40), 20);
+		if (!mode) {
+			memcpy((char*)(buf),     (char*)(bmp), 		  20);
+			memcpy((char*)(buf+160), (char*)(bmp+0x3000), 20);
+		} else {
+			memcpy((char*)(bmp), 		(char*)(buf),     20);
+			memcpy((char*)(bmp+0x3000), (char*)(buf+160), 20);
+		}
+		bmp += 40; buf += 20;
 	}	
-#elif defined __ORIC__
-	unsigned char i;
-	for (i=0; i<8; ++i) {
-		memcpy(&chatBG[0]+i*20, (char*)(BITMAPRAM+1+320*ROW_CHAT+i*40), 20);
+#elif defined __CBM__
+	unsigned char *bmp = BITMAPRAM+320*ROW_CHAT;
+	unsigned char *scr = SCREENRAM+40*ROW_CHAT;
+	if (!mode) {
+		rom_disable();
+		memcpy((char*)(buf),     (char*)(bmp), 160);
+		rom_enable();
+		memcpy((char*)(buf+160), (char*)(scr),  20);
+	} else {
+		memcpy((char*)(bmp), (char*)(buf),     160);
+		memcpy((char*)(scr), (char*)(buf+160),  20);
 	}
-#elif defined __APPLE2__
-	unsigned char i;	
-	for (i=0; i<8; ++i) {
-		SetHiresPointer(0, 8*ROW_CHAT+i);		
-	  #if defined __DHR__
-		*dhraux = 0;
-		memcpy(&chatBG[160]+i*20, (char*)(hiresPtr), 20);
-		*dhrmain = 0;
-	  #endif
-		memcpy(&chatBG[0]+i*20,   (char*)(hiresPtr), 20);
-	}	
 #elif defined __LYNX__
- 	unsigned char i;
+	unsigned char *bmp = BITMAPRAM+1+492*ROW_CHAT;
 	for (i=0; i<6; ++i) {
-		memcpy(&chatBG[0]+i*40, (char*)(BITMAPRAM+1+492*ROW_CHAT+i*82), 40);
+		if (!mode) {
+			memcpy((char*)(buf), (char*)(bmp), 40);
+		} else {
+			memcpy((char*)(bmp), (char*)(buf), 40);
+		}
+		bmp += 82; buf += 40;
 	}
-#endif
-}
-
-// Redraw Chat Row
-void RedrawChatRow()
-{
-#ifdef __CBM__
-	// Restore Row (to eraze chat)
-	memcpy((char*)(BITMAPRAM+320*ROW_CHAT), &chatBG[0], 160);
-	memcpy((char*)(SCREENRAM+40*ROW_CHAT), &chatBG[160], 20);
-#elif defined __ATARI__
-	unsigned char i;
-	for (i=0; i<8; ++i) {
-		memcpy((char*)(BITMAPRAM1+320*ROW_CHAT+i*40), &chatBG[0]+i*20, 20);
-		memcpy((char*)(BITMAPRAM2+320*ROW_CHAT+i*40), &chatBG[0]+i*20+160, 20);
-	}	
 #elif defined __ORIC__
-	unsigned char i;
+	unsigned char *bmp = BITMAPRAM+1+320*ROW_CHAT;
 	for (i=0; i<8; ++i) {
-		memcpy((char*)(BITMAPRAM+1+320*ROW_CHAT+i*40), &chatBG[0]+i*20, 20);
-	}	
-#elif defined __APPLE2__
-	unsigned char i;	
-	for (i=0; i<8; ++i) {
-		SetHiresPointer(0, 8*ROW_CHAT+i);		
-	  #if defined __DHR__
-		*dhraux = 0;
-		memcpy((char*)(hiresPtr), &chatBG[0]+i*20+160, 20);
-		*dhrmain = 0;
-	  #endif	
-		memcpy((char*)(hiresPtr), &chatBG[0]+i*20, 20);
-	}		
-#elif defined __LYNX__
- 	unsigned char i;
-	for (i=0; i<6; ++i) {
-		memcpy((char*)(BITMAPRAM+1+492*ROW_CHAT+i*82), &chatBG[0]+i*40, 40);
-	}	
+		if (!mode) {
+			memcpy((char*)(buf), (char*)(bmp), 20);
+		} else {
+			memcpy((char*)(bmp), (char*)(buf), 20);
+		}
+		bmp += 40; buf += 20;
+	}
 #endif
 }
 
@@ -493,6 +462,30 @@ unsigned char MenuPause()
 }
 #endif
 
+#if defined __ATARIXL__
+// Sub-function of GameMenu()
+void MenuGFX()
+{
+	// GFX mode selection
+	inkColor = INK_HIGHLT; paperColor = PAPER_HIGHLT;
+	PrintStr(MENU_COL+2, MENU_ROW+11, "G");
+	inkColor = WHITE; paperColor = BLACK;
+	if (frameBlending & 2) {
+		PrintStr(MENU_COL+3, MENU_ROW+11, "FX: OFF  ");				
+	} else {
+		PrintStr(MENU_COL+3, MENU_ROW+11, "FX: BLEND");				
+	}	
+}
+#endif
+
+// Display lap numbers
+void PrintLap(unsigned char i)
+{
+	if (cars[i].lap < 1) { return; }
+	inkColor = inkColors[i];
+	PrintNum((i+2)*8-3, CHR_ROWS-1, cars[i].lap);
+}
+
 // Print race message and laps
 void PrintRace()
 {	
@@ -507,10 +500,6 @@ void PrintRace()
 	// Print laps
 	inkColor = INK_LAPS;
 	PrintNum(26, 0, lapGoal);
-	
-	// Reset to default colors
-	inkColor = WHITE;
-	paperColor = BLACK;
 }
 
 // Sub-function of GameMenu()
@@ -647,7 +636,7 @@ void PrintScores()
             }
         }				
 	}
-		
+	
 	// Create blank area
 	paperColor = PAPER_SCORES;
 	PrintBlanks(15, SCORES_ROW, 10, 9);
@@ -842,8 +831,8 @@ unsigned char MenuLogin(unsigned char serverIndex)
 		PrintStr(MENU_COL+1, MENU_ROW+12, "ERROR: CORRUPTION");
 	} else {
 		// All good			
-		PrintStr(MENU_COL+2, MENU_ROW+12, "JOINING SERVER");
-		gameMap = svMap;
+		PrintStr(MENU_COL+1, MENU_ROW+12, "JOINING SERVER");
+		gameMap = svMap; 
 		gameStep = svStep;
 		return 1;
 	}	

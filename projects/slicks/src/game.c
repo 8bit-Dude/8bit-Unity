@@ -202,11 +202,11 @@ void GameInit(const char* map)
 	
 	// Load Bitmap and backup chat row
 	LoadBitmap(&buffer[0]);
-	BackupChatRow();
+	BackupRestoreChatRow(0);
 
 	// Get paper color of top buffer
-	pixelX = 0; pixelY = 0;
 #if defined(__CBM__) || defined(__LYNX__)
+	pixelX = 0; pixelY = 0;
 	paperBuffer = GetPixel();	
 #endif		
 	// Print map name in lower left corner
@@ -223,7 +223,7 @@ void GameInit(const char* map)
         for (i=0; i<MAX_PLAYERS; ++i) {
             // Print player numbers in score board
             if (controlIndex[i]) {
-				slot = (i+1)*8u;
+				slot = (i+1)*8;
                 inkColor = inkColors[i]; 
 			#if defined __ORIC__
 				SetAttributes(slot-1, CHR_ROWS-1, inkColor);
@@ -391,7 +391,7 @@ int deltaAngle;
 int LerpAngle(int iAng1, int iAng2, int dAng)
 {
 	// LERP trajectory
-	int iSign = 1;
+	signed char iSign = 1;
 	deltaAngle = iAng2 - iAng1;
 	if (deltaAngle < 0) {
 		iSign = -1;
@@ -818,7 +818,7 @@ char GameLoop()
 					// Return was pressed
 					if (strlen(&chatBuffer[0]) > 0) { ClientEvent(EVENT_CHAT); }
 					chatting = 0;
-					RedrawChatRow();
+					BackupRestoreChatRow(1);
 				#if defined __LYNX__
 					HideKeyboardOverlay();
 				#endif						
@@ -882,7 +882,7 @@ char GameLoop()
 				// Start Race
 				if (chatting) {
 					chatting = 0;
-					RedrawChatRow();
+					BackupRestoreChatRow(1);
 				#if defined __LYNX__
 					HideKeyboardOverlay();						
 				#endif						
