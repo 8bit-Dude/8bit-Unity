@@ -482,21 +482,21 @@ const char *GetChr(unsigned char chr)
 #endif
 	else if (chr == 63) { return &charQuestion[0]; }
 	else if (chr == 58) { return &charColon[0]; }
-	else if (chr > 47)  { return &charDigit[(chr-48)*3]; }
+	else if (chr >  47) { return &charDigit[(chr-48)*3]; }
 	else if (chr == 47) { return &charFwSlash[0]; }
 	else if (chr == 46) { return &charDot[0]; }
 	else if (chr == 45) { return &charHyphen[0]; }
 	else if (chr == 44) { return &charComma[0]; }
 	else if (chr == 43) { return &charPlus[0]; }
 	else if (chr == 42) { return &charStar[0]; }
-	else if (chr > 39)  { return &charBracket[(chr-40)*3]; }
+	else if (chr >  39) { return &charBracket[(chr-40)*3]; }
 	else if (chr == 39) { return &charQuote[0]; }
 	else if (chr == 36) { return &charDollar[0]; }
 	else if (chr == 33) { return &charExclaim[0]; }
-	else if (chr == 4) { return &charDeath[0]; }
-	else if (chr == 3) { return &charShield[0]; }
-	else if (chr == 2) { return &charPotion[0]; }
-	else if (chr == 1) { return &charHeart[0]; }
+	else if (chr ==  4) { return &charDeath[0]; }
+	else if (chr ==  3) { return &charShield[0]; }
+	else if (chr ==  2) { return &charPotion[0]; }
+	else if (chr ==  1) { return &charHeart[0]; }
 	return &charBlank[0];
 }
 

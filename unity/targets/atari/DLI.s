@@ -24,8 +24,6 @@
 ;   specific prior written permission.
 ;
 
-	.export _BitmapDLIST
-	.export _CharmapDLIST
 	.export _StartDLI
 	
 	.export _bitmapDLI
@@ -97,99 +95,6 @@ regX: .byte 1
 regY: .byte 1	
 
 	.segment	"CODE"
-
-; ---------------------------------------------------------------
-; void __near__ _BitmapDLIST (void)
-; ---------------------------------------------------------------	
-
-.proc _BitmapDLIST: near
-	lda #$4e	; Header
-	sta $0923
-	lda #$10
-	sta $0924
-	lda #$70
-	sta $0925
-	
-	lda #$0e
-	ldx #102
-loop1:
-	dex
-	sta $0926,x
-	bne loop1
-	
-	lda #$4e	; Change Video Address
-	sta $098b
-	lda #$00
-	sta $098c
-	lda #$80
-	sta $098d
-	
-	lda #$0e
-	ldx #97
-loop2:
-	dex
-	sta $098e,x
-	bne loop2
-
-	lda #$8e	; DLI
-	sta $09ee
-	
-	lda #$41	; Footer
-	sta $09ef
-	lda #$20
-	sta $09f0
-	lda #$09
-	sta $09f1
-	rts
-.endproc
-
-; ---------------------------------------------------------------
-; void __near__ _CharmapDLIST (void)
-; ---------------------------------------------------------------	
-
-.proc _CharmapDLIST: near
-	lda #$44	; Header
-	sta $0923
-	
-	;lda #$40
-	lda #$50
-	
-	sta $0924
-	lda #$09
-	sta $0925
-	
-	lda #$04
-	ldx #24
-loop1:
-	dex
-	sta $0926,x
-	bne loop1
-	
-	lda #$ce	; Change Video Address + DLI
-	sta $093d
-	lda #$10
-	sta $093e
-	lda #$8e
-	sta $093f
-	
-	lda #$0e
-	ldx #6
-loop2:
-	dex
-	sta $0940,x
-	bne loop2
-
-	lda #$8e	; DLI
-	sta $0946
-	
-	lda #$41	; Footer
-	sta $0947
-	lda #$20
-	sta $0948
-	lda #$09
-	sta $0949
-	
-.endproc
 
 ; ---------------------------------------------------------------
 ; void __near__ _StartDLI (void)

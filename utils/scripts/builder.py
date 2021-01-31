@@ -912,7 +912,7 @@ class Application:
 
             # Build Unity Library
             cList = ['graphics\\bitmap.c', 'graphics\\charmap.c', 'graphics\\chunks.c', 'geom\\geom2d.c', 'math\\dot.c', 'adaptors\\joystick.c', 'adaptors\\mouse.c', 'sound\\music.c', 'network\\net-base.c', 'network\\net-ip.c', 'network\\net-url.c', 'network\\net-tcp.c', 'network\\net-udp.c', 'network\\net-web.c', 'graphics\\pixel.c', 'graphics\\print.c', 'graphics\\scaling.c', 'sound\\sfx.c', 'graphics\\sprites.c', 'graphics\\widgets.c', 'targets\\atari\\directory.c', 'targets\\atari\\files.c']
-            sList = ['math\\atan2.s', 'graphics\\chars.s', 'graphics\\tiles.s', 'targets\\atari\\decrunch.s', 'targets\\atari\\DLI.s', 'targets\\atari\\ROM.s', 'targets\\atari\\scroll.s', 'targets\\atari\\xbios.s']
+            sList = ['math\\atan2.s', 'graphics\\chars.s', 'graphics\\tiles.s', 'targets\\atari\\decrunch.s', 'targets\\atari\\DLIST-bmp.s', 'targets\\atari\\DLIST-chr.s', 'targets\\atari\\DLI.s', 'targets\\atari\\ROM.s', 'targets\\atari\\scroll.s', 'targets\\atari\\xbios.s']
             if self.Combobox_AtariNetworkDriver.get() == 'Fujinet':    
                 cList.append('targets\\atari\\fujinet.c')
                 sList.append('targets\\atari\\fujiIRQ.s')
