@@ -65,7 +65,7 @@
 	#define byteWIDTH 2		// Byte width of sprite (12 pixels)
 	unsigned char frameROWS;
 	unsigned int  frameBLOCK;	// Size of sprite offset block (4 blocks), 
-	unsigned char sprX[SPRITE_NUM], sprY[SPRITE_NUM];	   // Screen coordinates
+	unsigned char sprX[SPRITE_NUM], sprY[SPRITE_NUM], sprOverlap[SPRITE_NUM]; // Screen coordinates, Overlap flag
 	unsigned char sprDrawn[SPRITE_NUM], sprCollision[SPRITE_NUM]; // Enable Flag, Collision status
 	unsigned char sprROWS[SPRITE_NUM], *sprBG[SPRITE_NUM]; // Height of Sprite (rows), Pointer to background backup
 	unsigned int  scrAddr[SPRITE_NUM], sprCOLOR;  // Screen address, Color vector
@@ -353,6 +353,9 @@ void LocateSprite(unsigned int x, unsigned int y)
 	unsigned char cushion;
   #endif	
 	// Check for collisions
+  #if (defined __ORIC__)
+	sprOverlap[index] = 0;
+  #endif	
 	sprCollision[index] = 0;
 	for (i=0; i<SPRITE_NUM; i++) {
 		// Should this sprite be checked?
@@ -408,6 +411,9 @@ void LocateSprite(unsigned int x, unsigned int y)
 			dX = sprX[i] - spriteX;		
 			if (dX < 4 || dX>252) {	// Including INK bytes
 			
+				// Overlapping within Attribute area
+				sprOverlap[index] = 1;
+				
 				// Check narrower collision sector
 				if (dX < 2 || dX>254) {	// Not including INK bytes
 					sprCollision[index] |= 1 << i;
@@ -528,8 +534,8 @@ void SetSprite(unsigned char index, unsigned char frame)
 	sprFrame[index] = &sprData[frame*sprRows];
 	
 #elif defined __ORIC__
-	unsigned char i, inkVAL, inkMUL, backup = 1;
-	unsigned int frameAddr, inkAddr;
+	unsigned char i, inkMUL, inkVAL, backup = 1;
+	unsigned int frameAddr, inkAddr, mulAddr;
 	unsigned char rows = sprROWS[index];
 	
 	// Check frame block (left or right)
@@ -563,8 +569,37 @@ void SetSprite(unsigned char index, unsigned char frame)
 	scrAddr[index] = BITMAPRAM + spriteY*40 + spriteX;
 	
 	// Backup background if necessary
-	if (backup) BackupSprBG(index);
+	if (backup) BackupSprBG(index);		
 	
+	// Check collisions with other sprites
+	SpriteCollisions(index);
+	
+	// Adjust ink on even lines
+	inkVAL = PEEK(sprCOLOR+index);
+	inkMUL = (sprMULTICOLOR[index] != 0);
+	inkAddr = scrAddr[index] + (spriteY%2)*40;
+	if (inkMUL || inkVAL != SPR_AIC) {
+		if (inkMUL) {
+			mulAddr = sprMULTICOLOR[index];
+			inkVAL = PEEK(mulAddr);
+			mulAddr++;
+		}
+		for (i=0; i<rows/2u; i++) {
+			if (inkMUL && i*2 > PEEK(mulAddr)) {
+				inkVAL = PEEK(++mulAddr);
+				++mulAddr;
+			}
+			POKE(inkAddr+3, 3); 	// Reset AIC INK (yellow)
+			POKE(inkAddr, inkVAL);	// Set Sprite INK
+			inkAddr+=80;			
+		}
+	} else if (sprOverlap[index]) {
+		for (i=0; i<rows/2u; i++) {
+			POKE(inkAddr+3, 3); 	// Reset AIC INK (yellow)
+			inkAddr+=80;
+		}		
+	}
+
 	// Draw new sprite frame
 	POKE(0xb0, rows); 				// Number of lines
 	POKE(0xb1, 2);					// Bytes per line
@@ -572,30 +607,8 @@ void SetSprite(unsigned char index, unsigned char frame)
 	POKEW(0xb4, scrAddr[index]);	// Address of target (-1)
 	POKE(0xb6, 2);					// Offset between source lines
 	POKE(0xb7, 40); 				// Offset between target lines
-	Blit();		
-	
-	// Adjust ink on even lines
-	if (sprMULTICOLOR[index] || PEEK(sprCOLOR+index) != SPR_AIC) {
-		inkAddr = scrAddr[index] + (spriteY%2)*40;
-		if (sprMULTICOLOR[index]) {
-			inkVAL = PEEK(sprMULTICOLOR[index]);
-			inkMUL = 1;
-		} else {
-			inkVAL = PEEK(sprCOLOR+index);
-		}
-		for (i=0; i<rows/2u; i++) {
-			if (sprMULTICOLOR[index] && i*2 > PEEK(sprMULTICOLOR[index]+inkMUL)) {
-				inkVAL = PEEK(sprMULTICOLOR[index]+inkMUL+1);
-				inkMUL += 2;
-			}
-			POKE(inkAddr, inkVAL); inkAddr+=3;	// Set Sprite INK
-			POKE(inkAddr, 3); inkAddr+=77;		// Reset AIC INK (yellow)
-		}		
-	}
-	
-	// Check collisions with other sprites
-	SpriteCollisions(index);
-	
+	Blit();
+		
 	// Save sprite information
 	sprX[index] = spriteX;
 	sprY[index] = spriteY;
