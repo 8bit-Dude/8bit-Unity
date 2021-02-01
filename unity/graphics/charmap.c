@@ -76,6 +76,10 @@ void __fastcall__ DecodeTiles(void);
 unsigned char charmapWidth, charmapHeight, tileWidth, tileHeight, worldWidth, worldHeight;
 unsigned char screenCol1 = 0, screenCol2 = CHR_COLS, screenWidth = CHR_COLS;
 unsigned char screenRow1 = 0, screenRow2 = CHR_ROWS, screenHeight = CHR_ROWS;
+#if defined __ATARI__	
+	unsigned char chrRows, bmpRows;
+	unsigned int bmpAddr;
+#endif
 
 // Scrolling properties
 unsigned char blockWidth, tileCols, tileRows;
@@ -100,12 +104,22 @@ unsigned char *tilesetData;
 
   
 // Initialize Charmap Mode
-void InitCharmap() 
+void InitCharmap(unsigned char col1, unsigned char col2, unsigned char row1, unsigned char row2) 
 {	
+	// Define rendering window
+	screenCol1 = col1; screenCol2 = col2;
+	screenRow1 = row1; screenRow2 = row2;
+	screenWidth = col2-col1; screenHeight = row2-row1;	
+	
 #if (defined __APPLE2__) || (defined __LYNX__) || (defined __ORIC__)
 	InitBitmap();
 
 #elif defined __ATARI__	
+	// Charmap/Bitmap transition params
+	chrRows = row2-1;
+	bmpRows = 3 + chrRows + 8*(CHR_ROWS-row2);
+	bmpAddr = BITMAPRAM1 + row2*8*40;
+	
 	// Disable cursor
 	POKEW(0x0058, 0);	// SAVMSC
 	POKEW(0x005E, 0);	// OLDADR
@@ -168,6 +182,7 @@ void ClearCharmap()
 	ClearBitmap();
 
 #elif defined __ATARI__
+	ClearBitmap();
 	bzero((char*)SCREENRAM, 1000);
 	bzero((char*)0x8e10, 320);
 	
@@ -175,14 +190,6 @@ void ClearCharmap()
 	bzero((char*)SCREENRAM, 1000);
 	bzero((char*)COLORRAM,  1000);	
 #endif
-}
-
-void DisplayCharmap(unsigned char c1, unsigned char c2, unsigned char r1, unsigned char r2)
-{
-	// Define rendering window
-	screenCol1 = c1; screenCol2 = c2;
-	screenRow1 = r1; screenRow2 = r2;
-	screenWidth = c2-c1; screenHeight = r2-r1;	
 }
 
 // Load charset and associated attributes / flags

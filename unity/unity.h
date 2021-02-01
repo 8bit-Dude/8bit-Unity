@@ -105,11 +105,10 @@ void SetChunk(unsigned char* chunk, unsigned char x, unsigned char y);
 void LoadChunk(unsigned char** chunk, char *filename);
 
 // Charmap functions (see charmap.c)
-void InitCharmap(void);
+void InitCharmap(unsigned char col1, unsigned char col2, unsigned char row1, unsigned char row2);
 void ShowCharmap(void);
 void HideCharmap(void);
 void ClearCharmap(void);
-void DisplayCharmap(unsigned char c1, unsigned char c2, unsigned char r1, unsigned char r2);
 void LoadCharmap(char *filename, unsigned int w, unsigned int h);
 void LoadTileset(char *filename, unsigned int n, unsigned int w, unsigned int h);
 void LoadCharset(char* filename, char* palette);

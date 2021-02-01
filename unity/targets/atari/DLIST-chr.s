@@ -26,6 +26,8 @@
 
 	.export _CharmapDLIST
 
+	.import _chrRows, _bmpRows, _bmpAddr
+
 	.segment	"CODE"
 	
 ; ---------------------------------------------------------------
@@ -33,46 +35,64 @@
 ; ---------------------------------------------------------------	
 
 .proc _CharmapDLIST: near
+	lda #$00	; Lower addres of DLIST $0920 -> $0900
+	sta $0230	
+
+	lda #$70	; Header
+	sta $0900
+	sta $0901
+	sta $0902
+
+
 	lda #$44	; Header
-	sta $0923
+	sta $0903
 	
 	;lda #$40
 	lda #$50
+	sta $0904
 	
-	sta $0924
 	lda #$09
-	sta $0925
+	sta $0905
 	
+	ldx #0
 	lda #$04
-	ldx #24
 loop1:
-	dex
-	sta $0926,x
+	sta $0906,x
+	inx
+	cpx _chrRows
 	bne loop1
 	
-	lda #$ce	; Change Video Address + DLI
-	sta $093d
-	lda #$10
-	sta $093e
-	lda #$8e
-	sta $093f
-	
+	lda #$ce		; Trigger DLI
+	sta $0906,x
+	inx
+	lda _bmpAddr		; Setup Bmp Address
+	sta $0906,x
+	inx
+	lda _bmpAddr+1
+	sta $0906,x
+	inx
+		
 	lda #$0e
-	ldx #6
 loop2:
-	dex
-	sta $0940,x
+	sta $0906,x
+	inx
+	cpx _bmpRows
 	bne loop2
 
-	lda #$8e	; DLI
-	sta $0946
+	lda #$8e		; Trigger DLI
+	sta $0906,x
+	inx
 	
-	lda #$41	; Footer
-	sta $0947
+	lda #$41		; Footer
+	sta $0906,x
+	inx
+
 	lda #$20
-	sta $0948
+	sta $0906,x
+	inx
+
 	lda #$09
-	sta $0949
-	
+	sta $0906,x
+	inx	
 .endproc
 	
