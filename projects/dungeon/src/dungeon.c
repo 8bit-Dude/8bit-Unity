@@ -39,9 +39,8 @@ extern unsigned char mapX, mapY, maxX, maxY;
 void GameInit(void)
 {	
 	// Setup charmap
-	InitCharmap();
+	InitCharmap(CROP_X, CHR_COLS-CROP_X, CROP_Y, CHR_ROWS-CROP_Y-1);
 	ClearCharmap();
-	DisplayCharmap(CROP_X, CHR_COLS-CROP_X, CROP_Y, CHR_ROWS-CROP_Y-1);
 	LoadCharset("quedex.chr", charColors);
 	LoadTileset("level1.tls", 40, 2, 2);
 	LoadCharmap("level1.map", 64, 64);
