@@ -29,7 +29,7 @@
 	#define spriteCols   12
 	#define spriteRows   17
 	unsigned char charColors[] = {};    //  All colors are pre-assigned in the char sheet
-	unsigned char spriteColors[] = { SPR_WHITE, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC };	// White (sword), AIC (player), AIC (actors)
+	unsigned char spriteColors[] = { SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC };	// AIC (sword), AIC (player), AIC (actors)
 	unsigned char multiColorDef[] = { SPR_WHITE, 7, SPR_MAGENTA, 12 , SPR_YELLOW, 17 };	// Multicolor definition { color, row, ...  }
 #endif
 
