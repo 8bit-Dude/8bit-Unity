@@ -26,28 +26,34 @@
 
 	.export _CharmapDLIST
 
-	.import _chrRows, _bmpRows, _bmpAddr
+	.import _chrRows, _bmpRows, _bmpAddr, _chrPalette
+
+; Char palette
+colorSHADOW0 = $02c8
+colorSHADOW1 = $02c4
+colorSHADOW2 = $02c5
+colorSHADOW3 = $02c6
+colorSHADOW4 = $02c7	
 
 	.segment	"CODE"
-	
+
 ; ---------------------------------------------------------------
 ; void __near__ _CharmapDLIST (void)
 ; ---------------------------------------------------------------	
 
 .proc _CharmapDLIST: near
-	lda #$00	; Lower addres of DLIST $0920 -> $0900
+	lda #$00		; Lower addres of DLIST $0920 -> $0900
 	sta $0230	
-
-	lda #$70	; Header
+	
+header:
+	lda #$70		
 	sta $0900
 	sta $0901
 	sta $0902
-
-
-	lda #$44	; Header
+	
+	lda #$44		
 	sta $0903
 	
-	;lda #$40
 	lda #$50
 	sta $0904
 	
@@ -56,33 +62,43 @@
 	
 	ldx #0
 	lda #$04
-loop1:
+loopCHR:
 	sta $0906,x
 	inx
 	cpx _chrRows
-	bne loop1
+	bne loopCHR
 	
+checkSplit:	
+	lda _chrRows	; Is this a split screen?
+	cmp #24
+	beq setupDLI2
+	
+setupDLI1:	
 	lda #$ce		; Trigger DLI
 	sta $0906,x
 	inx
-	lda _bmpAddr		; Setup Bmp Address
+	
+setupBMPAddr:
+	lda _bmpAddr
 	sta $0906,x
 	inx
 	lda _bmpAddr+1
 	sta $0906,x
 	inx
-		
+	
 	lda #$0e
-loop2:
+loopBMP:
 	sta $0906,x
 	inx
 	cpx _bmpRows
-	bne loop2
-
+	bne loopBMP
+	
+setupDLI2:	
 	lda #$8e		; Trigger DLI
 	sta $0906,x
 	inx
 	
+footer:	
 	lda #$41		; Footer
 	sta $0906,x
 	inx
@@ -94,5 +110,17 @@ loop2:
 	lda #$09
 	sta $0906,x
 	inx	
-.endproc
 	
+palette:
+	; Switch to CHR palette for the top of screen
+	lda _chrPalette+0
+	sta  colorSHADOW0
+	lda _chrPalette+1
+	sta  colorSHADOW1
+	lda _chrPalette+2
+	sta  colorSHADOW2
+	lda _chrPalette+3
+	sta  colorSHADOW3
+	lda _chrPalette+4
+	sta  colorSHADOW4	
+.endproc

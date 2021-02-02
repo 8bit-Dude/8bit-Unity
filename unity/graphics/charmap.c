@@ -141,11 +141,15 @@ void ShowCharmap()
 	POKE(0x02f4, 0xa0);	
 	CharmapDLIST();
 	
-	// Setup DLI
+	// Start DLI (for sprites)
 	StartDLI();
-	waitvsync();
-	charmapDLI = 1;
-	
+
+	// Enable Charmap DLI for split screens
+	if (chrRows < CHR_ROWS) {
+		waitvsync();
+		charmapDLI = 1;
+	}
+
 	// ANTIC: DMA Screen
 	POKE(559, PEEK(559)|32);	
 	
