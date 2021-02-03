@@ -119,7 +119,7 @@ loopRows:
 				
 				sty _tmpY
 				tay 
-				lda ($fd),y		; Get R pixels for that char
+				lda (charRPointerZP),y		; Get R pixels for that char
 				ldy _tmpY
 				sta (scrPointerZP),y		; Save in Hires mem
 

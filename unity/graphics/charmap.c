@@ -382,6 +382,10 @@ void ScrollCharmap(unsigned char x, unsigned char y)
 	unsigned char i;
 	unsigned int src, dst, col;
 	
+#if defined(__APPLE2__)
+	x = 2*(x/2u)+1;
+#endif	
+	
 	// Using tileset?
 	if (tilesetData) {
 		// Decode tilemap to screen buffer
