@@ -85,6 +85,10 @@ TEMP:     .byte 0
 ; Look for mocking board in slot 4
 .proc _DetectMocking: near	
 
+	lda #255	
+	sta $C403	; Needed for Mockingboard 4c
+	sta $C404
+	
 	ldx	#02	; 2 tries?
 	
 mb4_check_cycle_loop:
