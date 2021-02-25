@@ -61,7 +61,7 @@ void LoadActors(const char* filename)
 	// Decode actors
 	offset = navBuffer[4];
 	while (i<offset) {
-		selActor = &actors[i]; i++;
+		selActor = &actors[i];
 		switch (navBuffer[5+i*5]) {
 		case 0:
 			selActor->state = ACTOR_KEY;
@@ -90,13 +90,14 @@ void LoadActors(const char* filename)
 		selActor->health = navBuffer[7+i*5];
 		selActor->mapX = 2*navBuffer[8+i*5];
 		selActor->mapY = 2*navBuffer[9+i*5];
+		i++;
 	}
 }
 
 void DisplayActors()
 {
 	// Display up-to SPRITE_NUM actors
-	i = 0; slot = SPRITE_ENEMY;
+	i = 0; slot = SPRITE_ACTOR;
 	while (i<ACTOR_NUM && slot<SPRITE_NUM) {
 		// Is valid?
 		selActor = &actors[i++];
@@ -125,7 +126,7 @@ void ProcessActors()
 	toggleActor ^= 1;
 
 	// Process Actor Movements and Attacks
-	i = 0; slot = SPRITE_ENEMY;
+	i = 0; slot = SPRITE_ACTOR;
 	while (i<ACTOR_NUM && slot<SPRITE_NUM) {
 		// Is valid?
 		selActor = &actors[i++];
@@ -147,8 +148,11 @@ void ProcessActors()
 			
 			// Setup base frame
 			selActor->frame = selActor->key + selActor->stance;
-			if (selActor-> state <= ACTOR_ATTACK)
-				selActor->frame += (toggleActor+slot)%2u;
+			if (selActor->state > ACTOR_ATTACK) 
+				continue;
+
+			// Monster animation
+			selActor->frame += (toggleActor+slot)%2u;
 			 
 			// Has detected player?
 			switch (selActor->state) {

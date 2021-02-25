@@ -35,7 +35,7 @@
 	#define SPRITE_PLAYER0  1
 	#define SPRITE_PLAYER1  2
 	#define SPRITE_PLAYER2  3
-	#define SPRITE_ENEMY    4
+	#define SPRITE_ACTOR    4
 	#define COLOR_GOLD 	   0xec
 	#define COLOR_POTION   0x34
 	#define COLOR_ARMOR    0x12
@@ -45,7 +45,7 @@
 #elif defined __ORIC__	
 	#define SPRITE_WEAPON   0
 	#define SPRITE_PLAYER   1
-	#define SPRITE_ENEMY    2
+	#define SPRITE_ACTOR    2
 	#define COLOR_GOLD 	   SPR_YELLOW
 	#define COLOR_POTION   SPR_RED
 	#define COLOR_ARMOR    SPR_MAGENTA
@@ -55,7 +55,7 @@
 #else
 	#define SPRITE_WEAPON   0
 	#define SPRITE_PLAYER   1
-	#define SPRITE_ENEMY    2
+	#define SPRITE_ACTOR    2
 	#define COLOR_GOLD 	   YELLOW
 	#define COLOR_POTION   YELLOW
 	#define COLOR_ARMOR    YELLOW

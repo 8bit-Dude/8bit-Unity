@@ -81,7 +81,7 @@ void ProcessPlayer()
 	if (collision) {
 		scrX = scrXPRV; scrY = scrYPRV;
 		mapX = mapXPRV; mapY = mapYPRV;
-	} else {		
+	} else {
 	#if defined(__APPLE2__) || defined(__ORIC__)
 		if (mapX/2u != mapXPRV/2u || mapY/2u != mapYPRV/2u) {
 			ScrollCharmap(mapX, mapY);

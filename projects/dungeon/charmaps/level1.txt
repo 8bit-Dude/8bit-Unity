@@ -2,7 +2,7 @@ Entrance (X,Y), Exit (X,Y)
 	57, 2, 15, 32
 
 Actor: Type, Stance, Health,  X,  Y
-	   KEY,   LEFT,    0,    58, 29
+	   KEY,   RIGHT,   0,    58, 29
 	SKELETON, LEFT,   15,    56, 27
 	SKELETON, RIGHT,  15,    61, 26
 	SKELETON, LEFT,   15,    62, 28
