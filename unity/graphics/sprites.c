@@ -150,7 +150,7 @@ void LoadSprites(unsigned char* filename)
 #endif
 }
 
-void SetupSprites(unsigned char frames, unsigned char cols, unsigned char rows, unsigned char *spriteColors)
+void SetupSprites(unsigned int frames, unsigned char cols, unsigned char rows, unsigned char *spriteColors)
 {
 #if defined __APPLE2__	
 	// Set sprite rows, frames and resulting block size (there are 4 offset blocks for each sprite)
@@ -464,7 +464,7 @@ void LocateSprite(unsigned int x, unsigned int y)
   }
 #endif
 
-void SetSprite(unsigned char index, unsigned char frame)
+void SetSprite(unsigned char index, unsigned int frame)
 {
 #if defined __APPLE2__
 	unsigned int frameAddr;
@@ -551,7 +551,7 @@ void SetSprite(unsigned char index, unsigned char frame)
 	spriteY -= rows/2u;
 	
 	// Make sure we do not print on line borders
-	if (spriteX > 36) spriteX = 36;
+	if (spriteX > 37) spriteX = 37;
 	
 	// Check that sprite was enabled
 	if (!sprBG[index]) EnableSprite(index);

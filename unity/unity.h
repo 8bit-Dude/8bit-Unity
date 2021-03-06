@@ -229,11 +229,11 @@ void PlaySFX(unsigned char index, unsigned char pitch, unsigned char volume, uns
   #define SPRITE_NUM 8  
 #endif
 void LoadSprites(unsigned char* filename);
-void SetupSprites(unsigned char frames, unsigned char cols, unsigned char rows, unsigned char *spriteColors);
+void SetupSprites(unsigned int frames, unsigned char cols, unsigned char rows, unsigned char *spriteColors);
 void EnableSprite(signed char index);
 void DisableSprite(signed char index);
 void LocateSprite(unsigned int x, unsigned int y);
-void SetSprite(unsigned char index, unsigned char frame);
+void SetSprite(unsigned char index, unsigned int frame);
 void RecolorSprite(unsigned char index, unsigned char offset, unsigned char color);
 #if defined __APPLE2__
   void CropSprite(unsigned char index, unsigned char rows);
@@ -301,18 +301,41 @@ void PopCallback(callback* call);
 unsigned char ProcessInput(void);
 void ClearCallbacks(void);
 
-// Network functions (see net-init.c, net-udp.c, net-tcp.c, net-web.c)
+// Network functions (see net-base.c, net-ip.c, net-easy.c, net-udp.c, net-tcp.c, net-url.c, net-web.c)
 #define NETWORK_OK  0
 #define ADAPTOR_ERR 1
 #define DHCP_ERR    2
 unsigned char InitNetwork(void);							// Initialize network adapter
 unsigned char GetLocalIP(unsigned char* ip);				// Fetch local IP
+
+// Easynet protocols
+#define EASY_TCP     1
+#define EASY_UDP     2
+
+// Easynet return states
+#define EASY_OK      0
+#define EASY_CRED    1
+#define EASY_FULL    2
+#define EASY_TIMEOUT 3
+
+// Easynet variables and functions
+extern unsigned char easyBuffer[16];
+unsigned char EasyHost(unsigned char protocol, unsigned char slots, // protocol: EASY_TCP or EASY_UDP (ID and PASS generated automatically)
+					   unsigned int *ID, unsigned int *PASS);	 
+unsigned char EasyJoin(unsigned char protocol, 						// 				" "				  (ID and PASS must match host)
+					   unsigned int *ID, unsigned int *PASS);	 
+void EasySend(unsigned char *buffer, unsigned char len);
+unsigned char EasyRecv(unsigned char timeout);
+void EasyQuit(void);
+
+// TCP functions
 void SlotTCP(unsigned char slot);							// Set TCP slot (0~15)
 void OpenTCP(unsigned char *ip, unsigned int svPort);		// Open connection on current TCP slot (local port allocated automatically)
 void CloseTCP(void);										// Close current TCP slot
 void SendTCP(unsigned char* buffer, unsigned char length);  // Send contents of buffer on current TCP slot
 unsigned char* RecvTCP(unsigned int timeOut);				// Check all slots for incoming TCP packet (within time-out period)
 
+// UDP functions
 void SlotUDP(unsigned char slot);							// Set UDP slot (0~15)
 void OpenUDP(unsigned char *ip, unsigned int svPort,     	// Open connection on current UDP slot (local port allocated on clPort)
 								unsigned int clPort);
@@ -320,8 +343,11 @@ void CloseUDP(void);										// Close current UDP slot
 void SendUDP(unsigned char* buffer, unsigned char length);  // Send contents of buffer on current UDP slot
 unsigned char* RecvUDP(unsigned int timeOut);				// Check all slots for incoming UDP packet (within time-out period)
 
+// URL functions
 void GetURL(unsigned char* url);									// Request URL file
 unsigned char* ReadURL(unsigned char size, unsigned int timeOut);	// Read chunk of URL file
+
+// WEB server functions
 void OpenWEB(unsigned int port, unsigned int timeOut);		// Start WEB server on specified port (time-out in millisecs)
 void CloseWEB(void);										// Close WEB server
 void HeaderWEB(unsigned char* buffer, unsigned char length);// Header of reply to current WEB client

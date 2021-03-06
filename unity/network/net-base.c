@@ -43,6 +43,9 @@ unsigned char InitNetwork(void)
 		if (hubState[0] == COM_ERR_OK)
 			return NETWORK_OK;
 		UpdateHub();
+	#if defined __APPLE2__
+		clk += 1;
+	#endif		
 	}
 	return ADAPTOR_ERR;
 
