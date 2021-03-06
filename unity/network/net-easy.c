@@ -35,8 +35,8 @@
 unsigned char easyProt = 0;
 unsigned char easyLive = 0;
 unsigned char easyBuffer[16];
-unsigned char easyIP[] = { 127, 0, 0, 1 };
-//unsigned char easyIP[] = { 199, 47, 196, 106 };
+unsigned char easyIP[] = { 199, 47, 196, 106 };
+//unsigned char easyIP[] = { 127, 0, 0, 1 };
 clock_t easyTimer;
 
 unsigned char EasyHost(unsigned char protocol, unsigned char slots, unsigned int *ID, unsigned int *PASS)
