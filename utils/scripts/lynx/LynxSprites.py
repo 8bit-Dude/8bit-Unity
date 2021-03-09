@@ -1,5 +1,5 @@
 """
- * Copyright (c) 2018 Anthony Beaucamp.
+ * Copyright (c) 2021 Anthony Beaucamp.
  *
  * This software is provided 'as-is', without any express or implied warranty.
  * In no event will the authors be held liable for any damages arising from
@@ -29,7 +29,8 @@ from PIL import Image
 
 input = sys.argv[1]
 output = sys.argv[2]
-height = int(sys.argv[3])
+width = int(sys.argv[3])
+height = int(sys.argv[4])
 
 #################################
 # Read source bitmap and palette
@@ -38,46 +39,39 @@ rawdata = list(img1.getdata())
 colors = max(rawdata)
 print "Sprite sheet size: {%i,%i}; Number of colors: %i" % (img1.size[0], img1.size[1], colors)
 
-###################################
-# Rearrange into 8 * Height blocks
+#######################################
+# Rearrange into Width * Height blocks
 pixdata = []
 for row in range(0, img1.size[1], height):
-    for col in range(0, img1.size[0], 8):
+    for col in range(0, img1.size[0], width):
         for j in range(0, height):        
-            for i in range(0, 8):
+            for i in range(0, width):
                 pixdata.append(rawdata[(row+j)*img1.size[0]+col+i])
+            if (width%2):   # Fix odd number of cols
+                pixdata.append(0)
+if (width%2):
+    width += 1
 
 ################################
 # Convert pixel data to buffers 
-block = 8*height
+block = width*height
 frames = len(pixdata) / block
-if colors==3:
-    numBytes = (2*frames*height)
-    data = [chr(0)] * numBytes
-    for color in range(1,3):
-        for frame in range(frames):
-            for i in range(0, block, 8):
-                data[(color-1)*frames*height+frame*height+i/8] = \
-                    chr(((pixdata[frame*block+i+7] in [color,3])<<0) + ((pixdata[frame*block+i+6] in [color,3])<<1) + 
-                        ((pixdata[frame*block+i+5] in [color,3])<<2) + ((pixdata[frame*block+i+4] in [color,3])<<3) + 
-                        ((pixdata[frame*block+i+3] in [color,3])<<4) + ((pixdata[frame*block+i+2] in [color,3])<<5) + 
-                        ((pixdata[frame*block+i+1] in [color,3])<<6) + ((pixdata[frame*block+i+0] in [color,3])<<7))
-else:
-    numBytes = (colors*frames*height)
-    data = [chr(0)] * numBytes
-    for color in range(1,colors+1):
-        for frame in range(frames):
-            for i in range(0, block, 8):
-                data[(color-1)*frames*height+frame*height+i/8] = \
-                    chr(((pixdata[frame*block+i+7]==color)<<0) + ((pixdata[frame*block+i+6]==color)<<1) + 
-                        ((pixdata[frame*block+i+5]==color)<<2) + ((pixdata[frame*block+i+4]==color)<<3) + 
-                        ((pixdata[frame*block+i+3]==color)<<4) + ((pixdata[frame*block+i+2]==color)<<5) + 
-                        ((pixdata[frame*block+i+1]==color)<<6) + ((pixdata[frame*block+i+0]==color)<<7))
-
+numBytes = frames*(height*(width/2+1)+1)
+data = [chr(0)] * numBytes
+i = 0
+for f in range(frames):
+    for h in range(0, height):
+        data[i] = chr(width/2+1)
+        i += 1
+        for w in range(0, width/2):
+            base = f*block + h*width + w*2
+            data[i] = chr((pixdata[base+0]<<4) + (pixdata[base+1]<<0))
+            i += 1
+    data[i] = chr(0)
+    i += 1
+            
 ###########################
 # Write output binary file
 f2 = io.open(output, 'wb')
-f2.write(chr(len(data)%256))
-f2.write(chr(len(data)/256))
 f2.write(''.join(data))
 f2.close()

@@ -800,12 +800,15 @@ class Application:
                 fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
                 # Build Unity Library
-                cList = ['graphics\\bitmap.c', 'graphics\\charmap.c', 'graphics\\chunks.c', 'geom\\geom2d.c', 'math\\dot.c', 'adaptors\\mouse.c', 'sound\\music.c', 'network\\net-base.c', 'network\\net-ip.c', 'network\\net-url.c', 'network\\net-tcp.c', 'network\\net-udp.c', 'network\\net-web.c', 'graphics\\pixel.c', 'graphics\\print.c', 'graphics\\scaling.c', 'sound\\sfx.c', 'graphics\\sprites.c', 'graphics\\widgets.c', 'targets\\apple2\\CLOCK.c', 'targets\\apple2\\directory.c', 'targets\\apple2\\files.c', 'targets\\apple2\\hires.c', 'targets\\apple2\\memory.c', 'targets\\apple2\\pixelDHR.c', 'targets\\apple2\\pixelSHR.c']
-                sList = ['math\\atan2.s', 'graphics\\chars.s', 'graphics\\tiles.s', 'targets\\apple2\\blitDHR.s', 'targets\\apple2\\blitSHR.s', 'targets\\apple2\\decrunch.s', 'targets\\apple2\\DUET.s', 'targets\\apple2\\hiresLines.s', 'targets\\apple2\\joystick.s', 'targets\\apple2\\MOCKING.s', 'targets\\apple2\\PADDLE.s', 'targets\\apple2\\prodos.s', 'targets\\apple2\\scrollDHR.s', 'targets\\apple2\\scrollSHR.s']
+                cList = ['graphics\\bitmap.c', 'graphics\\charmap.c', 'graphics\\chunks.c', 'geom\\geom2d.c', 'math\\dot.c', 'adaptors\\hub.c', 'adaptors\\mouse.c', 'sound\\music.c', 'network\\net-base.c', 'network\\net-easy.c', 'network\\net-ip.c', 'network\\net-url.c', 'network\\net-tcp.c', 'network\\net-udp.c', 'network\\net-web.c', 'graphics\\pixel.c', 'graphics\\print.c', 'graphics\\scaling.c', 'sound\\sfx.c', 'graphics\\sprites.c', 'graphics\\widgets.c', 'targets\\apple2\\CLOCK.c', 'targets\\apple2\\directory.c', 'targets\\apple2\\files.c', 'targets\\apple2\\hires.c', 'targets\\apple2\\memory.c', 'targets\\apple2\\pixelDHR.c', 'targets\\apple2\\pixelSHR.c']
+                sList = ['math\\atan2.s', 'graphics\\chars.s', 'graphics\\tiles.s', 'targets\\apple2\\blitDHR.s', 'targets\\apple2\\blitSHR.s', 'targets\\apple2\\decrunch.s', 'targets\\apple2\\DUET.s', 'targets\\apple2\\hiresLines.s', 'targets\\apple2\\joystick.s', 'targets\\apple2\\MOCKING.s', 'targets\\apple2\\PADDLE.s', 'targets\\apple2\\prodos.s', 'targets\\apple2\\serial.s', 'targets\\apple2\\scrollDHR.s', 'targets\\apple2\\scrollSHR.s']
+                symbols = ''
+                if self.Combobox_AppleNetworkDriver.get() == '8bit-Hub':    
+                    symbols += '-D __HUB__ '
                 if graphics == 'double':
-                    symbols = '-D __DHR__'
+                    symbols += '-D __DHR__'
                 else:
-                    symbols = '-D __SHR__'
+                    symbols += '-D __SHR__'
                 if self.Combobox_AppleCrunchAssets.get() == 'Yes':
                     symbols += ' -D __DECRUNCH__'                        
                 BuildUnityLibrary(fp, 'apple2', symbols, cList, sList, buildFolder+'/apple')
@@ -817,8 +820,10 @@ class Application:
                     comp += item + ' '
                 if self.Combobox_AppleNetworkDriver.get() == 'IP65(TCP/UDP)':
                     fp.write(comp + buildFolder + '/apple/unity.lib unity/adaptors/ip65_tcp.lib unity/adaptors/ip65_apple2.lib\n\n')
-                else:
+                elif self.Combobox_AppleNetworkDriver.get() == 'IP65(UDP)':
                     fp.write(comp + buildFolder + '/apple/unity.lib unity/adaptors/ip65.lib unity/adaptors/ip65_apple2.lib\n\n')
+                elif self.Combobox_AppleNetworkDriver.get() == '8bit-Hub':
+                    fp.write(comp + buildFolder + '/apple/unity.lib\n\n')
                 
                 # Info
                 fp.write('echo DONE!\n\n')
@@ -911,7 +916,7 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Build Unity Library
-            cList = ['graphics\\bitmap.c', 'graphics\\charmap.c', 'graphics\\chunks.c', 'geom\\geom2d.c', 'math\\dot.c', 'adaptors\\joystick.c', 'adaptors\\mouse.c', 'sound\\music.c', 'network\\net-base.c', 'network\\net-ip.c', 'network\\net-url.c', 'network\\net-tcp.c', 'network\\net-udp.c', 'network\\net-web.c', 'graphics\\pixel.c', 'graphics\\print.c', 'graphics\\scaling.c', 'sound\\sfx.c', 'graphics\\sprites.c', 'graphics\\widgets.c', 'targets\\atari\\directory.c', 'targets\\atari\\files.c']
+            cList = ['graphics\\bitmap.c', 'graphics\\charmap.c', 'graphics\\chunks.c', 'geom\\geom2d.c', 'math\\dot.c', 'adaptors\\joystick.c', 'adaptors\\mouse.c', 'sound\\music.c', 'network\\net-base.c', 'network\\net-easy.c', 'network\\net-ip.c', 'network\\net-url.c', 'network\\net-tcp.c', 'network\\net-udp.c', 'network\\net-web.c', 'graphics\\pixel.c', 'graphics\\print.c', 'graphics\\scaling.c', 'sound\\sfx.c', 'graphics\\sprites.c', 'graphics\\widgets.c', 'targets\\atari\\directory.c', 'targets\\atari\\files.c']
             sList = ['math\\atan2.s', 'graphics\\chars.s', 'graphics\\tiles.s', 'targets\\atari\\decrunch.s', 'targets\\atari\\DLIST-bmp.s', 'targets\\atari\\DLIST-chr.s', 'targets\\atari\\DLI.s', 'targets\\atari\\ROM.s', 'targets\\atari\\scroll.s', 'targets\\atari\\xbios.s']
             if self.Combobox_AtariNetworkDriver.get() == 'Fujinet':    
                 cList.append('targets\\atari\\fujinet.c')
@@ -1029,7 +1034,7 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Build Unity Library
-            cList = ['graphics\\bitmap.c', 'graphics\\charmap.c', 'graphics\\chunks.c', 'geom\\geom2d.c', 'math\\dot.c', 'adaptors\\mouse.c', 'sound\\music.c', 'network\\net-base.c', 'network\\net-ip.c', 'network\\net-url.c', 'network\\net-tcp.c', 'network\\net-udp.c', 'network\\net-web.c', 'graphics\\pixel.c', 'graphics\\print.c', 'graphics\\scaling.c', 'sound\\sfx.c', 'graphics\\sprites.c', 'graphics\\widgets.c', 'targets\\c64\\directory.c', 'targets\\c64\\VIC2.c']
+            cList = ['graphics\\bitmap.c', 'graphics\\charmap.c', 'graphics\\chunks.c', 'geom\\geom2d.c', 'math\\dot.c', 'adaptors\\mouse.c', 'sound\\music.c', 'network\\net-base.c', 'network\\net-easy.c', 'network\\net-ip.c', 'network\\net-url.c', 'network\\net-tcp.c', 'network\\net-udp.c', 'network\\net-web.c', 'graphics\\pixel.c', 'graphics\\print.c', 'graphics\\scaling.c', 'sound\\sfx.c', 'graphics\\sprites.c', 'graphics\\widgets.c', 'targets\\c64\\directory.c', 'targets\\c64\\VIC2.c']
             sList = ['math\\atan2.s', 'graphics\\chars.s', 'graphics\\tiles.s', 'targets\\c64\\decrunch.s', 'targets\\c64\\joystick.s', 'targets\\c64\\scroll.s', 'targets\\c64\\ROM.s', 'targets\\c64\\SID.s']
             if self.Combobox_C64CrunchAssets.get() == 'Yes':
                 symbols = '-D __DECRUNCH__ '
@@ -1132,83 +1137,76 @@ class Application:
             fp.write('echo off\n\n')
             fp.write('setlocal enableextensions enabledelayedexpansion\n\n')
             fp.write('mkdir lynx\n')           
-            fp.write('cd lynx\n')
-            fp.write('del *.* /F /Q\n\n')
+            fp.write('cd ..\n\n')            
+            fp.write('del ' + buildFolder + '\\lynx\\*.* /F /Q\n\n')
             
             fp.write('echo --------------- CONVERT ASSETS ---------------  \n\n')
             
-            # Keyboard
-            for item in ['cursor', 'keyboard']:
-                fp.write('copy ..\\..\\utils\\scripts\\lynx\\' + item + '.png ' + item + '.png\n')
-                fp.write('..\\..\\utils\\scripts\\png2bmp ' + item + '.png\n')
-                fp.write('..\\..\\utils\\scripts\\lynx\\sprpck -t6 -p2 -u ' + item + '.bmp\n\n')         
-                
             # Bitmaps
             for item in bitmaps:
-                fb = FileBase(item, '.png')
-                fp.write('copy ..\\..\\' + item.replace('/', '\\') + ' ' + fb + '.png\n')
-                fp.write('..\\..\\utils\\scripts\\png2bmp ' + fb + '.png\n')
-                fp.write('..\\..\\utils\\scripts\\lynx\\sprpck -t6 -p2 -u ' + fb + '.bmp\n')
+                fp.write('utils\\py27\\python utils\\scripts\\lynx\\LynxBitmap.py ' + item + ' ' + buildFolder + '/lynx/' + FileBase(item, '.png') + '.img\n')
             if len(bitmaps) > 0:
                 fp.write('\n')
                 
             # Charset
             if len(charset) > 0:
                 fb = FileBase(charset[0], '.png')
-                fp.write('..\\..\\utils\\py27\python ..\\..\\utils\\scripts\\lynx\\LynxCharset.py ..\\..\\' + charset[0].replace('/', '\\') + ' ' +fb + '.chr\n')
+                fp.write('utils\\py27\python utils\\scripts\\lynx\\LynxCharset.py ' + charset[0] + ' ' + buildFolder + '/lynx/' + fb + '.chr\n')
                 fp.write('\n')
                 
             # Sprites
             if len(sprites) > 0:
-                spriteFrames = int(self.entry_LynxSpriteFrames.get())
                 spriteWidth  = int(self.entry_LynxSpriteWidth.get())
                 spriteHeight = int(self.entry_LynxSpriteHeight.get())
-                fp.write('copy ..\\..\\' + sprites[0].replace('/', '\\') + ' sprites.png\n')
-                fp.write('..\\..\\utils\\scripts\\png2bmp sprites.png\n')
-                fp.write('..\\..\\utils\\scripts\\lynx\\sprpck -t6 -p2 -u -r001' + str(spriteFrames).zfill(3) + \
-                                            ' -S' + str(spriteWidth).zfill(3) + str(spriteHeight).zfill(3) + \
-                                            ' -a' + str(spriteWidth/2).zfill(3) + str(spriteHeight/2).zfill(3) + ' sprites.bmp\n')
-                if spriteFrames == 1: 
-                    fp.write('ren sprites.spr sprites000000.spr\n')
+                fp.write('utils\\py27\\python utils\\scripts\\lynx\\LynxSprites.py ' + sprites[0] + ' ' + buildFolder + '/lynx/sprites.dat ' + str(spriteWidth) + ' ' + str(spriteHeight) + '\n')                
                 fp.write('\n')
 
+            # Virtual Keyboard
+            fp.write('utils\\py27\\python utils\\scripts\\lynx\\LynxSprites.py utils/scripts/lynx/cursor.png ' + buildFolder + '/lynx/cursor.dat 5 7\n')
+            fp.write('utils\\py27\\python utils\\scripts\\lynx\\LynxSprites.py utils/scripts/lynx/keyboard.png ' + buildFolder + '/lynx/keyboard.dat 56 27\n')
+            fp.write('\n')
+                
             # Charmaps/Tilesets
             for item in charmaps:
                 fb = FileBase(item, '')
-                fp.write('copy ..\\..\\' + item.replace('/', '\\') + ' ' + fb + '\n')
+                fp.write('copy ' + item.replace('/', '\\') + ' ' + buildFolder + '\\lynx\\' + fb + '\n')
             if len(charmaps) > 0:
                 fp.write('\n')
                 
             # Chunks
-            fp.write('set /a CHUNKNUM=0\n')
             if len(chunks) > 0:
-                fp.write('..\\..\\utils\\py27\\python ..\\..\\utils\\scripts\\ProcessChunks.py lynx ../../' + chunks[0] + ' ../../' + buildFolder + '/lynx/\n')
-                fp.write('for /f "tokens=*" %%A in (chunks.lst) do set CHUNKNAMES=!CHUNKNAMES!_shkName!CHUNKNUM!,&&set /a CHUNKNUM+=1\n')
-            fp.write('set /a FILENUM=!CHUNKNUM!+' + str(len(bitmaps)+len(charmaps)+len(charset)+len(music)+len(shared)) + '\n')
+                fp.write('utils\\py27\\python utils\\scripts\\ProcessChunks.py lynx ' + chunks[0] + ' ' + buildFolder + '/lynx/\n')
+                fp.write('\n')
 
             # Copy Chipper sfx and music data
-            fp.write('copy ..\\..\\unity\\targets\\lynx\\chipper.s soundbs.mac\n')    
+            fp.write('copy unity\\targets\\lynx\\chipper.s ' + buildFolder + '\\lynx\\soundbs.mac\n')    
             for i in range(len(music)):
-                fp.write('..\\..\\utils\\py27\\python ../../utils/scripts/lynx/LynxChipper.py ../../' + music[i] + ' music' + str(i).zfill(2) + '.asm _musData' + str(i).zfill(2) + ' MUS' + str(i) + 'DATA"\n')
-                
-            # Clean-up
-            fp.write('del *.png /F /Q\n')
-            fp.write('del *.bmp /F /Q\n')
-            fp.write('del *.pal /F /Q\n')
+                fp.write('utils\\py27\\python utils/scripts/lynx/LynxChipper.py ' + music[i] + ' ' + buildFolder + '/lynx/music' + str(i).zfill(2) + '.asm _musData' + str(i).zfill(2) + ' MUS' + str(i) + 'DATA"\n')
             fp.write('\n')
-                
+
             # Copy Shared files
             if len(shared) > 0:             
                 for item in shared:
                     fb = FileBase(item, '')
-                    fp.write('copy ..\\..\\' + item.replace('/', '\\') + ' ' + fb + '\n')
+                    fp.write('copy ' + item.replace('/', '\\') + ' ' + buildFolder + '\\lynx\\' + fb + '\n')
                 fp.write('\n')
+
+            fp.write('echo ---------------- LINK ASSETS ----------------  \n\n')
+
+            fp.write('cd ' + buildFolder + '\\lynx\n\n')
                 
+            # Figure out number of files
+            fp.write('set /a CHUNKNUM=0\n')
+            if len(chunks) > 0:
+                fp.write('for /f "tokens=*" %%A in (chunks.lst) do set CHUNKNAMES=!CHUNKNAMES!_shkName!CHUNKNUM!,&&set /a CHUNKNUM+=1\n')
+            fp.write('set /a FILENUM=!CHUNKNUM!+' + str(len(bitmaps)+len(charmaps)+len(charset)+len(music)+len(shared)) + '\n')
+            fp.write('\n')
+            
             # Get Size of various files
             filelist = ''
             for i in range(len(bitmaps)):
                 fb = FileBase(bitmaps[i], '.png')
-                filelist += fb + '.spr,'
+                filelist += fb + '.img,'
             for item in charmaps:
                 fb = FileBase(item, '')
                 filelist += fb + ','
@@ -1221,14 +1219,15 @@ class Application:
                 fb = FileBase(item, '')
                 filelist += fb + ','
             fp.write('set FILESIZES=\n')
-            fp.write('for %%I in (' + filelist[0:-1] + ') do set FILESIZES=!FILESIZES!%%~zI,\n\n')
-            fp.write('for /f "tokens=*" %%A in (chunks.lst) do set FILESIZES=!FILESIZES!%%~zA,\n') 
+            fp.write('for %%I in (' + filelist[0:-1] + ') do set FILESIZES=!FILESIZES!%%~zI,\n')
+            if len(chunks) > 0:
+                fp.write('for /f "tokens=*" %%A in (chunks.lst) do set FILESIZES=!FILESIZES!%%~zA,\n') 
+            fp.write('\n')
 
             # Generate declare file for read-only data
             fp.write('@echo .global _fileNum  >> data.asm\n')
             fp.write('@echo .global _fileSizes >> data.asm\n')
             fp.write('@echo .global _fileNames >> data.asm\n')
-            fp.write('@echo .global _spriteNum  >> data.asm\n')
             fp.write('@echo .global _spriteData >> data.asm\n')
             fp.write('@echo .global _cursorData >> data.asm\n')
             fp.write('@echo .global _keybrdData >> data.asm\n')
@@ -1311,17 +1310,15 @@ class Application:
                 for i in range(len(bitmaps)):
                     fb = FileBase(bitmaps[i], '.png')
                     fp.write('@echo .segment "BMP' + str(i) + 'DATA" >> data.asm\n')
-                    fp.write('@echo _bmpData' + str(i).zfill(2) + ': .incbin "' + fb + '.spr" >> data.asm\n')                    
+                    fp.write('@echo _bmpData' + str(i).zfill(2) + ': .incbin "' + fb + '.img" >> data.asm\n')                    
 
                 # Link list of charmaps
-                fp.write('@echo ; >> data.asm\n')
                 for i in range(len(charmaps)):
                     fb = FileBase(charmaps[i], '')
                     fp.write('@echo .segment "BMP' + str(len(bitmaps)+i) + 'DATA" >> data.asm\n')
                     fp.write('@echo _mapData' + str(i).zfill(2) + ': .incbin "' + fb +'" >> data.asm\n')
 
                 # Link list of charsets
-                fp.write('@echo ; >> data.asm\n')
                 for i in range(len(charset)):
                     fb = FileBase(charset[i], '.png')
                     fp.write('@echo .segment "BMP' + str(len(bitmaps)+len(charmaps)+i) + 'DATA" >> data.asm\n')
@@ -1351,23 +1348,14 @@ class Application:
             
             # Sprite Data 
             fp.write('@echo .segment "RODATA" >> data.asm\n')                
-            fp.write('@echo _spriteNum: .byte ' + self.entry_LynxSpriteFrames.get() + ' >> data.asm\n')            
             if len(sprites) > 0:            
-                fp.write('@echo _spriteData: .addr ')    
-                for i in range(int(self.entry_LynxSpriteFrames.get())):
-                    if i > 0:
-                        fp.write(', ')
-                    fp.write('_spr' + str(i).zfill(3))
-                fp.write(' >> data.asm\n')
-                for i in range(int(self.entry_LynxSpriteFrames.get())):
-                    fp.write('@echo _spr' + str(i).zfill(3) + ': .incbin "sprites' + str(i).zfill(3) + '000.spr" >> data.asm\n')
+                fp.write('@echo _spriteData: .incbin "' + FileBase(sprites[0], '') + '.dat" >> data.asm\n')                    
             else:
                 fp.write('@echo _spriteData: .byte 0 >> data.asm\n')
-            fp.write('@echo ; >> data.asm\n')
 
-            # Keybard Binary Data
-            fp.write('@echo _cursorData: .incbin "cursor.spr" >> data.asm\n')             
-            fp.write('@echo _keybrdData: .incbin "keyboard.spr" >> data.asm\n')                                                 
+            # Keyboard Data
+            fp.write('@echo _cursorData: .incbin "cursor.dat" >> data.asm\n')             
+            fp.write('@echo _keybrdData: .incbin "keyboard.dat" >> data.asm\n')                                                 
             
             # Done, return to base folder
             fp.write('\n')
@@ -1376,7 +1364,7 @@ class Application:
             fp.write('\n')
 
             # Generate config and directory Files
-            fp.write('utils\\py27\\python utils/scripts/lynx/LynxConfig.py unity/targets/lynx/lynx.cfg ' + buildFolder + '/lynx/lynx.cfg ' + str(len(bitmaps)+len(charmaps)+len(charset)) + ' ' + str(len(music)) + ' ' + str(len(shared)) + ' %CHUNKNUM%\n')
+            fp.write('utils\\py27\\python utils/scripts/lynx/LynxConfig.py unity/targets/lynx/lynx.cfg ' + buildFolder + '/lynx/lynx.cfg ' + self.entry_LynxMusicMemory.get() + ' ' + self.entry_LynxSharedMemory.get() + ' ' + str(len(bitmaps)+len(charmaps)+len(charset)) + ' ' + str(len(music)) + ' ' + str(len(shared)) + ' %CHUNKNUM%\n')
             fp.write('utils\\py27\\python utils/scripts/lynx/LynxDirectory.py unity/targets/lynx/directory.s ' + buildFolder + '/lynx/directory.asm ' + str(len(bitmaps)+len(charmaps)+len(charset)) + ' ' + str(len(music)) + ' ' + str(len(shared)) + ' %CHUNKNUM%\n')
                         
             # Info
@@ -1385,7 +1373,7 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Build Unity Library
-            cList = ['graphics\\bitmap.c', 'graphics\\charmap.c', 'graphics\\chunks.c', 'geom\\geom2d.c', 'math\\dot.c', 'adaptors\\hub.c', 'adaptors\\joystick.c', 'adaptors\\mouse.c', 'sound\\music.c', 'network\\net-base.c', 'network\\net-ip.c', 'network\\net-url.c', 'network\\net-tcp.c', 'network\\net-udp.c', 'network\\net-web.c', 'graphics\\pixel.c', 'graphics\\print.c', 'graphics\\scaling.c', 'sound\\sfx.c', 'graphics\\sprites.c', 'graphics\\widgets.c', 'targets\\lynx\\display.c', 'targets\\lynx\\files.c', 'targets\\lynx\\screen.c', 'targets\\lynx\\text.c']
+            cList = ['graphics\\bitmap.c', 'graphics\\charmap.c', 'graphics\\chunks.c', 'geom\\geom2d.c', 'math\\dot.c', 'adaptors\\hub.c', 'adaptors\\joystick.c', 'adaptors\\mouse.c', 'sound\\music.c', 'network\\net-base.c', 'network\\net-easy.c', 'network\\net-ip.c', 'network\\net-url.c', 'network\\net-tcp.c', 'network\\net-udp.c', 'network\\net-web.c', 'graphics\\pixel.c', 'graphics\\print.c', 'graphics\\scaling.c', 'sound\\sfx.c', 'graphics\\sprites.c', 'graphics\\widgets.c', 'targets\\lynx\\display.c', 'targets\\lynx\\files.c', 'targets\\lynx\\input.c', 'targets\\lynx\\screen.c', 'targets\\lynx\\text.c']
             sList = ['math\\atan2.s', 'graphics\\chars.s', 'graphics\\tiles.s', 'targets\\lynx\\header.s', 'targets\\lynx\\scroll.s', 'targets\\lynx\\serial.s', 'targets\\lynx\\suzy.s']
             symbols = ' -D __MUSSIZE__='  + self.entry_LynxMusicMemory.get().replace('$','0x') + ' -D __SHRSIZE__='  + self.entry_LynxSharedMemory.get().replace('$','0x')
             BuildUnityLibrary(fp, 'lynx --cpu 65SC02', symbols, cList, sList, buildFolder+'/lynx')
@@ -1429,7 +1417,7 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
     
             # Build Unity Library
-            cList = ['graphics\\bitmap.c', 'graphics\\charmap.c', 'graphics\\chunks.c', 'geom\\geom2d.c', 'math\\dot.c', 'adaptors\\hub.c', 'adaptors\\joystick.c', 'adaptors\\mouse.c', 'sound\\music.c', 'network\\net-base.c', 'network\\net-ip.c', 'network\\net-url.c', 'network\\net-tcp.c', 'network\\net-udp.c', 'network\\net-web.c', 'graphics\\pixel.c', 'graphics\\print.c', 'graphics\\scaling.c', 'sound\\sfx.c', 'graphics\\sprites.c', 'graphics\\widgets.c', 'targets\\oric\\directory.c', 'targets\\oric\\files.c']
+            cList = ['graphics\\bitmap.c', 'graphics\\charmap.c', 'graphics\\chunks.c', 'geom\\geom2d.c', 'math\\dot.c', 'adaptors\\hub.c', 'adaptors\\joystick.c', 'adaptors\\mouse.c', 'sound\\music.c', 'network\\net-base.c', 'network\\net-easy.c', 'network\\net-ip.c', 'network\\net-url.c', 'network\\net-tcp.c', 'network\\net-udp.c', 'network\\net-web.c', 'graphics\\pixel.c', 'graphics\\print.c', 'graphics\\scaling.c', 'sound\\sfx.c', 'graphics\\sprites.c', 'graphics\\widgets.c', 'targets\\oric\\directory.c', 'targets\\oric\\files.c']
             sList = ['math\\atan2.s', 'graphics\\chars.s', 'graphics\\tiles.s', 'targets\\oric\\blit.s', 'targets\\oric\\paseIJK.s', 'targets\\oric\\keyboard.s', 'targets\\oric\\scroll.s', 'targets\\oric\\sedoric.s', 'targets\\oric\\MYM.s']
             BuildUnityLibrary(fp, 'atmos', '', cList, sList, buildFolder+'/oric')
                         

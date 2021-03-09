@@ -500,6 +500,6 @@ for line in lines:
     print 'Generated ', outfile, coords
 
     # Add file to list
-    listing.write(outfile+'\n')
+    listing.write(os.path.basename(outfile)+'\n')
     
 listing.close()

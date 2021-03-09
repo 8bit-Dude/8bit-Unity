@@ -33,8 +33,8 @@ input = sys.argv[2]
 output = sys.argv[3]
 
 try:
-    ######################
-    # Inter-player colors
+    ##############################
+    # Interleaved-player colors
     palette = [ chr(0x00), chr(0x24), chr(0x86), chr(0xd8) ]
 
     #####################

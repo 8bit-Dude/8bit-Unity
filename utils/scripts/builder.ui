@@ -781,7 +781,7 @@
                     <child>
                       <object class="ttk.Combobox" id="Combobox_AppleNetworkDriver">
                         <property name="state">readonly</property>
-                        <property name="values">IP65(TCP/UDP) IP65(UDP)</property>
+                        <property name="values">IP65(TCP/UDP) IP65(UDP) 8bit-Hub</property>
                         <property name="width">14</property>
                         <layout>
                           <property name="column">5</property>
