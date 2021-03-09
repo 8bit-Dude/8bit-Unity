@@ -2,7 +2,7 @@
 #include "definitions.h"
 
 #if defined __APPLE2__
-	#define spriteCols   7
+	#define spriteCols    7
 	#define spriteRows   16
 	unsigned char charColors[] = {};    //  All colors are pre-assigned in the char sheet
 	unsigned char spriteColors[] = {};  //  All colors are pre-assigned in the sprite sheet	
@@ -20,8 +20,8 @@
 	unsigned char spriteColors[] = { WHITE, YELLOW, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, RED, GREEN };  // 0-8: Sprite colors, 9-10: Shared colors
 #elif defined __LYNX__
 	#define spriteFrames 32
-	#define spriteCols   7
-	#define spriteRows   9
+	#define spriteCols    8
+	#define spriteRows   12
 	unsigned char charColors[] = {};    //  All colors are pre-assigned in the char sheet
 	unsigned char* spriteColors = defaultColors;	// All sprites use the default palette
 #elif defined __ORIC__
