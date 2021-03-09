@@ -95,6 +95,7 @@
 	}	
 
 #elif defined __LYNX__	
+	extern unsigned char spriteData; 
 	unsigned char defaultColors[] =  { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,   // Default palette
 									   0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,   
 									   0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,   
@@ -107,7 +108,7 @@
 	unsigned char sprDrawn[SPRITE_NUM], sprCollision[SPRITE_NUM]; // Enable and Collision status
 	unsigned char sprCOLS, sprROWS, sprCUSHION=2;		// Sprite dimensions and cushioning
 	SCB_REHV_PAL sprSCB[SPRITE_NUM];					// Frame data
-	extern unsigned int spriteData[]; 
+	unsigned char frameSize;
 	void ScaleSprite(unsigned char index, unsigned int xPercent, unsigned int yPercent) {
 		SCB_REHV_PAL *scb;
 		scb = &sprSCB[index];
@@ -143,7 +144,8 @@ void LoadSprites(unsigned char* filename)
 #elif defined(__CBM__)
 	// NEED SOLUTION: sprite sheets larger than $700
 	// can be loaded by exomizer, but not cc65!
-	// (file loading under ROM not possible)
+	// (file loading under ROM not possible)	
+#elif defined __LYNX__	
 	
 #elif defined __ORIC__	
 	FileRead(filename, (void*)SPRITERAM);
@@ -212,6 +214,7 @@ void SetupSprites(unsigned int frames, unsigned char cols, unsigned char rows, u
 	unsigned char i,j;
 	SCB_REHV_PAL *scb;
 	sprCOLS = cols; sprROWS = rows;		
+	frameSize = rows*((cols+cols%2)/2+1)+1;
 	for (i=0; i<SPRITE_NUM; i++) {
 		scb = &sprSCB[i];
 		scb->sprctl0 = BPP_4 | TYPE_NONCOLL;
@@ -631,9 +634,9 @@ void SetSprite(unsigned char index, unsigned int frame)
 	// Set sprite data for Suzy
 	SCB_REHV_PAL *scb;
 	scb = &sprSCB[index];
-	scb->data = spriteData[frame];
-	scb->hpos = spriteX;
-	scb->vpos = spriteY;
+	scb->data = &spriteData+frame*frameSize;
+	scb->hpos = spriteX-sprROWS/2u;
+	scb->vpos = spriteY-sprCOLS/2u;
 	
 	// Check collisions with other sprites
 	SpriteCollisions(index);
