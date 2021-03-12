@@ -800,8 +800,8 @@ class Application:
                 fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
                 # Build Unity Library
-                cList = ['graphics\\bitmap.c', 'graphics\\charmap.c', 'graphics\\chunks.c', 'geom\\geom2d.c', 'math\\dot.c', 'adaptors\\hub.c', 'adaptors\\mouse.c', 'sound\\music.c', 'network\\net-base.c', 'network\\net-easy.c', 'network\\net-ip.c', 'network\\net-url.c', 'network\\net-tcp.c', 'network\\net-udp.c', 'network\\net-web.c', 'graphics\\pixel.c', 'graphics\\print.c', 'graphics\\scaling.c', 'sound\\sfx.c', 'graphics\\sprites.c', 'graphics\\widgets.c', 'targets\\apple2\\CLOCK.c', 'targets\\apple2\\directory.c', 'targets\\apple2\\files.c', 'targets\\apple2\\hires.c', 'targets\\apple2\\memory.c', 'targets\\apple2\\pixelDHR.c', 'targets\\apple2\\pixelSHR.c']
-                sList = ['math\\atan2.s', 'graphics\\chars.s', 'graphics\\tiles.s', 'targets\\apple2\\blitDHR.s', 'targets\\apple2\\blitSHR.s', 'targets\\apple2\\decrunch.s', 'targets\\apple2\\DUET.s', 'targets\\apple2\\hiresLines.s', 'targets\\apple2\\joystick.s', 'targets\\apple2\\MOCKING.s', 'targets\\apple2\\PADDLE.s', 'targets\\apple2\\prodos.s', 'targets\\apple2\\serial.s', 'targets\\apple2\\scrollDHR.s', 'targets\\apple2\\scrollSHR.s']
+                cList = ['graphics\\bitmap.c', 'graphics\\charmap.c', 'graphics\\chunks.c', 'geom\\geom2d.c', 'math\\dot.c', 'adaptors\\hub.c', 'adaptors\\mouse.c', 'sound\\music.c', 'network\\net-base.c', 'network\\net-easy.c', 'network\\net-ip.c', 'network\\net-url.c', 'network\\net-tcp.c', 'network\\net-udp.c', 'network\\net-web.c', 'graphics\\logos.c', 'graphics\\pixel.c', 'graphics\\print.c', 'graphics\\scaling.c', 'sound\\sfx.c', 'graphics\\sprites.c', 'graphics\\widgets.c', 'targets\\apple2\\CLOCK.c', 'targets\\apple2\\directory.c', 'targets\\apple2\\files.c', 'targets\\apple2\\hires.c', 'targets\\apple2\\memory.c', 'targets\\apple2\\pixelDHR.c', 'targets\\apple2\\pixelSHR.c']
+                sList = ['math\\atan2.s', 'graphics\\chars.s', 'graphics\\tiles.s', 'targets\\apple2\\blitDHR.s', 'targets\\apple2\\blitSHR.s', 'targets\\apple2\\decrunch.s', 'targets\\apple2\\DUET.s', 'targets\\apple2\\hiresLines.s', 'targets\\apple2\\joystick.s', 'targets\\apple2\\MOCKING.s', 'targets\\apple2\\PADDLE.s', 'targets\\apple2\\prodos.s', 'targets\\apple2\\serial.s', 'targets\\apple2\\blitCharmapDHR.s', 'targets\\apple2\\blitCharmapSHR.s']
                 symbols = ''
                 if self.Combobox_AppleNetworkDriver.get() == '8bit-Hub':    
                     symbols += '-D __HUB__ '
@@ -916,8 +916,8 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Build Unity Library
-            cList = ['graphics\\bitmap.c', 'graphics\\charmap.c', 'graphics\\chunks.c', 'geom\\geom2d.c', 'math\\dot.c', 'adaptors\\joystick.c', 'adaptors\\mouse.c', 'sound\\music.c', 'network\\net-base.c', 'network\\net-easy.c', 'network\\net-ip.c', 'network\\net-url.c', 'network\\net-tcp.c', 'network\\net-udp.c', 'network\\net-web.c', 'graphics\\pixel.c', 'graphics\\print.c', 'graphics\\scaling.c', 'sound\\sfx.c', 'graphics\\sprites.c', 'graphics\\widgets.c', 'targets\\atari\\directory.c', 'targets\\atari\\files.c']
-            sList = ['math\\atan2.s', 'graphics\\chars.s', 'graphics\\tiles.s', 'targets\\atari\\decrunch.s', 'targets\\atari\\DLIST-bmp.s', 'targets\\atari\\DLIST-chr.s', 'targets\\atari\\DLI.s', 'targets\\atari\\ROM.s', 'targets\\atari\\scroll.s', 'targets\\atari\\xbios.s']
+            cList = ['graphics\\bitmap.c', 'graphics\\charmap.c', 'graphics\\chunks.c', 'geom\\geom2d.c', 'math\\dot.c', 'adaptors\\joystick.c', 'adaptors\\mouse.c', 'sound\\music.c', 'network\\net-base.c', 'network\\net-easy.c', 'network\\net-ip.c', 'network\\net-url.c', 'network\\net-tcp.c', 'network\\net-udp.c', 'network\\net-web.c', 'graphics\\logos.c', 'graphics\\pixel.c', 'graphics\\print.c', 'graphics\\scaling.c', 'sound\\sfx.c', 'graphics\\sprites.c', 'graphics\\widgets.c', 'targets\\atari\\directory.c', 'targets\\atari\\files.c']
+            sList = ['math\\atan2.s', 'graphics\\chars.s', 'graphics\\tiles.s', 'targets\\atari\\decrunch.s', 'targets\\atari\\DLIST-bmp.s', 'targets\\atari\\DLIST-chr.s', 'targets\\atari\\DLI.s', 'targets\\atari\\ROM.s', 'targets\\atari\\blitCharmap.s', 'targets\\atari\\xbios.s']
             if self.Combobox_AtariNetworkDriver.get() == 'Fujinet':    
                 cList.append('targets\\atari\\fujinet.c')
                 sList.append('targets\\atari\\fujiIRQ.s')
@@ -1034,8 +1034,8 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Build Unity Library
-            cList = ['graphics\\bitmap.c', 'graphics\\charmap.c', 'graphics\\chunks.c', 'geom\\geom2d.c', 'math\\dot.c', 'adaptors\\mouse.c', 'sound\\music.c', 'network\\net-base.c', 'network\\net-easy.c', 'network\\net-ip.c', 'network\\net-url.c', 'network\\net-tcp.c', 'network\\net-udp.c', 'network\\net-web.c', 'graphics\\pixel.c', 'graphics\\print.c', 'graphics\\scaling.c', 'sound\\sfx.c', 'graphics\\sprites.c', 'graphics\\widgets.c', 'targets\\c64\\directory.c', 'targets\\c64\\VIC2.c']
-            sList = ['math\\atan2.s', 'graphics\\chars.s', 'graphics\\tiles.s', 'targets\\c64\\decrunch.s', 'targets\\c64\\joystick.s', 'targets\\c64\\scroll.s', 'targets\\c64\\ROM.s', 'targets\\c64\\SID.s']
+            cList = ['graphics\\bitmap.c', 'graphics\\charmap.c', 'graphics\\chunks.c', 'geom\\geom2d.c', 'math\\dot.c', 'adaptors\\mouse.c', 'sound\\music.c', 'network\\net-base.c', 'network\\net-easy.c', 'network\\net-ip.c', 'network\\net-url.c', 'network\\net-tcp.c', 'network\\net-udp.c', 'network\\net-web.c', 'graphics\\logos.c', 'graphics\\pixel.c', 'graphics\\print.c', 'graphics\\scaling.c', 'sound\\sfx.c', 'graphics\\sprites.c', 'graphics\\widgets.c', 'targets\\c64\\directory.c', 'targets\\c64\\VIC2.c']
+            sList = ['math\\atan2.s', 'graphics\\chars.s', 'graphics\\tiles.s', 'targets\\c64\\decrunch.s', 'targets\\c64\\joystick.s', 'targets\\c64\\blitCharmap.s', 'targets\\c64\\ROM.s', 'targets\\c64\\SID.s']
             if self.Combobox_C64CrunchAssets.get() == 'Yes':
                 symbols = '-D __DECRUNCH__ '
             else:
@@ -1158,26 +1158,27 @@ class Application:
             if len(sprites) > 0:
                 spriteWidth  = int(self.entry_LynxSpriteWidth.get())
                 spriteHeight = int(self.entry_LynxSpriteHeight.get())
-                fp.write('utils\\py27\\python utils\\scripts\\lynx\\LynxSprites.py ' + sprites[0] + ' ' + buildFolder + '/lynx/sprites.dat ' + str(spriteWidth) + ' ' + str(spriteHeight) + '\n')                
+                fp.write('utils\\py27\\python utils\\scripts\\lynx\\LynxSprites.py ' + sprites[0] + ' ' + buildFolder + '/lynx/sprites.dat ' + str(spriteWidth) + ' ' + str(spriteHeight) + ' literal\n')
                 fp.write('\n')
 
-            # Virtual Keyboard
-            fp.write('utils\\py27\\python utils\\scripts\\lynx\\LynxSprites.py utils/scripts/lynx/cursor.png ' + buildFolder + '/lynx/cursor.dat 5 7\n')
-            fp.write('utils\\py27\\python utils\\scripts\\lynx\\LynxSprites.py utils/scripts/lynx/keyboard.png ' + buildFolder + '/lynx/keyboard.dat 56 27\n')
-            fp.write('\n')
-                
+            # Chunks
+            if len(chunks) > 0:
+                fp.write('utils\\py27\\python utils\\scripts\\ProcessChunks.py lynx ' + chunks[0] + ' ' + buildFolder + '/lynx/\n')
+                fp.write('\n')
+
             # Charmaps/Tilesets
             for item in charmaps:
                 fb = FileBase(item, '')
                 fp.write('copy ' + item.replace('/', '\\') + ' ' + buildFolder + '\\lynx\\' + fb + '\n')
             if len(charmaps) > 0:
                 fp.write('\n')
-                
-            # Chunks
-            if len(chunks) > 0:
-                fp.write('utils\\py27\\python utils\\scripts\\ProcessChunks.py lynx ' + chunks[0] + ' ' + buildFolder + '/lynx/\n')
-                fp.write('\n')
 
+            # Virtual Keyboard
+            fp.write('copy utils\\scripts\\lynx\\cursor.spr ' + buildFolder + '\\lynx\\cursor.dat\n')
+            fp.write('copy utils\\scripts\\lynx\\keyboard.spr ' + buildFolder + '\\lynx\\keyboard.dat\n')
+            fp.write('\n')
+                
+                
             # Copy Chipper sfx and music data
             fp.write('copy unity\\targets\\lynx\\chipper.s ' + buildFolder + '\\lynx\\soundbs.mac\n')    
             for i in range(len(music)):
@@ -1373,8 +1374,8 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Build Unity Library
-            cList = ['graphics\\bitmap.c', 'graphics\\charmap.c', 'graphics\\chunks.c', 'geom\\geom2d.c', 'math\\dot.c', 'adaptors\\hub.c', 'adaptors\\joystick.c', 'adaptors\\mouse.c', 'sound\\music.c', 'network\\net-base.c', 'network\\net-easy.c', 'network\\net-ip.c', 'network\\net-url.c', 'network\\net-tcp.c', 'network\\net-udp.c', 'network\\net-web.c', 'graphics\\pixel.c', 'graphics\\print.c', 'graphics\\scaling.c', 'sound\\sfx.c', 'graphics\\sprites.c', 'graphics\\widgets.c', 'targets\\lynx\\display.c', 'targets\\lynx\\files.c', 'targets\\lynx\\input.c', 'targets\\lynx\\screen.c', 'targets\\lynx\\text.c']
-            sList = ['math\\atan2.s', 'graphics\\chars.s', 'graphics\\tiles.s', 'targets\\lynx\\header.s', 'targets\\lynx\\scroll.s', 'targets\\lynx\\serial.s', 'targets\\lynx\\suzy.s']
+            cList = ['graphics\\bitmap.c', 'graphics\\charmap.c', 'graphics\\chunks.c', 'geom\\geom2d.c', 'math\\dot.c', 'adaptors\\hub.c', 'adaptors\\joystick.c', 'adaptors\\mouse.c', 'sound\\music.c', 'network\\net-base.c', 'network\\net-easy.c', 'network\\net-ip.c', 'network\\net-url.c', 'network\\net-tcp.c', 'network\\net-udp.c', 'network\\net-web.c', 'graphics\\logos.c', 'graphics\\pixel.c', 'graphics\\print.c', 'graphics\\scaling.c', 'sound\\sfx.c', 'graphics\\sprites.c', 'graphics\\widgets.c', 'targets\\lynx\\display.c', 'targets\\lynx\\files.c', 'targets\\lynx\\input.c', 'targets\\lynx\\screen.c', 'targets\\lynx\\text.c']
+            sList = ['math\\atan2.s', 'graphics\\chars.s', 'graphics\\tiles.s', 'targets\\lynx\\header.s', 'targets\\lynx\\blitCharmap.s', 'targets\\lynx\\serial.s', 'targets\\lynx\\suzy.s']
             symbols = ' -D __MUSSIZE__='  + self.entry_LynxMusicMemory.get().replace('$','0x') + ' -D __SHRSIZE__='  + self.entry_LynxSharedMemory.get().replace('$','0x')
             BuildUnityLibrary(fp, 'lynx --cpu 65SC02', symbols, cList, sList, buildFolder+'/lynx')
                                      
@@ -1417,8 +1418,8 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
     
             # Build Unity Library
-            cList = ['graphics\\bitmap.c', 'graphics\\charmap.c', 'graphics\\chunks.c', 'geom\\geom2d.c', 'math\\dot.c', 'adaptors\\hub.c', 'adaptors\\joystick.c', 'adaptors\\mouse.c', 'sound\\music.c', 'network\\net-base.c', 'network\\net-easy.c', 'network\\net-ip.c', 'network\\net-url.c', 'network\\net-tcp.c', 'network\\net-udp.c', 'network\\net-web.c', 'graphics\\pixel.c', 'graphics\\print.c', 'graphics\\scaling.c', 'sound\\sfx.c', 'graphics\\sprites.c', 'graphics\\widgets.c', 'targets\\oric\\directory.c', 'targets\\oric\\files.c']
-            sList = ['math\\atan2.s', 'graphics\\chars.s', 'graphics\\tiles.s', 'targets\\oric\\blit.s', 'targets\\oric\\paseIJK.s', 'targets\\oric\\keyboard.s', 'targets\\oric\\scroll.s', 'targets\\oric\\sedoric.s', 'targets\\oric\\MYM.s']
+            cList = ['graphics\\bitmap.c', 'graphics\\charmap.c', 'graphics\\chunks.c', 'geom\\geom2d.c', 'math\\dot.c', 'adaptors\\hub.c', 'adaptors\\joystick.c', 'adaptors\\mouse.c', 'sound\\music.c', 'network\\net-base.c', 'network\\net-easy.c', 'network\\net-ip.c', 'network\\net-url.c', 'network\\net-tcp.c', 'network\\net-udp.c', 'network\\net-web.c', 'graphics\\logos.c', 'graphics\\pixel.c', 'graphics\\print.c', 'graphics\\scaling.c', 'sound\\sfx.c', 'graphics\\sprites.c', 'graphics\\widgets.c', 'targets\\oric\\directory.c', 'targets\\oric\\files.c']
+            sList = ['math\\atan2.s', 'graphics\\chars.s', 'graphics\\tiles.s', 'targets\\oric\\blit.s', 'targets\\oric\\paseIJK.s', 'targets\\oric\\keyboard.s', 'targets\\oric\\blitCharmap.s', 'targets\\oric\\sedoric.s', 'targets\\oric\\MYM.s']
             BuildUnityLibrary(fp, 'atmos', '', cList, sList, buildFolder+'/oric')
                         
             # Compile Program

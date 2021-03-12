@@ -31,6 +31,7 @@ input = sys.argv[1]
 output = sys.argv[2]
 width = int(sys.argv[3])
 height = int(sys.argv[4])
+compress = sys.argv[5]
 
 #################################
 # Read source bitmap and palette
@@ -56,19 +57,47 @@ if (width%2):
 # Convert pixel data to buffers 
 block = width*height
 frames = len(pixdata) / block
-numBytes = frames*(height*(width/2+1)+1)
-data = [chr(0)] * numBytes
-i = 0
+data = []
 for f in range(frames):
     for h in range(0, height):
-        data[i] = chr(width/2+1)
-        i += 1
-        for w in range(0, width/2):
-            base = f*block + h*width + w*2
-            data[i] = chr((pixdata[base+0]<<4) + (pixdata[base+1]<<0))
-            i += 1
-    data[i] = chr(0)
-    i += 1
+        if compress == "packed":
+            data.append(chr(0)) # Placeholder
+            ref = len(data)-1
+            base = f*block + h*width
+            col = pixdata[base]
+            bytes = 0; cnt = 1; w = 1
+            while (w < width):
+                if (w == (width-1)):
+                    if (pixdata[base+w] != col or cnt == 15):
+                        bytes += 1
+                        data.append(chr( (cnt<<4) + (col<<0) ))
+                        col = pixdata[base+w]
+                        cnt = 1
+                    else:
+                        cnt += 1
+                    bytes += 1
+                    data.append(chr( (cnt<<4) + (col<<0) ))
+                    col = pixdata[base+w]
+                    cnt = 1
+                    
+                elif (pixdata[base+w] != col or cnt == 15):
+                    bytes += 1
+                    data.append(chr( (cnt<<4) + (col<<0) ))
+                    col = pixdata[base+w]
+                    cnt = 1
+                    
+                else:
+                    cnt += 1
+                    
+                w += 1
+            data[ref] = chr(bytes+1) # Overwrite placeholder
+               
+        else:
+            data.append(chr(width/2+1))
+            for w in range(0, width/2):
+                base = f*block + h*width + w*2
+                data.append(chr( (pixdata[base+0]<<4) + (pixdata[base+1]<<0) ))
+    data.append(chr(0))
             
 ###########################
 # Write output binary file
