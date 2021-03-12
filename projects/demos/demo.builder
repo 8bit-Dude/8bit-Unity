@@ -41,6 +41,7 @@
             ], 
             "chunks": [], 
             "diskSize": "140KB", 
+            "crunchAssets": "No", 
             "networkDriver": "IP65(TCP/UDP)"
         }, 
         "Atari": {
@@ -60,6 +61,7 @@
             ], 
             "chunks": [], 
             "diskSize": "180KB", 
+            "crunchAssets": "No", 
             "networkDriver": "IP65(TCP/UDP)"
         }, 
         "C64": {
@@ -78,11 +80,12 @@
                 "projects/demos/music/demo-c64.sid"
             ], 
             "chunks": [], 
+            "crunchAssets": "No", 
             "networkDriver": "IP65(TCP/UDP)"
         }, 
         "Lynx": {
             "spriteFrames": "16", 
-            "spriteWidth": "7", 
+            "spriteWidth": "8", 
             "spriteHeight": "9", 
             "musicMemory": "$0C00", 
             "sharedMemory": "$0400", 

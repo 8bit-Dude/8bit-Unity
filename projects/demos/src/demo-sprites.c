@@ -7,13 +7,13 @@ extern const char keyNext;
 // Sprite definitions
 #if defined __APPLE2__
 	#define spriteFrames 64
-	#define spriteCols   7
-	#define spriteRows   5
+	#define spriteCols    7
+	#define spriteRows    5
 	unsigned char spriteColors[] = { };	//  Colors are pre-assigned in the sprite sheet
 	unsigned char inkColors[] = { BLUE, RED, GREEN, YELLOW };		// P1, P2, P3, P4
 #elif defined __ATARI__ //  5th color shared between all sprites
 	#define spriteFrames 16
-	#define spriteCols   8
+	#define spriteCols    8
 	#define spriteRows   13
 	unsigned char spriteColors[] = {0x88, 0x28, 0xba, 0xee, 0x00,   // 0-4: 1st color (car body)
 									0x08, 0x08, 0x08, 0x08, 0x00 };	// 5-8: 2nd color (car tires) Refer to atari palette in docs
@@ -21,7 +21,7 @@ extern const char keyNext;
 #elif defined __ORIC__
 	#define spriteFrames 16
 	#define spriteCols   12
-	#define spriteRows   6
+	#define spriteRows    6
 	unsigned char spriteColors[] = { SPR_CYAN, SPR_MAGENTA, SPR_GREEN, SPR_WHITE, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC };	// Matching more or less with above
 	unsigned char inkColors[] = { CYAN, LPURPLE, LGREEN, GREY };		// P1, P2, P3, P4
 #elif defined __CBM__
@@ -32,8 +32,8 @@ extern const char keyNext;
 	unsigned char inkColors[] = { BLUE, RED, LGREEN, YELLOW };		// P1, P2, P3, P4
 #elif defined __LYNX__
 	#define spriteFrames 16
-	#define spriteCols   7
-	#define spriteRows   9
+	#define spriteCols    8
+	#define spriteRows    9
 	unsigned char spriteColors[] = { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,   // Default palette
 									 0x0b, 0x23, 0x45, 0x67, 0x89, 0xa1, 0xcd, 0xef,   // Swapped 1 and B
 									 0x05, 0x23, 0x41, 0x67, 0x89, 0xab, 0xcd, 0xef,   // Swapped 1 and 5
