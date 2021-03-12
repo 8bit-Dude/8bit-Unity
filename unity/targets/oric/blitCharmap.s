@@ -24,104 +24,67 @@
 ;   specific prior written permission.
 ;
 
-	.export _ScrollSHR
+	.export _BlitCharmap
 
-	.import _hiresLinesHI, _hiresLinesLO
-	.import _screenCol1, _screenWidth
-	.import _screenRow1, _screenRow2
+	.import _screenHeight, _screenWidth
 	.import _charsetData, _blockWidth
 	
-charPointerZP  = $ce
-scrPointerZP   = $ef
-charLPointerZP = $fb 
-charRPointerZP = $fd
+charPointerZP = $b5
+scrPointerZP  = $b7
+charBlockZP	  = $b9
 	
 	.segment	"BSS"	
 	
-_tmpY: .res 1
+_tmp: .res 1
 _curRow: .res 1
-_curLine: .res 1
 	
 	.segment	"CODE"	
 	
 ; ---------------------------------------------------------------
-; void __near__ _ScrollSHR (void)
-;	Blit data from Charmap to Bitmap
+; void __near__ BlitCharmap (void)
+;	Blit data from Charmap to Screen
 ;	Zero Page Data:
-;		charPointerZP:  16 bit address of location on charmap (auto-updated)
+;		charPointerZP: 16 bit address of location on charmap (auto-updated)
+;		scrPointerZP:  16 bit address of location on screen (auto-updated)
 ;
-;		scrPointerZP:   16 bit address of current Hires line (auto-generated)
-;		charLPointerZP: 16 bit address of charset block L (auto-generated)
-;		charRPointerZP: 16 bit address of charset block R (auto-generated)
+;		charBlockZP:   16 bit address of curent charset block (auto-generated)
 ; ---------------------------------------------------------------	
 
-.proc _ScrollSHR: near
+.proc _BlitCharmap: near
 
-; Set start row/line
-	lda _screenRow1
+	lda #0
 	sta _curRow
-	asl A
-	asl A
-	asl A
-	sta _curLine
-
+	
 loopRows: 
 	lda _curRow
-	cmp _screenRow2
+	cmp _screenHeight
 	bpl doneRows
 	inc _curRow
 	
-	; Set Charset Addresses (L/R)
+	; Reset Charset Block Addr
 	lda _charsetData
-	sta  charLPointerZP
-	sta $fd
-	
+	sta  charBlockZP
 	lda _charsetData+1
-	sta  charLPointerZP+1
-	adc #04
-	sta $fe
+	sta  charBlockZP+1
 
 		ldx #0
 	loopLines:
 		cpx #8
 		beq doneLines	
-		inx
-		
-		; Set address of start pixel on Hires line
-		ldy _curLine
-		lda _hiresLinesHI,y
-		sta  scrPointerZP+1
-		lda _hiresLinesLO,y
-		adc _screenCol1
-		sta  scrPointerZP
-		inc _curLine
+		inx 
 		
 			ldy #0
 		loopCols:
 			cpy _screenWidth
 			bpl doneCols
 
-				;---------------------
-				; Handle Left Char
+				; Copy Char
 				lda (charPointerZP),y		; Get char value
-				sty _tmpY		
+				sty _tmp
 				tay 
-				lda (charLPointerZP),y		; Get L pixels for that char
-				ldy _tmpY
-				sta (scrPointerZP),y		; Save in Hires mem
-
-				; Move to next col
-				iny
-
-				;---------------------
-				; Handle Right Char
-				lda (charPointerZP),y		; Get char value
-				
-				sty _tmpY
-				tay 
-				lda (charRPointerZP),y		; Get R pixels for that char
-				ldy _tmpY
-				sta (scrPointerZP),y		; Save in Hires mem
+				lda (charBlockZP),y			; Get pixels for that char
+				ldy _tmp
+				sta (scrPointerZP),y		; Save in Hires mem	
 
 				; Move to next col
 				iny
@@ -130,23 +93,23 @@ loopRows:
 
 		doneCols:
 
-			; Update address of charset block L (+128)
+			; Update address of charset block (+128)
 			clc	
-			lda charLPointerZP			
+			lda charBlockZP
 			adc #128
-			sta charLPointerZP	
-			bcc nocarryBlockLPtr	; Check if carry to high byte
-			inc charLPointerZP+1
-		nocarryBlockLPtr:
-
-			; Update address of charset block R (+128)
+			sta charBlockZP
+			bcc nocarryBlcPtr	; Check if carry to high byte
+			inc charBlockZP+1
+		nocarryBlcPtr:
+			
+			; Update address of Hires line (+40)
 			clc	
-			lda $fd			
-			adc #128
-			sta $fd	
-			bcc nocarryBlockRPtr	; Check if carry to high byte
-			inc $fe
-		nocarryBlockRPtr:
+			lda scrPointerZP
+			adc #40
+			sta scrPointerZP
+			bcc nocarryScrPtr	; Check if carry to high byte
+			inc scrPointerZP+1
+		nocarryScrPtr:
 			
 		; Move to next line
 		jmp loopLines
@@ -158,7 +121,7 @@ loopRows:
 		lda charPointerZP			
 		adc _blockWidth
 		sta charPointerZP	
-		bcc nocarryChrPtr		; Check if carry to high byte
+		bcc nocarryChrPtr	; Check if carry to high byte
 		inc charPointerZP+1
 	nocarryChrPtr:
 	

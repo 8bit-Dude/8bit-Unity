@@ -93,8 +93,8 @@ extern unsigned char chrPalette[];
 extern unsigned char bmpPalette[];
 extern unsigned char frameBlending;
 
-// Gfx functions (see scroll.s)
-void __fastcall__ Scroll(void);
+// Gfx functions (see blitCharmap.s)
+void __fastcall__ BlitCharmap(void);
 
 // Optional Fujinet functions (see fujinet.c)
 #ifdef __FUJINET__

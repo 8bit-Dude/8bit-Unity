@@ -92,9 +92,9 @@
 // Clock
 #define TCK_PER_SEC	CLK_TCK
 
-// Hires gfx functions (see blit.s, scroll.s)
+// Hires gfx functions (see blitXXX.s)
 void __fastcall__ Blit(void);
-void __fastcall__ Scroll(void);
+void __fastcall__ BlitCharmap(void);
 
 // Using Sedoric for File Management
 void DirList(void);

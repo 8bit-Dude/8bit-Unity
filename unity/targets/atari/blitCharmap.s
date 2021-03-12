@@ -24,25 +24,25 @@
 ;   specific prior written permission.
 ;
 
-	.export _Scroll
+	.export _BlitCharmap
 	
 	.import _screenWidth, _screenHeight
 	.import _blockWidth
 	
-charattDataZP = $61
-charPointerZP = $63
-scrPointerZP  = $fb
-colPointerZP  = $fd
+charattDataZP = $e0
+charPointerZP = $e2
+scrPointerZP  = $e4
 	
 	.segment	"BSS"
 
+_tmpChr: .res 1
 _curCol: .res 1
 _curRow: .res 1
 
 	.segment	"CODE"		
 	
 ; ---------------------------------------------------------------
-; void __near__ _Scroll (void)
+; void __near__ BlitCharmap (void)
 ;	Blit page from Charmap to Screen
 ;	Zero Page Data:
 ;		charattDataZP: 16 bit address of char attribute data (auto-updated)
@@ -50,7 +50,7 @@ _curRow: .res 1
 ;		scrPointerZP:  16 bit address of location on screen (auto-updated)
 ; ---------------------------------------------------------------	
 
-.proc _Scroll: near
+.proc _BlitCharmap: near
 
 	lda #0
 	sta _curRow
@@ -67,15 +67,18 @@ loopRows:
 		bpl doneCols			
 		sty _curCol
 	
-			; Get Char Value and save to ScreenRAM
+			; Get Char Value
 			lda (charPointerZP),y
-			sta (scrPointerZP),y		
-			
-			; Get  Atrribute and save to ColorRAM
+			sta _tmpChr
 			tay
+			
+			; Add Attribute Value (0 or 128)
 			lda (charattDataZP),y
+			adc _tmpChr
+						
+			; Save to Screen
 			ldy _curCol
-			sta (colPointerZP),y								
+			sta (scrPointerZP),y		
 
 		; Move to next col
 		iny
@@ -92,16 +95,7 @@ loopRows:
 		inc scrPointerZP+1
 	nocarryScrPtr:		
 		
-		; Update address of color (+40)
-		clc	
-		lda colPointerZP
-		adc #40
-		sta colPointerZP
-		bcc nocarryColPtr	; Check if carry to high byte
-		inc colPointerZP+1
-	nocarryColPtr:
-	
-		; Update location in charmap
+		; Update address of location in charmap
 		clc	
 		lda charPointerZP			
 		adc _blockWidth

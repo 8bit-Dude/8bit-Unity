@@ -24,7 +24,7 @@
 ;   specific prior written permission.
 ;
 
-	.export _ScrollDHR
+	.export _BlitCharmapDHR
 
 	.import _hiresLinesHI, _hiresLinesLO
 	.import _screenCol1, _screenWidth
@@ -46,8 +46,8 @@ _mainAuxTog: .res 1
 	.segment	"CODE"	
 	
 ; ---------------------------------------------------------------
-; void __near__ _ScrollDHR (void)
-;	Blit data from Charmap to Bitmap
+; void __near__ BlitCharmapDHR (void)
+;	Blit data from Charmap to Screen
 ;	Zero Page Data:
 ;		charPointerZP: 16 bit address of location on charmap (auto-updated)
 ;
@@ -56,7 +56,7 @@ _mainAuxTog: .res 1
 ;		charRPointerZP: 16 bit address of charset block R (auto-generated)
 ; ---------------------------------------------------------------	
 
-_ScrollDHR:
+_BlitCharmapDHR:
 
 	; Init Main/Aux Toggle
 	lda #0

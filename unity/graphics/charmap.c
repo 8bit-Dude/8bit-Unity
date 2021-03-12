@@ -34,6 +34,10 @@
   #pragma code-name("SHADOW_RAM")
 #endif
 
+#ifdef __CBM__
+  extern unsigned char videoMode;
+#endif
+
 // Zero Page pointers (tile decoding and map scrolling)
 #if defined(__APPLE2__)
   #define tilesetDataZP 0xef
@@ -100,8 +104,6 @@ unsigned char *tilesetData;
   void RestoreSprBG(unsigned char index);
  #endif
 #endif
-
-
   
 // Initialize Charmap Mode
 void InitCharmap(unsigned char col1, unsigned char col2, unsigned char row1, unsigned char row2) 
@@ -155,11 +157,9 @@ void ShowCharmap()
 	
 #elif defined __CBM__	
 	// Setup VIC2 (memory bank and multicolor mode)
+	videoMode = CHR_MODE;
 	SetupVIC2();	
 #endif	
-
-	// Set Video Mode
-	videoMode = CHR_MODE;
 }
 
 // Switch back to Text mode
@@ -174,9 +174,9 @@ void HideCharmap()
 	charmapDLI = 0;
 	
 #elif defined __CBM__	
+	videoMode = TXT_MODE;
 	ResetVIC2();
 #endif	
-	videoMode = TXT_MODE;
 }
 
 // Clear entire screen
@@ -372,12 +372,23 @@ void SetTile(unsigned char x, unsigned char y, unsigned char tile)
 	charmapData[charmapWidth*(y/2u) + x/2u] = tile;	
 }
 
-void SetChar(unsigned char x, unsigned char y, unsigned char chr)
+void PrintCharmap(unsigned char x, unsigned char y, unsigned char chr)
 {
-	charmapData[charmapWidth*y + x] = chr;
+#if defined(__ATARI__)
+	POKE((char*)SCREENRAM+y*40+x, chr);
+#elif defined(__LYNX__)
+	unsigned char i;
+	unsigned int src, dst;
+	src = (char*)charsetData + 2*chr;
+	dst = BITMAPRAM + y*6*82 + x*2 + 1;
+	for (i = 0; i<6; i++) {
+		memcpy((char*)dst, (char*)src, 2);
+		src += 256; dst += 82;
+	}
+#endif
 }
 
-void ScrollCharmap(unsigned char x, unsigned char y)
+void DrawCharmap(unsigned char x, unsigned char y)
 {
 	unsigned char i;
 	unsigned int src, dst, col;
@@ -411,9 +422,9 @@ void ScrollCharmap(unsigned char x, unsigned char y)
 		sprDrawn[i] = 0;
 	POKEW(charPointerZP, src);
   #if defined __DHR__
-	ScrollDHR();
+	BlitCharmapDHR();
   #else
-	ScrollSHR();
+	BlitCharmapSHR();
   #endif
 	clk += 20;
 
@@ -422,7 +433,7 @@ void ScrollCharmap(unsigned char x, unsigned char y)
 	POKEW(charattDataZP, CHARATRRAM);
 	POKEW(charPointerZP, src);
 	POKEW(scrPointerZP, dst);
-	Scroll();
+	BlitCharmap();
 	
 #elif defined __CBM__	
 	dst = SCREENRAM + screenRow1*40 + screenCol1;
@@ -431,13 +442,13 @@ void ScrollCharmap(unsigned char x, unsigned char y)
 	POKEW(charPointerZP, src);
 	POKEW(scrPointerZP, dst);
 	POKEW(colPointerZP, col);
-	Scroll();
+	BlitCharmap();
 		
 #elif defined __LYNX__	
 	dst = BITMAPRAM + screenRow1*6*82 + screenCol1*2 + 1;
 	POKEW(charPointerZP, src);
 	POKEW(scrPointerZP, dst);
-	Scroll();	
+	BlitCharmap();	
 	
 #elif defined __ORIC__	
 	// Reset sprite background
@@ -449,6 +460,6 @@ void ScrollCharmap(unsigned char x, unsigned char y)
 	dst = BITMAPRAM + screenRow1*320 + screenCol1 + 1;
 	POKEW(charPointerZP, src);
 	POKEW(scrPointerZP, dst);
-	Scroll();
+	BlitCharmap();
 #endif
 }

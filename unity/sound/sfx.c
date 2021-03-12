@@ -42,10 +42,12 @@
 #endif
 	
 #if defined __APPLE2__			  //  Period  
-	unsigned char sfxData[4][1] = { {	64  },		// SFX_BLEEP
-									{   16 	},		// SFX_BUMP
-									{    0 	},		// SFX_ENGINE
-									{    0 	} };	// SFX_SCREECH
+	unsigned char sfxData[][] = { {	   64  	},		// SFX_BLEEP
+								  {    16 	},		// SFX_BUMP
+								  {     0 	},		// SFX_ENGINE
+								  {     0 	},		// SFX_INJURY
+								  {     0 	},		// SFX_GUN
+								  {     0 	} };	// SFX_SCREECH
 
 								//  TONE A  	TONE B	    TONE C	 NOISE  MASKS   AMP A, B, C     ENV LO, HI, TYPE
 	unsigned char mockBrd[14] = { 0x00, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0xFF, 0x0F, 0x0F, 0x0F, 0x00, 0x00, 0x00 }; 	// Mockingboard state
@@ -101,12 +103,14 @@
 		}
 	}
 	
-#elif defined __ATARI__			  //  Period  Control (7,6,5,4:noise/3,2,1,0:volume)
-	unsigned char sfxData[4][2] = { { 	24,	   			0b10101010		},		// SFX_BLEEP						
-									{    8,	   			0b11101000		},		// SFX_BUMP							
-									{  255,    			0b10000111		},		// SFX_ENGINE						
-									{  255,	   			0b10000111   	} };	// SFX_SCREECH						
-
+#elif defined __ATARI__			//  Period  Control (7,6,5,4:noise/3,2,1,0:volume)
+	unsigned char sfxData[][] = { {   24,	   			0b10100000		},		// SFX_BLEEP	1010		
+								  {    8,	   			0b11100000		},		// SFX_BUMP		1000	
+								  {  255,    			0b10000000		},		// SFX_ENGINE	0111	
+								  {    2,    			0b11100000		},		// SFX_GUN		1000
+								  {    4,    			0b10000000		},		// SFX_INJURY	1000
+								  {  255,	   			0b10000000   	} };	// SFX_SCREECH	0111	
+	
 	void SetupSFX(); // VBI for SFX samples	(see Atari/POKEY.s)
 	extern unsigned char sampleTimer[4];
 	extern unsigned char sampleFreq[4];
@@ -116,21 +120,23 @@
 		// Prepare SFX data
 		unsigned char *data = sfxData[index];
 		
-		// Start sound
-		POKE(0xD200+2*channel, ~pitch);
-		POKE(0xD201+2*channel, data[1]);
-		
 		// Set DLI data (for period control)
 		sampleTimer[channel] = data[0];
 		sampleFreq[channel] = ~pitch;
-		sampleCtrl[channel] = data[1];		
+		sampleCtrl[channel] = data[1] | volume/16;
+		
+		// Start sound
+		POKE(0xD200+2*channel, ~pitch);
+		POKE(0xD201+2*channel, sampleCtrl[channel]);		
 	}
 	
 #elif defined __CBM__			  //  Attack/Decay  Sustain/Release  Ctrl Attack  Ctrl Release
-	unsigned char sfxData[4][4] = { { 	  0x22,			0x09,			0x11,		0x10 	},		// SFX_BLEEP  (Ctrl: Triangle Wave)
-									{     0x22,			0xA8,			0x21,		0x20 	},		// SFX_BUMP	  (Ctrl: Square Wave)
-									{     0x00,    		0xA8,			0x61,		0x00 	},		// SFX_ENGINE
-									{     0x00,			0xA8,			0x61,		0x00 	} };	// SFX_SCREECH
+	unsigned char sfxData[][] = { { 	0x22,			0x09,			0x11,		0x10 	},		// SFX_BLEEP  (Ctrl: Triangle Wave)
+								  {     0x22,			0xA8,			0x21,		0x20 	},		// SFX_BUMP	  (Ctrl: Square Wave)
+								  {     0x00,    		0xA8,			0x61,		0x00 	},		// SFX_ENGINE
+								  {     0x10,    		0xA8,			0x21,		0x10 	},		// SFX_INJURY (Ctrl: Square Wave)
+								  {     0x22,			0xA8,			0x21,		0x20 	},		// SFX_GUN	  (Ctrl: Square Wave)
+								  {     0x00,			0xA8,			0x61,		0x00 	} };	// SFX_SCREECH
 
 	void PlaySFX(unsigned char index, unsigned char pitch, unsigned char volume, unsigned char channel) {
 		// Prepare SFX data
@@ -162,11 +168,13 @@
 	}
 	
 	
-#elif defined __ORIC__			  //  Env.  Period  
-	unsigned char sfxData[4][2] = { {   1,    1000 },	// SFX_BLEEP
-									{   1,     100 },	// SFX_BUMP
-									{   0,       0 },	// SFX_ENGINE
-									{   0,       0 } };	// SFX_SCREECH
+#elif defined __ORIC__			 // Env.  Period  
+	unsigned char sfxData[][] = { {  1,   1000 },	// SFX_BLEEP
+								  {  1,    100 },	// SFX_BUMP
+								  {  0,      0 },	// SFX_ENGINE
+								  {  1,     10 },	// SFX_INJURY
+								  {  1,     20 },	// SFX_GUN
+								  {  0,      0 } };	// SFX_SCREECH
 
 	void EnableChannels(void) {
 		// Play 7,0,0: enable channels 1/2/3
@@ -239,11 +247,13 @@
 		EnableChannels();
 	}
 	
-#elif defined __LYNX__			    //  Prior  Period  Taps  Octv  Int.  
-	unsigned char sfxData[4][5] = { {     0,	 15,    7,    2,    1 },	// SFX_BLEEP
-									{     1,	  5,    7,    4,    1 },	// SFX_BUMP
-									{     2,	  0,   60,    2,    0 },	// SFX_ENGINE
-									{     2,	  0,  107,    2,    1 } };	// SFX_SCREECH
+#elif defined __LYNX__			  //  Prior  Period  Taps  Octv  Int.  
+	unsigned char sfxData[][] = { {     0,	 15,    7,    2,    1 },	// SFX_BLEEP
+								  {     1,	  5,    7,    4,    1 },	// SFX_BUMP
+								  {     2,	  0,   60,    2,    0 },	// SFX_ENGINE
+								  {     1,	  2,    7,    4,    1 },	// SFX_INJURY
+								  {     1,	  4,    7,    4,    1 },	// SFX_GUN
+								  {     2,	  0,  107,    2,    1 } };	// SFX_SCREECH
 	
 	// ABCmusic functions (see lynx/sfx.s)
 	unsigned char abcpriority[4] = {0, 0, 0, 0};

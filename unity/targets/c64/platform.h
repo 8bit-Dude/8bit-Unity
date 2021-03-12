@@ -76,6 +76,11 @@
 #define LBLUE   14
 #define LGREY   15
 
+// Video State (auto-set by ShowBitmap()/HideBitmap()...)
+#define TXT_MODE 0
+#define BMP_MODE 1
+#define CHR_MODE 2
+
 // Clock
 #define TCK_PER_SEC	CLK_TCK
 
@@ -90,8 +95,8 @@ extern void __fastcall__ rom_disable(void);
 // File Management
 void DirList(void);
 
-// Gfx functions (see scroll.s)
-void __fastcall__ Scroll(void);
+// Gfx functions (see blitCharmap.s)
+void __fastcall__ BlitCharmap(void);
 
 // Decrunch data compressed with Exomizer (see decrunch.s)
 void Decrunch(unsigned int address);

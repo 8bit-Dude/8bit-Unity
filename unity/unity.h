@@ -75,12 +75,6 @@
   #include "adaptors/ip65.h"
 #endif
 
-// Video State (auto-set by ShowBitmap()/HideBitmap()...)
-#define TXT_MODE 0
-#define BMP_MODE 1
-#define CHR_MODE 2
-extern unsigned char videoMode;
-
 // Bitmap functions (see bitmap.c)
 void InitBitmap(void);
 void ShowBitmap(void);
@@ -112,8 +106,8 @@ void ClearCharmap(void);
 void LoadCharmap(char *filename, unsigned int w, unsigned int h);
 void LoadTileset(char *filename, unsigned int n, unsigned int w, unsigned int h);
 void LoadCharset(char* filename, char* palette);
-void ScrollCharmap(unsigned char x, unsigned char y);
-void SetChar(unsigned char x, unsigned char y, unsigned char chr);
+void DrawCharmap(unsigned char x, unsigned char y);
+void PrintCharmap(unsigned char x, unsigned char y, unsigned char chr);
 void SetTile(unsigned char x, unsigned char y, unsigned char tile);
 unsigned char GetTile(unsigned char x, unsigned char y);
 unsigned char GetFlag(unsigned char x, unsigned char y);
@@ -211,7 +205,9 @@ void PauseMusic(unsigned char state);
 #define SFX_BLEEP   0
 #define SFX_BUMP    1
 #define SFX_ENGINE  2
-#define SFX_SCREECH 3
+#define SFX_GUN  	3
+#define SFX_INJURY  4
+#define SFX_SCREECH 5
 void InitSFX(void);
 void StopSFX(void);
 void PlaySFX(unsigned char index, unsigned char pitch, unsigned char volume, unsigned char channel);

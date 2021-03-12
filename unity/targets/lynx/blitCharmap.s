@@ -24,17 +24,18 @@
 ;   specific prior written permission.
 ;
 
-	.export _Scroll
+	.export _BlitCharmap
 	
 	.import _screenWidth, _screenHeight
-	.import _blockWidth
+	.import _blockWidth, _charsetData
 	
-charattDataZP = $e0
-charPointerZP = $e2
-scrPointerZP  = $e4
+charPointerZP = $b5
+scrPointerZP  = $b7
+charBlockZP	  = $bb
 	
 	.segment	"BSS"
 
+_tmpY: .res 1
 _tmpChr: .res 1
 _curCol: .res 1
 _curRow: .res 1
@@ -42,15 +43,16 @@ _curRow: .res 1
 	.segment	"CODE"		
 	
 ; ---------------------------------------------------------------
-; void __near__ _Scroll (void)
+; void __near__ BlitCharmap (void)
 ;	Blit page from Charmap to Screen
 ;	Zero Page Data:
-;		charattDataZP: 16 bit address of char attribute data (auto-updated)
 ;		charPointerZP: 16 bit address of location on charmap (auto-updated)
 ;		scrPointerZP:  16 bit address of location on screen (auto-updated)
+;
+;		charBlockZP:   16 bit address of curent charset block (auto-generated)
 ; ---------------------------------------------------------------	
 
-.proc _Scroll: near
+.proc _BlitCharmap: near
 
 	lda #0
 	sta _curRow
@@ -60,40 +62,74 @@ loopRows:
 	cmp _screenHeight
 	bpl doneRows
 	inc _curRow
-							
-		ldy #0
-	loopCols:
-		cpy _screenWidth
-		bpl doneCols			
-		sty _curCol
 	
-			; Get Char Value
-			lda (charPointerZP),y
-			sta _tmpChr
-			tay
-			
-			; Add Attribute Value (0 or 128)
-			lda (charattDataZP),y
-			adc _tmpChr
-						
-			; Save to Screen
+		; Reset Char Block Addr
+		lda _charsetData
+		sta  charBlockZP
+		lda _charsetData+1
+		sta  charBlockZP+1
+				
+		ldx #0
+	loopLines:
+		cpx #6
+		beq doneLines	
+		inx 
+		
+			ldy #0
+		loopCols:
+			cpy _screenWidth
+			bpl doneCols			
+			sty _curCol
+		
+				; Get Char Value
+				lda (charPointerZP),y
+				
+				; Set Chr Offset
+				asl A			; Multiply by 2	(2 bytes per col!)
+				sta _tmpChr
+				
+				; Set Col Offset
+				tya
+				asl A			; Multiply by 2	(2 bytes per col!)
+				sta _tmpY
+				
+				; Copy 1st byte
+				ldy _tmpChr
+				lda (charBlockZP),y		
+				ldy _tmpY				
+				sta (scrPointerZP),y		
+
+				; Copy 2nd byte
+				ldy _tmpChr
+				iny 
+				lda (charBlockZP),y		
+				ldy _tmpY				
+				iny 
+				sta (scrPointerZP),y			
+
+			; Move to next col
 			ldy _curCol
-			sta (scrPointerZP),y		
+			iny
+			jmp loopCols	
 
-		; Move to next col
-		iny
-		jmp loopCols	
+		doneCols:
 
-	doneCols:
-
-		; Update address of screen (+40)
-		clc	
-		lda scrPointerZP
-		adc #40
-		sta scrPointerZP
-		bcc nocarryScrPtr	; Check if carry to high byte
-		inc scrPointerZP+1
-	nocarryScrPtr:		
+			; Update address of charblock (+256)
+			inc charBlockZP+1
+		
+			; Update address of screen (+82)
+			clc	
+			lda scrPointerZP
+			adc #82
+			sta scrPointerZP
+			bcc nocarryScrPtr	; Check if carry to high byte
+			inc scrPointerZP+1
+		nocarryScrPtr:		
+		
+		; Move to next line
+		jmp loopLines
+	
+	doneLines:		
 		
 		; Update address of location in charmap
 		clc	

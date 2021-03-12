@@ -48,7 +48,7 @@ SCB_REHV_PAL bitmapSCB =  { BPP_4 | TYPE_BACKNONCOLL, REHV | LITERAL, 0, 0, (cha
 						    0x0100, 0x0100, { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef } };
 SCB_REHV_PAL cursorSCB =  { BPP_4 | TYPE_NONCOLL, REHV | LITERAL, 0, 0, (char*)&cursorData, 0, 0, 
 						    0x0100, 0x0100, { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef } };							
-SCB_REHV_PAL keybrdSCB =  { BPP_4 | TYPE_NONCOLL, REHV | LITERAL, 0, 0, (char*)&keybrdData, 0, 0, 
+SCB_REHV_PAL keybrdSCB =  { BPP_4 | TYPE_NONCOLL, REHV | PACKED, 0, 0, (char*)&keybrdData, 0, 0, 
 						    0x0100, 0x0100, { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef } };							
 
 // Soft keyboard functions

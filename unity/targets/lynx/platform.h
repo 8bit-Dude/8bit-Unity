@@ -74,8 +74,8 @@ extern unsigned char autoRefresh; // Toggle for automatic screen refresh after L
 // Sprite parameters
 extern unsigned char sprCUSHION;
 
-// Gfx functions (see scroll.s)
-void __fastcall__ Scroll(void);
+// Gfx functions (see blitCharmap.s)
+void __fastcall__ BlitCharmap(void);
 
 // Default Sprite Colors;
 extern unsigned char defaultColors[];

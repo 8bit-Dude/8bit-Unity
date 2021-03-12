@@ -43,6 +43,10 @@
   }
 #endif
 
+#ifdef __CBM__
+  extern unsigned char videoMode;
+#endif
+
 // Initialize Bitmap Screen
 void InitBitmap() 
 {
@@ -84,6 +88,7 @@ void ShowBitmap()
 {		
 #if defined __CBM__
 	// Setup VIC2 (memory bank and multicolor mode)
+	videoMode = BMP_MODE;
 	SetupVIC2();
 
 	// Set VIC2 to bitmap mode
@@ -107,7 +112,6 @@ void ShowBitmap()
     asm("sta $c05e"); // TURN ON DOUBLE HI-RES
   #endif
 #endif  
-	videoMode = BMP_MODE;
 }
 
 // Switch from Bitmap mode to Text mode
@@ -115,6 +119,7 @@ void HideBitmap()
 {
 #if defined __CBM__
 	// Switch OFF multicolor mode
+	videoMode = TXT_MODE;
 	ResetVIC2();
 		
 #elif defined __ATARI__
@@ -130,7 +135,6 @@ void HideBitmap()
 	asm("sta $c00c"); // TURN OFF 80 COLUMN MODE	  
   #endif	
 #endif
-	videoMode = TXT_MODE;
 }
 
 // Clear entire bitmap screen

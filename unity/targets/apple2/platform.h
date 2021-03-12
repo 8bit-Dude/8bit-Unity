@@ -91,7 +91,7 @@
 // Workaround for missing chardefs
 #define CH_DEL  0x08
 
-// Hires gfx functions (see hires.s, pixel.c, blitXXX.s, pixelXXX.c)
+// Hires gfx functions (see hiresXXX.s, blitXXX.s, pixelXXX.c)
 extern unsigned char *hiresPtr, hiresPixel;
 void SetHiresPointer(unsigned int x, unsigned int y);
 unsigned int HiresLine(unsigned char y);
@@ -100,12 +100,12 @@ unsigned int HiresLine(unsigned char y);
   void SetColorDHR(unsigned char color);
   unsigned char GetColorDHR(void);
   void __fastcall__ BlitDHR(void);
-  void __fastcall__ ScrollDHR(void);
+  void __fastcall__ BlitCharmapDHR(void);
 #else
   void SetColorSHR(unsigned char color);
   unsigned char GetColorSHR(void);
   void __fastcall__ BlitSHR(void);
-  void __fastcall__ ScrollSHR(void);
+  void __fastcall__ BlitCharmapSHR(void);
 #endif
 
 // Output for SFX/Music (see DUET.s, MOCKING.s)
