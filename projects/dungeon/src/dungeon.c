@@ -84,7 +84,7 @@ void GameLoop(void)
 	clock_t playerClock, actorClock;	
 
 	// Scroll to start position
-	ScrollCharmap(mapX, mapY);
+	DrawCharmap(mapX, mapY);
 	
 	// Restart music playback
 #if (defined __ATARI__) || (defined __CBM__) || (defined __LYNX__)

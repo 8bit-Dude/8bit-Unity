@@ -84,12 +84,12 @@ void ProcessPlayer()
 	} else {
 	#if defined(__APPLE2__) || defined(__ORIC__)
 		if (mapX/2u != mapXPRV/2u || mapY/2u != mapYPRV/2u) {
-			ScrollCharmap(mapX, mapY);
+			DrawCharmap(mapX, mapY);
 			DisplayActors();
 		}
 	#else
 		if (mapX != mapXPRV || mapY != mapYPRV) {
-			ScrollCharmap(mapX, mapY);
+			DrawCharmap(mapX, mapY);
 			DisplayActors();
 		}
 	#endif
@@ -124,7 +124,7 @@ void ProcessPlayer()
 
 void TriggerAction()
 {
-	ScrollCharmap(mapX, mapY);
+	DrawCharmap(mapX, mapY);
 	PlaySFX(SFX_BUMP, 16, 120, 2);	
 }
 
