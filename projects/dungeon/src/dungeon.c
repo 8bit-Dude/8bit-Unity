@@ -34,7 +34,7 @@
 #endif
 
 // See player.c
-extern unsigned char mapX, mapY, maxX, maxY;
+extern unsigned char mapX, mapY;
 
 void GameInit(void)
 {	
@@ -45,11 +45,8 @@ void GameInit(void)
 	LoadTileset("level1.tls", 40, 2, 2);
 	LoadCharmap("level1.map", 64, 64);
 	LoadActors("level1.act");
+	DrawCharmap(mapX, mapY);	
 	ShowCharmap();
-
-	// Helper variables
-	maxX = worldWidth-screenWidth;
-	maxY = worldHeight-screenHeight;
 		
 	// Setup sprites
 	LoadSprites("sprites.dat");
@@ -83,9 +80,6 @@ void GameLoop(void)
 {	
 	clock_t playerClock, actorClock;	
 
-	// Scroll to start position
-	DrawCharmap(mapX, mapY);
-	
 	// Restart music playback
 #if (defined __ATARI__) || (defined __CBM__) || (defined __LYNX__)
 	PlayMusic();

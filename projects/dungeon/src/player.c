@@ -11,13 +11,16 @@ unsigned char kills  = 0;
 unsigned char joy, action, motion, direction, tile;
 unsigned char mapX, mapY, mapXPRV, mapYPRV; // Current and previous map position
 unsigned int  scrX, scrY, scrXPRV, scrYPRV; // Current and previous screen position of player
-unsigned char maxX, maxY, flagX, flagY1, flagY2;  // Coords of collision detection (accounting for model height)
+unsigned char flagX, flagY1, flagY2;  // Coords of collision detection (accounting for model height)
 unsigned char togglePlayer, playerFrame, weaponFrame, weaponProcessed; 
 unsigned int  weaponX, weaponY;
 clock_t		  weaponClock;
 
 // See actors.c
 extern Actor* selActor;
+
+// Map extent
+extern unsigned char worldMaxX, worldMaxY;
 
 void ProcessPlayer()
 {
@@ -43,7 +46,7 @@ void ProcessPlayer()
 		} else 
 		if (!(joy & JOY_RIGHT)) { 
 				 if (scrX<220)  scrX += STEP_X; 
-			else if (mapX<maxX) mapX += 1;
+			else if (mapX<worldMaxX) mapX += 1;
 			else if (scrX<317)  scrX += STEP_X; 
 			motion = 1; direction = 2;
 		} else
@@ -55,7 +58,7 @@ void ProcessPlayer()
 		} else
 		if (!(joy & JOY_DOWN)) {
 				 if (scrY<125)  scrY += STEP_Y; 
-			else if (mapY<maxY) mapY += 1;
+			else if (mapY<worldMaxY) mapY += 1;
 			else if (scrY<185)  scrY += STEP_Y;
 			motion = 1; direction = 6;
 		} 
