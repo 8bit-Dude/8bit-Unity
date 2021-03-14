@@ -35,10 +35,14 @@
  */
 
 // Talk to HUB at a "conservative" 20 FPS (gives ~5 KB/s max. rate)
-#if defined __ATMOS__
+#if defined __APPLE2__
+	#define HUB_REFRESH_RATE  3	// out of ??? TCK/s
+#elif defined __ATMOS__
 	#define HUB_REFRESH_RATE  5	// out of 100 TCK/s
 #elif defined __LYNX__
 	#define HUB_REFRESH_RATE  3	// out of 60 TCK/s
+#else
+	#define HUB_REFRESH_RATE  3	// Default value
 #endif	
 
 // HUB Status Flags

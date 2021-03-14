@@ -77,7 +77,8 @@
 void __fastcall__ DecodeTiles(void);
 
 // Map size and location properties
-unsigned char charmapWidth, charmapHeight, tileWidth, tileHeight, worldWidth, worldHeight;
+unsigned char charmapWidth, charmapHeight, tileWidth, tileHeight;
+unsigned char worldWidth, worldHeight, worldMaxX, worldMaxY;
 unsigned char screenCol1 = 0, screenCol2 = CHR_COLS, screenWidth = CHR_COLS;
 unsigned char screenRow1 = 0, screenRow2 = CHR_ROWS, screenHeight = CHR_ROWS;
 #if defined __ATARI__	
@@ -85,9 +86,9 @@ unsigned char screenRow1 = 0, screenRow2 = CHR_ROWS, screenHeight = CHR_ROWS;
 	unsigned int bmpAddr;
 #endif
 
-// Scrolling properties
-unsigned char blockWidth, tileCols, tileRows;
-unsigned char decodeWidth, decodeHeight, *decodeScreen;
+// Drawing properties
+unsigned char blockWidth, tileX, tileY, tileCols, tileRows;
+unsigned char decodeWidth, decodeHeight, *decodeData;
   
 // Pointers to various data sets
 unsigned char *charmapData;
@@ -143,7 +144,7 @@ void ShowCharmap()
 	POKE(0x02f4, 0xa0);	
 	CharmapDLIST();
 	
-	// Start DLI (for sprites)
+	// Start Graphics DLI
 	StartDLI();
 
 	// Enable Charmap DLI for split screens
@@ -269,6 +270,10 @@ void LoadCharmap(char *filename, unsigned int w, unsigned int h)
 	worldWidth = w*tileHeight;
 	worldHeight = h*tileWidth;
 	
+	// Compute max World Map coordinates
+	worldMaxX = worldWidth-screenWidth;
+	worldMaxY = worldHeight-screenHeight;	
+	
 	// Assign memory
 #if defined  __ATARI__
 	charmapData = (char*)CHARMAPRAM;
@@ -312,7 +317,7 @@ void LoadTileset(char *filename, unsigned int n, unsigned int w, unsigned int h)
 	unsigned int size = n*w*h;
 	tileWidth = w; tileHeight = h;
 	
-	// Assign memory	
+	// Assign memory and ZP pointer
 	if (tilesetData) free(tilesetData);	
 	tilesetData = malloc(size);
 	
@@ -345,8 +350,8 @@ void LoadTileset(char *filename, unsigned int n, unsigned int w, unsigned int h)
 	decodeWidth = screenWidth+tileWidth;
 	tileRows = decodeHeight/tileHeight;
 	tileCols = decodeWidth/tileWidth;
-	if (decodeScreen) free(decodeScreen);	
-	decodeScreen = malloc(decodeWidth*decodeHeight);
+	if (decodeData) free(decodeData);	
+	decodeData = malloc(decodeWidth*decodeHeight);
 }
 
 unsigned char GetFlag(unsigned char x, unsigned char y)
@@ -387,29 +392,77 @@ void PrintCharmap(unsigned char x, unsigned char y, unsigned char chr)
 	}
 #endif
 }
-
-void DrawCharmap(unsigned char x, unsigned char y)
+/*
+void ScrollCharmap(unsigned char x, unsigned char y)
 {
 	unsigned char i;
-	unsigned int src, dst, col;
-	
-#if defined(__APPLE2__)
-	x = 2*(x/2u)+1;
-#endif	
+	unsigned int src, dst;
+	signed char deltaX, deltaY;
 	
 	// Using tileset?
-	if (tilesetData) {
-		// Decode tilemap to screen buffer
+	if (tilesetData) {	
+		// Compute deltas
+		deltaX = tileX - x/2u;
+		deltaY = tileY - y/2u;
+		tileX += deltaX;
+		tileY += deltaY;
+		
+		// Scroll decoder?
+		if (deltaY > 0) {
+			blockWidth = 2*decodeWidth;
+			src = (char*)&decodeData[deltaY*blockWidth];
+			dst = (char*)&decodeData[0];
+			for (i=deltaY; i<tileRows; i++) {
+				memcpy((char*)dst, (char*)src, blockWidth);
+				src += blockWidth; dst += blockWidth;
+			}
+		}
+		
+		// Decode remaining lines
 		POKEW(tilesetDataZP, tilesetData);
-		POKEW(charPointerZP, &charmapData[charmapWidth*(y/2u) + x/2u]);
-		POKEW(row1PointerZP, &decodeScreen[0]);
-		POKEW(row2PointerZP, &decodeScreen[screenWidth+tileWidth]);	
+		POKEW(charPointerZP, &charmapData[charmapWidth*tileY + tileX]);
+		POKEW(row1PointerZP, &decodeData[0]);
+		POKEW(row2PointerZP, &decodeData[decodeWidth]);	
 		blockWidth = 2*decodeWidth;
 		DecodeTiles();
 		
 		// Assign offset area of screen buffer
-		src = (char*)&decodeScreen[(screenWidth+tileWidth)*(y%2)+x%2];
-		blockWidth = screenWidth+tileWidth;
+		src = (char*)&decodeData[decodeWidth*(y%2)+x%2];
+		blockWidth = decodeWidth;		
+	}
+	
+#if defined __LYNX__	
+	dst = BITMAPRAM + screenRow1*6*82 + screenCol1*2 + 1;
+	POKEW(charPointerZP, src);
+	POKEW(scrPointerZP, dst);
+	BlitCharmap();	
+#endif	
+}
+*/
+void DrawCharmap(unsigned char x, unsigned char y)
+{
+	unsigned int src, dst, col;
+#if defined(__APPLE2__) || defined(__ORIC__)
+	unsigned char i;
+#endif
+#if defined(__APPLE2__)
+	x = 2*(x/2u)+1;
+#endif
+	
+	// Using tileset?
+	if (tilesetData) {
+		// Decode tilemap to screen buffer
+		tileX = x/2u; tileY = y/2u;
+		POKEW(tilesetDataZP, tilesetData);
+		POKEW(charPointerZP, &charmapData[charmapWidth*tileY + tileX]);
+		POKEW(row1PointerZP, &decodeData[0]);
+		POKEW(row2PointerZP, &decodeData[decodeWidth]);	
+		blockWidth = 2*decodeWidth;
+		DecodeTiles();
+		
+		// Assign offset area of screen buffer
+		src = (char*)&decodeData[decodeWidth*(y%2)+x%2];
+		blockWidth = decodeWidth;
 	} else {
 		// Point directly to charmap data
 		src = &charmapData[charmapWidth*y + x];

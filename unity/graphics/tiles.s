@@ -80,9 +80,9 @@ _curRow: .res 1
 ;	Convert Tilemap to Charmap
 ;	Zero Page Data:
 ;		tilesetDataZP: 16 bit address of tileset data
-;		charPointerZP: 16 bit address of location on charmap (auto-updated)
-;		row1PointerZP: 16 bit address of first screen line (auto-updated)
-;		row2PointerZP: 16 bit address of second screen line (auto-updated)
+;		charPointerZP: 16 bit address of location in charmap (auto-updated)
+;		row1PointerZP: 16 bit address of first line (auto-updated)
+;		row2PointerZP: 16 bit address of second line (auto-updated)
 ; ---------------------------------------------------------------	
 
 .proc _DecodeTiles: near

@@ -44,7 +44,7 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
-#include "graphics/chars.h"
+#include "strings/chars.h"
 
 // Platform IDs
 #if defined __CBM__
@@ -122,7 +122,7 @@ extern unsigned char worldWidth, worldHeight;
   void HideKeyboardOverlay(void);
   void SetKeyboardOverlay(unsigned char x, unsigned char y);
   unsigned char GetKeyboardOverlay(void); 
-  unsigned char KeyboardOverlayHit(void); 
+  unsigned char KeyboardOverlayHit(void);
 #endif
 
 // Printing functions (see print.c)
@@ -184,6 +184,7 @@ unsigned char PointInsidePolygon(signed int pX, signed int pY, unsigned char vN,
 #define ABS(a)   (a<0 ? -a : a)
 #define SIGN(a)  (a<0 ? -1 : 1)
 #define DOT(a,b) (a[0]*b[0]+a[1]*b[1])
+#define BYTE4(a,b,c,d) ((a<<6) | (b<<4) | (c<<2) | d)
 signed int dot(signed char *v1, signed char *v2);
 unsigned char atan2(unsigned char y, unsigned char x);
 
