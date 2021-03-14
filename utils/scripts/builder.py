@@ -30,6 +30,14 @@ from tkFileDialog import askopenfilename, asksaveasfilename
 from PIL import Image, ImageTk
 import os, pickle, pygubu, sys, collections, json, codecs
 
+cCore = [ 'adaptors\\hub.c',     'adaptors\\joystick.c', 'adaptors\\mouse.c',  'geom\\geom2d.c',     'math\\dot.c', 
+          'graphics\\bitmap.c',  'graphics\\charmap.c',  'graphics\\chunks.c', 'graphics\\logos.c',  'graphics\\pixel.c',  'graphics\\scaling.c', 'graphics\\sprites.c', 'graphics\\widgets.c', 
+          'network\\net-base.c', 'network\\net-easy.c',  'network\\net-ip.c',  'network\\net-tcp.c', 'network\\net-udp.c', 'network\\net-url.c',  'network\\net-web.c', 
+          'strings\\blanks.c',   'strings\\copy.c',      'strings\\input.c',   'strings\\number.c',  'strings\\print.c', 
+          'sound\\music.c',      'sound\\sfx.c' ]
+
+sCore = [ 'math\\atan2.s', 'graphics\\tiles.s', 'strings\\chars.s' ]
+
 # Useful functions
 def Str2Bool(v):
     return v.lower() in ("yes", "true", "1")
@@ -800,8 +808,11 @@ class Application:
                 fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
                 # Build Unity Library
-                cList = ['graphics\\bitmap.c', 'graphics\\charmap.c', 'graphics\\chunks.c', 'geom\\geom2d.c', 'math\\dot.c', 'adaptors\\hub.c', 'adaptors\\mouse.c', 'sound\\music.c', 'network\\net-base.c', 'network\\net-easy.c', 'network\\net-ip.c', 'network\\net-url.c', 'network\\net-tcp.c', 'network\\net-udp.c', 'network\\net-web.c', 'graphics\\logos.c', 'graphics\\pixel.c', 'graphics\\print.c', 'graphics\\scaling.c', 'sound\\sfx.c', 'graphics\\sprites.c', 'graphics\\widgets.c', 'targets\\apple2\\CLOCK.c', 'targets\\apple2\\directory.c', 'targets\\apple2\\files.c', 'targets\\apple2\\hires.c', 'targets\\apple2\\memory.c', 'targets\\apple2\\pixelDHR.c', 'targets\\apple2\\pixelSHR.c']
-                sList = ['math\\atan2.s', 'graphics\\chars.s', 'graphics\\tiles.s', 'targets\\apple2\\blitDHR.s', 'targets\\apple2\\blitSHR.s', 'targets\\apple2\\decrunch.s', 'targets\\apple2\\DUET.s', 'targets\\apple2\\hiresLines.s', 'targets\\apple2\\joystick.s', 'targets\\apple2\\MOCKING.s', 'targets\\apple2\\PADDLE.s', 'targets\\apple2\\prodos.s', 'targets\\apple2\\serial.s', 'targets\\apple2\\blitCharmapDHR.s', 'targets\\apple2\\blitCharmapSHR.s']
+                cTarget = [ 'targets\\apple2\\CLOCK.c',    'targets\\apple2\\directory.c', 'targets\\apple2\\files.c', 'targets\\apple2\\hires.c', 
+                            'targets\\apple2\\memory.c',   'targets\\apple2\\pixelDHR.c',  'targets\\apple2\\pixelSHR.c' ]                            
+                sTarget = [ 'targets\\apple2\\blitDHR.s',  'targets\\apple2\\blitSHR.s',   'targets\\apple2\\blitCharmapDHR.s', 'targets\\apple2\\blitCharmapSHR.s', 
+                            'targets\\apple2\\decrunch.s', 'targets\\apple2\\DUET.s',      'targets\\apple2\\hiresLines.s',     'targets\\apple2\\joystick.s',
+                            'targets\\apple2\\MOCKING.s',  'targets\\apple2\\PADDLE.s',    'targets\\apple2\\prodos.s',         'targets\\apple2\\serial.s' ]
                 symbols = ''
                 if self.Combobox_AppleNetworkDriver.get() == '8bit-Hub':    
                     symbols += '-D __HUB__ '
@@ -811,7 +822,7 @@ class Application:
                     symbols += '-D __SHR__'
                 if self.Combobox_AppleCrunchAssets.get() == 'Yes':
                     symbols += ' -D __DECRUNCH__'                        
-                BuildUnityLibrary(fp, 'apple2', symbols, cList, sList, buildFolder+'/apple')
+                BuildUnityLibrary(fp, 'apple2', symbols, cCore+cTarget, sCore+sTarget, buildFolder+'/apple')
         
                 # Compile Program
                 symbols += ' -Wl -D,__STACKSIZE__=$0400,-D,__HIMEM__=$B800,-D,__LCADDR__=$D000,-D,__LCSIZE__=$1000'
@@ -916,18 +927,19 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Build Unity Library
-            cList = ['graphics\\bitmap.c', 'graphics\\charmap.c', 'graphics\\chunks.c', 'geom\\geom2d.c', 'math\\dot.c', 'adaptors\\joystick.c', 'adaptors\\mouse.c', 'sound\\music.c', 'network\\net-base.c', 'network\\net-easy.c', 'network\\net-ip.c', 'network\\net-url.c', 'network\\net-tcp.c', 'network\\net-udp.c', 'network\\net-web.c', 'graphics\\logos.c', 'graphics\\pixel.c', 'graphics\\print.c', 'graphics\\scaling.c', 'sound\\sfx.c', 'graphics\\sprites.c', 'graphics\\widgets.c', 'targets\\atari\\directory.c', 'targets\\atari\\files.c']
-            sList = ['math\\atan2.s', 'graphics\\chars.s', 'graphics\\tiles.s', 'targets\\atari\\decrunch.s', 'targets\\atari\\DLIST-bmp.s', 'targets\\atari\\DLIST-chr.s', 'targets\\atari\\DLI.s', 'targets\\atari\\ROM.s', 'targets\\atari\\blitCharmap.s', 'targets\\atari\\xbios.s']
+            cTarget = ['targets\\atari\\directory.c',   'targets\\atari\\files.c']
+            sTarget = ['targets\\atari\\blitCharmap.s', 'targets\\atari\\decrunch.s',  'targets\\atari\\DLIST-bmp.s', 'targets\\atari\\DLIST-chr.s', 
+                       'targets\\atari\\DLI.s',         'targets\\atari\\ROM.s',       'targets\\atari\\xbios.s']
             if self.Combobox_AtariNetworkDriver.get() == 'Fujinet':    
-                cList.append('targets\\atari\\fujinet.c')
-                sList.append('targets\\atari\\fujiIRQ.s')
+                cTarget.append('targets\\atari\\fujinet.c')
+                sTarget.append('targets\\atari\\fujiIRQ.s')
             if self.Combobox_AtariNetworkDriver.get() == 'Fujinet':    
                 symbols = '-D __FUJINET__ '
             else:
                 symbols = ''
             if self.Combobox_AtariCrunchAssets.get() == 'Yes':
                 symbols += '-D __DECRUNCH__ '                
-            BuildUnityLibrary(fp, 'atarixl', symbols, cList, sList, buildFolder+'/atari')
+            BuildUnityLibrary(fp, 'atarixl', symbols, cCore+cTarget, sCore+sTarget, buildFolder+'/atari')
                         
             # Compile Program
             symbols = '-Wl -D,__STACKSIZE__=$0400 '
@@ -1034,13 +1046,13 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Build Unity Library
-            cList = ['graphics\\bitmap.c', 'graphics\\charmap.c', 'graphics\\chunks.c', 'geom\\geom2d.c', 'math\\dot.c', 'adaptors\\mouse.c', 'sound\\music.c', 'network\\net-base.c', 'network\\net-easy.c', 'network\\net-ip.c', 'network\\net-url.c', 'network\\net-tcp.c', 'network\\net-udp.c', 'network\\net-web.c', 'graphics\\logos.c', 'graphics\\pixel.c', 'graphics\\print.c', 'graphics\\scaling.c', 'sound\\sfx.c', 'graphics\\sprites.c', 'graphics\\widgets.c', 'targets\\c64\\directory.c', 'targets\\c64\\VIC2.c']
-            sList = ['math\\atan2.s', 'graphics\\chars.s', 'graphics\\tiles.s', 'targets\\c64\\decrunch.s', 'targets\\c64\\joystick.s', 'targets\\c64\\blitCharmap.s', 'targets\\c64\\ROM.s', 'targets\\c64\\SID.s']
+            cTarget = [ 'targets\\c64\\directory.c', 'targets\\c64\\VIC2.c' ]
+            sTarget = [ 'targets\\c64\\decrunch.s',  'targets\\c64\\joystick.s', 'targets\\c64\\blitCharmap.s', 'targets\\c64\\ROM.s', 'targets\\c64\\SID.s']
             if self.Combobox_C64CrunchAssets.get() == 'Yes':
                 symbols = '-D __DECRUNCH__ '
             else:
                 symbols = ''
-            BuildUnityLibrary(fp, 'c64', symbols, cList, sList, buildFolder+'/c64')
+            BuildUnityLibrary(fp, 'c64', symbols, cCore+cTarget, sCore+sTarget, buildFolder+'/c64')
             
             # Compile Program                        
             comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/c64/' + diskname.lower() + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-c64.map -Cl -O -t c64 -C unity/targets/c64/c64.cfg -I unity '
@@ -1374,10 +1386,10 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Build Unity Library
-            cList = ['graphics\\bitmap.c', 'graphics\\charmap.c', 'graphics\\chunks.c', 'geom\\geom2d.c', 'math\\dot.c', 'adaptors\\hub.c', 'adaptors\\joystick.c', 'adaptors\\mouse.c', 'sound\\music.c', 'network\\net-base.c', 'network\\net-easy.c', 'network\\net-ip.c', 'network\\net-url.c', 'network\\net-tcp.c', 'network\\net-udp.c', 'network\\net-web.c', 'graphics\\logos.c', 'graphics\\pixel.c', 'graphics\\print.c', 'graphics\\scaling.c', 'sound\\sfx.c', 'graphics\\sprites.c', 'graphics\\widgets.c', 'targets\\lynx\\display.c', 'targets\\lynx\\files.c', 'targets\\lynx\\input.c', 'targets\\lynx\\screen.c', 'targets\\lynx\\text.c']
-            sList = ['math\\atan2.s', 'graphics\\chars.s', 'graphics\\tiles.s', 'targets\\lynx\\header.s', 'targets\\lynx\\blitCharmap.s', 'targets\\lynx\\serial.s', 'targets\\lynx\\suzy.s']
+            cTarget = [ 'targets\\lynx\\display.c', 'targets\\lynx\\files.c', 'targets\\lynx\\input.c', 'targets\\lynx\\screen.c', 'targets\\lynx\\text.c' ]
+            sTarget = [ 'targets\\lynx\\header.s', 'targets\\lynx\\blitCharmap.s', 'targets\\lynx\\serial.s', 'targets\\lynx\\suzy.s' ]
             symbols = ' -D __MUSSIZE__='  + self.entry_LynxMusicMemory.get().replace('$','0x') + ' -D __SHRSIZE__='  + self.entry_LynxSharedMemory.get().replace('$','0x')
-            BuildUnityLibrary(fp, 'lynx --cpu 65SC02', symbols, cList, sList, buildFolder+'/lynx')
+            BuildUnityLibrary(fp, 'lynx --cpu 65SC02', symbols, cCore+cTarget, sCore+sTarget, buildFolder+'/lynx')
                                      
             # Compile Program 
             symbols += ' -Wl -D,__MUSSIZE__='  + self.entry_LynxMusicMemory.get() + ',-D,__SHRSIZE__='  + self.entry_LynxSharedMemory.get()
@@ -1418,9 +1430,10 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
     
             # Build Unity Library
-            cList = ['graphics\\bitmap.c', 'graphics\\charmap.c', 'graphics\\chunks.c', 'geom\\geom2d.c', 'math\\dot.c', 'adaptors\\hub.c', 'adaptors\\joystick.c', 'adaptors\\mouse.c', 'sound\\music.c', 'network\\net-base.c', 'network\\net-easy.c', 'network\\net-ip.c', 'network\\net-url.c', 'network\\net-tcp.c', 'network\\net-udp.c', 'network\\net-web.c', 'graphics\\logos.c', 'graphics\\pixel.c', 'graphics\\print.c', 'graphics\\scaling.c', 'sound\\sfx.c', 'graphics\\sprites.c', 'graphics\\widgets.c', 'targets\\oric\\directory.c', 'targets\\oric\\files.c']
-            sList = ['math\\atan2.s', 'graphics\\chars.s', 'graphics\\tiles.s', 'targets\\oric\\blit.s', 'targets\\oric\\paseIJK.s', 'targets\\oric\\keyboard.s', 'targets\\oric\\blitCharmap.s', 'targets\\oric\\sedoric.s', 'targets\\oric\\MYM.s']
-            BuildUnityLibrary(fp, 'atmos', '', cList, sList, buildFolder+'/oric')
+            cTarget = [ 'targets\\oric\\directory.c', 'targets\\oric\\files.c' ]
+            sTarget = [ 'targets\\oric\\blit.s',      'targets\\oric\\blitCharmap.s', 'targets\\oric\\paseIJK.s', 
+                        'targets\\oric\\keyboard.s',  'targets\\oric\\sedoric.s',     'targets\\oric\\MYM.s' ]
+            BuildUnityLibrary(fp, 'atmos', '', cCore+cTarget, sCore+sTarget, buildFolder+'/oric')
                         
             # Compile Program
             comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/oric/' + diskname.lower() + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-oric48k.map -Cl -O -t atmos -C unity/targets/oric/oric.cfg -I unity '
