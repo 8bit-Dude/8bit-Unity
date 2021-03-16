@@ -107,6 +107,7 @@ void LoadCharmap(char *filename, unsigned int w, unsigned int h);
 void LoadTileset(char *filename, unsigned int n, unsigned int w, unsigned int h);
 void LoadCharset(char* filename, char* palette);
 void DrawCharmap(unsigned char x, unsigned char y);
+void ScrollCharmap(unsigned char x, unsigned char y);
 void PrintCharmap(unsigned char x, unsigned char y, unsigned char chr);
 void SetTile(unsigned char x, unsigned char y, unsigned char tile);
 unsigned char GetTile(unsigned char x, unsigned char y);

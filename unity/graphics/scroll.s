@@ -1,5 +1,5 @@
 ;
-; Copyright (c) 2020 Anthony Beaucamp.
+; Copyright (c) 2021 Anthony Beaucamp.
 ;
 ; This software is provided 'as-is', without any express or implied warranty.
 ; In no event will the authors be held liable for any damages arising from
@@ -24,152 +24,140 @@
 ;   specific prior written permission.
 ;
 
-	.export _DecodeTiles2x2
+	.export _Scroll
 	
-	.import _tileCols, _tileRows
-	.import _decodeWidth, _decodeHeight
-	.import _blockWidth, _charmapWidth
+	.import _scrollCols, _scrollRows, _scrollDirX, _scrollDirY, _scrollLine
 
 ; Zeropage addresses
 
 .ifdef __APPLE2__
-	tilesetDataZP = $ef
-	charPointerZP = $ce
 	row1PointerZP = $fb
 	row2PointerZP = $fd
 .endif
 
 .ifdef __ATARI__
-	tilesetDataZP = $e0
-	charPointerZP = $e2
 	row1PointerZP = $e4
 	row2PointerZP = $e6
 .endif	
 	
 .ifdef __CBM__
-	tilesetDataZP = $61
-	charPointerZP = $63
 	row1PointerZP = $fb
 	row2PointerZP = $fd
 .endif	
 
 .ifdef __LYNX__
-	tilesetDataZP = $b3
-	charPointerZP = $b5
 	row1PointerZP = $b7
 	row2PointerZP = $b9
 .endif	
 
 .ifdef __ATMOS__
-	tilesetDataZP = $ef
-	charPointerZP = $b5
 	row1PointerZP = $b7
 	row2PointerZP = $b9
 .endif
 
-	.segment	"BSS"
-
-_tmpChr: .res 4
-_curCol: .res 1
-_curRow: .res 1
-
 	.segment	"CODE"	
 
 ; ---------------------------------------------------------------
-; void __near__ _DecodeTiles2x2 (void)
-;	Convert Tilemap to Charmap
+; void __near__ _Scroll (void)
 ;	Zero Page Data:
-;		tilesetDataZP: 16 bit address of tileset data
-;		charPointerZP: 16 bit address of location in charmap (auto-updated)
-;		row1PointerZP: 16 bit address of first line (auto-updated)
-;		row2PointerZP: 16 bit address of second line (auto-updated)
+;		row1PointerZP: 16 bit address of source (auto-updated)
+;		row2PointerZP: 16 bit address of destination (auto-updated)
 ; ---------------------------------------------------------------	
 
-.proc _DecodeTiles2x2: near
+.proc _Scroll: near
 
 	ldx #0
 loopRows: 
-	cpx _tileRows
+	cpx _scrollRows
 	bpl doneRows
-	inx	
 
+	;-------------------------------
+	; Check horz scanning direction
+	lda _scrollDirX
+	cmp #1
+	bne scrollLeft
+	
+	;-------------------------------
+	scrollRight:
 		ldy #0
-	loopCols:
-		cpy _tileCols
+	loopColsRight:
+		cpy _scrollCols
 		bpl doneCols
-		sty _curCol
 		
-			; Get Tile Value (x4)
-			lda (charPointerZP),y
-			asl A
-			asl A
-			
-			; Get All Chars
-			tay
-			lda (tilesetDataZP),y
-			sta _tmpChr+0
-			iny
-			lda (tilesetDataZP),y
-			sta _tmpChr+1
-			iny
-			lda (tilesetDataZP),y
-			sta _tmpChr+2
-			iny
-			lda (tilesetDataZP),y
-			sta _tmpChr+3
-			
-			; Assign Chars to Buffer (4 bytes per Tile)
-			lda _curCol
-			asl A
-			tay
-			lda _tmpChr+0
-			sta (row1PointerZP),y
-			lda _tmpChr+2
+			; Copy 1 byte
+			lda (row1PointerZP),y
 			sta (row2PointerZP),y
-			iny
-			lda _tmpChr+1
-			sta (row1PointerZP),y
-			lda _tmpChr+3
-			sta (row2PointerZP),y
-				
+
 		; Move to next col
-		ldy _curCol
 		iny		
-		jmp loopCols	
-
-	doneCols:		
+		jmp loopColsRight
 		
-		; Update location in charmap
-		clc	
-		lda charPointerZP			
-		adc _charmapWidth
-		sta charPointerZP	
-		bcc nocarryChrPtr	; Check if carry to high byte
-		inc charPointerZP+1
-	nocarryChrPtr:
+	;-------------------------------
+	scrollLeft:
+		ldy _scrollCols
+	loopColsLeft:
+		dey		
+		
+			; Copy 1 byte
+			lda (row1PointerZP),y
+			sta (row2PointerZP),y
 
-		; Update location in screen buffer (line 1)
+		; Move to next col
+		cpy #0
+		beq doneCols
+		jmp loopColsLeft		
+		
+	doneCols:		
+
+	;-------------------------------
+	; Check vert scanning direction
+		lda _scrollDirY
+		cmp #1
+		bne scrollDown
+
+	;-------------------------------
+	scrollUp:
 		clc	
 		lda row1PointerZP			
-		adc _blockWidth
+		adc _scrollLine
 		sta row1PointerZP	
 		bcc nocarryScrPtr1	; Check if carry to high byte
 		inc row1PointerZP+1
 	nocarryScrPtr1:
 
-		; Update location in screen buffer (line 2)
 		clc	
 		lda row2PointerZP		
-		adc _blockWidth
+		adc _scrollLine
 		sta row2PointerZP
 		bcc nocarryScrPtr2	; Check if carry to high byte
 		inc row2PointerZP+1
 	nocarryScrPtr2:
-	
-	; Move to next row
-	jmp loopRows
+		jmp carryScrPtr2
 
+	;-------------------------------
+	scrollDown:
+		sec	
+		lda row1PointerZP			
+		sbc _scrollLine
+		sta row1PointerZP	
+		bcs carryScrPtr1	; Check if carry to high byte
+		dec row1PointerZP+1
+	carryScrPtr1:
+
+		sec	
+		lda row2PointerZP		
+		sbc _scrollLine
+		sta row2PointerZP
+		bcs carryScrPtr2	; Check if carry to high byte
+		dec row2PointerZP+1
+	carryScrPtr2:
+	
+	;-------------------------------
+	; Move to next row
+	inx	
+	jmp loopRows		
+	
 doneRows:
 	rts
 
-.endproc	
+.endproc		

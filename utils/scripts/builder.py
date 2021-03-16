@@ -36,7 +36,7 @@ cCore = [ 'adaptors\\hub.c',     'adaptors\\joystick.c', 'adaptors\\mouse.c',  '
           'strings\\blanks.c',   'strings\\copy.c',      'strings\\input.c',   'strings\\number.c',  'strings\\print.c', 
           'sound\\music.c',      'sound\\sfx.c' ]
 
-sCore = [ 'math\\atan2.s', 'graphics\\tiles.s', 'strings\\chars.s' ]
+sCore = [ 'math\\atan2.s', 'graphics\\scroll.s', 'graphics\\tiles.s', 'strings\\chars.s' ]
 
 # Useful functions
 def Str2Bool(v):
@@ -1386,7 +1386,7 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Build Unity Library
-            cTarget = [ 'targets\\lynx\\display.c', 'targets\\lynx\\files.c', 'targets\\lynx\\input.c', 'targets\\lynx\\screen.c', 'targets\\lynx\\text.c' ]
+            cTarget = [ 'targets\\lynx\\cgetc.c', 'targets\\lynx\\display.c', 'targets\\lynx\\files.c', 'targets\\lynx\\screen.c', 'targets\\lynx\\text.c' ]
             sTarget = [ 'targets\\lynx\\header.s', 'targets\\lynx\\blitCharmap.s', 'targets\\lynx\\serial.s', 'targets\\lynx\\suzy.s' ]
             symbols = ' -D __MUSSIZE__='  + self.entry_LynxMusicMemory.get().replace('$','0x') + ' -D __SHRSIZE__='  + self.entry_LynxSharedMemory.get().replace('$','0x')
             BuildUnityLibrary(fp, 'lynx --cpu 65SC02', symbols, cCore+cTarget, sCore+sTarget, buildFolder+'/lynx')
