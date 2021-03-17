@@ -15,8 +15,8 @@ Interact interacts[MAX_INTERACT] =
 	  { 300, 170, 30, 300, 170,    INACTIVE,	 "Fountain", 0, "Well done little goblin!\nThe tech-demo ends here!", 0, 0 } };
 
 Item items[MAX_ITEM] = 
-	{ { CHR_COLS-7,  CHR_ROWS-2, INACTIVE, 0 },
-	  { CHR_COLS-7,  CHR_ROWS-1, INACTIVE, 0 } };
+	{ { TXT_COLS-7,  TXT_ROWS-2, INACTIVE, 0 },
+	  { TXT_COLS-7,  TXT_ROWS-1, INACTIVE, 0 } };
 
 // Chunks for scene animation
 unsigned char* chunkAnim[6];
@@ -54,9 +54,9 @@ void InitScene()
 	// Assign ink/paper colors
 #if (defined __ORIC__)
 	paperColor = ORANGE;
-	SetAttributes(-1, CHR_ROWS-2, paperColor);
-	SetAttributes(-1, CHR_ROWS-1, paperColor);
-	PrintBlanks(0, CHR_ROWS-2, CHR_COLS, 2);	
+	SetAttributes(-1, TXT_ROWS-2, paperColor);
+	SetAttributes(-1, TXT_ROWS-1, paperColor);
+	PrintBlanks(0, TXT_ROWS-2, TXT_COLS, 2);	
 #else	
 	paperColor = ORANGE;
 	inkColor = WHITE;
@@ -100,8 +100,8 @@ void PopItem(unsigned char index)
 unsigned char SelectItem(unsigned int x, unsigned int y)
 {
 	unsigned char i=0;
-	x = (x*CHR_COLS)/320;
-	y = (y*CHR_ROWS)/200;
+	x = (x*TXT_COLS)/320;
+	y = (y*TXT_ROWS)/200;
 	while (i<MAX_ITEM) {
 		if (items[i].label && x >= items[i].col && y == items[i].row) return i;
 		i++;

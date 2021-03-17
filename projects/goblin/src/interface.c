@@ -8,12 +8,12 @@ extern Item items[MAX_ITEM];
 void PrintInteract(unsigned char item, unsigned char *label)
 {
 	if (item != 255) {		
-		PrintStr(0, CHR_ROWS-2, "use");
-		PrintStr(4, CHR_ROWS-2, items[item].label);
-		PrintStr(5+strlen(items[item].label), CHR_ROWS-2, "on");
-		PrintStr(8+strlen(items[item].label), CHR_ROWS-2, label);
+		PrintStr(0, TXT_ROWS-2, "use");
+		PrintStr(4, TXT_ROWS-2, items[item].label);
+		PrintStr(5+strlen(items[item].label), TXT_ROWS-2, "on");
+		PrintStr(8+strlen(items[item].label), TXT_ROWS-2, label);
 	} else {
-		PrintStr(0, CHR_ROWS-2, label);
+		PrintStr(0, TXT_ROWS-2, label);
 	}
 }
 
@@ -21,10 +21,10 @@ void PrintInteract(unsigned char item, unsigned char *label)
 void PrintMessage(unsigned char *msg)
 {
 	unsigned char i = 0;
-	unsigned char col = 0, row = CHR_ROWS-2;
+	unsigned char col = 0, row = TXT_ROWS-2;
 	
 	// Reset panel
-	PrintBlanks(0, CHR_ROWS-2, CHR_COLS-8, 2);
+	PrintBlanks(0, TXT_ROWS-2, TXT_COLS-8, 2);
 	
 	// Print message across two lines, by taking into account line feed '\n'
 	while (msg[i] != '\0') {

@@ -67,7 +67,7 @@ void GameLoop(void)
 			if (sceneSearch != sceneIndex) {
 				sceneIndex = sceneSearch;
 				if (sceneIndex == 255) {
-					PrintBlanks(0, CHR_ROWS-2, CHR_COLS-8, 1);
+					PrintBlanks(0, TXT_ROWS-2, TXT_COLS-8, 1);
 				} else {
 					PrintInteract(sceneItem, interacts[sceneIndex].label);
 				}
@@ -86,7 +86,7 @@ void GameLoop(void)
 				if (sceneItem != 255) {
 					PrintInteract(sceneItem, "\0");
 				} else {
-					PrintBlanks(0, CHR_ROWS-2, CHR_COLS-8, 2);
+					PrintBlanks(0, TXT_ROWS-2, TXT_COLS-8, 2);
 				}
 			} else {
 				// Get click coordinates
@@ -161,15 +161,15 @@ void SplashScreen(void)
 	// Show credit/build
 #if (defined __ORIC__)
 	inkColor = AIC;
-	PrintBlanks(CHR_COLS-12, CHR_ROWS-4, 12, 3);
+	PrintBlanks(TXT_COLS-12, TXT_ROWS-4, 12, 3);
 #else		
 	pixelX = 0; pixelY = 0;
 	paperColor = GetPixel(); 
 	inkColor = INK_DEFAULT; 
 #endif
-	PrintStr(CHR_COLS-11, CHR_ROWS-4, "TECH DEMO");		
-	PrintStr(CHR_COLS-12, CHR_ROWS-3, "BY 8BIT-DUDE");		
-	PrintStr(CHR_COLS-11, CHR_ROWS-2,  "2020/05/20");
+	PrintStr(TXT_COLS-11, TXT_ROWS-4, "TECH DEMO");		
+	PrintStr(TXT_COLS-12, TXT_ROWS-3, "BY 8BIT-DUDE");		
+	PrintStr(TXT_COLS-11, TXT_ROWS-2,  "2020/05/20");
 	PlayMusic();
 
 	// Wait until key is pressed
