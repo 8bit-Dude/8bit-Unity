@@ -125,7 +125,7 @@ void GameReset()
 		if (!PlayerAvailable(i)) { continue; }
 
 		// Reset laps and sprite
-		PrintStr((i+2)*8u-3, CHR_ROWS-1, "  ");
+		PrintStr((i+2)*8u-3, TXT_ROWS-1, "  ");
 		f = ((cars[i].ang1+12)%(360))/23u;
 	#if defined __APPLE2__
 		f += i*16u;
@@ -211,7 +211,7 @@ void GameInit(const char* map)
 #endif		
 	// Print map name in lower left corner
 	inkColor = WHITE; paperColor = BLACK;
-	PrintStr(0, CHR_ROWS-1, mapList[gameMap]);
+	PrintStr(0, TXT_ROWS-1, mapList[gameMap]);
 
 	// Load Navigation
 	memcpy(&buffer[len], ".nav", 4);
@@ -226,10 +226,10 @@ void GameInit(const char* map)
 				slot = (i+1)*8;
                 inkColor = inkColors[i]; 
 			#if defined __ORIC__
-				SetAttributes(slot-1, CHR_ROWS-1, inkColor);
+				SetAttributes(slot-1, TXT_ROWS-1, inkColor);
 			#endif					
-				PrintChr(slot+1, CHR_ROWS-1, &charDigit[(i+1)*3]);
-                PrintChr(slot, CHR_ROWS-1, &charLetter[15*3]);	// 'P'
+				PrintChr(slot+1, TXT_ROWS-1, &charDigit[(i+1)*3]);
+                PrintChr(slot, TXT_ROWS-1, &charLetter[15*3]);	// 'P'
             }
         }
         // Initiate laps

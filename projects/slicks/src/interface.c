@@ -52,13 +52,13 @@
 	#define MENU_ROW  2
 	#define MENU_WID 17
 	#define MENU_HEI 13
-	#define MENU_BLD CHR_ROWS-1
+	#define MENU_BLD TXT_ROWS-1
 #else
 	#define MENU_COL 22
 	#define MENU_ROW  4
 	#define MENU_WID 17
 	#define MENU_HEI 16
-	#define MENU_BLD CHR_ROWS-2
+	#define MENU_BLD TXT_ROWS-2
 #endif
 
 // See slicks.c
@@ -226,12 +226,12 @@ void PrintBuffer(char *buffer)
 #if defined __ORIC__	
 	// Need to insert ink changes...
 	len++;
-	if (len<CHR_COLS) {
-		CopyStr(0, 0, len, 0, CHR_COLS-len);
-		SetAttributes(CHR_COLS-len, 0, inkColor);
+	if (len<TXT_COLS) {
+		CopyStr(0, 0, len, 0, TXT_COLS-len);
+		SetAttributes(TXT_COLS-len, 0, inkColor);
 	}
 	len--;
-	PrintStr(CHR_COLS-len, 0, buffer);		
+	PrintStr(TXT_COLS-len, 0, buffer);		
 	
 #elif defined __APPLE2__	
 	// Make sure message has even length
@@ -239,15 +239,15 @@ void PrintBuffer(char *buffer)
 		buffer[len++] = ' ';
 		buffer[len] = 0;
 	}
-	if (len<CHR_COLS)
-		CopyStr(0, 0, len, 0, CHR_COLS-len);
-	PrintStr(CHR_COLS-len, 0, buffer);		
+	if (len<TXT_COLS)
+		CopyStr(0, 0, len, 0, TXT_COLS-len);
+	PrintStr(TXT_COLS-len, 0, buffer);		
 	
 #else
 	// Just shift buffer and print new message
-	if (len<CHR_COLS)
-		CopyStr(0, 0, len, 0, CHR_COLS-len);
-	PrintStr(CHR_COLS-len, 0, buffer);		
+	if (len<TXT_COLS)
+		CopyStr(0, 0, len, 0, TXT_COLS-len);
+	PrintStr(TXT_COLS-len, 0, buffer);		
 #endif
 }
 
@@ -483,7 +483,7 @@ void PrintLap(unsigned char i)
 {
 	if (cars[i].lap < 1) { return; }
 	inkColor = inkColors[i];
-	PrintNum((i+2)*8-3, CHR_ROWS-1, cars[i].lap);
+	PrintNum((i+2)*8-3, TXT_ROWS-1, cars[i].lap);
 }
 
 // Print race message and laps
