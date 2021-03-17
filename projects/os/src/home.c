@@ -34,7 +34,7 @@ void ClearScreen()
 	
 	// Clear usable area
 	paperColor = DESK_COLOR;
-	PrintBlanks(0, 0, CHR_COLS, CHR_ROWS-1);
+	PrintBlanks(0, 0, TXT_COLS, TXT_ROWS-1);
 	
 	// Reset callbacks
 	ClearCallbacks();
@@ -46,11 +46,11 @@ void DrawTaskBar()
 {
 	paperColor = WHITE; inkColor = BLACK; 
 #if (defined __ORIC__)
-	SetAttributes(-1, CHR_ROWS-1, paperColor);
+	SetAttributes(-1, TXT_ROWS-1, paperColor);
 #endif
-	PrintBlanks(0, CHR_ROWS-1, CHR_COLS, 1);
+	PrintBlanks(0, TXT_ROWS-1, TXT_COLS, 1);
 	paperColor = BLACK; inkColor = WHITE;
-	homeCall = Button(0, CHR_ROWS-1, 4, 1, "HOME");	
+	homeCall = Button(0, TXT_ROWS-1, 4, 1, "HOME");	
 }
 
 // App icons location
@@ -77,5 +77,5 @@ void HomeScreen(void)
 
 	// Add Taskbar Message
 	paperColor = WHITE; inkColor = BLACK; 
-	PrintStr(21, CHR_ROWS-1, version);		
+	PrintStr(21, TXT_ROWS-1, version);		
 }

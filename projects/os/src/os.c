@@ -91,7 +91,7 @@ int main(void)
 					#if defined(__APPLE2__) || defined(__ORIC__)
 						DisableSprite(0);
 					#endif
-						call = CheckCallbacks((mouse[0]*CHR_COLS)/160u, (mouse[1]*CHR_ROWS)/200u);
+						call = CheckCallbacks((mouse[0]*TXT_COLS)/160u, (mouse[1]*TXT_ROWS)/200u);
 						if (call)
 							ProcessCallback(call);
 					#if defined(__APPLE2__) || defined(__ORIC__)

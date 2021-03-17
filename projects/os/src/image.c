@@ -21,12 +21,12 @@ void ImageDisplay()
 		
 	// Display file name
 	paperColor = WHITE; inkColor = BLACK; 
-	PrintStr(14, CHR_ROWS-1, fileNames[imageSel]);		
+	PrintStr(14, TXT_ROWS-1, fileNames[imageSel]);		
 	
 	// Add L/R Controllers
 	paperColor = BLACK; inkColor = WHITE;
-	iPrev = Button(10, CHR_ROWS-1, 3, 1, " ( ");	
-	iNext = Button(27, CHR_ROWS-1, 3, 1, " ) ");		
+	iPrev = Button(10, TXT_ROWS-1, 3, 1, " ( ");	
+	iNext = Button(27, TXT_ROWS-1, 3, 1, " ) ");		
 }
 
 void ImageScreen()

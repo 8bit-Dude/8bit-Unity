@@ -116,7 +116,7 @@ void PreviewImage(void)
 	LoadBitmap(currFile);
 	UnpauseTrack();
 	DrawTaskBar();
-	callImg = PushCallback(0, 0, CHR_COLS, CHR_ROWS, CALLTYPE_ICON);
+	callImg = PushCallback(0, 0, TXT_COLS, TXT_ROWS, CALLTYPE_ICON);
 	imageShowing = 1;
 }
 
@@ -161,7 +161,7 @@ void PreviewText(void)
 			x = 18; y+=1;
 		} else {
 			PrintChr(x, y, GetChr(*(char*)(addr)));
-			x += 1; if (x>CHR_COLS-2) { x = 18; y+=1; }
+			x += 1; if (x>TXT_COLS-2) { x = 18; y+=1; }
 		} addr++;
 	}
 }
@@ -174,8 +174,8 @@ void FilesScreen(void)
 
 	// Display Media files in ListBox
 	paperColor = DESK_COLOR; inkColor = BLACK;
-	ListBox(1, 0, 16, CHR_ROWS-2, "Files", listNames, listNum);
-	Panel(18, 0, CHR_COLS-19, CHR_ROWS-2, "Preview");	
+	ListBox(1, 0, 16, TXT_ROWS-2, "Files", listNames, listNum);
+	Panel(18, 0, TXT_COLS-19, TXT_ROWS-2, "Preview");	
 	imageShowing = 0;
 }
 
@@ -188,9 +188,9 @@ void FileCallback(callback* call)
 		// Reset preview area
 		paperColor = DESK_COLOR;
 	#if (defined __APPLE2__)
-		PrintBlanks(18, 1, CHR_COLS-20, CHR_ROWS-3);
+		PrintBlanks(18, 1, TXT_COLS-20, TXT_ROWS-3);
 	#else
-		PrintBlanks(18, 1, CHR_COLS-19, CHR_ROWS-3);
+		PrintBlanks(18, 1, TXT_COLS-19, TXT_ROWS-3);
 	#endif
 	
 		// Clear preview callbacks

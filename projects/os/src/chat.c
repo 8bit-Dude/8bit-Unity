@@ -41,7 +41,7 @@ void ChatRefresh(void)
 	unsigned int i;
 	paperColor = DESK_COLOR;
 	for (i=0; i<MSG_PER_PAGE; i++)
-		PrintBlanks(0, 5*i+2, CHR_COLS-1, 4);
+		PrintBlanks(0, 5*i+2, TXT_COLS-1, 4);
 	ChatPage();
 }
 
@@ -67,7 +67,7 @@ void ChatSend()
 	
 	// Clear previous message
 	paperColor = WHITE;
-	PrintBlanks(0,0,CHR_COLS-4,1);
+	PrintBlanks(0,0,TXT_COLS-4,1);
 	chatBuffer[0] = 0;
 	
 	// Refresh messages
@@ -104,7 +104,7 @@ void ChatMessage(unsigned char index, unsigned char* packet)
 	l = i + strlen(&packet[i]);
 	while (i < l) {
 		memcpy(buffer, &packet[i], 28);
-		PrintStr(CHR_COLS-29, line, buffer);
+		PrintStr(TXT_COLS-29, line, buffer);
 		i += 28; line++;
 	}
 }
@@ -151,17 +151,17 @@ void ChatScreen(void)
 	} else {
 		// Add text input, send button, and scrollbar
 		paperColor = BLACK; inkColor = WHITE;	
-		callSend = Button(CHR_COLS-4, 0, 7, 1, "Send");
+		callSend = Button(TXT_COLS-4, 0, 7, 1, "Send");
 		
 		paperColor = WHITE; inkColor = BLACK;
-		callMessage = Input(0, 0, CHR_COLS-5, 1, chatBuffer, 112);
+		callMessage = Input(0, 0, TXT_COLS-5, 1, chatBuffer, 112);
 			
 		paperColor = DESK_COLOR;
-		callScroll = ScrollBar(CHR_COLS-1, 1, CHR_ROWS-2, scrollRange);
+		callScroll = ScrollBar(TXT_COLS-1, 1, TXT_ROWS-2, scrollRange);
 		
 		// Add separators
 		lineX1 = ColToX(0)+2;
-		lineX2 = ColToX(CHR_COLS-2)+2;
+		lineX2 = ColToX(TXT_COLS-2)+2;
 		for (i=0; i<MSG_PER_PAGE; i++) {
 			lineY = RowToY(5*i+1)+3;
 			Line(lineX1, lineX2, lineY, lineY);
