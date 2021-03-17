@@ -37,17 +37,17 @@ charRaw = list(charImg.getdata())
 print "Charmap size: {%i,%i}; Colors: %i" % (charImg.size[0], charImg.size[1], max(charRaw))
 
 ############################
-# Rearrange into 4*8 blocks
+# Rearrange into 4*4 blocks
 charBlocks = []
-for j in range(0, 6):
-    for row in range(0, charImg.size[1], 6):
+for j in range(0, 4):
+    for row in range(0, charImg.size[1], 4):
         for col in range(0, charImg.size[0], 4):
             for i in range(0, 4):
                 charBlocks.append(charRaw[(row+j)*charImg.size[0]+col+i])
                 
 ############################################
 # Convert char data to Lynx format
-charData = [chr(0)] * (128*12)
+charData = [chr(0)] * (128*8)
 for i in range(0, len(charBlocks), 2):
     charData[i/2] = chr((charBlocks[i+0]<<4) + (charBlocks[i+1]<<0))                
 
