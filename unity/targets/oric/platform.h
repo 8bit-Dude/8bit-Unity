@@ -45,8 +45,12 @@
 #define SCREENRAM   (0xBB80) // BB80-BFDF (text buffer)
 
 // Character Mode
-#define CHR_COLS 39
-#define CHR_ROWS 25
+#define TXT_COLS 39
+#define TXT_ROWS 25
+
+// Charmap Mode
+#define CMP_COLS 39
+#define CMP_ROWS 25	
 
 // Bitmap Mode (AIC)
 #define BMP_COLS 117

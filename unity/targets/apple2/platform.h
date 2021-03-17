@@ -40,8 +40,12 @@
 #define MUSICRAM   (0xbc00) // BC00-BEFF (electric duet track)
 
 // Character Mode
-#define CHR_COLS 40
-#define CHR_ROWS 24
+#define TXT_COLS 40
+#define TXT_ROWS 24
+
+// Charmap Mode
+#define CMP_COLS 40
+#define CMP_ROWS 24
 
 // Bitmap Mode (Single or Double Hires)
 #define BMP_COLS 140

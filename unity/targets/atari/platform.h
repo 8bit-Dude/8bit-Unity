@@ -46,9 +46,13 @@
 #define PMGRAM     (0x9800) // 9800-9fff (player missile memory)
 #define MUSICRAM   (0xc000) // c000-cbff (RMT sound track)
 
-// Character Mode
-#define CHR_COLS 40
-#define CHR_ROWS 25
+// Text Mode
+#define TXT_COLS 40
+#define TXT_ROWS 25	
+
+// Charmap Mode
+#define CMP_COLS 40
+#define CMP_ROWS 25	
 
 // Bitmap Mode (INP)
 #define BMP_COLS 160

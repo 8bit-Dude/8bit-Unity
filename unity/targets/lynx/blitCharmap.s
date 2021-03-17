@@ -71,7 +71,7 @@ loopRows:
 				
 		ldx #0
 	loopLines:
-		cpx #6
+		cpx #4
 		beq doneLines	
 		inx 
 		

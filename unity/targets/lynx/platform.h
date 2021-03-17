@@ -31,9 +31,13 @@
 #define MUSICRAM   (BITMAPRAM - __MUSSIZE__)
 #define SHAREDRAM  (MUSICRAM  - __SHRSIZE__)
 
-// Character Mode
-#define CHR_COLS 40
-#define CHR_ROWS 17	
+// Text Mode
+#define TXT_COLS 40
+#define TXT_ROWS 17	
+
+// Charmap Mode
+#define CMP_COLS 40
+#define CMP_ROWS 25	
 
 // Bitmap Mode (Default)
 #define BMP_COLS 160

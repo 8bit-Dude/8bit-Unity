@@ -48,8 +48,12 @@
 #define SPRITERAM  (VIDEOBANK * 0x4000 + SPRITELOC * 0x0040) // C800-D800 (sprites.dat loaded here)
 
 // Character Mode
-#define CHR_COLS 40
-#define CHR_ROWS 25
+#define TXT_COLS 40
+#define TXT_ROWS 25
+
+// Charmap Mode
+#define CMP_COLS 40
+#define CMP_ROWS 25	
 
 // Bitmap Mode (Multi-Color)
 #define BMP_COLS 160

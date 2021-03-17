@@ -76,9 +76,9 @@
 // Byte size of screen elements
 #if defined(__LYNX__)
   #define CHR_WIDTH        2
-  #define CHR_HEIGHT       6
+  #define CHR_HEIGHT       4
   #define LINE_SIZE	  	  82
-  #define ROW_SIZE		 492  
+  #define ROW_SIZE		 328  
 #else
   #define CHR_WIDTH        1
   #define CHR_HEIGHT       8
@@ -93,8 +93,8 @@ void __fastcall__ Scroll(void);
 // Map size and location properties
 unsigned char charmapWidth, charmapHeight, tileWidth, tileHeight;
 unsigned char worldWidth, worldHeight, worldX, worldY, worldMaxX, worldMaxY;
-unsigned char screenCol1 = 0, screenCol2 = CHR_COLS, screenWidth = CHR_COLS;
-unsigned char screenRow1 = 0, screenRow2 = CHR_ROWS, screenHeight = CHR_ROWS;
+unsigned char screenCol1 = 0, screenCol2 = CMP_COLS, screenWidth = CMP_COLS;
+unsigned char screenRow1 = 0, screenRow2 = CMP_ROWS, screenHeight = CMP_ROWS;
 unsigned char lineBlock;
 #if defined __ATARI__	
 	unsigned char chrRows, bmpRows;
@@ -151,7 +151,7 @@ void InitCharmap(unsigned char col1, unsigned char col2, unsigned char row1, uns
 #elif defined __ATARI__	
 	// Charmap/Bitmap transition params
 	chrRows = row2-1;
-	bmpRows = 3 + chrRows + 8*(CHR_ROWS-row2);
+	bmpRows = 3 + chrRows + 8*(CMP_ROWS-row2);
 	bmpAddr = BITMAPRAM1 + row2*8*40;
 	InitBitmap();
 		
@@ -176,7 +176,7 @@ void ShowCharmap()
 	StartDLI();
 
 	// Enable Charmap DLI for split screens
-	if (chrRows < CHR_ROWS) {
+	if (chrRows < CMP_ROWS) {
 		waitvsync();
 		charmapDLI = 1;
 	}
@@ -199,7 +199,7 @@ void HideCharmap()
 	
 #elif defined __ATARI__	
 	// Disable Charmap DLI for split screens
-	if (chrRows < CHR_ROWS) {
+	if (chrRows < CMP_ROWS) {
 		waitvsync();
 		charmapDLI = 0;
 	}
@@ -275,10 +275,10 @@ void LoadCharset(char* filename, char* palette)
 
 #elif defined __LYNX__
 	if (!charsetData)
-		charsetData = malloc(0x0680);
+		charsetData = malloc(0x0480);
 	if (FileRead(filename))
-		memcpy(charsetData, BITMAPRAM, 0x0680);
-	charflagData = (char*)(charsetData+0x0600);
+		memcpy(charsetData, BITMAPRAM, 0x0480);
+	charflagData = (char*)(charsetData+0x0400);
 	ClearBitmap();
 	
 #elif defined __ORIC__
@@ -419,7 +419,7 @@ void PrintCharmap(unsigned char x, unsigned char y, unsigned char chr)
 	unsigned int src, dst;
 	src = (char*)charsetData + 2*chr;
 	dst = BITMAPRAM + y*ROW_SIZE + x*CHR_WIDTH + 1;
-	for (i = 0; i<6; i++) {
+	for (i = 0; i<4; i++) {
 		memcpy((char*)dst, (char*)src, 2);
 		src += 256; dst += 82;
 	}
@@ -445,7 +445,7 @@ unsigned char *DecodeTiles(unsigned char x, unsigned char y)
 
 void ScrollCharmap(unsigned char x, unsigned char y)
 {
-#if defined(__APPLE2__) || defined(__ATARI__) || defined(__CBM__)	
+#if defined(__APPLE2__) || defined(__ATARI__) || defined(__CBM__)  || defined(__ORIC__)	
 	DrawCharmap(x,y);
 #else
 	unsigned char i, tmp;

@@ -272,7 +272,11 @@ unsigned char RowToY(unsigned char row);
 unsigned char XToCol(unsigned char x);
 unsigned char YToRow(unsigned char y);
 
-// Widget handling functions
+// Simple menu functions
+void InitMenu(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char padding, unsigned char **labels);
+unsigned char UpdateMenu(unsigned char *actions);
+
+// Widget functions
 #ifndef CALLDEF
 #define CALLDEF
 typedef struct {
