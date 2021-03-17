@@ -135,12 +135,12 @@ void PrintHealth(unsigned char i)
 		if (grubs[i].health > 33) { inkColor = HEALTH_MED; }
 		if (grubs[i].health > 66) { inkColor = HEALTH_HIGH; }
 		sprintf(&buffer[0], "%i", grubs[i].health);
-		PrintStr((i+1)*8+4, CHR_ROWS-1, "   ");	
-		PrintStr((i+1)*8+4, CHR_ROWS-1, &buffer[0]);	
+		PrintStr((i+1)*8+4, TXT_ROWS-1, "   ");	
+		PrintStr((i+1)*8+4, TXT_ROWS-1, &buffer[0]);	
 		inkColor = WHITE; paperColor = BLACK;
 	} else {
 		inkColor = WHITE; paperColor = BLACK;
-		PrintStr((i+1)*8+4, CHR_ROWS-1, "---");	
+		PrintStr((i+1)*8+4, TXT_ROWS-1, "---");	
 	}
 }
 
@@ -182,8 +182,8 @@ void InitGrubs()
 	#endif		
 		
 		// Print name/health
-		PrintStr((i+1)*8+0, CHR_ROWS-1, names[i]);
-		PrintStr((i+1)*8+3, CHR_ROWS-1, ":");
+		PrintStr((i+1)*8+0, TXT_ROWS-1, names[i]);
+		PrintStr((i+1)*8+3, TXT_ROWS-1, ":");
 		PrintHealth(i);
 	}		
 }
@@ -559,9 +559,9 @@ void SplashScreen(void)
 	// Show credit/build
 	paperColor = SKY; 
 	inkColor = WHITE; 
-	PrintStr(CHR_COLS-12, CHR_ROWS-4, "TECH DEMO");		
-	PrintStr(CHR_COLS-13, CHR_ROWS-3, "BY 8BIT-DUDE");		
-	PrintStr(CHR_COLS-12, CHR_ROWS-2,  "2019/09/18");
+	PrintStr(TXT_COLS-12, TXT_ROWS-4, "TECH DEMO");		
+	PrintStr(TXT_COLS-13, TXT_ROWS-3, "BY 8BIT-DUDE");		
+	PrintStr(TXT_COLS-12, TXT_ROWS-2,  "2019/09/18");
 
 	// Wait until key is pressed
 	while (!kbhit()) {	
