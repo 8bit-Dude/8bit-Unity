@@ -58,7 +58,7 @@ int DemoGfx(void)
 	
 	for (i=0; i<5; i++) { 
 		PrintLogo(2, 3+i*2, i);
-		PrintLogo(CHR_COLS-3, 3+i*2, i);
+		PrintLogo(TXT_COLS-3, 3+i*2, i);
 	}
 	
 	
@@ -70,7 +70,7 @@ int DemoGfx(void)
 
 	// Wait until 'SPACE' is pressed
 	inkColor = BLACK; paperColor = WHITE; 
-	PrintStr(9, CHR_ROWS-2, pressKeyMsg);
+	PrintStr(9, TXT_ROWS-2, pressKeyMsg);
 	while (!kbhit () || cgetc () != keyNext) {	
 	#if defined __LYNX__
 		UpdateDisplay(); // Refresh Lynx screen
