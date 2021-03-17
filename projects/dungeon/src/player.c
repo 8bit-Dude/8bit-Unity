@@ -73,10 +73,9 @@ void ProcessPlayer()
 	}
 				
 	// Check if new position is allowed?
-	LocatePixel(scrX, scrY);
-	flagX = mapX+XToCol(pixelX)-screenCol1;
-	flagY1 = mapY+YToRow(pixelY)-screenRow1;
-	flagY2 = mapY+YToRow(pixelY+5)-screenRow1;
+	flagX = mapX+(scrX*40)/320u-screenCol1;
+	flagY1 = mapY+(scrY*25)/200u-screenRow1;
+	flagY2 = mapY+((scrY+5)*25)/200u-screenRow1;
 	if (GetFlag(flagX, flagY1) || GetFlag(flagX, flagY2))
 		collision = 1;
 	
@@ -87,15 +86,12 @@ void ProcessPlayer()
 	} else {
 	#if defined(__APPLE2__) || defined(__ORIC__)
 		if (mapX/2u != mapXPRV/2u || mapY/2u != mapYPRV/2u) {
-			DrawCharmap(mapX, mapY);
-			DisplayActors();
-		}
 	#else
 		if (mapX != mapXPRV || mapY != mapYPRV) {
-			DrawCharmap(mapX, mapY);
+	#endif
+			ScrollCharmap(mapX, mapY);
 			DisplayActors();
 		}
-	#endif
 	}					
 	
 	// Update sprite
@@ -156,9 +152,8 @@ void ProcessWeapon()
 			DamageMonster(selActor);
 		} else {
 			// Look for Map Interactions
-			LocatePixel(weaponX, weaponY);
-			flagX = mapX+XToCol(pixelX)-screenCol1;
-			flagY1 = mapY+YToRow(pixelY)-screenRow1;
+			flagX = mapX+(weaponX*40)/320u-screenCol1;
+			flagY1 = mapY+(weaponY*25)/200u-screenRow1;
 			switch (GetFlag(flagX, flagY1)) {
 			case FLAG_BARREL:
 				GenerateReward(flagX, flagY1);

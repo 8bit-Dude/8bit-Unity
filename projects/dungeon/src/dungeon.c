@@ -39,7 +39,7 @@ extern unsigned char mapX, mapY;
 void GameInit(void)
 {	
 	// Setup charmap
-	InitCharmap(CROP_X, CHR_COLS-CROP_X, CROP_Y, CHR_ROWS-CROP_Y-1);
+	InitCharmap(CROP_X, CMP_COLS-CROP_X, CROP_Y, CMP_ROWS-CROP_Y-1);
 	ClearCharmap();
 	LoadCharset("quedex.chr", charColors);
 	LoadTileset("level1.tls", 40, 2, 2);
@@ -64,10 +64,10 @@ void GameInit(void)
 
 	// Show stats
 #if (defined __ORIC__)
-	SetAttributes(-1, CHR_ROWS-1, RED);
-	SetAttributes( 4, CHR_ROWS-1, CYAN);
-	SetAttributes(CHR_COLS-10, CHR_ROWS-1, YELLOW);
-	SetAttributes(CHR_COLS-5,  CHR_ROWS-1, WHITE);
+	SetAttributes(-1, TXT_ROWS-1, RED);
+	SetAttributes( 4, TXT_ROWS-1, CYAN);
+	SetAttributes(TXT_COLS-10, TXT_ROWS-1, YELLOW);
+	SetAttributes(TXT_COLS-5,  TXT_ROWS-1, WHITE);
 #endif	
 	PrintHealth(); PrintArmor();
 	PrintGold(); PrintKills();

@@ -17,15 +17,15 @@ void SplashScreen(void)
 	
 	// Show credit/build
 	paperColor = BLACK; 
-	PrintBlanks(CHR_COLS-13, CHR_ROWS-4, 12, 3);
+	PrintBlanks(TXT_COLS-13, TXT_ROWS-4, 12, 3);
 #if (defined __ORIC__)
 	inkColor = AIC;
 #else		
 	inkColor = RED; 
 #endif
-	PrintStr(CHR_COLS-12, CHR_ROWS-4, "8BIT-DUNGEON");		
-	PrintStr(CHR_COLS-12, CHR_ROWS-3, " TECH DEMO  ");		
-	PrintStr(CHR_COLS-12, CHR_ROWS-2, " 2021/01/16 ");
+	PrintStr(TXT_COLS-12, TXT_ROWS-4, "8BIT-DUNGEON");		
+	PrintStr(TXT_COLS-12, TXT_ROWS-3, " TECH DEMO  ");		
+	PrintStr(TXT_COLS-12, TXT_ROWS-2, " 2021/01/16 ");
 	
 	// Start music
 #ifdef __CBM__	
@@ -55,33 +55,33 @@ void SplashScreen(void)
 void PrintHealth(void)
 {
 	inkColor = RED;    
-	PrintStr(0, CHR_ROWS-1, healthHeader); 
-	PrintNum(1,  CHR_ROWS-1, health);
+	PrintStr(0, TXT_ROWS-1, healthHeader); 
+	PrintNum(1,  TXT_ROWS-1, health);
 }
 
 void PrintArmor(void)
 {
 	inkColor = CYAN;   
-	PrintStr(5, CHR_ROWS-1, armorHeader);  
-	PrintNum(6,  CHR_ROWS-1, armor);
+	PrintStr(5, TXT_ROWS-1, armorHeader);  
+	PrintNum(6,  TXT_ROWS-1, armor);
 }
 
 void PrintGold(void)
 {
 	inkColor = YELLOW; 
-	PrintStr(CHR_COLS-9, CHR_ROWS-1, goldHeader); 
-	PrintNum(CHR_COLS-8, CHR_ROWS-1, gold);
+	PrintStr(TXT_COLS-9, TXT_ROWS-1, goldHeader); 
+	PrintNum(TXT_COLS-8, TXT_ROWS-1, gold);
 }
 
 void PrintKills(void)
 {
 	inkColor = WHITE;  
-	PrintStr(CHR_COLS-4, CHR_ROWS-1, killsHeader); 
-	PrintNum(CHR_COLS-3, CHR_ROWS-1, kills);	
+	PrintStr(TXT_COLS-4, TXT_ROWS-1, killsHeader); 
+	PrintNum(TXT_COLS-3, TXT_ROWS-1, kills);	
 }
 
 void PrintKey(void)
 {
 	inkColor = YELLOW;
-	PrintStr(10, CHR_ROWS-1, "KEY");  	
+	PrintStr(10, TXT_ROWS-1, "KEY");  	
 }

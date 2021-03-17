@@ -5,26 +5,16 @@
 #if defined (__APPLE2__) || defined(__ORIC__)
 	#define CROP_X  4	// Crop more for platforms that run in HIRES
 	#define CROP_Y  3
-#elif defined __LYNX__
-	#define CROP_X  2	
-	#define CROP_Y  0	// Lynx has only 17 lines (vs. 25 on other platforms)
 #else
 	#define CROP_X  2
 	#define CROP_Y  2
 #endif
 
 // Player Motion
-#if defined __LYNX__	
-	#define SCALE_X 8
-	#define SCALE_Y 12
-	#define STEP_X  3
-	#define STEP_Y  3 	
-#else
-	#define SCALE_X 8
-	#define SCALE_Y 8
-	#define STEP_X  4
-	#define STEP_Y  3 
-#endif
+#define SCALE_X 8
+#define SCALE_Y 8
+#define STEP_X  4
+#define STEP_Y  3 	
 
 // Sprite definitions
 #define spriteFrames 32
