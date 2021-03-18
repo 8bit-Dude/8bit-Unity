@@ -45,7 +45,7 @@
 #define STEP_RACE   2
 
 // Interface definitions
-#define ROW_CHAT (CHR_ROWS-2)
+#define ROW_CHAT (TXT_ROWS-2)
 
 // Controller definitions
 #if defined __APPLE2__
