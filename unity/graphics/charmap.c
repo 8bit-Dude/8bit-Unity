@@ -416,7 +416,8 @@ unsigned char GetTile(unsigned char x, unsigned char y)
 
 void SetTile(unsigned char x, unsigned char y, unsigned char tile)
 {
-	charmapData[charmapWidth*(y/2u) + x/2u] = tile;	
+	charmapData[charmapWidth*(y/2u) + x/2u] = tile;
+	tileX = 255; tileY = 255;	// Trick to force re-decoding
 }
 
 void PrintCharmap(unsigned char x, unsigned char y, unsigned char chr)
