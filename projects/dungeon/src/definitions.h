@@ -21,17 +21,16 @@
 
 // Sprite slot assignments
 #if defined __ATARI__	
-	#define SPRITE_WEAPON   0
-	#define SPRITE_PLAYER0  1
-	#define SPRITE_PLAYER1  2
-	#define SPRITE_PLAYER2  3
-	#define SPRITE_ACTOR    4
+	#define SPRITE_PLAYER0  0
+	#define SPRITE_PLAYER1  1
+	#define SPRITE_WEAPON   2
+	#define SPRITE_ACTOR    3
 	#define COLOR_GOLD 	   0xec
 	#define COLOR_POTION   0x34
 	#define COLOR_ARMOR    0x12
 	#define COLOR_KEY      0xec
-	#define COLOR_SKELETON 0x0e
-	#define COLOR_GOBLIN   0xbc
+	#define COLOR_SKELETON 0x0c
+	#define COLOR_GOBLIN   0xb8
 #elif defined __ORIC__	
 	#define SPRITE_WEAPON   0
 	#define SPRITE_PLAYER   1

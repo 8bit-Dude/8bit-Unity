@@ -11,7 +11,7 @@
 	#define spriteCols   8
 	#define spriteRows   18
 	unsigned char charColors[] = { 0x00, 0x0c, 0x78, 0x62, 0x12 };   // Black, White, Light Blue, Dark Blue, Red
-	unsigned char spriteColors[] = { 0x0c, 0x14, 0xbc, 0x2c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };  // White (sword), Brown, Green, Pink (player)
+	unsigned char spriteColors[] = { 0x24, 0xc8, 0x0c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };  // Brown, Green (player), White (sword)
 #elif defined __CBM__
 	#define spriteFrames 32
 	#define spriteCols   12
@@ -54,7 +54,6 @@ void GameInit(void)
 #if defined __ATARI__
 	EnableSprite(SPRITE_PLAYER0);
 	EnableSprite(SPRITE_PLAYER1);
-	EnableSprite(SPRITE_PLAYER2);
 #elif defined __ORIC__
 	EnableSprite(SPRITE_PLAYER);
 	MultiColorSprite(SPRITE_PLAYER, multiColorDef);

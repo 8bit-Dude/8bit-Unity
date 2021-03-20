@@ -102,7 +102,6 @@ void ProcessPlayer()
 #if defined __ATARI__
 	SetSprite(SPRITE_PLAYER0, playerFrame);		
 	SetSprite(SPRITE_PLAYER1, playerFrame+spriteFrames);		
-	SetSprite(SPRITE_PLAYER2, playerFrame+spriteFrames*2);		
 #else
 	SetSprite(SPRITE_PLAYER, playerFrame);		
 #endif		
