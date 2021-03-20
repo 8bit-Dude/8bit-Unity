@@ -35,9 +35,7 @@
             "charsetDHR": [
                 "projects/demos/charsets/quedex-apple.png"
             ], 
-            "charsetSHR": [
-                "projects/demos/charsets/quedex-apple.png"
-            ], 
+            "charsetSHR": [], 			
             "spritesDHR": [
                 "projects/demos/sprites/sprites-apple-dhr.png"
             ], 
