@@ -6,6 +6,7 @@
         "code": [
             "projects/demos/src/demo.c", 
             "projects/demos/src/demo-bitmap.c", 
+            "projects/demos/src/demo-charmap.c", 
             "projects/demos/src/demo-controls.c", 
             "projects/demos/src/demo-gfx.c", 
             "projects/demos/src/demo-hello.c", 
@@ -13,7 +14,10 @@
             "projects/demos/src/demo-sprites.c"
         ], 
         "shared": [], 
-        "charmap": []
+        "charmap": [
+            "projects/demos/charmaps/level1.map", 
+            "projects/demos/charmaps/level1.tls"
+        ]
     }, 
     "platform": {
         "Apple": {
@@ -28,8 +32,12 @@
                 "projects/demos/bitmaps/banner-apple-shr.png", 
                 "projects/demos/bitmaps/stadium-apple-shr.png"
             ], 
-            "charsetDHR": [], 
-            "charsetSHR": [], 
+            "charsetDHR": [
+                "projects/demos/charsets/quedex-apple.png"
+            ], 
+            "charsetSHR": [
+                "projects/demos/charsets/quedex-apple.png"
+            ], 
             "spritesDHR": [
                 "projects/demos/sprites/sprites-apple-dhr.png"
             ], 
@@ -52,7 +60,9 @@
                 "projects/demos/bitmaps/banner-atari.png", 
                 "projects/demos/bitmaps/stadium-atari.png"
             ], 
-            "charset": [], 
+            "charset": [
+                "projects/demos/charsets/quedex-atari.png"
+            ], 
             "sprites": [
                 "projects/demos/sprites/sprites-atari.png"
             ], 
@@ -72,7 +82,9 @@
                 "projects/demos/bitmaps/banner-c64.png", 
                 "projects/demos/bitmaps/stadium-c64.png"
             ], 
-            "charset": [], 
+            "charset": [
+                "projects/demos/charsets/quedex-c64.png"
+            ], 
             "sprites": [
                 "projects/demos/sprites/sprites-c64.png"
             ], 
@@ -93,7 +105,9 @@
                 "projects/demos/bitmaps/banner-lynx.png", 
                 "projects/demos/bitmaps/stadium-lynx.png"
             ], 
-            "charset": [], 
+            "charset": [
+                "projects/demos/charsets/quedex-lynx.png"
+            ], 
             "sprites": [
                 "projects/demos/sprites/sprites-lynx.png"
             ], 
@@ -112,7 +126,9 @@
                 "projects/demos/bitmaps/banner-oric.png", 
                 "projects/demos/bitmaps/stadium-oric.png"
             ], 
-            "charset": [], 
+            "charset": [
+                "projects/demos/charsets/quedex-oric.png"
+            ], 
             "sprites": [
                 "projects/demos/sprites/sprites-oric.png"
             ], 

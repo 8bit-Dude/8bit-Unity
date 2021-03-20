@@ -48,6 +48,10 @@ int DemoBitmap(void)
 	// Exit bitmap mode
 	HideBitmap();
 	
+	// Clean-up memory
+	for (i=0; i<3; i++) 
+		free(chunks[i]);
+	
     // Done
     return EXIT_SUCCESS;	
 }

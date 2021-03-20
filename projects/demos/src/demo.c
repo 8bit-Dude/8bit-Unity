@@ -21,8 +21,9 @@ int main (void)
 	DemoHello();
 	DemoControls();
 	DemoNetwork();
-	DemoBitmap();
 	DemoGfx();
+	DemoBitmap();
+	DemoCharmap();
 	DemoSprites();
 	
     // Done
