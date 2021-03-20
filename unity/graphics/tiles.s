@@ -61,10 +61,10 @@
 .endif	
 
 .ifdef __ATMOS__
-	tilesetDataZP = $ef
-	charPointerZP = $b5
-	row1PointerZP = $b7
-	row2PointerZP = $b9
+	tilesetDataZP = $b0
+	charPointerZP = $b2
+	row1PointerZP = $b4
+	row2PointerZP = $b6
 .endif
 
 	.segment	"BSS"

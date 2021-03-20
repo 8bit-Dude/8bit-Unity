@@ -66,11 +66,11 @@
   #define row1PointerZP 0xb7
   #define row2PointerZP 0xb9
 #elif defined(__ORIC__)
-  #define tilesetDataZP 0xef
-  #define charPointerZP 0xb5
-  #define scrPointerZP  0xb7
-  #define row1PointerZP 0xb7
-  #define row2PointerZP 0xb9 
+  #define tilesetDataZP 0xb0
+  #define charPointerZP 0xb2
+  #define scrPointerZP  0xb4
+  #define row1PointerZP 0xb4
+  #define row2PointerZP 0xb6 
 #endif
 
 // Byte size of screen elements
@@ -142,7 +142,7 @@ void InitCharmap(unsigned char col1, unsigned char col2, unsigned char row1, uns
 #if (defined __ATARI__) || (defined __CBM__)
 	screenData = (char*)(SCREENRAM + screenRow1*LINE_SIZE + screenCol1*CHR_WIDTH);
 #elif (defined __LYNX__) || (defined __ORIC__)
-	screenData = (char*)(BITMAPRAM + screenRow1*ROW_SIZE + screenCol1*CHR_WIDTH + 1);
+	screenData = (char*)(BITMAPRAM+1 + screenRow1*ROW_SIZE + screenCol1*CHR_WIDTH);
 #endif	
 	
 #if (defined __APPLE2__) || (defined __LYNX__) || (defined __ORIC__)
@@ -163,8 +163,8 @@ void InitCharmap(unsigned char col1, unsigned char col2, unsigned char row1, uns
 
 // Switch from Text mode to Charmap mode
 void ShowCharmap()
-{		
-#if (defined __APPLE2__) || (defined __LYNX__)
+{
+#if (defined __APPLE2__)
 	ShowBitmap();
 	
 #elif defined __ATARI__	
@@ -387,6 +387,15 @@ void LoadTileset(char *filename, unsigned int n, unsigned int w, unsigned int h)
 	decodeData = malloc(decodeWidth*decodeHeight);
 }
 
+void FreeCharmap()
+{
+#ifndef __ATARI__
+	if (charmapData) free(charmapData);	
+	if (charsetData) free(charsetData);
+#endif	
+	if (tilesetData) free(tilesetData);	
+}
+
 unsigned char GetFlag(unsigned char x, unsigned char y)
 {
 	// Get flags of specified tile
@@ -445,7 +454,7 @@ unsigned char *DecodeTiles(unsigned char x, unsigned char y)
 
 void ScrollCharmap(unsigned char x, unsigned char y)
 {
-#if defined(__APPLE2__) || defined(__ATARI__) || defined(__CBM__)  || defined(__ORIC__)	
+#if defined(__APPLE2__) || defined(__ATARI__) || defined(__CBM__) || defined(__LYNX__) || defined(__ORIC__)	
 	DrawCharmap(x,y);
 #else
 	unsigned char i, tmp;
@@ -489,12 +498,12 @@ void ScrollCharmap(unsigned char x, unsigned char y)
 	}
 	if (stepX) {
 		if (stepX < 0) {
-			cpyDst -= stepX*CHR_WIDTH;
+			cpyDst += (-stepX)*CHR_WIDTH;
 			scrollDirX = -1;
 		} else {
 			cpySrc += stepX*CHR_WIDTH;
 		}
-		scrollCols -= ABS(stepX);
+		scrollCols -= ABS(stepX)*CHR_WIDTH;
 	}
 	
 	// Copy screen area
@@ -563,11 +572,10 @@ void DrawCharmap(unsigned char x, unsigned char y)
 #if defined __APPLE2__
 	POKEW(charPointerZP, src);
   #if defined __DHR__
-	BlitCharmapDHR();
+	BlitCharmapDHR(); clk += 20;
   #else
-	BlitCharmapSHR();
+	BlitCharmapSHR(); clk += 10;
   #endif
-	clk += 20;
 #else
 	POKEW(charPointerZP, src);
 	POKEW(scrPointerZP, screenData);

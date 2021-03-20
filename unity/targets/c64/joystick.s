@@ -83,12 +83,12 @@ _joy4:
 	
 joy1:
 	lda 56321
-	and #%11011111          ; disable bit 5
+	;and #%11011111          ; disable bit 5
 	rts
 
 joy2:
 	lda 56320
-	and #%11011111          ; disable bit 5
+	;and #%11011111          ; disable bit 5
 	rts
 	
 joy3:
@@ -96,6 +96,7 @@ joy3:
 	sta USERPORT_DATA       ; (output one at PB7)
 	lda USERPORT_DATA       ; cia 2 port B read/write
 	and #$1f                ; get bit 4-0 (PB4-PB0)
+	ora #%00100000
 	rts
 
 joy4:
@@ -108,5 +109,6 @@ joy4:
 	and #%00100000          ; get bit 5 (PB5)
 	lsr
 	ora _joy4				; joy 4 button
+	ora #%00100000
 	rts
 .endproc

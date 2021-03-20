@@ -216,17 +216,17 @@ flickerFrames:
 showframe1:	
 	; Switch bitmap buffer 1
 	lda #$A0 
-	sta $0925
+	sta $0905
 	lda #$B0 
-	sta $098d	
+	sta $096d	
 	rts
 
 showframe2:	
 	; Switch bitmap buffer 2
 	lda #$70 
-	sta $0925
+	sta $0905
 	lda #$80 
-	sta $098d		
+	sta $096d		
 	rts
 
 ; ---------------------------------------------------------------

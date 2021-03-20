@@ -33,42 +33,45 @@
 ; ---------------------------------------------------------------	
 
 .proc _BitmapDLIST: near
+	lda #$00		; Lower addres of DLIST $0920 -> $0900
+	sta $0230
+	
 	lda #$4e	; Header
-	sta $0923
+	sta $0903
 	lda #$10
-	sta $0924
+	sta $0904
 	lda #$70
-	sta $0925
+	sta $0905
 	
 	lda #$0e
 	ldx #102
 loop1:
 	dex
-	sta $0926,x
+	sta $0906,x
 	bne loop1
 	
 	lda #$4e	; Change Video Address
-	sta $098b
+	sta $096b
 	lda #$00
-	sta $098c
+	sta $096c
 	lda #$80
-	sta $098d
+	sta $096d
 	
 	lda #$0e
 	ldx #97
 loop2:
 	dex
-	sta $098e,x
+	sta $096e,x
 	bne loop2
 
 	lda #$8e	; DLI
-	sta $09ee
+	sta $09ce
 	
 	lda #$41	; Footer
-	sta $09ef
+	sta $09cf
 	lda #$20
-	sta $09f0
+	sta $09d0
 	lda #$09
-	sta $09f1
+	sta $09d1
 	rts
 .endproc

@@ -66,7 +66,7 @@ void InitJoy(void)
 unsigned char GetJoy(unsigned char joy)
 {
 #if defined __ATARI__
-	return PEEK(0x0278+joy)+(PEEK(0x0284+joy)<<4);
+	return PEEK(0x0278+joy)+(PEEK(0x0284+joy)<<4)+JOY_BTN2;
 	
 #elif defined __LYNX__
 	// 2 input types: D-Pad (#0) or 8bit-Hub (#1,#2,#3)

@@ -69,7 +69,7 @@
 	ldx #0
 loopRows: 
 	cpx _scrollRows
-	bpl doneRows
+	beq doneRows
 
 	;-------------------------------
 	; Check horz scanning direction
@@ -82,7 +82,7 @@ loopRows:
 		ldy #0
 	loopColsRight:
 		cpy _scrollCols
-		bpl doneCols
+		beq doneCols
 		
 			; Copy 1 byte
 			lda (row1PointerZP),y

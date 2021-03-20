@@ -29,9 +29,9 @@
 	.import _screenHeight, _screenWidth
 	.import _charsetData, _blockWidth
 	
-charPointerZP = $b5
-scrPointerZP  = $b7
-charBlockZP	  = $b9
+charPointerZP = $b2
+scrPointerZP  = $b4
+charBlockZP	  = $b6
 	
 	.segment	"BSS"	
 	

@@ -55,12 +55,12 @@
   {
 	unsigned char i, line1, line2;
 	unsigned int addr;
-	addr = BITMAPRAM + row*320 + (col+1);
+	addr = BITMAPRAM+1 + row*320 + col;
 	line1 = ink1[color];
 	line2 = ink2[color];
 	for (i=0; i<4; ++i) {
-		POKE((char*)addr+i*80, line1);
-		POKE((char*)addr+i*80+40, line2);
+		POKE((char*)addr, line1); addr += 40;
+		POKE((char*)addr, line2); addr += 40;
 	}
   }
 #endif
@@ -198,20 +198,22 @@ void PrintChr(unsigned char col, unsigned char row, const char *chr)
 	POKE((char*)addr, inkColor << 4 | paperColor);
 #elif defined __LYNX__
 	// Set Character Pixels
-	unsigned char i;
+	unsigned char i, paperShift, inkShift;
 	unsigned int addr;
 	addr = BITMAPRAM+1 + row*(492) + col*2u;
-	POKE((char*)addr++, (paperColor << 4) | paperColor);
-	POKE((char*)addr,   (paperColor << 4) | paperColor);
+	paperShift = paperColor << 4;
+	inkShift = inkColor << 4;
+	POKE((char*)addr++, paperShift | paperColor);
+	POKE((char*)addr,   paperShift | paperColor);
 	addr += 81;
 	for (i=0; i<3; ++i) {
 		if (i!=1) {
-		  POKE((char*)addr++, ((chr[i]&128) ? inkColor : paperColor) << 4 | ((chr[i]&64) ? inkColor : paperColor));
-		  POKE((char*)addr,   ((chr[i]&32)  ? inkColor : paperColor) << 4 | paperColor);  
+		  POKE((char*)addr++, ((chr[i]&128) ? inkShift : paperShift) | ((chr[i]&64) ? inkColor : paperColor));
+		  POKE((char*)addr,   ((chr[i]&32)  ? inkShift : paperShift) | paperColor);  
 		  addr += 81;
 		}
-		POKE((char*)addr++, ((chr[i]&8) ? inkColor : paperColor) << 4 | ((chr[i]&4)  ? inkColor : paperColor));
-		POKE((char*)addr,   ((chr[i]&2) ? inkColor : paperColor) << 4 | paperColor);
+		POKE((char*)addr++, ((chr[i]&8) ? inkShift : paperShift) | ((chr[i]&4)  ? inkColor : paperColor));
+		POKE((char*)addr,   ((chr[i]&2) ? inkShift : paperShift) | paperColor);
 		addr += 81;
 	}	
 #endif

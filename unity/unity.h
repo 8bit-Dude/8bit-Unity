@@ -102,6 +102,7 @@ void LoadChunk(unsigned char** chunk, char *filename);
 void InitCharmap(unsigned char col1, unsigned char col2, unsigned char row1, unsigned char row2);
 void ShowCharmap(void);
 void HideCharmap(void);
+void FreeCharmap(void);
 void ClearCharmap(void);
 void LoadCharmap(char *filename, unsigned int w, unsigned int h);
 void LoadTileset(char *filename, unsigned int n, unsigned int w, unsigned int h);
@@ -114,7 +115,7 @@ unsigned char GetTile(unsigned char x, unsigned char y);
 unsigned char GetFlag(unsigned char x, unsigned char y);
 extern unsigned char screenCol1, screenCol2, screenWidth;
 extern unsigned char screenRow1, screenRow2, screenHeight;
-extern unsigned char worldWidth, worldHeight;
+extern unsigned char worldWidth, worldHeight, worldMaxX, worldMaxY;
 
 // Lynx specific functions (see Lynx/display.c)
 #if defined __LYNX__
