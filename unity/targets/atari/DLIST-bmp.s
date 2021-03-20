@@ -34,9 +34,15 @@
 
 .proc _BitmapDLIST: near
 	lda #$00		; Lower addres of DLIST $0920 -> $0900
-	sta $0230
+	sta $0230	
 	
-	lda #$4e	; Header
+header:
+	lda #$70		
+	sta $0900
+	sta $0901
+	sta $0902
+	
+	lda #$4e	
 	sta $0903
 	lda #$10
 	sta $0904
