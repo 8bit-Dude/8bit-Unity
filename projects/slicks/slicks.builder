@@ -141,7 +141,7 @@
         }, 
         "Lynx": {
             "spriteFrames": "18", 
-            "spriteWidth": "7", 
+            "spriteWidth": "8", 
             "spriteHeight": "9", 
             "musicMemory": "$0800", 
             "sharedMemory": "$0100", 
