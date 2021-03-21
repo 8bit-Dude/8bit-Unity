@@ -455,7 +455,7 @@ unsigned char *DecodeTiles(unsigned char x, unsigned char y)
 
 void ScrollCharmap(unsigned char x, unsigned char y)
 {
-#if defined(__APPLE2__) || defined(__ATARI__) || defined(__CBM__) || defined(__LYNX__) || defined(__ORIC__)	
+#if defined(__APPLE2__) || defined(__ATARI__) || defined(__CBM__) || defined(__ORIC__)	
 	DrawCharmap(x,y);
 #else
 	unsigned char i, tmp;

@@ -54,17 +54,8 @@ unsigned char UpdateMenu(unsigned char *actions)
 	unsigned char joy;
 	
 	// Process keyboard inputs
-	if (kbhit()) {
-		switch (cgetc()) {
-	#if defined(__LYNX__)
-		case KB_F:
-			SuzyFlip();
-			break;
-	#endif
-		case KB_P:
-			return KB_P;
-		}
-	}
+	if (kbhit())
+		return cgetc();
 
 	// Periodically flick cursor
 	if (clock()-cursorClock > 20) {
