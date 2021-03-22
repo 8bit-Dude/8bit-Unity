@@ -164,10 +164,6 @@ char CheckWaypoint(Vehicle *car)
 	return 0;
 }
 
-#ifdef __ATARIXL__
-  #pragma code-name("SHADOW_RAM")
-#endif
-
 int GetWaypointDistance(Vehicle *car)
 {
 	signed char dx, dy;	
@@ -176,6 +172,10 @@ int GetWaypointDistance(Vehicle *car)
 	dy = (car->y2 - way->y)/16u;	
 	return ABS(dx)+ABS(dy);
 }
+
+#ifdef __ATARIXL__
+  #pragma code-name("SHADOW_RAM")
+#endif
 
 int GetWaypointAngle(Vehicle *car)
 {
