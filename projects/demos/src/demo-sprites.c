@@ -11,19 +11,18 @@ extern const char keyNext;
 	#define spriteRows    5
 	unsigned char spriteColors[] = { };	//  Colors are pre-assigned in the sprite sheet
 	unsigned char inkColors[] = { BLUE, RED, GREEN, YELLOW };		// P1, P2, P3, P4
-#elif defined __ATARI__ //  5th color shared between all sprites
-	#define spriteFrames 16
+#elif defined __ATARI__
+	#define spriteFrames 18
 	#define spriteCols    8
-	#define spriteRows   13
-	unsigned char spriteColors[] = {0x88, 0x28, 0xba, 0xee, 0x00,   // 0-4: 1st color (car body)
-									0x08, 0x08, 0x08, 0x08, 0x00 };	// 5-8: 2nd color (car tires) Refer to atari palette in docs
+	#define spriteRows   10
+	unsigned char spriteColors[] = {0x86, 0xe4, 0x26, 0xe4, 0xb6, 0xe4, 0xe8, 0xe4, 0x00, 0x00, 0x00, 0x00 };   // 0,2,4,6: car body, 1,3,5,7: car tires
 	unsigned char inkColors[] = { BLUE, RED, GREEN, YELLOW };		// P1, P2, P3, P4
 #elif defined __ORIC__
 	#define spriteFrames 16
 	#define spriteCols   12
 	#define spriteRows    6
 	unsigned char spriteColors[] = { SPR_CYAN, SPR_MAGENTA, SPR_GREEN, SPR_WHITE, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC };	// Matching more or less with above
-	unsigned char inkColors[] = { CYAN, LPURPLE, LGREEN, GREY };		// P1, P2, P3, P4
+	unsigned char inkColors[] = { CYAN, LPURPLE, LGREEN, GREY };	// P1, P2, P3, P4
 #elif defined __CBM__
 	#define spriteFrames 16
 	#define spriteCols   12
@@ -49,7 +48,7 @@ int DemoSprites(void)
 {
 	unsigned char i, slot, frame;
 	unsigned int xpos, ypos, angle;
-	clock_t timer = clock();	
+	clock_t timer;	
 
 	// Initialize sfx/bitmap
 	InitSFX();
@@ -86,11 +85,13 @@ int DemoSprites(void)
 
 	// Enable sprites
 	for (i=0; i<4; i++) {
-		EnableSprite(i);
 	#if defined __ATARI__
-		EnableSprite(i+5);	// Also assign sprite for 2nd color (tires)
+		EnableSprite(2*i);
+		EnableSprite(2*i+1);
+	#else
+		EnableSprite(i);
 	#endif
-	}
+	}	
 
 	// Repeat until 'SPACE' is pressed
 	while (!kbhit () || cgetc () != keyNext) {
@@ -111,8 +112,8 @@ int DemoSprites(void)
 			#if defined __APPLE2__
 				SetSprite(i, frame+(i*16));	// Point to sprite data associated with each player color
 			#elif defined __ATARI__
-				SetSprite(i, frame);		// Body sprite using 1st color
-				SetSprite(i+5, frame+16);	// Tire sprite using 2nd color
+				SetSprite(2*i, frame);		// Body sprite using 1st color
+				SetSprite(2*i+1, frame+spriteFrames);	// Tire sprite using 2nd color
 			#else
 				SetSprite(i, frame);
 			#endif

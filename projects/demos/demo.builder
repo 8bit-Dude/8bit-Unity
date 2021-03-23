@@ -35,7 +35,7 @@
             "charsetDHR": [
                 "projects/demos/charsets/quedex-apple.png"
             ], 
-            "charsetSHR": [], 			
+            "charsetSHR": [], 
             "spritesDHR": [
                 "projects/demos/sprites/sprites-apple-dhr.png"
             ], 
@@ -51,9 +51,9 @@
             "networkDriver": "IP65(TCP/UDP)"
         }, 
         "Atari": {
-            "spriteFrames": "16", 
+            "spriteFrames": "18", 
             "spriteWidth": "8", 
-            "spriteHeight": "13", 
+            "spriteHeight": "10", 
             "bitmap": [
                 "projects/demos/bitmaps/banner-atari.png", 
                 "projects/demos/bitmaps/stadium-atari.png"
