@@ -152,7 +152,7 @@ void ProcessActors()
 				continue;
 
 			// Monster animation
-			selActor->frame += (toggleActor+slot)%2u;
+			selActor->frame += (toggleActor+slot)&1;
 			 
 			// Has detected player?
 			switch (selActor->state) {
@@ -258,7 +258,7 @@ void GenerateMonster(unsigned char mapX, unsigned char mapY)
 		return;		
 	
 	// Assign monster
-	monster = rand()%2;
+	monster = rand()&1;
 	switch (monster) {
 	case 0:
 		selActor->key    = KEY_SKELETON;
@@ -287,7 +287,7 @@ void GenerateReward(unsigned char mapX, unsigned char mapY)
 		return;	
 	
 	// Assign reward
-	reward = rand()%4;
+	reward = rand()&3;
 	if (reward<3) { 
 		selActor->state  = ACTOR_GOLD+reward;
 		selActor->key    = KEY_GOLD+reward;

@@ -11,7 +11,7 @@
 	#define spriteCols   8
 	#define spriteRows   18
 	unsigned char charColors[] = { 0x00, 0x0c, 0x78, 0x62, 0x12 };   // Black, White, Light Blue, Dark Blue, Red
-	unsigned char spriteColors[] = { 0x24, 0xc8, 0x0c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };  // Brown, Green (player), White (sword)
+	unsigned char spriteColors[] = { 0x24, 0xc8, 0x0c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };  // Brown, Green (player), White (sword)
 #elif defined __CBM__
 	#define spriteFrames 32
 	#define spriteCols   12
