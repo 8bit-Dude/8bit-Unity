@@ -111,7 +111,7 @@ int DemoSprites(void)
 			#if defined __APPLE2__
 				SetSprite(i, frame+(i*16));	// Point to sprite data associated with each player color
 			#elif defined __ATARI__
-				SetMulticolorSprite(2*i, frame); // Automatically assigns 2 sprite slots! (for car body and tires)
+				SetMultiColorSprite(2*i, frame); // Automatically assigns 2 sprite slots! (for car body and tires)
 			#else
 				SetSprite(i, frame);
 			#endif
