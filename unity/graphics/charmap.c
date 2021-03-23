@@ -96,10 +96,6 @@ unsigned char worldWidth, worldHeight, worldX, worldY, worldMaxX, worldMaxY;
 unsigned char screenCol1 = 0, screenCol2 = CMP_COLS, screenWidth = CMP_COLS;
 unsigned char screenRow1 = 0, screenRow2 = CMP_ROWS, screenHeight = CMP_ROWS;
 unsigned char lineBlock;
-#if defined __ATARI__	
-	extern unsigned char chrRows, bmpRows;
-	unsigned int bmpAddr;
-#endif
 
 // Drawing properties
 unsigned char blockWidth, decodeWidth, decodeHeight, *decodeData;

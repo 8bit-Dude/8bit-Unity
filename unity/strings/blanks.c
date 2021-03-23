@@ -60,10 +60,12 @@ void PrintBlanks(unsigned char col, unsigned char row, unsigned char width, unsi
 	while (i<height*8) {
 		if (i&1) {
 			memset((char*)addr1, bgByte2, width);
-			memset((char*)addr2, bgByte1, width);
+			if (bitmapVBI)
+				memset((char*)addr2, bgByte1, width);
 		} else {
 			memset((char*)addr1, bgByte1, width);
-			memset((char*)addr2, bgByte2, width);
+			if (bitmapVBI)
+				memset((char*)addr2, bgByte2, width);
 		}
 		addr1 += 40; addr2 += 40; ++i;
 	}	

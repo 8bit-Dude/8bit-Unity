@@ -29,7 +29,7 @@
 	.export _StartVBI, _swapPalette
 	.export _bitmapVBI, _charmapVBI, _spriteVBI
 			
-	.export _bmpToggle, _bmpRows, _bmpPalette
+	.export _bmpToggle, _bmpRows, _bmpPalette, _bmpAddr
 	.export _chrToggle, _chrRows, _chrPalette	
 	
 	.export _sprToggle, _sprRows, _sprPads, _sprDLIs, _sprBank, _sprDrawn
@@ -60,6 +60,7 @@ _spriteVBI:  .byte 0
 ; Bitmap paramerers
 _bmpToggle:  .byte 0
 _bmpRows:	 .byte 0
+_bmpAddr:	 .res  2
 _bmpPalette: .byte $00, $24, $86, $d8
 
 ; Charmap paramerers

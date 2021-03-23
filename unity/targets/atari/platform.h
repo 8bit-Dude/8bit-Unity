@@ -91,8 +91,9 @@ void BitmapDLIST(void);
 void CharmapDLIST(void);
 void StartDLI(void);
 void StartVBI(void);
-extern unsigned char bitmapVBI, charmapVBI, spriteVBI, bmpToggle, chrToggle, sprToggle;
+extern unsigned char bitmapVBI, charmapVBI, spriteVBI, bmpToggle, chrToggle, sprToggle, chrRows, bmpRows;
 extern unsigned char chrPalette[], bmpPalette[];
+extern unsigned int  bmpAddr;
 
 // Gfx functions (see blitCharmap.s)
 void __fastcall__ BlitCharmap(void);
