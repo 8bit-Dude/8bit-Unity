@@ -32,7 +32,8 @@
 	.export _bmpToggle, _bmpRows, _bmpPalette
 	.export _chrToggle, _chrRows, _chrPalette	
 	
-	.export _sprRows, _sprPads, _sprDLIs, _sprBank, _sprDrawn, _sprX, _sprY, _sprLine, _sprOff, _sprDst, _sprSrc, _sprColor
+	.export _sprToggle, _sprRows, _sprPads, _sprDLIs, _sprBank, _sprDrawn
+	.export _sprX, _sprY, _sprLine, _sprOff, _sprDst, _sprSrc, _sprColor
 		
 	.import _countDLI, _pokeyVBI, _posPM0, _colPM0
 
@@ -67,6 +68,7 @@ _chrRows:	 .byte 0
 _chrPalette: .res  5
 
 ; Sprite parameters
+_sprToggle: .byte 2
 _sprRows:   .byte 0
 _sprPads:   .res  1
 _sprDLIs:   .res  1
@@ -210,6 +212,14 @@ palette2:
 ; ---------------------------------------------------------------
 
 flickerSprites:
+
+	; Process only every other frame
+	lda _sprToggle
+	eor #$1
+	sta _sprToggle
+	bne processSprites
+	rts
+processSprites:
 
 	; Toggle between slot banks 0, 1, 2
 	inc _bank

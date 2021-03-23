@@ -208,7 +208,6 @@ void ClearCharmap()
 
 #elif defined __ATARI__
 	bzero((char*)SCREENRAM, 1000);
-	ClearBitmap();
 	
 #elif defined __CBM__
 	bzero((char*)SCREENRAM, 1000);

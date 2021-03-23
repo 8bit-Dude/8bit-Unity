@@ -121,22 +121,24 @@ void PrintChr(unsigned char col, unsigned char row, const char *chr)
 	
 #elif defined __ATARI__	
 	// Set Character across double buffer
-	unsigned char i;
+	unsigned char i,line;
 	unsigned int addr1,addr2;
 	inkColor1 = inkColor&3; inkColor2 = inkColor/4u;
 	paperColor1 = paperColor&3; paperColor2 = paperColor/4u;
 	bgByte1 = BYTE4(paperColor1,paperColor2,paperColor1,paperColor2);
 	bgByte2 = BYTE4(paperColor2,paperColor1,paperColor2,paperColor1);	
-	addr1 = BITMAPRAM1 + row*320 + col;
-	addr2 = BITMAPRAM2 + row*320 + col;
+	addr1 = addr2 = row*320 + col;
+	addr1 += BITMAPRAM1; addr2 += BITMAPRAM2;
 	if (chr == &charBlank[0]) {
 		for (i=0; i<8; ++i) {
 			if (i&1) {
 				POKE((char*)addr1, bgByte2);
-				POKE((char*)addr2, bgByte1);
+				if (bitmapVBI)
+					POKE((char*)addr2, bgByte1);
 			} else {
 				POKE((char*)addr1, bgByte1);
-				POKE((char*)addr2, bgByte2);
+				if (bitmapVBI)
+					POKE((char*)addr2, bgByte2);
 			}
 			addr1 +=40; addr2 +=40;
 		}
@@ -144,17 +146,21 @@ void PrintChr(unsigned char col, unsigned char row, const char *chr)
 		POKE((char*)addr1, bgByte1); addr1 +=40;
 		POKE((char*)addr2, bgByte2); addr2 +=40;
 		for (i=0; i<3; ++i) {
-			POKE((char*)addr2, BYTE4(((chr[i]&128) ? inkColor1 : paperColor1), ((chr[i]&64) ? inkColor2 : paperColor2), ((chr[i]&32) ? inkColor1 : paperColor1), paperColor2)); addr2 +=40;
-			POKE((char*)addr1, BYTE4(((chr[i]&128) ? inkColor2 : paperColor2), ((chr[i]&64) ? inkColor1 : paperColor1), ((chr[i]&32) ? inkColor2 : paperColor2), paperColor1)); addr1 +=40;
-			POKE((char*)addr1, BYTE4(((chr[i]&8  ) ? inkColor1 : paperColor1), ((chr[i]&4 ) ? inkColor2 : paperColor2), ((chr[i]&2 ) ? inkColor1 : paperColor1), paperColor2)); addr1 +=40;
-			POKE((char*)addr2, BYTE4(((chr[i]&8  ) ? inkColor2 : paperColor2), ((chr[i]&4 ) ? inkColor1 : paperColor1), ((chr[i]&2 ) ? inkColor2 : paperColor2), paperColor1)); addr2 +=40;
+			line = chr[i];
+			POKE((char*)addr1, BYTE4(((line&128) ? inkColor2 : paperColor2), ((line&64) ? inkColor1 : paperColor1), ((line&32) ? inkColor2 : paperColor2), paperColor1)); addr1 +=40;
+			POKE((char*)addr1, BYTE4(((line&8  ) ? inkColor1 : paperColor1), ((line&4 ) ? inkColor2 : paperColor2), ((line&2 ) ? inkColor1 : paperColor1), paperColor2)); addr1 +=40;
+			if (bitmapVBI) {
+				POKE((char*)addr2, BYTE4(((line&128) ? inkColor1 : paperColor1), ((line&64) ? inkColor2 : paperColor2), ((line&32) ? inkColor1 : paperColor1), paperColor2)); addr2 +=40;
+				POKE((char*)addr2, BYTE4(((line&8  ) ? inkColor2 : paperColor2), ((line&4 ) ? inkColor1 : paperColor1), ((line&2 ) ? inkColor2 : paperColor2), paperColor1)); addr2 +=40;
+			}
 		}
 		POKE((char*)addr1, bgByte2);
-		POKE((char*)addr2, bgByte1);
+		if (bitmapVBI)
+			POKE((char*)addr2, bgByte1);
 	}
 #elif defined __ORIC__
 	// Set Character inside 6*8 cell
-	unsigned char i;
+	unsigned char i, line;
 	unsigned char a0,a2,a4,b,blank;
 	unsigned int addr;
 	addr = BITMAPRAM+1 + row*320 + col;
@@ -172,14 +178,15 @@ void PrintChr(unsigned char col, unsigned char row, const char *chr)
 		}
 		POKE((char*)addr, blank); addr += 40;
 		for (i=0; i<3; ++i) {
-			POKE((char*)addr, BYTE4(1, ((chr[i]&128) ? a0 : b), ((chr[i]&64) ? a2 : b), ((chr[i]&32) ? a4 : b))); addr += 40;
-			POKE((char*)addr, BYTE4(1, ((chr[i]&8  ) ? a0 : b), ((chr[i]&4 ) ? a2 : b), ((chr[i]&2 ) ? a4 : b))); addr += 40;
+			line = chr[i];
+			POKE((char*)addr, BYTE4(1, ((line&128) ? a0 : b), ((line&64) ? a2 : b), ((line&32) ? a4 : b))); addr += 40;
+			POKE((char*)addr, BYTE4(1, ((line&8  ) ? a0 : b), ((line&4 ) ? a2 : b), ((line&2 ) ? a4 : b))); addr += 40;
 		}
 		POKE((char*)addr, blank);
 	}
 #elif defined __CBM__
 	// Set Character inside 4*8 cell
-	unsigned char i;
+	unsigned char i,line;
 	unsigned int addr;
 	addr = BITMAPRAM + row*320 + col*8;
 	if (chr == &charBlank[0]) {
@@ -187,8 +194,9 @@ void PrintChr(unsigned char col, unsigned char row, const char *chr)
 	} else {
 		POKE((char*)addr++, pow2);
 		for (i=0; i<3; ++i) {
-			POKE((char*)addr++, BYTE4(((chr[i]&128) ? 1 : 2), ((chr[i]&64) ? 1 : 2), ((chr[i]&32) ? 1 : 2), 2));
-			POKE((char*)addr++, BYTE4(((chr[i]&8  ) ? 1 : 2), ((chr[i]&4 ) ? 1 : 2), ((chr[i]&2 ) ? 1 : 2), 2));
+			line = chr[i];
+			POKE((char*)addr++, BYTE4(((line&128) ? 1 : 2), ((line&64) ? 1 : 2), ((line&32) ? 1 : 2), 2));
+			POKE((char*)addr++, BYTE4(((line&8  ) ? 1 : 2), ((line&4 ) ? 1 : 2), ((line&2 ) ? 1 : 2), 2));
 		}
 		POKE((char*)addr, pow2);
 	}
@@ -198,7 +206,7 @@ void PrintChr(unsigned char col, unsigned char row, const char *chr)
 	POKE((char*)addr, inkColor << 4 | paperColor);
 #elif defined __LYNX__
 	// Set Character Pixels
-	unsigned char i, paperShift, inkShift;
+	unsigned char i, line, paperShift, inkShift;
 	unsigned int addr;
 	addr = BITMAPRAM+1 + row*(492) + col*2u;
 	paperShift = paperColor << 4;
@@ -207,13 +215,14 @@ void PrintChr(unsigned char col, unsigned char row, const char *chr)
 	POKE((char*)addr,   paperShift | paperColor);
 	addr += 81;
 	for (i=0; i<3; ++i) {
+		line = chr[i];
 		if (i!=1) {
-		  POKE((char*)addr++, ((chr[i]&128) ? inkShift : paperShift) | ((chr[i]&64) ? inkColor : paperColor));
-		  POKE((char*)addr,   ((chr[i]&32)  ? inkShift : paperShift) | paperColor);  
+		  POKE((char*)addr++, ((line&128) ? inkShift : paperShift) | ((line&64) ? inkColor : paperColor));
+		  POKE((char*)addr,   ((line&32)  ? inkShift : paperShift) | paperColor);  
 		  addr += 81;
 		}
-		POKE((char*)addr++, ((chr[i]&8) ? inkShift : paperShift) | ((chr[i]&4)  ? inkColor : paperColor));
-		POKE((char*)addr,   ((chr[i]&2) ? inkShift : paperShift) | paperColor);
+		POKE((char*)addr++, ((line&8) ? inkShift : paperShift) | ((line&4)  ? inkColor : paperColor));
+		POKE((char*)addr,   ((line&2) ? inkShift : paperShift) | paperColor);
 		addr += 81;
 	}	
 #endif
@@ -264,16 +273,17 @@ void PrintStr(unsigned char col, unsigned char row, const char *buffer)
 		addr1 = SCREENRAM + 40*row + col;
 		addr2 = COLORRAM + 40*row + col;
 		for (i=0; i<len; i++) {
-			if (buffer[i] > 192)
-				chr = buffer[i]+32;		// Upper case (petscii)
+			chr = buffer[i];
+			if (chr > 192)
+				chr += 32;	// Upper case (petscii)
 			else 
-			if (buffer[i] > 96) 
-				chr = buffer[i]+128;	// Lower case (ascii)
+			if (chr > 96) 
+				chr += 128;	// Lower case (ascii)
 			else 
-			if (buffer[i] > 32) 
-				chr = buffer[i]+160;	// Lower case (petscii)
+			if (chr > 32) 
+				chr += 160;	// Lower case (petscii)
 			else
-				chr = buffer[i]+128;	// Icons
+				chr += 128;	// Icons
 			POKE(addr1++, chr);
 			POKE(addr2++, inkColor);
 		}		
