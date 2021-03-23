@@ -52,11 +52,10 @@ void GameInit(void)
 	LoadSprites("sprites.dat");
 	SetupSprites(spriteFrames, spriteCols, spriteRows, spriteColors);
 #if defined __ATARI__
-	EnableSprite(SPRITE_PLAYER0);
-	EnableSprite(SPRITE_PLAYER1);
+	EnableMultiColorSprite(SPRITE_PLAYER);
 #elif defined __ORIC__
-	EnableSprite(SPRITE_PLAYER);
 	MultiColorSprite(SPRITE_PLAYER, multiColorDef);
+	EnableSprite(SPRITE_PLAYER);
 #else
 	EnableSprite(SPRITE_PLAYER);
 #endif

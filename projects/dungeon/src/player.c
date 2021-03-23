@@ -100,8 +100,7 @@ void ProcessPlayer()
 	if (motion)
 		playerFrame += togglePlayer;
 #if defined __ATARI__
-	SetSprite(SPRITE_PLAYER0, playerFrame);		
-	SetSprite(SPRITE_PLAYER1, playerFrame+spriteFrames);		
+	SetMultiColorSprite(SPRITE_PLAYER, playerFrame);		
 #else
 	SetSprite(SPRITE_PLAYER, playerFrame);		
 #endif		

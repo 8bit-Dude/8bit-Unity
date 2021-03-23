@@ -21,8 +21,7 @@
 
 // Sprite slot assignments
 #if defined __ATARI__	
-	#define SPRITE_PLAYER0  0
-	#define SPRITE_PLAYER1  1
+	#define SPRITE_PLAYER   0		// Occupies 2 slots!
 	#define SPRITE_WEAPON   2
 	#define SPRITE_ACTOR    3
 	#define COLOR_GOLD 	   0xec
