@@ -239,7 +239,7 @@ void RecolorSprite(unsigned char index, unsigned char offset, unsigned char colo
 #elif defined __ATARI__
   void EnableMultiColorSprite(unsigned char index);
   void DisableMultiColorSprite(unsigned char index);
-  void SetMulticolorSprite(unsigned char index, unsigned int frame);
+  void SetMultiColorSprite(unsigned char index, unsigned int frame);
   void DoubleHeightSprite(unsigned char index, unsigned char onoff);
   extern unsigned char sprCushion;
 #elif defined __CBM__

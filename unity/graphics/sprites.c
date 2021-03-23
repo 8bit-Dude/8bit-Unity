@@ -66,7 +66,7 @@
 		DisableSprite(index++);
 		DisableSprite(index);		
 	}
-	void SetMulticolorSprite(unsigned char index, unsigned int frame) {
+	void SetMultiColorSprite(unsigned char index, unsigned int frame) {
 		SetSprite(index++, frame);
 		SetSprite(index, frame+sprFrames);
 	}
