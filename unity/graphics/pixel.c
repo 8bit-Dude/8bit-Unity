@@ -184,7 +184,7 @@ unsigned char GetPixel()
 #elif defined __LYNX__
 	unsigned int addr;
 	addr = BITMAPRAM + pixelY*82 + pixelX/2u + 1;
-	if (pixelX%2) { 
+	if (pixelX&1) { 
 		return (PEEK((char*)addr) & 15);
 	} else {
 		return (PEEK((char*)addr) & 240) >> 4;
@@ -211,7 +211,7 @@ void SetPixel(unsigned char color)
 	offset = (pixelY*40) + (pixelX/4u);
 	shift = 6 - 2*(pixelX&3);
 	mask = ~(3 << shift);
-	if ((pixelY+pixelX)%2) {
+	if ((pixelY+pixelX)&1) {
 		col2 = (color&3) << shift;
 		col1 = (color>>2) << shift;
 	} else {
@@ -297,7 +297,7 @@ void SetPixel(unsigned char color)
 	
 #elif defined __LYNX__
 	unsigned char* addr = (char*)BITMAPRAM + pixelY*82u + pixelX/2u + 1;
-	if (pixelX%2) { 
+	if (pixelX&1) { 
 		*addr &= 240;
 		*addr |= color;
 	} else {

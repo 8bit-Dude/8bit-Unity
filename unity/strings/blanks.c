@@ -58,7 +58,7 @@ void PrintBlanks(unsigned char col, unsigned char row, unsigned char width, unsi
 	bgByte1 = BYTE4(paperColor1,paperColor2,paperColor1,paperColor2);
 	bgByte2 = BYTE4(paperColor2,paperColor1,paperColor2,paperColor1);
 	while (i<height*8) {
-		if (i%2) {
+		if (i&1) {
 			memset((char*)addr1, bgByte2, width);
 			memset((char*)addr2, bgByte1, width);
 		} else {
@@ -72,8 +72,8 @@ void PrintBlanks(unsigned char col, unsigned char row, unsigned char width, unsi
 	unsigned int dataAux, dataMain;
 	
 	// Make sure columns start and end on full 7 pixel blocks
-	col = (col-col%2)/2u;
-	width = (width+width%2)/2u;
+	col = (col-(col&1))/2u;
+	width = (width+(width&1))/2u;
 	
 	// Create sample block at top-left (to encode color info)
 	x = 7*col;

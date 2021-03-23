@@ -30,6 +30,7 @@
 	.export _StopMusic
 	.export _SetupSFX
 	
+	.export _pokeyVBI
 	.export _musicVBI
 	.export _sfxVBI
 
@@ -39,6 +40,7 @@
 	.export _sampleFreq
 	.export _sampleCtrl
 	
+	.import _StartVBI
 	.import _disable_rom
 	.import _restore_rom	
 
@@ -97,20 +99,11 @@ _SetupSFX:
 	jsr _StartVBI
 	rts
 	
-_StartVBI:
-	; Setup vertical blank interrupt
-    lda #$07       	; deferred
-	ldx #(>VBI)	; install RMT VBI routine
-	ldy #(<VBI)	
-    jsr SETVBV
-	rts
-
 ; ---------------------------------------------------------------
 ; VBI routine
 ; ---------------------------------------------------------------
 
-VBI:
-	;-------------------
+_pokeyVBI:
 	; Process music?
 	lda _musicVBI
 	beq skipMusicVBI
@@ -184,5 +177,4 @@ skipMusicVBI:
 		bne loopY
 
 skipSFXVBI:
-	; Exit VBI
-	jmp XITVBV
+	rts

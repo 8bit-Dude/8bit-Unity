@@ -49,36 +49,34 @@ header:
 	lda #$70		
 	sta $0900
 	sta $0901
+	lda #$f0		
 	sta $0902
 	
-	lda #$44		
+setupChrAddr:	
+	lda #$c4		; DLI + Address + Text Mode
 	sta $0903
-	
 	lda #$50
 	sta $0904
-	
 	lda #$09
 	sta $0905
 	
 	ldx #0
-	lda #$04
+	lda #$84		; DLI + Text Mode
 loopCHR:
 	sta $0906,x
 	inx
 	cpx _chrRows
-	bne loopCHR
+	bcc loopCHR
 	
 checkSplit:	
 	lda _chrRows	; Is this a split screen?
 	cmp #24
-	beq setupDLI2
+	beq footer
 	
-setupDLI1:	
-	lda #$ce		; Trigger DLI
+setupBmpAddr:
+	lda #$ce		; DLI + Address + Hires Mode
 	sta $0906,x
 	inx
-	
-setupBMPAddr:
 	lda _bmpAddr
 	sta $0906,x
 	inx
@@ -86,17 +84,12 @@ setupBMPAddr:
 	sta $0906,x
 	inx
 	
-	lda #$0e
+	lda #$0e		; Hires Mode
 loopBMP:
 	sta $0906,x
 	inx
 	cpx _bmpRows
 	bne loopBMP
-	
-setupDLI2:	
-	lda #$8e		; Trigger DLI
-	sta $0906,x
-	inx
 	
 footer:	
 	lda #$41		; Footer
@@ -109,18 +102,5 @@ footer:
 
 	lda #$09
 	sta $0906,x
-	inx	
-	
-palette:
-	; Switch to CHR palette for the top of screen
-	lda _chrPalette+0
-	sta  colorSHADOW0
-	lda _chrPalette+1
-	sta  colorSHADOW1
-	lda _chrPalette+2
-	sta  colorSHADOW2
-	lda _chrPalette+3
-	sta  colorSHADOW3
-	lda _chrPalette+4
-	sta  colorSHADOW4	
+	rts
 .endproc

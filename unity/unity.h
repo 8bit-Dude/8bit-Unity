@@ -219,7 +219,7 @@ void PlaySFX(unsigned char index, unsigned char pitch, unsigned char volume, uns
 #if defined __APPLE2__
   #define SPRITE_NUM 8
 #elif defined __ATARI__
-  #define SPRITE_NUM 10
+  #define SPRITE_NUM 12
 #elif defined __ORIC__
   #define SPRITE_NUM 8
 #elif defined __CBM__
@@ -238,11 +238,13 @@ void RecolorSprite(unsigned char index, unsigned char offset, unsigned char colo
   void CropSprite(unsigned char index, unsigned char rows);
 #elif defined __ATARI__
   void DoubleHeightSprite(unsigned char index, unsigned char onoff);
+  extern unsigned char sprCushion;
 #elif defined __CBM__
   void DoubleHeightSprite(unsigned char index, unsigned char onoff);
   void DoubleWidthSprite(unsigned char index, unsigned char onoff);
 #elif defined __LYNX__
   void ScaleSprite(unsigned char index, unsigned int xPercent, unsigned int yPercent);
+  extern unsigned char sprCushion;
 #elif defined __ORIC__
   void CropSprite(unsigned char index, unsigned char rows);
   void MultiColorSprite(unsigned char index, unsigned char* multiColorDef);
@@ -256,10 +258,8 @@ void RecolorSprite(unsigned char index, unsigned char offset, unsigned char colo
 	extern unsigned char spriteX, spriteY;
 #endif
 
-// Sprite collisions: Hardware on Atari/C64 vs. Software on Apple/Oric/Lynx 
-#if defined __ATARI__	
-  #define COLLISIONS(i) PEEK(53260+i); POKE(53278,0)	// On Atari, reset collisions by poking 0 into 53278
-#elif defined __CBM__
+// Sprite collisions: Hardware on C64 vs. Software on Apple/Atari/Oric/Lynx 
+#if defined __CBM__
   #define COLLISIONS(i) (PEEK(53278))		// On C64, all collisions are contained within a single register
 #else
   extern unsigned char sprCollision[SPRITE_NUM];

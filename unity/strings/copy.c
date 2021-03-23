@@ -68,7 +68,7 @@ void CopyStr(unsigned char col1, unsigned char row1, unsigned char col2, unsigne
 	// Always copy 7 pixels at a time!
 	unsigned int src, dst;
 	unsigned char i, x1, y1, x2, y2;
-	col1 += col1%2; col2 += col2%2;	
+	col1 += col1&1; col2 += col2&1;	
 	x1 = (col1*35)/10u; y1 = (row1*8);
 	x2 = (col2*35)/10u; y2 = (row2*8);	
 	for (i=0; i<8; ++i) {

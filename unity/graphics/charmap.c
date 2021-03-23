@@ -97,7 +97,7 @@ unsigned char screenCol1 = 0, screenCol2 = CMP_COLS, screenWidth = CMP_COLS;
 unsigned char screenRow1 = 0, screenRow2 = CMP_ROWS, screenHeight = CMP_ROWS;
 unsigned char lineBlock;
 #if defined __ATARI__	
-	unsigned char chrRows, bmpRows;
+	extern unsigned char chrRows, bmpRows;
 	unsigned int bmpAddr;
 #endif
 
@@ -151,8 +151,8 @@ void InitCharmap(unsigned char col1, unsigned char col2, unsigned char row1, uns
 #elif defined __ATARI__	
 	// Charmap/Bitmap transition params
 	chrRows = row2-1;
-	bmpRows = 3 + chrRows + 8*(CMP_ROWS-row2);
-	bmpAddr = BITMAPRAM1 + row2*8*40;
+	bmpRows = chrRows + 8*(CMP_ROWS-row2) + 2;
+	bmpAddr = BITMAPRAM1 + row2*(8*40);
 	InitBitmap();
 		
 #elif defined __CBM__
@@ -168,18 +168,8 @@ void ShowCharmap()
 	ShowBitmap();
 	
 #elif defined __ATARI__	
-	// Setup Charmap Page and DLIST
-	POKE(0x02f4, 0xa0);	
-	CharmapDLIST();
-	
-	// Start Graphics DLI
-	StartDLI();
-
-	// Enable Charmap DLI for split screens
-	if (chrRows < CMP_ROWS) {
-		waitvsync();
-		charmapDLI = 1;
-	}
+	// Setup DLIST and VBI
+	CharmapDLIST();	charmapVBI = 1;
 
 	// ANTIC: DMA Screen
 	POKE(559, PEEK(559)|32);	
@@ -198,11 +188,8 @@ void HideCharmap()
 	HideBitmap();
 	
 #elif defined __ATARI__	
-	// Disable Charmap DLI for split screens
-	if (chrRows < CMP_ROWS) {
-		waitvsync();
-		charmapDLI = 0;
-	}
+	// Disable VBI
+	charmapVBI = 0;
 	
     // Switch off screen DMA
 	POKE(559, PEEK(559)&~32);
@@ -220,9 +207,8 @@ void ClearCharmap()
 	ClearBitmap();
 
 #elif defined __ATARI__
-	ClearBitmap();
 	bzero((char*)SCREENRAM, 1000);
-	bzero((char*)0x8e10, 320);
+	ClearBitmap();
 	
 #elif defined __CBM__
 	bzero((char*)SCREENRAM, 1000);
@@ -402,7 +388,7 @@ unsigned char GetFlag(unsigned char x, unsigned char y)
 	unsigned char chr;
 	if (tilesetData) {
 		chr = charmapData[charmapWidth*(y/2u) + x/2u];
-		chr = tilesetData[4*chr+(2*(y%2))+x%2];
+		chr = tilesetData[4*chr+(2*(y&1))+(x&1)];
 	} else {
 		chr = charmapData[charmapWidth*y + x];
 	}
@@ -450,7 +436,7 @@ unsigned char *DecodeTiles(unsigned char x, unsigned char y)
 	}
 	
 	// Assign offset area of screen buffer
-	return &decodeData[decodeWidth*(y%2)+x%2];	
+	return &decodeData[decodeWidth*(y&1)+(x&1)];	
 }
 
 void ScrollCharmap(unsigned char x, unsigned char y)

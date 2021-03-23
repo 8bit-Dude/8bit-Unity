@@ -38,12 +38,12 @@
 #define SCREENRAM  (0x0950) // 0940-0cff (text mode data)
 #define BITMAPRAM1 (0x7010) // 7010-8f50 (bitmap frame 1)
 #define BITMAPRAM2 (0xa010) // a010-bf50 (bitmap frame 2)
-#define CHARMAPRAM (0x7000) // 7000-7fff (character map)
-#define CHARSETRAM (0xa000) // a000-a3ff (character set)
-#define CHARATRRAM (0xa400) // a400-a47f (character col atr)
-#define CHARFLGRAM (0xa480) // a480-a4ff (character flags)
+#define CHARSETRAM (0xa000) // a000-a3ff (char Set)
+#define CHARATRRAM (0xa400) // a400-a47f (char Attributes)
+#define CHARFLGRAM (0xa480) // a480-a4ff (char Flags)
+#define CHARMAPRAM (0xa500) // a500-bfff (character map)
 #define RMTPLAYER  (0x90e0) // 90e0-9a4d (RMT music player; JSR to 0x9400) (overlaps with unused part of PMGRAM)
-#define PMGRAM     (0x9800) // 9800-9fff (player missile memory)
+#define PMGRAM     (0x9c00) // 9c00-9fff (player/missile memory)
 #define MUSICRAM   (0xc000) // c000-cbff (RMT sound track)
 
 // Text Mode
@@ -90,12 +90,9 @@ void FileRead(void* buf, unsigned int len);
 void BitmapDLIST(void);
 void CharmapDLIST(void);
 void StartDLI(void);
-extern unsigned char bitmapDLI;
-extern unsigned char charmapDLI;
-extern unsigned char spriteDLI;
-extern unsigned char chrPalette[];
-extern unsigned char bmpPalette[];
-extern unsigned char frameBlending;
+void StartVBI(void);
+extern unsigned char bitmapVBI, charmapVBI, spriteVBI, chrToggle, bmpToggle;
+extern unsigned char chrPalette[], bmpPalette[];
 
 // Gfx functions (see blitCharmap.s)
 void __fastcall__ BlitCharmap(void);

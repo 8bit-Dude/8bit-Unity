@@ -75,7 +75,7 @@ void PrintChr(unsigned char col, unsigned char row, const char *chr)
 	// Set Character over 3/4 pixels out of 7 in a cell
 	unsigned int x,y;
 	unsigned char i,j,n;
-	if (col%2) { n=4; } else { n=3; }
+	if (col&1) { n=4; } else { n=3; }
 	x = (col*35)/10u; y = (row*8);
 	SetHiresPointer(x, y);	
 	for (j=0; j<n; j++) {
@@ -131,7 +131,7 @@ void PrintChr(unsigned char col, unsigned char row, const char *chr)
 	addr2 = BITMAPRAM2 + row*320 + col;
 	if (chr == &charBlank[0]) {
 		for (i=0; i<8; ++i) {
-			if (i%2) {
+			if (i&1) {
 				POKE((char*)addr1, bgByte2);
 				POKE((char*)addr2, bgByte1);
 			} else {

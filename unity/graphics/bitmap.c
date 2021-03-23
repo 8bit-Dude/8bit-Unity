@@ -68,7 +68,10 @@ void InitBitmap()
 	SetPalette();
 	
 	// Switch OFF ANTIC
-	POKE(559, 2);	
+	POKE(559, 2);
+
+	// Setup DLI/VBI
+	StartDLI(); StartVBI();		
 	
 #elif defined __ORIC__
 	// Switch to Hires mode
@@ -95,13 +98,8 @@ void ShowBitmap()
 	POKE(0xD011, PEEK(0xD011)|32);		
 	
 #elif defined __ATARI__
-	// Setup DLIST
-	BitmapDLIST();	
-  #if defined __ATARIXL__
-	// Setup frame flicker DLI (only on XL)
-	bitmapDLI = 1; StartDLI();	
-  #endif
-	// ANTIC: DMA Screen
+	// Setup DLIST and screen DMA
+	BitmapDLIST(); bitmapVBI = 1;
 	POKE(559, PEEK(559)|32);
 	
 #elif defined __APPLE2__
@@ -123,9 +121,9 @@ void HideBitmap()
 	ResetVIC2();
 		
 #elif defined __ATARI__
-    // Switch screen DMA and DLI
+    // Switch off VBI and screen DMA
+	bitmapVBI = 0;
 	POKE(559, PEEK(559)&~32);
-	bitmapDLI = 0; 
 	
 #elif defined __APPLE2__
     // Switch OFF Double Hi-Res Mode
@@ -159,7 +157,7 @@ void ClearBitmap()
 	unsigned char y;
 	memset((char*)BITMAPRAM, 64, 8000);	
     for (y=0; y<200; y++)
-		POKE((char*)BITMAPRAM+y*40, (y%2) ? 6 : 3);
+		POKE((char*)BITMAPRAM+y*40, (y&1) ? 6 : 3);
 
 #elif defined __CBM__
 	bzero((char*)BITMAPRAM, 8000);

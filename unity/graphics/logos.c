@@ -84,7 +84,7 @@ void PrintLogo(unsigned char col, unsigned char row, unsigned char index)
 	unsigned char i,j,n;
 	
 	// Compute location of character
-	if (col%2) { n=4; } else { n=3; }
+	if (col&1) { n=4; } else { n=3; }
 	x = (col*35)/10u; y = (row*8);
 	
 	// Set character over 3/4 pixels out of 7 in a cell

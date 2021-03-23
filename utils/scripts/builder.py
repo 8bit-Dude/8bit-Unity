@@ -929,7 +929,7 @@ class Application:
             # Build Unity Library
             cTarget = ['targets\\atari\\directory.c',   'targets\\atari\\files.c']
             sTarget = ['targets\\atari\\blitCharmap.s', 'targets\\atari\\decrunch.s',  'targets\\atari\\DLIST-bmp.s', 'targets\\atari\\DLIST-chr.s', 
-                       'targets\\atari\\DLI.s',         'targets\\atari\\ROM.s',       'targets\\atari\\xbios.s']
+                       'targets\\atari\\DLI.s',         'targets\\atari\\ROM.s',       'targets\\atari\\VBI.s',       'targets\\atari\\xbios.s']
             if self.Combobox_AtariNetworkDriver.get() == 'Fujinet':    
                 cTarget.append('targets\\atari\\fujinet.c')
                 sTarget.append('targets\\atari\\fujiIRQ.s')
