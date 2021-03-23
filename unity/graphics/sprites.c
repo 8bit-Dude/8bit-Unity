@@ -57,12 +57,24 @@
 	extern unsigned char sprDrawn[SPRITE_NUM], sprX[SPRITE_NUM], sprY[SPRITE_NUM];
 	extern unsigned char sprLine[SPRITE_NUM], sprOff[SPRITE_NUM], sprColor[SPRITE_NUM];
 	extern unsigned int  sprSrc[SPRITE_NUM], sprDst[SPRITE_NUM];
-	unsigned char *sprData, sprYOffset, sprCollision[SPRITE_NUM], sprCushion = 2;
+	unsigned char *sprData, sprFrames, sprYOffset, sprCollision[SPRITE_NUM], sprCushion = 2;
+	void EnableMultiColorSprite(unsigned char index) {
+		EnableSprite(index++);
+		EnableSprite(index);
+	}
+	void DisableMultiColorSprite(unsigned char index) {
+		DisableSprite(index++);
+		DisableSprite(index);		
+	}
+	void SetMulticolorSprite(unsigned char index, unsigned int frame) {
+		SetSprite(index++, frame);
+		SetSprite(index, frame+sprFrames);
+	}
 	void DoubleHeightSprite(unsigned char index, unsigned char onoff) {
 		//extern unsigned char doubleHeight[10];
 		//doubleHeight[index] = onoff;
 		//if (onoff) sprYOffset = sprRows+2; else sprYOffset = sprRows/2+2;
-	} 
+	}
 
 #elif defined __ORIC__	
 	#define byteWIDTH 2		// Byte width of sprite (12 pixels)
@@ -174,6 +186,7 @@ void SetupSprites(unsigned int frames, unsigned char cols, unsigned char rows, u
 	sprDLIs = (rows+15)>>3;
 	sprPads = sprDLIs*8;
 	sprYOffset = (rows/2u)+2;
+	sprFrames = frames;
 
 	// Clear all PMG memory
 	bzero(PMGRAM,0x400);
