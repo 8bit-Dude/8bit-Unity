@@ -87,7 +87,7 @@ unsigned char *names[4] = { "SAM", "JOE", "TOM", "LUC" };
 #elif defined __ATARI__
 	#define spriteCols   8
 	#define spriteRows   13
-	unsigned char spriteColors[] = { 0x2a, 0x2a, 0x2a, 0x2a, 0x14, 0x10, 0x10, 0x10, 0x10, 0x10};
+	unsigned char spriteColors[] = { 0x2a, 0x10, 0x2a, 0x10, 0x2a, 0x10, 0x2a, 0x10, 0x0e, 0x14, 0x00, 0x00};
 #elif defined __ORIC__
 	#define spriteCols   12
 	#define spriteRows   13
@@ -174,11 +174,12 @@ void InitGrubs()
 			LocatePixel(grub->x, grub->y+GRND_OFFST);
 		}
 		LocateSprite(grub->x, grub->y);
+	#if defined __ATARI__
+		SetMultiColorSprite(2*grub->index, 0);
+		EnableMultiColorSprite(2*grub->index);
+	#else
 		SetSprite(grub->index, 0);
 		EnableSprite(grub->index);
-	#if defined __ATARI__
-		SetSprite(5+grub->index, 16);	// Frame 0-3 shows body colour, Frame 5-8 shows outline of body
-		EnableSprite(5+grub->index);
 	#endif		
 		
 		// Print name/health
@@ -208,18 +209,18 @@ void DrawGrub(Grub *grub)
 		SetSprite(grub->index, grub->keyFrame+grub->motionFrame);	
 		SetSprite(0, grub->weapFrame);
 		EnableSprite(0);
+	#elif defined __ATARI__
+		SetMultiColorSprite(2*grub->index, grub->weapFrame);
 	#else
 		SetSprite(grub->index, grub->weapFrame);	
-	  #if defined __ATARI__
-		SetSprite(grub->index+5, grub->weapFrame+16);
-	  #endif	
 	#endif	
 	} else {
-		SetSprite(grub->index, grub->keyFrame+grub->motionFrame);	
-	#if defined __ATARI__
-		SetSprite(grub->index+5, grub->keyFrame+grub->motionFrame+16);
-	#elif defined __CBM__
+	#if defined __CBM__
 		DisableSprite(0);
+	#elif defined __ATARI__
+		SetMultiColorSprite(2*grub->index, grub->keyFrame+grub->motionFrame);
+	#else
+		SetSprite(grub->index, grub->keyFrame+grub->motionFrame);	
 	#endif	
 	}
 }
@@ -486,11 +487,12 @@ void ProcessProj(Proj *proj)
 			break;
 		case PROJ_LOAD:
 			LocateSprite(proj->x, proj->y);
-			SetSprite(proj->index, KEYFRAME_PROJ);		
+		#if defined __ATARI__ 
+			SetMultiColorSprite(2*proj->index, KEYFRAME_PROJ);
+			EnableMultiColorSprite(2*proj->index);
+		#else
+			SetSprite(proj->index, KEYFRAME_PROJ);
 			EnableSprite(proj->index);
-		#if defined __ATARI__ 	// Assign sprite for second color
-			SetSprite(proj->index+5, KEYFRAME_PROJ+16);		
-			EnableSprite(proj->index+5);
 		#endif
 			break;
 		case PROJ_MOVE:
@@ -504,18 +506,20 @@ void ProcessProj(Proj *proj)
 				// Gone too far left/right/down?
 				if (x < 1 || x > 318 || y > 191) {
 					proj->state = PROJ_NULL;
-					DisableSprite(proj->index);
 				#if defined __ATARI__ 
-					DisableSprite(5+proj->index);
+					DisableMultiColorSprite(2*proj->index);
+				#else
+					DisableSprite(proj->index);
 				#endif
 					NextGrub();
 					return;
 				}
 				// Disappeared at top of screen?
 				if (y < 1) {
-					DisableSprite(proj->index);
 				#if defined __ATARI__ 
-					DisableSprite(5+proj->index);
+					DisableMultiColorSprite(2*proj->index);
+				#else
+					DisableSprite(proj->index);
 				#endif
 					continue;
 				}
@@ -524,9 +528,10 @@ void ProcessProj(Proj *proj)
 				if (GetPixel() != SKY) { // || (COLLISIONS(proj->index) && !COLLISIONS(proj->owner))) {
 					// Destroy proj. and process explosion
 					proj->state = PROJ_NULL;
-					DisableSprite(proj->index);
 				#if defined __ATARI__ 
-					DisableSprite(5+proj->index);
+					DisableMultiColorSprite(2*proj->index);
+				#else
+					DisableSprite(proj->index);
 				#endif
 					Explosion(x, y);
 					NextGrub();
@@ -534,11 +539,12 @@ void ProcessProj(Proj *proj)
 				} else {
 					// Move proj. to next trajectory point
 					LocateSprite(x, y);
+				#if defined __ATARI__ 
+					SetMultiColorSprite(2*proj->index, KEYFRAME_PROJ);
+					EnableMultiColorSprite(2*proj->index);				
+				#else
 					SetSprite(proj->index, KEYFRAME_PROJ);
 					EnableSprite(proj->index);
-				#if defined __ATARI__ 
-					SetSprite(5+proj->index, KEYFRAME_PROJ+16);		
-					EnableSprite(5+proj->index);
 				#endif
 				}
 				fraction++;
