@@ -86,8 +86,7 @@ int DemoSprites(void)
 	// Enable sprites
 	for (i=0; i<4; i++) {
 	#if defined __ATARI__
-		EnableSprite(2*i);
-		EnableSprite(2*i+1);
+		EnableMultiColorSprite(2*i);
 	#else
 		EnableSprite(i);
 	#endif
@@ -112,8 +111,7 @@ int DemoSprites(void)
 			#if defined __APPLE2__
 				SetSprite(i, frame+(i*16));	// Point to sprite data associated with each player color
 			#elif defined __ATARI__
-				SetSprite(2*i, frame);		// Body sprite using 1st color
-				SetSprite(2*i+1, frame+spriteFrames);	// Tire sprite using 2nd color
+				SetMulticolorSprite(2*i, frame); // Automatically assigns 2 sprite slots! (for car body and tires)
 			#else
 				SetSprite(i, frame);
 			#endif
