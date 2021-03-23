@@ -105,8 +105,8 @@
                 "projects/slicks/music/speednik-atari.rmt"
             ], 
             "chunks": [], 
-            "diskSize": "180KB", 
-            "crunchAssets": "Yes", 
+            "diskSize": "360KB", 
+            "crunchAssets": "No", 
             "networkDriver": "IP65(UDP)"
         }, 
         "C64": {

@@ -47,21 +47,36 @@
 // Interface definitions
 #define ROW_CHAT (TXT_ROWS-2)
 
+// Sprite definitions
+#if defined __APPLE2__
+  #define spriteFrames 64
+#elif defined __ATARI__
+  #define spriteFrames 18
+#elif defined __ORIC__
+  #define spriteFrames 17
+#elif defined __CBM__
+  #define spriteFrames 18
+#elif defined __LYNX__
+  #define spriteFrames 18
+#endif
+
+#if defined __ATARI__
+  #define SPR2_SLOT 8
+#else
+  #define SPR2_SLOT 4
+#endif
+
 // Controller definitions
 #if defined __APPLE2__
   #define LEN_CONTROL 9
 #elif defined __ATARI__
   #define LEN_CONTROL 9
-  #define SPR2_SLOT   7
 #elif defined __CBM__
   #define LEN_CONTROL 9
-  #define SPR2_SLOT   4  
 #elif defined __LYNX__
   #define LEN_CONTROL 9
-  #define SPR2_SLOT   4
 #elif defined __ORIC__
   #define LEN_CONTROL 9
-  #define SPR2_SLOT   4
 #endif
 #define NET_CONTROL (LEN_CONTROL-1)
 
@@ -145,6 +160,7 @@ void GameMenu(void);
 // See navigation.c
 void LoadNavigation(char *filename);
 void ResetLineUp(void);
+void GetWaypoint(Vehicle *car);
 int GetWaypointDistance(Vehicle *car);
 int GetWaypointAngle(Vehicle *car);
 char CheckWaypoint(Vehicle *car);

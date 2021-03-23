@@ -74,16 +74,18 @@ void LoadNavigation(char *filename)
 void ResetLineUp()
 {
 	unsigned char i,j;
+	Vehicle *car;
 	for (i=0; i<MAX_PLAYERS; ++i) {
 		j = gameLineUp[i];
-		cars[i].x2 =   lineupX[j]; 
-		cars[i].y2 =   lineupY[j];
-		cars[i].ang1 = lineupAng[j];
-		cars[i].ang2 = lineupAng[j];
-		cars[i].vel = 0;		
-        cars[i].way = 0;
-        cars[i].lap = -1;
-        cars[i].joy = 0;             
+		car = &cars[i];
+		car->x2 =   lineupX[j]; 
+		car->y2 =   lineupY[j];
+		car->ang1 = lineupAng[j];
+		car->ang2 = lineupAng[j];
+		car->vel = 0;		
+        car->way = 0;
+        car->lap = -1;
+        car->joy = 0;             
 	}
 }
 
@@ -107,13 +109,6 @@ char CheckRamps(Vehicle *car)
 // Functions to check navigation around cylinders
 signed char v1[2], v2[2], dist[2], cross[2], *vWay;
 Waypoint *way;
-
-void GetWaypoint(Vehicle *car)
-{
-	// Prepare waypoint variables
-	way = &ways[car->way/2u];
-	vWay = way->v[car->way%2];
-}
 
 char CheckWaypoint(Vehicle *car)
 {
@@ -173,10 +168,6 @@ int GetWaypointDistance(Vehicle *car)
 	return ABS(dx)+ABS(dy);
 }
 
-#ifdef __ATARIXL__
-  #pragma code-name("SHADOW_RAM")
-#endif
-
 int GetWaypointAngle(Vehicle *car)
 {
 	unsigned char dx = 128, dy = 128;	
@@ -184,4 +175,11 @@ int GetWaypointAngle(Vehicle *car)
 	dx += (way->x + 8*vWay[0] - car->x2)/16u;
 	dy -= (way->y + 8*vWay[1] - car->y2)/16u;
 	return (45*(unsigned int)atan2(dy,dx))/32u;
+}
+
+void GetWaypoint(Vehicle *car)
+{
+	// Prepare waypoint variables
+	way = &ways[car->way/2u];
+	vWay = way->v[car->way&1];
 }

@@ -133,7 +133,7 @@ void GameReset()
 		spriteY = (cars[i].y2*3u)/25u;
 	#elif defined __ATARI__
 		spriteX = cars[i].x2/16u + 45; 
-		spriteY = cars[i].y2/8u + 32;		
+		spriteY = cars[i].y2/8u;		
 	#elif defined __ORIC__
 		spriteX = cars[i].x2/32u;	
 		spriteY = cars[i].y2/8u;			
@@ -144,8 +144,13 @@ void GameReset()
 		spriteX = cars[i].x2/16u; 
 		spriteY = cars[i].y2/16u;
 	#endif
+	#if defined __ATARI__
+		SetMultiColorSprite(2*i, f);
+		EnableMultiColorSprite(2*i);
+	#else
 		SetSprite(i, f);
 		EnableSprite(i);
+	#endif
     }
     
 	// Display warmup message
@@ -261,20 +266,19 @@ unsigned char GameRace()
 		LocateSprite(LIGHT_X+(i-SPR2_SLOT)*LIGHT_SP, LIGHT_Y);
 	#if defined __ATARI__ 
 		RecolorSprite(i, 0, 0x08);
-		SetSprite(i, 16);
 	#elif defined __ORIC__ 
 		RecolorSprite(i, 0, SPR_AIC);
-		SetSprite(i, 16);
 	#elif defined __CBM__
 		RecolorSprite(i, 0, LGREY);
-		SetSprite(i, 16);
 	#elif defined __LYNX__
 		RecolorSprite(i, 7, 0xef);
-		SetSprite(i, 16);
-		UpdateDisplay();
 	#endif		
+		SetSprite(i, 16);
         EnableSprite(i);
     }
+  #if defined __LYNX__	
+	UpdateDisplay();
+  #endif			
 #endif	
 
 	// Platform dependent delay
@@ -294,14 +298,14 @@ unsigned char GameRace()
     // Red light
 #if defined __ORIC__ 
 	LocateSprite(LIGHT_X, 24);	
-	RecolorSprite(4, 0, SPR_RED);
-	SetSprite(4, 16);
+	RecolorSprite(SPR2_SLOT, 0, SPR_RED);
+	SetSprite(SPR2_SLOT, 16);
 #elif defined __ATARI__  
-	RecolorSprite(7, 0, 0x22);  
+	RecolorSprite(SPR2_SLOT, 0, 0x22);  
 #elif defined __CBM__  
-	RecolorSprite(4, 0, RED);  
+	RecolorSprite(SPR2_SLOT, 0, RED);  
 #elif defined __LYNX__
-	RecolorSprite(4, 7, 0xbf);
+	RecolorSprite(SPR2_SLOT, 7, 0xbf);
 	UpdateDisplay();
 #endif	
 	BleepSFX(64); 
@@ -314,14 +318,14 @@ unsigned char GameRace()
     // Orange light	
 #if defined __ORIC__ 
 	LocateSprite(LIGHT_X+LIGHT_SP, 24);	
-	RecolorSprite(5, 0, SPR_RED);
+	RecolorSprite(SPR2_SLOT+1, 0, SPR_RED);
 	SetSprite(5, 16);	
 #elif defined __ATARI__  
-	RecolorSprite(8, 0, 0x1a);  
+	RecolorSprite(SPR2_SLOT+1, 0, 0x1a);  
 #elif defined __CBM__  
-	RecolorSprite(5, 0, ORANGE);  
+	RecolorSprite(SPR2_SLOT+1, 0, ORANGE);  
 #elif defined __LYNX__
-	RecolorSprite(5, 7, 0x8f);	
+	RecolorSprite(SPR2_SLOT+1, 7, 0x8f);	
 	UpdateDisplay();
 #endif	
 	BleepSFX(64); 
@@ -334,14 +338,14 @@ unsigned char GameRace()
     // Green light
 #if defined __ORIC__ 
 	LocateSprite(LIGHT_X+2*LIGHT_SP, 24);	
-	RecolorSprite(6, 0, SPR_GREEN);
-	SetSprite(6, 16);	
+	RecolorSprite(SPR2_SLOT+2, 0, SPR_GREEN);
+	SetSprite(SPR2_SLOT+2, 16);	
 #elif defined __ATARI__  
-	RecolorSprite(9, 0, 0xc4);  
+	RecolorSprite(SPR2_SLOT+2, 0, 0xc4);  
 #elif defined __CBM__  
-	RecolorSprite(6, 0, GREEN);  
+	RecolorSprite(SPR2_SLOT+2, 0, GREEN);  
 #elif defined __LYNX__
-	RecolorSprite(6, 7, 0x4f);	
+	RecolorSprite(SPR2_SLOT+2, 7, 0x4f);	
 	UpdateDisplay();
 #endif
 	BleepSFX(128); 
@@ -417,7 +421,7 @@ char GameLoop()
 {		
 	// Game Management
 	Vehicle *car;
-#if (defined __C64__) || (defined __LYNX__)
+#if (defined __ATARI__) || (defined __C64__) || (defined __LYNX__)
 	unsigned char sprShadow;
 #endif
 	int iX, iY, iVel, iVelMax, iAng1, iAng2, iCos, iSin, iTmp, steps;
@@ -466,14 +470,14 @@ char GameLoop()
 		#if defined __APPLE2__
 			// Regulate clock approximately...
 			if (gameMode == MODE_ONLINE) {
-			  #if define __DHR_	
+			  #if defined __DHR_	
 				if (gameFrame%3) { clk += 1; } else { clk += 2; }
 			  #else
-				if (gameFrame%4) { clk += 1; } else { clk += 2; }
+				if (gameFrame&3) { clk += 1; } else { clk += 2; }
 			  #endif
 			} else {
-			  #if define __DHR_	
-				if (gameFrame%4) { clk += 2; } else { clk += 1; }
+			  #if defined __DHR_	
+				if (gameFrame&3) { clk += 2; } else { clk += 1; }
 			  #else
 				if (gameFrame%3) { clk += 2; } else { clk += 1; }
 			  #endif
@@ -651,7 +655,7 @@ char GameLoop()
 			spriteY = (iY*3)/25u;
 		#elif defined __ATARI__
 			spriteX = iX/16u + 45; 
-			spriteY = iY/8u + 32;
+			spriteY = iY/8u;
 		#elif defined __ORIC__
 			spriteX = iX/32u;	
 			spriteY = iY/8u;							
@@ -678,17 +682,8 @@ char GameLoop()
 			}
 
 			// Display sprite
-		#if (defined __ATARI__)
-			iTmp = 4+5*(i%2);
-		#endif
 			if (iJmp) {
-			#if (defined __ATARI__)
-				SetSprite(iTmp, 17);	// Display shadow Sprite
-				EnableSprite(iTmp);
-				spriteY -= 2;		    // Offset player sprite vertically
-			} else {
-				DisableSprite(iTmp); 
-			#elif (defined __C64__) || (defined __LYNX__)
+			#if (defined __ATARI__) || (defined __C64__) || (defined __LYNX__)
 				sprShadow |= (1<<i);
 				SetSprite(SPR2_SLOT+i, 17);	// Display shadow Sprite
 				EnableSprite(SPR2_SLOT+i);
@@ -702,14 +697,28 @@ char GameLoop()
 				spriteY -= 3;		// Offset player sprite vertically					
 			#endif
 			}
-			SetSprite(i, iSpr);		// Display main sprite
+			
+			// Display main sprite
+		#if (defined __ATARI__)
+			SetMultiColorSprite(2*i, iSpr);		
+		#else	
+			SetSprite(i, iSpr);		
+		#endif
 		
 			// Check collisions
+		#if (defined __ATARI__)			
+			collisions = COLLISIONS(2*i);
+		#else	
 			collisions = COLLISIONS(i);
+		#endif
 			if (collisions) {
 				for (j=0; j<MAX_PLAYERS; j++) {
 					if (i != j) {
+					#if (defined __ATARI__)			
+						if (COLLIDING(collisions,2*j)) {
+					#else	
 						if (COLLIDING(collisions,j)) {
+					#endif
 							// Check neither are flying
 							if (iJmp || (clock()-cars[j].jmp) < jmpTCK) { continue; }
 							// Apply impulse to other car, and reduce own velocity
@@ -746,7 +755,7 @@ char GameLoop()
 			car->joy = iJoy;
 
 			// Check navigation
-			if (iCtrl != NET_CONTROL & gameStep > STEP_WARMUP & gameFrame%2 == i%2) {
+			if (iCtrl != NET_CONTROL & gameStep > STEP_WARMUP & (gameFrame&1) == (i&1)) {
 				// Check current cylinder
 				if (CheckWaypoint(car)) {
 					car->way++;
@@ -861,7 +870,7 @@ char GameLoop()
 				}
 			#ifdef  __ATARI__
 				// Toggle RGB/BW
-				if (lastKey == KB_G) frameBlending ^= 2;
+				if (lastKey == KB_G) bmpToggle ^= 2;
 			#endif
 			}
 		}

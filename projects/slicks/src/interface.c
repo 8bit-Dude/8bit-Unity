@@ -235,7 +235,7 @@ void PrintBuffer(char *buffer)
 	
 #elif defined __APPLE2__	
 	// Make sure message has even length
-	if (len%2) {
+	if (len&1) {
 		buffer[len++] = ' ';
 		buffer[len] = 0;
 	}
@@ -470,7 +470,7 @@ void MenuGFX()
 	inkColor = INK_HIGHLT; paperColor = PAPER_HIGHLT;
 	PrintStr(MENU_COL+2, MENU_ROW+11, "G");
 	inkColor = WHITE; paperColor = BLACK;
-	if (frameBlending & 2) {
+	if (bmpToggle & 2) {
 		PrintStr(MENU_COL+3, MENU_ROW+11, "FX: OFF  ");				
 	} else {
 		PrintStr(MENU_COL+3, MENU_ROW+11, "FX: BLEND");				
@@ -548,7 +548,7 @@ void SpriteAnimation(unsigned char index, unsigned char frame)
 	spriteY = 16;			
 #elif defined __ATARI__
 	spriteX = 145+index*13; 
-	spriteY = 46;
+	spriteY = 14;
 #elif defined __ORIC__
 	spriteX = 48+index*8;
 	spriteY = 16;	
@@ -559,7 +559,11 @@ void SpriteAnimation(unsigned char index, unsigned char frame)
 	spriteX = 100+index*13; 
 	spriteY = 6;
 #endif		
+#if defined __ATARI__
+	SetMultiColorSprite(2*index, frame);
+#else		
 	SetSprite(index, frame);
+#endif		
 }
 
 #ifdef __APPLE2__
@@ -602,16 +606,16 @@ void PrintScores()
 			dist[i] = GetWaypointDistance(car);
 		#if defined(__ATARI__) || defined(__CBM__)
 			if (car->x2 > 15*64-32 && car->x2 < 25*64+32 && car->y2 > 8*64-32 && car->y2 < 17*64+32) {
-				DisableSprite(i);			// Main sprite
-			#if defined(__ATARI__)
-				DisableSprite(4+5*(i%2));	// Jump sprite			
-			#elif defined(__CBM__)
-				DisableSprite(SPR2_SLOT+i);	// Jump sprite			
+			#if defined(__ATARI__)			
+				DisableMultiColorSprite(2*i);	// Car sprite
+			#else
+				DisableSprite(i);				// Car sprite
 			#endif
+				DisableSprite(SPR2_SLOT+i);		// Jump sprite			
 			}
 		#elif defined(__LYNX__)
 			if (car->x2 > 15*64-32 && car->x2 < 25*64+32 && car->y2 > 4*96-48 && car->y2 < 13*96+48) {
-				DisableSprite(i);			// Main sprite
+				DisableSprite(i);			// Car sprite
 				DisableSprite(SPR2_SLOT+i);	// Jump sprite			
 			} else {
 				spriteX = car->x2/16u; 
@@ -705,7 +709,7 @@ unsigned char MenuWait()
 			animFrame = (animFrame+1)&15;
 			for (i=0; i<MAX_PLAYERS; i++) {
 				// Animation showing counter rotating cars
-				if (i%2) { f = (24-animFrame)&15; } else { f = animFrame; }	
+				if (i&1) { f = (24-animFrame)&15; } else { f = animFrame; }	
 				SpriteAnimation(i, f);
 			}
 		}	
@@ -949,9 +953,13 @@ void GameMenu()
 	// Display cars on the top
 	for (i=0; i<MAX_PLAYERS; i++) {
 		// Counter rotating vehicles
-		if (i%2) { f = 8; } else { f = 0; }
+		if (i&1) { f = 8; } else { f = 0; }
 		SpriteAnimation(i,f);
+	#if defined __ATARI__
+		EnableMultiColorSprite(2*i);
+	#else	
 		EnableSprite(i);
+	#endif
 	}	
 		
 	// Show version, credits, and start music
@@ -1047,7 +1055,7 @@ void GameMenu()
 			#if defined __ATARI__
 				// Switch GFX Mode
 				if (lastchar == KB_G) { 
-					frameBlending ^= 2;
+					bmpToggle ^= 2;
 					MenuGFX();
 				}
 			#endif				
