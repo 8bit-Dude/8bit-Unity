@@ -45,6 +45,7 @@ void SplashScreen(void)
 	}	
 	
 	// Exit banner screen
+	ClearBitmap();
 	HideBitmap();
 	StopMusic();		
 #ifdef __CBM__	
