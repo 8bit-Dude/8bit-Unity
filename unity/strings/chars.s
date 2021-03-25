@@ -51,6 +51,8 @@
 	.export _charSliderHorz
 	.export _charSliderVert
 	
+	.export _charAmmo
+	.export _charBlock
 	.export _charDeath
 	.export _charHeart
 	.export _charPotion
@@ -148,6 +150,10 @@ _charSliderVert:
 	.byte %01001110, %11101110, %11100100
 	
 ; Icon Data
+_charAmmo:
+	.byte %10100000, %10101010, %10101010
+_charBlock:
+	.byte %00001110, %11101110, %11100000
 _charDeath:
 	.byte %00000100, %11101110, %01000100
 _charHeart:

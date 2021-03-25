@@ -117,6 +117,8 @@ extern const char charSliderHorz[3];
 extern const char charSliderVert[3];
 
 // Icon data
+extern const char charAmmo[3];
+extern const char charBlock[3];
 extern const char charDeath[3];
 extern const char charHeart[3];
 extern const char charPotion[3];

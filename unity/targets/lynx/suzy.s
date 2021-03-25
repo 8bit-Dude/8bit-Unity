@@ -80,15 +80,15 @@ _SuzyInit:
 	lda 	#$80
 	tsb 	VTIMCTLA
 ; Set up collision buffer to $A058
-	lda 	#$58
-	sta 	COLLBASL
-	lda 	#$A0
-	sta 	COLLBASH
+	;lda 	#$58
+	;sta 	COLLBASL
+	;lda 	#$A0
+	;sta 	COLLBASH
 ; Put collision index before sprite data
-	lda 	#$FF
-	sta 	COLLOFFL
-	lda 	#$FF
-	sta 	COLLOFFH
+	;lda 	#$FF
+	;sta 	COLLOFFL
+	;lda 	#$FF
+	;sta 	COLLOFFH
 ; Set framerate to 60 fps		
 	lda 	#$9e            ; 60 Hz
 	ldx 	#$29
