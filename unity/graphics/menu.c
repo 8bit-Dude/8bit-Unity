@@ -33,8 +33,9 @@
 clock_t cursorClock;
 unsigned char cursorFlick, cursorLocked, cursorSel;
 unsigned char cursorCol, cursorRow, cursorHeight;
+unsigned char *cursorActions;
 
-void InitMenu(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char padding, unsigned char **labels)
+void InitMenu(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char padding, unsigned char **labels, unsigned char *actions)
 {
 	unsigned char i;
 
@@ -42,6 +43,7 @@ void InitMenu(unsigned char col, unsigned char row, unsigned char width, unsigne
 	cursorCol = col;
 	cursorRow = cursorSel = row;
 	cursorHeight = height;
+	cursorActions = actions;
 	
 	// Create blank space and show options
 	PrintBlanks(col-padding, row-padding, width+2*padding, height+2*padding);
@@ -49,7 +51,7 @@ void InitMenu(unsigned char col, unsigned char row, unsigned char width, unsigne
 		PrintStr(col+2, cursorRow+i, labels[i]);
 }
 
-unsigned char UpdateMenu(unsigned char *actions)
+unsigned char UpdateMenu(void)
 {
 	unsigned char joy;
 	
@@ -94,7 +96,7 @@ unsigned char UpdateMenu(unsigned char *actions)
 			cursorSel--;
 	}
 	if (!(joy & JOY_BTN1)) { 
-		return actions[cursorSel-cursorRow];
+		return cursorActions[cursorSel-cursorRow];
 	}
 	
 	// No action detected

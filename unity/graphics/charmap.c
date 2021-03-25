@@ -74,7 +74,12 @@
 #endif
 
 // Byte size of screen elements
-#if defined(__LYNX__)
+#if defined(__ATARI__) || defined(__CBM__)
+  #define CHR_WIDTH        1
+  #define CHR_HEIGHT       1
+  #define LINE_SIZE	  	  40
+  #define ROW_SIZE		  40  
+#elif defined(__LYNX__)
   #define CHR_WIDTH        2
   #define CHR_HEIGHT       4
   #define LINE_SIZE	  	  82
@@ -436,7 +441,7 @@ unsigned char *DecodeTiles(unsigned char x, unsigned char y)
 
 void ScrollCharmap(unsigned char x, unsigned char y)
 {
-#if defined(__APPLE2__) || defined(__ATARI__) || defined(__CBM__) || defined(__ORIC__)	
+#if defined(__APPLE2__) || defined(__CBM__)
 	DrawCharmap(x,y);
 #else
 	unsigned char i, tmp;
@@ -508,6 +513,9 @@ void ScrollCharmap(unsigned char x, unsigned char y)
 		screenHeight = ABS(stepY);
 		POKEW(charPointerZP, src+srcOff);
 		POKEW(scrPointerZP, screenData+dstOff);
+	#if defined __ATARI__
+		POKEW(charattDataZP, CHARATRRAM);
+	#endif
 		BlitCharmap();			
 		screenHeight = tmp;
 	}
@@ -523,6 +531,9 @@ void ScrollCharmap(unsigned char x, unsigned char y)
 		screenWidth = ABS(stepX);
 		POKEW(charPointerZP, src+srcOff);
 		POKEW(scrPointerZP, screenData+dstOff);
+	#if defined __ATARI__
+		POKEW(charattDataZP, CHARATRRAM);
+	#endif
 		BlitCharmap();			
 		screenWidth = tmp;
 	}		
@@ -531,7 +542,6 @@ void ScrollCharmap(unsigned char x, unsigned char y)
 		
 void DrawCharmap(unsigned char x, unsigned char y)
 {
-	unsigned int src;
 #if defined(__APPLE2__)
 	x = 2*(x/2u)+1;
 #endif
@@ -541,10 +551,10 @@ void DrawCharmap(unsigned char x, unsigned char y)
 	
 	// Using tileset?
 	if (tilesetData) {
-		src = DecodeTiles(x, y);
+		POKEW(charPointerZP, DecodeTiles(x, y));
 		blockWidth = decodeWidth;
 	} else {
-		src = &charmapData[charmapWidth*y + x];
+		POKEW(charPointerZP, &charmapData[charmapWidth*y + x]);
 		blockWidth = charmapWidth;
 	}
 
@@ -552,14 +562,12 @@ void DrawCharmap(unsigned char x, unsigned char y)
 	worldX = x; worldY = y;
 	
 #if defined __APPLE2__
-	POKEW(charPointerZP, src);
   #if defined __DHR__
 	BlitCharmapDHR(); clk += 20;
   #else
 	BlitCharmapSHR(); clk += 10;
   #endif
 #else
-	POKEW(charPointerZP, src);
 	POKEW(scrPointerZP, screenData);
   #if defined __ATARI__
 	POKEW(charattDataZP, CHARATRRAM);

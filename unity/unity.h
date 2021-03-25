@@ -277,8 +277,8 @@ unsigned char XToCol(unsigned char x);
 unsigned char YToRow(unsigned char y);
 
 // Simple menu functions
-void InitMenu(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char padding, unsigned char **labels);
-unsigned char UpdateMenu(unsigned char *actions);
+void InitMenu(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char padding, unsigned char **labels, unsigned char *actions);
+unsigned char UpdateMenu(void);
 
 // Widget functions
 #ifndef CALLDEF

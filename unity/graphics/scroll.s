@@ -51,8 +51,8 @@
 .endif	
 
 .ifdef __ATMOS__
-	row1PointerZP = $b7
-	row2PointerZP = $b9
+	row1PointerZP = $b4
+	row2PointerZP = $b6
 .endif
 
 	.segment	"CODE"	
