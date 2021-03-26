@@ -68,7 +68,7 @@ void InitBitmap()
 	SetPalette();
 	
 	// Switch OFF ANTIC
-	POKE(559, 2);
+	POKE(559, (16+8+2));
 
 	// Setup DLI/VBI
 	StartDLI(); StartVBI();		

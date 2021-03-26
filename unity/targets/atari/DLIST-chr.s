@@ -55,7 +55,7 @@ header:
 setupChrAddr:	
 	lda #$c4		; DLI + Address + Text Mode
 	sta $0903
-	lda #$50
+	lda #$70
 	sta $0904
 	lda #$09
 	sta $0905

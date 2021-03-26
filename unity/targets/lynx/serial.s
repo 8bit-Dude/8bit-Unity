@@ -81,8 +81,8 @@ TxDone:         .res    1
 
 .proc _SerialOpen: near
 		; Set pointer value
-		sta 	ptr1
-		stx		ptr1+1
+		;sta 	ptr1
+		;stx	ptr1+1
 		
         stz     RxPtrIn
         stz     RxPtrOut
@@ -92,130 +92,130 @@ TxDone:         .res    1
         ; clock = 8 * 15625
         lda     #%00011000
         sta     TIM4CTLA
-        ldy     #SER_PARAMS::BAUDRATE
-        lda     (ptr1),y
+        ;ldy     #SER_PARAMS::BAUDRATE
+        ;lda     (ptr1),y
 
         ldx     #1
-        cmp     #SER_BAUD_62500
-        beq     setbaudrate
+        ;cmp     #SER_BAUD_62500
+        ;beq     setbaudrate
 
-        ldx     #2
-        cmp     #SER_BAUD_31250
-        beq     setbaudrate
+        ;ldx     #2
+        ;cmp     #SER_BAUD_31250
+        ;beq     setbaudrate
 
-        ldx     #12
-        cmp     #SER_BAUD_9600
-        beq     setbaudrate
+        ;ldx     #12
+        ;cmp     #SER_BAUD_9600
+        ;beq     setbaudrate
 
-        ldx     #25
-        cmp     #SER_BAUD_4800
-        beq     setbaudrate
+        ;ldx     #25
+        ;cmp     #SER_BAUD_4800
+        ;beq     setbaudrate
 
-        ldx     #51
-        cmp     #SER_BAUD_2400
-        beq     setbaudrate
+        ;ldx     #51
+        ;cmp     #SER_BAUD_2400
+        ;beq     setbaudrate
 
-        ldx     #103
-        cmp     #SER_BAUD_1200
-        beq     setbaudrate
+        ;ldx     #103
+        ;cmp     #SER_BAUD_1200
+        ;beq     setbaudrate
 
-        ldx     #207
-        cmp     #SER_BAUD_600
-        beq     setbaudrate
+        ;ldx     #207
+        ;cmp     #SER_BAUD_600
+        ;beq     setbaudrate
 
         ; clock = 6 * 15625
-        ldx     #%00011010
-        stx     TIM4CTLA
+        ;ldx     #%00011010
+        ;stx     TIM4CTLA
 
-        ldx     #12
-        cmp     #SER_BAUD_7200
-        beq     setbaudrate
+        ;ldx     #12
+        ;cmp     #SER_BAUD_7200
+        ;beq     setbaudrate
 
-        ldx     #25
-        cmp     #SER_BAUD_3600
-        beq     setbaudrate
+        ;ldx     #25
+        ;cmp     #SER_BAUD_3600
+        ;beq     setbaudrate
 
-        ldx     #207
-        stx     TIM4BKUP
+        ;ldx     #207
+        ;stx     TIM4BKUP
 
         ; clock = 4 * 15625
-        ldx     #%00011100
-        cmp     #SER_BAUD_300
-        beq     setprescaler
+        ;ldx     #%00011100
+        ;cmp     #SER_BAUD_300
+        ;beq     setprescaler
 
         ; clock = 6 * 15625
-        ldx     #%00011110
-        cmp     #SER_BAUD_150
-        beq     setprescaler
+        ;ldx     #%00011110
+        ;cmp     #SER_BAUD_150
+        ;beq     setprescaler
 
         ; clock = 1 * 15625
-        ldx     #%00011111
-        stx     TIM4CTLA
-        cmp     #SER_BAUD_75
-        beq     baudsuccess
+        ;ldx     #%00011111
+        ;stx     TIM4CTLA
+        ;cmp     #SER_BAUD_75
+        ;beq     baudsuccess
 
-        ldx     #141
-        cmp     #SER_BAUD_110
-        beq     setbaudrate
+        ;ldx     #141
+        ;cmp     #SER_BAUD_110
+        ;beq     setbaudrate
 
         ; clock = 2 * 15625
-        ldx     #%00011010
-        stx     TIM4CTLA
-        ldx     #68
-        cmp     #SER_BAUD_1800
-        beq     setbaudrate
+        ;ldx     #%00011010
+        ;stx     TIM4CTLA
+        ;ldx     #68
+        ;cmp     #SER_BAUD_1800
+        ;beq     setbaudrate
 
         ; clock = 6 * 15625
-        ldx     #%00011110
-        stx     TIM4CTLA
-        ldx     #231
-        cmp     #SER_BAUD_134_5
-        beq     setbaudrate
+        ;ldx     #%00011110
+        ;stx     TIM4CTLA
+        ;ldx     #231
+        ;cmp     #SER_BAUD_134_5
+        ;beq     setbaudrate
 
-        lda     #<SER_ERR_BAUD_UNAVAIL
-        ldx     #>SER_ERR_BAUD_UNAVAIL
-        rts
+        ;lda     #<SER_ERR_BAUD_UNAVAIL
+        ;ldx     #>SER_ERR_BAUD_UNAVAIL
+        ;rts
 setprescaler:
-        stx     TIM4CTLA
-        bra     baudsuccess
+        ;stx     TIM4CTLA
+        ;bra     baudsuccess
 setbaudrate:
         stx     TIM4BKUP
 baudsuccess:
-        ldx     #TxOpenColl|ParEven
-        stx     contrl
-        ldy     #SER_PARAMS::DATABITS   ; Databits
-        lda     (ptr1),y
-        cmp     #SER_BITS_8
-        bne     invparameter
-        ldy     #SER_PARAMS::STOPBITS   ; Stopbits
-        lda     (ptr1),y
-        cmp     #SER_STOP_1
-        bne     invparameter
-        ldy     #SER_PARAMS::PARITY     ; Parity
-        lda     (ptr1),y
-        cmp     #SER_PAR_NONE
-        beq     invparameter
-        cmp     #SER_PAR_MARK
-        beq     checkhs
-        cmp     #SER_PAR_SPACE
-        bne     @L0
-        ldx     #TxOpenColl
-        stx     contrl
-        bra     checkhs
+        ;ldx     #TxOpenColl|ParEven
+        ;stx     contrl
+        ;ldy     #SER_PARAMS::DATABITS   ; Databits
+        ;lda     (ptr1),y
+        ;cmp     #SER_BITS_8
+        ;bne     invparameter
+        ;ldy     #SER_PARAMS::STOPBITS   ; Stopbits
+        ;lda     (ptr1),y
+        ;cmp     #SER_STOP_1
+        ;bne     invparameter
+        ;ldy     #SER_PARAMS::PARITY     ; Parity
+        ;lda     (ptr1),y
+        ;cmp     #SER_PAR_NONE
+        ;beq     invparameter
+        ;cmp     #SER_PAR_MARK
+        ;beq     checkhs
+        ;cmp     #SER_PAR_SPACE
+        ;bne     @L0
+        ;ldx     #TxOpenColl
+        ;stx     contrl
+        ;bra     checkhs
 @L0:
-        ldx     #TxParEnable|TxOpenColl|ParEven
-        stx     contrl
-        cmp     #SER_PAR_EVEN
-        beq     checkhs
-        ldx     #TxParEnable|TxOpenColl
-        stx     contrl
+        ;ldx     #TxParEnable|TxOpenColl|ParEven
+        ;stx     contrl
+        ;cmp     #SER_PAR_EVEN
+        ;beq     checkhs
+        ;ldx     #TxParEnable|TxOpenColl
+        ;stx     contrl
 checkhs:
-        ldx     contrl
-        stx     SERCTL
-        ldy     #SER_PARAMS::HANDSHAKE  ; Handshake
-        lda     (ptr1),y
-        cmp     #SER_HS_NONE
-        bne     invparameter
+        ;ldx     contrl
+        ;stx     SERCTL
+        ;ldy     #SER_PARAMS::HANDSHAKE  ; Handshake
+        ;lda     (ptr1),y
+        ;cmp     #SER_HS_NONE
+        ;bne     invparameter
         lda     SERDAT
         lda     contrl
         ora     #RxIntEnable|ResetErr
@@ -231,9 +231,9 @@ checkhs:
         ldx     #>SER_ERR_OK
         rts
 invparameter:
-        lda     #<SER_ERR_INIT_FAILED
-        ldx     #>SER_ERR_INIT_FAILED
-        rts	
+        ;lda     #<SER_ERR_INIT_FAILED
+        ;ldx     #>SER_ERR_INIT_FAILED
+        ;rts	
 .endproc
 
 ; ---------------------------------------------------------------
