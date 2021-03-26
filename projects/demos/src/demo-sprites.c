@@ -33,14 +33,7 @@ extern const char keyNext;
 	#define spriteFrames 16
 	#define spriteCols    8
 	#define spriteRows    9
-	unsigned char spriteColors[] = { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,   // Default palette
-									 0x0b, 0x23, 0x45, 0x67, 0x89, 0xa1, 0xcd, 0xef,   // Swapped 1 and B
-									 0x05, 0x23, 0x41, 0x67, 0x89, 0xab, 0xcd, 0xef,   // Swapped 1 and 5
-									 0x09, 0x23, 0x45, 0x67, 0x81, 0xab, 0xcd, 0xef,   // Swapped 1 and 9
-									 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,   // Default palette
-									 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,   // Default palette
-									 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,   // Default palette
-									 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef }; // Default palette
+	unsigned char *spriteColors =  defaultColors; // Default palette
 	unsigned char inkColors[] = { BLUE, RED, LGREEN, YELLOW };		// P1, P2, P3, P4
 #endif
 
@@ -57,7 +50,12 @@ int DemoSprites(void)
 	// Setup sprites
 	LoadSprites("sprites.dat");
 	SetupSprites(spriteFrames, spriteCols, spriteRows, spriteColors);
-	
+#if defined __LYNX__
+	RecolorSprite(1, 0, 0x08); // BLUE -> ORANGE
+	RecolorSprite(2, 0, 0x05); // BLUE -> GREEN
+	RecolorSprite(3, 0, 0x09); // BLUE -> YELLOW
+#endif
+
 	// Load and show bitmap
 	LoadBitmap("stadium.img");
 	ShowBitmap();
@@ -87,7 +85,7 @@ int DemoSprites(void)
 	for (i=0; i<4; i++) {
 	#if defined __ATARI__
 		EnableMultiColorSprite(2*i);
-	#else
+	#else  
 		EnableSprite(i);
 	#endif
 	}	
