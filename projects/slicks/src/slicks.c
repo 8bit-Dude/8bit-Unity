@@ -55,10 +55,6 @@ int main (void)
 	unsigned char carryon;
 #if defined __LYNX__
 	clock_t bannerClock;
-	RecolorSprite(1, 0, 0x08); // BLUE -> ORANGE
-	RecolorSprite(2, 0, 0x05); // BLUE -> GREEN
-	RecolorSprite(3, 0, 0x09); // BLUE -> YELLOW
-	sprCushion = 5;
 #endif   
 	// Reset screen
 	clrscr();
@@ -79,6 +75,12 @@ int main (void)
 	// Setup sprites
 	LoadSprites("sprites.dat");
 	SetupSprites(spriteFrames, spriteCols, spriteRows, spriteColors);	// see definitions.h
+#if defined __LYNX__
+	RecolorSprite(1, 0, 0x08); // BLUE -> ORANGE
+	RecolorSprite(2, 0, 0x05); // BLUE -> GREEN
+	RecolorSprite(3, 0, 0x09); // BLUE -> YELLOW
+	sprCushion = 5;
+#endif   
 
 	// Main Loop
 	while (1) {
