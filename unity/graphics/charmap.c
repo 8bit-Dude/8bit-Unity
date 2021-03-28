@@ -75,18 +75,18 @@
 
 // Byte size of screen elements
 #if defined(__ATARI__) || defined(__CBM__)
-  #define CHR_WIDTH        1
-  #define CHR_HEIGHT       1
+  #define CHAR_WIDTH       1
+  #define CHAR_HEIGHT      1
   #define LINE_SIZE	  	  40
   #define ROW_SIZE		  40  
 #elif defined(__LYNX__)
-  #define CHR_WIDTH        2
-  #define CHR_HEIGHT       4
+  #define CHAR_WIDTH       2
+  #define CHAR_HEIGHT      4
   #define LINE_SIZE	  	  82
   #define ROW_SIZE		 328  
 #else
-  #define CHR_WIDTH        1
-  #define CHR_HEIGHT       8
+  #define CHAR_WIDTH       1
+  #define CHAR_HEIGHT      8
   #define LINE_SIZE	  	  40	
   #define ROW_SIZE		 320 
 #endif
@@ -139,11 +139,11 @@ void InitCharmap(unsigned char col1, unsigned char col2, unsigned char row1, uns
 	screenCol1 = col1; screenCol2 = col2;
 	screenRow1 = row1; screenRow2 = row2;
 	screenWidth = col2-col1; screenHeight = row2-row1;	
-	lineBlock = screenWidth * CHR_WIDTH;
+	lineBlock = screenWidth * CHAR_WIDTH;
 #if (defined __ATARI__) || (defined __CBM__)
-	screenData = (char*)(SCREENRAM + screenRow1*LINE_SIZE + screenCol1*CHR_WIDTH);
+	screenData = (char*)(SCREENRAM + screenRow1*LINE_SIZE + screenCol1*CHAR_WIDTH);
 #elif (defined __LYNX__) || (defined __ORIC__)
-	screenData = (char*)(BITMAPRAM+1 + screenRow1*ROW_SIZE + screenCol1*CHR_WIDTH);
+	screenData = (char*)(BITMAPRAM+1 + screenRow1*ROW_SIZE + screenCol1*CHAR_WIDTH);
 #endif	
 	
 #if (defined __APPLE2__) || (defined __LYNX__) || (defined __ORIC__)
@@ -414,7 +414,7 @@ void PrintCharmap(unsigned char x, unsigned char y, unsigned char chr)
 	unsigned char i;
 	unsigned int src, dst;
 	src = (char*)charsetData + 2*chr;
-	dst = BITMAPRAM + y*ROW_SIZE + x*CHR_WIDTH + 1;
+	dst = BITMAPRAM + y*ROW_SIZE + x*CHAR_WIDTH + 1;
 	for (i = 0; i<4; i++) {
 		memcpy((char*)dst, (char*)src, 2);
 		src += 256; dst += 82;
@@ -485,16 +485,16 @@ void ScrollCharmap(unsigned char x, unsigned char y)
 	}
 	if (stepX) {
 		if (stepX < 0) {
-			cpyDst += (-stepX)*CHR_WIDTH;
+			cpyDst += (-stepX)*CHAR_WIDTH;
 			scrollDirX = -1;
 		} else {
-			cpySrc += stepX*CHR_WIDTH;
+			cpySrc += stepX*CHAR_WIDTH;
 		}
-		scrollCols -= ABS(stepX)*CHR_WIDTH;
+		scrollCols -= ABS(stepX)*CHAR_WIDTH;
 	}
 	
 	// Copy screen area
-	scrollRows = (screenHeight-ABS(stepY))*CHR_HEIGHT;
+	scrollRows = (screenHeight-ABS(stepY))*CHAR_HEIGHT;
 	POKEW(row1PointerZP, cpySrc);
 	POKEW(row2PointerZP, cpyDst);
 	Scroll();
@@ -522,7 +522,7 @@ void ScrollCharmap(unsigned char x, unsigned char y)
 	if (stepX) {
 		if (stepX > 0) {
 			srcOff = (screenWidth-stepX);
-			dstOff = srcOff*CHR_WIDTH;
+			dstOff = srcOff*CHAR_WIDTH;
 		} else {
 			srcOff = 0;
 			dstOff = 0;

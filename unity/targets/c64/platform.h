@@ -52,8 +52,10 @@
 #define TXT_ROWS 25
 
 // Charmap Mode
-#define CMP_COLS 40
-#define CMP_ROWS 25	
+#define TXT_COLS   40
+#define TXT_ROWS   25
+#define FONT_HEIGHT 8	
+
 
 // Bitmap Mode (Multi-Color)
 #define BMP_COLS 160

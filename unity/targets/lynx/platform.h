@@ -32,8 +32,10 @@
 #define SHAREDRAM  (MUSICRAM  - __SHRSIZE__)
 
 // Text Mode
-#define TXT_COLS 40
-#define TXT_ROWS 17	
+#define TXT_COLS   40
+#define TXT_ROWS   17
+#define FONT_HEIGHT 6	
+
 
 // Charmap Mode
 #define CMP_COLS 40

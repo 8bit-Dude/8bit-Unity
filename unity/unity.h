@@ -277,6 +277,7 @@ unsigned char XToCol(unsigned char x);
 unsigned char YToRow(unsigned char y);
 
 // Simple menu functions
+extern unsigned char cursorMoved, cursorPos;
 void InitMenu(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char padding, unsigned char **labels, unsigned char *actions);
 unsigned char UpdateMenu(void);
 

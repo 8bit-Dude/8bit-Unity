@@ -40,8 +40,9 @@
 #define MUSICRAM   (0xbc00) // BC00-BEFF (electric duet track)
 
 // Character Mode
-#define TXT_COLS 40
-#define TXT_ROWS 24
+#define TXT_COLS   40
+#define TXT_ROWS   24
+#define FONT_HEIGHT 8	
 
 // Charmap Mode
 #define CMP_COLS 40

@@ -30,8 +30,10 @@
   #pragma code-name("SHADOW_RAM")
 #endif
 
+#define FLICK_RATE 20 	// Ticks
+
 clock_t cursorClock;
-unsigned char cursorFlick, cursorLocked, cursorSel;
+unsigned char cursorFlick, cursorLocked, cursorMoved, cursorPos;
 unsigned char cursorCol, cursorRow, cursorHeight;
 unsigned char *cursorActions;
 
@@ -41,7 +43,7 @@ void InitMenu(unsigned char col, unsigned char row, unsigned char width, unsigne
 
 	// Set cursor
 	cursorCol = col;
-	cursorRow = cursorSel = row;
+	cursorRow = cursorPos = row;
 	cursorHeight = height;
 	cursorActions = actions;
 	
@@ -54,19 +56,22 @@ void InitMenu(unsigned char col, unsigned char row, unsigned char width, unsigne
 unsigned char UpdateMenu(void)
 {
 	unsigned char joy;
+
+	// Reset move flag
+	cursorMoved = 0;
 	
 	// Process keyboard inputs
 	if (kbhit())
 		return cgetc();
 
 	// Periodically flick cursor
-	if (clock()-cursorClock > 20) {
+	if (clock()-cursorClock > FLICK_RATE) {
 		cursorClock = clock();
 		PrintBlanks(cursorCol, cursorRow, 2, cursorHeight);
 		if (cursorFlick) {
 			inkColor = YELLOW;
-			PrintChr(cursorCol, cursorSel, &charHyphen[0]);
-			PrintChr(cursorCol+1, cursorSel, &charBracket[3]);
+			PrintChr(cursorCol, cursorPos, &charHyphen[0]);
+			PrintChr(cursorCol+1, cursorPos, &charBracket[3]);
 			inkColor = WHITE;
 		}
 		cursorFlick = !cursorFlick;
@@ -84,19 +89,31 @@ unsigned char UpdateMenu(void)
 		cursorLocked = 0; 
 	}
 	
-	// Detect corresponding cursor key
+	// Detect cursor motion
 	if (!(joy & JOY_UP)) { 
-		cursorSel--; 
-		if (cursorSel < cursorRow)
-			cursorSel++;
+		//while (!cursorActions[--cursorPos]);
+		--cursorPos;
+		cursorMoved = 1;
 	}
 	if (!(joy & JOY_DOWN)) { 
-		cursorSel++; 
-		if (cursorSel >= cursorRow+cursorHeight)
-			cursorSel--;
+		//while (!cursorActions[++cursorPos]);
+		++cursorPos;
+		cursorMoved = 1;
 	}
+	
+	// Check limits
+	if (cursorPos < cursorRow) {
+		cursorPos = cursorRow;
+		cursorMoved = 0;
+	}
+	if (cursorPos >= cursorRow+cursorHeight) {
+		cursorPos = cursorRow+cursorHeight-1;
+		cursorMoved = 0;
+	}
+	
+	// Detect cursor action
 	if (!(joy & JOY_BTN1)) { 
-		return cursorActions[cursorSel-cursorRow];
+		return cursorActions[cursorPos-cursorRow];
 	}
 	
 	// No action detected
