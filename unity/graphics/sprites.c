@@ -109,16 +109,21 @@
 			POKE(0xD01D, PEEK(0xD01D) & !(1 << index));
 	}	
 
-#elif defined __LYNX__	
+#elif defined __LYNX__
 	extern unsigned char spriteData; 
-	unsigned char defaultColors[] =  { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef }; 
 	unsigned char sprX[SPRITE_NUM], sprY[SPRITE_NUM];	// Screen coordinates
 	unsigned char sprDrawn[SPRITE_NUM], sprCollision[SPRITE_NUM], sprCushion = 2; // Enable and Collision status
-	unsigned char sprCols, sprRows;		// Sprite dimensions and cushioning
-	SCB_REHV_PAL sprSCB[SPRITE_NUM];					// Frame data
-	unsigned char frameSize;
+	unsigned char sprCols, sprRows, frameSize;		// Sprite dimensions
+	SCB_REHV_PAL sprSCB[SPRITE_NUM] = { { BPP_4 | TYPE_NONCOLL, REHV | LITERAL, 0, 0, 0, 0, 0, 0x0100, 0x0100, { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef } },
+									    { BPP_4 | TYPE_NONCOLL, REHV | LITERAL, 0, 0, 0, 0, 0, 0x0100, 0x0100, { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef } },
+										{ BPP_4 | TYPE_NONCOLL, REHV | LITERAL, 0, 0, 0, 0, 0, 0x0100, 0x0100, { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef } },
+										{ BPP_4 | TYPE_NONCOLL, REHV | LITERAL, 0, 0, 0, 0, 0, 0x0100, 0x0100, { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef } },
+										{ BPP_4 | TYPE_NONCOLL, REHV | LITERAL, 0, 0, 0, 0, 0, 0x0100, 0x0100, { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef } },
+										{ BPP_4 | TYPE_NONCOLL, REHV | LITERAL, 0, 0, 0, 0, 0, 0x0100, 0x0100, { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef } },
+										{ BPP_4 | TYPE_NONCOLL, REHV | LITERAL, 0, 0, 0, 0, 0, 0x0100, 0x0100, { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef } },
+										{ BPP_4 | TYPE_NONCOLL, REHV | LITERAL, 0, 0, 0, 0, 0, 0x0100, 0x0100, { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef } } };
+	SCB_REHV_PAL *scb;
 	void ScaleSprite(unsigned char index, unsigned int xPercent, unsigned int yPercent) {
-		SCB_REHV_PAL *scb;
 		scb = &sprSCB[index];
 		scb->hsize = xPercent;
 		scb->vsize = yPercent;
@@ -150,11 +155,11 @@ void LoadSprites(unsigned char* filename)
 		FileRead(sprData, -1);
 	}
 #elif defined(__CBM__)
-	// NEED SOLUTION: sprite sheets larger than $700
+	// TODO: sprite sheets larger than $700
 	// can be loaded by exomizer, but not cc65!
 	// (file loading under ROM not possible)	
-#elif defined __LYNX__	
-	
+#elif defined __LYNX__
+	// TODO
 #elif defined __ORIC__	
 	FileRead(filename, (void*)SPRITERAM);
 #endif
@@ -218,21 +223,10 @@ void SetupSprites(unsigned int frames, unsigned char cols, unsigned char rows, u
 	sprCOLOR = spriteColors;
 
 #elif defined __LYNX__	
-	unsigned char i,j;
-	SCB_REHV_PAL *scb;
 	sprCols = cols; sprRows = rows;		
 	frameSize = rows*((cols+(cols&1))/2+1)+1;
-	for (i=0; i<SPRITE_NUM; i++) {
-		scb = &sprSCB[i];
-		scb->sprctl0 = BPP_4 | TYPE_NONCOLL;
-		scb->sprctl1 = REHV | LITERAL;
-		bzero(&scb->sprcoll, 7);
-		scb->hsize = 0x0100;
-		scb->vsize = 0x0100;
-		memcpy(scb->penpal, spriteColors, 8);
-	}	
 #endif
-}	
+}
 
 void RecolorSprite(unsigned char index, unsigned char offset, unsigned char color)
 {
@@ -663,7 +657,6 @@ void SetSprite(unsigned char index, unsigned int frame)
 	}
 #elif defined __LYNX__
 	// Set sprite data for Suzy
-	SCB_REHV_PAL *scb;
 	scb = &sprSCB[index];
 	scb->data = &spriteData+frame*frameSize;
 	scb->hpos = spriteX-sprRows/2u;
@@ -675,7 +668,7 @@ void SetSprite(unsigned char index, unsigned int frame)
 	// Save sprite information
 	sprX[index] = spriteX;
 	sprY[index] = spriteY;
-	sprDrawn[index] = 1;	
+	sprDrawn[index] = 1;
 #endif
 }
 
@@ -752,17 +745,17 @@ void DisableSprite(signed char index)
 		// Reset sprite register
 		POKE(53269, 0);
 	#elif defined __ATARI__
-		for (i=0; i<SPRITE_NUM; i++)
-			sprDrawn[i] = 0;
-		for (b=0; b<BANK_NUM; b++)
-			sprBank[b] = 0;
-		bzero(PMGRAM,0x400); // Clear PMG memory
+		// Clear sprite slots, banks and PMG memory
+		bzero(sprDrawn, SPRITE_NUM);
+		bzero(sprBank, BANK_NUM);
+		bzero(PMGRAM,0x400);
+	#elif defined __LYNX__
+		// Clear sprite slots
+		bzero(sprDrawn, SPRITE_NUM);
 	#else
 		// Soft sprites: Restore background if necessary
 		for (index=0; index<SPRITE_NUM; index++) {
-		#if (defined __APPLE2__) || (defined __ORIC__)
 			ClearSprite(index);
-		#endif
 			sprDrawn[index] = 0;
 		}
 	#endif
