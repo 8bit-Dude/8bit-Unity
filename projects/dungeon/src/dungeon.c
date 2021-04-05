@@ -62,10 +62,11 @@ void GameInit(void)
 
 	// Show stats
 #if (defined __ORIC__)
-	SetAttributes(-1, TXT_ROWS-1, RED);
-	SetAttributes( 4, TXT_ROWS-1, CYAN);
-	SetAttributes(TXT_COLS-10, TXT_ROWS-1, YELLOW);
-	SetAttributes(TXT_COLS-5,  TXT_ROWS-1, WHITE);
+	txtY = TXT_ROWS-1;
+	txtX = -1; SetAttributes(RED);
+	txtX =  4; SetAttributes(CYAN);
+	txtX = TXT_COLS-10; SetAttributes(YELLOW);
+	txtX = TXT_COLS-5;  SetAttributes(WHITE);
 #endif	
 	PrintHealth(); PrintArmor();
 	PrintGold(); PrintKills();
