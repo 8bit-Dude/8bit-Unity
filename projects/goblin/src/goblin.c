@@ -161,15 +161,15 @@ void SplashScreen(void)
 	ShowBitmap();
 	
 	// Show credit/build
+	txtX = TXT_COLS-12; txtY = TXT_ROWS-4;
 #if (defined __ORIC__)
 	inkColor = AIC;
-	PrintBlanks(TXT_COLS-12, TXT_ROWS-4, 12, 3);
+	PrintBlanks(12, 3);
 #else		
 	pixelX = 0; pixelY = 0;
 	paperColor = GetPixel(); 
 	inkColor = INK_DEFAULT; 
 #endif
-	txtX = TXT_COLS-12; txtY = TXT_ROWS-4;
 	PrintStr(" TECH DEMO"); txtY++;
 	PrintStr("BY 8BIT-DUDE"); txtY++;
 	PrintStr(" 2020/05/20");
