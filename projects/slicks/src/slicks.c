@@ -29,7 +29,7 @@
 #elif defined __LYNX__
 	#define spriteCols   8
 	#define spriteRows   9
-	unsigned char *spriteColors =  defaultColors; // Default palette
+	unsigned char *spriteColors =  0;  //  All sprites use the default palette
 	unsigned char inkColors[] = { DBLUE, ORANGE, LGREEN, YELLOW, WHITE };	// P1, P2, P3, P4, SERVER INFO
 #endif
 

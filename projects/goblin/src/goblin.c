@@ -23,7 +23,7 @@
 #elif defined __LYNX__
 	#define spriteCols   9
 	#define spriteRows   13
-	unsigned char *spriteColors =  defaultColors; // Default palette	
+	unsigned char *spriteColors = 0; //  All sprites use the default palette
 #endif
 
 // Accessible polygon in scene

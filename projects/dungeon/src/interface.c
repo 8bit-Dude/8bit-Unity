@@ -25,7 +25,7 @@ void SplashScreen(void)
 #endif
 	PrintStr(TXT_COLS-12, TXT_ROWS-4, "8BIT-DUNGEON");		
 	PrintStr(TXT_COLS-12, TXT_ROWS-3, " TECH DEMO  ");		
-	PrintStr(TXT_COLS-12, TXT_ROWS-2, " 2021/01/16 ");
+	PrintStr(TXT_COLS-12, TXT_ROWS-2, " 2021/03/25 ");
 	
 	// Start music
 #ifdef __CBM__	

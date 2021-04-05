@@ -23,7 +23,7 @@
 	#define spriteCols    8
 	#define spriteRows   12
 	unsigned char charColors[] = {};    //  All colors are pre-assigned in the char sheet
-	unsigned char* spriteColors = defaultColors;	// All sprites use the default palette
+	unsigned char* spriteColors = 0;	//  All sprites use the default palette
 #elif defined __ORIC__
 	#define spriteFrames 32
 	#define spriteCols   12

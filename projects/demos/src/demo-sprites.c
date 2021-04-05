@@ -33,7 +33,7 @@ extern const char keyNext;
 	#define spriteFrames 16
 	#define spriteCols    8
 	#define spriteRows    9
-	unsigned char *spriteColors =  defaultColors; // Default palette
+	unsigned char *spriteColors = 0;  //  All sprites use the default palette
 	unsigned char inkColors[] = { BLUE, RED, LGREEN, YELLOW };		// P1, P2, P3, P4
 #endif
 
