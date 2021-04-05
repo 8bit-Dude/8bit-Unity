@@ -30,7 +30,7 @@ from tkFileDialog import askopenfilename, asksaveasfilename
 from PIL import Image, ImageTk
 import os, pickle, pygubu, sys, collections, json, codecs
 
-cCore = [ 'adaptors\\hub.c',     'adaptors\\joystick.c', 'adaptors\\mouse.c',  'geom\\geom2d.c',     'math\\dot.c', 
+cCore = [ 'adaptors\\joystick.c','adaptors\\mouse.c',    'geom\\geom2d.c',     'math\\dot.c', 
           'graphics\\bitmap.c',  'graphics\\charmap.c',  'graphics\\chunks.c', 'graphics\\logos.c',  'graphics\\menu.c',   'graphics\\pixel.c',  'graphics\\scaling.c', 'graphics\\sprites.c', 'graphics\\widgets.c', 
           'network\\net-base.c', 'network\\net-easy.c',  'network\\net-ip.c',  'network\\net-tcp.c', 'network\\net-udp.c', 'network\\net-url.c', 'network\\net-web.c', 
           'strings\\blanks.c',   'strings\\copy.c',      'strings\\input.c',   'strings\\number.c',  'strings\\print.c', 
@@ -814,7 +814,8 @@ class Application:
                             'targets\\apple2\\decrunch.s', 'targets\\apple2\\DUET.s',      'targets\\apple2\\hiresLines.s',     'targets\\apple2\\joystick.s',
                             'targets\\apple2\\MOCKING.s',  'targets\\apple2\\PADDLE.s',    'targets\\apple2\\prodos.s',         'targets\\apple2\\serial.s' ]
                 symbols = ''
-                if self.Combobox_AppleNetworkDriver.get() == '8bit-Hub':    
+                if self.Combobox_AppleNetworkDriver.get() == '8bit-Hub': 
+                    cTarget.append('adaptors\\hub.c')
                     symbols += '-D __HUB__ '
                 if graphics == 'double':
                     symbols += '-D __DHR__'
@@ -1386,7 +1387,7 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Build Unity Library
-            cTarget = [ 'targets\\lynx\\cgetc.c', 'targets\\lynx\\display.c', 'targets\\lynx\\files.c', 'targets\\lynx\\keyboard.c', 'targets\\lynx\\screen.c', 'targets\\lynx\\text.c' ]
+            cTarget = [ 'adaptors\\hub.c', 'targets\\lynx\\cgetc.c', 'targets\\lynx\\display.c', 'targets\\lynx\\files.c', 'targets\\lynx\\keyboard.c', 'targets\\lynx\\screen.c', 'targets\\lynx\\text.c' ]
             sTarget = [ 'targets\\lynx\\header.s', 'targets\\lynx\\blitCharmap.s', 'targets\\lynx\\serial.s', 'targets\\lynx\\suzy.s' ]
             symbols = ' -D __MUSSIZE__='  + self.entry_LynxMusicMemory.get().replace('$','0x') + ' -D __SHRSIZE__='  + self.entry_LynxSharedMemory.get().replace('$','0x')
             BuildUnityLibrary(fp, 'lynx --cpu 65SC02', symbols, cCore+cTarget, sCore+sTarget, buildFolder+'/lynx')
@@ -1430,7 +1431,7 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
     
             # Build Unity Library
-            cTarget = [ 'targets\\oric\\directory.c', 'targets\\oric\\files.c' ]
+            cTarget = [ 'adaptors\\hub.c', 'targets\\oric\\directory.c', 'targets\\oric\\files.c' ]
             sTarget = [ 'targets\\oric\\blit.s',      'targets\\oric\\blitCharmap.s', 'targets\\oric\\paseIJK.s', 
                         'targets\\oric\\keyboard.s',  'targets\\oric\\sedoric.s',     'targets\\oric\\MYM.s' ]
             BuildUnityLibrary(fp, 'atmos', '', cCore+cTarget, sCore+sTarget, buildFolder+'/oric')
