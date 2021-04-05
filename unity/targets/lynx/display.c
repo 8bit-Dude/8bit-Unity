@@ -83,7 +83,7 @@ void UpdateDisplay(void)
 	}
 	
 	// Draw soft keyboard?
-	//UpdateKeyboardOverlay();
+	UpdateKeyboardOverlay();
 	
 	// Switch buffer frame
 	SuzyUpdate();
