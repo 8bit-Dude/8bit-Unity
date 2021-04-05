@@ -77,15 +77,15 @@
 #endif
 
 // Print multicolor logos of the various unity platforms
-void PrintLogo(unsigned char col, unsigned char row, unsigned char index)
+void PrintLogo(unsigned char index)
 {
 #if defined __APPLE2__
 	unsigned int x,y;
 	unsigned char i,j,n;
 	
 	// Compute location of character
-	if (col&1) { n=4; } else { n=3; }
-	x = (col*35)/10u; y = (row*8);
+	if (txtX&1) { n=4; } else { n=3; }
+	x = (txtX*35)/10u; y = (txtY*8);
 	
 	// Set character over 3/4 pixels out of 7 in a cell
 	for (i=0; i<5; ++i) {
@@ -113,8 +113,8 @@ void PrintLogo(unsigned char col, unsigned char row, unsigned char index)
 	unsigned char i;
 
 	// Get memory addresses
-	addr1 = BITMAPRAM1+row*320+col;
-	addr2 = BITMAPRAM2+row*320+col;		
+	addr1 = BITMAPRAM1+txtY*320+txtX;
+	addr2 = BITMAPRAM2+txtY*320+txtX;		
 	
 	// Set Character data
 	for (i=0; i<8; ++i) {
@@ -127,9 +127,9 @@ void PrintLogo(unsigned char col, unsigned char row, unsigned char index)
 	unsigned char i;
 	
 	// Get memory addresses
-	addr1 = BITMAPRAM + row*320 + col*8;
-	addr2 = SCREENRAM + row*40 + col;
-	addr3 = COLORRAM + row*40 + col;
+	addr1 = BITMAPRAM + txtY*320 + txtX*8;
+	addr2 = SCREENRAM + txtY*40 + txtX;
+	addr3 = COLORRAM + txtY*40 + txtX;
 	
 	// Set logo colors
 	POKE(addr2, GREEN << 4 | RED);
@@ -143,7 +143,7 @@ void PrintLogo(unsigned char col, unsigned char row, unsigned char index)
 	unsigned char i;
 								  
 	// Set Character data
-	addr = BITMAPRAM+1 + row*492 + col*2;
+	addr = BITMAPRAM+1 + txtY*492 + txtX*2;
 	for (i=0; i<6; ++i) {
 		memcpy(addr, logos[index][i], 2);
 		addr += 82;
@@ -154,7 +154,7 @@ void PrintLogo(unsigned char col, unsigned char row, unsigned char index)
 	unsigned char i;
 	
 	// Set Character data
-	addr = BITMAPRAM+1 + row*320 + col;
+	addr = BITMAPRAM+1 + txtY*320 + txtX;
 	for (i=0; i<8; ++i) {
 		POKE((char*)addr, 64+logos[index][i]); 
 		addr += 40;
