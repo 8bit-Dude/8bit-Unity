@@ -67,7 +67,8 @@ void GameLoop(void)
 			if (sceneSearch != sceneIndex) {
 				sceneIndex = sceneSearch;
 				if (sceneIndex == 255) {
-					PrintBlanks(0, TXT_ROWS-2, TXT_COLS-8, 1);
+					txtX = 0; txtY = TXT_ROWS-2;
+					PrintBlanks(TXT_COLS-8, 1);
 				} else {
 					PrintInteract(sceneItem, interacts[sceneIndex].label);
 				}
@@ -86,7 +87,8 @@ void GameLoop(void)
 				if (sceneItem != 255) {
 					PrintInteract(sceneItem, "\0");
 				} else {
-					PrintBlanks(0, TXT_ROWS-2, TXT_COLS-8, 2);
+					txtX = 0; txtY = TXT_ROWS-2;
+					PrintBlanks(TXT_COLS-8, 2);
 				}
 			} else {
 				// Get click coordinates
@@ -167,9 +169,10 @@ void SplashScreen(void)
 	paperColor = GetPixel(); 
 	inkColor = INK_DEFAULT; 
 #endif
-	PrintStr(TXT_COLS-11, TXT_ROWS-4, "TECH DEMO");		
-	PrintStr(TXT_COLS-12, TXT_ROWS-3, "BY 8BIT-DUDE");		
-	PrintStr(TXT_COLS-11, TXT_ROWS-2,  "2020/05/20");
+	txtX = TXT_COLS-12; txtY = TXT_ROWS-4;
+	PrintStr(" TECH DEMO"); txtY++;
+	PrintStr("BY 8BIT-DUDE"); txtY++;
+	PrintStr(" 2020/05/20");
 	PlayMusic();
 
 	// Wait until key is pressed

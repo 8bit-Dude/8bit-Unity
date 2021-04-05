@@ -7,13 +7,16 @@ extern Item items[MAX_ITEM];
 // Print label in lower-left panel
 void PrintInteract(unsigned char item, unsigned char *label)
 {
-	if (item != 255) {		
-		PrintStr(0, TXT_ROWS-2, "use");
-		PrintStr(4, TXT_ROWS-2, items[item].label);
-		PrintStr(5+strlen(items[item].label), TXT_ROWS-2, "on");
-		PrintStr(8+strlen(items[item].label), TXT_ROWS-2, label);
+	unsigned char *iLabel;
+	txtX = 0; txtY = TXT_ROWS-2;
+	if (item != 255) {
+		iLabel = items[item].label;
+		PrintStr("use"); txtX += 4; 
+		PrintStr(iLabel); txtX += 1+strlen(iLabel); 
+		PrintStr("on"); txtX += 3; 
+		PrintStr(label);
 	} else {
-		PrintStr(0, TXT_ROWS-2, label);
+		PrintStr(label);
 	}
 }
 
@@ -21,18 +24,18 @@ void PrintInteract(unsigned char item, unsigned char *label)
 void PrintMessage(unsigned char *msg)
 {
 	unsigned char i = 0;
-	unsigned char col = 0, row = TXT_ROWS-2;
 	
 	// Reset panel
-	PrintBlanks(0, TXT_ROWS-2, TXT_COLS-8, 2);
+	txtX = 0; txtY = TXT_ROWS-2;
+	PrintBlanks(TXT_COLS-8, 2);
 	
 	// Print message across two lines, by taking into account line feed '\n'
 	while (msg[i] != '\0') {
 		if (msg[i] == '\n') {
-			++row;
-			col = 0;
+			txtX = 0; txtY++;
 		} else {
-			PrintChr(col++, row, GetChr(msg[i]));
+			PrintChr(GetChr(msg[i]));
+			txtX++;
 		}
 		++i;
 	}
@@ -50,10 +53,11 @@ void PrintInventory(void)
 	inkColor = INK_INVENTORY;
 	while (i<MAX_ITEM) {
 		item = &items[i];
+		txtX = item->col; txtY = item->row;
 		if (!item->label) {
-			PrintStr(item->col, item->row, "       ");
+			PrintStr("       ");
 		} else {
-			PrintStr(item->col, item->row, item->label);
+			PrintStr(item->label);
 		}
 		i++;
 	}
