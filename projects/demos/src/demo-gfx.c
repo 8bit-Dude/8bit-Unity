@@ -48,19 +48,22 @@ int DemoGfx(void)
 	textRows = 16;
 #endif		
 	paperColor = BLACK;
+	txtX = 15; txtY = 2;
 	for (i=1; i<textRows; i++) {
 		inkColor = i;
 	#if defined __ORIC__
-		SetAttributes(-1, i+1, inkColor);
+		txtX = 14; SetAttributes(inkColor); txtX = 15;
 	#endif
-		PrintStr(15,i+1,"8BIT-UNITY");
+		PrintStr("8BIT-UNITY"); txtY++;
 	}
 	
+	// Show Platform logos
+	txtY = 3;
 	for (i=0; i<5; i++) { 
-		PrintLogo(2, 3+i*2, i);
-		PrintLogo(TXT_COLS-3, 3+i*2, i);
+		txtX = 2;		   PrintLogo(i);
+		txtX = TXT_COLS-3; PrintLogo(i);
+		txtY += 2;
 	}
-	
 	
 	// Draw Line (Method #2: locate pixel against a 320 x 200 screen)
 	for (i=0; i<20; i++) {
@@ -70,7 +73,8 @@ int DemoGfx(void)
 
 	// Wait until 'SPACE' is pressed
 	inkColor = BLACK; paperColor = WHITE; 
-	PrintStr(9, TXT_ROWS-2, pressKeyMsg);
+	txtX = 9; txtY = TXT_ROWS-2;
+	PrintStr(pressKeyMsg);
 	while (!kbhit () || cgetc () != keyNext) {	
 	#if defined __LYNX__
 		UpdateDisplay(); // Refresh Lynx screen

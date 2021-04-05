@@ -63,22 +63,23 @@ int DemoSprites(void)
 	// Print some extra info
 	paperColor = GREY; 
 	inkColor = BLACK; 
+	txtY = TXT_ROWS-1;
 #if defined __ORIC__
-	SetAttributes(-1, TXT_ROWS-1, paperColor);
-	SetAttributes( 7, TXT_ROWS-1, AIC); // Always reset attributes after a string!
-#endif			
-	PrintStr(0, TXT_ROWS-1, "STADIUM");	
+	txtX = -1; SetAttributes(paperColor);
+	txtX = 7; SetAttributes(AIC); // Always reset attributes after a string!
+#endif
+	txtX = 0; PrintStr("STADIUM");	
 	paperColor = BLACK; 
 	for (i=0; i<4; i++) {
 		slot = 8*(i+1);
 		inkColor = inkColors[i];
 	#if defined __ORIC__
-		SetAttributes(slot-1, TXT_ROWS-1, inkColor);
-		SetAttributes(slot+5, TXT_ROWS-1, AIC);	// Always reset attributes after a string!
+		txtX = slot-1; SetAttributes(inkColor);
+		txtX = slot+5; SetAttributes(AIC);	// Always reset attributes after a string!
 	#endif		
-		PrintLogo(slot+4, TXT_ROWS-1, i);
-		PrintNum(slot+2, TXT_ROWS-1, i+1);
-		PrintStr(slot, TXT_ROWS-1, "CAR");
+		txtX = slot+4; PrintLogo(i);
+		txtX = slot+2; PrintNum(i+1);
+		txtX = slot+0; PrintStr("CAR");
 	}
 
 	// Enable sprites

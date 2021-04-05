@@ -32,10 +32,11 @@ int DemoCharmap(void)
 	
 	// Print instructions
 	inkColor = WHITE; paperColor = BLACK;
+	txtX = 1; txtY = TXT_ROWS-1;
 #if defined __LYNX__	
-	PrintStr(1, TXT_ROWS-1, "Scroll with Joystick / OPT 1 for next");
+	PrintStr("Scroll with Joystick / OPT 1 for next");
 #else
-	PrintStr(1, TXT_ROWS-1, "Scroll with Joystick / SPACE for next");
+	PrintStr("Scroll with Joystick / SPACE for next");
 #endif
 	
 	// Wait until 'SPACE' is pressed
