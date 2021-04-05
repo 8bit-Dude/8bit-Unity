@@ -36,7 +36,6 @@
 #define TXT_ROWS   17
 #define FONT_HEIGHT 6	
 
-
 // Charmap Mode
 #define CMP_COLS 40
 #define CMP_ROWS 25	

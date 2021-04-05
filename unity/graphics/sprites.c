@@ -70,11 +70,6 @@
 		SetSprite(index++, frame);
 		SetSprite(index, frame+sprFrames);
 	}
-	void DoubleHeightSprite(unsigned char index, unsigned char onoff) {
-		//extern unsigned char doubleHeight[10];
-		//doubleHeight[index] = onoff;
-		//if (onoff) sprYOffset = sprRows+2; else sprYOffset = sprRows/2+2;
-	}
 
 #elif defined __ORIC__	
 	#define byteWIDTH 2		// Byte width of sprite (12 pixels)

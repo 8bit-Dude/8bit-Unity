@@ -40,8 +40,7 @@ unsigned char InitNetwork(void)
 	// Detect if HUB is connected
 	clock_t timer = clock();
 	while ((clock()-timer) < TCK_PER_SEC) { 
-		if (hubState[0] == COM_ERR_OK)
-			return NETWORK_OK;
+		if (hubState[0] == COM_ERR_OK) return NETWORK_OK;
 		UpdateHub();
 	#if defined __APPLE2__
 		clk += 1;

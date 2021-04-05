@@ -90,5 +90,5 @@ unsigned char QueueHub(unsigned char packetCmd, unsigned char* packetBuffer, uns
 
 // HUB Variables
 extern unsigned char hubState[7];
-extern unsigned char sendLen, sendHub[256];
-extern unsigned char recvLen, recvHub[256];
+extern unsigned char sendLen, sendHub[];
+extern unsigned char recvLen, recvHub[];

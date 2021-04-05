@@ -62,7 +62,8 @@ unsigned char ProcessInput()
 	
 	if (kbhit()) {
 		inkColor = inputCall->ink; paperColor = inputCall->paper;		
-		if (InputStr(inputCall->colBeg, inputCall->rowBeg, inputWidth, inputCall->buffer, inputCall->value, cgetc())) {
+		txtX = inputCall->colBeg; txtY = inputCall->rowBeg;
+		if (InputStr(inputWidth, inputCall->buffer, inputCall->value, cgetc())) {
 			inputCall = 0;
 		#if defined __LYNX__
 			HideKeyboardOverlay();	
@@ -100,11 +101,15 @@ callback* CheckCallbacks(unsigned char col, unsigned char row)
 				if (callList) {
 					inkColor = callList->ink;
 					paperColor = callList->paper;
-					PrintStr(callList->colBeg, callList->rowBeg, callList->buffer);
+					txtX = callList->colBeg;
+					txtY = callList->rowBeg;
+					PrintStr(callList->buffer);
 				}
 				inkColor = call->paper;
 				paperColor = call->ink;
-				PrintStr(call->colBeg, call->rowBeg, call->buffer);
+				txtX = call->colBeg;
+				txtY = call->rowBeg;
+				PrintStr(call->buffer);
 				callList = call;
 				break;
 
@@ -112,7 +117,9 @@ callback* CheckCallbacks(unsigned char col, unsigned char row)
 				// Update position of slider
 				inkColor = call->ink;
 				paperColor = call->paper;
-				PrintChr(call->colBeg, SliderPos(call), charLineVert);
+				txtX = call->colBeg;
+				txtY = SliderPos(call);
+				PrintChr(charLineVert);
 				val = *(unsigned int*)&call->buffer[0];
 				max = *(unsigned int*)&call->buffer[2];
 				if (row == call->rowBeg) {
@@ -134,7 +141,8 @@ callback* CheckCallbacks(unsigned char col, unsigned char row)
 					val /= call->rowEnd - call->rowBeg - 2;
 				}
 				*(unsigned int*)&call->buffer[0] = val;
-				PrintChr(call->colBeg, SliderPos(call), charSliderVert);
+				txtY = SliderPos(call);
+				PrintChr(charSliderVert);
 				break;
 				
 			}
@@ -211,7 +219,8 @@ void ClearCallbacks()
 callback* Button(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char* label)
 {
 	// Print Button
-	PrintStr(col, row, label);	
+	txtX = col; txtY = row;
+	PrintStr(label);	
 
 	// Register Callback
 	return PushCallback(col, row, width, height, CALLTYPE_BUTTON);
@@ -239,7 +248,8 @@ callback* Input(unsigned char col, unsigned char row, unsigned char width, unsig
 	callback* call;
 		
 	// Clear Field Area
-	InputStr(col, row, width, buffer, len, 0);
+	txtX = col; txtY = row;
+	InputStr(width, buffer, len, 0);
 
 	// Register Callback
 	call = PushCallback(col, row, width, height, CALLTYPE_INPUT);
@@ -254,7 +264,8 @@ void Panel(unsigned char col, unsigned char row, unsigned char width, unsigned c
 	unsigned char ink, paper;
 	
 	// Clear area
-	PrintBlanks(col, row, width, height);
+	txtX = col; txtY = row;
+	PrintBlanks(width, height);
 	
 	// Create border
 	xC = ColToX(col); xCW = ColToX(col+width);
@@ -266,8 +277,8 @@ void Panel(unsigned char col, unsigned char row, unsigned char width, unsigned c
 	// Add Title
 	ink = inkColor; paper = paperColor;
 	inkColor = paper; paperColor = ink;
-	PrintBlanks(col, row, width, 1);
-	PrintStr(col, row, title);	
+	PrintBlanks(width, 1);
+	PrintStr(title);	
 	inkColor = ink; paperColor = paper;
 }
 
@@ -294,13 +305,14 @@ void ListBox(unsigned char col, unsigned char row, unsigned char width, unsigned
 	Panel(col, row, width, height, title);
 	
 	// Print list and register callbacks
+	txtX = col; txtY = row+1;
  	while (i<(height-1) && i<len && labels[i]) {
 		elt = labels[i];
-		PrintStr(col, ++row, elt);
-		call = PushCallback(col, row, width, 1, CALLTYPE_LISTBOX);
+		PrintStr(elt);
+		call = PushCallback(txtX, txtY, width, 1, CALLTYPE_LISTBOX);
 		call->buffer = elt;
 		call->value = i;
-		i++;
+		txtY++; i++;
 	}
 }
 
@@ -310,16 +322,19 @@ callback* ScrollBar(unsigned char col, unsigned char row, unsigned char height, 
 	unsigned char i=0;	
 
 	// Draw scrollbar
-	PrintChr(col, row, charArrowUp);
-	while (++i < (height-1))
-		PrintChr(col, row+i, charLineVert);
-	PrintChr(col, row+i, charArrowDown);
+	txtX = col; txtY = row;
+	PrintChr(charArrowUp);
+	while (++txtY < (row+height-1)) {
+		PrintChr(charLineVert);
+	}
+	PrintChr(charArrowDown);
 	
 	// Register callback
 	call = PushCallback(col, row, 1, height, CALLTYPE_SCROLLBAR);
 	call->buffer = (unsigned char*)range;
 
 	// Show slider
-	PrintChr(col, SliderPos(call), charSliderVert);
+	txtY = SliderPos(call);
+	PrintChr(charSliderVert);
 	return call;
 }

@@ -53,6 +53,10 @@
 #define TXT_ROWS   25
 #define FONT_HEIGHT 8	
 
+// Charmap Mode
+#define CMP_COLS   39
+#define CMP_ROWS   25	
+
 // Bitmap Mode (AIC)
 #define BMP_COLS 117
 #define BMP_ROWS 100

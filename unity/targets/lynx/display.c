@@ -44,15 +44,13 @@ extern SCB_REHV_PAL sprSCB[SPRITE_NUM];
 extern unsigned char sprDrawn[SPRITE_NUM];
 
 // GFX Data 
-static int palette[] =    { 0x01ca, 0x04b4, 0x08c4, 0x0cc3, 0x0c53, 0x0822, 0x0552, 0x0527, 
-						    0x075e, 0x0e0f, 0x09af, 0x034d, 0x0248, 0x0fff, 0x0888, 0x0000 };	// Set GBR values of 16 color palette
-SCB_REHV_PAL bitmapSCB =  { BPP_4 | TYPE_BACKNONCOLL, REHV | LITERAL, 0, 0, (char*)BITMAPRAM, 0, 0, 
-						    0x0100, 0x0100, { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef } };
+static char palette[] =    { 0x01, 0x04, 0x08, 0x0c, 0x0c, 0x08, 0x05, 0x05, 0x07, 0x0e, 0x09, 0x03, 0x02, 0x0f, 0x08, 0x00,	// Upper 8 bits
+							 0xca, 0xb4, 0xc4, 0xc3, 0x53, 0x22, 0x52, 0x27, 0x5e, 0x0f, 0xaf, 0x4d, 0x48, 0xff, 0x88, 0x00 };  // Lower 8 bits
+SCB_REHV_PAL bitmapSCB =  { BPP_4 | TYPE_BACKNONCOLL, REHV | LITERAL, 0, 0, (char*)BITMAPRAM, 0, 0, 0x0100, 0x0100, { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef } };
 
 void InitDisplay(void)
 {
 	// Did we already initialize?
-	unsigned char i;
 	if (videoInit) { return; }
 	
 	// Install drivers (and set interrupts)
@@ -60,13 +58,8 @@ void InitDisplay(void)
 	lynx_snd_init();
 	__asm__("cli");
 	
-	// Reset palette
-	for (i=0; i<16; i++) {
-		POKE(0xFDA0+i, palette[i] >> 8);
-		POKE(0xFDB0+i, palette[i]);
-	}	
-	
-	// Set flag
+	// Set palette and init flag
+	memcpy(0xFDA0, palette, 32);
 	videoInit = 1;
 }
 
@@ -90,7 +83,7 @@ void UpdateDisplay(void)
 	}
 	
 	// Draw soft keyboard?
-	UpdateKeyboardOverlay();
+	//UpdateKeyboardOverlay();
 	
 	// Switch buffer frame
 	SuzyUpdate();

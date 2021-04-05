@@ -48,9 +48,13 @@ void InitMenu(unsigned char col, unsigned char row, unsigned char width, unsigne
 	cursorActions = actions;
 	
 	// Create blank space and show options
-	PrintBlanks(col-padding, row-padding, width+2*padding, height+2*padding);
-	for (i=0; i<height; i++)
-		PrintStr(col+2, cursorRow+i, labels[i]);
+	txtX = col-padding; txtY = row-padding;
+	PrintBlanks(width+2*padding, height+2*padding);
+	txtX = col+2; txtY = cursorRow;
+	for (i=0; i<height; i++) {
+		PrintStr(labels[i]);
+		txtY++;
+	}
 }
 
 unsigned char UpdateMenu(void)
@@ -67,11 +71,13 @@ unsigned char UpdateMenu(void)
 	// Periodically flick cursor
 	if (clock()-cursorClock > FLICK_RATE) {
 		cursorClock = clock();
-		PrintBlanks(cursorCol, cursorRow, 2, cursorHeight);
+		txtX = cursorCol; txtY = cursorRow;
+		PrintBlanks(2, cursorHeight);
 		if (cursorFlick) {
 			inkColor = YELLOW;
-			PrintChr(cursorCol, cursorPos, &charHyphen[0]);
-			PrintChr(cursorCol+1, cursorPos, &charBracket[3]);
+			txtY = cursorPos;
+			txtX = cursorCol; PrintChr(&charHyphen[0]);
+			txtX++;			  PrintChr(&charBracket[3]);
 			inkColor = WHITE;
 		}
 		cursorFlick = !cursorFlick;

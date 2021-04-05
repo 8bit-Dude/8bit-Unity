@@ -51,11 +51,11 @@
   // INK attributes for characters
   unsigned char ink1[20] = { 0, 3, 3, 6, 3, 7, 4, 4, 7, 4, 7, 2, 3, 1, 3, 7, 5, 5, 7, 5 };
   unsigned char ink2[20] = { 0, 2, 3, 6, 6, 6, 6, 4, 6, 6, 6, 1, 7, 1, 1, 7, 7, 6, 1, 5 };
-  void SetAttributes(signed char col, unsigned char row, unsigned char color)
+  void SetAttributes(unsigned char color)
   {
 	unsigned char i, line1, line2;
 	unsigned int addr;
-	addr = BITMAPRAM+1 + row*320 + col;
+	addr = BITMAPRAM+1 + txtY*320 + txtX;
 	line1 = ink1[color];
 	line2 = ink2[color];
 	for (i=0; i<4; ++i) {
@@ -65,18 +65,20 @@
   }
 #endif
 
-// Colors used in printing function
-unsigned char inkColor = WHITE, paperColor = BLACK;
+// Position and Colors used for printing
+unsigned char txtX, txtY;
+unsigned char inkColor = WHITE; 
+unsigned char paperColor = BLACK;
 
 // Print character using background and foreground colors
-void PrintChr(unsigned char col, unsigned char row, const char *chr)
+void PrintChr(const char *chr)
 {
 #if defined __APPLE2__
 	// Set Character over 3/4 pixels out of 7 in a cell
 	unsigned int x,y;
 	unsigned char i,j,n;
-	if (col&1) { n=4; } else { n=3; }
-	x = (col*35)/10u; y = (row*8);
+	if (txtX&1) { n=4; } else { n=3; }
+	x = (txtX*35)/10u; y = (txtY*8);
 	SetHiresPointer(x, y);	
 	for (j=0; j<n; j++) {
 	  #if defined __DHR__	
@@ -127,7 +129,7 @@ void PrintChr(unsigned char col, unsigned char row, const char *chr)
 	paperColor1 = paperColor&3; paperColor2 = paperColor/4u;
 	bgByte1 = BYTE4(paperColor1,paperColor2,paperColor1,paperColor2);
 	bgByte2 = BYTE4(paperColor2,paperColor1,paperColor2,paperColor1);	
-	addr1 = addr2 = row*320 + col;
+	addr1 = addr2 = txtY*320 + txtX;
 	addr1 += BITMAPRAM1; addr2 += BITMAPRAM2;
 	if (chr == &charBlank[0]) {
 		for (i=0; i<8; ++i) {
@@ -163,7 +165,7 @@ void PrintChr(unsigned char col, unsigned char row, const char *chr)
 	unsigned char i, line;
 	unsigned char a0,a2,a4,b,blank;
 	unsigned int addr;
-	addr = BITMAPRAM+1 + row*320 + col;
+	addr = BITMAPRAM+1 + txtY*320 + txtX;
 	blank = 64 + (paperColor ? 63 : 0);
 	if (chr == &charBlank[0]) {
 		for (i=0; i<8; ++i) {
@@ -188,7 +190,7 @@ void PrintChr(unsigned char col, unsigned char row, const char *chr)
 	// Set Character inside 4*8 cell
 	unsigned char i,line;
 	unsigned int addr;
-	addr = BITMAPRAM + row*320 + col*8;
+	addr = BITMAPRAM + txtY*320 + txtX*8;
 	if (chr == &charBlank[0]) {
 		memset((char*)addr, pow2, 8);
 	} else {
@@ -202,13 +204,13 @@ void PrintChr(unsigned char col, unsigned char row, const char *chr)
 	}
 	
 	// Set Color
-	addr = SCREENRAM + row*40 + col;
+	addr = SCREENRAM + txtY*40 + txtX;
 	POKE((char*)addr, inkColor << 4 | paperColor);
 #elif defined __LYNX__
 	// Set Character Pixels
 	unsigned char i, line, paperShift, inkShift;
 	unsigned int addr;
-	addr = BITMAPRAM+1 + row*(492) + col*2u;
+	addr = BITMAPRAM+1 + txtY*(492) + txtX*2u;
 	paperShift = paperColor << 4;
 	inkShift = inkColor << 4;
 	POKE((char*)addr++, paperShift | paperColor);
@@ -263,15 +265,15 @@ const char *GetChr(unsigned char chr)
 }
 
 // Parse string and print characters one-by-one (can be slow...)
-void PrintStr(unsigned char col, unsigned char row, const char *buffer)
+void PrintStr(const char *buffer)
 {
 #if defined __CBM__
 	unsigned int addr1, addr2;
-	unsigned char i, chr, len = strlen(buffer);
+	unsigned char i, chr, bckX = txtX, len = strlen(buffer);
 	if (videoMode == CHR_MODE) {
 		// Charmap mode
-		addr1 = SCREENRAM + 40*row + col;
-		addr2 = COLORRAM + 40*row + col;
+		addr1 = SCREENRAM + 40*txtY + txtX;
+		addr2 = COLORRAM + 40*txtY + txtX;
 		for (i=0; i<len; i++) {
 			chr = buffer[i];
 			if (chr > 192)
@@ -289,13 +291,19 @@ void PrintStr(unsigned char col, unsigned char row, const char *buffer)
 		}		
 	} else {
 		// Bitmap mode
-		for (i=0; i<len; ++i)
-			PrintChr(col+i, row, GetChr(buffer[i]));
+		for (i=0; i<len; ++i) {
+			PrintChr(GetChr(buffer[i]));
+			txtX++; 
+		}
+		txtX = bckX;
 	}
 #else
-	unsigned char i, len = strlen(buffer);
-	for (i=0; i<len; ++i)
-		PrintChr(col+i, row, GetChr(buffer[i]));
+	unsigned char i, bckX = txtX, len = strlen(buffer);
+	for (i=0; i<len; ++i) {
+		PrintChr(GetChr(buffer[i]));
+		txtX++; 
+	}
+	txtX = bckX;
 #endif
 	
 #if defined __LYNX__

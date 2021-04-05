@@ -68,7 +68,9 @@
 
 // Adaptors
 #if defined __HUB__
-  #include "adaptors/hub.h"
+  #include "adaptors/hub.h"  
+  #define HUB_TX_LEN 256
+  #define HUB_RX_LEN 256
 #elif defined __FUJINET__	
   // Nothing
 #else
@@ -128,18 +130,19 @@ extern unsigned char worldWidth, worldHeight, worldMaxX, worldMaxY;
 #endif
 
 // Printing functions (see print.c)
+extern unsigned char txtX, txtY;
 extern unsigned char inkColor, paperColor;
 #if defined __ORIC__
-  void SetAttributes(signed char col, unsigned char row, unsigned char color);
+  void SetAttributes(unsigned char color);
 #endif
 const char *GetChr(unsigned char chr);
-void PrintBlanks(unsigned char col, unsigned char row, unsigned char width, unsigned char height);
-void PrintChr(unsigned char col, unsigned char row, const char *chr);
-void PrintNum(unsigned char col, unsigned char row, unsigned int num);
-void PrintStr(unsigned char col, unsigned char row, const char *buffer);
-void PrintLogo(unsigned char col, unsigned char row, unsigned char index);
+void PrintBlanks(unsigned char width, unsigned char height);
+void PrintChr(const char *chr);
+void PrintNum(unsigned int num);
+void PrintStr(const char *buffer);
+void PrintLogo(unsigned char index);
 void CopyStr(unsigned char col1, unsigned char row1, unsigned char col2, unsigned char row2, unsigned char len);
-unsigned char InputStr(unsigned char col, unsigned char row, unsigned char width, char *buffer, unsigned char len, unsigned char key);
+unsigned char InputStr(unsigned char width, char *buffer, unsigned char len, unsigned char key);
 extern unsigned char maskInput;
 
 // Joystick/Mouse definitions
@@ -240,7 +243,6 @@ void RecolorSprite(unsigned char index, unsigned char offset, unsigned char colo
   void EnableMultiColorSprite(unsigned char index);
   void DisableMultiColorSprite(unsigned char index);
   void SetMultiColorSprite(unsigned char index, unsigned int frame);
-  void DoubleHeightSprite(unsigned char index, unsigned char onoff);
   extern unsigned char sprCushion;
 #elif defined __CBM__
   void DoubleHeightSprite(unsigned char index, unsigned char onoff);

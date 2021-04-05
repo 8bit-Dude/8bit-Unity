@@ -167,7 +167,7 @@ void ClearBitmap()
 #elif defined __LYNX__
 	unsigned char i;
 	unsigned int addr = BITMAPRAM;
-	memset(addr, 0xff, 8364); 
+	memset((char*)addr, 0xff, 8364); 
 	for (i=0; i<102; i++) { 
 		POKE((char*)addr, 0x52); addr+=81;
 		POKE((char*)addr, 0x00); addr+=1;

@@ -34,25 +34,29 @@
   unsigned char ok, hd, tr, co;
 #endif  
 
-#if defined __LYNX__
+#if defined __APPLE2__
   #include <serial.h>
   unsigned char __fastcall__ SerialOpen(void* data); // See serial.s
   unsigned char __fastcall__ SerialGet(unsigned char* data);
   unsigned char __fastcall__ SerialPut(unsigned char data);
-  struct ser_params comLynx = { SER_BAUD_62500, SER_BITS_8, SER_STOP_1, SER_PAR_SPACE, SER_HS_NONE };							  
+  struct ser_params comParm = { SER_BAUD_19200, SER_BITS_8, SER_STOP_1, SER_PAR_NONE, SER_HS_HW };							  
+#elif defined __LYNX__
+  #include <serial.h>
+  unsigned char __fastcall__ SerialOpen(void* data); // See serial.s
+  unsigned char __fastcall__ SerialGet(unsigned char* data);
+  unsigned char __fastcall__ SerialPut(unsigned char data);
+  //struct ser_params comParm = { SER_BAUD_62500, SER_BITS_8, SER_STOP_1, SER_PAR_SPACE, SER_HS_NONE };							  
 #elif defined __ORIC__
   unsigned char tick;
 #endif
 
 unsigned char hubState[7] = { COM_ERR_OFFLINE, 255, 255, 255, 255, 80, 100 };
-unsigned char sendID = 0, sendLen = 0, sendHub[256];
-unsigned char recvID = 0, recvLen = 0, recvHub[256];
+unsigned char sendID = 0, sendLen = 0, sendHub[HUB_TX_LEN];
+unsigned char recvID = 0, recvLen = 0, recvHub[HUB_RX_LEN];
 unsigned char packetID = 0;
 
 unsigned char QueueHub(unsigned char packetCmd, unsigned char* packetBuffer, unsigned char packetLen)
 {
-	unsigned char i;
-	
 	// Check if there is enough space in buffer
 	if (packetLen > 255-sendLen)
 		return 0;
@@ -62,19 +66,19 @@ unsigned char QueueHub(unsigned char packetCmd, unsigned char* packetBuffer, uns
 	sendHub[sendLen++] = packetID;	
 	sendHub[sendLen++] = packetLen+1;
 	sendHub[sendLen++] = packetCmd;
-	for (i=0; i<packetLen; i++) 
-		sendHub[sendLen++] = packetBuffer[i];
+	memcpy(&sendHub[sendLen], packetBuffer, packetLen);
+	sendLen += packetLen;
 	return 1;
 }
 
 void SendByte(unsigned char value)
 {
 	// Send 1 byte to HUB
-#if defined __LYNX__	
+#if defined(__APPLE2__) || defined(__LYNX__)
 	unsigned char ch;
 	while (SerialPut(value) != SER_ERR_OK) ; // Send byte
 	while (SerialGet(&ch) != SER_ERR_OK) ;	 // Read byte (sent to oneself)	
-#elif defined __ORIC__
+#elif defined(__ORIC__)
 	POKE(0x0301, value);		// Write to Printer Port
 	*((char*)0x300) &= 0xEF; 	// 11101111 - Send STROBE (falling signal)
 	tick++; tick++; tick++; 	// Wait some cycles...
@@ -87,9 +91,9 @@ unsigned char RecvByte(unsigned char* value)
 	// Recv 1 byte from HUB
 	unsigned char i = 255;
 	while (1) {  // Countdown i to 0
-	#if defined __LYNX__
+	#if defined(__APPLE2__) || defined(__LYNX__)
 		if (SerialGet(value) == SER_ERR_OK) { break; }			// Look for incoming byte on ComLynx Port
-	#elif defined __ORIC__	
+	#elif defined(__ORIC__)
 		if (PEEK(0x030d)&2) { *value = PEEK(0x0301); break; } 	// Look for ACKNOW on CA1 then read Printer Port
 	#endif
 		if (!i--) return 0;
@@ -212,8 +216,9 @@ void UpdateHub()
 			recvID = 0; recvLen = 0;
 			sendID = 0; sendLen = 0;
 			QueueHub(HUB_SYS_RESET, 0, 0);
-		#if defined __LYNX__			
-			SerialOpen(&comLynx);  // Setup Comlynx interface
+		#if defined(__APPLE2__) || defined(__LYNX__)
+			SerialOpen(0);  // Setup serial interface
+			//SerialOpen(&comParm);  // Setup serial interface
 		#endif				
 		}
 	}
@@ -222,7 +227,7 @@ void UpdateHub()
 	tic = clock();
 #endif
 
-#if defined __LYNX__	
+#if defined(__APPLE2__) || defined(__LYNX__)
 	while (SerialGet(&i) == SER_ERR_OK) ; // Clear UART Buffer
 #elif defined __ORIC__
 	__asm__("sei");		// Disable interrupts
@@ -239,11 +244,11 @@ void UpdateHub()
 
 #if defined DEBUG_HUB
 	toc = clock();
-	if (hubState[0] == COM_ERR_OK)      { gotoxy(0, CHR_ROWS-1); cprintf("TC%lu  ", toc-tic); 
-										  gotoxy(6, CHR_ROWS-1); cprintf("LN%u  ", recvLen);	
-										  ok+=1; gotoxy(12, CHR_ROWS-1); cprintf("OK%u  ", ok); }
-else if (hubState[0] == COM_ERR_HEADER)  { hd+=1; gotoxy(18, CHR_ROWS-1); cprintf("HD%u", hd); }	
-else if (hubState[0] == COM_ERR_TRUNCAT) { tr+=1; gotoxy(24, CHR_ROWS-1); cprintf("TR%u", tr); } 
-else if (hubState[0] == COM_ERR_CORRUPT) { co+=1; gotoxy(30, CHR_ROWS-1); cprintf("CO%u", co); }	
+	if (hubState[0] == COM_ERR_OK)      { gotoxy(0, TXT_ROWS-1); cprintf("TC%lu  ", toc-tic); 
+										  gotoxy(6, TXT_ROWS-1); cprintf("LN%u  ", recvLen);	
+										  ok+=1; gotoxy(12, TXT_ROWS-1); cprintf("OK%u  ", ok); }
+else if (hubState[0] == COM_ERR_HEADER)  { hd+=1; gotoxy(18, TXT_ROWS-1); cprintf("HD%u", hd); }	
+else if (hubState[0] == COM_ERR_TRUNCAT) { tr+=1; gotoxy(24, TXT_ROWS-1); cprintf("TR%u", tr); } 
+else if (hubState[0] == COM_ERR_CORRUPT) { co+=1; gotoxy(30, TXT_ROWS-1); cprintf("CO%u", co); }	
 #endif
 }

@@ -36,9 +36,9 @@
 
 // Interactive text input function
 unsigned char maskInput = 0;
-unsigned char InputStr(unsigned char col, unsigned char row, unsigned char width, char *buffer, unsigned char len, unsigned char key)
+unsigned char InputStr(unsigned char width, char *buffer, unsigned char len, unsigned char key)
 {
-	unsigned char i, j, curlen, offset;
+	unsigned char i, curlen, offset;
 	unsigned char *c = charStar;
 	
 	// Check current length of input
@@ -51,13 +51,13 @@ unsigned char InputStr(unsigned char col, unsigned char row, unsigned char width
 	// Was a new key received?
 	if (!key) {
 		// Initialize input field
-		PrintBlanks(col, row, width+1, 1);
-		i = curlen-offset; j = col;
+		PrintBlanks(width+1, 1);
+		i = curlen-offset; 
 		while (i < curlen) {
 			if (!maskInput)
 				c = GetChr(buffer[i]);
-			PrintChr(j, row, c);
-			j++; i++;
+			PrintChr(c);
+			txtX++; i++;
 		}
 		
 	} else {		
@@ -71,13 +71,14 @@ unsigned char InputStr(unsigned char col, unsigned char row, unsigned char width
 				buffer[curlen] = key;
 				buffer[curlen+1] = 0;
 				if (curlen >= width) {
-					CopyStr(col, row, col+1, row, width-1);
+					CopyStr(txtX, txtY, txtX+1, txtY, width-1);
 					offset--;
 				}
 				if (!maskInput)
 					c = GetChr(key);
-				PrintChr(col+offset, row, c);
-				offset++;
+				txtX += offset;
+				PrintChr(c);
+				txtX++;
 			}
 		}
 		
@@ -87,13 +88,15 @@ unsigned char InputStr(unsigned char col, unsigned char row, unsigned char width
 				buffer[curlen-1] = 0;				
 				if 	(curlen > width) {
 					for (i=width-1; i>0; i--)
-						CopyStr(col+i, row, col+i-1, row, 1);
+						CopyStr(txtX+i, txtY, txtX+i-1, txtY, 1);
 					if (!maskInput)
 						c = GetChr(buffer[curlen-width-1]);
-					PrintChr(col, row, c);		
+					PrintChr(c);		
+					txtX += offset;
 				} else {
-					PrintChr(col+offset, row, charBlank);
-					offset--;					
+					txtX += offset;
+					PrintChr(charBlank);
+					txtX--;					
 				}
 			}
 		}
@@ -105,6 +108,6 @@ unsigned char InputStr(unsigned char col, unsigned char row, unsigned char width
 	}
 
 	// Show cursor
-	PrintChr(col+offset, row, &charUnderbar[0]);	
+	PrintChr(charUnderbar);
 	return 0;
 }

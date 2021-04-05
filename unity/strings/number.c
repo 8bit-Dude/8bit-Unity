@@ -39,10 +39,10 @@
 #endif
 
 // Print numerical value
-void PrintNum(unsigned char col, unsigned char row, unsigned int num)
+void PrintNum(unsigned int num)
 {
+	unsigned char tmp, bckX = txtX;
 	unsigned int step = 1;
-	unsigned char tmp;
 	while ((step*10)<=num) {
 		step *= 10;
 	}
@@ -61,13 +61,16 @@ void PrintNum(unsigned char col, unsigned char row, unsigned int num)
 			col++;
 		} else {
 			// Bitmap mode	
-			PrintChr(col++, row, &charDigit[tmp*3]);
+			PrintChr(&charDigit[tmp*3]);
+			txtX++;
 		}
 	  #else
-		PrintChr(col++, row, &charDigit[tmp*3]);
+		PrintChr(&charDigit[tmp*3]);
+		txtX++;
 	  #endif
 		step /= 10u;
 	}
+	txtX = bckX;
 #if defined __LYNX__
 	if (autoRefresh) { UpdateDisplay(); }
 #endif	

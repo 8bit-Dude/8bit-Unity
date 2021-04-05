@@ -25,10 +25,9 @@
  */
 
 #include "../../unity.h"
+#include <stdarg.h>
 
 // Workaround for missing text printing
-
-unsigned char chrCol, chrRow;
 
 void screensize(unsigned char *xSize, unsigned char *ySize) 
 {
@@ -37,15 +36,39 @@ void screensize(unsigned char *xSize, unsigned char *ySize)
 
 void gotoxy(unsigned char col, unsigned char row) 
 {
-	chrCol = col; chrRow = row;
+	txtX = col; txtY = row;
 }
 
 int cprintf (const char* format, ...) 
 {
-	PrintStr(chrCol, chrRow, format);
-	chrCol += strlen(format);
-	while (chrCol > 39) {
-		chrCol -= 40;
-		chrRow++;
+	PrintStr(format);
+	txtX += strlen(format);
+	while (txtX > 39) {
+		txtX -= 40;
+		txtY++;
 	}
+}
+
+int scanf(const char *format, ...)
+{
+	unsigned char buffer[16];
+	va_list vl;
+	
+	// Reset buffer
+	buffer[0] = 0;
+
+	// Run input loop
+	ShowKeyboardOverlay();
+	while (1) {
+		if (KeyboardOverlayHit() && InputStr(16, buffer, 16, GetKeyboardOverlay()))
+			break;
+		UpdateDisplay();
+	}
+	HideKeyboardOverlay();
+	
+	// Decode arguments
+	va_start(vl, format);	
+	sscanf(buffer, format, vl);
+	va_end(vl);
+	return 1; 
 }

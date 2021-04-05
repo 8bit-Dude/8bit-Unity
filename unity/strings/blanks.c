@@ -45,7 +45,7 @@
 #endif
 
 // Rapidly fill memory area with blank characters
-void PrintBlanks(unsigned char col, unsigned char row, unsigned char width, unsigned char height)
+void PrintBlanks(unsigned char width, unsigned char height)
 {
 	// Black-out menu area
 	unsigned char i=0;
@@ -53,8 +53,8 @@ void PrintBlanks(unsigned char col, unsigned char row, unsigned char width, unsi
 	unsigned int addr1, addr2;
 	paperColor1 = paperColor&3;
 	paperColor2 = paperColor/4u;
-	addr1 = BITMAPRAM1+row*320+col;
-	addr2 = BITMAPRAM2+row*320+col;
+	addr1 = BITMAPRAM1+txtY*320+txtX;
+	addr2 = BITMAPRAM2+txtY*320+txtX;
 	bgByte1 = BYTE4(paperColor1,paperColor2,paperColor1,paperColor2);
 	bgByte2 = BYTE4(paperColor2,paperColor1,paperColor2,paperColor1);
 	while (i<height*8) {
@@ -74,12 +74,12 @@ void PrintBlanks(unsigned char col, unsigned char row, unsigned char width, unsi
 	unsigned int dataAux, dataMain;
 	
 	// Make sure columns start and end on full 7 pixel blocks
-	col = (col-(col&1))/2u;
+	x = (txtX-(txtX&1))/2u;
 	width = (width+(width&1))/2u;
 	
 	// Create sample block at top-left (to encode color info)
-	x = 7*col;
-	y = row*8;
+	x = 7*x;
+	y = txtY*8;
 	for (i=0; i<7; ++i) {
 		SetHiresPointer(x+i, y);
 	  #if defined __DHR__
@@ -95,7 +95,7 @@ void PrintBlanks(unsigned char col, unsigned char row, unsigned char width, unsi
 	*dhraux = 0;  dataAux = PEEKW(hiresPtr); *dhrmain = 0; 
   #endif
 	dataMain = PEEKW(hiresPtr);
-	for (y=row*8; y<(row+height)*8; ++y) {
+	for (y=txtY*8; y<(txtY+height)*8; ++y) {
 		SetHiresPointer(x, y);
 		for (i=0; i<width; ++i) {
 		  #if defined __DHR__	
@@ -110,7 +110,7 @@ void PrintBlanks(unsigned char col, unsigned char row, unsigned char width, unsi
 	// Fill with 0s (papercolor) or 1s (inkcolor)
 	unsigned int addr;
 	unsigned char value;
-	addr = BITMAPRAM+1+row*320+col;
+	addr = BITMAPRAM+1+txtY*320+txtX;
 	if (paperColor) value = 127; else value = 64;
 	while (i<height*8) {
 		memset((char*)addr, value, width);
@@ -118,8 +118,8 @@ void PrintBlanks(unsigned char col, unsigned char row, unsigned char width, unsi
 	}
 #elif defined __CBM__
 	unsigned int addr1, addr2;
-	addr1 = BITMAPRAM+row*8*40+col*8;
-	addr2 = SCREENRAM+row*40+col;
+	addr1 = BITMAPRAM+txtY*8*40+txtX*8;
+	addr2 = SCREENRAM+txtY*40+txtX;
 	while (i<height) {
 		memset((char*)addr1, pow2, width*8);
 		memset((char*)addr2, paperColor, width);		
@@ -128,7 +128,7 @@ void PrintBlanks(unsigned char col, unsigned char row, unsigned char width, unsi
 #elif defined __LYNX__
 	unsigned int addr;
 	unsigned char value;
-	addr = BITMAPRAM+1+row*(6*82)+col*2;
+	addr = BITMAPRAM+1+txtY*(6*82)+txtX*2;
 	value = (paperColor << 4) | paperColor;
 	while (i<height*6) {
 		memset((char*)addr, value, width*2);
