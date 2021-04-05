@@ -54,9 +54,10 @@ void InitScene()
 	// Assign ink/paper colors
 #if (defined __ORIC__)
 	paperColor = ORANGE;
-	SetAttributes(-1, TXT_ROWS-2, paperColor);
-	SetAttributes(-1, TXT_ROWS-1, paperColor);
-	PrintBlanks(0, TXT_ROWS-2, TXT_COLS, 2);	
+	txtX = -1; txtY = TXT_ROWS-2;
+	SetAttributes(paperColor); txtY++;
+	SetAttributes(paperColor); txtY--;
+	txtX = 0; PrintBlanks(TXT_COLS, 2);	
 #else	
 	paperColor = ORANGE;
 	inkColor = WHITE;
