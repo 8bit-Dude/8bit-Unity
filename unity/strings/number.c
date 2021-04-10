@@ -56,9 +56,9 @@ void PrintNum(unsigned int num)
 	  #if defined __CBM__
 		if (videoMode == CHR_MODE) {
 			// Charmap mode
-			POKE(SCREENRAM+40*row+col, 208+tmp);
-			POKE(COLORRAM+40*row+col, inkColor);
-			col++;
+			POKE(SCREENRAM+40*txtY+txtX, 208+tmp);
+			POKE(COLORRAM+40*txtY+txtX, inkColor);
+			txtX++;
 		} else {
 			// Bitmap mode	
 			PrintChr(&charDigit[tmp*3]);
