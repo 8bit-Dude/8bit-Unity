@@ -21,7 +21,8 @@ void ImageDisplay()
 		
 	// Display file name
 	paperColor = WHITE; inkColor = BLACK; 
-	PrintStr(14, TXT_ROWS-1, fileNames[imageSel]);		
+	txtX = 14; txtY = TXT_ROWS-1;	
+	PrintStr(fileNames[imageSel]);		
 	
 	// Add L/R Controllers
 	paperColor = BLACK; inkColor = WHITE;

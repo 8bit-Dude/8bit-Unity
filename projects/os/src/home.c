@@ -34,7 +34,8 @@ void ClearScreen()
 	
 	// Clear usable area
 	paperColor = DESK_COLOR;
-	PrintBlanks(0, 0, TXT_COLS, TXT_ROWS-1);
+	txtX = 0; txtY = 0;
+	PrintBlanks(TXT_COLS, TXT_ROWS-1);
 	
 	// Reset callbacks
 	ClearCallbacks();
@@ -45,10 +46,11 @@ void ClearScreen()
 void DrawTaskBar()
 {
 	paperColor = WHITE; inkColor = BLACK; 
+	txtY = TXT_ROWS-1;
 #if (defined __ORIC__)
-	SetAttributes(-1, TXT_ROWS-1, paperColor);
+	txtX = -1; SetAttributes(paperColor);
 #endif
-	PrintBlanks(0, TXT_ROWS-1, TXT_COLS, 1);
+	txtX = 0; PrintBlanks(TXT_COLS, 1);
 	paperColor = BLACK; inkColor = WHITE;
 	homeCall = Button(0, TXT_ROWS-1, 4, 1, "HOME");	
 }
@@ -65,7 +67,7 @@ void DrawTaskBar()
 
 void HomeScreen(void)
 {
-	unsigned char i, *chunk;
+	unsigned char i;
 	
 	// Clear screen and callbacks
 	ClearScreen();
@@ -77,5 +79,6 @@ void HomeScreen(void)
 
 	// Add Taskbar Message
 	paperColor = WHITE; inkColor = BLACK; 
-	PrintStr(21, TXT_ROWS-1, version);		
+	txtX = 21; txtY = TXT_ROWS-1;
+	PrintStr(version);
 }

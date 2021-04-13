@@ -122,7 +122,6 @@ void PreviewImage(void)
 
 void PreviewText(void)
 {
-	unsigned char x, y; 
 	unsigned int addr, end;
 #if (defined __APPLE2__) || (defined __CBM__)	
 	FILE* fp;
@@ -155,13 +154,13 @@ void PreviewText(void)
 	paperColor = DESK_COLOR; inkColor = BLACK;
 	addr = (unsigned int)textBuffer;
 	end = addr+strlen(textBuffer);
-	x=18; y=1; 
+	txtX=18; txtY=1; 
 	while (addr<end) {
 		if (*(char*)(addr) == '\n') {
-			x = 18; y+=1;
+			txtX = 18; txtY++;
 		} else {
-			PrintChr(x, y, GetChr(*(char*)(addr)));
-			x += 1; if (x>TXT_COLS-2) { x = 18; y+=1; }
+			PrintChr(GetChr(*(char*)(addr))); txtX++; 
+			if (txtX>TXT_COLS-2) { txtX = 18; txtY++; }
 		} addr++;
 	}
 }
@@ -181,16 +180,15 @@ void FilesScreen(void)
 
 void FileCallback(callback* call)
 {
-	unsigned char i;
-	
 	// Handle listbox calls
 	if (call->type == CALLTYPE_LISTBOX) {		
 		// Reset preview area
 		paperColor = DESK_COLOR;
+		txtX = 18; txtY = 1;
 	#if (defined __APPLE2__)
-		PrintBlanks(18, 1, TXT_COLS-20, TXT_ROWS-3);
+		PrintBlanks(TXT_COLS-20, TXT_ROWS-3);
 	#else
-		PrintBlanks(18, 1, TXT_COLS-19, TXT_ROWS-3);
+		PrintBlanks(TXT_COLS-19, TXT_ROWS-3);
 	#endif
 	
 		// Clear preview callbacks

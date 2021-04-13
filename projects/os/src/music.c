@@ -73,13 +73,15 @@ void MusicTitle()
 	unsigned char* track = fileNames[musicSel];
 	
 	paperColor = BLACK; inkColor = WHITE;
-	PrintBlanks(10, 7, 20, 3); 
-	PrintStr(20-strlen(track)/2u, 8, track);	
+	txtX = 10; txtY = 7;	
+	PrintBlanks(20, 3); 
+	txtX = 20-strlen(track)/2u; txtY = 8;	
+	PrintStr(track);	
 }
 
 void MusicScreen(void)
 {	
-	unsigned char i, col;
+	unsigned char i;
 	
 	// Select file?
 	if (musicSel == 127)

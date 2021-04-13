@@ -40,8 +40,11 @@ void ChatRefresh(void)
 {
 	unsigned int i;
 	paperColor = DESK_COLOR;
-	for (i=0; i<MSG_PER_PAGE; i++)
-		PrintBlanks(0, 5*i+2, TXT_COLS-1, 4);
+	txtX = 0; txtY = 2;
+	for (i=0; i<MSG_PER_PAGE; i++) {
+		PrintBlanks(TXT_COLS-1, 4);
+		txtY += 5;
+	}
 	ChatPage();
 }
 
@@ -50,10 +53,11 @@ void ChatSend()
 	// Make message length checks
 	unsigned char len;
 	len = strlen(chatBuffer);
+	txtX = 10; txtY = 1;
 	if (len < 8) {
 		paperColor = DESK_COLOR; inkColor = BLACK;
-		PrintStr(10,1,"Min Length: 8 chars!"); 		
-		sleep(1); PrintBlanks(10,1, 20, 1);
+		PrintStr("Min Length: 8 chars!"); 		
+		sleep(1); PrintBlanks(20, 1);
 		Line(lineX1, lineX2, lineY, lineY);
 		return;
 	}
@@ -67,7 +71,8 @@ void ChatSend()
 	
 	// Clear previous message
 	paperColor = WHITE;
-	PrintBlanks(0,0,TXT_COLS-4,1);
+	txtX = 0; txtY = 0;
+	PrintBlanks(TXT_COLS-4,1);
 	chatBuffer[0] = 0;
 	
 	// Refresh messages
@@ -85,27 +90,28 @@ void ChatLogin()
 
 void ChatMessage(unsigned char index, unsigned char* packet)
 {
-	unsigned char i, l, line, buffer[29];
+	unsigned char i, l, buffer[29];
 
 	// Find message slot
 	paperColor = DESK_COLOR;
-	line = index*5+2;
 	
 	// Display user/date
 	inkColor = WHITE;
-	PrintStr(0, line, &packet[3]);
+	txtX = 0; txtY = index*5+2;
+	PrintStr(&packet[3]); txtY++;
 	i = 3 + 1 + strlen(&packet[3]);
 	
-	PrintStr(0, line+1, &packet[i]);
+	PrintStr(&packet[i]); txtY--;
 	i = i + 1 + strlen(&packet[i]);
 	
 	// Display message
 	inkColor = BLACK;
+	txtX = TXT_COLS-29;
 	l = i + strlen(&packet[i]);
 	while (i < l) {
 		memcpy(buffer, &packet[i], 28);
-		PrintStr(TXT_COLS-29, line, buffer);
-		i += 28; line++;
+		PrintStr(buffer);
+		i += 28; txtY++;
 	}
 }
 
@@ -120,14 +126,15 @@ void ChatScreen(void)
 	inkColor = BLACK;	
 	
 	// Do we have net access?
+	txtX = 12; txtY = 7;
 	if (!netConnected) {
 		Panel(10, 3, 20, 9, "");	
-		PrintStr(12, 7, "Network Init...");	
+		PrintStr("Network Init...");	
 		ServerConnect();
 	}
 	
 	if (!netConnected) {
-		PrintStr(12, 7, " No internet!  ");	
+		PrintStr(" No internet!  ");	
 		return;
 	}
 	
@@ -135,9 +142,10 @@ void ChatScreen(void)
 	if (!chatLogged) {
 		// Panel/Labels
 		Panel(10, 3, 20, 9, "");	
-		PrintStr(11, 5, "User:");
-		PrintStr(11, 7, "Pass:");
-		PrintStr(11, 9, "Reg 8bit-unity.com");
+		txtX = 11; txtY = 5;
+		PrintStr("User:"); txtY += 2;
+		PrintStr("Pass:"); txtY += 2;
+		PrintStr("Reg 8bit-unity.com");
 		
 		// Inputs
 		paperColor = WHITE;
@@ -189,7 +197,8 @@ void ChatPacket(unsigned char *packet)
 			ChatScreen();
 		} else {
 			paperColor = DESK_COLOR; inkColor = BLACK;
-			PrintStr(12, 13, &packet[1]);
+			txtX = 12; txtY = 13;
+			PrintStr(&packet[1]);
 		}
 		break;
 		
