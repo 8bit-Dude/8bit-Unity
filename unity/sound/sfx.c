@@ -130,24 +130,22 @@
 		POKE(0xD201+2*channel, sampleCtrl[channel]);		
 	}
 	
-#elif defined __CBM__			  //  Attack/Decay  Sustain/Release  Ctrl Attack  Ctrl Release
-	unsigned char sfxData[][] = { { 	0x22,			0x09,			0x11,		0x10 	},		// SFX_BLEEP  (Ctrl: Triangle Wave)
-								  {     0x22,			0xA8,			0x21,		0x20 	},		// SFX_BUMP	  (Ctrl: Square Wave)
-								  {     0x00,    		0xA8,			0x61,		0x00 	},		// SFX_ENGINE
-								  {     0x10,    		0xA8,			0x21,		0x10 	},		// SFX_INJURY (Ctrl: Square Wave)
-								  {     0x22,			0xA8,			0x21,		0x20 	},		// SFX_GUN	  (Ctrl: Square Wave)
-								  {     0x00,			0xA8,			0x61,		0x00 	} };	// SFX_SCREECH
+#elif defined __CBM__			  //  Attack/Decay  Sustain/Release  Ctrl Attack  Ctrl Release  Pitch Mult.
+	unsigned char sfxData[][] = { { 	0x22,			0x09,			0x11,		0x10, 		   64	},		// SFX_BLEEP  (Ctrl: Triangle Wave)
+								  {     0x22,			0xA8,			0x21,		0x20, 		   32  	},		// SFX_BUMP	  (Ctrl: Square Wave)
+								  {     0x00,    		0xA8,			0x61,		0x00, 		   8	},		// SFX_ENGINE
+								  {     0x10,    		0xA8,			0x21,		0x10, 		   8	},		// SFX_INJURY (Ctrl: Square Wave)
+								  {     0x22,			0xA8,			0x21,		0x20, 		   8 	},		// SFX_GUN	  (Ctrl: Square Wave)
+								  {     0x00,			0xA8,			0x61,		0x00, 		   8	} };	// SFX_SCREECH
 
 	void PlaySFX(unsigned char index, unsigned char pitch, unsigned char volume, unsigned char channel) {
 		// Prepare SFX data
 		unsigned char *data = sfxData[index];
 		struct __sid_voice *ch;
 		unsigned int freq;
-		if (data[0]) {
-			freq = 64*(32+pitch);
-		} else {
-			freq = 16*(8+pitch);
-		}		
+		
+		// Set Frequency
+		freq = data[4]*(data[4]+pitch);
 		
 		// Get channel
 		switch (channel) {
