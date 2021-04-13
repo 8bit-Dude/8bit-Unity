@@ -125,7 +125,9 @@ void GameReset()
 		if (!PlayerAvailable(i)) { continue; }
 
 		// Reset laps and sprite
-		PrintStr((i+2)*8u-3, TXT_ROWS-1, "  ");
+		txtX = (i+2)*8u-3;
+		txtY = TXT_ROWS-1;
+		PrintStr("  ");
 		f = ((cars[i].ang1+12)%(360))/23u;
 	#if defined __APPLE2__
 		f += i*16u;
@@ -216,7 +218,8 @@ void GameInit(const char* map)
 #endif		
 	// Print map name in lower left corner
 	inkColor = WHITE; paperColor = BLACK;
-	PrintStr(0, TXT_ROWS-1, mapList[gameMap]);
+	txtX = 0; txtY = TXT_ROWS-1;
+	PrintStr(mapList[gameMap]);
 
 	// Load Navigation
 	memcpy(&buffer[len], ".nav", 4);
@@ -230,11 +233,12 @@ void GameInit(const char* map)
             if (controlIndex[i]) {
 				slot = (i+1)*8;
                 inkColor = inkColors[i]; 
+				txtY = TXT_ROWS-1;
 			#if defined __ORIC__
-				SetAttributes(slot-1, TXT_ROWS-1, inkColor);
+				txtX = slot-1; SetAttributes(inkColor);
 			#endif					
-				PrintChr(slot+1, TXT_ROWS-1, &charDigit[(i+1)*3]);
-                PrintChr(slot, TXT_ROWS-1, &charLetter[15*3]);	// 'P'
+                txtX = slot;   PrintChr(&charLetter[15*3]);	// 'P'
+				txtX = slot+1; PrintChr(&charDigit[(i+1)*3]);
             }
         }
         // Initiate laps
@@ -823,7 +827,8 @@ char GameLoop()
 			// Process Chat?
 			if (chatting) {
 				inkColor = inkColors[clIndex];
-				if (InputStr(0, ROW_CHAT, 19, chatBuffer, 19, lastKey)) {
+				txtX = 0; txtY = ROW_CHAT;
+				if (InputStr(19, chatBuffer, 19, lastKey)) {
 					// Return was pressed
 					if (strlen(&chatBuffer[0]) > 0) { ClientEvent(EVENT_CHAT); }
 					chatting = 0;
@@ -858,7 +863,8 @@ char GameLoop()
 				#endif
 					chatting = 1;
 					chatBuffer[0] = 0;
-					InputStr(0, ROW_CHAT, 19, chatBuffer, 19, 0);
+					txtX = 0; txtY = ROW_CHAT;
+					InputStr(19, chatBuffer, 19, 0);
 				}
 				// Quit game
 				if (lastKey == KB_QUIT) {

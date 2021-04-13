@@ -142,15 +142,17 @@ char CheckWaypoint(Vehicle *car)
 			// Check dot products with 90 deg rotated vector
 			if (dotCross1 >= 0 && dotCross2 <= 0) { 
 			#ifdef DEBUG_NAV
-				PrintBlanks(0, 0, 2, 0);
-				PrintNum(0, 0, car->way+1);
+				txtX = 0; txtY = 0;
+				PrintBlanks(2, 0);
+				PrintNum(car->way+1);
 			#endif
 				return 1; 
 			}
 			if (dotCross1 <= 0 && dotCross2 >= 0) { 
 			#ifdef DEBUG_NAV
-				PrintBlanks(0, 0, 2, 0);
-				PrintNum(0, 0, car->way+1);
+				txtX = 0; txtY = 0;
+				PrintBlanks(2, 0);
+				PrintNum(car->way+1);
 			#endif
 				return 1; 
 			}

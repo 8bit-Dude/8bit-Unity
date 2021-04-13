@@ -150,7 +150,7 @@ char GameLoop(void);
 #endif
 void BackupRestoreChatRow(unsigned char mode);
 void PrintBuffer(char *buffer);
-void InputField(unsigned char col, unsigned char row, char *buffer, unsigned char len);
+void InputField(char *buffer, unsigned char len);
 void PrintScores(void);
 void PrintRace(void);
 void PrintTimedOut(void);
