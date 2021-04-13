@@ -38,7 +38,7 @@
 unsigned char maskInput = 0;
 unsigned char InputStr(unsigned char width, char *buffer, unsigned char len, unsigned char key)
 {
-	unsigned char i, curlen, offset;
+	unsigned char i, curlen, offset, bckX = txtX;
 	unsigned char *c = charStar;
 	
 	// Check current length of input
@@ -60,31 +60,15 @@ unsigned char InputStr(unsigned char width, char *buffer, unsigned char len, uns
 			txtX++; i++;
 		}
 		
-	} else {		
-		// Process Letter keys
-		if (curlen < len) { 
-		#if (defined __ATARI__) || (defined __ORIC__)
-			if (key == 32 || key == 33 || (key > 38 && key < 59) || key == 63 || key == 92 || key == 95 || (key > 96 && key < 123)) {	// Atari/Oric
-		#else
-			if (key == 32 || key == 33 || (key > 38 && key < 59) || key == 63 || (key > 64 && key < 91) || key == 92 || key == 95) {	// Apple/C64/Lynx
-		#endif
-				buffer[curlen] = key;
-				buffer[curlen+1] = 0;
-				if (curlen >= width) {
-					CopyStr(txtX, txtY, txtX+1, txtY, width-1);
-					offset--;
-				}
-				if (!maskInput)
-					c = GetChr(key);
-				txtX += offset;
-				PrintChr(c);
-				txtX++;
-			}
-		}
-		
-		// Process Delete key
-		if (curlen > 0) {
-			if (key == CH_DEL) {
+	} else {
+		// Process Return Key
+		if (key == CH_ENTER) { 
+			return 1; 
+		} else
+		// Process Delete Key
+		if (key == CH_DEL) {
+			// Is there something to delete?
+			if (curlen > 0) {
 				buffer[curlen-1] = 0;				
 				if 	(curlen > width) {
 					for (i=width-1; i>0; i--)
@@ -99,15 +83,34 @@ unsigned char InputStr(unsigned char width, char *buffer, unsigned char len, uns
 					txtX--;					
 				}
 			}
+		} else {
+			// Is field already full?
+			if (curlen >= len)
+				return 0;
 		}
-
-		// Was return key pressed?
-		if (key == CH_ENTER) { 
-			return 1; 
+		
+		// Process other Keys
+	#if (defined __ATARI__) || (defined __ORIC__)
+		if (key == 32 || key == 33 || (key > 38 && key < 59) || key == 63 || key == 92 || key == 95 || (key > 96 && key < 123)) {	// Atari/Oric
+	#else
+		if (key == 32 || key == 33 || (key > 38 && key < 59) || key == 63 || (key > 64 && key < 91) || key == 92 || key == 95) {	// Apple/C64/Lynx
+	#endif
+			buffer[curlen] = key;
+			buffer[curlen+1] = 0;
+			if (curlen >= width) {
+				CopyStr(txtX, txtY, txtX+1, txtY, width-1);
+				offset--;
+			}
+			if (!maskInput)
+				c = GetChr(key);
+			txtX += offset;
+			PrintChr(c);
+			txtX++;
 		}
 	}
 
 	// Show cursor
 	PrintChr(charUnderbar);
+	txtX = bckX;
 	return 0;
 }
