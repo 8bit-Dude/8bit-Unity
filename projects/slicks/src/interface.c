@@ -228,7 +228,7 @@ void PrintBuffer(char *buffer)
 	
 #if defined __ORIC__	
 	// Need to insert ink changes...
-	txtX--; len++
+	txtX--; len++;
 	if (len<TXT_COLS) {
 		CopyStr(0, 0, len, 0, TXT_COLS-len);
 		SetAttributes(inkColor);
