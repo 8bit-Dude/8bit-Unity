@@ -29,8 +29,6 @@
 #define SIO_TIMEOUT 0x01	// seconds (approximately)
 #define IRQ_TIMER      1	// milliseconds
 
-#define DFUJI   0x71
-
 #define DNULL   0x00
 #define DREAD   0x40
 #define DWRITE  0x80
@@ -40,7 +38,7 @@
 #define OWRITE  0x08
 #define OUPDATE 0x0C
 
-extern unsigned char spriteDLI;
+extern unsigned char spriteVBI;
 extern unsigned char musicVBI;
 extern unsigned char sfxVBI;
 
@@ -52,19 +50,21 @@ void FujiIRQ(void);		// See fujiIRQ.s
 
 void BackupSystem()
 {
-	// Disable DLI/VBI (they interfere with SIO) and backup DCB for xBIOS
-	spriteBackup = spriteDLI; spriteDLI = 0;
+	// Disable VBI/DLI (it interferes with SIO) and backup DCB for xBIOS
+	memcpy(&dcbBackup[0], 0x0300, 12);	
+	spriteBackup = spriteVBI; spriteVBI = 0;
 	musicBackup = musicVBI; musicVBI = 0;
-	sfxBackup = sfxVBI; sfxVBI = 0;
-	memcpy(&dcbBackup[0], 0x0300, 12);
-	
-}
+	sfxBackup = sfxVBI; sfxVBI = 0;	
+	POKE(0xD40E, 0x40);
+}	
 
 void RestoreSystem()
 {
+	// Re-enable VBI/DLI and restore DCB for xBIOS
+	POKE(0xD40E, 0xC0);
 	sfxVBI = sfxBackup;
 	musicVBI = musicBackup;
-	spriteDLI = spriteBackup;
+	spriteVBI = spriteBackup;	
 	memcpy(0x300, dcbBackup, 12);
 }
 
@@ -80,7 +80,7 @@ void FujiInit()
 
 	// Set interrupt timer
 	BackupSystem();
-	OS.dcb.ddevic = DFUJI;
+	OS.dcb.ddevic = 0x71;
 	OS.dcb.dunit  = 1;
 	OS.dcb.dcomnd = 'Z';
 	OS.dcb.dstats = DNULL;
@@ -98,10 +98,10 @@ void FujiInit()
 	RestoreSystem();
 }
 
-unsigned char FujiOpen(unsigned char trans) 
+unsigned char FujiOpen(unsigned char device, unsigned char trans) 
 {
 	BackupSystem();
-	OS.dcb.ddevic = DFUJI;
+	OS.dcb.ddevic = device;
 	OS.dcb.dunit  = 1;
 	OS.dcb.dcomnd = 'O';
 	OS.dcb.dstats = DWRITE;
@@ -121,10 +121,10 @@ unsigned char FujiOpen(unsigned char trans)
 	return (OS.dcb.dstats == 1);
 }
 
-void FujiWrite(unsigned char length)
+void FujiWrite(unsigned char device, unsigned char length)
 {
 	BackupSystem();
-	OS.dcb.ddevic = DFUJI;
+	OS.dcb.ddevic = device;
 	OS.dcb.dunit  = 1;
 	OS.dcb.dcomnd = 'W';
 	OS.dcb.dstats = DWRITE;
@@ -142,12 +142,12 @@ void FujiWrite(unsigned char length)
 	RestoreSystem();
 }
 
-unsigned char FujiRead() 
+unsigned char FujiRead(unsigned char device) 
 {
 	// Check status
 	BackupSystem();
 	OS.dvstat[0] = 0;
-	OS.dcb.ddevic = DFUJI;
+	OS.dcb.ddevic = device;
 	OS.dcb.dunit  = 1;
 	OS.dcb.dcomnd = 'S';
 	OS.dcb.dstats = DREAD;
@@ -161,7 +161,7 @@ unsigned char FujiRead()
 	__asm__("JSR $E459");
 	if (OS.dvstat[0]) {
 		// Read actual data
-		OS.dcb.ddevic = DFUJI;
+		OS.dcb.ddevic = device;
 		OS.dcb.dunit  = 1;
 		OS.dcb.dcomnd = 'R';
 		OS.dcb.dstats = DREAD;
@@ -182,10 +182,10 @@ unsigned char FujiRead()
 	return OS.dvstat[0];
 }
 
-void FujiClose()
+void FujiClose(unsigned char device)
 {
 	BackupSystem();
-	OS.dcb.ddevic = DFUJI;
+	OS.dcb.ddevic = device;
 	OS.dcb.dunit  = 1;
 	OS.dcb.dcomnd = 'C';
 	OS.dcb.dstats = 0x00;

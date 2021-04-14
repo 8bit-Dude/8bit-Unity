@@ -26,7 +26,7 @@
 
 	.include "atari.inc"
 
-	.export _StartVBI, _swapPalette
+	.export _StartVBI, _StopVBI, _swapPalette
 	.export _bitmapVBI, _charmapVBI, _spriteVBI
 			
 	.export _bmpToggle, _bmpRows, _bmpPalette, _bmpAddr
@@ -89,6 +89,7 @@ _bank:  .res 1
 _ind8:  .res 1
 _ind16: .res 1
 _ldli:  .res 1
+_first: .res 1
 _last:  .res 1
 _lead:  .res 1
 _body:  .res 1
@@ -101,9 +102,22 @@ _body:  .res 1
 
 .proc _StartVBI: near
 	; Setup vertical blank interrupt
-    lda #$07       	; dee2rred
-	ldx #(>VBI)	; install RMT VBI routine
+    lda #$07     ; deferred
+	ldx #(>VBI)	 ; install VBI routine
 	ldy #(<VBI)	
+    jsr SETVBV
+	rts
+.endproc
+
+; ---------------------------------------------------------------
+; void __near__ _StopVBI (void)
+; ---------------------------------------------------------------	
+
+.proc _StopVBI: near
+	; Setup vertical blank interrupt
+    lda #$07       	; deferred
+	ldx #(>XITVBV)  ; disable VBI routine
+	ldy #(<XITVBV)	
     jsr SETVBV
 	rts
 .endproc
@@ -158,17 +172,17 @@ flickerFrames:
 frame1:	
 	; Switch bitmap buffer 1
 	lda #$A0 
-	sta $0905
+	sta $0925
 	lda #$B0 
-	sta $096d	
+	sta $098d	
 	rts
 
 frame2:	
 	; Switch bitmap buffer 2
 	lda #$70 
-	sta $0905
+	sta $0925
 	lda #$80 
-	sta $096d		
+	sta $098d		
 	rts
 	
 ; ---------------------------------------------------------------
@@ -256,11 +270,14 @@ bankDone:
 	adc #4		; Frame range #08-#11 
 rangeDone:	
 
-	; Set start and last index 
-	tay			; Start index (Y)
+	; Save first index of range
+	sta _first  
+	tay			
+
+	; Save last index of range
 	clc
 	adc #4
-	sta _last   ; Last index
+	sta _last
 
 loopSlots:
 	; Save 8 bit index
@@ -270,16 +287,26 @@ loopSlots:
 	lda _sprDrawn,y	
 	beq skipSlot
 	
-	; Set amount of lead-zeroes
+	; Set position/color registers (in case DLI gets disabled...)
+	tya
+	sec
+	sbc _first
+	tax
+	lda _sprX,y			; Sprite Position
+	sta $d000,x
+	lda _sprColor,y	 	; Sprite Color	
+	sta $02c0,x
+	
+	; Get amount of lead-zeroes
 	lda _sprOff,y	 
 	sta _lead	
 	
-	; Set amount of body-rows
+	; Get amount of body-rows
 	clc
 	adc _sprRows	 
 	sta _body
 	
-	; Set first (X-register) and last DLI Line
+	; Get first (X-register) and last DLI Line
 	lda _sprLine,y
 	tax
 	clc

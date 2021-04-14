@@ -48,7 +48,7 @@ void GetURL(unsigned char* url)
 	// Open HTTP address
 	strcpy(&fujiHost[0], "N:HTTP");
 	strcpy(&fujiHost[6], &url[4]);
-	FujiOpen(3); // Translate CR and LF
+	FujiOpen(0x71, 3); // Translate CR and LF
 	
 #else
 	// Read URL and strip out HTTP header
@@ -83,8 +83,8 @@ unsigned char* ReadURL(unsigned char size, unsigned int timeOut)
 	while (!fujiReady) {
 		if (clock() > timer) return 0;
 	}
-	len = FujiRead();	  // Get data
-	FujiClose();  // Immediately close connection
+	len = FujiRead(0x71);	  // Get data
+	FujiClose(0x71);  // Immediately close connection
 	if (len) {
 		return fujiBuffer;
 	} else {

@@ -93,6 +93,7 @@ void BitmapDLIST(void);
 void CharmapDLIST(void);
 void StartDLI(void);
 void StartVBI(void);
+void StopVBI(void);
 extern unsigned char bitmapVBI, charmapVBI, spriteVBI, bmpToggle, chrToggle, sprToggle, chrRows, bmpRows;
 extern unsigned char chrPalette[], bmpPalette[];
 extern unsigned int  bmpAddr;
@@ -103,10 +104,10 @@ void __fastcall__ BlitCharmap(void);
 // Optional Fujinet functions (see fujinet.c)
 #ifdef __FUJINET__
   void FujiInit(void);
-  unsigned char FujiOpen(unsigned char trans);
-  unsigned char FujiRead(void);
-  void FujiWrite(unsigned char length);
-  void FujiClose(void);
+  unsigned char FujiOpen(unsigned char device, unsigned char trans);
+  unsigned char FujiRead(unsigned char device);
+  void FujiWrite(unsigned char device, unsigned char length);
+  void FujiClose(unsigned char device);
   extern char fujiReady, *fujiHost, *fujiBuffer;
 #endif
 

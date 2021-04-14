@@ -33,23 +33,23 @@
 ; ---------------------------------------------------------------	
 
 .proc _BitmapDLIST: near
-; Lower addres of DLIST $0920 -> $0900
-	lda #$00		
+; Raise addres of DLIST $0900 -> $0920
+	lda #$20		
 	sta $0230	
 	
 ; Header
 	lda #$70		
-	sta $0900
-	sta $0901
-	sta $0902
+	sta $0920
+	sta $0921
+	sta $0922
 	
 ; Body
 	lda #$ce	; Video Address + DLI (x1)
-	sta $0903
+	sta $0923
 	lda #$10
-	sta $0904
+	sta $0924
 	lda #$70
-	sta $0905
+	sta $0925
 
 ; 12 groups of 7xHires lines + 1xDLI
 	ldx #0
@@ -58,14 +58,14 @@ loop1:
 	ldy #0
 	lda #$0e	; Hires lines (x7)
 loop2:
-	sta $0906,x
+	sta $0926,x
 	inx
 	iny
 	cpy #$07
 	bne loop2
 
 	lda #$8e	; DLI (x1)
-	sta $0906,x
+	sta $0926,x
 	inx
 	
 	cpx #$60
@@ -76,33 +76,33 @@ loop2:
 	ldx #0
 	lda #$0e	; Hires lines (x5)
 loop3:
-	sta $0966,x
+	sta $0986,x
 	inx
 	cpx #$05
 	bne loop3
 
 	lda #$4e	; Video Address line (x1)
-	sta $096b
+	sta $098b
 	lda #$00
-	sta $096c
+	sta $098c
 	lda #$80
-	sta $096d
+	sta $098d
 	
 	lda #$0e	; Hires lines (x1)
-	sta $096e
+	sta $098e
 		
 ; 12 groups of 1xDLI + 7xHires lines
 	ldx #0
 loop5:
 	
 	lda #$8e	; DLI line (x1)
-	sta $096f,x
+	sta $098f,x
 	inx	
 	
 	ldy #0
 	lda #$0e	; Hires lines (x7)
 loop6:
-	sta $096f,x
+	sta $098f,x
 	inx	
 	iny
 	cpy #$07
@@ -113,10 +113,10 @@ loop6:
 	
 ; Footer
 	lda #$41
-	sta $09cf
+	sta $09ef
 	lda #$20
-	sta $09d0
+	sta $09f0
 	lda #$09
-	sta $09d1
+	sta $09f1
 	rts
 .endproc

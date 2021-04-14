@@ -61,15 +61,14 @@ void OpenTCP(unsigned char* ip, unsigned int svPort)
 	// Ask HUB to set up connection
 	unsigned char buffer[6];
 	memcpy(buffer, ip, 4);
-	buffer[4] = svPort & 0xFF;
-	buffer[5] = svPort >> 8;	
+	POKEW(&buffer[4], svPort);	
 	QueueHub(HUB_TCP_OPEN, buffer, 6);	
 	UpdateHub();
 	
 #elif defined __FUJINET__
 	// Open TCP address
 	sprintf(fujiHost, "N:TCP://%i.%i.%i.%i:%i/", ip[0], ip[1], ip[2], ip[3], svPort);
-	FujiOpen(0);
+	FujiOpen(0x71, 0);
 	
 #else
 	unsigned long svIp = EncodeIP(ip[0], ip[1], ip[2], ip[3]);
@@ -84,7 +83,7 @@ void CloseTCP()
 	UpdateHub();
 	
 #elif defined __FUJINET__
-	FujiClose();
+	FujiClose(0x71);
 	
 #else
 	tcp_close();
@@ -98,7 +97,7 @@ void SendTCP(unsigned char* buffer, unsigned char length)
 	
 #elif defined __FUJINET__
 	memcpy(fujiBuffer, buffer, length);
-	FujiWrite(length);
+	FujiWrite(0x71, length);
 	
 #else
 	tcp_send(buffer, length);
@@ -122,7 +121,7 @@ unsigned char* RecvTCP(unsigned int timeOut)
 	while (!fujiReady) {
 		if (clock() > timer) return 0;
 	}
-	if (FujiRead()) {
+	if (FujiRead(0x71)) {
 		return fujiBuffer;
 	} else {
 		return 0;

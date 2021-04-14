@@ -23,7 +23,7 @@
  *   used to endorse or promote products derived from this software without
  *   specific prior written permission.
  */
- 
+
 #include "unity.h"
 
 #ifdef __ATARIXL__
@@ -64,10 +64,8 @@ void OpenUDP(unsigned char* ip, unsigned int svPort, unsigned int clPort)
 	// Ask HUB to set up connection
 	unsigned char buffer[8];
 	memcpy(buffer, ip, 4);
-	buffer[4] = svPort & 0xFF;
-	buffer[5] = svPort >> 8;	
-	buffer[6] = clPort & 0xFF;
-	buffer[7] = clPort >> 8;	
+	POKEW(&buffer[4], svPort);	
+	POKEW(&buffer[6], clPort);	
 	QueueHub(HUB_UDP_OPEN, buffer, 8);
 	UpdateHub();
 	
@@ -75,7 +73,7 @@ void OpenUDP(unsigned char* ip, unsigned int svPort, unsigned int clPort)
 	// Open UDP address
 	unsigned char dummy[1];
 	sprintf(fujiHost, "N:UDP://%i.%i.%i.%i:%i/", ip[0], ip[1], ip[2], ip[3], svPort);
-	FujiOpen(0);
+	FujiOpen(0x71, 0);
 	
 	// Send dummy packet, as first one is always lost!
 	dummy[0] = 0;
@@ -104,7 +102,7 @@ void CloseUDP()
 	UpdateHub();	
 	
 #elif defined __FUJINET__	
-	FujiClose();
+	FujiClose(0x71);
 	
 #else
 	udp_remove_listener(udp_recv_port);
@@ -118,7 +116,7 @@ void SendUDP(unsigned char* buffer, unsigned char length)
 	
 #elif defined __FUJINET__	
 	memcpy(fujiBuffer, buffer, length);
-	FujiWrite(length);
+	FujiWrite(0x71, length);
 	
 #else
 	udp_send(buffer, length, udp_send_ip, udp_send_port, udp_recv_port);
@@ -142,7 +140,7 @@ unsigned char* RecvUDP(unsigned int timeOut)
 	while (!fujiReady) {
 		if (clock() > timer) return 0;
 	}
-	if (FujiRead()) {
+	if (FujiRead(0x71)) {
 		return fujiBuffer;
 	} else {
 		return 0;
