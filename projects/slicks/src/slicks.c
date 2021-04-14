@@ -14,7 +14,7 @@
 #elif defined __ATARI__
 	#define spriteCols   8
 	#define spriteRows   10
-	unsigned char spriteColors[] = {0x84, 0xe4, 0x24, 0xe4, 0xb6, 0xe4, 0xe8, 0xe4, 0x04, 0x04, 0x04, 0x04 };	// Refer to atari palette in docs
+	unsigned char spriteColors[] = { 0x84, 0xe4, 0x24, 0xe4, 0xb6, 0xe4, 0xe8, 0xe4, 0x04, 0x04, 0x04, 0x04 };	// Refer to atari palette in docs
 	unsigned char inkColors[] = { BLUE, RED, GREEN, YELLOW, WHITE };		// P1, P2, P3, P4, SERVER INFO
 #elif defined __ORIC__
 	#define spriteCols   12
@@ -34,7 +34,7 @@
 #endif
 
 // Build Information
-const char* buildInfo = "BUILD: 2021/02/01";
+const char* buildInfo = "BUILD: 2021/04/14";
 
 // List of available maps
 unsigned char mapNum  = 12;

@@ -375,7 +375,7 @@ unsigned char GameRace()
 #ifndef __APPLE2__
     for (i=SPR2_SLOT; i<SPR2_SLOT+3; ++i) {
 	#if defined __ATARI__  
-		RecolorSprite(i, 0, 0x22);  
+		RecolorSprite(i, 0, 0x04);  
 	#elif defined __CBM__  
 		RecolorSprite(i, 0, BLACK);  
 	#elif defined __LYNX__
@@ -859,6 +859,7 @@ char GameLoop()
 				// Enable chat
 				if (gameMode == MODE_ONLINE & lastKey == KB_CHAT) {
 				#if defined __LYNX__ 
+					BackupRestoreChatRow(0);
 					ShowKeyboardOverlay();
 				#endif
 					chatting = 1;

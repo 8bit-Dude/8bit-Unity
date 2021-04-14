@@ -43,7 +43,7 @@
 	#define SCORES_ROW   	  4
 	#define PAUSE_COL 		 15
 	#define PAUSE_LOCAL_ROW   6
-	#define PAUSE_ONLINE_ROW  4
+	#define PAUSE_ONLINE_ROW  2
 #endif
 
 // Platform specific panel location/size
@@ -142,7 +142,7 @@ static char chatBG[160];
 #elif defined __CBM__
 static char chatBG[180];
 #elif defined __LYNX__
-static char chatBG[864];
+static char chatBG[1320];
 #endif
 
 void BackupRestoreChatRow(unsigned char mode)
@@ -284,8 +284,8 @@ clock_t cursorClock;
 unsigned char cursorJoy, cursorKey, cursorBut2, cursorPressed;
 unsigned char cursorFlick, cursorCol = MENU_COL, cursorRow = MENU_ROW+2;
 unsigned char cursorTop = MENU_ROW+2, cursorHeight = MENU_HEI-2;
-unsigned char *pauseLabel[] = { "resume", "race!", "next!", "quit", "hello!", "bye!", "congrat", "thanks!" };
-unsigned char pauseAction[] = { KB_PAUSE, KB_START, KB_NEXT, KB_QUIT, 4, 5, 6, 7 };
+unsigned char *pauseLabel[] = { "resume", "race!", "next!", "quit", "hello!", "bye!", "thanks!", "congrats", "so close", "hang on", "ready" };
+unsigned char pauseAction[] = { KB_PAUSE, KB_START, KB_NEXT, KB_QUIT, 4, 5, 6, 7, 8, 9, 10 };
 unsigned char gamePaused = 0;
 
 void LynxCursorFlicker()
@@ -353,15 +353,21 @@ void LynxCursorControl()
 	if (!(cursorJoy & JOY_UP)) { 
 		cursorRow -= 1; 
 		if (gamePaused) {
-			if (cursorRow < cursorTop)			   { cursorRow = cursorTop; }
+			if (cursorRow < cursorTop) {
+				if (gameMode == MODE_LOCAL) {
+					cursorRow = PAUSE_LOCAL_ROW+3;
+				} else {
+					cursorRow = PAUSE_ONLINE_ROW+10;
+				}
+			}
 		} else {		
 			if (gameMode == MODE_LOCAL) {
-					 if (cursorRow  < MENU_ROW+2)  { cursorRow = MENU_ROW+2; }			
+					 if (cursorRow  < MENU_ROW+2)  { cursorRow = MENU_ROW+11;}			
 				else if (cursorRow == MENU_ROW+6)  { cursorRow = MENU_ROW+5; }			
 				else if (cursorRow == MENU_ROW+8)  { cursorRow = MENU_ROW+7; }			
 				else if (cursorRow == MENU_ROW+10) { cursorRow = MENU_ROW+9; }			
 			} else if (gameMode == MODE_ONLINE) {
-					 if (cursorRow  < MENU_ROW+2)  { cursorRow = MENU_ROW+2; }
+					 if (cursorRow  < MENU_ROW+2)  { cursorRow = MENU_ROW+10; }
 			}
 		}
 	}
@@ -369,18 +375,18 @@ void LynxCursorControl()
 		cursorRow += 1; 
 		if (gamePaused) {
 			if (gameMode == MODE_LOCAL) {
-			    if (cursorRow  > PAUSE_LOCAL_ROW+3)  { cursorRow = PAUSE_LOCAL_ROW+3; }
+			    if (cursorRow > PAUSE_LOCAL_ROW+3)  { cursorRow = cursorTop; }
 			} else {
-				if (cursorRow  > PAUSE_ONLINE_ROW+7) { cursorRow = PAUSE_ONLINE_ROW+7; }
+				if (cursorRow > PAUSE_ONLINE_ROW+10) { cursorRow = cursorTop; }
 			}
 		} else {
 			if (gameMode == MODE_LOCAL) {
-					 if (cursorRow  > MENU_ROW+11) { cursorRow = MENU_ROW+11; }
+					 if (cursorRow  > MENU_ROW+11) { cursorRow = MENU_ROW+2; }
 				else if (cursorRow == MENU_ROW+10) { cursorRow = MENU_ROW+11; }
 				else if (cursorRow == MENU_ROW+8)  { cursorRow = MENU_ROW+9; }			
 				else if (cursorRow == MENU_ROW+6)  { cursorRow = MENU_ROW+7; }			
 			} else if (gameMode == MODE_ONLINE) {
-					 if (cursorRow  > MENU_ROW+10) { cursorRow = MENU_ROW+10; }
+					 if (cursorRow  > MENU_ROW+10) { cursorRow = MENU_ROW+2; }
 			}
 		}
 	}
@@ -406,12 +412,12 @@ void BackupRestorePauseBg(unsigned char mode)
 	unsigned char i;
 	unsigned int addr1 = chatBG;
 	unsigned int addr2 = BITMAPRAM+1+2*PAUSE_COL+492*PAUSE_ONLINE_ROW;
-	for (i=0; i<(8*6); ++i) {
+	for (i=0; i<(11*6); ++i) {
 		if (!mode)
-			memcpy(addr1, addr2, 18);
+			memcpy(addr1, addr2, 20);
 		else
-			memcpy(addr2, addr1, 18);
-		addr1 += 18; addr2 += 82;
+			memcpy(addr2, addr1, 20);
+		addr1 += 20; addr2 += 82;
 	}		
 	
 }
@@ -429,13 +435,13 @@ unsigned char MenuPause()
 		cursorRow = PAUSE_LOCAL_ROW;
 		cursorTop = PAUSE_LOCAL_ROW;
 	} else {
-		cursorHeight = 8;	
+		cursorHeight = 11;	
 		cursorRow = PAUSE_ONLINE_ROW;
 		cursorTop = PAUSE_ONLINE_ROW;
 	}		
 	paperColor = PAPER_SCORES;
 	txtX = PAUSE_COL; txtY = cursorRow;
-	PrintBlanks(9, cursorHeight);
+	PrintBlanks(10, cursorHeight);
 	inkColor = WHITE;
 	txtX = PAUSE_COL+2; 
 	for (i=0; i<cursorHeight; i++) {
@@ -455,9 +461,9 @@ unsigned char MenuPause()
 		// Process Cursor
 		LynxCursorControl();
 		if (cursorKey) { 
-			if (gameMode == MODE_ONLINE && cursorKey < 8) {
+			if (gameMode == MODE_ONLINE && cursorKey < 11) {
 				// Process chat event then exit menu
-				memcpy(chatBuffer, pauseLabel[cursorKey], 8);
+				memcpy(chatBuffer, pauseLabel[cursorKey], 9);
 				ClientEvent(EVENT_CHAT);
 				return KB_PAUSE;
 			} else {

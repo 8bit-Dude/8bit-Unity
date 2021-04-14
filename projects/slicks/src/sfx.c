@@ -18,7 +18,7 @@
 	#define VOLUME_ENGINE 60
 	#define VOLUME_JUMP   90
 #else
-	#define PITCH_BUMP 32
+	#define PITCH_BUMP 	  32
 	#define VOLUME_BLEEP  60
 	#define VOLUME_BUMP   120
 	#define VOLUME_ENGINE 22
