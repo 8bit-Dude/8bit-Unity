@@ -237,23 +237,20 @@ flickerSprites:
 processSprites:
 
 	; Toggle between slot banks 0, 1, 2
+bankLoop:	
 	inc _bank
 	lda _bank
 	cmp #3
 	bcc bankCheck
 	lda #0
 	sta _bank
-	jmp bankDone
+	lda _sprBank	
+	bne bankDone
+	rts
 bankCheck:
 	tax
 	lda _sprBank, x
-	bne bankDone
-	lda #0
-	sta _bank	
-	tax
-	lda _sprBank, x
-	bne bankDone
-	rts
+	beq bankLoop
 bankDone:
 	
 	; Increase index by 4 for each banks
