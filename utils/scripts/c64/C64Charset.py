@@ -41,31 +41,46 @@ charRaw = list(charImg.getdata())
 fontRaw = list(fontImg.getdata())
 print "Charset size: {%i,%i}; Colors: %i" % (charImg.size[0], charImg.size[1], max(charRaw))
 
+#####################
+# Find shared colors
+distrib = [0] * 16
+for row in range(0, charImg.size[1], 8):
+    for col in range(0, charImg.size[0], 4):
+        # Collect block data
+        block = []
+        for j in range(0, 8):
+            index = (row+j)*charImg.size[0]+col
+            for i in range(0, 4):
+                block.append(charRaw[index+i])
+        for i in range(0, 16):
+            if i in block:
+                distrib[i] += 1
+popular = sorted(range(len(distrib)), key=distrib.__getitem__)[13:16]
+order = sorted(range(len(popular)), key=popular.__getitem__)
+sharedColors = [popular[i] for i in order]
+colData = [chr(c) for c in sharedColors]
+
 ############################
 # Rearrange into 4*8 blocks
 charBlocks = []
+attrData = [chr(0x0f)] * 128
 for row in range(0, charImg.size[1], 8):
     for col in range(0, charImg.size[0], 4):
         for j in range(0, 8):
             for i in range(0, 4):
-                charBlocks.append(charRaw[(row+j)*charImg.size[0]+col+i])
+                color = charRaw[(row+j)*charImg.size[0]+col+i]
+                if color in sharedColors:
+                    charBlocks.append(sharedColors.index(color))
+                else:
+                    charBlocks.append(3)
+                    attrData[row*4+col/4] = chr(color%8+8)         
+
 fontBlocks = []
 for row in range(0, fontImg.size[1], 8):
     for col in range(0, fontImg.size[0], 4):
         for j in range(0, 8):
             for i in range(0, 4):
                 fontBlocks.append(fontRaw[(row+j)*fontImg.size[0]+col+i])
-
-###############################
-# Process character attributes
-attrData = [chr(0x0e)] * 128
-for i in range(0, len(charBlocks)/32):
-    attr = max(charBlocks[i*32:(i+1)*32])
-    if attr is 4:
-        for j in range(0, 32):
-            if charBlocks[i*32+j] == 4:
-                charBlocks[i*32+j] = 3
-        attrData[i] = chr(0x0a)
 
 ############################################
 # Convert char and font data to C64 format
@@ -89,6 +104,7 @@ with open(flagFile) as csvfile:
 ############################
 # Write output binary file
 f2 = io.open(output, 'wb')
+f2.write(''.join(colData))
 f2.write(''.join(charData))
 f2.write(''.join(attrData))
 f2.write(''.join(flagData))
