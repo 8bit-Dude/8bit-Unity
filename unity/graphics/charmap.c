@@ -40,19 +40,16 @@
 
 // Zero Page pointers (for tile decoding and scrolling)
 #if defined(__APPLE2__)
-  #define tilesetDataZP 0xef
   #define charPointerZP 0xce
   #define row1PointerZP 0xfb
   #define row2PointerZP 0xfd
 #elif defined(__ATARI__)
-  #define tilesetDataZP 0xe0
   #define charattDataZP 0xe0
   #define charPointerZP 0xe2
   #define scrPointerZP  0xe4
   #define row1PointerZP 0xe4
   #define row2PointerZP 0xe6
 #elif defined(__CBM__)
-  #define tilesetDataZP 0x61
   #define charattDataZP 0x61
   #define charPointerZP 0x63
   #define scrPointerZP  0xfb
@@ -60,13 +57,11 @@
   #define row1PointerZP 0xfb
   #define row2PointerZP 0xfd
 #elif defined(__LYNX__)
-  #define tilesetDataZP 0xb3
   #define charPointerZP 0xb5
   #define scrPointerZP  0xb7
   #define row1PointerZP 0xb7
   #define row2PointerZP 0xb9
 #elif defined(__ORIC__)
-  #define tilesetDataZP 0xb0
   #define charPointerZP 0xb2
   #define scrPointerZP  0xb4
   #define row1PointerZP 0xb4
@@ -105,7 +100,7 @@ unsigned char lineBlock;
 // Drawing properties
 unsigned char blockWidth, decodeWidth, decodeHeight, *decodeData;
 unsigned char tileX, tileY, tileCols, tileRows;
-unsigned char scrollCols, scrollRows, scrollDirX, scrollDirY, scrollLine;
+unsigned char scrollCols, scrollRows, scrollDirX, scrollDirY, scrollLine = LINE_SIZE;
   
 // Pointers to various data sets
 unsigned char *charmapData;
@@ -131,7 +126,7 @@ unsigned char *screenData;
 		}
   }
 #endif
-  
+
 // Initialize Charmap Mode
 void InitCharmap(unsigned char col1, unsigned char col2, unsigned char row1, unsigned char row2) 
 {
@@ -217,7 +212,7 @@ void ClearCharmap()
 }
 
 // Load charset and associated attributes / flags
-void LoadCharset(char* filename, char* palette)
+void LoadCharset(char* filename)
 {
 #if defined __APPLE2__
 	if (FileOpen(filename)) {
@@ -237,35 +232,28 @@ void LoadCharset(char* filename, char* palette)
 	
 #elif defined __ATARI__
 	if (FileOpen(filename)) {
-		FileRead((char*)CHARSETRAM, 0x0400);
-		FileRead((char*)CHARATRRAM, 0x0100);
-		charflagData = (char*)(CHARATRRAM+0x80);
+		FileRead((char*)chrPalette, 0x0005);	// Shared Colors
+		FileRead((char*)CHARSETRAM, 0x0400);	// Pixel Data
+		FileRead((char*)CHARATRRAM, 0x0100);	// 5th Color Attribute (0 or 128)
+		charflagData = (char*)(CHARATRRAM+0x80);// Flag Attributes
 	}
-	
-	// Set palette colors (WARNING: 5th color shared with sprite 5!)
-	memcpy(chrPalette, palette, 5);
 	
 #elif defined __CBM__	
 	FILE* fp = fopen(filename, "rb");	
-	fread((char*)CHARSETRAM, 1, 0x0800, fp);
-	if (!charattData)
-		charattData = malloc(0x0100);
-	fread((char*)charattData, 1, 0x0100, fp);
-	charflagData = (char*)(charattData+0x80);
-	fclose(fp);	
-	
-	// Set palette colors
-	POKE(0xd021, palette[0]); // BG Color
-	POKE(0xd022, palette[1]); // MC1
-	POKE(0xd023, palette[2]); // MC2	
+	fread((char*)0xd021, 1, 0x0003, fp);		// Shared Colors
+	fread((char*)CHARSETRAM, 1, 0x0800, fp);	// Pixel Data
+	if (!charattData) charattData = malloc(0x0100);			
+	fread((char*)charattData, 1, 0x0100, fp);	// Color Attributes
+	charflagData = (char*)(charattData+0x80);	// Flag Attributes
+	fclose(fp);		
 
 #elif defined __LYNX__
-	if (!charsetData)
-		charsetData = malloc(0x0480);
-	if (FileRead(filename))
+	if (FileRead(filename)) {
+		if (!charsetData) charsetData = malloc(0x0480);
 		memcpy(charsetData, BITMAPRAM, 0x0480);
-	charflagData = (char*)(charsetData+0x0400);
-	ClearBitmap();
+		charflagData = (char*)(charsetData+0x0400);
+		ClearBitmap();
+	}
 	
 #elif defined __ORIC__
 	if (!charsetData)
@@ -319,7 +307,7 @@ void LoadCharmap(char *filename, unsigned int w, unsigned int h)
 	
 #elif defined __LYNX__
 	if (FileRead(filename))
-		memcpy(charmapData, BITMAPRAM, size);
+		memcpy(charmapData, (char*)BITMAPRAM, size);
 	ClearBitmap();
 	
 #elif defined __ORIC__
@@ -354,16 +342,16 @@ void LoadTileset(char *filename, unsigned int n, unsigned int w, unsigned int h)
 	fp = fopen(filename, "rb");	
 	fread(tilesetData, 1, size, fp);
 	fclose(fp);
-		
+	
 #elif defined __LYNX__
 	if (FileRead(filename))
-		memcpy(tilesetData, BITMAPRAM, size);
+		memcpy(tilesetData, (char*)BITMAPRAM, size);
 	ClearBitmap();
 	
 #elif defined __ORIC__
 	FileRead(filename, tilesetData);	
 #endif
-
+	
 	// Allocate buffer for tile to char conversion
 	decodeHeight = screenHeight+tileHeight;
 	decodeWidth = screenWidth+tileWidth;
@@ -413,7 +401,7 @@ void PrintCharmap(unsigned char x, unsigned char y, unsigned char chr)
 #elif defined(__LYNX__)
 	unsigned char i;
 	unsigned int src, dst;
-	src = (char*)charsetData + 2*chr;
+	src = (unsigned int)charsetData + 2*chr;
 	dst = BITMAPRAM + y*ROW_SIZE + x*CHAR_WIDTH + 1;
 	for (i = 0; i<4; i++) {
 		memcpy((char*)dst, (char*)src, 2);
@@ -422,21 +410,20 @@ void PrintCharmap(unsigned char x, unsigned char y, unsigned char chr)
 #endif
 }
 
-unsigned char *DecodeTiles(unsigned char x, unsigned char y)
+unsigned int DecodeTiles(unsigned char x, unsigned char y)
 {
 	// Decode tilemap to screen buffer
 	if (tileX != x/2u || tileY != y/2u) {
 		tileX = x/2u; tileY = y/2u;
-		POKEW(tilesetDataZP, tilesetData);
-		POKEW(charPointerZP, &charmapData[charmapWidth*tileY + tileX]);
-		POKEW(row1PointerZP, &decodeData[0]);
-		POKEW(row2PointerZP, &decodeData[decodeWidth]);	
+		POKEW(charPointerZP, (unsigned int)&charmapData[charmapWidth*tileY + tileX]);
+		POKEW(row1PointerZP, (unsigned int)&decodeData[0]);
+		POKEW(row2PointerZP, (unsigned int)&decodeData[decodeWidth]);	
 		blockWidth = 2*decodeWidth;
 		DecodeTiles2x2();
 	}
 	
 	// Assign offset area of screen buffer
-	return &decodeData[decodeWidth*(y&1)+(x&1)];	
+	return (unsigned int )&decodeData[decodeWidth*(y&1)+(x&1)];	
 }
 
 void ScrollCharmap(unsigned char x, unsigned char y)
@@ -444,7 +431,7 @@ void ScrollCharmap(unsigned char x, unsigned char y)
 #if defined(__APPLE2__) || defined(__CBM__)
 	DrawCharmap(x,y);
 #else
-	unsigned char i, tmp;
+	unsigned char tmp;
 	signed char stepX, stepY;
 	unsigned int src, srcOff, dstOff;
 	unsigned int cpyDst, cpySrc;
@@ -468,9 +455,8 @@ void ScrollCharmap(unsigned char x, unsigned char y)
 	worldX = x; worldY = y;
 	
 	// Init copy addresses
-	cpySrc = cpyDst = screenData;
+	cpySrc = cpyDst = (unsigned int)screenData;
 	scrollCols = lineBlock;
-	scrollLine = LINE_SIZE;
 	scrollDirX = 1;
 	scrollDirY = 1;
 	
@@ -512,7 +498,7 @@ void ScrollCharmap(unsigned char x, unsigned char y)
 		tmp = screenHeight;
 		screenHeight = ABS(stepY);
 		POKEW(charPointerZP, src+srcOff);
-		POKEW(scrPointerZP, screenData+dstOff);
+		POKEW(scrPointerZP, (unsigned int)screenData+dstOff);
 	#if defined __ATARI__
 		POKEW(charattDataZP, CHARATRRAM);
 	#endif
@@ -530,7 +516,7 @@ void ScrollCharmap(unsigned char x, unsigned char y)
 		tmp = screenWidth;
 		screenWidth = ABS(stepX);
 		POKEW(charPointerZP, src+srcOff);
-		POKEW(scrPointerZP, screenData+dstOff);
+		POKEW(scrPointerZP, (unsigned int)screenData+dstOff);
 	#if defined __ATARI__
 		POKEW(charattDataZP, CHARATRRAM);
 	#endif
@@ -568,7 +554,7 @@ void DrawCharmap(unsigned char x, unsigned char y)
 	BlitCharmapSHR(); clk += 10;
   #endif
 #else
-	POKEW(scrPointerZP, screenData);
+	POKEW(scrPointerZP, (unsigned int)screenData);
   #if defined __ATARI__
 	POKEW(charattDataZP, CHARATRRAM);
   #elif defined __CBM__	

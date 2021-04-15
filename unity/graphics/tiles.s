@@ -26,6 +26,7 @@
 
 	.export _DecodeTiles2x2
 	
+	.import _tilesetData
 	.import _tileCols, _tileRows
 	.import _decodeWidth, _decodeHeight
 	.import _blockWidth, _charmapWidth
@@ -69,6 +70,7 @@
 
 	.segment	"BSS"
 
+_tmpTil: .res 1
 _tmpChr: .res 4
 _curCol: .res 1
 _curRow: .res 1
@@ -85,7 +87,7 @@ _curRow: .res 1
 ;		row2PointerZP: 16 bit address of second line (auto-updated)
 ; ---------------------------------------------------------------	
 
-.proc _DecodeTiles2x2: near
+_DecodeTiles2x2:
 
 	ldx #0
 loopRows: 
@@ -98,40 +100,10 @@ loopRows:
 		cpy _tileCols
 		bpl doneCols
 		sty _curCol
+			
+		; Copy 2x2 tile
+		jsr processTile
 		
-			; Get Tile Value (x4)
-			lda (charPointerZP),y
-			asl A
-			asl A
-			
-			; Get All Chars
-			tay
-			lda (tilesetDataZP),y
-			sta _tmpChr+0
-			iny
-			lda (tilesetDataZP),y
-			sta _tmpChr+1
-			iny
-			lda (tilesetDataZP),y
-			sta _tmpChr+2
-			iny
-			lda (tilesetDataZP),y
-			sta _tmpChr+3
-			
-			; Assign Chars to Buffer (4 bytes per Tile)
-			lda _curCol
-			asl A
-			tay
-			lda _tmpChr+0
-			sta (row1PointerZP),y
-			lda _tmpChr+2
-			sta (row2PointerZP),y
-			iny
-			lda _tmpChr+1
-			sta (row1PointerZP),y
-			lda _tmpChr+3
-			sta (row2PointerZP),y
-				
 		; Move to next col
 		ldy _curCol
 		iny		
@@ -146,19 +118,19 @@ loopRows:
 		sta charPointerZP	
 		bcc nocarryChrPtr	; Check if carry to high byte
 		inc charPointerZP+1
+		clc	
 	nocarryChrPtr:
 
 		; Update location in screen buffer (line 1)
-		clc	
 		lda row1PointerZP			
 		adc _blockWidth
 		sta row1PointerZP	
 		bcc nocarryScrPtr1	; Check if carry to high byte
 		inc row1PointerZP+1
+		clc	
 	nocarryScrPtr1:
 
 		; Update location in screen buffer (line 2)
-		clc	
 		lda row2PointerZP		
 		adc _blockWidth
 		sta row2PointerZP
@@ -171,5 +143,62 @@ loopRows:
 
 doneRows:
 	rts
+	
+; ---------------------------------------------------------------	
 
-.endproc	
+processTile:
+	; Get Tile Value (x2)
+	lda (charPointerZP),y
+	asl A
+	sta _tmpTil
+
+	; Set Tile Set Data Address
+	lda _tilesetData+1
+	sta  tilesetDataZP+1
+	lda _tilesetData
+	sta  tilesetDataZP
+
+	; Add Tile Value (x2)
+	clc	
+	adc _tmpTil
+	sta tilesetDataZP	
+	bcc nocarry1
+	inc tilesetDataZP+1
+	clc	
+nocarry1:
+	adc _tmpTil
+	sta tilesetDataZP	
+	bcc nocarry2
+	inc tilesetDataZP+1
+nocarry2:
+	
+	; Get All Chars
+	ldy #0
+	lda (tilesetDataZP),y
+	sta _tmpChr+0
+	iny
+	lda (tilesetDataZP),y
+	sta _tmpChr+1
+	iny
+	lda (tilesetDataZP),y
+	sta _tmpChr+2
+	iny
+	lda (tilesetDataZP),y
+	sta _tmpChr+3
+	
+	; Assign Chars to Buffer (4 bytes per Tile)
+	lda _curCol
+	asl A
+	tay
+	lda _tmpChr+0
+	sta (row1PointerZP),y
+	lda _tmpChr+2
+	sta (row2PointerZP),y
+	iny
+	lda _tmpChr+1
+	sta (row1PointerZP),y
+	lda _tmpChr+3
+	sta (row2PointerZP),y
+	
+	rts
+	
