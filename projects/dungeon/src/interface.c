@@ -27,15 +27,13 @@ void SplashScreen(void)
 	txtX = TXT_COLS-12; txtY = TXT_ROWS-4;
 	PrintStr("8BIT-DUNGEON"); txtY++;		
 	PrintStr(" TECH DEMO  "); txtY++;		
-	PrintStr(" 2021/03/25 ");
+	PrintStr(" 2021/04/16 ");
 	
 	// Start music
-#ifdef __CBM__	
-	LoadMusic("title.mus");
-#else
+#ifndef __ORIC__	
 	LoadMusic("dungeon.mus");
-#endif	
 	PlayMusic();
+#endif
 
 	// Wait until key is pressed
 	while (!kbhit()) {	
@@ -49,9 +47,8 @@ void SplashScreen(void)
 	// Exit banner screen
 	ClearBitmap();
 	HideBitmap();
+#ifndef __ORIC__	
 	StopMusic();		
-#ifdef __CBM__	
-	LoadMusic("dungeon.mus");
 #endif
 }
 
