@@ -36,36 +36,36 @@
 .ifdef __APPLE2__
 	tilesetDataZP = $ef
 	charPointerZP = $ce
-	row1PointerZP = $fb
-	row2PointerZP = $fd
+	dec1PointerZP = $fb
+	dec2PointerZP = $fd
 .endif
 
 .ifdef __ATARI__
 	tilesetDataZP = $e0
 	charPointerZP = $e2
-	row1PointerZP = $e4
-	row2PointerZP = $e6
+	dec1PointerZP = $e4
+	dec2PointerZP = $e6
 .endif	
 	
 .ifdef __CBM__
 	tilesetDataZP = $61
 	charPointerZP = $63
-	row1PointerZP = $fb
-	row2PointerZP = $fd
+	dec1PointerZP = $fb
+	dec2PointerZP = $fd
 .endif	
 
 .ifdef __LYNX__
 	tilesetDataZP = $b3
 	charPointerZP = $b5
-	row1PointerZP = $b7
-	row2PointerZP = $b9
+	dec1PointerZP = $b7
+	dec2PointerZP = $b9
 .endif	
 
 .ifdef __ATMOS__
 	tilesetDataZP = $b0
 	charPointerZP = $b2
-	row1PointerZP = $b4
-	row2PointerZP = $b6
+	dec1PointerZP = $b4
+	dec2PointerZP = $b6
 .endif
 
 	.segment	"BSS"
@@ -83,8 +83,8 @@ _curRow: .res 1
 ;	Zero Page Data:
 ;		tilesetDataZP: 16 bit address of tileset data
 ;		charPointerZP: 16 bit address of location in charmap (auto-updated)
-;		row1PointerZP: 16 bit address of first line (auto-updated)
-;		row2PointerZP: 16 bit address of second line (auto-updated)
+;		dec1PointerZP: 16 bit address of first line (auto-updated)
+;		dec2PointerZP: 16 bit address of second line (auto-updated)
 ; ---------------------------------------------------------------	
 
 _DecodeTiles2x2:
@@ -122,20 +122,20 @@ loopRows:
 	nocarryChrPtr:
 
 		; Update location in screen buffer (line 1)
-		lda row1PointerZP			
+		lda dec1PointerZP			
 		adc _blockWidth
-		sta row1PointerZP	
+		sta dec1PointerZP	
 		bcc nocarryScrPtr1	; Check if carry to high byte
-		inc row1PointerZP+1
+		inc dec1PointerZP+1
 		clc	
 	nocarryScrPtr1:
 
 		; Update location in screen buffer (line 2)
-		lda row2PointerZP		
+		lda dec2PointerZP		
 		adc _blockWidth
-		sta row2PointerZP
+		sta dec2PointerZP
 		bcc nocarryScrPtr2	; Check if carry to high byte
-		inc row2PointerZP+1
+		inc dec2PointerZP+1
 	nocarryScrPtr2:
 	
 	; Move to next row
@@ -191,14 +191,14 @@ nocarry2:
 	asl A
 	tay
 	lda _tmpChr+0
-	sta (row1PointerZP),y
+	sta (dec1PointerZP),y
 	lda _tmpChr+2
-	sta (row2PointerZP),y
+	sta (dec2PointerZP),y
 	iny
 	lda _tmpChr+1
-	sta (row1PointerZP),y
+	sta (dec1PointerZP),y
 	lda _tmpChr+3
-	sta (row2PointerZP),y
+	sta (dec2PointerZP),y
 	
 	rts
 	

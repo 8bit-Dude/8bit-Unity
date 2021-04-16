@@ -31,28 +31,30 @@
 ; Zeropage addresses
 
 .ifdef __APPLE2__
-	row1PointerZP = $fb
-	row2PointerZP = $fd
+	scr1PointerZP = $fb
+	scr2PointerZP = $fd
 .endif
 
 .ifdef __ATARI__
-	row1PointerZP = $e4
-	row2PointerZP = $e6
+	scr1PointerZP = $e4
+	scr2PointerZP = $e6
 .endif	
 	
 .ifdef __CBM__
-	row1PointerZP = $fb
-	row2PointerZP = $fd
+	scr1PointerZP = $61
+	scr2PointerZP = $63
+	clr1PointerZP = $fb
+	clr2PointerZP = $fd
 .endif	
 
 .ifdef __LYNX__
-	row1PointerZP = $b7
-	row2PointerZP = $b9
+	scr1PointerZP = $b7
+	scr2PointerZP = $b9
 .endif	
 
 .ifdef __ATMOS__
-	row1PointerZP = $b4
-	row2PointerZP = $b6
+	scr1PointerZP = $b4
+	scr2PointerZP = $b6
 .endif
 
 	.segment	"CODE"	
@@ -60,18 +62,30 @@
 ; ---------------------------------------------------------------
 ; void __near__ _Scroll (void)
 ;	Zero Page Data:
-;		row1PointerZP: 16 bit address of source (auto-updated)
-;		row2PointerZP: 16 bit address of destination (auto-updated)
+;		scr1PointerZP: 16 bit address of screen source      (auto-updated)
+;		scr2PointerZP: 16 bit address of screen destination (auto-updated)
+; (CBM) clr1PointerZP: 16 bit address of color source       (auto-updated)
+; (CBM) clr2PointerZP: 16 bit address of color destination  (auto-updated)
 ; ---------------------------------------------------------------	
 
-.proc _Scroll: near
+_Scroll:
 
 	ldx #0
 loopRows: 
 	cpx _scrollRows
 	beq doneRows
 
-	;-------------------------------
+		jsr copyRow
+	
+	inx	
+	jmp loopRows		
+	
+doneRows:
+	rts
+
+
+; ----------------------------------
+copyRow:
 	; Check horz scanning direction
 	lda _scrollDirX
 	cmp #1
@@ -84,9 +98,14 @@ loopRows:
 		cpy _scrollCols
 		beq doneCols
 		
-			; Copy 1 byte
-			lda (row1PointerZP),y
-			sta (row2PointerZP),y
+			; Copy 1 screen byte
+			lda (scr1PointerZP),y
+			sta (scr2PointerZP),y
+		.ifdef __CBM__
+			; Copy 1 color byte
+			lda (clr1PointerZP),y
+			sta (clr2PointerZP),y
+		.endif	
 
 		; Move to next col
 		iny		
@@ -99,65 +118,101 @@ loopRows:
 		dey		
 		
 			; Copy 1 byte
-			lda (row1PointerZP),y
-			sta (row2PointerZP),y
+			lda (scr1PointerZP),y
+			sta (scr2PointerZP),y
+		.ifdef __CBM__
+			; Copy 1 color byte
+			lda (clr1PointerZP),y
+			sta (clr2PointerZP),y
+		.endif	
 
-		; Move to next col
-		cpy #0
-		beq doneCols
-		jmp loopColsLeft		
+	; Move to next col
+	cpy #0
+	beq doneCols
+	jmp loopColsLeft		
 		
-	doneCols:		
-
-	;-------------------------------
+doneCols:		
 	; Check vert scanning direction
-		lda _scrollDirY
-		cmp #1
-		bne scrollDown
+	lda _scrollDirY
+	cmp #1
+	bne scrollDown
 
 	;-------------------------------
-	scrollUp:
+	scrollUp:	
+	
+	.ifdef __CBM__
 		clc	
-		lda row1PointerZP			
+		lda clr1PointerZP			
 		adc _scrollLine
-		sta row1PointerZP	
+		sta clr1PointerZP	
+		bcc nocarryClrPtr1	; Check if carry to high byte
+		inc clr1PointerZP+1
+	nocarryClrPtr1:
+
+		clc	
+		lda clr2PointerZP
+		adc _scrollLine
+		sta clr2PointerZP
+		bcc nocarryClrPtr2	; Check if carry to high byte
+		inc clr2PointerZP+1
+	nocarryClrPtr2:
+	.endif	
+	
+		clc	
+		lda scr1PointerZP			
+		adc _scrollLine
+		sta scr1PointerZP	
 		bcc nocarryScrPtr1	; Check if carry to high byte
-		inc row1PointerZP+1
+		inc scr1PointerZP+1
 	nocarryScrPtr1:
 
 		clc	
-		lda row2PointerZP		
+		lda scr2PointerZP		
 		adc _scrollLine
-		sta row2PointerZP
+		sta scr2PointerZP
 		bcc nocarryScrPtr2	; Check if carry to high byte
-		inc row2PointerZP+1
-	nocarryScrPtr2:
-		jmp carryScrPtr2
+		inc scr2PointerZP+1
+	nocarryScrPtr2:	
+		jmp doneCopy
 
 	;-------------------------------
 	scrollDown:
+	
+	.ifdef __CBM__
 		sec	
-		lda row1PointerZP			
+		lda clr1PointerZP			
 		sbc _scrollLine
-		sta row1PointerZP	
+		sta clr1PointerZP	
+		bcs carryClrPtr1	; Check if carry to high byte
+		dec clr1PointerZP+1
+	carryClrPtr1:
+
+		sec	
+		lda clr2PointerZP		
+		sbc _scrollLine
+		sta clr2PointerZP
+		bcs carryClrPtr2	; Check if carry to high byte
+		dec clr2PointerZP+1
+	carryClrPtr2:
+	.endif	
+	
+		sec	
+		lda scr1PointerZP			
+		sbc _scrollLine
+		sta scr1PointerZP	
 		bcs carryScrPtr1	; Check if carry to high byte
-		dec row1PointerZP+1
+		dec scr1PointerZP+1
 	carryScrPtr1:
 
 		sec	
-		lda row2PointerZP		
+		lda scr2PointerZP		
 		sbc _scrollLine
-		sta row2PointerZP
+		sta scr2PointerZP
 		bcs carryScrPtr2	; Check if carry to high byte
-		dec row2PointerZP+1
+		dec scr2PointerZP+1
 	carryScrPtr2:
 	
-	;-------------------------------
-	; Move to next row
-	inx	
-	jmp loopRows		
-	
-doneRows:
+doneCopy:
 	rts
-
-.endproc		
+	
+	

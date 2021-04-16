@@ -41,31 +41,43 @@
 // Zero Page pointers (for tile decoding and scrolling)
 #if defined(__APPLE2__)
   #define charPointerZP 0xce
-  #define row1PointerZP 0xfb
-  #define row2PointerZP 0xfd
+  #define dec1PointerZP 0xfb
+  #define dec2PointerZP 0xfd
+  #define scr1PointerZP 0xfb
+  #define scr2PointerZP 0xfd
 #elif defined(__ATARI__)
   #define charattDataZP 0xe0
   #define charPointerZP 0xe2
+  #define dec1PointerZP 0xe4
+  #define dec2PointerZP 0xe6
   #define scrPointerZP  0xe4
-  #define row1PointerZP 0xe4
-  #define row2PointerZP 0xe6
+  #define scr1PointerZP 0xe4
+  #define scr2PointerZP 0xe6
 #elif defined(__CBM__)
   #define charattDataZP 0x61
   #define charPointerZP 0x63
   #define scrPointerZP  0xfb
   #define colPointerZP  0xfd
-  #define row1PointerZP 0xfb
-  #define row2PointerZP 0xfd
+  #define dec1PointerZP 0xfb
+  #define dec2PointerZP 0xfd
+  #define scr1PointerZP 0x61
+  #define scr2PointerZP 0x63
+  #define clr1PointerZP 0xfb
+  #define clr2PointerZP 0xfd
 #elif defined(__LYNX__)
   #define charPointerZP 0xb5
+  #define dec1PointerZP 0xb7
+  #define dec2PointerZP 0xb9
   #define scrPointerZP  0xb7
-  #define row1PointerZP 0xb7
-  #define row2PointerZP 0xb9
+  #define scr1PointerZP 0xb7
+  #define scr2PointerZP 0xb9
 #elif defined(__ORIC__)
   #define charPointerZP 0xb2
+  #define dec1PointerZP 0xb4
+  #define dec2PointerZP 0xb6 
   #define scrPointerZP  0xb4
-  #define row1PointerZP 0xb4
-  #define row2PointerZP 0xb6 
+  #define scr1PointerZP 0xb4
+  #define scr2PointerZP 0xb6 
 #endif
 
 // Byte size of screen elements
@@ -143,17 +155,14 @@ void InitCharmap(unsigned char col1, unsigned char col2, unsigned char row1, uns
 	
 #if (defined __APPLE2__) || (defined __LYNX__) || (defined __ORIC__)
 	InitBitmap();
-
 #elif defined __ATARI__	
 	// Charmap/Bitmap transition params
 	chrRows = row2-1;
 	bmpRows = chrRows + 8*(CMP_ROWS-row2) + 2;
 	bmpAddr = BITMAPRAM1 + row2*(8*40);
 	InitBitmap();
-		
 #elif defined __CBM__
-	colorData = COLORRAM + screenRow1*LINE_SIZE + screenCol1;
-
+	colorData = (char*)(COLORRAM + screenRow1*LINE_SIZE + screenCol1*CHAR_WIDTH);
 #endif
 }
 
@@ -416,8 +425,8 @@ unsigned int DecodeTiles(unsigned char x, unsigned char y)
 	if (tileX != x/2u || tileY != y/2u) {
 		tileX = x/2u; tileY = y/2u;
 		POKEW(charPointerZP, (unsigned int)&charmapData[charmapWidth*tileY + tileX]);
-		POKEW(row1PointerZP, (unsigned int)&decodeData[0]);
-		POKEW(row2PointerZP, (unsigned int)&decodeData[decodeWidth]);	
+		POKEW(dec1PointerZP, (unsigned int)&decodeData[0]);
+		POKEW(dec2PointerZP, (unsigned int)&decodeData[decodeWidth]);	
 		blockWidth = 2*decodeWidth;
 		DecodeTiles2x2();
 	}
@@ -428,13 +437,13 @@ unsigned int DecodeTiles(unsigned char x, unsigned char y)
 
 void ScrollCharmap(unsigned char x, unsigned char y)
 {
-#if defined(__APPLE2__) || defined(__CBM__)
+#if defined(__APPLE2__)
 	DrawCharmap(x,y);
 #else
 	unsigned char tmp;
 	signed char stepX, stepY;
 	unsigned int src, srcOff, dstOff;
-	unsigned int cpyDst, cpySrc;
+	unsigned int cpyDst = 0, cpySrc = 0;
 
   #if defined(__APPLE2__) || defined(__ORIC__)
 	HideSprites();
@@ -455,7 +464,6 @@ void ScrollCharmap(unsigned char x, unsigned char y)
 	worldX = x; worldY = y;
 	
 	// Init copy addresses
-	cpySrc = cpyDst = (unsigned int)screenData;
 	scrollCols = lineBlock;
 	scrollDirX = 1;
 	scrollDirY = 1;
@@ -463,8 +471,7 @@ void ScrollCharmap(unsigned char x, unsigned char y)
 	// Determine screen area
 	if (stepY) {
 		if (stepY < 0) {
-			cpyDst += screenHeight*ROW_SIZE - LINE_SIZE;
-			cpySrc = cpyDst;
+			cpySrc = cpyDst = screenHeight*ROW_SIZE - LINE_SIZE;
 			scrollDirY = -1;
 		}
 		cpySrc += stepY*ROW_SIZE;
@@ -481,8 +488,12 @@ void ScrollCharmap(unsigned char x, unsigned char y)
 	
 	// Copy screen area
 	scrollRows = (screenHeight-ABS(stepY))*CHAR_HEIGHT;
-	POKEW(row1PointerZP, cpySrc);
-	POKEW(row2PointerZP, cpyDst);
+	POKEW(scr1PointerZP, screenData+cpySrc);
+	POKEW(scr2PointerZP, screenData+cpyDst);
+#if defined __CBM__		
+	POKEW(clr1PointerZP, colorData+cpySrc);
+	POKEW(clr2PointerZP, colorData+cpyDst);
+#endif
 	Scroll();
 		
 	// Blit new areas
@@ -501,6 +512,9 @@ void ScrollCharmap(unsigned char x, unsigned char y)
 		POKEW(scrPointerZP, (unsigned int)screenData+dstOff);
 	#if defined __ATARI__
 		POKEW(charattDataZP, CHARATRRAM);
+	#elif defined __CBM__	
+		POKEW(charattDataZP, charattData);
+		POKEW(colPointerZP, (unsigned int)colorData+dstOff);
 	#endif
 		BlitCharmap();			
 		screenHeight = tmp;
@@ -519,13 +533,16 @@ void ScrollCharmap(unsigned char x, unsigned char y)
 		POKEW(scrPointerZP, (unsigned int)screenData+dstOff);
 	#if defined __ATARI__
 		POKEW(charattDataZP, CHARATRRAM);
+	#elif defined __CBM__	
+		POKEW(charattDataZP, charattData);
+		POKEW(colPointerZP, (unsigned int)colorData+dstOff);
 	#endif
 		BlitCharmap();			
 		screenWidth = tmp;
 	}		
 #endif
 }
-		
+
 void DrawCharmap(unsigned char x, unsigned char y)
 {
 #if defined(__APPLE2__)
