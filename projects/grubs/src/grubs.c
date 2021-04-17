@@ -217,6 +217,7 @@ void DrawGrub(Grub *grub)
 	#endif	
 	} else {
 	#if defined __CBM__
+		SetSprite(grub->index, grub->keyFrame+grub->motionFrame);	
 		DisableSprite(0);
 	#elif defined __ATARI__
 		SetMultiColorSprite(2*grub->index, grub->keyFrame+grub->motionFrame);

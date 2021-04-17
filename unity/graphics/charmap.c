@@ -467,7 +467,7 @@ unsigned int DecodeTiles()
 {
 #if defined __TILE_NONE__
 	blockWidth = charmapWidth;
-	return (unsigned int)&charmapData[charmapWidth*y + x];
+	return (unsigned int)&charmapData[charmapWidth*worldY + worldX];
 #else
 	// Decode tilemap to screen buffer
   #if defined __TILE_2X2__
