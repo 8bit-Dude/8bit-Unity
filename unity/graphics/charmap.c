@@ -40,62 +40,86 @@
 
 // Zero Page pointers (for tile decoding and scrolling)
 #if defined(__APPLE2__)
-  #define charPointerZP 0xce
-  #define dec1PointerZP 0xfb
-  #define dec2PointerZP 0xfd
-  #define scr1PointerZP 0xfb
-  #define scr2PointerZP 0xfd
+  #define charPtrZP 0xce
+  #define decPtr1ZP 0xfb
+  #define decPtr2ZP 0xfd
+  #define scrPtr1ZP 0xfb
+  #define scrPtr2ZP 0xfd
+  #define scrRow1ZP 0xfb
+  #define scrCol1ZP 0xfc
+  #define scrRow2ZP 0xfd
+  #define scrCol2ZP 0xfe  
 #elif defined(__ATARI__)
   #define charattDataZP 0xe0
-  #define charPointerZP 0xe2
-  #define dec1PointerZP 0xe4
-  #define dec2PointerZP 0xe6
-  #define scrPointerZP  0xe4
-  #define scr1PointerZP 0xe4
-  #define scr2PointerZP 0xe6
+  #define charPtrZP 0xe2
+  #define decPtr1ZP 0xe4
+  #define decPtr2ZP 0xe6
+  #define scrPtrZP  0xe4
+  #define scrPtr1ZP 0xe4
+  #define scrPtr2ZP 0xe6
 #elif defined(__CBM__)
   #define charattDataZP 0x61
-  #define charPointerZP 0x63
-  #define scrPointerZP  0xfb
-  #define colPointerZP  0xfd
-  #define dec1PointerZP 0xfb
-  #define dec2PointerZP 0xfd
-  #define scr1PointerZP 0x61
-  #define scr2PointerZP 0x63
-  #define clr1PointerZP 0xfb
-  #define clr2PointerZP 0xfd
+  #define charPtrZP 0x63
+  #define scrPtrZP  0xfb
+  #define colPtrZP  0xfd
+  #define decPtr1ZP 0xfb
+  #define decPtr2ZP 0xfd
+  #define scrPtr1ZP 0x61
+  #define scrPtr2ZP 0x63
+  #define clrPtr1ZP 0xfb
+  #define clrPtr2ZP 0xfd
 #elif defined(__LYNX__)
-  #define charPointerZP 0xb5
-  #define dec1PointerZP 0xb7
-  #define dec2PointerZP 0xb9
-  #define scrPointerZP  0xb7
-  #define scr1PointerZP 0xb7
-  #define scr2PointerZP 0xb9
+  #define charPtrZP 0xb5
+  #define decPtr1ZP 0xb7
+  #define decPtr2ZP 0xb9
+  #define scrPtrZP  0xb7
+  #define scrPtr1ZP 0xb7
+  #define scrPtr2ZP 0xb9
 #elif defined(__ORIC__)
-  #define charPointerZP 0xb2
-  #define dec1PointerZP 0xb4
-  #define dec2PointerZP 0xb6 
-  #define scrPointerZP  0xb4
-  #define scr1PointerZP 0xb4
-  #define scr2PointerZP 0xb6 
+  #define charPtrZP 0xb2
+  #define decPtr1ZP 0xb4
+  #define decPtr2ZP 0xb6 
+  #define scrPtrZP  0xb4
+  #define scrPtr1ZP 0xb4
+  #define scrPtr2ZP 0xb6 
 #endif
 
 // Byte size of screen elements
-#if defined(__ATARI__) || defined(__CBM__)
-  #define CHAR_WIDTH       1
-  #define CHAR_HEIGHT      1
-  #define LINE_SIZE	  	  40
-  #define ROW_SIZE		  40  
+#if defined(__APPLE2__) 
+  #define CHAR_WIDTH       1u
+  #define CHAR_HEIGHT	   8u
+  #define LINE_SIZE	  	  40u
+  #define ROW_SIZE		 320u   
+#elif defined(__ATARI__) || defined(__CBM__)
+  #define CHAR_WIDTH       1u
+  #define CHAR_HEIGHT      1u
+  #define LINE_SIZE	  	  40u
+  #define ROW_SIZE		  40u 
 #elif defined(__LYNX__)
-  #define CHAR_WIDTH       2
-  #define CHAR_HEIGHT      4
-  #define LINE_SIZE	  	  82
-  #define ROW_SIZE		 328  
-#else
-  #define CHAR_WIDTH       1
-  #define CHAR_HEIGHT      8
-  #define LINE_SIZE	  	  40	
-  #define ROW_SIZE		 320 
+  #define CHAR_WIDTH       2u
+  #define CHAR_HEIGHT      4u
+  #define LINE_SIZE	  	  82u
+  #define ROW_SIZE		 328u 
+#elif defined(__ORIC__)
+  #define CHAR_WIDTH       1u
+  #define CHAR_HEIGHT      8u
+  #define LINE_SIZE	  	  40u	
+  #define ROW_SIZE		 320u
+#endif
+
+// Tile size
+#if defined(__TILE_NONE__)
+  #define TILE_WIDTH  1u
+  #define TILE_HEIGHT 1u
+#elif defined(__TILE_2X2__)
+  #define TILE_WIDTH  2u
+  #define TILE_HEIGHT 2u
+#elif defined(__TILE_3X3__)
+  #define TILE_WIDTH  3u
+  #define TILE_HEIGHT 3u
+#elif defined(__TILE_4X4__)
+  #define TILE_WIDTH  4u
+  #define TILE_HEIGHT 4u
 #endif
 
 // Assembly functions (see tiles.s and scroll.s)
@@ -103,7 +127,7 @@ void __fastcall__ DecodeTiles2x2(void);
 void __fastcall__ Scroll(void);
 
 // Map size and location properties
-unsigned char charmapWidth, charmapHeight, tileWidth, tileHeight;
+unsigned char charmapWidth, charmapHeight;
 unsigned char worldWidth, worldHeight, worldX, worldY, worldMaxX, worldMaxY;
 unsigned char screenCol1 = 0, screenCol2 = CMP_COLS, screenWidth = CMP_COLS;
 unsigned char screenRow1 = 0, screenRow2 = CMP_ROWS, screenHeight = CMP_ROWS;
@@ -112,7 +136,7 @@ unsigned char lineBlock;
 // Drawing properties
 unsigned char blockWidth, decodeWidth, decodeHeight, *decodeData;
 unsigned char tileX, tileY, tileCols, tileRows;
-unsigned char scrollCols, scrollRows, scrollDirX, scrollDirY, scrollLine = LINE_SIZE;
+unsigned char scrollCols, scrollRows, scrollDirX, scrollDirY;
   
 // Pointers to various data sets
 unsigned char *charmapData;
@@ -283,8 +307,8 @@ void LoadCharmap(char *filename, unsigned int w, unsigned int h)
 	// Update Dimensions of World Map
 	charmapWidth = w; 
 	charmapHeight = h;	
-	worldWidth = w*tileHeight;
-	worldHeight = h*tileWidth;
+	worldWidth = w*TILE_HEIGHT;
+	worldHeight = h*TILE_WIDTH;
 	
 	// Compute max World Map coordinates
 	worldMaxX = worldWidth-screenWidth;
@@ -325,15 +349,15 @@ void LoadCharmap(char *filename, unsigned int w, unsigned int h)
 }
 
 // Load tileset from file
-void LoadTileset(char *filename, unsigned int n, unsigned int w, unsigned int h) 
+void LoadTileset(char *filename, unsigned int n) 
 {
+	// Platform specific variables
 #if (defined __CBM__)
 	FILE* fp;
 #endif	
-	unsigned int size = n*w*h;
-	tileWidth = w; tileHeight = h;
-	
+
 	// Assign memory and ZP pointer
+	unsigned int size = n*TILE_WIDTH*TILE_HEIGHT;	
 	if (tilesetData) free(tilesetData);	
 	tilesetData = malloc(size);
 	
@@ -362,10 +386,10 @@ void LoadTileset(char *filename, unsigned int n, unsigned int w, unsigned int h)
 #endif
 	
 	// Allocate buffer for tile to char conversion
-	decodeHeight = screenHeight+tileHeight;
-	decodeWidth = screenWidth+tileWidth;
-	tileRows = decodeHeight/tileHeight;
-	tileCols = decodeWidth/tileWidth;
+	decodeHeight = screenHeight+TILE_HEIGHT;
+	decodeWidth  = screenWidth+TILE_WIDTH;
+	tileRows = decodeHeight/TILE_HEIGHT;
+	tileCols = decodeWidth/TILE_WIDTH;
 	if (decodeData) free(decodeData);	
 	decodeData = malloc(decodeWidth*decodeHeight);
 }
@@ -383,24 +407,44 @@ unsigned char GetFlag(unsigned char x, unsigned char y)
 {
 	// Get flags of specified tile
 	unsigned char chr;
-	if (tilesetData) {
-		chr = charmapData[charmapWidth*(y/2u) + x/2u];
-		chr = tilesetData[4*chr+(2*(y&1))+(x&1)];
-	} else {
-		chr = charmapData[charmapWidth*y + x];
-	}
+	chr = GetTile(x, y);
+#if defined __TILE_2X2__
+	chr = tilesetData[ 4*chr+(2*(y&1))+(x&1)];
+#elif defined __TILE_3X3__
+	chr = tilesetData[ 9*chr+(3*(y%3))+(x%3)];
+#elif defined __TILE_4X4__
+	chr = tilesetData[16*chr+(4*(y&3))+(x&3)];
+#endif
 	return charflagData[chr];
 }
 
 unsigned char GetTile(unsigned char x, unsigned char y)
 {
+#if defined __TILE_NONE__
+	return charmapData[charmapWidth*y + x];	
+#elif defined __TILE_2X2__
 	return charmapData[charmapWidth*(y/2u) + x/2u];	
+#elif defined __TILE_3X3__
+	return charmapData[charmapWidth*(y/3u) + x/3u];	
+#elif defined __TILE_4X4__
+	return charmapData[charmapWidth*(y/3u) + x/3u];	
+#endif
 }
 
 void SetTile(unsigned char x, unsigned char y, unsigned char tile)
 {
+#if defined __TILE_NONE__
+	charmapData[charmapWidth*y + x] = tile;
+#else	
+  #if defined __TILE_2X2__
 	charmapData[charmapWidth*(y/2u) + x/2u] = tile;
+  #elif defined __TILE_3X3__
+	charmapData[charmapWidth*(y/3u) + x/3u] = tile;
+  #elif defined __TILE_4X4__
+	charmapData[charmapWidth*(y/4u) + x/4u] = tile;
+  #endif
 	tileX = 255; tileY = 255;	// Trick to force re-decoding
+#endif
 }
 
 void PrintCharmap(unsigned char x, unsigned char y, unsigned char chr)
@@ -419,51 +463,56 @@ void PrintCharmap(unsigned char x, unsigned char y, unsigned char chr)
 #endif
 }
 
-unsigned int DecodeTiles(unsigned char x, unsigned char y)
+unsigned int DecodeTiles()
 {
+#if defined __TILE_NONE__
+	blockWidth = charmapWidth;
+	return (unsigned int)&charmapData[charmapWidth*y + x];
+#else
 	// Decode tilemap to screen buffer
-	if (tileX != x/2u || tileY != y/2u) {
-		tileX = x/2u; tileY = y/2u;
-		POKEW(charPointerZP, (unsigned int)&charmapData[charmapWidth*tileY + tileX]);
-		POKEW(dec1PointerZP, (unsigned int)&decodeData[0]);
-		POKEW(dec2PointerZP, (unsigned int)&decodeData[decodeWidth]);	
+  #if defined __TILE_2X2__
+	if (tileX != worldX/2u || tileY != worldY/2u) {
+		tileX = worldX/2u; tileY = worldY/2u;
+		POKEW(charPtrZP, (unsigned int)&charmapData[charmapWidth*tileY + tileX]);
+		POKEW(decPtr1ZP, (unsigned int)&decodeData[0]);
+		POKEW(decPtr2ZP, (unsigned int)&decodeData[decodeWidth]);	
 		blockWidth = 2*decodeWidth;
 		DecodeTiles2x2();
 	}
-	
+  #endif	
 	// Assign offset area of screen buffer
-	return (unsigned int )&decodeData[decodeWidth*(y&1)+(x&1)];	
+	blockWidth = decodeWidth;
+	return (unsigned int)&decodeData[decodeWidth*(worldY&1)+(worldX&1)];	
+#endif
 }
 
 void ScrollCharmap(unsigned char x, unsigned char y)
 {
-#if defined(__APPLE2__)
-	DrawCharmap(x,y);
-#else
-	unsigned char tmp;
 	signed char stepX, stepY;
 	unsigned int src, srcOff, dstOff;
 	unsigned int cpyDst = 0, cpySrc = 0;
+	unsigned char tmp1;
+	
+	// Platform specific handling
+#if defined(__APPLE2__)
+	unsigned char tmp2;
+	x = 2*(x/2u)+1;
+  #if defined(__DHR__)
+	clk += 16;
+  #else
+	clk += 8;  
+  #endif	
+#endif
 
-  #if defined(__APPLE2__) || defined(__ORIC__)
-	HideSprites();
-  #endif
-	
-	// Using tileset?
-	if (tilesetData) {
-		src = DecodeTiles(x, y);
-		blockWidth = decodeWidth;
-	} else {
-		src = &charmapData[charmapWidth*y + x];
-		blockWidth = charmapWidth;
-	}
-	
 	// Compute step
 	stepX = x - worldX; 
 	stepY = y - worldY;
 	worldX = x; worldY = y;
 	
-	// Init copy addresses
+	// Decode tiles (if necessary)
+	src = DecodeTiles();
+	
+	// Init copy parameters
 	scrollCols = lineBlock;
 	scrollDirX = 1;
 	scrollDirY = 1;
@@ -485,19 +534,32 @@ void ScrollCharmap(unsigned char x, unsigned char y)
 		}
 		scrollCols -= ABS(stepX)*CHAR_WIDTH;
 	}
-	
-	// Copy screen area
-	scrollRows = (screenHeight-ABS(stepY))*CHAR_HEIGHT;
-	POKEW(scr1PointerZP, screenData+cpySrc);
-	POKEW(scr2PointerZP, screenData+cpyDst);
-#if defined __CBM__		
-	POKEW(clr1PointerZP, colorData+cpySrc);
-	POKEW(clr2PointerZP, colorData+cpyDst);
+
+	// Hide soft sprites
+#if defined(__APPLE2__) || defined(__ORIC__)
+	HideSprites();
 #endif
+	
+	// Scroll screen area
+	scrollRows = (screenHeight-ABS(stepY))*CHAR_HEIGHT;
+#if defined __APPLE2__	
+	POKE(scrRow1ZP, screenRow1*CHAR_HEIGHT+(cpySrc/LINE_SIZE));
+	POKE(scrRow2ZP, screenRow1*CHAR_HEIGHT+(cpyDst/LINE_SIZE));
+	POKE(scrCol1ZP, screenCol1+(cpySrc%LINE_SIZE));
+	POKE(scrCol2ZP, screenCol1+(cpyDst%LINE_SIZE));	
+#else
+	POKEW(scrPtr1ZP, screenData+cpySrc);
+	POKEW(scrPtr2ZP, screenData+cpyDst);
+  #if defined __CBM__		
+	POKEW(clrPtr1ZP, colorData+cpySrc);
+	POKEW(clrPtr2ZP, colorData+cpyDst);
+  #endif
+#endif  
 	Scroll();
 		
-	// Blit new areas
+	// Blit new area on Top/Bottom
 	if (stepY) {
+		// Assign charmap pointer
 		if (stepY > 0) {
 			srcOff = (screenHeight-stepY);
 			dstOff = srcOff*ROW_SIZE;
@@ -506,20 +568,39 @@ void ScrollCharmap(unsigned char x, unsigned char y)
 			srcOff = 0;
 			dstOff = 0;
 		}
-		tmp = screenHeight;
+		POKEW(charPtrZP, src+srcOff);
+		
+		// Assign screen information
+	#if defined __APPLE2__	
+		tmp1 = screenRow1;
+		tmp2 = screenRow2;
+		screenRow1 += dstOff/ROW_SIZE;
+		screenRow2 = screenRow1+ABS(stepY);
+	#else
+		tmp1 = screenHeight;
 		screenHeight = ABS(stepY);
-		POKEW(charPointerZP, src+srcOff);
-		POKEW(scrPointerZP, (unsigned int)screenData+dstOff);
-	#if defined __ATARI__
+		POKEW(scrPtrZP, (unsigned int)screenData+dstOff);
+	  #if defined __ATARI__
 		POKEW(charattDataZP, CHARATRRAM);
-	#elif defined __CBM__	
+	  #elif defined __CBM__	
 		POKEW(charattDataZP, charattData);
-		POKEW(colPointerZP, (unsigned int)colorData+dstOff);
+		POKEW(colPtrZP, (unsigned int)colorData+dstOff);
+	  #endif
 	#endif
-		BlitCharmap();			
-		screenHeight = tmp;
+		BlitCharmap();	
+
+		// Restore screen information
+	#if defined __APPLE2__	
+		screenRow1 = tmp1;
+		screenRow2 = tmp2;
+	#else
+		screenHeight = tmp1;
+	#endif
 	}
+	
+	// Blit new area on Left/Right
 	if (stepX) {
+		// Assign charmap pointer
 		if (stepX > 0) {
 			srcOff = (screenWidth-stepX);
 			dstOff = srcOff*CHAR_WIDTH;
@@ -527,57 +608,65 @@ void ScrollCharmap(unsigned char x, unsigned char y)
 			srcOff = 0;
 			dstOff = 0;
 		}
-		tmp = screenWidth;
+		POKEW(charPtrZP, src+srcOff);
+		
+		// Assign screen information		
+		tmp1 = screenWidth;
 		screenWidth = ABS(stepX);
-		POKEW(charPointerZP, src+srcOff);
-		POKEW(scrPointerZP, (unsigned int)screenData+dstOff);
-	#if defined __ATARI__
+	#if defined __APPLE2__	
+		tmp2 = screenCol1;
+		screenCol1 += dstOff%LINE_SIZE;
+	#else
+		POKEW(scrPtrZP, (unsigned int)screenData+dstOff);
+	  #if defined __ATARI__
 		POKEW(charattDataZP, CHARATRRAM);
-	#elif defined __CBM__	
+	  #elif defined __CBM__	
 		POKEW(charattDataZP, charattData);
-		POKEW(colPointerZP, (unsigned int)colorData+dstOff);
+		POKEW(colPtrZP, (unsigned int)colorData+dstOff);
+	  #endif
 	#endif
 		BlitCharmap();			
-		screenWidth = tmp;
+		
+		// Restore screen information
+		screenWidth = tmp1;
+	#if defined __APPLE2__	
+		screenCol1 = tmp2;
+	#endif
 	}		
-#endif
 }
 
 void DrawCharmap(unsigned char x, unsigned char y)
 {
+	// Platform specific handling
 #if defined(__APPLE2__)
 	x = 2*(x/2u)+1;
+  #if defined(__DHR__)
+	clk += 20;
+  #else
+	clk += 10;  
+  #endif
 #endif
+
+	// Hide soft sprites
 #if defined(__APPLE2__) || defined(__ORIC__)
 	HideSprites();
 #endif
-	
-	// Using tileset?
-	if (tilesetData) {
-		POKEW(charPointerZP, DecodeTiles(x, y));
-		blockWidth = decodeWidth;
-	} else {
-		POKEW(charPointerZP, &charmapData[charmapWidth*y + x]);
-		blockWidth = charmapWidth;
-	}
 
 	// Save new coordinates (for scrolling)
 	worldX = x; worldY = y;
 	
-#if defined __APPLE2__
-  #if defined __DHR__
-	BlitCharmapDHR(); clk += 20;
-  #else
-	BlitCharmapSHR(); clk += 10;
-  #endif
-#else
-	POKEW(scrPointerZP, (unsigned int)screenData);
+	// Decode tiles (if necessary)
+	POKEW(charPtrZP, DecodeTiles());
+
+	// Draw to screen
+#ifndef __APPLE2__
+	POKEW(scrPtrZP, (unsigned int)screenData);
   #if defined __ATARI__
 	POKEW(charattDataZP, CHARATRRAM);
   #elif defined __CBM__	
 	POKEW(charattDataZP, charattData);
-	POKEW(colPointerZP, colorData);
+	POKEW(colPtrZP, colorData);
   #endif
-	BlitCharmap();
 #endif
+	BlitCharmap();
 }

@@ -36,7 +36,7 @@ cCore = [ 'adaptors\\joystick.c','adaptors\\mouse.c',    'geom\\geom2d.c',     '
           'strings\\blanks.c',   'strings\\copy.c',      'strings\\input.c',   'strings\\number.c',  'strings\\print.c', 
           'sound\\music.c',      'sound\\sfx.c' ]
 
-sCore = [ 'math\\atan2.s', 'graphics\\scroll.s', 'graphics\\tiles.s', 'strings\\chars.s' ]
+sCore = [ 'math\\atan2.s', 'graphics\\tiles.s', 'strings\\chars.s' ]
 
 # Useful functions
 def Str2Bool(v):
@@ -48,16 +48,25 @@ def FileBase(filepath, suffix):
     name = name.split("-")
     return name[0]
     
-def BuildUnityLibrary(fp, target, symbols, cList, sList, buildFolder):
+def BuildUnityLibrary(self, fp, target, symbols, cList, sList, buildFolder):
+    # Add shared symbols
+    if self.combobox_TileSize.get() == 'None':
+        symbols += ' -D __TILE_NONE__'                        
+    elif self.combobox_TileSize.get() == '2x2':
+        symbols += ' -D __TILE_2X2__'                        
+    elif self.combobox_TileSize.get() == '3x3':
+        symbols += ' -D __TILE_3X3__'                        
+    elif self.combobox_TileSize.get() == '4x4':
+        symbols += ' -D __TILE_4X4__'      
 
     # Compile .c files
     for file in cList:
         fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t ' + target + ' ' + symbols + ' -I unity unity\\' + file + '\n')
-        fp.write('utils\\cc65\\bin\\ca65 -t ' + target + ' unity\\' + file[0:-2] + '.s\n')
+        fp.write('utils\\cc65\\bin\\ca65 -t ' + target + ' ' + symbols + ' unity\\' + file[0:-2] + '.s\n')
 
     # Compile .s files
     for file in sList:            
-        fp.write('utils\\cc65\\bin\\ca65 -t ' + target + ' unity\\' + file + '\n')
+        fp.write('utils\\cc65\\bin\\ca65 -t ' + target + ' ' + symbols + ' unity\\' + file + '\n')
     
     # Package into .lib
     fp.write('utils\\cc65\\bin\\ar65 r ' + buildFolder + '/unity.lib ')
@@ -182,6 +191,7 @@ class Application:
         # Get list boxes and fields
         self.listbox_Code = self.builder.get_object('Listbox_Code')
         self.listbox_Charmap = self.builder.get_object('Listbox_Charmap')
+        self.combobox_TileSize = self.builder.get_object('Combobox_TileSize')
         self.listbox_Shared = self.builder.get_object('Listbox_Shared')
         self.entry_Disk = self.builder.get_object('Entry_Disk')
         
@@ -196,9 +206,9 @@ class Application:
         self.entry_AppleSpriteFrames = self.builder.get_object('Entry_AppleSpriteFrames')
         self.entry_AppleSpriteWidth = self.builder.get_object('Entry_AppleSpriteWidth')
         self.entry_AppleSpriteHeight = self.builder.get_object('Entry_AppleSpriteHeight')
-        self.Combobox_AppleDiskSize = self.builder.get_object('Combobox_AppleDiskSize');
-        self.Combobox_AppleCrunchAssets = self.builder.get_object('Combobox_AppleCrunchAssets');
-        self.Combobox_AppleNetworkDriver = self.builder.get_object('Combobox_AppleNetworkDriver');
+        self.combobox_AppleDiskSize = self.builder.get_object('Combobox_AppleDiskSize');
+        self.combobox_AppleCrunchAssets = self.builder.get_object('Combobox_AppleCrunchAssets');
+        self.combobox_AppleNetworkDriver = self.builder.get_object('Combobox_AppleNetworkDriver');
         
         self.listbox_AtariBitmap = self.builder.get_object('Listbox_AtariBitmap')        
         self.listbox_AtariCharset = self.builder.get_object('Listbox_AtariCharset')        
@@ -208,9 +218,9 @@ class Application:
         self.entry_AtariSpriteFrames = self.builder.get_object('Entry_AtariSpriteFrames')
         self.entry_AtariSpriteWidth = self.builder.get_object('Entry_AtariSpriteWidth')
         self.entry_AtariSpriteHeight = self.builder.get_object('Entry_AtariSpriteHeight')
-        self.Combobox_AtariDiskSize = self.builder.get_object('Combobox_AtariDiskSize');
-        self.Combobox_AtariCrunchAssets = self.builder.get_object('Combobox_AtariCrunchAssets');
-        self.Combobox_AtariNetworkDriver = self.builder.get_object('Combobox_AtariNetworkDriver');
+        self.combobox_AtariDiskSize = self.builder.get_object('Combobox_AtariDiskSize');
+        self.combobox_AtariCrunchAssets = self.builder.get_object('Combobox_AtariCrunchAssets');
+        self.combobox_AtariNetworkDriver = self.builder.get_object('Combobox_AtariNetworkDriver');
         
         self.listbox_C64Bitmap = self.builder.get_object('Listbox_C64Bitmap')        
         self.listbox_C64Charset = self.builder.get_object('Listbox_C64Charset')        
@@ -220,8 +230,8 @@ class Application:
         self.entry_C64SpriteFrames = self.builder.get_object('Entry_C64SpriteFrames')
         self.entry_C64SpriteWidth = self.builder.get_object('Entry_C64SpriteWidth')
         self.entry_C64SpriteHeight = self.builder.get_object('Entry_C64SpriteHeight')
-        self.Combobox_C64CrunchAssets = self.builder.get_object('Combobox_C64CrunchAssets');
-        self.Combobox_C64NetworkDriver = self.builder.get_object('Combobox_C64NetworkDriver');
+        self.combobox_C64CrunchAssets = self.builder.get_object('Combobox_C64CrunchAssets');
+        self.combobox_C64NetworkDriver = self.builder.get_object('Combobox_C64NetworkDriver');
         
         self.listbox_LynxBitmap = self.builder.get_object('Listbox_LynxBitmap')        
         self.listbox_LynxCharset = self.builder.get_object('Listbox_LynxCharset')        
@@ -246,14 +256,15 @@ class Application:
         self.entry_OricDithering = self.builder.get_object('Entry_OricDithering')
                 
         # Set some defaults
-        self.Combobox_AppleDiskSize.current(0)
-        self.Combobox_AppleCrunchAssets.current(0)
-        self.Combobox_AppleNetworkDriver.current(0)
-        self.Combobox_AtariDiskSize.current(0)
-        self.Combobox_AtariCrunchAssets.current(0)
-        self.Combobox_AtariNetworkDriver.current(0)
-        self.Combobox_C64CrunchAssets.current(0)
-        self.Combobox_C64NetworkDriver.current(0)
+        self.combobox_TileSize.current(0)
+        self.combobox_AppleDiskSize.current(0)
+        self.combobox_AppleCrunchAssets.current(0)
+        self.combobox_AppleNetworkDriver.current(0)
+        self.combobox_AtariDiskSize.current(0)
+        self.combobox_AtariCrunchAssets.current(0)
+        self.combobox_AtariNetworkDriver.current(0)
+        self.combobox_C64CrunchAssets.current(0)
+        self.combobox_C64NetworkDriver.current(0)
 
         # Make lists of various GUI inputs (adding new inputs to the end of each list will guarantee backward compatibility)
         self.entries = [ self.entry_Disk, 
@@ -276,9 +287,10 @@ class Application:
                            self.listbox_AppleCharsetDHR,self.listbox_AtariCharset, self.listbox_C64Charset,
                            self.listbox_LynxCharset,   self.listbox_OricCharset,  self.listbox_Charmap,
                            self.listbox_AppleBitmapSHR,self.listbox_AppleSpritesSHR, self.listbox_AppleCharsetSHR ]
-        self.comboboxes = [ self.Combobox_AtariDiskSize, self.Combobox_AppleDiskSize,
-                            self.Combobox_AppleNetworkDriver, self.Combobox_AtariNetworkDriver, self.Combobox_C64NetworkDriver,
-                            self.Combobox_AppleCrunchAssets, self.Combobox_AtariCrunchAssets, self.Combobox_C64CrunchAssets ]
+        self.comboboxes = [ self.combobox_AtariDiskSize, self.combobox_AppleDiskSize,
+                            self.combobox_AppleNetworkDriver, self.combobox_AtariNetworkDriver, self.combobox_C64NetworkDriver,
+                            self.combobox_AppleCrunchAssets, self.combobox_AtariCrunchAssets, self.combobox_C64CrunchAssets,
+                            self.combobox_TileSize ]
         self.checkbuttons = []
                        
     def FileNew(self):
@@ -399,7 +411,6 @@ class Application:
             filename += '.builder'
 
         # Generates the JSON tree
-
         def process_node(dest, orig):
             for k, v in orig:
                 child = None
@@ -445,6 +456,7 @@ class Application:
                 ('code', ('listbox', self.listbox_Code)),    
                 ('shared', ('listbox', self.listbox_Shared)),
                 ('charmap', ('listbox', self.listbox_Charmap)),
+                ('tilesize', ('Combobox', self.combobox_TileSize)),
             ]),
             ('platform', [
                 ('Apple', [
@@ -459,9 +471,9 @@ class Application:
                     ('spritesSHR', ('listbox', self.listbox_AppleSpritesSHR)),
                     ('music', ('listbox', self.listbox_AppleMusic)),
                     ('chunks', ('listbox', self.listbox_AppleChunks)),
-                    ('diskSize', ('Combobox', self.Combobox_AppleDiskSize)),
-                    ('crunchAssets', ('Combobox', self.Combobox_AppleCrunchAssets)),
-                    ('networkDriver', ('Combobox', self.Combobox_AppleNetworkDriver)),
+                    ('diskSize', ('Combobox', self.combobox_AppleDiskSize)),
+                    ('crunchAssets', ('Combobox', self.combobox_AppleCrunchAssets)),
+                    ('networkDriver', ('Combobox', self.combobox_AppleNetworkDriver)),
                 ]),
                 ('Atari', [
                     ('spriteFrames', ('entry', self.entry_AtariSpriteFrames)),
@@ -472,9 +484,9 @@ class Application:
                     ('sprites', ('listbox', self.listbox_AtariSprites)),
                     ('music', ('listbox', self.listbox_AtariMusic)),
                     ('chunks', ('listbox', self.listbox_AtariChunks)),
-                    ('diskSize', ('Combobox', self.Combobox_AtariDiskSize)),
-                    ('crunchAssets', ('Combobox', self.Combobox_AtariCrunchAssets)),
-                    ('networkDriver', ('Combobox', self.Combobox_AtariNetworkDriver)),
+                    ('diskSize', ('Combobox', self.combobox_AtariDiskSize)),
+                    ('crunchAssets', ('Combobox', self.combobox_AtariCrunchAssets)),
+                    ('networkDriver', ('Combobox', self.combobox_AtariNetworkDriver)),
                 ]),
                 ('C64', [
                     ('spriteFrames', ('entry', self.entry_C64SpriteFrames)),
@@ -485,8 +497,8 @@ class Application:
                     ('sprites', ('listbox', self.listbox_C64Sprites)),
                     ('music', ('listbox', self.listbox_C64Music)),
                     ('chunks', ('listbox', self.listbox_C64Chunks)),
-                    ('crunchAssets', ('Combobox', self.Combobox_C64CrunchAssets)),
-                    ('networkDriver', ('Combobox', self.Combobox_C64NetworkDriver)),
+                    ('crunchAssets', ('Combobox', self.combobox_C64CrunchAssets)),
+                    ('networkDriver', ('Combobox', self.combobox_C64NetworkDriver)),
                 ]),
                 ('Lynx', [
                     ('spriteFrames', ('entry', self.entry_LynxSpriteFrames)),
@@ -808,33 +820,30 @@ class Application:
                 fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
                 # Build Unity Library
-                cTarget = [ 'targets\\apple2\\CLOCK.c',    'targets\\apple2\\directory.c', 'targets\\apple2\\files.c', 'targets\\apple2\\hires.c', 
-                            'targets\\apple2\\memory.c',   'targets\\apple2\\pixelDHR.c',  'targets\\apple2\\pixelSHR.c' ]                            
-                sTarget = [ 'targets\\apple2\\blitDHR.s',  'targets\\apple2\\blitSHR.s',   'targets\\apple2\\blitCharmapDHR.s', 'targets\\apple2\\blitCharmapSHR.s', 
-                            'targets\\apple2\\decrunch.s', 'targets\\apple2\\DUET.s',      'targets\\apple2\\hiresLines.s',     'targets\\apple2\\joystick.s',
-                            'targets\\apple2\\MOCKING.s',  'targets\\apple2\\PADDLE.s',    'targets\\apple2\\prodos.s',         'targets\\apple2\\serial.s' ]
+                cTarget = [ 'targets\\apple2\\CLOCK.c', 'targets\\apple2\\directory.c', 'targets\\apple2\\files.c', 'targets\\apple2\\hires.c', 'targets\\apple2\\memory.c', 'targets\\apple2\\pixelDHR.c', 'targets\\apple2\\pixelSHR.c' ]                            
+                sTarget = [ 'targets\\apple2\\blitDHR.s', 'targets\\apple2\\blitSHR.s', 'targets\\apple2\\blitCharmap.s', 'targets\\apple2\\decrunch.s', 'targets\\apple2\\DUET.s', 'targets\\apple2\\hiresLines.s', 'targets\\apple2\\joystick.s', 'targets\\apple2\\MOCKING.s', 'targets\\apple2\\PADDLE.s', 'targets\\apple2\\prodos.s', 'targets\\apple2\\scroll.s', 'targets\\apple2\\serial.s' ]
                 symbols = ''
-                if self.Combobox_AppleNetworkDriver.get() == '8bit-Hub': 
+                if self.combobox_AppleNetworkDriver.get() == '8bit-Hub': 
                     cTarget.append('adaptors\\hub.c')
                     symbols += '-D __HUB__ '
                 if graphics == 'double':
                     symbols += '-D __DHR__'
                 else:
                     symbols += '-D __SHR__'
-                if self.Combobox_AppleCrunchAssets.get() == 'Yes':
-                    symbols += ' -D __DECRUNCH__'                        
-                BuildUnityLibrary(fp, 'apple2', symbols, cCore+cTarget, sCore+sTarget, buildFolder+'/apple')
+                if self.combobox_AppleCrunchAssets.get() == 'Yes':
+                    symbols += ' -D __DECRUNCH__'                                              
+                BuildUnityLibrary(self, fp, 'apple2', symbols, cCore+cTarget, sCore+sTarget, buildFolder+'/apple')
         
                 # Compile Program
                 symbols += ' -Wl -D,__STACKSIZE__=$0400,-D,__HIMEM__=$B800,-D,__LCADDR__=$D000,-D,__LCSIZE__=$1000'
                 comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/apple/' + diskname.lower() + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-apple' + target + '.map -Cl -O -t apple2 ' + symbols + ' -C apple2-hgr.cfg -I unity '
                 for item in code:
                     comp += item + ' '
-                if self.Combobox_AppleNetworkDriver.get() == 'IP65(TCP/UDP)':
+                if self.combobox_AppleNetworkDriver.get() == 'IP65(TCP/UDP)':
                     fp.write(comp + buildFolder + '/apple/unity.lib unity/adaptors/ip65_tcp.lib unity/adaptors/ip65_apple2.lib\n\n')
-                elif self.Combobox_AppleNetworkDriver.get() == 'IP65(UDP)':
+                elif self.combobox_AppleNetworkDriver.get() == 'IP65(UDP)':
                     fp.write(comp + buildFolder + '/apple/unity.lib unity/adaptors/ip65.lib unity/adaptors/ip65_apple2.lib\n\n')
-                elif self.Combobox_AppleNetworkDriver.get() == '8bit-Hub':
+                elif self.combobox_AppleNetworkDriver.get() == '8bit-Hub':
                     fp.write(comp + buildFolder + '/apple/unity.lib\n\n')
                 
                 # Info
@@ -844,7 +853,7 @@ class Application:
 
                 # Bitmaps
                 for item in bitmaps:
-                    if self.Combobox_AppleCrunchAssets.get() == 'Yes':
+                    if self.combobox_AppleCrunchAssets.get() == 'Yes':
                         fp.write('utils\\py27\\python utils\\scripts\\apple\\AppleBitmap.py ' + graphics + ' crunch ' + item + ' ' + buildFolder + '/apple/' + FileBase(item, '.png') + '.img\n')
                     else:
                         fp.write('utils\\py27\\python utils\\scripts\\apple\\AppleBitmap.py ' + graphics + ' raw ' + item + ' ' + buildFolder + '/apple/' + FileBase(item, '.png') + '.img\n')
@@ -872,7 +881,7 @@ class Application:
                 fp.write('utils\\scripts\\exomizer-3.1.0.exe sfx bin ' + buildFolder + '/apple/' + diskname.lower() + '.bin -o ' + buildFolder + '/apple/loader\n\n')
 
                 # Disk builder
-                if self.Combobox_AppleDiskSize.get() == '140KB':                
+                if self.combobox_AppleDiskSize.get() == '140KB':                
                     podisk = 'ProDOS190-140K.po'
                     par = '-s7 empty -d1'
                     ext = '.do'
@@ -928,30 +937,29 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Build Unity Library
-            cTarget = ['targets\\atari\\directory.c',   'targets\\atari\\files.c']
-            sTarget = ['targets\\atari\\blitCharmap.s', 'targets\\atari\\decrunch.s',  'targets\\atari\\DLIST-bmp.s', 'targets\\atari\\DLIST-chr.s', 
-                       'targets\\atari\\DLI.s',         'targets\\atari\\ROM.s',       'targets\\atari\\VBI.s',       'targets\\atari\\xbios.s']
-            if self.Combobox_AtariNetworkDriver.get() == 'Fujinet':    
+            cTarget = ['targets\\atari\\directory.c', 'targets\\atari\\files.c']
+            sTarget = ['graphics\\scroll.s', 'targets\\atari\\blitCharmap.s', 'targets\\atari\\decrunch.s', 'targets\\atari\\DLIST-bmp.s', 'targets\\atari\\DLIST-chr.s', 'targets\\atari\\DLI.s', 'targets\\atari\\ROM.s', 'targets\\atari\\VBI.s', 'targets\\atari\\xbios.s']
+            if self.combobox_AtariNetworkDriver.get() == 'Fujinet':    
                 cTarget.append('targets\\atari\\fujinet.c')
                 sTarget.append('targets\\atari\\fujiIRQ.s')
-            if self.Combobox_AtariNetworkDriver.get() == 'Fujinet':    
+            if self.combobox_AtariNetworkDriver.get() == 'Fujinet':    
                 symbols = '-D __FUJINET__ '
             else:
                 symbols = ''
-            if self.Combobox_AtariCrunchAssets.get() == 'Yes':
+            if self.combobox_AtariCrunchAssets.get() == 'Yes':
                 symbols += '-D __DECRUNCH__ '                
-            BuildUnityLibrary(fp, 'atarixl', symbols, cCore+cTarget, sCore+sTarget, buildFolder+'/atari')
+            BuildUnityLibrary(self, fp, 'atarixl', symbols, cCore+cTarget, sCore+sTarget, buildFolder+'/atari')
                         
             # Compile Program
             symbols = '-Wl -D,__STACKSIZE__=$0400 '
-            if self.Combobox_AtariNetworkDriver.get() == 'Fujinet':    
+            if self.combobox_AtariNetworkDriver.get() == 'Fujinet':    
                 symbols += '-D __FUJINET__ '
             comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/atari/' + diskname.lower() + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-atari.map -Cl -O -t atarixl ' + symbols + '-C atarixl-largehimem.cfg -I unity '
             for item in code:
                 comp += (item + ' ')
-            if self.Combobox_AtariNetworkDriver.get() == 'IP65(TCP/UDP)':
+            if self.combobox_AtariNetworkDriver.get() == 'IP65(TCP/UDP)':
                 fp.write(comp + 'unity/targets/atari/POKEY.s ' + buildFolder + '/atari/unity.lib unity/adaptors/ip65_tcp.lib unity/adaptors/ip65_atarixl.lib\n')
-            elif self.Combobox_AtariNetworkDriver.get() == 'IP65(UDP)':
+            elif self.combobox_AtariNetworkDriver.get() == 'IP65(UDP)':
                 fp.write(comp + 'unity/targets/atari/POKEY.s ' + buildFolder + '/atari/unity.lib unity/adaptors/ip65.lib unity/adaptors/ip65_atarixl.lib\n')
             else:
                 fp.write(comp + 'unity/targets/atari/POKEY.s ' + buildFolder + '/atari/unity.lib\n')
@@ -968,7 +976,7 @@ class Application:
             
             # Bitmaps
             for item in bitmaps:
-                if self.Combobox_AtariCrunchAssets.get() == 'Yes':
+                if self.combobox_AtariCrunchAssets.get() == 'Yes':
                     fp.write('utils\\py27\\python utils\\scripts\\atari\\AtariBitmap.py crunch ' + item + ' ' + buildFolder + '/atari/' + FileBase(item, '.png') + '.img\n')
                 else:
                     fp.write('utils\\py27\\python utils\\scripts\\atari\\AtariBitmap.py raw ' + item + ' ' + buildFolder + '/atari/' + FileBase(item, '.png') + '.img\n')
@@ -1014,7 +1022,7 @@ class Application:
             fp.write('copy utils\\scripts\\atari\\xbios.cfg ' + buildFolder + '\\atari\\xbios.cfg\n')
 
             # Disk builder
-            if self.Combobox_AtariDiskSize.get() == '180KB':                
+            if self.combobox_AtariDiskSize.get() == '180KB':                
                 diskSize = '720'
             else:
                 diskSize = '1440'
@@ -1048,18 +1056,18 @@ class Application:
 
             # Build Unity Library
             cTarget = [ 'targets\\c64\\directory.c', 'targets\\c64\\VIC2.c' ]
-            sTarget = [ 'targets\\c64\\decrunch.s',  'targets\\c64\\joystick.s', 'targets\\c64\\blitCharmap.s', 'targets\\c64\\ROM.s', 'targets\\c64\\SID.s']
-            if self.Combobox_C64CrunchAssets.get() == 'Yes':
+            sTarget = [ 'graphics\\scroll.s', 'targets\\c64\\decrunch.s', 'targets\\c64\\joystick.s', 'targets\\c64\\blitCharmap.s', 'targets\\c64\\ROM.s', 'targets\\c64\\SID.s']
+            if self.combobox_C64CrunchAssets.get() == 'Yes':
                 symbols = '-D __DECRUNCH__ '
             else:
                 symbols = ''
-            BuildUnityLibrary(fp, 'c64', symbols, cCore+cTarget, sCore+sTarget, buildFolder+'/c64')
+            BuildUnityLibrary(self, fp, 'c64', symbols, cCore+cTarget, sCore+sTarget, buildFolder+'/c64')
             
             # Compile Program                        
             comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/c64/' + diskname.lower() + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-c64.map -Cl -O -t c64 -C unity/targets/c64/c64.cfg -I unity '
             for item in code:
                 comp += (item + ' ')
-            if self.Combobox_C64NetworkDriver.get() == 'IP65(TCP/UDP)':
+            if self.combobox_C64NetworkDriver.get() == 'IP65(TCP/UDP)':
                 fp.write(comp + buildFolder + '/c64/unity.lib unity/adaptors/ip65_tcp.lib unity/adaptors/ip65_c64.lib\n\n')
             else:
                 fp.write(comp + buildFolder + '/c64/unity.lib unity/adaptors/ip65.lib unity/adaptors/ip65_c64.lib\n\n')
@@ -1071,7 +1079,7 @@ class Application:
             
             # Bitmaps
             for item in bitmaps:
-                if self.Combobox_C64CrunchAssets.get() == 'Yes':
+                if self.combobox_C64CrunchAssets.get() == 'Yes':
                     fp.write('utils\\py27\\python utils\\scripts\\c64\\C64Bitmap.py crunch ' + item + ' ' + buildFolder + '/c64/' + FileBase(item, '.png') + '.img\n')
                 else:
                     fp.write('utils\\py27\\python utils\\scripts\\c64\\C64Bitmap.py raw ' + item + ' ' + buildFolder + '/c64/' + FileBase(item, '.png') + '.img\n')
@@ -1388,9 +1396,9 @@ class Application:
 
             # Build Unity Library
             cTarget = [ 'adaptors\\hub.c', 'targets\\lynx\\cgetc.c', 'targets\\lynx\\display.c', 'targets\\lynx\\files.c', 'targets\\lynx\\keyboard.c', 'targets\\lynx\\screen.c', 'targets\\lynx\\text.c' ]
-            sTarget = [ 'targets\\lynx\\header.s', 'targets\\lynx\\blitCharmap.s', 'targets\\lynx\\serial.s', 'targets\\lynx\\suzy.s' ]
+            sTarget = [ 'graphics\\scroll.s', 'targets\\lynx\\header.s', 'targets\\lynx\\blitCharmap.s', 'targets\\lynx\\serial.s', 'targets\\lynx\\suzy.s' ]
             symbols = ' -D __MUSSIZE__='  + self.entry_LynxMusicMemory.get().replace('$','0x') + ' -D __SHRSIZE__='  + self.entry_LynxSharedMemory.get().replace('$','0x')
-            BuildUnityLibrary(fp, 'lynx --cpu 65SC02', symbols, cCore+cTarget, sCore+sTarget, buildFolder+'/lynx')
+            BuildUnityLibrary(self, fp, 'lynx --cpu 65SC02', symbols, cCore+cTarget, sCore+sTarget, buildFolder+'/lynx')
                                      
             # Compile Program 
             symbols += ' -Wl -D,__MUSSIZE__='  + self.entry_LynxMusicMemory.get() + ',-D,__SHRSIZE__='  + self.entry_LynxSharedMemory.get()
@@ -1432,9 +1440,8 @@ class Application:
     
             # Build Unity Library
             cTarget = [ 'adaptors\\hub.c', 'targets\\oric\\directory.c', 'targets\\oric\\files.c' ]
-            sTarget = [ 'targets\\oric\\blit.s',      'targets\\oric\\blitCharmap.s', 'targets\\oric\\paseIJK.s', 
-                        'targets\\oric\\keyboard.s',  'targets\\oric\\sedoric.s',     'targets\\oric\\MYM.s' ]
-            BuildUnityLibrary(fp, 'atmos', '', cCore+cTarget, sCore+sTarget, buildFolder+'/oric')
+            sTarget = [ 'graphics\\scroll.s', 'targets\\oric\\blit.s', 'targets\\oric\\blitCharmap.s', 'targets\\oric\\paseIJK.s', 'targets\\oric\\keyboard.s', 'targets\\oric\\sedoric.s', 'targets\\oric\\MYM.s' ]
+            BuildUnityLibrary(self, fp, 'atmos', '', cCore+cTarget, sCore+sTarget, buildFolder+'/oric')
                         
             # Compile Program
             comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/oric/' + diskname.lower() + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-oric48k.map -Cl -O -t atmos -C unity/targets/oric/oric.cfg -I unity '

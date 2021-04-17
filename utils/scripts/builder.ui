@@ -124,6 +124,34 @@
                         </layout>
                       </object>
                     </child>
+                    <child>
+                      <object class="tk.Label" id="Label_TileSize">
+                        <property name="text" translatable="yes">Tile size:</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">200</property>
+						  <property name="pady">5</property>
+                          <property name="propagate">False</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>					
+                    <child>
+                      <object class="ttk.Combobox" id="Combobox_TileSize">
+                        <property name="state">readonly</property>
+                        <property name="values">None 2x2 3x3 4x4</property>
+                        <property name="width">14</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">250</property>
+						  <property name="pady">5</property>
+                          <property name="propagate">False</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>					
                   </object>
                 </child>				
                 <child>

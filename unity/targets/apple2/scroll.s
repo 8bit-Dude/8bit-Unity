@@ -27,47 +27,40 @@
 	.export _Scroll
 	
 	.import _scrollCols, _scrollRows, _scrollDirX, _scrollDirY
+	.import _hiresLinesHI, _hiresLinesLO	
 
-; Zeropage addresses
-
-.ifdef __ATARI__
-	scrPtr1ZP = $e4
-	scrPtr2ZP = $e6
-	lineWidth = $28	; 40
-.endif	
+  ; Zeropage addresses
+  scrRow1ZP = $fb
+  scrCol1ZP = $fc
+  scrRow2ZP = $fd
+  scrCol2ZP = $fe
+  scrPtr1ZP = $eb
+  scrPtr2ZP = $ed
+  
+	.segment	"BSS"	
 	
-.ifdef __CBM__
-	scrPtr1ZP = $61
-	scrPtr2ZP = $63
-	clrPtr1ZP = $fb
-	clrPtr2ZP = $fd
-	lineWidth = $28	; 40
-.endif	
-
-.ifdef __LYNX__
-	scrPtr1ZP = $b7
-	scrPtr2ZP = $b9
-	lineWidth = $52	; 82
-.endif	
-
-.ifdef __ATMOS__
-	scrPtr1ZP = $b4
-	scrPtr2ZP = $b6
-	lineWidth = $28	; 40
-.endif
+.ifdef __DHR__
+  _mainAuxTog: .res 1
+.endif  
 
 	.segment	"CODE"	
 
 ; ---------------------------------------------------------------
 ; void __near__ _Scroll (void)
 ;	Zero Page Data:
-;		scrPtr1ZP: 16 bit address of screen source      (auto-updated)
-;		scrPtr2ZP: 16 bit address of screen destination (auto-updated)
-; (CBM) clrPtr1ZP: 16 bit address of color source       (auto-updated)
-; (CBM) clrPtr2ZP: 16 bit address of color destination  (auto-updated)
+;		scrRow1ZP, scrCol1ZP: Coordinates of screen source      (auto-updated)
+;		scrRow2ZP, scrCol2ZP: Coordinates of screen destination (auto-updated)
+;		scrPtr1ZP: 16 bit address of screen source      (auto-generated)
+;		scrPtr2ZP: 16 bit address of screen destination (auto-generated)
 ; ---------------------------------------------------------------	
 
 _Scroll:
+
+.ifdef __DHR__
+	; Init Main/Aux Toggle
+	lda #0
+	sta _mainAuxTog  
+.endif
 
 	ldx #0
 loopRows: 
@@ -85,6 +78,34 @@ doneRows:
 
 ; ----------------------------------
 copyRow:
+	; Get address of source
+	ldy scrRow1ZP
+	lda _hiresLinesHI,y
+	sta  scrPtr1ZP+1
+	lda _hiresLinesLO,y
+	clc
+	adc  scrCol1ZP
+	sta  scrPtr1ZP		
+
+	; Get address of destination
+	ldy scrRow2ZP
+	lda _hiresLinesHI,y
+	sta  scrPtr2ZP+1
+	lda _hiresLinesLO,y
+	clc
+	adc  scrCol2ZP
+	sta  scrPtr2ZP		
+
+.ifdef __DHR__
+	; Main/Aux Toggle
+branchAux:	
+	sta $c055		; Switch to AUX memory
+	jmp switchDone
+branchMain:
+	sta $c054		; Switch to MAIN memory
+switchDone:			
+.endif	
+
 	; Check horz scanning direction
 	lda _scrollDirX
 	cmp #1
@@ -100,11 +121,6 @@ copyRow:
 			; Copy 1 screen byte
 			lda (scrPtr1ZP),y
 			sta (scrPtr2ZP),y
-		.ifdef __CBM__
-			; Copy 1 color byte
-			lda (clrPtr1ZP),y
-			sta (clrPtr2ZP),y
-		.endif	
 
 		; Move to next col
 		iny		
@@ -118,98 +134,37 @@ copyRow:
 		
 			; Copy 1 byte
 			lda (scrPtr1ZP),y
-			sta (scrPtr2ZP),y
-		.ifdef __CBM__
-			; Copy 1 color byte
-			lda (clrPtr1ZP),y
-			sta (clrPtr2ZP),y
-		.endif	
+			sta (scrPtr2ZP),y	
 
 		; Move to next col
 		cpy #0
 		beq doneCols
 		jmp loopColsLeft		
 		
-doneCols:		
+doneCols:
+.ifdef __DHR__
+	; Toggle AUX/MAIN
+	lda _mainAuxTog
+	eor #1
+	sta _mainAuxTog
+	bne branchMain			
+.endif
+		
 	; Check vert scanning direction
 	lda _scrollDirY
 	cmp #1
 	bne scrollDown
 
 	;-------------------------------
-	scrollUp:	
-	
-	.ifdef __CBM__
-		lda clrPtr1ZP			
-		clc	
-		adc #lineWidth
-		sta clrPtr1ZP	
-		bcc nocarryClrPtr1	; Check if carry to high byte
-		inc clrPtr1ZP+1
-	nocarryClrPtr1:
-
-		lda clrPtr2ZP
-		clc	
-		adc #lineWidth
-		sta clrPtr2ZP
-		bcc nocarryClrPtr2	; Check if carry to high byte
-		inc clrPtr2ZP+1
-	nocarryClrPtr2:
-	.endif	
-	
-		lda scrPtr1ZP			
-		clc	
-		adc #lineWidth
-		sta scrPtr1ZP	
-		bcc nocarryScrPtr1	; Check if carry to high byte
-		inc scrPtr1ZP+1
-	nocarryScrPtr1:
-
-		lda scrPtr2ZP		
-		clc	
-		adc #lineWidth
-		sta scrPtr2ZP
-		bcc nocarryScrPtr2	; Check if carry to high byte
-		inc scrPtr2ZP+1
-	nocarryScrPtr2:	
+	scrollUp:		
+		inc scrRow1ZP
+		inc scrRow2ZP
 		jmp doneCopy
 
 	;-------------------------------
 	scrollDown:
-	
-	.ifdef __CBM__
-		lda clrPtr1ZP			
-		sec	
-		sbc #lineWidth
-		sta clrPtr1ZP	
-		bcs carryClrPtr1	; Check if carry to high byte
-		dec clrPtr1ZP+1
-	carryClrPtr1:
-
-		lda clrPtr2ZP		
-		sec	
-		sbc #lineWidth
-		sta clrPtr2ZP
-		bcs carryClrPtr2	; Check if carry to high byte
-		dec clrPtr2ZP+1
-	carryClrPtr2:
-	.endif	
-	
-		lda scrPtr1ZP			
-		sec	
-		sbc #lineWidth
-		sta scrPtr1ZP	
-		bcs carryScrPtr1	; Check if carry to high byte
-		dec scrPtr1ZP+1
-	carryScrPtr1:
-
-		lda scrPtr2ZP		
-		sec	
-		sbc #lineWidth
-		sta scrPtr2ZP
-		bcs carryScrPtr2	; Check if carry to high byte
-		dec scrPtr2ZP+1
-	carryScrPtr2:
+		dec scrRow1ZP
+		dec scrRow2ZP
 	
 doneCopy:
 	rts

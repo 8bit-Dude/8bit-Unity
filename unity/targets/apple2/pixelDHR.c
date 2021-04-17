@@ -42,12 +42,12 @@ void SetColorDHR(unsigned char color)
 {
 	// Use bitmasks to assign the relevant pixel
 	switch(hiresPixel) {
-		case 0: *dhraux = 0; // select auxilliary memory 
+		case 0: *dhraux = 0; // select aux memory 
 				*hiresPtr &= 0x70;
 				*hiresPtr |= color;
 				*dhrmain = 0; // reset to main memory 
 				break;
-		case 1: *dhraux = 0; // select auxilliary memory 
+		case 1: *dhraux = 0; // select aux memory 
 				*hiresPtr &= 0x0f;
 				*hiresPtr |= (color &  7) << 4;
 				*dhrmain = 0; // reset to main memory 
@@ -59,18 +59,18 @@ void SetColorDHR(unsigned char color)
 				break;
 		case 3: *hiresPtr &= 0x1f;
 				*hiresPtr |= (color &  3) << 5;
-				*dhraux = 0; // select auxilliary memory 
+				*dhraux = 0; // select aux memory 
 				*hiresPtr++;   // next byte
 				*hiresPtr &= 0x7c;
 				*hiresPtr |= (color & 12) >> 2;
 				*dhrmain = 0; // reset to main memory 
 				break;
-		case 4: *dhraux = 0; // select auxilliary memory 
+		case 4: *dhraux = 0; // select aux memory 
 				*hiresPtr &= 0x43;
 				*hiresPtr |= color << 2;
 				*dhrmain = 0; // reset to main memory 
 				break;
-		case 5: *dhraux = 0; // select auxilliary memory 
+		case 5: *dhraux = 0; // select aux memory 
 				*hiresPtr &= 0x3f;
 				*hiresPtr |= (color &  1) << 6;
 				*dhrmain = 0; // reset to main memory 
@@ -89,11 +89,11 @@ unsigned char GetColorDHR()
 
 	// Use bitmasks to retrieve the relevant pixel
 	switch (hiresPixel) {
-		case 0: *dhraux = 0; // select auxilliary memory 
+		case 0: *dhraux = 0; // select aux memory 
 				color = *hiresPtr & 15;
 				*dhrmain = 0; // reset to main memory 
 				break;
-		case 1: *dhraux = 0; // select auxilliary memory 
+		case 1: *dhraux = 0; // select aux memory 
 				color = (*hiresPtr & 112) >> 4;
 				*dhrmain = 0; // reset to main memory 
 				color |= (*hiresPtr & 1) << 3;
@@ -101,16 +101,16 @@ unsigned char GetColorDHR()
 		case 2: color = (*hiresPtr & 30) >> 1;
 				break;
 		case 3: color = (*hiresPtr & 96) >> 5;
-				*dhraux = 0; // select auxilliary memory 
+				*dhraux = 0; // select aux memory 
 				*hiresPtr++;      // next byte
 				color |= (*hiresPtr & 3) << 2;
 				*dhrmain = 0; // reset to main memory 
 				break;
-		case 4: *dhraux = 0; // select auxilliary memory 
+		case 4: *dhraux = 0; // select aux memory 
 				color = (*hiresPtr & 60) >> 2;
 				*dhrmain = 0; // reset to main memory 
 				break;
-		case 5: *dhraux = 0; // select auxilliary memory 
+		case 5: *dhraux = 0; // select aux memory 
 				color = (*hiresPtr & 64) >> 6;
 				*dhrmain = 0; // reset to main memory 
 				color |= (*hiresPtr & 7) << 1;

@@ -35,37 +35,37 @@
 
 .ifdef __APPLE2__
 	tilesetDataZP = $ef
-	charPointerZP = $ce
-	dec1PointerZP = $fb
-	dec2PointerZP = $fd
+	charPtrZP = $ce
+	decPtr1ZP = $fb
+	decPtr2ZP = $fd
 .endif
 
 .ifdef __ATARI__
 	tilesetDataZP = $e0
-	charPointerZP = $e2
-	dec1PointerZP = $e4
-	dec2PointerZP = $e6
+	charPtrZP = $e2
+	decPtr1ZP = $e4
+	decPtr2ZP = $e6
 .endif	
 	
 .ifdef __CBM__
 	tilesetDataZP = $61
-	charPointerZP = $63
-	dec1PointerZP = $fb
-	dec2PointerZP = $fd
+	charPtrZP = $63
+	decPtr1ZP = $fb
+	decPtr2ZP = $fd
 .endif	
 
 .ifdef __LYNX__
 	tilesetDataZP = $b3
-	charPointerZP = $b5
-	dec1PointerZP = $b7
-	dec2PointerZP = $b9
+	charPtrZP = $b5
+	decPtr1ZP = $b7
+	decPtr2ZP = $b9
 .endif	
 
 .ifdef __ATMOS__
 	tilesetDataZP = $b0
-	charPointerZP = $b2
-	dec1PointerZP = $b4
-	dec2PointerZP = $b6
+	charPtrZP = $b2
+	decPtr1ZP = $b4
+	decPtr2ZP = $b6
 .endif
 
 	.segment	"BSS"
@@ -82,9 +82,9 @@ _curRow: .res 1
 ;	Convert Tilemap to Charmap
 ;	Zero Page Data:
 ;		tilesetDataZP: 16 bit address of tileset data
-;		charPointerZP: 16 bit address of location in charmap (auto-updated)
-;		dec1PointerZP: 16 bit address of first line (auto-updated)
-;		dec2PointerZP: 16 bit address of second line (auto-updated)
+;		charPtrZP: 16 bit address of location in charmap (auto-updated)
+;		decPtr1ZP: 16 bit address of first line (auto-updated)
+;		decPtr2ZP: 16 bit address of second line (auto-updated)
 ; ---------------------------------------------------------------	
 
 _DecodeTiles2x2:
@@ -112,30 +112,32 @@ loopRows:
 	doneCols:		
 		
 		; Update location in charmap
+		lda charPtrZP			
 		clc	
-		lda charPointerZP			
 		adc _charmapWidth
-		sta charPointerZP	
+		sta charPtrZP	
 		bcc nocarryChrPtr	; Check if carry to high byte
-		inc charPointerZP+1
+		inc charPtrZP+1
 		clc	
 	nocarryChrPtr:
 
 		; Update location in screen buffer (line 1)
-		lda dec1PointerZP			
+		lda decPtr1ZP			
+		clc	
 		adc _blockWidth
-		sta dec1PointerZP	
+		sta decPtr1ZP	
 		bcc nocarryScrPtr1	; Check if carry to high byte
-		inc dec1PointerZP+1
+		inc decPtr1ZP+1
 		clc	
 	nocarryScrPtr1:
 
 		; Update location in screen buffer (line 2)
-		lda dec2PointerZP		
+		lda decPtr2ZP		
+		clc	
 		adc _blockWidth
-		sta dec2PointerZP
+		sta decPtr2ZP
 		bcc nocarryScrPtr2	; Check if carry to high byte
-		inc dec2PointerZP+1
+		inc decPtr2ZP+1
 	nocarryScrPtr2:
 	
 	; Move to next row
@@ -148,7 +150,7 @@ doneRows:
 
 processTile:
 	; Get Tile Value (x2)
-	lda (charPointerZP),y
+	lda (charPtrZP),y
 	asl A
 	sta _tmpTil
 
@@ -166,6 +168,7 @@ processTile:
 	inc tilesetDataZP+1
 	clc	
 nocarry1:
+	clc
 	adc _tmpTil
 	sta tilesetDataZP	
 	bcc nocarry2
@@ -191,14 +194,14 @@ nocarry2:
 	asl A
 	tay
 	lda _tmpChr+0
-	sta (dec1PointerZP),y
+	sta (decPtr1ZP),y
 	lda _tmpChr+2
-	sta (dec2PointerZP),y
+	sta (decPtr2ZP),y
 	iny
 	lda _tmpChr+1
-	sta (dec1PointerZP),y
+	sta (decPtr1ZP),y
 	lda _tmpChr+3
-	sta (dec2PointerZP),y
+	sta (decPtr2ZP),y
 	
 	rts
 	
