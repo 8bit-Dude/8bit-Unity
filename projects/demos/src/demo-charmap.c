@@ -12,8 +12,8 @@ int DemoCharmap(void)
 	// Prepare charmap
 	InitCharmap(0, CMP_COLS, 0, CMP_ROWS-1);	// Display field (x1,x2,y1,y2)
 	LoadCharset("quedex.chr");					// Character set (contains 128 chars)
-	LoadTileset("level1.tls", 40, 2, 2);		// Tile number (40) and size (2x2)
-	LoadCharmap("level1.map", 64, 32);			// Size of map in tiles (64x32)
+	LoadTileset("level1.tls", 40);				// Tile set (contains 40 tiles)
+	LoadCharmap("level1.map", 64, 32);			// Size of map (64x32 tiles)
 	ClearCharmap();
 	DrawCharmap(x,y);
 	ShowCharmap();

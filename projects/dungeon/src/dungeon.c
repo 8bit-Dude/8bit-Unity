@@ -36,7 +36,7 @@ void GameInit(void)
 	// Setup charmap
 	InitCharmap(CROP_X, CMP_COLS-CROP_X, CROP_Y, CMP_ROWS-CROP_Y-1);
 	LoadCharset("quedex.chr");
-	LoadTileset("level1.tls", 40, 2, 2);
+	LoadTileset("level1.tls", 40);
 	LoadCharmap("level1.map", 64, 64);
 	LoadActors("level1.act");
 	ClearCharmap();

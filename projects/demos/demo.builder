@@ -17,7 +17,8 @@
         "charmap": [
             "projects/demos/charmaps/level1.map", 
             "projects/demos/charmaps/level1.tls"
-        ]
+        ], 
+        "tilesize": "2x2"
     }, 
     "platform": {
         "Apple": {

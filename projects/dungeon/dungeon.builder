@@ -15,7 +15,8 @@
         "charmap": [
             "projects/dungeon/charmaps/level1.map", 
             "projects/dungeon/charmaps/level1.tls"
-        ]
+        ], 
+        "tilesize": "2x2"
     }, 
     "platform": {
         "Apple": {
@@ -39,6 +40,7 @@
             ], 
             "chunks": [], 
             "diskSize": "140KB", 
+            "crunchAssets": "No", 
             "networkDriver": "IP65(TCP/UDP)"
         }, 
         "Atari": {
@@ -59,6 +61,7 @@
             ], 
             "chunks": [], 
             "diskSize": "180KB", 
+            "crunchAssets": "No", 
             "networkDriver": "IP65(TCP/UDP)"
         }, 
         "C64": {
@@ -79,6 +82,7 @@
                 "projects/dungeon/music/dungeon-c64.sid"
             ], 
             "chunks": [], 
+            "crunchAssets": "No", 
             "networkDriver": "IP65(TCP/UDP)"
         }, 
         "Lynx": {
