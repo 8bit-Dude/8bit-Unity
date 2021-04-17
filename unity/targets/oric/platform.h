@@ -102,8 +102,8 @@
 #define TCK_PER_SEC	CLK_TCK
 
 // Hires gfx functions (see blitXXX.s)
-void __fastcall__ Blit(void);
 void __fastcall__ BlitCharmap(void);
+void __fastcall__ BlitSprite(void);
 
 // Using Sedoric for File Management
 void DirList(void);

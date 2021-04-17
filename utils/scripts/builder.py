@@ -300,6 +300,17 @@ class Application:
         self.entry_Disk.delete(0, END)
         self.entry_Disk.insert(0, 'diskname')
         
+        # Set some defaults
+        self.combobox_TileSize.current(0)
+        self.combobox_AppleDiskSize.current(0)
+        self.combobox_AppleCrunchAssets.current(0)
+        self.combobox_AppleNetworkDriver.current(0)
+        self.combobox_AtariDiskSize.current(0)
+        self.combobox_AtariCrunchAssets.current(0)
+        self.combobox_AtariNetworkDriver.current(0)
+        self.combobox_C64CrunchAssets.current(0)
+        self.combobox_C64NetworkDriver.current(0)        
+        
     def FileLoad(self, filename=''):
         if filename == '':
             filename = askopenfilename(initialdir = "../../", title = "Load Builder Project", filetypes = PROJECT_FILE_FORMATS) 
@@ -821,7 +832,7 @@ class Application:
 
                 # Build Unity Library
                 cTarget = [ 'targets\\apple2\\CLOCK.c', 'targets\\apple2\\directory.c', 'targets\\apple2\\files.c', 'targets\\apple2\\hires.c', 'targets\\apple2\\memory.c', 'targets\\apple2\\pixelDHR.c', 'targets\\apple2\\pixelSHR.c' ]                            
-                sTarget = [ 'targets\\apple2\\blitDHR.s', 'targets\\apple2\\blitSHR.s', 'targets\\apple2\\blitCharmap.s', 'targets\\apple2\\decrunch.s', 'targets\\apple2\\DUET.s', 'targets\\apple2\\hiresLines.s', 'targets\\apple2\\joystick.s', 'targets\\apple2\\MOCKING.s', 'targets\\apple2\\PADDLE.s', 'targets\\apple2\\prodos.s', 'targets\\apple2\\scroll.s', 'targets\\apple2\\serial.s' ]
+                sTarget = [ 'targets\\apple2\\blitCharmap.s', 'targets\\apple2\\blitSprite.s', 'targets\\apple2\\decrunch.s', 'targets\\apple2\\DUET.s', 'targets\\apple2\\hiresLines.s', 'targets\\apple2\\joystick.s', 'targets\\apple2\\MOCKING.s', 'targets\\apple2\\PADDLE.s', 'targets\\apple2\\prodos.s', 'targets\\apple2\\scroll.s', 'targets\\apple2\\serial.s' ]
                 symbols = ''
                 if self.combobox_AppleNetworkDriver.get() == '8bit-Hub': 
                     cTarget.append('adaptors\\hub.c')
@@ -1440,7 +1451,7 @@ class Application:
     
             # Build Unity Library
             cTarget = [ 'adaptors\\hub.c', 'targets\\oric\\directory.c', 'targets\\oric\\files.c' ]
-            sTarget = [ 'graphics\\scroll.s', 'targets\\oric\\blit.s', 'targets\\oric\\blitCharmap.s', 'targets\\oric\\paseIJK.s', 'targets\\oric\\keyboard.s', 'targets\\oric\\sedoric.s', 'targets\\oric\\MYM.s' ]
+            sTarget = [ 'graphics\\scroll.s', 'targets\\oric\\blitCharmap.s', 'targets\\oric\\blitSprite.s', 'targets\\oric\\paseIJK.s', 'targets\\oric\\keyboard.s', 'targets\\oric\\sedoric.s', 'targets\\oric\\MYM.s' ]
             BuildUnityLibrary(self, fp, 'atmos', '', cCore+cTarget, sCore+sTarget, buildFolder+'/oric')
                         
             # Compile Program

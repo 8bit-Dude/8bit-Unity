@@ -277,11 +277,7 @@ void LocateSprite(unsigned int x, unsigned int y)
 	  POKE(0xED, sprY[index]);		// Hires Offset Y
 	  POKEW(0xEE, 0);				// Disable copying Hires > Output
 	  POKEW(0xFA, sprBG[index]);	// Address for copying Input > Hires
-    #if defined __DHR__	  
-	  BlitDHR();
-	#else
-	  BlitSHR();
-    #endif		
+	  BlitSprite();
   }
   void RestoreSprLine(unsigned char x, unsigned char y)
   {
@@ -310,9 +306,8 @@ void LocateSprite(unsigned int x, unsigned int y)
 
 // Oric specific background redrawing function
 #if defined __ORIC__
-  void __fastcall__ Blit(void);	// (see Oric/blit.s)
-  void BackupSprBG(unsigned char index)
-  {
+  void __fastcall__ BlitSprite(void);
+  void BackupSprBG(unsigned char index) {
 	// Backup new background
 	POKE(0xb0, frameROWS); 			// Number of lines
 	POKE(0xb1, 4);					// Bytes per line
@@ -320,10 +315,9 @@ void LocateSprite(unsigned int x, unsigned int y)
 	POKEW(0xb4, sprBG[index]-1);	// Address of target (-1)
 	POKE(0xb6, 40); 				// Offset between source lines
 	POKE(0xb7, 4); 					// Offset between target lines
-	Blit();	
+	BlitSprite();	
   }	
-  void RestoreSprBG(unsigned char index)
-  {
+  void RestoreSprBG(unsigned char index) {
 	// Restore sprite background
 	POKE(0xb0, sprRows[index]); 	// Number of lines
 	POKE(0xb1, 4);					// Bytes per line
@@ -331,7 +325,7 @@ void LocateSprite(unsigned int x, unsigned int y)
 	POKEW(0xb4, scrAddr[index]-1);	// Address of target (-1)
 	POKE(0xb6, 4); 					// Offset between source lines
 	POKE(0xb7, 40); 				// Offset between target lines
-	Blit();
+	BlitSprite();
   }
 #endif
 
@@ -512,11 +506,7 @@ void SetSprite(unsigned char index, unsigned int frame)
 	POKE(0xEC, xHires);			// Hires Offset X
 	POKE(0xED, spriteY);		// Hires Offset Y
 	POKEW(0xFA, frameAddr);		// Address for copying Input > Hires
-  #if defined __DHR__
-	BlitDHR();
-  #else
-	BlitSHR();
-  #endif
+	BlitSprite();
 	
 	// Check collisions with other sprites
 	SpriteCollisions(index);	
@@ -630,7 +620,7 @@ void SetSprite(unsigned char index, unsigned int frame)
 	POKEW(0xb4, scrAddr[index]);	// Address of target (-1)
 	POKE(0xb6, 2);					// Offset between source lines
 	POKE(0xb7, 40); 				// Offset between target lines
-	Blit();
+	BlitSprite();
 		
 	// Save sprite information
 	sprX[index] = spriteX;

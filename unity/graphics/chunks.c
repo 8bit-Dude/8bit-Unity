@@ -139,11 +139,7 @@ void GetChunk(unsigned char** chunk, unsigned char x, unsigned char y, unsigned 
 	POKE(0xED, y);			// Hires Offset Y
 	POKEW(0xEE, *chunk+4);	// Address of Output
 	POKEW(0xFA, 0);			// Address of Input
-  #if defined __DHR__	
-	BlitDHR();
-  #else
-	BlitSHR();  
-  #endif
+	BlitSprite();
   
 #elif defined __ATARI__
 	// Copy data from double buffer
@@ -166,7 +162,7 @@ void GetChunk(unsigned char** chunk, unsigned char x, unsigned char y, unsigned 
 	POKEW(0xb4, *chunk+3);	// Address of target (-1)
 	POKE(0xb6, 40); 		// Offset between source lines
 	POKE(0xb7, w/6u); 		// Offset between target lines
-	Blit();
+	BlitSprite();
 	
 #elif defined __C64__
 	// Copy data to bitmap, color and screen memory
@@ -212,11 +208,7 @@ void SetChunk(unsigned char* chunk, unsigned char x, unsigned char y)
 	POKE(0xED, y);			// Hires Offset Y
 	POKEW(0xEE, 0);			// Address for copying Hires > Output
 	POKEW(0xFA, chunk+4);	// Address for copying Input > Hires
-  #if defined __DHR__	
-	BlitDHR();
-  #else
-	BlitSHR();
-  #endif
+	BlitSprite();
 	
 #elif defined __ATARI__
 	// Copy data to double bitmap buffers
@@ -239,7 +231,7 @@ void SetChunk(unsigned char* chunk, unsigned char x, unsigned char y)
 	POKEW(0xb4, addr-1);	// Address of target (-1)
 	POKE(0xb6, w/6u); 		// Offset between source lines
 	POKE(0xb7, 40); 		// Offset between target lines
-	Blit();	
+	BlitSprite();	
 #elif defined __C64__
 	// Copy data to bitmap, color and screen memory
 	unsigned char i, bytes;

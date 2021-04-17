@@ -29,19 +29,14 @@
 	.import _scrollCols, _scrollRows, _scrollDirX, _scrollDirY
 	.import _hiresLinesHI, _hiresLinesLO	
 
-  ; Zeropage addresses
-  scrRow1ZP = $fb
-  scrCol1ZP = $fc
-  scrRow2ZP = $fd
-  scrCol2ZP = $fe
-  scrPtr1ZP = $eb
-  scrPtr2ZP = $ed
-  
-	.segment	"BSS"	
-	
-.ifdef __DHR__
-  _mainAuxTog: .res 1
-.endif  
+; Zeropage addresses
+mainAuxTog = $42  
+scrRow1ZP  = $fb
+scrCol1ZP  = $fc
+scrRow2ZP  = $fd
+scrCol2ZP  = $fe
+scrPtr1ZP  = $eb
+scrPtr2ZP  = $ed
 
 	.segment	"CODE"	
 
@@ -59,7 +54,7 @@ _Scroll:
 .ifdef __DHR__
 	; Init Main/Aux Toggle
 	lda #0
-	sta _mainAuxTog  
+	sta mainAuxTog  
 .endif
 
 	ldx #0
@@ -144,9 +139,9 @@ switchDone:
 doneCols:
 .ifdef __DHR__
 	; Toggle AUX/MAIN
-	lda _mainAuxTog
+	lda mainAuxTog
 	eor #1
-	sta _mainAuxTog
+	sta mainAuxTog
 	bne branchMain			
 .endif
 		

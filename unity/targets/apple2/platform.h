@@ -101,15 +101,14 @@ extern unsigned char *hiresPtr, hiresPixel;
 void SetHiresPointer(unsigned int x, unsigned int y);
 unsigned int HiresLine(unsigned char y);
 void __fastcall__ BlitCharmap(void);
+void __fastcall__ BlitSprite(void);
 #if defined __DHR__
   extern unsigned char *dhrmain, *dhraux;
   void SetColorDHR(unsigned char color);
   unsigned char GetColorDHR(void);
-  void __fastcall__ BlitDHR(void);
 #else
   void SetColorSHR(unsigned char color);
   unsigned char GetColorSHR(void);
-  void __fastcall__ BlitSHR(void);
 #endif
 
 // Output for SFX/Music (see DUET.s, MOCKING.s)

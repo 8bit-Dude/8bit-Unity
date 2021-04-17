@@ -31,19 +31,18 @@
 	.import _screenRow1, _screenRow2
 	.import _charsetData, _blockWidth
 	
-  charPtrZP  = $ce
-  scrPtrZP   = $ef
-  charLPtrZP = $fb 
-  charRPtrZP = $fd
+; Zeropage addresses	
+mainAuxTog = $42
+charPtrZP  = $ce
+scrPtrZP   = $ef
+charLPtrZP = $fb 
+charRPtrZP = $fd
 	
 	.segment	"BSS"	
 	
-  _tmpY: .res 1
-  _curRow: .res 1
-  _curLine: .res 1
-.ifdef __DHR__
-  _mainAuxTog: .res 1
-.endif
+_tmpY: .res 1
+_curRow: .res 1
+_curLine: .res 1
 	
 	.segment	"CODE"	
 	
@@ -59,11 +58,11 @@
 
 _BlitCharmap:
 
-  .ifdef __DHR__
+.ifdef __DHR__
 	; Init Main/Aux Toggle
 	lda #0
-	sta _mainAuxTog  
-  .endif
+	sta mainAuxTog  
+.endif
 
 	; Set start row/line
 	lda _screenRow1
@@ -178,9 +177,9 @@ loopLines:
 	
 	.ifdef __DHR__
 		; Toggle AUX/MAIN
-		lda _mainAuxTog
+		lda mainAuxTog
 		eor #1
-		sta _mainAuxTog
+		sta mainAuxTog
 		bne branchMain			
 	.endif	
 		
