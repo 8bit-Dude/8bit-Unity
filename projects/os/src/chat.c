@@ -82,6 +82,15 @@ void ChatSend()
 
 void ChatLogin()
 {
+#if defined __LYNX__ 
+	// Save user/pass to EEPROM
+	//unsigned char i = 0;
+	//while (i < 22) {	
+	//	lynx_eeprom_write(i, chatUser[i]); i++;
+	//}
+#endif
+
+	// Send login request to server
 	chatRequest[0] = REQ_LOGIN; 
 	chatRequest[1] = strlen(chatUser);
 	chatRequest[2] = strlen(chatPass);
@@ -117,7 +126,7 @@ void ChatMessage(unsigned char index, unsigned char* packet)
 
 void ChatScreen(void)
 {			
-	unsigned char i;
+	unsigned char i=0;
 	
 	// Clear screen
 	ClearScreen();
@@ -147,10 +156,19 @@ void ChatScreen(void)
 		PrintStr("Pass:"); txtY += 2;
 		PrintStr("Reg 8bit-unity.com");
 		
+	#if defined __LYNX__ 
+		// Load user/pass from EEPROM
+		//while (i < 22) { 
+		//	chatUser[i] = lynx_eeprom_read(i); i++;
+		//}
+	#endif			
+		
 		// Inputs
 		paperColor = WHITE;
 		callUser = Input(16, 5, 10, 1, chatUser, 10);
-		callPass = Input(16, 7, 10, 1, chatPass, 10);		
+		maskInput = 1;
+		callPass = Input(16, 7, 10, 1, chatPass, 10);
+		maskInput = 0;
 		
 		// Controls
 		paperColor = BLACK; inkColor = WHITE;	

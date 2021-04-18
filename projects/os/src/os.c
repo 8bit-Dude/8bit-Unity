@@ -62,15 +62,15 @@ int main(void)
 	// Get files and chunks
 	GetFileList();
 	LoadChunks();
+	
+	// Init systems
+	InitMouse();	
 
 	// Enter bitmap mode
 	InitBitmap();
 	ClearBitmap();
-	HomeScreen();
 	ShowBitmap();
-
-	// Init systems
-	InitMouse();
+	HomeScreen();
 
 	// Main loop
 	while (1) {

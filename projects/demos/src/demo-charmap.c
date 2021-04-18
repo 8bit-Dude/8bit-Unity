@@ -10,7 +10,11 @@ int DemoCharmap(void)
 	unsigned char joy, scroll = 0, x = (32-CMP_COLS/2), y = (16-CMP_ROWS/2);
 	
 	// Prepare charmap
+#if defined(__APPLE2__)	|| defined(__ORIC__)
+	InitCharmap(2, CMP_COLS-2, 1, CMP_ROWS-2);	// These platforms are slower (ALSO NOTE: Apple fails to allocate buffer for fullscreen... why?)
+#else
 	InitCharmap(0, CMP_COLS, 0, CMP_ROWS-1);	// Display field (x1,x2,y1,y2)
+#endif
 	LoadCharset("quedex.chr");					// Character set (contains 128 chars)
 	LoadTileset("level1.tls", 40);				// Tile set (contains 40 tiles)
 	LoadCharmap("level1.map", 64, 32);			// Size of map (64x32 tiles)
