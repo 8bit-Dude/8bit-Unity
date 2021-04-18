@@ -251,7 +251,7 @@ void LocateSprite(unsigned int x, unsigned int y)
 	spriteX = (x*140)/320u;
 	spriteY = (y*192)/200u;
 #elif defined __ATARI__
-	spriteX = x/2u + 45;
+	spriteX = x/2u + 42;
 	spriteY = y;
 #elif defined __ORIC__
 	spriteX = x/4u;	

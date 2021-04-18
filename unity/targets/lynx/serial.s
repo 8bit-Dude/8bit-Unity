@@ -181,8 +181,8 @@ setprescaler:
 setbaudrate:
         stx     TIM4BKUP
 baudsuccess:
-        ;ldx     #TxOpenColl|ParEven
-        ;stx     contrl
+        ldx     #TxOpenColl|ParEven
+        stx     contrl
         ;ldy     #SER_PARAMS::DATABITS   ; Databits
         ;lda     (ptr1),y
         ;cmp     #SER_BITS_8
@@ -199,8 +199,8 @@ baudsuccess:
         ;beq     checkhs
         ;cmp     #SER_PAR_SPACE
         ;bne     @L0
-        ;ldx     #TxOpenColl
-        ;stx     contrl
+        ldx     #TxOpenColl
+        stx     contrl
         ;bra     checkhs
 @L0:
         ;ldx     #TxParEnable|TxOpenColl|ParEven
@@ -210,8 +210,8 @@ baudsuccess:
         ;ldx     #TxParEnable|TxOpenColl
         ;stx     contrl
 checkhs:
-        ;ldx     contrl
-        ;stx     SERCTL
+        ldx     contrl
+        stx     SERCTL
         ;ldy     #SER_PARAMS::HANDSHAKE  ; Handshake
         ;lda     (ptr1),y
         ;cmp     #SER_HS_NONE
@@ -227,8 +227,8 @@ checkhs:
 		sta 	SERIRQ+2
 		lda     #$4C        ; Jump opcode
 		sta     SERIRQ      ; Activate IRQ routine
-        lda     #<SER_ERR_OK
-        ldx     #>SER_ERR_OK
+        ;lda     #<SER_ERR_OK
+        ;ldx     #>SER_ERR_OK
         rts
 invparameter:
         ;lda     #<SER_ERR_INIT_FAILED

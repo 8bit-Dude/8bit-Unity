@@ -91,7 +91,7 @@ callback* CheckCallbacks(unsigned char col, unsigned char row)
 				inputCall = call;
 				inputWidth = call->colEnd - call->colBeg;
 			#if defined __LYNX__ 
-				SetKeyboardOverlay(60,70);
+				SetKeyboardOverlay(54,70);
 				ShowKeyboardOverlay();
 			#endif		
 				break;

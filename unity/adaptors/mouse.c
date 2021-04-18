@@ -52,11 +52,10 @@ unsigned char* GetMouse(void)
 	// Get mouse state from Hub
 	UpdateHub();
 	if (hubState[5] != 255) {
-		if (hubState[5] < 127) mouseState[0] = MIN(MOU_XMAX, mouseState[0]+hubState[5]); 
-		                  else mouseState[0] -= MIN(mouseState[0], ~hubState[5]);
-		if (hubState[6] < 127) mouseState[1] = MIN(MOU_YMAX, mouseState[1]+hubState[6]); 
-		                  else mouseState[1] -= MIN(mouseState[1], ~hubState[6]);
-		if (hubState[5] || hubState[6]) mouseState[2] &= ~MOU_MOTION;
+		if ((mouseState[0]-hubState[5]) || (mouseState[1]-hubState[6])) 
+			mouseState[2] &= ~MOU_MOTION;
+		mouseState[0] = hubState[5];
+		mouseState[1] = hubState[6];
 		if (!(hubState[1] & 64))  mouseState[2] &= ~MOU_LEFT;
 		if (!(hubState[1] & 128)) mouseState[2] &= ~MOU_RIGHT;
 		if (!(hubState[2] & 64))  mouseState[2] &= ~MOU_MIDDLE;
@@ -65,20 +64,20 @@ unsigned char* GetMouse(void)
 	} else {
 #endif
 	// Read mouse state from joystick #1
-#if (defined __ORIC__)	
-	step = (clock()-mouseClock);
-#else
-	step = 2*(clock()-mouseClock);
-#endif
-	if (step > 30) step = 0;
-	mouseClock = clock();
-	joy = GetJoy(0);
-	if (!(joy & JOY_LEFT))  { mouseState[0] -= MIN(mouseState[0], step); mouseState[2] &= ~MOU_MOTION; }
-	if (!(joy & JOY_RIGHT)) { mouseState[0]  = MIN(MOU_XMAX, mouseState[0]+step); mouseState[2] &= ~MOU_MOTION; }
-	if (!(joy & JOY_UP))    { mouseState[1] -= MIN(mouseState[1], step); mouseState[2] &= ~MOU_MOTION; }
-	if (!(joy & JOY_DOWN))  { mouseState[1]  = MIN(MOU_YMAX, mouseState[1]+step); mouseState[2] &= ~MOU_MOTION; }
-	if (!(joy & JOY_BTN1))  { mouseState[2] &= ~MOU_LEFT; }
-	if (!(joy & JOY_BTN2))  { mouseState[2] &= ~MOU_RIGHT; } 
+	#if (defined __ORIC__)	
+		step = (clock()-mouseClock);
+	#else
+		step = 2*(clock()-mouseClock);
+	#endif
+		if (step > 30) step = 0;
+		mouseClock = clock();
+		joy = GetJoy(0);
+		if (!(joy & JOY_LEFT))  { mouseState[0] -= MIN(mouseState[0], step); mouseState[2] &= ~MOU_MOTION; }
+		if (!(joy & JOY_RIGHT)) { mouseState[0]  = MIN(MOU_XMAX, mouseState[0]+step); mouseState[2] &= ~MOU_MOTION; }
+		if (!(joy & JOY_UP))    { mouseState[1] -= MIN(mouseState[1], step); mouseState[2] &= ~MOU_MOTION; }
+		if (!(joy & JOY_DOWN))  { mouseState[1]  = MIN(MOU_YMAX, mouseState[1]+step); mouseState[2] &= ~MOU_MOTION; }
+		if (!(joy & JOY_BTN1))  { mouseState[2] &= ~MOU_LEFT; }
+		if (!(joy & JOY_BTN2))  { mouseState[2] &= ~MOU_RIGHT; } 
 #if (defined __LYNX__) || (defined __ORIC__)
 	}
 #endif

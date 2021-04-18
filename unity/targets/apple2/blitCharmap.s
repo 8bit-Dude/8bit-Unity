@@ -33,6 +33,7 @@
 	
 ; Zeropage addresses	
 mainAuxTog = $42
+currColZP  = $e3
 charPtrZP  = $ce
 scrPtrZP   = $ef
 charLPtrZP = $fb 
@@ -40,7 +41,6 @@ charRPtrZP = $fd
 	
 	.segment	"BSS"	
 	
-_tmpY: .res 1
 _curRow: .res 1
 _curLine: .res 1
 	
@@ -137,19 +137,19 @@ loopLines:
 
 			; Copy Left Char
 			lda (charPtrZP),y		; Get char value
-			sty _tmpY		
+			sty currColZP		
 			tay 
 			lda (charLPtrZP),y		; Get L pixels for that char
-			ldy _tmpY
+			ldy currColZP
 			sta (scrPtrZP),y		; Save in Hires mem
 			iny						; Move to next col
 
 			; Copy Right Char
 			lda (charPtrZP),y		; Get char value
-			sty _tmpY
+			sty currColZP
 			tay 
 			lda (charRPtrZP),y		; Get R pixels for that char
-			ldy _tmpY
+			ldy currColZP
 			sta (scrPtrZP),y		; Save in Hires mem
 			iny						; Move to next col
 			
