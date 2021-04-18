@@ -34,7 +34,7 @@
 #endif
 
 // Build Information
-const char* buildInfo = "BUILD: 2021/04/14";
+const char* buildInfo = "BUILD: 2021/04/18";
 
 // List of available maps
 unsigned char mapNum  = 12;

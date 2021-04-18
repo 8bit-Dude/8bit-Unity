@@ -570,7 +570,7 @@ void SplashScreen(void)
 	txtX = TXT_COLS-13; txtY = TXT_ROWS-4; 
 	PrintStr(" TECH DEMO"); txtY++;
 	PrintStr("BY 8BIT-DUDE"); txtY++;
-	PrintStr(" 2019/09/18");
+	PrintStr(" 2021/04/18");
 
 	// Wait until key is pressed
 	while (!kbhit()) {	

@@ -172,7 +172,7 @@ void SplashScreen(void)
 #endif
 	PrintStr(" TECH DEMO"); txtY++;
 	PrintStr("BY 8BIT-DUDE"); txtY++;
-	PrintStr(" 2020/05/20");
+	PrintStr(" 2021/04/18");
 	PlayMusic();
 
 	// Wait until key is pressed

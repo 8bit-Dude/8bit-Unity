@@ -27,7 +27,7 @@ void SplashScreen(void)
 	txtX = TXT_COLS-12; txtY = TXT_ROWS-4;
 	PrintStr("8BIT-DUNGEON"); txtY++;		
 	PrintStr(" TECH DEMO  "); txtY++;		
-	PrintStr(" 2021/04/16 ");
+	PrintStr(" 2021/04/18 ");
 	
 	// Start music
 #ifndef __ORIC__	
