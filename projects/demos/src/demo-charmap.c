@@ -7,7 +7,7 @@ extern unsigned char worldMaxX, worldMaxY;	// See: units/graphics/charmap.c
 
 int DemoCharmap(void) 
 {	
-	unsigned char joy, scroll = 0, x = (32-CMP_COLS/2), y = (16-CMP_ROWS/2);
+	unsigned char joy, scroll = 0, x = (48-CMP_COLS/2), y = (24-CMP_ROWS/2);
 	
 	// Prepare charmap
 #if defined(__APPLE2__)	|| defined(__ORIC__)

@@ -78,7 +78,6 @@
                 "projects/dungeon/sprites/sprites-c64.png"
             ], 
             "music": [
-                "projects/dungeon/music/title-c64.sid", 
                 "projects/dungeon/music/dungeon-c64.sid"
             ], 
             "chunks": [], 
