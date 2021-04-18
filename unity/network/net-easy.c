@@ -56,7 +56,7 @@ unsigned char EasyHost(unsigned char protocol, unsigned char slots, unsigned int
 		OpenTCP(easyIP, 1499);
 		SendTCP(easyBuffer, 2);		
 	} else {
-		OpenUDP(easyIP, 1499, 1499+clock()%256);
+		OpenUDP(easyIP, 1499, 1499+(clock()&255));
 		SendUDP(easyBuffer, 2);		
 	}
 
@@ -102,7 +102,7 @@ unsigned char EasyJoin(unsigned char protocol, unsigned int *ID, unsigned int *P
 		OpenTCP(easyIP, 1499);
 		SendTCP(easyBuffer, 5);
 	} else {
-		OpenUDP(easyIP, 1499, 1499+clock()%256);
+		OpenUDP(easyIP, 1499, 1499+(clock()&255));
 		SendUDP(easyBuffer, 5);		
 	}
 		

@@ -38,8 +38,8 @@
   #pragma code-name("SHADOW_RAM")
 #endif
 
-#define MOU_XMAX 160
-#define MOU_YMAX 200
+#define MOU_XMAX 159
+#define MOU_YMAX 199
 
 unsigned char mouseState[3] = {80, 100, 255};
 clock_t mouseClock;
@@ -52,15 +52,18 @@ unsigned char* GetMouse(void)
 	// Get mouse state from Hub
 	UpdateHub();
 	if (hubState[5] != 255) {
-		if ((mouseState[0]-hubState[5]) || (mouseState[1]-hubState[6])) 
-			mouseState[2] &= ~MOU_MOTION;
-		mouseState[0] = hubState[5];
-		mouseState[1] = hubState[6];
-		if (!(hubState[1] & 64))  mouseState[2] &= ~MOU_LEFT;
-		if (!(hubState[1] & 128)) mouseState[2] &= ~MOU_RIGHT;
-		if (!(hubState[2] & 64))  mouseState[2] &= ~MOU_MIDDLE;
-		if (!(hubState[3] & 64))  mouseState[2] &= ~MOU_UP;
-		if (!(hubState[3] & 128)) mouseState[2] &= ~MOU_DOWN;
+		// Check that last packet was clean
+		if (hubState[0] == COM_ERR_OK) {
+			if ((mouseState[0]-hubState[5]) || (mouseState[1]-hubState[6])) 
+				mouseState[2] &= ~MOU_MOTION;
+			mouseState[0] = hubState[5];
+			mouseState[1] = hubState[6];
+			if (!(hubState[1] & 64))  mouseState[2] &= ~MOU_LEFT;
+			if (!(hubState[1] & 128)) mouseState[2] &= ~MOU_RIGHT;
+			if (!(hubState[2] & 64))  mouseState[2] &= ~MOU_MIDDLE;
+			if (!(hubState[3] & 64))  mouseState[2] &= ~MOU_UP;
+			if (!(hubState[3] & 128)) mouseState[2] &= ~MOU_DOWN;
+		}
 	} else {
 #endif
 	// Read mouse state from joystick #1
