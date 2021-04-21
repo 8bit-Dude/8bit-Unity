@@ -58,6 +58,7 @@
 	extern unsigned char sprLine[SPRITE_NUM], sprOff[SPRITE_NUM], sprColor[SPRITE_NUM];
 	extern unsigned int  sprSrc[SPRITE_NUM], sprDst[SPRITE_NUM];
 	unsigned char *sprData, sprFrames, sprYOffset, sprCollision[SPRITE_NUM], sprCushion = 2;
+	unsigned char sprMask[] = { 1, 2, 4, 8, 1, 2, 4, 8, 1, 2, 4, 8 };
 	void EnableMultiColorSprite(unsigned char index) {
 		EnableSprite(index++);
 		EnableSprite(index);
@@ -665,7 +666,7 @@ void EnableSprite(signed char index)
 	
 #elif defined __ATARI__
 	// Set sprite bank
-	sprBank[index/4u] = 1;
+	sprBank[index/4u] |= sprMask[index];
 	
 #elif (defined __APPLE2__) || (defined __ORIC__)
 	// Allocate memory for background
@@ -707,16 +708,8 @@ void DisableSprite(signed char index)
 			// Clear PMG memory and slot
 			bzero(sprDst[index], sprPads);
 			sprDrawn[index] = 0;
-
-			// Check Bank
-			b = index/4u;
-			sprBank[b] = 0;
-			for (i=b*4; i<(b+1)*4; i++)
-				if (sprDrawn[i]) {
-					sprBank[b] = 1;
-					break;
-				}
 		}
+		sprBank[index/4u] &= ~sprMask[index];
 	#else
 		// Soft sprites: Restore background if neccessary
 	  #if (defined __APPLE2__) || (defined __ORIC__)
