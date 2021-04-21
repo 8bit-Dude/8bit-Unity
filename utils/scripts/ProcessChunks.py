@@ -500,6 +500,9 @@ for line in lines:
     print 'Generated ', outfile, coords
 
     # Add file to list
-    listing.write(os.path.basename(outfile)+'\n')
+    if platform == 'c64' or 'apple' in platform:
+        listing.write(outfile.replace("../../../","")+'\n')    
+    else:
+        listing.write(os.path.basename(outfile)+'\n')
     
 listing.close()
