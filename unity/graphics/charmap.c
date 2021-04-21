@@ -450,7 +450,7 @@ void SetTile(unsigned char x, unsigned char y, unsigned char tile)
 void PrintCharmap(unsigned char x, unsigned char y, unsigned char chr)
 {
 #if defined(__ATARI__)
-	POKE((char*)SCREENRAM+y*40+x, chr);
+	POKE((char*)SCREENRAM+y*40+x, chr+PEEK(CHARATRRAM+chr));
 #elif defined(__LYNX__)
 	unsigned char i;
 	unsigned int src, dst;

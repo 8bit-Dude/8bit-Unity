@@ -129,10 +129,11 @@ void PrintBlanks(unsigned char width, unsigned char height)
 	unsigned int addr;
 	unsigned char value;
 	addr = BITMAPRAM+1+txtY*(6*82)+txtX*2;
-	value = (paperColor << 4) | paperColor;
-	while (i<height*6) {
-		memset((char*)addr, value, width*2);
-		addr += 82; ++i;
+	value = (paperColor<<4) | paperColor;
+	height *= 6; width *= 2;
+	while (i<height) {
+		memset((char*)addr, value, width);
+		addr += 82; i++;
 	}
 	if (autoRefresh) { UpdateDisplay(); }
 #endif

@@ -208,7 +208,7 @@ void PrintChr(const char *chr)
 	POKE((char*)addr, inkColor << 4 | paperColor);
 #elif defined __LYNX__
 	// Set Character Pixels
-	unsigned char i, line, paperShift, inkShift;
+	unsigned char i, j, line, paperShift, inkShift;
 	unsigned int addr;
 	addr = BITMAPRAM+1 + txtY*(492) + txtX*2u;
 	paperShift = paperColor << 4;
@@ -218,14 +218,14 @@ void PrintChr(const char *chr)
 	addr += 81;
 	for (i=0; i<3; ++i) {
 		line = chr[i];
-		if (i!=1) {
-		  POKE((char*)addr++, ((line&128) ? inkShift : paperShift) | ((line&64) ? inkColor : paperColor));
-		  POKE((char*)addr,   ((line&32)  ? inkShift : paperShift) | paperColor);  
-		  addr += 81;
+		for (j=0; j<2; ++j) {
+			if (i!= 1 || j != 0) {
+			  POKE((char*)addr++, ((line&128) ? inkShift : paperShift) | ((line&64) ? inkColor : paperColor));
+			  POKE((char*)addr,   ((line&32)  ? inkShift : paperShift) | paperColor);  
+			  addr += 81;
+			}
+			line <<= 4;
 		}
-		POKE((char*)addr++, ((line&8) ? inkShift : paperShift) | ((line&4)  ? inkColor : paperColor));
-		POKE((char*)addr,   ((line&2) ? inkShift : paperShift) | paperColor);
-		addr += 81;
 	}	
 #endif
 }
@@ -238,44 +238,30 @@ const char *GetChr(unsigned char chr)
 	else if (chr == 92) { return &charBwSlash[0]; }
 #if defined __CBM__
 	else if (chr > 192) { return &charLetter[(chr-193)*3]; }	// Upper case (C64)
-	else if (chr > 96)  { return &charLetter[(chr-97)*3]; }		// Compatibility with Ascii files
-	else if (chr > 64)  { return &charLetter[(chr-65)*3]; }		// Lower case (C64)
-#else
-	else if (chr > 96)  { return &charLetter[(chr-97)*3]; }	// Lower case (Apple/Atari/Oric/Lynx)
-	else if (chr > 64)  { return &charLetter[(chr-65)*3]; }	// Upper case (Apple/Atari/Oric/Lynx)
 #endif
+	else if (chr > 96)  { return &charLetter[(chr-97)*3]; }		// Lower case (Apple/Atari/Oric/Lynx)   Compatibility with Ascii files (C64)
+	else if (chr > 64)  { return &charLetter[(chr-65)*3]; }		// Upper case (Apple/Atari/Oric/Lynx)	Lower case (C64)
 	else if (chr == 63) { return &charQuestion[0]; }
-	else if (chr == 58) { return &charColon[0]; }
-	else if (chr >  47) { return &charDigit[(chr-48)*3]; }
-	else if (chr == 47) { return &charFwSlash[0]; }
-	else if (chr == 46) { return &charDot[0]; }
-	else if (chr == 45) { return &charHyphen[0]; }
-	else if (chr == 44) { return &charComma[0]; }
-	else if (chr == 43) { return &charPlus[0]; }
-	else if (chr == 42) { return &charStar[0]; }
-	else if (chr >  39) { return &charBracket[(chr-40)*3]; }
-	else if (chr == 39) { return &charQuote[0]; }
+	else if (chr >  38) { return &charQuote[(chr-39)*3]; }
 	else if (chr == 36) { return &charDollar[0]; }
-	else if (chr == 33) { return &charExclaim[0]; }
-	else if (chr ==  4) { return &charDeath[0]; }
-	else if (chr ==  3) { return &charShield[0]; }
-	else if (chr ==  2) { return &charPotion[0]; }
-	else if (chr ==  1) { return &charHeart[0]; }
-	return &charBlank[0];
+	else if (chr >  31) { return &charBlank[(chr-32)*3]; }
+	else 				{ return &charHeart[(chr-1)*3]; }
 }
 
 // Parse string and print characters one-by-one (can be slow...)
 void PrintStr(const char *buffer)
 {
+	unsigned char bckX = txtX;
+	unsigned char *addr = buffer;
 #if defined __CBM__
+	unsigned char chr;
 	unsigned int addr1, addr2;
-	unsigned char i, chr, bckX = txtX, len = strlen(buffer);
 	if (videoMode == CHR_MODE) {
 		// Charmap mode
 		addr1 = SCREENRAM + 40*txtY + txtX;
 		addr2 = COLORRAM + 40*txtY + txtX;
-		for (i=0; i<len; i++) {
-			chr = buffer[i];
+		while (*addr) {
+			chr = *addr;
 			if (chr > 192)
 				chr += 32;	// Upper case (petscii)
 			else 
@@ -288,23 +274,22 @@ void PrintStr(const char *buffer)
 				chr += 128;	// Icons
 			POKE(addr1++, chr);
 			POKE(addr2++, inkColor);
+			addr++;
 		}		
 	} else {
 		// Bitmap mode
-		for (i=0; i<len; ++i) {
-			PrintChr(GetChr(buffer[i]));
-			txtX++; 
+		while (*addr) {
+			PrintChr(GetChr(*addr));
+			addr++; txtX++;
 		}
-		txtX = bckX;
 	}
 #else
-	unsigned char i, bckX = txtX, len = strlen(buffer);
-	for (i=0; i<len; ++i) {
-		PrintChr(GetChr(buffer[i]));
-		txtX++; 
+	while (*addr) {
+		PrintChr(GetChr(*addr));
+		addr++; txtX++;
 	}
-	txtX = bckX;
 #endif
+	txtX = bckX;
 	
 #if defined __LYNX__
 	if (autoRefresh) { UpdateDisplay(); }

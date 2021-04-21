@@ -83,13 +83,14 @@ void CopyStr(unsigned char col1, unsigned char row1, unsigned char col2, unsigne
 	}
 #elif defined __LYNX__
 	// Copy bitmap RAM
-	unsigned char i;
+	unsigned char i=0;
 	unsigned int src, dst;
 	src = BITMAPRAM+1+row2*492+col2*2;
 	dst = BITMAPRAM+1+row1*492+col1*2;
-	for (i=0; i<6; ++i)	{
-		memcpy((char*)dst, (char*)src, len*2);
-		src += 82; dst += 82;
+	len *= 2;
+	while (i<6)	{
+		memcpy((char*)dst, (char*)src, len);
+		src += 82; dst += 82; i++;
 	}
 #endif	
 }
