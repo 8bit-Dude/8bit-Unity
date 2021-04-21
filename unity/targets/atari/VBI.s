@@ -30,7 +30,7 @@
 	.export _bitmapVBI, _charmapVBI, _spriteVBI
 			
 	.export _bmpToggle, _bmpRows, _bmpPalette, _bmpAddr
-	.export _chrToggle, _chrRows, _chrPalette	
+	.export _chrRows, _chrPalette	
 	
 	.export _sprToggle, _sprRows, _sprPads, _sprDLIs, _sprBank, _sprDrawn
 	.export _sprX, _sprY, _sprLine, _sprOff, _sprDst, _sprSrc, _sprColor
@@ -64,7 +64,6 @@ _bmpAddr:	 .res  2
 _bmpPalette: .byte $00, $24, $86, $d8
 
 ; Charmap paramerers
-_chrToggle:  .byte 0
 _chrRows:	 .byte 0
 _chrPalette: .res  5
 
@@ -141,8 +140,6 @@ skipBitmapVBI:
 	; Apply charmap/bitmap toggle?
 	lda	_charmapVBI
 	beq skipCharmapVBI
-	lda #$01
-	sta _chrToggle
 	jsr _swapPalette
 skipCharmapVBI:
 
@@ -186,15 +183,12 @@ frame2:
 	rts
 	
 ; ---------------------------------------------------------------
-; Charset swap routine
+; Charmap/Bitmap palette swap routine
 ; ---------------------------------------------------------------
 
 _swapPalette:
-	; Toggle Charmap/Bitmap
-	lda _chrToggle
-	eor #$1
-	sta _chrToggle
-	bne palette2
+	; Reg. A toggles Charmap/Bitmap
+	beq palette2
 	
 palette1:
 	; Switch to CHR palette for the top of screen
