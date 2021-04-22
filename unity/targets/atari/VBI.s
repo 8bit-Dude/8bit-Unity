@@ -35,7 +35,7 @@
 	.import _BlitSprites
 	.import _countDLI, _pokeyVBI
 .ifdef __CUSTOM_VBI__
-	.import _CustomVBI__
+	.import _CustomVBI
 .endif
 
 ; ROM addresses
@@ -129,7 +129,7 @@ skipSpriteVBI:
 	
 .ifdef __CUSTOM_VBI__
 	; Process custom VBI
-	jsr _CustomVBI__
+	jsr _CustomVBI
 .endif
 
 	; Exit VBI
