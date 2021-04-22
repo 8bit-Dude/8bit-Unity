@@ -28,8 +28,8 @@
 	.export _countDLI
 	.export _posPM0, _colPM0
 	
+	.import _SwapPalette
 	.import _charmapVBI
-	.import _swapPalette
 	.import _chrRows
 	
 		
@@ -112,7 +112,7 @@ DLI:
 	dex
 	cpx _chrRows
 	bne skipSwapPalette
-	jsr _swapPalette
+	jsr _SwapPalette
 skipSwapPalette:
 	
 	; increment line counter
