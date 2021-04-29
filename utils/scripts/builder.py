@@ -50,6 +50,8 @@ def FileBase(filepath, suffix):
     
 def BuildUnityLibrary(self, fp, target, symbols, cList, sList, buildFolder):
     # Add shared symbols
+    if self.combobox_CustomVBI.get() == 'Yes':
+        symbols += ' -D __CUSTOM_VBI__'                        
     if self.combobox_TileSize.get() == 'None':
         symbols += ' -D __TILE_NONE__'                        
     elif self.combobox_TileSize.get() == '2x2':
@@ -191,6 +193,7 @@ class Application:
         # Get list boxes and fields
         self.listbox_Code = self.builder.get_object('Listbox_Code')
         self.listbox_Charmap = self.builder.get_object('Listbox_Charmap')
+        self.combobox_CustomVBI = self.builder.get_object('Combobox_CustomVBI')
         self.combobox_TileSize = self.builder.get_object('Combobox_TileSize')
         self.listbox_Shared = self.builder.get_object('Listbox_Shared')
         self.entry_Disk = self.builder.get_object('Entry_Disk')
@@ -256,6 +259,7 @@ class Application:
         self.entry_OricDithering = self.builder.get_object('Entry_OricDithering')
                 
         # Set some defaults
+        self.combobox_CustomVBI.current(0)
         self.combobox_TileSize.current(0)
         self.combobox_AppleDiskSize.current(0)
         self.combobox_AppleCrunchAssets.current(0)
@@ -290,7 +294,7 @@ class Application:
         self.comboboxes = [ self.combobox_AtariDiskSize, self.combobox_AppleDiskSize,
                             self.combobox_AppleNetworkDriver, self.combobox_AtariNetworkDriver, self.combobox_C64NetworkDriver,
                             self.combobox_AppleCrunchAssets, self.combobox_AtariCrunchAssets, self.combobox_C64CrunchAssets,
-                            self.combobox_TileSize ]
+                            self.combobox_TileSize, self.combobox_CustomVBI ]
         self.checkbuttons = []
                        
     def FileNew(self):
@@ -301,6 +305,7 @@ class Application:
         self.entry_Disk.insert(0, 'diskname')
         
         # Set some defaults
+        self.combobox_CustomVBI.current(0)
         self.combobox_TileSize.current(0)
         self.combobox_AppleDiskSize.current(0)
         self.combobox_AppleCrunchAssets.current(0)
@@ -468,6 +473,7 @@ class Application:
                 ('shared', ('listbox', self.listbox_Shared)),
                 ('charmap', ('listbox', self.listbox_Charmap)),
                 ('tilesize', ('Combobox', self.combobox_TileSize)),
+                ('customVBI', ('Combobox', self.combobox_CustomVBI)),
             ]),
             ('platform', [
                 ('Apple', [
@@ -949,7 +955,7 @@ class Application:
 
             # Build Unity Library
             cTarget = ['targets\\atari\\directory.c', 'targets\\atari\\files.c']
-            sTarget = ['graphics\\scroll.s', 'targets\\atari\\blitCharmap.s', 'targets\\atari\\decrunch.s', 'targets\\atari\\DLIST-bmp.s', 'targets\\atari\\DLIST-chr.s', 'targets\\atari\\DLI.s', 'targets\\atari\\ROM.s', 'targets\\atari\\VBI.s', 'targets\\atari\\xbios.s']
+            sTarget = ['graphics\\scroll.s', 'targets\\atari\\blitCharmap.s', 'targets\\atari\\blitSprites.s', 'targets\\atari\\decrunch.s', 'targets\\atari\\DLIST-bmp.s', 'targets\\atari\\DLIST-chr.s', 'targets\\atari\\DLI.s', 'targets\\atari\\ROM.s', 'targets\\atari\\VBI.s', 'targets\\atari\\xbios.s']
             if self.combobox_AtariNetworkDriver.get() == 'Fujinet':    
                 cTarget.append('targets\\atari\\fujinet.c')
                 sTarget.append('targets\\atari\\fujiIRQ.s')
@@ -1067,7 +1073,7 @@ class Application:
 
             # Build Unity Library
             cTarget = [ 'targets\\c64\\directory.c', 'targets\\c64\\VIC2.c' ]
-            sTarget = [ 'graphics\\scroll.s', 'targets\\c64\\decrunch.s', 'targets\\c64\\joystick.s', 'targets\\c64\\blitCharmap.s', 'targets\\c64\\ROM.s', 'targets\\c64\\SID.s']
+            sTarget = [ 'graphics\\scroll.s', 'targets\\c64\\decrunch.s', 'targets\\c64\\DLI.s', 'targets\\c64\\joystick.s', 'targets\\c64\\blitCharmap.s', 'targets\\c64\\ROM.s', 'targets\\c64\\SID.s']
             if self.combobox_C64CrunchAssets.get() == 'Yes':
                 symbols = '-D __DECRUNCH__ '
             else:

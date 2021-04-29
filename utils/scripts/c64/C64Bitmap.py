@@ -51,7 +51,7 @@ try:
     col = [0] * 1000
     for y in range(0, 200, 8):
         for x in range(0, 160, 4):
-            # Find most abundant colors in block
+            # List colors in block
             block = []
             for i in range(8):
                 for j in range(4):
