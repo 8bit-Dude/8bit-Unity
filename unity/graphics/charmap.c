@@ -171,8 +171,8 @@ void InitCharmap(unsigned char col1, unsigned char col2, unsigned char row1, uns
 	screenData = (char*)(SCREENRAM + screenRow1*LINE_SIZE + screenCol1*CHAR_WIDTH);
 #elif (defined __LYNX__) || (defined __ORIC__)
 	screenData = (char*)(BITMAPRAM+1 + screenRow1*ROW_SIZE + screenCol1*CHAR_WIDTH);
-#endif	
-	
+#endif
+
 #if (defined __APPLE2__) || (defined __LYNX__) || (defined __ORIC__)
 	InitBitmap();
 #elif defined __ATARI__	
@@ -270,7 +270,7 @@ void LoadCharset(char* filename)
 #elif defined __CBM__	
 	FILE* fp = fopen(filename, "rb");	
 	fread((char*)0xd021, 1, 0x0003, fp);		// Shared Colors
-	fread((char*)CHARSETRAM, 1, 0x0800, fp);	// Pixel Data
+	fread((char*)CHARSETRAM, 1, 0x0400, fp);	// Pixel Data
 	if (!charattData) charattData = malloc(0x0100);			
 	fread((char*)charattData, 1, 0x0100, fp);	// Color Attributes
 	charflagData = (char*)(charattData+0x80);	// Flag Attributes

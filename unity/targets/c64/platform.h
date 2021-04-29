@@ -43,7 +43,7 @@
 #define SCREENRAM  (VIDEOBANK * 0x4000 + SCREENLOC * 0x0400) // C000-C3FF (screen data)
 #define COLORRAM   (0xd800) 								 // D800-DBFF (color data) *fixed location*
 #define BITMAPRAM  (VIDEOBANK * 0x4000 + BITMAPLOC * 0x0400) // E000-FF40 (bitmap data)
-#define CHARSETRAM (BITMAPRAM)						 		 // E000-E800 (charset+font data)
+#define CHARSETRAM (BITMAPRAM)						 		 // E000-E400 (charset+font data)
 #define SPRITEPTR  (SCREENRAM + 0x03f8)						 // C3F8-???? (sprite control registers)
 #define SPRITERAM  (VIDEOBANK * 0x4000 + SPRITELOC * 0x0040) // C800-D800 (sprites.dat loaded here)
 
