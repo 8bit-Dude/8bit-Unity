@@ -181,6 +181,7 @@ void InitCharmap(unsigned char col1, unsigned char col2, unsigned char row1, uns
 	bmpRows = chrRows + 8*(CMP_ROWS-row2) + 2;
 	bmpAddr = BITMAPRAM1 + row2*(8*40);
 	InitBitmap();
+	CharmapDLIST(); // Setup DLIST
 #elif defined __CBM__
 	rasterLine = 57 + row2*8;
 	colorData  = (char*)(COLORRAM + screenRow1*LINE_SIZE + screenCol1*CHAR_WIDTH);
@@ -194,11 +195,9 @@ void ShowCharmap()
 	ShowBitmap();
 	
 #elif defined __ATARI__	
-	// Setup DLIST and VBI
-	CharmapDLIST();	charmapVBI = 1;
-
-	// ANTIC: DMA Screen
+	// Enable Screen DMA and VBI
 	POKE(559, PEEK(559)|32);	
+	charmapVBI = 1;
 	
 #elif defined __CBM__	
 	SetupVIC2(); // Switch memory bank and multicolor mode	
@@ -213,11 +212,9 @@ void HideCharmap()
 	HideBitmap();
 	
 #elif defined __ATARI__	
-	// Disable VBI
-	charmapVBI = 0;
-	
-    // Switch off screen DMA
+	// Disable Screen DMA and VBI
 	POKE(559, PEEK(559)&~32);
+	charmapVBI = 0;
 	
 #elif defined __CBM__	
 	StopDLI();	  // Stop raster line interrupt
