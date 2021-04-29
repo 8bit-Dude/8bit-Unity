@@ -108,14 +108,10 @@ unsigned char UpdateMenu(void)
 	}
 	
 	// Check limits
-	if (cursorPos < cursorRow) {
-		cursorPos = cursorRow;
-		cursorMoved = 0;
-	}
-	if (cursorPos >= cursorRow+cursorHeight) {
+	if (cursorPos < cursorRow)
 		cursorPos = cursorRow+cursorHeight-1;
-		cursorMoved = 0;
-	}
+	if (cursorPos >= cursorRow+cursorHeight)
+		cursorPos = cursorRow;
 	
 	// Detect cursor action
 	if (!(joy & JOY_BTN1)) { 

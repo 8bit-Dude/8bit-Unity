@@ -41,7 +41,7 @@
     unsigned int   frameBLOCK;				// Size of sprite offset block (4 blocks)
 	unsigned char* sprData;					// Pointer to sprite data (allocated dynamically)
 	unsigned char  sprX[SPRITE_NUM], sprY[SPRITE_NUM];	 // Screen coordinates
-	unsigned char  sprDrawn[SPRITE_NUM], sprCollision[SPRITE_NUM]; // Enable and Collision status
+	unsigned char  sprDrawn[SPRITE_NUM], sprCollision[SPRITE_NUM]; // Draw/Collision status
 	unsigned char  sprHiresX[SPRITE_NUM];  	// Byte offset within Hires line
 	unsigned char* sprBG[SPRITE_NUM];  		// Sprite background
 	unsigned char  sprRows[SPRITE_NUM];  	// Sprite dimensions used in algorithms

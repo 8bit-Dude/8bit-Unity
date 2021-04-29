@@ -34,10 +34,6 @@
   #pragma code-name("SHADOW_RAM")
 #endif
 
-#ifdef __CBM__
-  extern unsigned char videoMode;
-#endif
-
 // Print numerical value
 void PrintNum(unsigned int num)
 {
@@ -53,21 +49,7 @@ void PrintNum(unsigned int num)
 		} else {
 			tmp = 0;
 		}
-	  #if defined __CBM__
-		if (videoMode == CHR_MODE) {
-			// Charmap mode
-			POKE(SCREENRAM+40*txtY+txtX, 208+tmp);
-			POKE(COLORRAM+40*txtY+txtX, inkColor);
-			txtX++;
-		} else {
-			// Bitmap mode	
-			PrintChr(&charDigit[tmp*3]);
-			txtX++;
-		}
-	  #else
-		PrintChr(&charDigit[tmp*3]);
-		txtX++;
-	  #endif
+		PrintChr(&charDigit[tmp*3]); txtX++;
 		step /= 10u;
 	}
 	txtX = bckX;

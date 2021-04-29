@@ -42,7 +42,6 @@
 #endif
 
 #ifdef __CBM__
-  unsigned char videoMode = TXT_MODE;
   unsigned char pow2 = (2 | 2<<2 | 2<<4 | 2<<6);
 #endif
 
@@ -74,7 +73,6 @@ unsigned char paperColor = BLACK;
 void PrintChr(const char *chr)
 {
 #if defined __APPLE2__
-	// Set Character over 3/4 pixels out of 7 in a cell
 	unsigned int x,y;
 	unsigned char i,j,n;
 	if (txtX&1) { n=4; } else { n=3; }
@@ -122,7 +120,6 @@ void PrintChr(const char *chr)
 	clk += 1;
 	
 #elif defined __ATARI__	
-	// Set Character across double buffer
 	unsigned char i,line;
 	unsigned int addr1,addr2;
 	inkColor1 = inkColor&3; inkColor2 = inkColor/4u;
@@ -160,8 +157,8 @@ void PrintChr(const char *chr)
 		if (bitmapVBI)
 			POKE((char*)addr2, bgByte1);
 	}
+	
 #elif defined __ORIC__
-	// Set Character inside 6*8 cell
 	unsigned char i, line;
 	unsigned char a0,a2,a4,b,blank;
 	unsigned int addr;
@@ -186,10 +183,10 @@ void PrintChr(const char *chr)
 		}
 		POKE((char*)addr, blank);
 	}
+	
 #elif defined __CBM__
-	// Set Character inside 4*8 cell
-	unsigned char i,line;
 	unsigned int addr;
+	unsigned char i,line;
 	addr = BITMAPRAM + txtY*320 + txtX*8;
 	if (chr == &charBlank[0]) {
 		memset((char*)addr, pow2, 8);
@@ -202,12 +199,10 @@ void PrintChr(const char *chr)
 		}
 		POKE((char*)addr, pow2);
 	}
-	
-	// Set Color
 	addr = SCREENRAM + txtY*40 + txtX;
-	POKE((char*)addr, inkColor << 4 | paperColor);
+	POKE((char*)addr, inkColor << 4 | paperColor);		
+		
 #elif defined __LYNX__
-	// Set Character Pixels
 	unsigned char i, j, line, paperShift, inkShift;
 	unsigned int addr;
 	addr = BITMAPRAM+1 + txtY*(492) + txtX*2u;
@@ -253,44 +248,11 @@ void PrintStr(const char *buffer)
 {
 	unsigned char bckX = txtX;
 	unsigned char *addr = buffer;
-#if defined __CBM__
-	unsigned char chr;
-	unsigned int addr1, addr2;
-	if (videoMode == CHR_MODE) {
-		// Charmap mode
-		addr1 = SCREENRAM + 40*txtY + txtX;
-		addr2 = COLORRAM + 40*txtY + txtX;
-		while (*addr) {
-			chr = *addr;
-			if (chr > 192)
-				chr += 32;	// Upper case (petscii)
-			else 
-			if (chr > 96) 
-				chr += 128;	// Lower case (ascii)
-			else 
-			if (chr > 32) 
-				chr += 160;	// Lower case (petscii)
-			else
-				chr += 128;	// Icons
-			POKE(addr1++, chr);
-			POKE(addr2++, inkColor);
-			addr++;
-		}		
-	} else {
-		// Bitmap mode
-		while (*addr) {
-			PrintChr(GetChr(*addr));
-			addr++; txtX++;
-		}
-	}
-#else
 	while (*addr) {
 		PrintChr(GetChr(*addr));
 		addr++; txtX++;
 	}
-#endif
 	txtX = bckX;
-	
 #if defined __LYNX__
 	if (autoRefresh) { UpdateDisplay(); }
 #endif		

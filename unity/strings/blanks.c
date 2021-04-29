@@ -69,6 +69,7 @@ void PrintBlanks(unsigned char width, unsigned char height)
 		}
 		addr1 += 40; addr2 += 40; ++i;
 	}	
+	
 #elif defined __APPLE2__
 	unsigned char x, y;
 	unsigned int dataAux, dataMain;
@@ -116,6 +117,7 @@ void PrintBlanks(unsigned char width, unsigned char height)
 		memset((char*)addr, value, width);
 		addr += 40; ++i;
 	}
+	
 #elif defined __CBM__
 	unsigned int addr1, addr2;
 	addr1 = BITMAPRAM+txtY*8*40+txtX*8;
@@ -124,7 +126,8 @@ void PrintBlanks(unsigned char width, unsigned char height)
 		memset((char*)addr1, pow2, width*8);
 		memset((char*)addr2, paperColor, width);		
 		addr1 += 320; addr2 += 40; i++;
-	}	
+	}
+	
 #elif defined __LYNX__
 	unsigned int addr;
 	unsigned char value;

@@ -43,10 +43,6 @@
   }
 #endif
 
-#ifdef __CBM__
-  extern unsigned char videoMode;
-#endif
-
 // Initialize Bitmap Screen
 void InitBitmap() 
 {
@@ -90,12 +86,8 @@ void InitBitmap()
 void ShowBitmap()
 {		
 #if defined __CBM__
-	// Setup VIC2 (memory bank and multicolor mode)
-	videoMode = BMP_MODE;
-	SetupVIC2();
-
-	// Set VIC2 to bitmap mode
-	POKE(0xD011, PEEK(0xD011)|32);		
+	SetupVIC2();	// Switch memory bank and multicolor mode
+	POKE(0xD011, PEEK(0xD011)|32);	// Set bitmap mode
 	
 #elif defined __ATARI__
 	// Setup DLIST and screen DMA
@@ -117,7 +109,6 @@ void HideBitmap()
 {
 #if defined __CBM__
 	// Switch OFF multicolor mode
-	videoMode = TXT_MODE;
 	ResetVIC2();
 		
 #elif defined __ATARI__

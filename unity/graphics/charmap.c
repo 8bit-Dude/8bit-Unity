@@ -34,10 +34,6 @@
   #pragma code-name("SHADOW_RAM")
 #endif
 
-#ifdef __CBM__
-  extern unsigned char videoMode;
-#endif
-
 // Zero Page pointers (for tile decoding and scrolling)
 #if defined(__APPLE2__)
   #define charPtrZP 0xce
@@ -186,7 +182,8 @@ void InitCharmap(unsigned char col1, unsigned char col2, unsigned char row1, uns
 	bmpAddr = BITMAPRAM1 + row2*(8*40);
 	InitBitmap();
 #elif defined __CBM__
-	colorData = (char*)(COLORRAM + screenRow1*LINE_SIZE + screenCol1*CHAR_WIDTH);
+	rasterLine = 57 + row2*8;
+	colorData  = (char*)(COLORRAM + screenRow1*LINE_SIZE + screenCol1*CHAR_WIDTH);
 #endif
 }
 
@@ -204,9 +201,8 @@ void ShowCharmap()
 	POKE(559, PEEK(559)|32);	
 	
 #elif defined __CBM__	
-	// Setup VIC2 (memory bank and multicolor mode)
-	videoMode = CHR_MODE;
-	SetupVIC2();	
+	SetupVIC2(); // Switch memory bank and multicolor mode	
+	StartDLI();  // Setup raster line interrupt
 #endif	
 }
 
@@ -224,8 +220,8 @@ void HideCharmap()
 	POKE(559, PEEK(559)&~32);
 	
 #elif defined __CBM__	
-	videoMode = TXT_MODE;
-	ResetVIC2();
+	StopDLI();	  // Stop raster line interrupt
+	ResetVIC2();  // Exit multicolor mode
 #endif	
 }
 
@@ -451,11 +447,15 @@ void PrintCharmap(unsigned char x, unsigned char y, unsigned char chr)
 {
 #if defined(__ATARI__)
 	POKE((char*)SCREENRAM+y*40+x, chr+PEEK(CHARATRRAM+chr));
+#elif defined(__CBM__)
+	unsigned int addr = y*40+x;
+	POKE((char*)SCREENRAM+addr, chr);
+	POKE((char*)COLORRAM+addr, PEEK(charattData+chr));
 #elif defined(__LYNX__)
 	unsigned char i;
 	unsigned int src, dst;
 	src = (unsigned int)charsetData + 2*chr;
-	dst = BITMAPRAM + y*ROW_SIZE + x*CHAR_WIDTH + 1;
+	dst = BITMAPRAM+1 + y*ROW_SIZE + x*CHAR_WIDTH;
 	for (i = 0; i<4; i++) {
 		memcpy((char*)dst, (char*)src, 2);
 		src += 256; dst += 82;

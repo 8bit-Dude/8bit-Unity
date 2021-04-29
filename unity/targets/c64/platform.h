@@ -38,7 +38,7 @@
 #define VIDEOBANK  3
 #define SCREENLOC  0
 #define BITMAPLOC  8
-#define SPRITELOC  32
+#define SPRITELOC  16
 #define MUSICRAM   (0x0800) 								 // 0800-17FF (SID sound track: ALSO EDIT SID.S WHEN CHANGING THIS VALUE!)
 #define SCREENRAM  (VIDEOBANK * 0x4000 + SCREENLOC * 0x0400) // C000-C3FF (screen data)
 #define COLORRAM   (0xd800) 								 // D800-DBFF (color data) *fixed location*
@@ -90,8 +90,11 @@
 #define TCK_PER_SEC	CLK_TCK
 
 // VIC2 functions
+extern unsigned char rasterLine;
 void SetupVIC2(void);
 void ResetVIC2(void);
+void StartDLI(void);
+void StopDLI(void);
 
 // Rom function: use before/after accessing BITMAPRAM (see ROM.s)
 extern void __fastcall__ rom_enable(void);
