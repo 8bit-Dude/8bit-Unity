@@ -27,19 +27,31 @@
 	.export _charBlank
 	.export _charDigit
 	.export _charLetter
+	.export _charAt
+	.export _charAmpersand
 	.export _charBracket
 	.export _charColon
 	.export _charComma
 	.export _charDot
 	.export _charDollar
+	.export _charEqual
 	.export _charExclaim
+	.export _charHash
+	.export _charHat
 	.export _charHyphen
+	.export _charLessThan
+	.export _charMoreThan
+	.export _charPercent
 	.export _charPlus
 	.export _charQuestion
 	.export _charQuote
+	.export _charQuotes
 	.export _charBwSlash
 	.export _charFwSlash
+	.export _charSemiColon
 	.export _charStar
+	.export _charSqrBracket1	
+	.export _charSqrBracket2
 	.export _charUnderbar
 	
 	.export _charArrowDown
@@ -62,25 +74,33 @@
 
 ; Icon Data
 _charHeart:		
-	.byte %00001010, %11101110, %11100100	; ASCII 1
+	.byte %00001010, %11101110, %11100100	; ASCII 26
 _charPotion:
-	.byte %00000100, %01001110, %11101110	; ASCII 2
+	.byte %00000100, %01001110, %11101110	; ASCII 27
 _charShield:
-	.byte %00001110, %11101110, %11100100	; ASCII 3
+	.byte %00001110, %11101110, %11100100	; ASCII 28
 _charDeath:
-	.byte %00000100, %11101110, %01000100	; ASCII 4
+	.byte %00000100, %11101110, %01000100	; ASCII 29
 _charAmmo:
-	.byte %10100000, %10101010, %10101010	; ASCII 5
+	.byte %10100000, %10101010, %10101010	; ASCII 30
 _charBlock:
-	.byte %00001110, %11101110, %11100000	; ASCII 6
+	.byte %00001110, %11101110, %11100000	; ASCII 31
 
 ; Text Data
 _charBlank:
 	.byte %00000000, %00000000, %00000000	; ASCII 32
 _charExclaim:	
 	.byte %01000100, %01000100, %00000100	; ASCII 33
+_charQuotes:	
+	.byte %10101010, %10100000, %00000000	; ASCII 34
+_charHash:	
+	.byte %10101110, %10101010, %11101010	; ASCII 35
 _charDollar:	
 	.byte %01001110, %11000110, %11100100	; ASCII 36
+_charPercent:	
+	.byte %01001110, %11000110, %11100100	; ASCII 37
+_charAmpersand:	
+	.byte %01001010, %10100101, %10100101	; ASCII 38
 _charQuote:	
 	.byte %01000100, %01000000, %00000000	; ASCII 39
 _charBracket:	
@@ -111,10 +131,20 @@ _charDigit:
 	.byte %01001010, %10100110, %00101100	; ASCII 57 (9)
 _charColon:	
 	.byte %00000100, %00000000, %01000000	; ASCII 58
+_charSemiColon:	
+	.byte %00000100, %00000000, %01001000	; ASCII 59
+_charLessThan:	
+	.byte %00000010, %01001000, %01000010	; ASCII 60
+_charEqual:	
+	.byte %00001110, %00000000, %11100000	; ASCII 61
+_charMoreThan:	
+	.byte %00001000, %01000010, %01001000	; ASCII 62
 _charQuestion:
 	.byte %11000010, %00100100, %00000100   ; ASCII 63
+_charAt:
+	.byte %01001010, %10101010, %10100100   ; ASCII 64
 _charLetter: 
-	.byte %01001010, %10101110, %10101010	; ASCII 65 (A)
+	.byte %01001010, %10101110, %10101010	; A (ASCII 65)
 	.byte %11001010, %10101100, %10101100	; B
 	.byte %01101000, %10001000, %10000110	; C
 	.byte %11001010, %10101010, %10101100	; D
@@ -139,9 +169,15 @@ _charLetter:
 	.byte %10101010, %10101110, %11101010	; W
 	.byte %10101010, %01000100, %10101010	; X
 	.byte %10101010, %11100100, %01000100	; Y
-	.byte %11100010, %01000100, %10001110	; Z
+	.byte %11100010, %01000100, %10001110	; Z (ASCII 90)
+_charSqrBracket1:
+	.byte %01100100, %01000100, %01000110   ; ASCII 91
 _charBwSlash:
 	.byte %10001000, %01000100, %00100010   ; ASCII 92
+_charSqrBracket2:
+	.byte %11000100, %01000100, %01001100   ; ASCII 93
+_charHat:
+	.byte %01001010, %00000000, %00000000   ; ASCII 94
 _charUnderbar:
 	.byte %00000000, %00000000, %00001110   ; ASCII 95
 	

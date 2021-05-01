@@ -229,18 +229,12 @@ void PrintChr(const char *chr)
 const char *GetChr(unsigned char chr)
 {
 	// Select the correct bitmask
-	     if (chr == 95) { return &charUnderbar[0]; }
-	else if (chr == 92) { return &charBwSlash[0]; }
 #if defined __CBM__
-	else if (chr > 192) { return &charLetter[(chr-193)*3]; }	// Upper case (C64)
+	if (chr > 192) { chr -= 128; }	// Upper case (C64)
+	else
 #endif
-	else if (chr > 96)  { return &charLetter[(chr-97)*3]; }		// Lower case (Apple/Atari/Oric/Lynx)   Compatibility with Ascii files (C64)
-	else if (chr > 64)  { return &charLetter[(chr-65)*3]; }		// Upper case (Apple/Atari/Oric/Lynx)	Lower case (C64)
-	else if (chr == 63) { return &charQuestion[0]; }
-	else if (chr >  38) { return &charQuote[(chr-39)*3]; }
-	else if (chr == 36) { return &charDollar[0]; }
-	else if (chr >  31) { return &charBlank[(chr-32)*3]; }
-	else 				{ return &charHeart[(chr-1)*3]; }
+    if (chr >  96) { chr -= 32;  }	// Lower case (Apple/Atari/Oric/Lynx) and compatibility with Ascii files (C64)
+	return &charHeart[(chr-26)*3];
 }
 
 // Parse string and print characters one-by-one (can be slow...)
