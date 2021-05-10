@@ -72,6 +72,16 @@
 		SetSprite(index, frame+sprFrames);
 	}
 
+#elif defined __NES__	
+	unsigned char metaSprites[136] = { 0,0,0,0, 8,0,0,0, 0,8,0,0, 8,8,0,0, 128,
+									   0,0,0,0, 8,0,0,0, 0,8,0,0, 8,8,0,0, 128,
+									   0,0,0,0, 8,0,0,0, 0,8,0,0, 8,8,0,0, 128,
+									   0,0,0,0, 8,0,0,0, 0,8,0,0, 8,8,0,0, 128,
+									   0,0,0,0, 8,0,0,0, 0,8,0,0, 8,8,0,0, 128,
+									   0,0,0,0, 8,0,0,0, 0,8,0,0, 8,8,0,0, 128,
+									   0,0,0,0, 8,0,0,0, 0,8,0,0, 8,8,0,0, 128,
+									   0,0,0,0, 8,0,0,0, 0,8,0,0, 8,8,0,0, 128 };
+	
 #elif defined __ORIC__	
 	#define byteWIDTH 2		// Byte width of sprite (12 pixels)
 	unsigned char frameROWS;
@@ -161,7 +171,7 @@ void LoadSprites(unsigned char* filename)
 #endif
 }
 
-void SetupSprites(unsigned int frames, unsigned char cols, unsigned char rows, unsigned char *spriteColors)
+void SetupSprites(unsigned int frames, unsigned char cols, unsigned char rows, const unsigned char *spriteColors)
 {
 #if defined __APPLE2__	
 	// Set sprite rows, frames and resulting block size (there are 4 offset blocks for each sprite)
@@ -221,6 +231,9 @@ void SetupSprites(unsigned int frames, unsigned char cols, unsigned char rows, u
 #elif defined __LYNX__	
 	sprCols = cols; sprRows = rows;		
 	frameSize = rows*((cols+(cols&1))/2+1)+1;
+	
+#elif defined __NES__
+	pal_spr(spriteColors);
 #endif
 }
 
@@ -234,6 +247,12 @@ void RecolorSprite(unsigned char index, unsigned char offset, unsigned char colo
 	POKE(53287+index, color);
 #elif defined __LYNX__
 	sprSCB[index].penpal[offset] = color;
+#elif defined __NES__
+	unsigned char i, base = index*17+3;
+	for (i=0; i<4; i++) {
+		metaSprites[base] = color;
+		base += 4;
+	}
 #endif
 }
 
@@ -249,20 +268,23 @@ void LocateSprite(unsigned int x, unsigned int y)
 // This function maps sprite coordinates from a 320x200 screen definition
 // It can be by-passed by assigning spriteX, spriteY directly in your code
 #if defined __APPLE2__
-	spriteX = (x*140)/320u;
-	spriteY = (y*192)/200u;
+	spriteX = (x*35)/80u;	// 140x192
+	spriteY = (y*24)/25u;
 #elif defined __ATARI__
-	spriteX = x/2u + 42;
+	spriteX = x/2u + 42;	// 160x200
 	spriteY = y;
 #elif defined __ORIC__
-	spriteX = x/4u;	
+	spriteX = x/4u;			//  80x200	
 	spriteY = y;
 #elif defined __CBM__
-	spriteX = x;
+	spriteX = x;			// 320x200
 	spriteY = y;
 #elif defined __LYNX__
-	spriteX = x/2u;
-	spriteY = (y*102)/200u;
+	spriteX = x/2u;			// 160x102
+	spriteY = (y*51)/100u;
+#elif defined __NES__
+	spriteX = (x*4)/5u;		// 256x200
+	spriteY = y+16;
 #endif
 }
 
@@ -655,6 +677,16 @@ void SetSprite(unsigned char index, unsigned int frame)
 	sprX[index] = spriteX;
 	sprY[index] = spriteY;
 	sprDrawn[index] = 1;
+#elif defined __NES__
+	unsigned char base, *metaSprite;
+	metaSprite = &metaSprites[index*17];
+	base = ((frame/8u)*32) + ((frame%8)*2);
+	metaSprite[ 2] = base;
+	metaSprite[ 6] = base+0x01;
+	metaSprite[10] = base+0x10;
+	metaSprite[14] = base+0x11;
+	oam_meta_spr(spriteX-8, spriteY-8, index<<4, metaSprite);
+	//oam_spr(spriteX, spriteY, frame, 0, index<<2);
 #endif
 }
 
@@ -710,6 +742,8 @@ void DisableSprite(signed char index)
 			sprDrawn[index] = 0;
 		}
 		sprBank[index/4u] &= ~sprMask[index];
+	#elif defined __NES__
+		// TODO		
 	#else
 		// Soft sprites: Restore background if neccessary
 	  #if (defined __APPLE2__) || (defined __ORIC__)
@@ -730,6 +764,8 @@ void DisableSprite(signed char index)
 	#elif defined __LYNX__
 		// Clear sprite slots
 		bzero(sprDrawn, SPRITE_NUM);
+	#elif defined __NES__
+		oam_clear();
 	#else
 		// Soft sprites: Restore background if necessary
 		for (index=0; index<SPRITE_NUM; index++) {

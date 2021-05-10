@@ -34,12 +34,13 @@
   #pragma code-name("SHADOW_RAM")
 #endif
 
-// Interactive text input function
 unsigned char maskInput = 0;
+
+// Interactive text input function
 unsigned char InputStr(unsigned char width, char *buffer, unsigned char len, unsigned char key)
 {
 	unsigned char i, curlen, offset, bckX = txtX;
-	unsigned char *c = charStar;
+	unsigned char c = '*';
 	
 	// Check current length of input
 	curlen = strlen(buffer);
@@ -55,7 +56,7 @@ unsigned char InputStr(unsigned char width, char *buffer, unsigned char len, uns
 		i = curlen-offset; 
 		while (i < curlen) {
 			if (!maskInput)
-				c = GetChr(buffer[i]);
+				c = buffer[i];
 			PrintChr(c);
 			txtX++; i++;
 		}
@@ -74,12 +75,12 @@ unsigned char InputStr(unsigned char width, char *buffer, unsigned char len, uns
 					for (i=width-1; i>0; i--)
 						CopyStr(txtX+i, txtY, txtX+i-1, txtY, 1);
 					if (!maskInput)
-						c = GetChr(buffer[curlen-width-1]);
+						c = buffer[curlen-width-1];
 					PrintChr(c);		
 					txtX += offset;
 				} else {
 					txtX += offset;
-					PrintChr(charBlank);
+					PrintChr(' ');
 					txtX--;					
 				}
 			}
@@ -91,9 +92,9 @@ unsigned char InputStr(unsigned char width, char *buffer, unsigned char len, uns
 		
 		// Process other Keys
 	#if (defined __ATARI__) || (defined __ORIC__)
-		if (key == 32 || key == 33 || (key > 38 && key < 59) || key == 63 || key == 92 || key == 95 || (key > 96 && key < 123)) {	// Atari/Oric
+		if (key > 31 && key < 123) { // Atari/Oric
 	#else
-		if (key == 32 || key == 33 || (key > 38 && key < 59) || key == 63 || (key > 64 && key < 91) || key == 92 || key == 95) {	// Apple/C64/Lynx
+		if (key > 31 && key < 96)  { // Apple/C64/Lynx
 	#endif
 			buffer[curlen] = key;
 			buffer[curlen+1] = 0;
@@ -102,7 +103,7 @@ unsigned char InputStr(unsigned char width, char *buffer, unsigned char len, uns
 				offset--;
 			}
 			if (!maskInput)
-				c = GetChr(key);
+				c = key;
 			txtX += offset;
 			PrintChr(c);
 			txtX++;
@@ -110,7 +111,7 @@ unsigned char InputStr(unsigned char width, char *buffer, unsigned char len, uns
 	}
 
 	// Show cursor
-	PrintChr(charUnderbar);
+	PrintChr('_');
 	txtX = bckX;
 	return 0;
 }

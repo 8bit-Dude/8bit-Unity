@@ -76,8 +76,8 @@ unsigned char UpdateMenu(void)
 		if (cursorFlick) {
 			inkColor = YELLOW;
 			txtY = cursorPos;
-			txtX = cursorCol; PrintChr(&charHyphen[0]);
-			txtX++;			  PrintChr(&charBracket[3]);
+			txtX = cursorCol; PrintChr('-');
+			txtX++;			  PrintChr('>');
 			inkColor = WHITE;
 		}
 		cursorFlick = !cursorFlick;

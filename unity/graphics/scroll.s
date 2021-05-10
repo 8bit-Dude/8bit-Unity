@@ -50,6 +50,12 @@
 	lineWidth = $52	; 82
 .endif	
 
+.ifdef __NES__
+	scrPtr1ZP = $00
+	scrPtr2ZP = $00
+	lineWidth = $20	; 32
+.endif
+
 .ifdef __ATMOS__
 	scrPtr1ZP = $b4
 	scrPtr2ZP = $b6

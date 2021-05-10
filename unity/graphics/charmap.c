@@ -71,6 +71,13 @@
   #define scrPtrZP  0xb7
   #define scrPtr1ZP 0xb7
   #define scrPtr2ZP 0xb9
+#elif defined(__NES__)
+  #define charPtrZP 0x00
+  #define decPtr1ZP 0x00
+  #define decPtr2ZP 0x00 
+  #define scrPtrZP  0x00
+  #define scrPtr1ZP 0x00
+  #define scrPtr2ZP 0x00 
 #elif defined(__ORIC__)
   #define charPtrZP 0xb2
   #define decPtr1ZP 0xb4
@@ -96,6 +103,11 @@
   #define CHAR_HEIGHT      4u
   #define LINE_SIZE	  	  82u
   #define ROW_SIZE		 328u 
+#elif defined(__NES__)
+  #define CHAR_WIDTH       1u
+  #define CHAR_HEIGHT      1u
+  #define LINE_SIZE	  	  32u	
+  #define ROW_SIZE		  32u
 #elif defined(__ORIC__)
   #define CHAR_WIDTH       1u
   #define CHAR_HEIGHT      8u

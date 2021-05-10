@@ -49,7 +49,7 @@ void PrintNum(unsigned int num)
 		} else {
 			tmp = 0;
 		}
-		PrintChr(&charDigit[tmp*3]); txtX++;
+		PrintChr(CHR_DIGIT+tmp); txtX++;
 		step /= 10u;
 	}
 	txtX = bckX;

@@ -61,6 +61,13 @@
 	decPtr2ZP = $b9
 .endif	
 
+.ifdef __NES__
+	tilesetDataZP = $00
+	charPtrZP = $00
+	decPtr1ZP = $00
+	decPtr2ZP = $00
+.endif
+
 .ifdef __ATMOS__
 	tilesetDataZP = $b0
 	charPtrZP = $b2

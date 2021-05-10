@@ -58,7 +58,7 @@ unsigned char GetLocalIP(unsigned char* ip)
 #elif defined __FUJINET__	
 	// TODO	
 	
-#else
+#elif defined __IP65__
 	// TODO	
 #endif
 }

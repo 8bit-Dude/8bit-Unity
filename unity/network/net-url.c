@@ -31,8 +31,10 @@
 #endif
 
 #if defined __HUB__
+  // Nothing
 #elif defined __FUJINET__	
-#else
+  // Nothing
+#elif defined __IP65__
   #define URL_LEN 512	// Note: HTTP header (parsed out) takes about 256 bytes...
   unsigned char url_buf[URL_LEN];
   unsigned int url_ind, url_len;
@@ -50,7 +52,7 @@ void GetURL(unsigned char* url)
 	strcpy(&fujiHost[6], &url[4]);
 	FujiOpen(0x71, 3); // Translate CR and LF
 	
-#else
+#elif defined __IP65__
 	// Read URL and strip out HTTP header
 	url_len = url_download((const char*)url, url_buf, URL_LEN);	
 	url_ind = 0;
@@ -91,7 +93,7 @@ unsigned char* ReadURL(unsigned char size, unsigned int timeOut)
 		return 0;
 	}
 	
-#else
+#elif defined __IP65__
 	unsigned char *ptr;
 	if (url_len && url_ind < url_len-1) {
 		ptr = &url_buf[url_ind];

@@ -43,6 +43,11 @@
   }
 #endif
 
+#ifdef __NES__
+  // Default background palette
+  const unsigned char palBG[16]={ 0x0f, 0x00, 0x10, 0x30, 0x0f,0x01,0x21,0x31,0x0f,0x06,0x16,0x26,0x0f,0x09,0x19,0x29 };
+#endif
+
 // Initialize Bitmap Screen
 void InitBitmap() 
 {
@@ -127,7 +132,7 @@ void HideBitmap()
 }
 
 // Clear entire bitmap screen
-void ClearBitmap()
+void ClearBitmap(void)
 {
 #if defined __APPLE2__
     // clear main and aux screen memory	
@@ -164,6 +169,13 @@ void ClearBitmap()
 		POKE((char*)addr, 0x00); addr+=1;
 	}
 	UpdateDisplay();
+
+#elif defined __NES__
+	ppu_off();
+	pal_bg(palBG);			// Re-assign default palette
+	vram_adr(NAMETABLE_A);
+	vram_fill(0,32*32);		// Fill screen with chr 0
+	ppu_on_all();
 #endif
 }
 
@@ -172,9 +184,22 @@ void LoadBitmap(char *filename)
 {
 #if defined __ORIC__
 	FileRead(filename, (void*)(BITMAPRAM));
+	
 #elif defined __LYNX__
 	if (FileRead(filename) && autoRefresh) 
 		UpdateDisplay();	
+
+#elif defined __NES__
+	unsigned char* data;
+	ppu_off();	
+	data = FileRead(filename);
+	if (data) {
+		pal_bg(data);			// Assign palette
+		vram_adr(NAMETABLE_A);
+		vram_unrle(&data[4]);	// Decompress name-table
+	}
+	ppu_on_all();
+	
 #elif defined __APPLE2__
   #if defined __DECRUNCH__	
 	unsigned int size;
@@ -202,6 +227,7 @@ void LoadBitmap(char *filename)
 		FileClose();
 	}	  
   #endif
+  
 #elif defined __ATARI__
   #if defined __DECRUNCH__	
 	unsigned int size;
@@ -223,6 +249,7 @@ void LoadBitmap(char *filename)
 		SetPalette();
 	}
   #endif
+  
 #elif defined __CBM__
 	unsigned char i;
 	unsigned int size;
@@ -246,6 +273,6 @@ void LoadBitmap(char *filename)
 	fread((char*)(SCREENRAM), 1, 1000, fp); // 1000 bytes char ram
   #endif
 	fread((char*)(COLORRAM),  1, 1000, fp);	// 1000 bytes color ram
-	fclose(fp);
+	fclose(fp);	
 #endif
 }

@@ -96,7 +96,7 @@ void LoadChunk(unsigned char** chunk, char *filename)
 		memcpy(*chunk, buffer, 4);	
 		FileRead((char*)*chunk+4, size-4);		
 	}
-#else 
+#elif defined(__APPLE2__) || defined(__CBM__)
 	// Read header into buffer
 	unsigned int size;
 	FILE* fp = fopen(filename, "rb");

@@ -29,12 +29,18 @@
 
 #include "unity.h"
 
-#if (defined __LYNX__) || (defined __ORIC__)
+#if (defined __HUB__)
   #include "hub.h"
 #endif
 
 #ifdef __ATARIXL__
   #pragma code-name("SHADOW_RAM")
+#endif
+  
+#if (defined __ATARI__)  
+  #define ADAPTOR_NONE 0
+  #define ADAPTOR_HUB  1
+  unsigned char joyAdaptor = ADAPTOR_NONE;	// Default to no adaptor
 #endif
 
 #if (defined __ORIC__)
@@ -49,24 +55,31 @@
 #endif
 
 void InitJoy(void)
-{
-#if defined __ORIC__
-	// Check if 8bit-Hub connected (otherwise assume IJK interface)
+{	
+#if defined(__ATARI__) || defined(__ORIC__)
+  #if defined(__HUB__)
+	// Check if 8bit-Hub is connected
 	if (hubState[0] == COM_ERR_OFFLINE) 
 		UpdateHub();
 	if (hubState[0] != COM_ERR_OFFLINE) {
 		joyAdaptor = ADAPTOR_HUB;
-	} else {
-		InitPaseIJK(joyAdaptor);
 	}
-#else
+  #endif
 #endif
 }
 
 unsigned char GetJoy(unsigned char joy)
 {
-#if defined __ATARI__
-	return PEEK(0x0278+joy)+(PEEK(0x0284+joy)<<4)+JOY_BTN2;
+#if defined(__ATARI__)
+  #if defined(__HUB__)
+	if (joy && joyAdaptor) {
+		// Read joystick state from 8bit-Hub
+		UpdateHub();			
+		return hubState[joy-1];
+	} else
+  #endif
+		// Read joystick state from directly
+		return (PEEK(0x0284+joy)<<4)+PEEK(0x0278+joy)+JOY_BTN2;
 	
 #elif defined __LYNX__
 	// 2 input types: D-Pad (#0) or 8bit-Hub (#1,#2,#3)

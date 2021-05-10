@@ -36,34 +36,39 @@
  */
 
 // CC65 includes
+#ifndef __NES__
+  #include <string.h>
+#endif
 #include <conio.h>
 #include <dirent.h>
 #include <peekpoke.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <time.h>
 #include <unistd.h>
+
+// Custom Characters
 #include "strings/chars.h"
 
 // Platform IDs
 #if defined __CBM__
-	#define PLATFORM   0	
+	#define PLATFORM 0	
     #include "targets/c64/platform.h"		
 #elif defined __ATARI__
-	#define PLATFORM   1
+	#define PLATFORM 1
     #include "targets/atari/platform.h"	
 #elif defined __APPLE2__
-	#define PLATFORM   2
+	#define PLATFORM 2
     #include "targets/apple2/platform.h"		
 #elif defined __ATMOS__
-	#define __HUB__
-	#define PLATFORM   3
+	#define PLATFORM 3
     #include "targets/oric/platform.h"	
 #elif defined __LYNX__
-	#define __HUB__
-	#define PLATFORM   4
+	#define PLATFORM 4
     #include "targets/lynx/platform.h"	
+#elif defined __NES__
+	#define PLATFORM 5
+    #include "targets/nes/platform.h"	
 #endif
 
 // Adaptors
@@ -95,6 +100,7 @@ extern unsigned char pixelX, pixelY; // (see LocatePixel())
 //	Atari:  X/W must be multiples of 4 (e.g. 0,4,8,12... ) |              No restrictions
 //	C64:    X/W must be multiples of 4 (e.g. 0,4,8,12... ) |  Y/H must be multiples of 8  (e.g. 0,8,16,24...)
 //	Lynx:   X/W must be multiples of 2 (e.g. 0,2,4,6... )  |              No restrictions
+//	NES:    X/W must be multiples of 8 (e.g. 0,8,16,24... )|  Y/H must be multiples of 8  (e.g. 0,8,16,24...)
 // 	Oric:   X/W must be multiples of 6 (e.g. 0,6,12,18...) |  			  No restrictions
 void GetChunk(unsigned char** chunk, unsigned char x, unsigned char y, unsigned char w, unsigned char h);
 void SetChunk(unsigned char* chunk, unsigned char x, unsigned char y);
@@ -135,9 +141,8 @@ extern unsigned char inkColor, paperColor;
 #if defined __ORIC__
   void SetAttributes(unsigned char color);
 #endif
-const char *GetChr(unsigned char chr);
 void PrintBlanks(unsigned char width, unsigned char height);
-void PrintChr(const char *chr);
+void PrintChr(unsigned char chr);
 void PrintNum(unsigned int num);
 void PrintStr(const char *buffer);
 void PrintLogo(unsigned char index);
@@ -158,12 +163,18 @@ extern unsigned char maskInput;
 #define MOU_UP      8
 #define MOU_DOWN   16
 #define MOU_MOTION 32
-#if (defined __APPLE2__) || (defined __ATARI__)
-  #define JOY_MAX 2
+#if (defined __APPLE2__) || (defined __NES__)
+    #define JOY_MAX 2
+#elif (defined __ATARI__)
+  #if (defined __HUB__)
+	#define JOY_MAX 4
+  #else
+    #define JOY_MAX 2
+  #endif
 #elif (defined __CBM__) || (defined __LYNX__)
-  #define JOY_MAX 4
+    #define JOY_MAX 4
 #elif (defined __ORIC__)
-  #define JOY_MAX 5	
+    #define JOY_MAX 5	
 #endif
 
 // Joystick functions
@@ -223,15 +234,17 @@ void PlaySFX(unsigned char index, unsigned char pitch, unsigned char volume, uns
   #define SPRITE_NUM 8
 #elif defined __ATARI__
   #define SPRITE_NUM 12
-#elif defined __ORIC__
-  #define SPRITE_NUM 8
 #elif defined __CBM__
   #define SPRITE_NUM 8
 #elif defined __LYNX__
   #define SPRITE_NUM 8  
+#elif defined __NES__
+  #define SPRITE_NUM 8
+#elif defined __ORIC__
+  #define SPRITE_NUM 8
 #endif
 void LoadSprites(unsigned char* filename);
-void SetupSprites(unsigned int frames, unsigned char cols, unsigned char rows, unsigned char *spriteColors);
+void SetupSprites(unsigned int frames, unsigned char cols, unsigned char rows, const unsigned char *spriteColors);
 void EnableSprite(signed char index);
 void DisableSprite(signed char index);
 void LocateSprite(unsigned int x, unsigned int y);

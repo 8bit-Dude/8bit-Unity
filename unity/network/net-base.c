@@ -53,7 +53,7 @@ unsigned char InitNetwork(void)
 	FujiInit();
 	return NETWORK_OK;
 	
-#else
+#elif defined __IP65__
 	// Init IP65 and DHCP
 	if (ip65_init(ETH_INIT_DEFAULT)) return ADAPTOR_ERR;
 	if (dhcp_init()) return DHCP_ERR;

@@ -40,6 +40,13 @@
   extern unsigned int sidPlayAddr;	// Defelmask default: $0806
 #endif	
 
+#ifdef __NES__
+  // see nes/famitone2.s
+  void __fastcall__ FamiToneMusicPlay(unsigned char song);
+  void __fastcall__ FamiToneMusicStop(void);
+  void __fastcall__ FamiToneMusicPause(unsigned char pause);  
+#endif	
+
 #if defined(__ATARI__) || defined(__CBM__) || defined(__ORIC__)
   extern unsigned char musicPaused;
 #endif
@@ -104,6 +111,8 @@ void PauseMusic(unsigned char state)
 		lynx_snd_pause();
 	else
 		lynx_snd_continue();
+#elif defined __NES__	
+	FamiToneMusicPause(state);	
 #endif	
 }
 
@@ -131,6 +140,8 @@ void PlayMusic()
 		addr += 2; i++;
 	}
 	lynx_snd_continue();
+#elif defined __NES__	
+	FamiToneMusicPlay(0);
 #endif	
 }
 
@@ -151,6 +162,8 @@ void StopMusic()
 		StopMocking();
 #elif defined __LYNX__	
 	lynx_snd_stop();
+#elif defined __NES__	
+	FamiToneMusicStop();
 #endif	
 }
 

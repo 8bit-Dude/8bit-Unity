@@ -24,69 +24,45 @@
 ;   specific prior written permission.
 ;
 
-	.export _charBlank
-	.export _charDigit
-	.export _charLetter
-	.export _charAt
-	.export _charAmpersand
-	.export _charBracket
-	.export _charColon
-	.export _charComma
-	.export _charDot
-	.export _charDollar
-	.export _charEqual
-	.export _charExclaim
-	.export _charHash
-	.export _charHat
-	.export _charHyphen
-	.export _charLessThan
-	.export _charMoreThan
-	.export _charPercent
-	.export _charPlus
-	.export _charQuestion
-	.export _charQuote
-	.export _charQuotes
-	.export _charBwSlash
-	.export _charFwSlash
-	.export _charSemiColon
-	.export _charStar
-	.export _charSqrBracket1	
-	.export _charSqrBracket2
-	.export _charUnderbar
-	
-	.export _charArrowDown
-	.export _charArrowLeft
-	.export _charArrowRight
-	.export _charArrowUp
-	.export _charLineHorz
-	.export _charLineVert
-	.export _charSliderHorz
-	.export _charSliderVert
-	
-	.export _charAmmo
-	.export _charBlock
-	.export _charDeath
-	.export _charHeart
-	.export _charPotion
-	.export _charShield	
+	.export _charData
 
 .segment "DATA"
 
+_charData:
+
+; Widget Data
+_charArrowDown:
+	.byte %01000100, %01000100, %11101110	; CUSTOM 18
+_charArrowLeft:
+	.byte %00001100, %11101110, %11000000	; CUSTOM 19
+_charArrowRight:
+	.byte %00000110, %11101110, %01100000	; CUSTOM 20
+_charArrowUp:
+	.byte %11101110, %11100100, %01000100	; CUSTOM 21
+_charLineHorz:
+	.byte %00000000, %11101110, %00000000	; CUSTOM 22
+_charLineVert:
+	.byte %01000100, %01000100, %01000100	; CUSTOM 23
+_charSliderHorz:
+	.byte %00000111, %11101110, %11100000	; CUSTOM 24
+_charSliderVert:
+	.byte %01001110, %11101110, %11100100	; CUSTOM 25
+	
 ; Icon Data
 _charHeart:		
-	.byte %00001010, %11101110, %11100100	; ASCII 26
+	.byte %00001010, %11101110, %11100100	; CUSTOM 26
 _charPotion:
-	.byte %00000100, %01001110, %11101110	; ASCII 27
+	.byte %00000100, %01001110, %11101110	; CUSTOM 27
 _charShield:
-	.byte %00001110, %11101110, %11100100	; ASCII 28
+	.byte %00001110, %11101110, %11100100	; CUSTOM 28
 _charDeath:
-	.byte %00000100, %11101110, %01000100	; ASCII 29
+	.byte %00000100, %11101110, %01000100	; CUSTOM 29 
 _charAmmo:
-	.byte %10100000, %10101010, %10101010	; ASCII 30
+	.byte %10100000, %10101010, %10101010	; CUSTOM 30
 _charBlock:
-	.byte %00001110, %11101110, %11100000	; ASCII 31
-
-; Text Data
+	.byte %00001110, %11101110, %11100000	; CUSTOM 31
+	
+; ASCII Data
 _charBlank:
 	.byte %00000000, %00000000, %00000000	; ASCII 32
 _charExclaim:	
@@ -180,21 +156,3 @@ _charHat:
 	.byte %01001010, %00000000, %00000000   ; ASCII 94
 _charUnderbar:
 	.byte %00000000, %00000000, %00001110   ; ASCII 95
-	
-; Widget Data
-_charArrowDown:
-	.byte %01000100, %01000100, %11101110
-_charArrowLeft:
-	.byte %00001100, %11101110, %11000000	
-_charArrowRight:
-	.byte %00000110, %11101110, %01100000
-_charArrowUp:
-	.byte %11101110, %11100100, %01000100
-_charLineHorz:
-	.byte %00000000, %11101110, %00000000
-_charLineVert:
-	.byte %01000100, %01000100, %01000100
-_charSliderHorz:
-	.byte %00000111, %11101110, %11100000
-_charSliderVert:
-	.byte %01001110, %11101110, %11100100

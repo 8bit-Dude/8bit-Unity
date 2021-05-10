@@ -24,7 +24,7 @@
  *   specific prior written permission.
  */
 
-#include "unity.h"
+#include "../unity.h"
 
 #ifdef __APPLE2__
   #pragma code-name("LOWCODE")
@@ -46,7 +46,7 @@
 #endif
 
 // Oric specific variables & functions
-#if defined __ORIC__
+#ifdef __ORIC__
   // INK attributes for characters
   unsigned char ink1[20] = { 0, 3, 3, 6, 3, 7, 4, 4, 7, 4, 7, 2, 3, 1, 3, 7, 5, 5, 7, 5 };
   unsigned char ink2[20] = { 0, 2, 3, 6, 6, 6, 6, 4, 6, 6, 6, 1, 7, 1, 1, 7, 7, 6, 1, 5 };
@@ -70,11 +70,55 @@ unsigned char inkColor = WHITE;
 unsigned char paperColor = BLACK;
 
 // Print character using background and foreground colors
-void PrintChr(const char *chr)
+void PrintChr(unsigned char chr)
 {
-#if defined __APPLE2__
+#if defined __NES__
+	// Handle Lower/Upper Case
+	if (chr > 96)
+		chr += 128;
+	else
+		chr += 160;
+	
+	// Send to VRAM
+	SetVramAddr();	
+	vram_list[2] = 1;
+	vram_list[3] = chr;
+	vram_list[4] = NT_UPD_EOF;
+	set_vram_update(vram_list);
+	ppu_wait_frame();
+	
+#else	
+	// Declare variables
+	unsigned char *src;
+  #if defined __APPLE2__
 	unsigned int x,y;
 	unsigned char i,j,n;
+  #elif defined __ATARI__	
+	unsigned char i,line;
+	unsigned int dst1,dst2;
+  #elif defined __ORIC__
+	unsigned char i, line;
+	unsigned char a0,a2,a4,b,blank;
+	unsigned int dst;
+  #elif defined __CBM__
+	unsigned int dst;
+	unsigned char i,line;
+  #elif defined __LYNX__
+	unsigned char i, j, line, paperShift, inkShift;
+	unsigned int dst;
+  #endif
+  
+	// Handle Lower/Upper Case
+  #if defined __CBM__
+	if (chr > 192) { chr -= 128; }	// Upper case (C64)
+	else
+  #endif
+    if (chr >  96) { chr -= 32;  }	// Lower case (Apple/Atari/Oric/Lynx) and compatibility with Ascii files (C64)
+		
+	// Get character data
+	src = &charData[(chr-CHR_DATA_TOP)*3];
+	
+  #if defined __APPLE2__
 	if (txtX&1) { n=4; } else { n=3; }
 	x = (txtX*35)/10u; y = (txtY*8);
 	SetHiresPointer(x, y);	
@@ -90,18 +134,18 @@ void PrintChr(const char *chr)
 		SetHiresPointer(x, y+i*2+1);
 		for (j=0; j<n; j++) {
 		  #if defined __DHR__	
-			SetColorDHR(((chr[i]>>(7-j))&1) ? inkColor : paperColor);
+			SetColorDHR(((src[i]>>(7-j))&1) ? inkColor : paperColor);
 		  #else
-			SetColorSHR(((chr[i]>>(7-j))&1) ? inkColor : paperColor);
+			SetColorSHR(((src[i]>>(7-j))&1) ? inkColor : paperColor);
 		  #endif
 			hiresPixel++;
 		}
 		SetHiresPointer(x, y+i*2+2);
 		for (j=0; j<n; j++) {
 		  #if defined __DHR__	
-			SetColorDHR(((chr[i]>>(3-j))&1) ? inkColor : paperColor);
+			SetColorDHR(((src[i]>>(3-j))&1) ? inkColor : paperColor);
 		  #else
-			SetColorSHR(((chr[i]>>(3-j))&1) ? inkColor : paperColor);
+			SetColorSHR(((src[i]>>(3-j))&1) ? inkColor : paperColor);
 		  #endif
 			hiresPixel++;
 		}
@@ -119,55 +163,50 @@ void PrintChr(const char *chr)
 	// Update clock (slow function)
 	clk += 1;
 	
-#elif defined __ATARI__	
-	unsigned char i,line;
-	unsigned int addr1,addr2;
+  #elif defined __ATARI__	
 	inkColor1 = inkColor&3; inkColor2 = inkColor/4u;
 	paperColor1 = paperColor&3; paperColor2 = paperColor/4u;
 	bgByte1 = BYTE4(paperColor1,paperColor2,paperColor1,paperColor2);
 	bgByte2 = BYTE4(paperColor2,paperColor1,paperColor2,paperColor1);	
-	addr1 = addr2 = txtY*320 + txtX;
-	addr1 += BITMAPRAM1; addr2 += BITMAPRAM2;
-	if (chr == &charBlank[0]) {
+	dst1 = dst2 = txtY*320 + txtX;
+	dst1 += BITMAPRAM1; dst2 += BITMAPRAM2;
+	if (chr == ' ') {
 		for (i=0; i<8; ++i) {
 			if (i&1) {
-				POKE((char*)addr1, bgByte2);
+				POKE((char*)dst1, bgByte2);
 				if (bitmapVBI)
-					POKE((char*)addr2, bgByte1);
+					POKE((char*)dst2, bgByte1);
 			} else {
-				POKE((char*)addr1, bgByte1);
+				POKE((char*)dst1, bgByte1);
 				if (bitmapVBI)
-					POKE((char*)addr2, bgByte2);
+					POKE((char*)dst2, bgByte2);
 			}
-			addr1 +=40; addr2 +=40;
+			dst1 +=40; dst2 +=40;
 		}
 	} else {
-		POKE((char*)addr1, bgByte1); addr1 +=40;
-		POKE((char*)addr2, bgByte2); addr2 +=40;
+		POKE((char*)dst1, bgByte1); dst1 +=40;
+		POKE((char*)dst2, bgByte2); dst2 +=40;
 		for (i=0; i<3; ++i) {
-			line = chr[i];
-			POKE((char*)addr1, BYTE4(((line&128) ? inkColor2 : paperColor2), ((line&64) ? inkColor1 : paperColor1), ((line&32) ? inkColor2 : paperColor2), paperColor1)); addr1 +=40;
-			POKE((char*)addr1, BYTE4(((line&8  ) ? inkColor1 : paperColor1), ((line&4 ) ? inkColor2 : paperColor2), ((line&2 ) ? inkColor1 : paperColor1), paperColor2)); addr1 +=40;
+			line = src[i];
+			POKE((char*)dst1, BYTE4(((line&128) ? inkColor2 : paperColor2), ((line&64) ? inkColor1 : paperColor1), ((line&32) ? inkColor2 : paperColor2), paperColor1)); dst1 +=40;
+			POKE((char*)dst1, BYTE4(((line&8  ) ? inkColor1 : paperColor1), ((line&4 ) ? inkColor2 : paperColor2), ((line&2 ) ? inkColor1 : paperColor1), paperColor2)); dst1 +=40;
 			if (bitmapVBI) {
-				POKE((char*)addr2, BYTE4(((line&128) ? inkColor1 : paperColor1), ((line&64) ? inkColor2 : paperColor2), ((line&32) ? inkColor1 : paperColor1), paperColor2)); addr2 +=40;
-				POKE((char*)addr2, BYTE4(((line&8  ) ? inkColor2 : paperColor2), ((line&4 ) ? inkColor1 : paperColor1), ((line&2 ) ? inkColor2 : paperColor2), paperColor1)); addr2 +=40;
+				POKE((char*)dst2, BYTE4(((line&128) ? inkColor1 : paperColor1), ((line&64) ? inkColor2 : paperColor2), ((line&32) ? inkColor1 : paperColor1), paperColor2)); dst2 +=40;
+				POKE((char*)dst2, BYTE4(((line&8  ) ? inkColor2 : paperColor2), ((line&4 ) ? inkColor1 : paperColor1), ((line&2 ) ? inkColor2 : paperColor2), paperColor1)); dst2 +=40;
 			}
 		}
-		POKE((char*)addr1, bgByte2);
+		POKE((char*)dst1, bgByte2);
 		if (bitmapVBI)
-			POKE((char*)addr2, bgByte1);
+			POKE((char*)dst2, bgByte1);
 	}
 	
-#elif defined __ORIC__
-	unsigned char i, line;
-	unsigned char a0,a2,a4,b,blank;
-	unsigned int addr;
-	addr = BITMAPRAM+1 + txtY*320 + txtX;
+  #elif defined __ORIC__
+	dst = BITMAPRAM+1 + txtY*320 + txtX;
 	blank = 64 + (paperColor ? 63 : 0);
-	if (chr == &charBlank[0]) {
+	if (chr == ' ') {
 		for (i=0; i<8; ++i) {
-			POKE((char*)addr, blank);
-			addr += 40;
+			POKE((char*)dst, blank);
+			dst += 40;
 		}
 	} else {
 		if (paperColor != 0) {
@@ -175,79 +214,82 @@ void PrintChr(const char *chr)
 		} else {
 			a0 = 1; a2 = 3; a4 = 2; b = 0;
 		}
-		POKE((char*)addr, blank); addr += 40;
+		POKE((char*)dst, blank); dst += 40;
 		for (i=0; i<3; ++i) {
-			line = chr[i];
-			POKE((char*)addr, BYTE4(1, ((line&128) ? a0 : b), ((line&64) ? a2 : b), ((line&32) ? a4 : b))); addr += 40;
-			POKE((char*)addr, BYTE4(1, ((line&8  ) ? a0 : b), ((line&4 ) ? a2 : b), ((line&2 ) ? a4 : b))); addr += 40;
+			line = src[i];
+			POKE((char*)dst, BYTE4(1, ((line&128) ? a0 : b), ((line&64) ? a2 : b), ((line&32) ? a4 : b))); dst += 40;
+			POKE((char*)dst, BYTE4(1, ((line&8  ) ? a0 : b), ((line&4 ) ? a2 : b), ((line&2 ) ? a4 : b))); dst += 40;
 		}
-		POKE((char*)addr, blank);
+		POKE((char*)dst, blank);
 	}
 	
-#elif defined __CBM__
-	unsigned int addr;
-	unsigned char i,line;
-	addr = BITMAPRAM + txtY*320 + txtX*8;
-	if (chr == &charBlank[0]) {
-		memset((char*)addr, pow2, 8);
+  #elif defined __CBM__
+	dst = BITMAPRAM + txtY*320 + txtX*8;
+	if (chr == ' ') {
+		memset((char*)dst, pow2, 8);
 	} else {
-		POKE((char*)addr++, pow2);
+		POKE((char*)dst++, pow2);
 		for (i=0; i<3; ++i) {
-			line = chr[i];
-			POKE((char*)addr++, BYTE4(((line&128) ? 1 : 2), ((line&64) ? 1 : 2), ((line&32) ? 1 : 2), 2));
-			POKE((char*)addr++, BYTE4(((line&8  ) ? 1 : 2), ((line&4 ) ? 1 : 2), ((line&2 ) ? 1 : 2), 2));
+			line = src[i];
+			POKE((char*)dst++, BYTE4(((line&128) ? 1 : 2), ((line&64) ? 1 : 2), ((line&32) ? 1 : 2), 2));
+			POKE((char*)dst++, BYTE4(((line&8  ) ? 1 : 2), ((line&4 ) ? 1 : 2), ((line&2 ) ? 1 : 2), 2));
 		}
-		POKE((char*)addr, pow2);
+		POKE((char*)dst, pow2);
 	}
-	addr = SCREENRAM + txtY*40 + txtX;
-	POKE((char*)addr, inkColor << 4 | paperColor);		
+	dst = SCREENRAM + txtY*40 + txtX;
+	POKE((char*)dst, inkColor << 4 | paperColor);		
 		
-#elif defined __LYNX__
-	unsigned char i, j, line, paperShift, inkShift;
-	unsigned int addr;
-	addr = BITMAPRAM+1 + txtY*(492) + txtX*2u;
+  #elif defined __LYNX__
+	dst = BITMAPRAM+1 + txtY*492 + txtX*2;
 	paperShift = paperColor << 4;
 	inkShift = inkColor << 4;
-	POKE((char*)addr++, paperShift | paperColor);
-	POKE((char*)addr,   paperShift | paperColor);
-	addr += 81;
+	POKE((char*)dst++, paperShift | paperColor);
+	POKE((char*)dst,   paperShift | paperColor);
+	dst += 81;
 	for (i=0; i<3; ++i) {
-		line = chr[i];
+		line = src[i];
 		for (j=0; j<2; ++j) {
 			if (i!= 1 || j != 0) {
-			  POKE((char*)addr++, ((line&128) ? inkShift : paperShift) | ((line&64) ? inkColor : paperColor));
-			  POKE((char*)addr,   ((line&32)  ? inkShift : paperShift) | paperColor);  
-			  addr += 81;
+			  POKE((char*)dst++, ((line&128) ? inkShift : paperShift) | ((line&64) ? inkColor : paperColor));
+			  POKE((char*)dst,   ((line&32)  ? inkShift : paperShift) | paperColor);  
+			  dst += 81;
 			}
 			line <<= 4;
 		}
-	}	
+	}		
+  #endif
 #endif
-}
-
-// Find pointer to associated character
-const char *GetChr(unsigned char chr)
-{
-	// Select the correct bitmask
-#if defined __CBM__
-	if (chr > 192) { chr -= 128; }	// Upper case (C64)
-	else
-#endif
-    if (chr >  96) { chr -= 32;  }	// Lower case (Apple/Atari/Oric/Lynx) and compatibility with Ascii files (C64)
-	return &charHeart[(chr-26)*3];
 }
 
 // Parse string and print characters one-by-one (can be slow...)
 void PrintStr(const char *buffer)
 {
+#if defined __NES__
+	unsigned char *src = buffer;
+	unsigned char chr, i=3;
+	SetVramAddr();
+	while (*src) {
+		chr = *src++;
+		if (chr > 96)
+			chr += 128;
+		else
+			chr += 160;
+		vram_list[i++] = chr;
+		vram_list[2] += 1;
+	}
+	vram_list[i] = NT_UPD_EOF;
+	set_vram_update(vram_list);
+	ppu_wait_frame();
+#else	
+	unsigned char *src = buffer;
 	unsigned char bckX = txtX;
-	unsigned char *addr = buffer;
-	while (*addr) {
-		PrintChr(GetChr(*addr));
-		addr++; txtX++;
+	while (*src) {
+		PrintChr(*src);
+		++src; ++txtX;
 	}
 	txtX = bckX;
-#if defined __LYNX__
+  #if defined __LYNX__
 	if (autoRefresh) { UpdateDisplay(); }
-#endif		
+  #endif
+#endif  
 }

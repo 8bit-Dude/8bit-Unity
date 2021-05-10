@@ -31,8 +31,10 @@
 #endif
 
 #if defined __HUB__
+  // Nothing
 #elif defined __FUJINET__
-#else
+  // Nothing
+#elif defined __IP65__
   #define EncodeIP(a,b,c,d) (a+b*256+c*65536+d*16777216)
   unsigned char* tcp_buffer, tcp_len;
   void __fastcall__ PacketTCP(const unsigned char* buf, int len) { 
@@ -50,7 +52,7 @@ void SlotTCP(unsigned char slot)
 #elif defined __FUJINET__	
 	// TODO	
 	
-#else
+#elif defined __IP65__
 	// TODO
 #endif
 }
@@ -70,7 +72,7 @@ void OpenTCP(unsigned char* ip, unsigned int svPort)
 	sprintf(fujiHost, "N:TCP://%i.%i.%i.%i:%i/", ip[0], ip[1], ip[2], ip[3], svPort);
 	FujiOpen(0x71, 0);
 	
-#else
+#elif defined __IP65__
 	unsigned long svIp = EncodeIP(ip[0], ip[1], ip[2], ip[3]);
 	tcp_connect(svIp, svPort, PacketTCP);
 #endif
@@ -85,7 +87,7 @@ void CloseTCP()
 #elif defined __FUJINET__
 	FujiClose(0x71);
 	
-#else
+#elif defined __IP65__
 	tcp_close();
 #endif
 }
@@ -99,7 +101,7 @@ void SendTCP(unsigned char* buffer, unsigned char length)
 	memcpy(fujiBuffer, buffer, length);
 	FujiWrite(0x71, length);
 	
-#else
+#elif defined __IP65__
 	tcp_send(buffer, length);
 #endif
 }
@@ -127,7 +129,7 @@ unsigned char* RecvTCP(unsigned int timeOut)
 		return 0;
 	}
 	
-#else
+#elif defined __IP65__
 	// Process IP65 until receiving packet
 	while (!tcp_len) {
 		if (clock() > timer) return 0;

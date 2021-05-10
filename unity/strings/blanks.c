@@ -139,5 +139,18 @@ void PrintBlanks(unsigned char width, unsigned char height)
 		addr += 82; i++;
 	}
 	if (autoRefresh) { UpdateDisplay(); }
+
+#elif defined __NES__
+	unsigned char bckY = txtY;
+	while (i<height) {
+		SetVramAddr();
+		vram_list[2] = width;
+		bzero(&vram_list[3], width);
+		vram_list[3+width] = NT_UPD_EOF;
+		set_vram_update(vram_list);
+		ppu_wait_frame();
+		txtY++;
+	}
+	txtY = bckY;
 #endif
 }

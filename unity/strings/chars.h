@@ -30,8 +30,9 @@
  */
 
 // Keyboard definitions
-	#define KB_SP		' '
-#if defined(__APPLE2__) || defined(__LYNX__)
+	#define KB_EN	CH_ENTER
+	#define KB_SP	' '
+#if defined(__APPLE2__) || defined(__LYNX__) || defined(__NES__)
 	#define KB_A	'A'
 	#define KB_B	'B'
 	#define KB_C	'C'
@@ -87,39 +88,26 @@
 	#define KB_Z	'z'
 #endif
 
-// Text data
-extern const char charBlank[3];
-extern const char charDigit[30];
-extern const char charLetter[78];
-extern const char charBracket[6];
-extern const char charColon[3];
-extern const char charComma[3];
-extern const char charDot[3];
-extern const char charDollar[3];
-extern const char charExclaim[3];
-extern const char charHyphen[3];
-extern const char charPlus[3];
-extern const char charQuestion[3];
-extern const char charQuote[3];
-extern const char charBwSlash[3];
-extern const char charFwSlash[3];
-extern const char charStar[3];
-extern const char charUnderbar[3];
-
-// Widget data
-extern const char charArrowDown[3];
-extern const char charArrowLeft[3];
-extern const char charArrowRight[3];
-extern const char charArrowUp[3];
-extern const char charLineHorz[3];
-extern const char charLineVert[3];
-extern const char charSliderHorz[3];
-extern const char charSliderVert[3];
-
-// Icon data
-extern const char charAmmo[3];
-extern const char charBlock[3];
-extern const char charDeath[3];
-extern const char charHeart[3];
-extern const char charPotion[3];
-extern const char charShield[3];
+// Codes of special Characters
+#define CHR_DATA_TOP  	18
+#define CHR_ARROW_DOWN	18
+#define CHR_ARROW_LEFT	19
+#define CHR_ARROW_RIGHT	20
+#define CHR_ARROW_UP	21
+#define CHR_LINE_HORZ	22
+#define CHR_LINE_VERT	23
+#define CHR_SLIDER_HORZ	24
+#define CHR_SLIDER_VERT	25
+#define CHR_HEART		26
+#define CHR_POTION  	27
+#define CHR_SHIELD  	28
+#define CHR_DEATH   	29
+#define CHR_AMMO    	30
+#define CHR_BLOCK   	31
+#define CHR_DIGIT   	48
+#define CHR_LETTER   	65
+	
+// Character data (encoded as 3 bytes per char)
+#ifndef __NES__
+  extern const char charData[];
+#endif

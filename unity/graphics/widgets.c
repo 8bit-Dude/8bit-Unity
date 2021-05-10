@@ -119,7 +119,7 @@ callback* CheckCallbacks(unsigned char col, unsigned char row)
 				paperColor = call->paper;
 				txtX = call->colBeg;
 				txtY = SliderPos(call);
-				PrintChr(charLineVert);
+				PrintChr(CHR_LINE_VERT);
 				val = *(unsigned int*)&call->buffer[0];
 				max = *(unsigned int*)&call->buffer[2];
 				if (row == call->rowBeg) {
@@ -142,7 +142,7 @@ callback* CheckCallbacks(unsigned char col, unsigned char row)
 				}
 				*(unsigned int*)&call->buffer[0] = val;
 				txtY = SliderPos(call);
-				PrintChr(charSliderVert);
+				PrintChr(CHR_SLIDER_VERT);
 				break;
 				
 			}
@@ -323,11 +323,11 @@ callback* ScrollBar(unsigned char col, unsigned char row, unsigned char height, 
 
 	// Draw scrollbar
 	txtX = col; txtY = row;
-	PrintChr(charArrowUp);
+	PrintChr(CHR_ARROW_UP);
 	while (++txtY < (row+height-1)) {
-		PrintChr(charLineVert);
+		PrintChr(CHR_LINE_VERT);
 	}
-	PrintChr(charArrowDown);
+	PrintChr(CHR_ARROW_DOWN);
 	
 	// Register callback
 	call = PushCallback(col, row, 1, height, CALLTYPE_SCROLLBAR);
@@ -335,6 +335,6 @@ callback* ScrollBar(unsigned char col, unsigned char row, unsigned char height, 
 
 	// Show slider
 	txtY = SliderPos(call);
-	PrintChr(charSliderVert);
+	PrintChr(CHR_SLIDER_VERT);
 	return call;
 }

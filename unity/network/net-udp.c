@@ -31,8 +31,10 @@
 #endif
 
 #if defined __HUB__
+  // Nothing
 #elif defined __FUJINET__	
-#else
+  // Nothing
+#elif defined __IP65__
   #define EncodeIP(a,b,c,d) (a+b*256+c*65536+d*16777216)
   unsigned long udp_send_ip;
   unsigned int udp_send_port;
@@ -53,7 +55,7 @@ void SlotUDP(unsigned char slot)
 #elif defined __FUJINET__	
 	// TODO
 	
-#else
+#elif defined __IP65__
 	// TODO
 #endif
 }
@@ -80,7 +82,7 @@ void OpenUDP(unsigned char* ip, unsigned int svPort, unsigned int clPort)
 	SendUDP(dummy, 1);
 	RecvUDP(TCK_PER_SEC);	
   
-#else
+#elif defined __IP65__
 	// Set-up UDP params and listener
 	unsigned char dummy[1];
 	udp_send_ip = EncodeIP(ip[0],ip[1],ip[2],ip[3]);
@@ -104,7 +106,7 @@ void CloseUDP()
 #elif defined __FUJINET__	
 	FujiClose(0x71);
 	
-#else
+#elif defined __IP65__
 	udp_remove_listener(udp_recv_port);
 #endif
 }
@@ -118,7 +120,7 @@ void SendUDP(unsigned char* buffer, unsigned char length)
 	memcpy(fujiBuffer, buffer, length);
 	FujiWrite(0x71, length);
 	
-#else
+#elif defined __IP65__
 	udp_send(buffer, length, udp_send_ip, udp_send_port, udp_recv_port);
 #endif
 }
@@ -146,7 +148,7 @@ unsigned char* RecvUDP(unsigned int timeOut)
 		return 0;
 	}
 	
-#else
+#elif defined __IP65__
 	// Process IP65 until receiving packet
 	while (!udp_len) {
 		if (clock() > timer) return 0;

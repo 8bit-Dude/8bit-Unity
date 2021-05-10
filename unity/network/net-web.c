@@ -43,7 +43,7 @@ void OpenWEB(unsigned int port, unsigned int timeOut)
 	UpdateHub();
 #elif defined __FUJINET__	
 	// TODO	
-#else
+#elif defined __IP65__
 	// TODO	
 #endif
 }
@@ -56,7 +56,7 @@ void CloseWEB()
 	UpdateHub(); // Send immediately
 #elif defined __FUJINET__	
 	// TODO	
-#else
+#elif defined __IP65__
 	// TODO	
 #endif
 }
@@ -69,7 +69,7 @@ void HeaderWEB(unsigned char* buffer, unsigned char length)
 	UpdateHub(); // Send immediately
 #elif defined __FUJINET__	
 	// TODO	
-#else
+#elif defined __IP65__
 	// TODO	
 #endif
 }
@@ -82,7 +82,7 @@ void BodyWEB(unsigned char* buffer, unsigned char length)
 	UpdateHub(); // Send immediately
 #elif defined __FUJINET__	
 	// TODO	
-#else
+#elif defined __IP65__
 	// TODO	
 #endif
 }
@@ -96,7 +96,7 @@ void SendWEB()
 	UpdateHub(); // Send immediately
 #elif defined __FUJINET__	
 	// TODO	
-#else
+#elif defined __IP65__
 	// TODO	
 #endif
 }
@@ -115,7 +115,7 @@ unsigned char* RecvWEB(unsigned int timeOut)
 #elif defined __FUJINET__	
 	// TODO	
 	return 0;
-#else
+#elif defined __IP65__
 	// TODO	
 	return 0;
 #endif

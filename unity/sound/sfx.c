@@ -165,7 +165,6 @@
 		if (data[3]) { ch->ctrl = data[3]; }
 	}
 	
-	
 #elif defined __ORIC__			 // Env.  Period  
 	unsigned char sfxData[][] = { {  1,   1000 },	// SFX_BLEEP
 								  {  1,    100 },	// SFX_BUMP
@@ -275,7 +274,45 @@
 			abcpitch(channel, ~pitch);		
 			abcvolume(channel, volume);
 		}
-	}	
+	}
+
+#elif defined __NES__			  //  Pulse        Ramp       Length  
+	unsigned char sfxData[][] = { { 0b10011111,	0b00000000, 0b11111000 },	// SFX_BLEEP
+								  { 0b10011111,	0b00000000, 0b11111000 },	// SFX_BUMP
+								  { 0b10011111,	0b00000000, 0b11111000 },	// SFX_ENGINE
+								  { 0b10011111,	0b00000000, 0b11111000 },	// SFX_INJURY
+								  { 0b10011111,	0b00000000, 0b11111000 },	// SFX_GUN
+								  { 0b10011111,	0b00000000, 0b11111000 } };	// SFX_SCREECH	
+	
+	// Pulse Ctrl:  DDLLC VVVV
+	// D: Duty cycle of the pulse wave 00 = 12.5% 01 = 25% 10 = 50% 11 = 75%
+	// L: Length Counter Halt 	
+	// C: Constant Volume
+	// V: 4bit Volume
+	
+	// Ramp Ctrl:  EPPP NSSS
+	// E : Enabled flag
+	// P : Sweep Divider Period
+	// N : Negate flag, inverts the sweep envelope
+	// S : Shift count
+	
+	// Freq1 Ctrl: TTTT TTTT
+	// T : Low 8 bits of the timer that controls the frequency
+	
+	// Freq2 Ctrl: LLLL LTTT
+	// L : Length counter, if Length Counter Halt is 0, timer for note length
+	// T : High 3 bits of timer that controls frequency
+	
+	// Centralized SFX function
+	void PlaySFX(unsigned char index, unsigned char pitch, unsigned char volume, unsigned char channel)
+	{
+		unsigned char ch, *data = sfxData[index];
+		unsigned int addr = 0x4000 + (index%2)*4;
+		POKE(addr++, data[0]);		// Pulse   
+		addr++; //POKE(0x4001,  data[1])	// Ramp
+		POKE(addr++, pitch);		// Freq1
+		POKE(addr++, data[2]);		// Length
+	}
 #endif
 
 void InitSFX() 
