@@ -29,6 +29,10 @@ from PIL import Image
 
 charFile = sys.argv[1]
 output   = sys.argv[2]
+try:
+    sharedColors = [int(n) for n in sys.argv[3].split(',')]
+except:
+    sharedColors = []
 
 flagFile = charFile.replace('-c64.png', '.csv')
 
@@ -38,23 +42,24 @@ charImg = Image.open(charFile)
 charRaw = list(charImg.getdata())
 print "Charset size: {%i,%i}; Colors: %i" % (charImg.size[0], charImg.size[1], max(charRaw))
 
-#####################
-# Find shared colors
-distrib = [0] * 16
-for row in range(0, charImg.size[1], 8):
-    for col in range(0, charImg.size[0], 4):
-        # Collect block data
-        block = []
-        for j in range(0, 8):
-            index = (row+j)*charImg.size[0]+col
-            for i in range(0, 4):
-                block.append(charRaw[index+i])
-        for i in range(0, 16):
-            if i in block:
-                distrib[i] += 1
-popular = sorted(range(len(distrib)), key=distrib.__getitem__)[13:16]
-order = sorted(range(len(popular)), key=popular.__getitem__)
-sharedColors = [popular[i] for i in order]
+#########################
+# Allocate shared colors
+if sharedColors == []:
+    distrib = [0] * 16
+    for row in range(0, charImg.size[1], 8):
+        for col in range(0, charImg.size[0], 4):
+            # Collect block data
+            block = []
+            for j in range(0, 8):
+                index = (row+j)*charImg.size[0]+col
+                for i in range(0, 4):
+                    block.append(charRaw[index+i])
+            for i in range(0, 16):
+                if i in block:
+                    distrib[i] += 1
+    popular = sorted(range(len(distrib)), key=distrib.__getitem__)[13:16]
+    order = sorted(range(len(popular)), key=popular.__getitem__)
+    sharedColors = [popular[i] for i in order]
 colData = [chr(c) for c in sharedColors]
 
 ############################
@@ -69,8 +74,8 @@ for row in range(0, charImg.size[1], 8):
                 if color in sharedColors:
                     charBlocks.append(sharedColors.index(color))
                 else:
-                    charBlocks.append(3)
                     attrData[row*4+col/4] = chr(color%8+8)         
+                    charBlocks.append(3)
 
 ############################################
 # Convert char and font data to C64 format

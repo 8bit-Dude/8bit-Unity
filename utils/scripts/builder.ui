@@ -1258,7 +1258,7 @@
                     <child>
                       <object class="ttk.Combobox" id="Combobox_AtariNetworkDriver">
                         <property name="state">readonly</property>
-                        <property name="values">IP65(TCP/UDP) IP65(UDP) Fujinet</property>
+                        <property name="values">IP65(TCP/UDP) IP65(UDP) 8bit-Hub Fujinet</property>
                         <property name="width">14</property>
                         <layout>
                           <property name="column">5</property>
@@ -1376,7 +1376,34 @@
                           <property name="sticky">nw</property>
                         </layout>
                       </object>
-                    </child>					
+                    </child>
+					<child>
+					  <object class="ttk.Label" id="Label_C64CharsetColors">
+						<property name="text" translatable="yes">Shared colors [0:15]</property>
+						<layout>
+						  <property name="column">0</property>
+                          <property name="padx">175</property>						  
+                          <property name="pady">5</property>
+						  <property name="propagate">True</property>
+						  <property name="row">1</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>
+					</child>
+					<child>
+					  <object class="ttk.Entry" id="Entry_C64CharsetColors">
+						<property name="text" translatable="yes"> </property>
+						<property name="width">8</property>
+						<layout>
+						  <property name="column">0</property>
+                          <property name="padx">300</property>
+                          <property name="pady">5</property>
+						  <property name="propagate">True</property>
+						  <property name="row">1</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>
+					</child>					
                   </object>
                 </child>				
                 <child>
@@ -2058,7 +2085,357 @@
               </object>
             </child>
           </object>
-        </child>		
+        </child>
+		<child>
+          <object class="ttk.Notebook.Tab" id="Tab_NES">
+            <property name="text" translatable="yes">NES</property>
+            <child>
+              <object class="tk.Frame" id="Frame_NES">
+                <property name="height">500</property>
+                <property name="padx">10</property>
+                <property name="width">450</property>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="propagate">True</property>
+                  <property name="row">0</property>
+                </layout>
+                <child>
+                  <object class="tk.LabelFrame" id="LabelFrame_NESBitmaps">
+                    <property name="text" translatable="yes">Bitmaps</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="propagate">True</property>
+                      <property name="row">0</property>
+                      <property name="sticky">nw</property>
+                    </layout>
+                    <child>
+                      <object class="tk.Listbox" id="Listbox_NESBitmap">
+                        <property name="height">6</property>
+                        <property name="width">70</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="propagate">True</property>
+                          <property name="row">0</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Button" id="Button_NESBitmapAdd">
+                        <property name="command">NESBitmapAdd</property>
+                        <property name="text" translatable="yes">Add File</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">25</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Button" id="Button_NESBitmapRem">
+                        <property name="command">NESBitmapRem</property>
+                        <property name="text" translatable="yes">Rem File</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">100</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.LabelFrame" id="LabelFrame_NESCharset">
+                    <property name="height">200</property>
+                    <property name="text" translatable="yes">Charset</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="pady">0</property>
+                      <property name="propagate">True</property>
+                      <property name="row">1</property>
+                      <property name="sticky">nw</property>
+                    </layout>
+                    <child>
+                      <object class="tk.Listbox" id="Listbox_NESCharset">
+                        <property name="height">1</property>
+                        <property name="width">70</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="propagate">True</property>
+                          <property name="row">0</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Button" id="Button_NESCharsetSel">
+                        <property name="command">NESCharsetSel</property>
+                        <property name="text" translatable="yes">Select File</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">25</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>					
+                  </object>
+                </child>				
+                <child>
+                  <object class="tk.LabelFrame" id="LabelFrame_NESSprites">
+                    <property name="height">200</property>
+                    <property name="text" translatable="yes">Sprites</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="pady">0</property>
+                      <property name="propagate">True</property>
+                      <property name="row">2</property>
+                      <property name="sticky">nw</property>
+                    </layout>
+                    <child>
+                      <object class="tk.Listbox" id="Listbox_NESSprites">
+                        <property name="height">1</property>
+                        <property name="width">70</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="propagate">True</property>
+                          <property name="row">0</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Button" id="Button_NESSpritesSel">
+                        <property name="command">NESSpritesSel</property>
+                        <property name="text" translatable="yes">Select File</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">25</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+					<child>
+					  <object class="ttk.Label" id="Label_NESSpriteFrames">
+						<property name="text" translatable="yes">Frames=</property>
+						<layout>
+						  <property name="column">0</property>
+                          <property name="padx">120</property>						  
+                          <property name="pady">5</property>
+						  <property name="propagate">True</property>
+						  <property name="row">1</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>
+					</child>
+					<child>
+					  <object class="ttk.Entry" id="Entry_NESSpriteFrames">
+						<property name="text" translatable="yes">0</property>
+						<property name="width">4</property>
+						<layout>
+						  <property name="column">0</property>
+                          <property name="padx">170</property>
+                          <property name="pady">5</property>
+						  <property name="propagate">True</property>
+						  <property name="row">1</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>
+					</child>
+					<child>
+					  <object class="ttk.Label" id="Label_NESSpriteWidth">
+						<property name="text" translatable="yes">Width=</property>
+						<layout>
+						  <property name="column">0</property>
+                          <property name="padx">200</property>						  
+                          <property name="pady">5</property>
+						  <property name="propagate">True</property>
+						  <property name="row">1</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>
+					</child>
+					<child>
+					  <object class="ttk.Entry" id="Entry_NESSpriteWidth">
+						<property name="text" translatable="yes">12</property>
+						<property name="width">4</property>
+						<property name="state">disabled</property>
+						<layout>
+						  <property name="column">0</property>
+                          <property name="padx">250</property>						  
+                          <property name="pady">5</property>
+						  <property name="propagate">True</property>
+						  <property name="row">1</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>
+					</child>
+					<child>
+					  <object class="ttk.Label" id="Label_NESSpriteHeight">
+						<property name="text" translatable="yes">Height=</property>
+						<layout>
+						  <property name="column">0</property>
+                          <property name="padx">280</property>						  
+                          <property name="pady">5</property>
+						  <property name="propagate">True</property>
+						  <property name="row">1</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>
+					</child>
+					<child>
+					  <object class="ttk.Entry" id="Entry_NESSpriteHeight">
+						<property name="text" translatable="yes">0</property>
+						<property name="width">4</property>
+						<layout>
+						  <property name="column">0</property>
+                          <property name="padx">330</property>						  
+                          <property name="pady">5</property>
+						  <property name="propagate">True</property>
+						  <property name="row">1</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>	
+					</child>					
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.LabelFrame" id="LabelFrame_NESChunks">
+                    <property name="height">200</property>
+                    <property name="text" translatable="yes">Chunks</property>
+                    <property name="width">100</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="pady">0</property>
+                      <property name="propagate">True</property>
+                      <property name="row">3</property>
+                      <property name="sticky">nw</property>
+                    </layout>
+                    <child>
+                      <object class="tk.Listbox" id="Listbox_NESChunks">
+                        <property name="height">1</property>
+                        <property name="width">34</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="propagate">True</property>
+                          <property name="row">0</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Button" id="Button_NESChunksSel">
+                        <property name="command">NESChunksSel</property>
+                        <property name="text" translatable="yes">Select File</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">25</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.LabelFrame" id="LabelFrame_NESMusic">
+                    <property name="height">200</property>
+                    <property name="text" translatable="yes">Music</property>
+                    <property name="width">100</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="padx">215</property>
+                      <property name="pady">0</property>
+                      <property name="propagate">True</property>
+                      <property name="row">3</property>
+                      <property name="sticky">nw</property>
+                    </layout>
+                    <child>
+                      <object class="tk.Listbox" id="Listbox_NESMusic">
+                        <property name="height">1</property>
+                        <property name="width">34</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="propagate">True</property>
+                          <property name="row">0</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Button" id="Button_NESMusicAdd">
+                        <property name="command">NESMusicAdd</property>
+                        <property name="text" translatable="yes">Add File</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">25</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Button" id="Button_NESMusicRem">
+                        <property name="command">NESMusicRem</property>
+                        <property name="text" translatable="yes">Rem File</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">100</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.LabelFrame" id="LabelFrame_NESOptions">
+                    <property name="height">200</property>
+                    <property name="text" translatable="yes">Options</property>
+                    <property name="width">200</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="pady">0</property>
+                      <property name="propagate">True</property>
+                      <property name="row">4</property>
+                      <property name="sticky">nw</property>
+                    </layout>
+					<child>
+					  <object class="ttk.Label" id="Label_NESOptions">
+						<property name="text" translatable="yes">No specific option</property>
+						<layout>
+						  <property name="column">0</property>
+                          <property name="padx">150</property>						  
+                          <property name="pady">5</property>
+						  <property name="propagate">True</property>
+						  <property name="row">1</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>
+					</child>
+				  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
         <child>
           <object class="ttk.Notebook.Tab" id="Tab_Oric">
             <property name="text" translatable="yes">Oric</property>

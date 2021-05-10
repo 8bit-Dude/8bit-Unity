@@ -36,7 +36,7 @@ cCore = [ 'adaptors\\joystick.c','adaptors\\mouse.c',    'geom\\geom2d.c',     '
           'strings\\blanks.c',   'strings\\copy.c',      'strings\\input.c',   'strings\\number.c',  'strings\\print.c', 
           'sound\\music.c',      'sound\\sfx.c' ]
 
-sCore = [ 'math\\atan2.s', 'graphics\\tiles.s', 'strings\\chars.s' ]
+sCore = [ 'math\\atan2.s', 'graphics\\tiles.s' ]
 
 # Useful functions
 def Str2Bool(v):
@@ -63,20 +63,20 @@ def BuildUnityLibrary(self, fp, target, symbols, cList, sList, buildFolder):
 
     # Compile .c files
     for file in cList:
-        fp.write('utils\\cc65\\bin\\cc65 -Cl -O -t ' + target + ' ' + symbols + ' -I unity unity\\' + file + '\n')
-        fp.write('utils\\cc65\\bin\\ca65 -t ' + target + ' ' + symbols + ' unity\\' + file[0:-2] + '.s\n')
+        fp.write('utils\\cc65\\bin\\cc65 -Cl -O ' + target + ' ' + symbols + ' -I unity unity\\' + file + '\n')
+        fp.write('utils\\cc65\\bin\\ca65 ' + target + ' ' + symbols + ' unity\\' + file[0:-2] + '.s\n')
 
     # Compile .s files
     for file in sList:            
-        fp.write('utils\\cc65\\bin\\ca65 -t ' + target + ' ' + symbols + ' unity\\' + file + '\n')
+        fp.write('utils\\cc65\\bin\\ca65 ' + target + ' ' + symbols + ' unity\\' + file + '\n')
     
     # Package into .lib
-    fp.write('utils\\cc65\\bin\\ar65 r ' + buildFolder + '/unity.lib ')
+    fp.write('\nutils\\cc65\\bin\\ar65 r ' + buildFolder + '/unity.lib ')
     for file in cList:
         fp.write('unity\\' + file[0:-2] + '.o ')
     for file in sList:            
         fp.write('unity\\' + file[0:-2] + '.o ')
-    fp.write('\n')
+    fp.write('\n\n')
     
     # Clean-up
     fp.write('del ')
@@ -85,7 +85,7 @@ def BuildUnityLibrary(self, fp, target, symbols, cList, sList, buildFolder):
         fp.write('unity\\' + file[0:-2] + '.o ')
     for file in sList:            
         fp.write('unity\\' + file[0:-2] + '.o ')
-    fp.write('\n')    
+    fp.write('\n\n')    
 
 # Constants
 PROJECT_FILE_FORMATS = (("Project files","*.builder"), )
@@ -145,6 +145,12 @@ class Application:
     listbox_LynxSprites = None
     listbox_LynxChunks = None
     listbox_LynxMusic = None    
+
+    listbox_NESBitmap = None
+    listbox_NESCharset = None
+    listbox_NESSprites = None
+    listbox_NESChunks = None
+    listbox_NESMusic = None
     
     listbox_OricBitmap = None
     listbox_OricCharset = None
@@ -227,6 +233,7 @@ class Application:
         
         self.listbox_C64Bitmap = self.builder.get_object('Listbox_C64Bitmap')        
         self.listbox_C64Charset = self.builder.get_object('Listbox_C64Charset')        
+        self.entry_C64CharsetColors = self.builder.get_object('Entry_C64CharsetColors')
         self.listbox_C64Sprites = self.builder.get_object('Listbox_C64Sprites')        
         self.listbox_C64Chunks = self.builder.get_object('Listbox_C64Chunks')        
         self.listbox_C64Music = self.builder.get_object('Listbox_C64Music')     
@@ -246,6 +253,15 @@ class Application:
         self.entry_LynxSpriteHeight = self.builder.get_object('Entry_LynxSpriteHeight')
         self.entry_LynxMusicMemory = self.builder.get_object('Entry_LynxMusicMemory')
         self.entry_LynxSharedMemory = self.builder.get_object('Entry_LynxSharedMemory')
+
+        self.listbox_NESBitmap = self.builder.get_object('Listbox_NESBitmap')        
+        self.listbox_NESCharset = self.builder.get_object('Listbox_NESCharset')        
+        self.listbox_NESChunks = self.builder.get_object('Listbox_NESChunks')        
+        self.listbox_NESSprites = self.builder.get_object('Listbox_NESSprites')        
+        self.listbox_NESMusic = self.builder.get_object('Listbox_NESMusic')     
+        self.entry_NESSpriteFrames = self.builder.get_object('Entry_NESSpriteFrames')
+        self.entry_NESSpriteWidth = self.builder.get_object('Entry_NESSpriteWidth')
+        self.entry_NESSpriteHeight = self.builder.get_object('Entry_NESSpriteHeight')
         
         self.listbox_OricBitmap = self.builder.get_object('Listbox_OricBitmap')        
         self.listbox_OricCharset = self.builder.get_object('Listbox_OricCharset')        
@@ -278,7 +294,8 @@ class Application:
                          self.entry_LynxSpriteFrames,  self.entry_LynxSpriteWidth,  self.entry_LynxSpriteHeight, 
                          self.entry_OricSpriteFrames,  self.entry_OricSpriteWidth,  self.entry_OricSpriteHeight,
                          self.entry_OricDithering,     self.entry_LynxMusicMemory,  self.entry_LynxSharedMemory,
-                         self.entry_OricEnforcedColors ]
+                         self.entry_OricEnforcedColors,self.entry_C64CharsetColors,
+                         self.entry_NESSpriteFrames,   self.entry_NESSpriteWidth,   self.entry_NESSpriteHeight ]
         self.listboxes = [ self.listbox_Code, 
                            self.listbox_AppleBitmapDHR,self.listbox_AppleSpritesDHR,self.listbox_AppleMusic,
                            self.listbox_AtariBitmap,   self.listbox_AtariSprites, self.listbox_AtariMusic,
@@ -290,7 +307,9 @@ class Application:
                            self.listbox_LynxChunks,    self.listbox_OricChunks,
                            self.listbox_AppleCharsetDHR,self.listbox_AtariCharset, self.listbox_C64Charset,
                            self.listbox_LynxCharset,   self.listbox_OricCharset,  self.listbox_Charmap,
-                           self.listbox_AppleBitmapSHR,self.listbox_AppleSpritesSHR, self.listbox_AppleCharsetSHR ]
+                           self.listbox_AppleBitmapSHR,self.listbox_AppleSpritesSHR, self.listbox_AppleCharsetSHR,
+                           self.listbox_NESBitmap,     self.listbox_NESSprites,   self.listbox_NESMusic, 
+                           self.listbox_NESChunks,     self.listbox_NESCharset ]
         self.comboboxes = [ self.combobox_AtariDiskSize, self.combobox_AppleDiskSize,
                             self.combobox_AppleNetworkDriver, self.combobox_AtariNetworkDriver, self.combobox_C64NetworkDriver,
                             self.combobox_AppleCrunchAssets, self.combobox_AtariCrunchAssets, self.combobox_C64CrunchAssets,
@@ -511,6 +530,7 @@ class Application:
                     ('spriteHeight', ('entry', self.entry_C64SpriteHeight)),
                     ('bitmap', ('listbox', self.listbox_C64Bitmap)),
                     ('charset', ('listbox', self.listbox_C64Charset)),
+                    ('charsetColors', ('entry', self.entry_C64CharsetColors)),
                     ('sprites', ('listbox', self.listbox_C64Sprites)),
                     ('music', ('listbox', self.listbox_C64Music)),
                     ('chunks', ('listbox', self.listbox_C64Chunks)),
@@ -529,6 +549,16 @@ class Application:
                     ('music', ('listbox', self.listbox_LynxMusic)),
                     ('chunks', ('listbox', self.listbox_LynxChunks)),
                 ]),
+                ('NES', [
+                    ('spriteFrames', ('entry', self.entry_NESSpriteFrames)),
+                    ('spriteWidth', ('entry', self.entry_NESSpriteWidth)),
+                    ('spriteHeight', ('entry', self.entry_NESSpriteHeight)),
+                    ('bitmap', ('listbox', self.listbox_NESBitmap)),
+                    ('charset', ('listbox', self.listbox_NESCharset)),
+                    ('sprites', ('listbox', self.listbox_NESSprites)),
+                    ('music', ('listbox', self.listbox_NESMusic)),
+                    ('chunks', ('listbox', self.listbox_NESChunks)),
+                ]),                
                 ('Oric', [
                     ('spriteFrames', ('entry', self.entry_OricSpriteFrames)),
                     ('spriteWidth', ('entry', self.entry_OricSpriteWidth)),
@@ -749,6 +779,45 @@ class Application:
 
     def LynxMusicRem(self):
         self.listbox_LynxMusic.delete(0, ACTIVE) 
+        
+    def NESBitmapAdd(self):
+        filename = askopenfilename(initialdir = "../../", title = "Select Bitmap", filetypes = (("PNG files","*.png"),)) 
+        if filename is not '':
+            filename = filename.replace(self.cwd, '')
+            self.listbox_NESBitmap.insert(END, filename)
+
+    def NESBitmapRem(self):
+        self.listbox_NESBitmap.delete(0, ACTIVE)
+        
+    def NESCharsetSel(self):
+        filename = askopenfilename(initialdir = "../../", title = "Select Character Set", filetypes = (("PNG files","*.png"),)) 
+        if filename is not '':
+            filename = filename.replace(self.cwd, '')
+            self.listbox_NESCharset.delete(0, END)
+            self.listbox_NESCharset.insert(END, filename)        
+        
+    def NESSpritesSel(self):
+        filename = askopenfilename(initialdir = "../../", title = "Select Sprite Sheet", filetypes = (("PNG files","*.png"),)) 
+        if filename is not '':
+            filename = filename.replace(self.cwd, '')
+            self.listbox_NESSprites.delete(0, END)
+            self.listbox_NESSprites.insert(END, filename)
+
+    def NESChunksSel(self):
+        filename = askopenfilename(initialdir = "../../", title = "Select Chunks Definition", filetypes = (("Text files","*.txt"),)) 
+        if filename is not '':
+            filename = filename.replace(self.cwd, '')
+            self.listbox_NESChunks.delete(0, END)
+            self.listbox_NESChunks.insert(END, filename)            
+        
+    def NESMusicAdd(self):
+        filename = askopenfilename(initialdir = "../../", title = "Select Music Track", filetypes = (("TXT files","*.txt"),)) 
+        if filename is not '':
+            filename = filename.replace(self.cwd, '')
+            self.listbox_NESMusic.insert(END, filename)
+
+    def NESMusicRem(self):
+        self.listbox_NESMusic.delete(0, ACTIVE)         
     
     def OricBitmapAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Bitmap", filetypes = (("PNG files","*.png"),)) 
@@ -838,9 +907,11 @@ class Application:
 
                 # Build Unity Library
                 cTarget = [ 'targets\\apple2\\CLOCK.c', 'targets\\apple2\\directory.c', 'targets\\apple2\\files.c', 'targets\\apple2\\hires.c', 'targets\\apple2\\memory.c', 'targets\\apple2\\pixelDHR.c', 'targets\\apple2\\pixelSHR.c' ]                            
-                sTarget = [ 'targets\\apple2\\blitCharmap.s', 'targets\\apple2\\blitSprite.s', 'targets\\apple2\\decrunch.s', 'targets\\apple2\\DUET.s', 'targets\\apple2\\hiresLines.s', 'targets\\apple2\\joystick.s', 'targets\\apple2\\MOCKING.s', 'targets\\apple2\\PADDLE.s', 'targets\\apple2\\prodos.s', 'targets\\apple2\\scroll.s', 'targets\\apple2\\serial.s' ]
+                sTarget = [ 'strings\\chars.s', 'targets\\apple2\\blitCharmap.s', 'targets\\apple2\\blitSprite.s', 'targets\\apple2\\decrunch.s', 'targets\\apple2\\DUET.s', 'targets\\apple2\\hiresLines.s', 'targets\\apple2\\joystick.s', 'targets\\apple2\\MOCKING.s', 'targets\\apple2\\PADDLE.s', 'targets\\apple2\\prodos.s', 'targets\\apple2\\scroll.s', 'targets\\apple2\\serial.s' ]
                 symbols = ''
-                if self.combobox_AppleNetworkDriver.get() == '8bit-Hub': 
+                if 'IP65' in self.combobox_AppleNetworkDriver.get():    
+                    symbols += '-D __IP65__ '
+                if '8bit-Hub' in self.combobox_AppleNetworkDriver.get(): 
                     cTarget.append('adaptors\\hub.c')
                     symbols += '-D __HUB__ '
                 if graphics == 'double':
@@ -849,7 +920,7 @@ class Application:
                     symbols += '-D __SHR__'
                 if self.combobox_AppleCrunchAssets.get() == 'Yes':
                     symbols += ' -D __DECRUNCH__'                                              
-                BuildUnityLibrary(self, fp, 'apple2', symbols, cCore+cTarget, sCore+sTarget, buildFolder+'/apple')
+                BuildUnityLibrary(self, fp, '-t apple2', symbols, cCore+cTarget, sCore+sTarget, buildFolder+'/apple')
         
                 # Compile Program
                 symbols += ' -Wl -D,__STACKSIZE__=$0400,-D,__HIMEM__=$B800,-D,__LCADDR__=$D000,-D,__LCSIZE__=$1000'
@@ -862,9 +933,6 @@ class Application:
                     fp.write(comp + buildFolder + '/apple/unity.lib unity/adaptors/ip65.lib unity/adaptors/ip65_apple2.lib\n\n')
                 elif self.combobox_AppleNetworkDriver.get() == '8bit-Hub':
                     fp.write(comp + buildFolder + '/apple/unity.lib\n\n')
-                
-                # Info
-                fp.write('echo DONE!\n\n')
                 
                 fp.write('echo --------------- CONVERT ASSETS ---------------  \n\n')
 
@@ -889,9 +957,6 @@ class Application:
                 if len(chunks) > 0:
                     fp.write('utils\\py27\\python utils\\scripts\\ProcessChunks.py apple-' + graphics + ' ' + chunks[0] + ' ' + buildFolder + '/apple/\n')
 
-                # Info
-                fp.write('\necho DONE!\n\n')
-                
                 fp.write('echo --------------- APPLE DISK BUILDER --------------- \n\n')
 
                 # Compress Program
@@ -927,9 +992,8 @@ class Application:
                     fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p ' + buildFolder + '/' + diskname + '-apple' + target + ext + ' ' + fb.upper() + ' bin < ' + item + '\n')
                 if len(chunks) > 0:
                     fp.write('for /f "tokens=*" %%A in (' + buildFolder + '\\apple\\chunks.lst) do utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p ' + buildFolder + '/' + diskname + '-apple' + target + ext + ' %%~nxA bin < %%A \n')
-                
-                # Info
-                fp.write('\necho DONE\n')
+
+                fp.write('echo --------------- APPLE DISK READY --------------- \n\n')
                 
                 # Start emulator?
                 if callEmu:
@@ -954,23 +1018,30 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Build Unity Library
-            cTarget = ['targets\\atari\\directory.c', 'targets\\atari\\files.c']
-            sTarget = ['graphics\\scroll.s', 'targets\\atari\\blitCharmap.s', 'targets\\atari\\blitSprites.s', 'targets\\atari\\decrunch.s', 'targets\\atari\\DLIST-bmp.s', 'targets\\atari\\DLIST-chr.s', 'targets\\atari\\DLI.s', 'targets\\atari\\ROM.s', 'targets\\atari\\VBI.s', 'targets\\atari\\xbios.s']
-            if self.combobox_AtariNetworkDriver.get() == 'Fujinet':    
+            cTarget = [ 'targets\\atari\\directory.c', 'targets\\atari\\files.c' ]
+            sTarget = [ 'graphics\\scroll.s', 'strings\\chars.s', 'targets\\atari\\blitCharmap.s', 'targets\\atari\\blitSprites.s', 'targets\\atari\\decrunch.s', 'targets\\atari\\DLIST-bmp.s', 'targets\\atari\\DLIST-chr.s', 'targets\\atari\\DLI.s', 'targets\\atari\\ROM.s', 'targets\\atari\\VBI.s', 'targets\\atari\\xbios.s' ]
+            symbols = ''
+            if '8bit-Hub' in self.combobox_AtariNetworkDriver.get(): 
+                cTarget.append('adaptors\\hub.c')
+                symbols += '-D __HUB__ '
+            if 'Fujinet' in self.combobox_AtariNetworkDriver.get():    
                 cTarget.append('targets\\atari\\fujinet.c')
                 sTarget.append('targets\\atari\\fujiIRQ.s')
-            if self.combobox_AtariNetworkDriver.get() == 'Fujinet':    
-                symbols = '-D __FUJINET__ '
-            else:
-                symbols = ''
+                symbols += '-D __FUJINET__ '
+            if 'IP65' in self.combobox_AtariNetworkDriver.get():    
+                symbols += '-D __IP65__ '
             if self.combobox_AtariCrunchAssets.get() == 'Yes':
                 symbols += '-D __DECRUNCH__ '                
-            BuildUnityLibrary(self, fp, 'atarixl', symbols, cCore+cTarget, sCore+sTarget, buildFolder+'/atari')
+            BuildUnityLibrary(self, fp, '-t atarixl', symbols, cCore+cTarget, sCore+sTarget, buildFolder+'/atari')
                         
             # Compile Program
             symbols = '-Wl -D,__STACKSIZE__=$0400 '
-            if self.combobox_AtariNetworkDriver.get() == 'Fujinet':    
+            if '8bit-Hub' in self.combobox_AtariNetworkDriver.get(): 
+                symbols += '-D __HUB__ '
+            if 'Fujinet' in self.combobox_AtariNetworkDriver.get():    
                 symbols += '-D __FUJINET__ '
+            if 'IP65' in self.combobox_AtariNetworkDriver.get():    
+                symbols += '-D __IP65__ '
             comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/atari/' + diskname.lower() + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-atari.map -Cl -O -t atarixl ' + symbols + '-C atarixl-largehimem.cfg -I unity '
             for item in code:
                 comp += (item + ' ')
@@ -986,9 +1057,6 @@ class Application:
             # Merging
             fp.write('utils\\py27\\python utils\\scripts\\atari\\AtariMerge.py ' + buildFolder + '/atari/xautorun ' + buildFolder + '/atari/basicoff.bin ' + buildFolder + '/atari/' + diskname.lower() + '.bin ' + buildFolder + '/atari/rmt.bin\n')
 
-            # Info
-            fp.write('\necho DONE!\n\n')    
-            
             fp.write('echo --------------- CONVERT ASSETS ---------------  \n\n')
             
             # Bitmaps
@@ -1024,9 +1092,6 @@ class Application:
             for item in music:
                 fp.write('copy ' + item.replace('/','\\') + ' ' + buildFolder + '\\atari\\' + FileBase(item, '.rmt') + '.mus\n')
 
-            # Info
-            fp.write('\necho DONE!\n\n')
-            
             fp.write('echo --------------- ATARI DISK BUILDER --------------- \n\n')
 
             # Clean-up build folder
@@ -1045,8 +1110,7 @@ class Application:
                 diskSize = '1440'
             fp.write('utils\\scripts\\atari\\dir2atr.exe -d -B utils/scripts/atari/xboot.obx ' + diskSize + ' ' + buildFolder + '/' + diskname + '-atari.atr ' + buildFolder + '\\atari\n')
 
-            # Info
-            fp.write('\necho DONE\n')
+            fp.write('echo --------------- ATARI DISK READY --------------- \n\n')
             
             # Start emulator?
             if callEmu:
@@ -1073,12 +1137,13 @@ class Application:
 
             # Build Unity Library
             cTarget = [ 'targets\\c64\\directory.c', 'targets\\c64\\VIC2.c' ]
-            sTarget = [ 'graphics\\scroll.s', 'targets\\c64\\decrunch.s', 'targets\\c64\\DLI.s', 'targets\\c64\\joystick.s', 'targets\\c64\\blitCharmap.s', 'targets\\c64\\ROM.s', 'targets\\c64\\SID.s']
+            sTarget = [ 'graphics\\scroll.s', 'strings\\chars.s', 'targets\\c64\\decrunch.s', 'targets\\c64\\DLI.s', 'targets\\c64\\joystick.s', 'targets\\c64\\blitCharmap.s', 'targets\\c64\\ROM.s', 'targets\\c64\\SID.s']
+            symbols = ''
+            if 'IP65' in self.combobox_C64NetworkDriver.get():    
+                symbols += '-D __IP65__ '
             if self.combobox_C64CrunchAssets.get() == 'Yes':
-                symbols = '-D __DECRUNCH__ '
-            else:
-                symbols = ''
-            BuildUnityLibrary(self, fp, 'c64', symbols, cCore+cTarget, sCore+sTarget, buildFolder+'/c64')
+                symbols += '-D __DECRUNCH__ '
+            BuildUnityLibrary(self, fp, '-t c64', symbols, cCore+cTarget, sCore+sTarget, buildFolder+'/c64')
             
             # Compile Program                        
             comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/c64/' + diskname.lower() + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-c64.map -Cl -O -t c64 -C unity/targets/c64/c64.cfg -I unity '
@@ -1088,9 +1153,6 @@ class Application:
                 fp.write(comp + buildFolder + '/c64/unity.lib unity/adaptors/ip65_tcp.lib unity/adaptors/ip65_c64.lib\n\n')
             else:
                 fp.write(comp + buildFolder + '/c64/unity.lib unity/adaptors/ip65.lib unity/adaptors/ip65_c64.lib\n\n')
-            
-            # Info
-            fp.write('\necho DONE!\n\n')
             
             fp.write('echo --------------- CONVERT ASSETS ---------------  \n\n')
             
@@ -1104,7 +1166,7 @@ class Application:
             # Charset    
             if len(charset) > 0:
                 fb = FileBase(charset[0], '.png')
-                fp.write('utils\\py27\python utils\\scripts\\c64\\C64Charset.py ' + charset[0] + ' ' + buildFolder + '/c64/' + fb + '.chr\n')
+                fp.write('utils\\py27\python utils\\scripts\\c64\\C64Charset.py ' + charset[0] + ' ' + buildFolder + '/c64/' + fb + '.chr' + ' ' + self.entry_C64CharsetColors.get() + '\n')
                 
             # Sprites
             if len(sprites) > 0:
@@ -1123,9 +1185,6 @@ class Application:
                 fp.write('    copy ' + item.replace('/', '\\') + ' ' + buildFolder + '\\c64\\' + fb + '.sid\n')
                 fp.write(')\n')
 
-            # Info
-            fp.write('\necho DONE!\n\n')
-                        
             fp.write('echo --------------- C64 DISK BUILDER --------------- \n\n')
 
             # Compress files
@@ -1153,9 +1212,8 @@ class Application:
                 fp.write('-write ' + item + ' ' + FileBase(item, '') + ' ')                
             fp.write('\nfor /f "tokens=*" %%A in (' + buildFolder + '\c64\chunks.lst) do set C1541=!C1541!-write %%A %%~nxA \n')
             fp.write('%C1541%\n')
-               
-            # Info
-            fp.write('\n\necho DONE\n')
+
+            fp.write('echo --------------- C64 DISK READY --------------- \n\n')
             
             # Start emulator?
             if callEmu:
@@ -1263,7 +1321,7 @@ class Application:
                 fp.write('for /f "tokens=*" %%A in (chunks.lst) do set FILESIZES=!FILESIZES!%%~zA,\n') 
             fp.write('\n')
 
-            # Generate declare file for read-only data
+            # Generate assembly file with list of read-only data
             fp.write('@echo .global _fileNum  >> data.asm\n')
             fp.write('@echo .global _fileSizes >> data.asm\n')
             fp.write('@echo .global _fileNames >> data.asm\n')
@@ -1406,16 +1464,13 @@ class Application:
             fp.write('utils\\py27\\python utils/scripts/lynx/LynxConfig.py unity/targets/lynx/lynx.cfg ' + buildFolder + '/lynx/lynx.cfg ' + self.entry_LynxMusicMemory.get() + ' ' + self.entry_LynxSharedMemory.get() + ' ' + str(len(bitmaps)+len(charmaps)+len(charset)) + ' ' + str(len(music)) + ' ' + str(len(shared)) + ' %CHUNKNUM%\n')
             fp.write('utils\\py27\\python utils/scripts/lynx/LynxDirectory.py unity/targets/lynx/directory.s ' + buildFolder + '/lynx/directory.asm ' + str(len(bitmaps)+len(charmaps)+len(charset)) + ' ' + str(len(music)) + ' ' + str(len(shared)) + ' %CHUNKNUM%\n')
                         
-            # Info
-            fp.write('\necho DONE!\n\n')
-            
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Build Unity Library
             cTarget = [ 'adaptors\\hub.c', 'targets\\lynx\\cgetc.c', 'targets\\lynx\\display.c', 'targets\\lynx\\files.c', 'targets\\lynx\\keyboard.c', 'targets\\lynx\\screen.c', 'targets\\lynx\\text.c' ]
-            sTarget = [ 'graphics\\scroll.s', 'targets\\lynx\\header.s', 'targets\\lynx\\blitCharmap.s', 'targets\\lynx\\serial.s', 'targets\\lynx\\suzy.s' ]
-            symbols = ' -D __MUSSIZE__='  + self.entry_LynxMusicMemory.get().replace('$','0x') + ' -D __SHRSIZE__='  + self.entry_LynxSharedMemory.get().replace('$','0x')
-            BuildUnityLibrary(self, fp, 'lynx --cpu 65SC02', symbols, cCore+cTarget, sCore+sTarget, buildFolder+'/lynx')
+            sTarget = [ 'graphics\\scroll.s', 'strings\\chars.s', 'targets\\lynx\\header.s', 'targets\\lynx\\blitCharmap.s', 'targets\\lynx\\serial.s', 'targets\\lynx\\suzy.s' ]
+            symbols = ' -D __HUB__ -D __MUSSIZE__='  + self.entry_LynxMusicMemory.get().replace('$','0x') + ' -D __SHRSIZE__='  + self.entry_LynxSharedMemory.get().replace('$','0x')
+            BuildUnityLibrary(self, fp, '-t lynx --cpu 65SC02', symbols, cCore+cTarget, sCore+sTarget, buildFolder+'/lynx')
                                      
             # Compile Program 
             symbols += ' -Wl -D,__MUSSIZE__='  + self.entry_LynxMusicMemory.get() + ',-D,__SHRSIZE__='  + self.entry_LynxSharedMemory.get()
@@ -1426,17 +1481,158 @@ class Application:
                 comp += buildFolder + '/lynx/music' + str(i).zfill(2) + '.asm '
             fp.write(comp + 'unity/targets/lynx/sfx.s ' + buildFolder + '/lynx/directory.asm ' + buildFolder + '/lynx/data.asm ' + buildFolder + '/lynx/unity.lib\n')
             
-            # Info
-            fp.write('\necho DONE!\n\n')
-            
             fp.write('echo --------------- LYNX ROM READY --------------- \n\n')
-                        
+            
             # Start emulator?
             if callEmu:
                 fp.write('pause\n\n')
                 fp.write('cd "utils\emulators\Handy-0.98-Hub"\n')
                 fp.write('handy.exe "..\\..\\..\\' + buildFolder + '\\' + diskname + '-lynx.lnx"\n')
 
+
+        ####################################################
+        # NES script
+        bitmaps = list(self.listbox_NESBitmap.get(0, END))
+        charset = list(self.listbox_NESCharset.get(0, END))
+        sprites = list(self.listbox_NESSprites.get(0, END))
+        chunks = list(self.listbox_NESChunks.get(0, END))
+        music = list(self.listbox_NESMusic.get(0, END))
+        with open('../../' + buildFolder+'/'+diskname+"-nes.bat", "wb") as fp:
+            # Info
+            fp.write('echo off\n\n')
+            fp.write('setlocal enableextensions enabledelayedexpansion\n\n')
+            fp.write('mkdir nes\n')            
+            fp.write('cd ..\n\n')            
+            fp.write('del ' + buildFolder + '\\nes\\*.* /F /Q\n\n')
+            
+            fp.write('echo --------------- CONVERT ASSETS ---------------  \n\n')
+            
+            # Process Bitmaps / Chunks / Sprites / Shared
+            for i in range(len(bitmaps)):
+                item = bitmaps[i]
+                fb = FileBase(item, '.png')
+                fp.write('utils\\py27\\python utils/scripts/nes/NESMergeCHR.py ' + item[0:-3] + 'chr utils/scripts/nes/font.chr ' + sprites[0][0:-3] + 'chr ' + buildFolder + '/nes/' + fb + '.chr\n')
+                fp.write('utils\\py27\\python utils/scripts/nes/NESMergePNT.py ' + item[0:-3] + 'pal ' + item[0:-3] + 'rle ' + buildFolder + '/nes/' + fb + '.img\n\n')
+            
+            for item in music:
+                fb = FileBase(item, '')
+                fp.write('copy ' + item.replace('/', '\\') + ' ' + buildFolder + '\\nes\\music.txt\n')
+                fp.write('utils\\scripts\\nes\\text2data -ca65 build/nes/music.txt\n\n')
+
+            fp.write('echo ---------------- LINK ASSETS ----------------  \n\n')
+
+            fp.write('cd ' + buildFolder + '\\nes\n\n')
+
+            # Figure out number of files
+            fp.write('set /a CHUNKNUM=0\n')
+            if len(chunks) > 0:
+                fp.write('for /f "tokens=*" %%A in (chunks.lst) do set CHUNKNAMES=!CHUNKNAMES!_shkName!CHUNKNUM!,&&set /a CHUNKNUM+=1\n')
+            fp.write('set /a FILENUM=!CHUNKNUM!+' + str(len(bitmaps)) + '\n')
+            fp.write('\n')
+            
+            # Get Size of various files
+            filelist = ''
+            for i in range(len(bitmaps)):
+                fb = FileBase(bitmaps[i], '.png')
+                filelist += fb + '.img,'
+            fp.write('set FILESIZES=\n')
+            fp.write('for %%I in (' + filelist[0:-1] + ') do set FILESIZES=!FILESIZES!%%~zI,\n')
+            if len(chunks) > 0:
+                fp.write('for /f "tokens=*" %%A in (chunks.lst) do set FILESIZES=!FILESIZES!%%~zA,\n') 
+            fp.write('\n')
+
+            # Generate assembly file with list of read-only data
+            fp.write('@echo .global _fileNum >> data.asm\n')
+            fp.write('@echo .global _fileSizes >> data.asm\n')
+            fp.write('@echo .global _fileNames >> data.asm\n')
+            fp.write('@echo .global _fileDatas >> data.asm\n')
+            fp.write('@echo ; >> data.asm\n')
+            
+            # Num and sizes of files
+            fp.write('@echo .segment "RODATA" >> data.asm\n')
+            fp.write('@echo _fileNum: .byte %FILENUM% >> data.asm\n')  
+
+            # List of file names and data
+            if len(bitmaps) > 0:
+                # Declare all Bitmap, Shared and Chunk files
+                fp.write('@echo _fileSizes: .word %FILESIZES:~0,-1% >> data.asm\n')
+                fp.write('@echo _fileNames: .addr ')
+                counter = 0
+                for i in range(len(bitmaps)):
+                    if counter > 0:
+                        fp.write(',')
+                    fp.write('_bmpName' + str(i).zfill(2))
+                    counter += 1
+                fp.write(' >> data.asm\n')
+
+                # Write list of bitmap names
+                for i in range(len(bitmaps)):
+                    fb = FileBase(bitmaps[i], '.png')
+                    fp.write('@echo _bmpName' + str(i).zfill(2) + ': .byte "' + fb + '.img",0 >> data.asm\n')
+                fp.write('@echo ; >> data.asm\n')
+
+                fp.write('@echo _fileDatas: .addr ')
+                counter = 0
+                for i in range(len(bitmaps)):
+                    if counter > 0:
+                        fp.write(',')
+                    fp.write('_bmpData' + str(i).zfill(2))
+                    counter += 1
+                fp.write(' >> data.asm\n')
+
+                # Write list of bitmap datas
+                for i in range(len(bitmaps)):
+                    fb = FileBase(bitmaps[i], '.png')
+                    fp.write('@echo _bmpData' + str(i).zfill(2) + ': .incbin "' + fb + '.img" >> data.asm\n')
+            else:
+                fp.write('@echo _fileSizes: .word 0 >> data.asm\n')
+                fp.write('@echo _fileNames: .addr _dummy >> data.asm\n')
+                fp.write('@echo _fileDatas: .addr _dummy >> data.asm\n')
+                fp.write('@echo _dummy: .byte 0 >> data.asm\n')
+            fp.write('@echo ; >> data.asm\n')
+
+            # Write list of tilesets
+            fp.write('@echo .segment "CHARS" >> data.asm\n')
+            for i in range(len(bitmaps)):
+                fb = FileBase(bitmaps[i], '.png')
+                fp.write('@echo _tileset' + str(i).zfill(2) + ': .incbin "' + fb + '.chr" >> data.asm\n')                
+            fp.write('@echo ; >> data.asm\n')
+                
+            # Link Music 
+            fp.write('@echo .segment "RODATA" >> data.asm\n')
+            fp.write('@echo .global _music_data >> data.asm\n')            
+            if len(music):
+                fp.write('@echo _music_data: .include "music.s" >> data.asm\n')
+            else:
+                fp.write('@echo _music_data: .byte 0 >> data.asm\n')
+            fp.write('@echo ; >> data.asm\n')
+
+            # Done, return to base folder
+            fp.write('\n')
+            fp.write('cd ..\n')
+            fp.write('cd ..\n')
+            fp.write('\n')
+            
+            fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
+
+            # Build Unity Library
+            cTarget = [ 'targets\\nes\\files.c', 'targets\\nes\\keyboard.c', 'targets\\nes\\text.c', 'targets\\nes\\vram.c' ]
+            sTarget = [ 'graphics\\scroll.s', 'targets\\nes\\blitCharmap.s', 'targets\\nes\\crt0.s', 'targets\\nes\\joystick.s' ]
+            BuildUnityLibrary(self, fp, '-t nes', '', cCore+cTarget, sCore+sTarget, buildFolder+'/nes')
+
+            # Compile Program
+            comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/' + diskname.lower() + '-nes.nes -m ' + buildFolder + '/' + diskname.lower() + '-nes.map -t nes -Cl -Oi -C unity/targets/nes/nrom_128_horz.cfg -I unity '
+            for item in code:
+                comp += (item + ' ')
+            fp.write(comp  + buildFolder + '/nes/data.asm ' + buildFolder + '/nes/unity.lib ' + 'nes.lib\n\n')
+
+            fp.write('echo --------------- NES ROM READY --------------- \n\n')
+
+            # Start emulator?
+            if callEmu:
+                fp.write('pause\n\n')
+                fp.write('cd "utils\emulators\FCEUX-2.3.0"\n')
+                fp.write('fceux.exe "..\\..\\..\\' + buildFolder + '\\' + diskname + '-nes.nes"\n')            
 
         ####################################################
         # Oric script
@@ -1457,11 +1653,12 @@ class Application:
     
             # Build Unity Library
             cTarget = [ 'adaptors\\hub.c', 'targets\\oric\\directory.c', 'targets\\oric\\files.c' ]
-            sTarget = [ 'graphics\\scroll.s', 'targets\\oric\\blitCharmap.s', 'targets\\oric\\blitSprite.s', 'targets\\oric\\paseIJK.s', 'targets\\oric\\keyboard.s', 'targets\\oric\\sedoric.s', 'targets\\oric\\MYM.s' ]
-            BuildUnityLibrary(self, fp, 'atmos', '', cCore+cTarget, sCore+sTarget, buildFolder+'/oric')
+            sTarget = [ 'graphics\\scroll.s', 'strings\\chars.s', 'targets\\oric\\blitCharmap.s', 'targets\\oric\\blitSprite.s', 'targets\\oric\\paseIJK.s', 'targets\\oric\\keyboard.s', 'targets\\oric\\sedoric.s', 'targets\\oric\\MYM.s' ]
+            symbols = ' -D __HUB__'
+            BuildUnityLibrary(self, fp, '-t atmos', symbols, cCore+cTarget, sCore+sTarget, buildFolder+'/oric')
                         
             # Compile Program
-            comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/oric/' + diskname.lower() + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-oric48k.map -Cl -O -t atmos -C unity/targets/oric/oric.cfg -I unity '
+            comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/oric/' + diskname.lower() + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-oric48k.map -Cl -O -t atmos' + symbols + ' -C unity/targets/oric/oric.cfg -I unity '
             for item in code:
                 comp += (item + ' ')
             fp.write(comp + buildFolder + '/oric/unity.lib\n\n')
@@ -1469,9 +1666,6 @@ class Application:
             # Fix header
             fp.write('utils\\scripts\\oric\\header.exe ' + buildFolder + '/oric/' + diskname.lower() + '.bin ' + buildFolder + '/oric/' + diskname.lower() + '.com $0501\n\n')
                         
-            # Info
-            fp.write('\necho DONE!\n\n')
-
             fp.write('echo --------------- CONVERT ASSETS ---------------  \n\n')
             
             # Process Bitmaps / Chunks / Sprites / Shared
@@ -1509,9 +1703,6 @@ class Application:
                 fb = FileBase(item, '')
                 fp.write('utils\\scripts\\oric\\header -a0 ' + item + ' ' + buildFolder + '/oric/' + fb + ' $A000\n')
                 
-            # Info
-            fp.write('\necho DONE!\n\n')
-            
             fp.write('echo --------------- ORIC DISK BUILDER --------------- \n\n')
 
             # Compress program
@@ -1538,9 +1729,8 @@ class Application:
             fp.write('set TAP2DSK=%TAP2DSK% ' + buildFolder + '/' + diskname + '-oric48k.dsk\n')
             fp.write('%TAP2DSK%\n')
             fp.write('utils\\scripts\\oric\\old2mfm.exe ' + buildFolder + '/' + diskname + '-oric48k.dsk\n')
-            
-            # Info
-            fp.write('\necho DONE\n')
+
+            fp.write('echo --------------- ORIC DISK READY --------------- \n\n')
             
             # Start emulator?
             if callEmu:
