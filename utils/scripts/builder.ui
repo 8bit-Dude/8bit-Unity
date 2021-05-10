@@ -2268,9 +2268,8 @@
 					</child>
 					<child>
 					  <object class="ttk.Entry" id="Entry_NESSpriteWidth">
-						<property name="text" translatable="yes">12</property>
+						<property name="text" translatable="yes">16</property>
 						<property name="width">4</property>
-						<property name="state">disabled</property>
 						<layout>
 						  <property name="column">0</property>
                           <property name="padx">250</property>						  
@@ -2296,7 +2295,7 @@
 					</child>
 					<child>
 					  <object class="ttk.Entry" id="Entry_NESSpriteHeight">
-						<property name="text" translatable="yes">0</property>
+						<property name="text" translatable="yes">16</property>
 						<property name="width">4</property>
 						<layout>
 						  <property name="column">0</property>
