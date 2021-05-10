@@ -56,12 +56,14 @@ unsigned int ChunkSize(unsigned char w, unsigned char h)
 	return 4+(w*h*2)/7u;	// For each group of 7 pixels: 2 bytes in SHR, 4 bytes in DHR (2 in AUX + 2 in MAIN)
 #elif defined __ATARI__
 	return 4+(w*h*2)/4u;
-#elif defined __ORIC__
-	return 4+(w*h)/6u;
 #elif defined __C64__
 	return 4+(w*h*10)/32u;
 #elif defined __LYNX__
 	return 4+(w*h)/2u;
+#elif defined __NES__
+	return 4+(w*h)/64u;
+#elif defined __ORIC__
+	return 4+(w*h)/6u;
 #endif	
 }
 
@@ -118,11 +120,30 @@ void LoadChunk(unsigned char** chunk, char *filename)
 
 void GetChunk(unsigned char** chunk, unsigned char x, unsigned char y, unsigned char w, unsigned char h)
 {
+#if defined __NES__
+	unsigned char i, *ptr = (unsigned char*)chunk;
+	unsigned int vaddr;
+	x /= 8u; y /= 8u;
+	h /= 8u; w /= 8u;	
+	POKE(ptr++, x);
+	POKE(ptr++, y);
+	POKE(ptr++, w);
+	POKE(ptr++, h);
+	for (i=0; i<h; ++i) {
+		vaddr = NTADR_A(x,y);
+		ppu_off();	
+		vram_adr(vaddr);
+		vram_read(ptr, w);
+		ppu_on_all();	
+		ptr += w; y++;
+	}	
+	
+#else	
 	// Allocate memory for bitmap chunk
-#if (defined __ATARI__) || (defined __C64__) || (defined __LYNX__) || (defined __ORIC__)
+  #ifndef __APPLE2__
 	unsigned char i, bytes;
-	unsigned int addr;
-#endif
+	unsigned int dst;
+  #endif
 	unsigned int size = ChunkSize(w,h);
 	*chunk = (unsigned char*)malloc(size);
 	POKE(*chunk+0, x);
@@ -130,7 +151,7 @@ void GetChunk(unsigned char** chunk, unsigned char x, unsigned char y, unsigned 
 	POKE(*chunk+2, w);
 	POKE(*chunk+3, h);
 
-#if defined __APPLE2__
+  #if defined __APPLE2__
 	// Blit data 
 	POKE(0xE3, (w*2)/7u);	// Bytes per line (x2 for DHR)	
 	POKE(0xCE, h);			// Number of lines (from screen)
@@ -141,66 +162,62 @@ void GetChunk(unsigned char** chunk, unsigned char x, unsigned char y, unsigned 
 	POKEW(0xFA, 0);			// Address of Input
 	BlitSprite();
   
-#elif defined __ATARI__
-	// Copy data from double buffer
+  #elif defined __ATARI__
 	bytes = w/4u;
-	addr = *chunk+4;
+	dst = *chunk+4;
 	for (i=0; i<h; ++i) {
-		memcpy((char*)addr, (char*)(BITMAPRAM1+(y+i)*40u+x/4u), bytes);
-		addr += bytes;
+		memcpy((char*)dst, (char*)(BITMAPRAM1+(y+i)*40u+x/4u), bytes);
+		dst += bytes;
 	}
 	for (i=0; i<h; ++i) {
-		memcpy((char*)addr, (char*)(BITMAPRAM2+(y+i)*40u+x/4u), bytes);
-		addr += bytes;
+		memcpy((char*)dst, (char*)(BITMAPRAM2+(y+i)*40u+x/4u), bytes);
+		dst += bytes;
 	}
-#elif defined __ORIC__
-	// Blit data from bitmap memory
-	addr = BITMAPRAM + y*40 + x/6u;
+  #elif defined __ORIC__
+	dst = BITMAPRAM + y*40 + x/6u;
 	POKE(0xb0, h); 			// Number of lines
 	POKE(0xb1, w/6u);		// Bytes per line
-	POKEW(0xb2, addr-1);	// Address of source (-1)
+	POKEW(0xb2, dst-1);		// Address of source (-1)
 	POKEW(0xb4, *chunk+3);	// Address of target (-1)
 	POKE(0xb6, 40); 		// Offset between source lines
 	POKE(0xb7, w/6u); 		// Offset between target lines
 	BlitSprite();
 	
-#elif defined __C64__
-	// Copy data to bitmap, color and screen memory
+  #elif defined __C64__
 	bytes = (w*8)/4u;
-	addr = *chunk+4;	
+	dst = *chunk+4;	
 	rom_disable();
 	for (i=0; i<h; i+=8) {
-		memcpy((char*)addr, (char*)(BITMAPRAM+40*((y+i)&248)+((y+i)&7)+((x*2)&504)), bytes);
-		addr += bytes;
+		memcpy((char*)dst, (char*)(BITMAPRAM+40*((y+i)&248)+((y+i)&7)+((x*2)&504)), bytes);
+		dst += bytes;
 	}
 	rom_enable();
 	bytes = w/4u;
 	for (i=0; i<h; i+=8) {
-		memcpy((char*)addr, (char*)(SCREENRAM+40*(y+i)/8u+x/4u), bytes);
-		addr += bytes;
+		memcpy((char*)dst, (char*)(SCREENRAM+40*(y+i)/8u+x/4u), bytes);
+		dst += bytes;
 	}
 	for (i=0; i<h; i+=8) {
-		memcpy((char*)addr, (char*)(COLORRAM+40*(y+i)/8u+x/4u), bytes);
-		addr += bytes;
+		memcpy((char*)dst, (char*)(COLORRAM+40*(y+i)/8u+x/4u), bytes);
+		dst += bytes;
 	}
 	
-#elif defined __LYNX__
-	// Copy data to bitmap memory
+  #elif defined __LYNX__
 	bytes = w/2u;
-	addr = *chunk+4;	
+	dst = *chunk+4;	
 	for (i=0; i<h; ++i) {
-		memcpy((char*)addr, (char*)(BITMAPRAM+(y+i)*82+x/2u+1), bytes);
-		addr += bytes;
+		memcpy((char*)dst, (char*)(BITMAPRAM+(y+i)*82+x/2u+1), bytes);
+		dst += bytes;
 	}
+  #endif	
 #endif
 }
 
 void SetChunk(unsigned char* chunk, unsigned char x, unsigned char y)
 {
+#if defined __APPLE2__
 	unsigned char w = chunk[2];
 	unsigned char h = chunk[3];
-#if defined __APPLE2__
-	// Blit data 
 	POKE(0xE3, (w*2)/7u);	// Bytes per line (x2 for MAIN/AUX)	
 	POKE(0xCE, h);			// Number of lines (from screen)
 	POKE(0xEB, h);			// Number of lines (to screen)
@@ -211,56 +228,78 @@ void SetChunk(unsigned char* chunk, unsigned char x, unsigned char y)
 	BlitSprite();
 	
 #elif defined __ATARI__
-	// Copy data to double bitmap buffers
+	unsigned char w = chunk[2];
+	unsigned char h = chunk[3];
 	unsigned char i, bytes = w/4u;
-	unsigned int addr = chunk+4;	
+	unsigned int src = chunk+4;	
 	for (i=0; i<h; ++i) {
-		memcpy((char*)(BITMAPRAM1+(y+i)*40+x/4u), (char*)addr, bytes);
-		addr += bytes;
+		memcpy((char*)(BITMAPRAM1+(y+i)*40+x/4u), (char*)src, bytes);
+		src += bytes;
 	}
 	for (i=0; i<h; ++i) {
-		memcpy((char*)(BITMAPRAM2+(y+i)*40+x/4u), (char*)addr, bytes);
-		addr += bytes;
+		memcpy((char*)(BITMAPRAM2+(y+i)*40+x/4u), (char*)src, bytes);
+		src += bytes;
 	}
+	
 #elif defined __ORIC__
-	// Blit data to bitmap memory
-	unsigned int addr = BITMAPRAM + y*40u + x/6u;
+	unsigned char w = chunk[2];
+	unsigned char h = chunk[3];
+	unsigned int dst = BITMAPRAM + y*40u + x/6u;
 	POKE(0xb0, h); 			// Number of lines
 	POKE(0xb1, w/6u);		// Bytes per line
 	POKEW(0xb2, chunk+3);	// Address of source (-1)
-	POKEW(0xb4, addr-1);	// Address of target (-1)
+	POKEW(0xb4, dst-1);		// Address of target (-1)
 	POKE(0xb6, w/6u); 		// Offset between source lines
 	POKE(0xb7, 40); 		// Offset between target lines
 	BlitSprite();	
+	
 #elif defined __C64__
-	// Copy data to bitmap, color and screen memory
+	unsigned char w = chunk[2];
+	unsigned char h = chunk[3];
 	unsigned char i, bytes;
-	unsigned int addr = chunk+4;	
+	unsigned int src = chunk+4;	
 	bytes = (w*8)/4u;
 	rom_disable();
 	for (i=0; i<h; i+=8) {
-		memcpy((char*)(BITMAPRAM+40*((y+i)&248)+((y+i)&7)+((x*2)&504)), (char*)addr, bytes);
-		addr += bytes;
+		memcpy((char*)(BITMAPRAM+40*((y+i)&248)+((y+i)&7)+((x*2)&504)), (char*)src, bytes);
+		src += bytes;
 	}
 	rom_enable();
 	bytes = w/4u;
 	for (i=0; i<h; i+=8) {
-		memcpy((char*)(SCREENRAM+40*(y+i)/8u+x/4u), (char*)addr, bytes);
-		addr += bytes;
+		memcpy((char*)(SCREENRAM+40*(y+i)/8u+x/4u), (char*)src, bytes);
+		src += bytes;
 	}
 	for (i=0; i<h; i+=8) {
-		memcpy((char*)(COLORRAM+40*(y+i)/8u+x/4u), (char*)addr, bytes);
-		addr += bytes;
+		memcpy((char*)(COLORRAM+40*(y+i)/8u+x/4u), (char*)src, bytes);
+		src += bytes;
 	}
+	
 #elif defined __LYNX__
-	// Copy data to bitmap memory
+	unsigned char w = chunk[2];
+	unsigned char h = chunk[3];
 	unsigned char i, bytes = w/2u;
-	unsigned int addr = chunk+4;	
+	unsigned int src = chunk+4;	
 	for (i=0; i<h; ++i) {
-		memcpy((char*)(BITMAPRAM+(y+i)*82+x/2u+1), (char*)addr, bytes);
-		addr += bytes;
+		memcpy((char*)(BITMAPRAM+(y+i)*82+x/2u+1), (char*)src, bytes);
+		src += bytes;
 	}
 	// Auto-refresh screen
 	UpdateDisplay();
+	
+#elif defined __NES__
+	unsigned char i, *ptr = chunk+2;
+	unsigned char w = PEEK(ptr++);
+	unsigned char h = PEEK(ptr++);
+	unsigned int vaddr;
+	x /= 8u; y /= 8u; 
+	for (i=0; i<h; ++i) {
+		vaddr = NTADR_A(x,y);
+		ppu_off();	
+		vram_adr(vaddr);
+		vram_write(ptr, w);
+		ppu_on_all();
+		ptr += w; y++;
+	}	
 #endif
 }

@@ -95,7 +95,7 @@ void __fastcall__ oam_size(unsigned char size);
 //set sprite in OAM buffer, chrnum is tile, attr is attribute, sprid is offset in OAM in bytes
 //returns sprid+4, which is offset for a next sprite
 
-unsigned char __fastcall__ oam_spr(unsigned char x,unsigned char y,unsigned char chrnum,unsigned char attr,unsigned char sprid);
+void __fastcall__ oam_spr(unsigned char x,unsigned char y,unsigned char chrnum,unsigned char attr,unsigned char sprid);
 
 //set metasprite in OAM buffer
 //meta sprite is a const unsigned char array, it contains four bytes per sprite
@@ -103,7 +103,7 @@ unsigned char __fastcall__ oam_spr(unsigned char x,unsigned char y,unsigned char
 //x=128 is end of a meta sprite
 //returns sprid+4, which is offset for a next sprite
 
-unsigned char __fastcall__ oam_meta_spr(unsigned char x,unsigned char y,unsigned char sprid,const unsigned char *data);
+void __fastcall__ oam_meta_spr(unsigned char x,unsigned char y,unsigned char sprid,const unsigned char *data);
 
 //hide all remaining sprites from given offset
 
@@ -148,27 +148,6 @@ void __fastcall__ scroll(unsigned int x,unsigned int y);
 //warning: only X scroll could be changed in this version
 
 void __fastcall__ split(unsigned int x,unsigned int y);
-
-
-//select current chr bank for sprites, 0..1
-
-void __fastcall__ bank_spr(unsigned char n);
-
-//select current chr bank for background, 0..1
-
-void __fastcall__ bank_bg(unsigned char n);
-
-
-
-//get random number 0..255 or 0..65535
-
-unsigned char __fastcall__ rand8(void);
-unsigned int  __fastcall__ rand16(void);
-
-//set random seed
-
-void __fastcall__ set_rand(unsigned int seed);
-
 
 
 //when display is enabled, vram access could only be done with this vram update system

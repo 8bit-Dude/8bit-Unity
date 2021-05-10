@@ -5,20 +5,19 @@
 
 ;v050517
 
-	.export _pal_all,_pal_bg,_pal_spr
-	.export _pal_bright,_pal_spr_bright,_pal_bg_bright
-	.export _ppu_off,_ppu_on_all,_ppu_on_bg,_ppu_on_spr,_ppu_mask,_ppu_system
-	.export _oam_clear,_oam_size,_oam_spr,_oam_meta_spr,_oam_hide_rest
-	.export _ppu_wait_frame,_ppu_wait_nmi
-	.export _scroll,_split
-	.export _vram_read,_vram_write
-	.export _sfx_play,_sample_play
-	.export _pad_poll,_pad_trigger,_pad_state
-	.export _vram_adr,_vram_fill,_vram_unrle
-	.export _set_vram_update,_flush_vram_update
 	.export _memcpy,_memfill,_delay
+	.export _ppu_wait_frame,_ppu_wait_nmi
+	.export _ppu_off,_ppu_on_all,_ppu_on_bg,_ppu_on_spr,_ppu_mask,_ppu_system
+	.export _pal_all,_pal_bg,_pal_spr, _pal_bright,_pal_spr_bright,_pal_bg_bright
+	.export _oam_clear,_oam_size,_oam_spr,_oam_meta_spr,_oam_hide_rest
+	.export _vram_adr,_vram_fill,_vram_unrle, _vram_read,_vram_write
+	.export _set_vram_update,_flush_vram_update
+	.export _pad_poll,_pad_trigger,_pad_state
+	.export _sfx_play,_sample_play
+	.export _scroll,_split
 
 	.include "famitone2.s"
+
 
 ;BANK switching
 	.export _bank_switch
@@ -297,7 +296,7 @@ _oam_size:
 
 
 
-;unsigned char __fastcall__ oam_spr(unsigned char x,unsigned char y,unsigned char chrnum,unsigned char attr,unsigned char sprid);
+;void __fastcall__ oam_spr(unsigned char x,unsigned char y,unsigned char chrnum,unsigned char attr,unsigned char sprid);
 
 _oam_spr:
 
@@ -325,14 +324,11 @@ _oam_spr:
 
 @1:
 
-	txa
-	clc
-	adc #4
 	rts
 
 
 
-;unsigned char __fastcall__ oam_meta_spr(unsigned char x,unsigned char y,unsigned char sprid,const unsigned char *data);
+;void __fastcall__ oam_meta_spr(unsigned char x,unsigned char y,unsigned char sprid,const unsigned char *data);
 
 _oam_meta_spr:
 
@@ -385,7 +381,6 @@ _oam_meta_spr:
 
 @3:
 
-	txa
 	rts
 
 
@@ -584,35 +579,19 @@ _split:
 _vram_read:
 
 	sta <TEMP
-	stx <TEMP+1
 
 	jsr popax
 	sta <TEMP+2
 	stx <TEMP+3
 
 	lda PPU_DATA
-
 	ldy #0
-
 @1:
-
 	lda PPU_DATA
 	sta (TEMP+2),y
-	inc <TEMP+2
-	bne @2
-	inc <TEMP+3
-
-@2:
-
-	lda <TEMP
-	bne @3
-	dec <TEMP+1
-
-@3:
-
-	dec <TEMP
-	lda <TEMP
-	ora <TEMP+1
+	iny
+	
+	cpy <TEMP
 	bne @1
 
 	rts
@@ -624,33 +603,18 @@ _vram_read:
 _vram_write:
 
 	sta <TEMP
-	stx <TEMP+1
 
 	jsr popax
 	sta <TEMP+2
 	stx <TEMP+3
 
 	ldy #0
-
 @1:
-
 	lda (TEMP+2),y
 	sta PPU_DATA
-	inc <TEMP+2
-	bne @2
-	inc <TEMP+3
+	iny
 
-@2:
-
-	lda <TEMP
-	bne @3
-	dec <TEMP+1
-
-@3:
-
-	dec <TEMP
-	lda <TEMP
-	ora <TEMP+1
+	cpy <TEMP
 	bne @1
 
 	rts
