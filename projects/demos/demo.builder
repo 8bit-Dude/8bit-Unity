@@ -18,7 +18,8 @@
             "projects/demos/charmaps/level1.map", 
             "projects/demos/charmaps/level1.tls"
         ], 
-        "tilesize": "2x2"
+        "tilesize": "2x2", 
+        "customVBI": "No"
     }, 
     "platform": {
         "Apple": {
@@ -84,6 +85,7 @@
             "charset": [
                 "projects/demos/charsets/quedex-c64.png"
             ], 
+            "charsetColors": " ", 
             "sprites": [
                 "projects/demos/sprites/sprites-c64.png"
             ], 
@@ -112,6 +114,23 @@
             ], 
             "music": [
                 "projects/demos/music/demo-lynx.asm"
+            ], 
+            "chunks": []
+        }, 
+        "NES": {
+            "spriteFrames": "16", 
+            "spriteWidth": "16", 
+            "spriteHeight": "16", 
+            "bitmap": [
+                "projects/demos/bitmaps/banner-nes.png", 
+                "projects/demos/bitmaps/stadium-nes.png"
+            ], 
+            "charset": [], 
+            "sprites": [
+                "projects/demos/sprites/sprites-nes.png"
+            ], 
+            "music": [
+                "projects/demos/music/demo-nes.txt"
             ], 
             "chunks": []
         }, 
