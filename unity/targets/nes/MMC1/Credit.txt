@@ -1,0 +1,9 @@
+These functions were written by cppchriscpp, 2018 Christopher Parker, and found here...
+
+https://github.com/cppchriscpp/nes-starter-kit/tree/master/source
+
+Under MIT License.
+
+Also, some modifications have been made by Doug Fraker, 2019.
+
+

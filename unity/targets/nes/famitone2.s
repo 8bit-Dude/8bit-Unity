@@ -1,29 +1,29 @@
 ;FamiTone2 v1.12
 
-	.export _FamiToneMusicPlay, _FamiToneMusicPause, _FamiToneMusicStop
+
 
 ;settings, uncomment or put them into your main program; the latter makes possible updates easier
 
 ; FT_BASE_ADR		= $0300	;page in the RAM used for FT2 variables, should be $xx00
-; FT_TEMP			= $00	;3 bytes in zeropage used by the library as a scratchpad
-; FT_DPCM_OFF		= $c000	;$c000..$ffc0, 64-byte steps
-; FT_SFX_STREAMS	= 4		;number of sound effects played at once, 1..4
+; FT_TEMP			= $fd	;3 bytes in zeropage used by the library as a scratchpad
+; FT_DPCM_OFF		= $fc00	;$c000..$ffc0, 64-byte steps
+; FT_SFX_STREAMS	= 1		;number of sound effects played at once, 1..4
 
-; FT_DPCM_ENABLE		;undefine to exclude all DMC code
-; FT_SFX_ENABLE			;undefine to exclude all sound effects code
-; FT_THREAD				;undefine if you are calling sound effects from the same thread as the sound update call
+; FT_DPCM_ENABLE = 1		;undefine to exclude all DMC code
+; FT_SFX_ENABLE = 1		;undefine to exclude all sound effects code
+; FT_THREAD = 1			;undefine if you are calling sound effects from the same thread as the sound update call
 
-; FT_PAL_SUPPORT			;undefine to exclude PAL support
-; FT_NTSC_SUPPORT			;undefine to exclude NTSC support
+; FT_PAL_SUPPORT = 1		;undefine to exclude PAL support
+; FT_NTSC_SUPPORT = 1		;undefine to exclude NTSC support
 
 
 
 ;internal defines
 
-	.if(FT_PAL_SUPPORT)
-	.if(FT_NTSC_SUPPORT)
-FT_PITCH_FIX = (FT_PAL_SUPPORT|FT_NTSC_SUPPORT)			;add PAL/NTSC pitch correction code only when both modes are enabled
-	.endif
+	.if(FT_PAL_SUPPORT & FT_NTSC_SUPPORT)
+FT_PITCH_FIX = 1			;add PAL/NTSC pitch correction code only when both modes are enabled
+	.else
+FT_PITCH_FIX = 0	
 	.endif
 
 FT_DPCM_PTR		= (FT_DPCM_OFF&$3fff)>>6
@@ -35,7 +35,7 @@ FT_TEMP_PTR			= FT_TEMP		;word
 FT_TEMP_PTR_L		= FT_TEMP_PTR+0
 FT_TEMP_PTR_H		= FT_TEMP_PTR+1
 FT_TEMP_VAR1		= FT_TEMP+2
-
+FT_TEMP_SIZE        = 3
 
 ;envelope structure offsets, 5 bytes per envelope, grouped by variable type
 
@@ -148,6 +148,7 @@ FT_SFX_PTR_H		= FT_SFX_BASE_ADR+2
 FT_SFX_OFF			= FT_SFX_BASE_ADR+3
 FT_SFX_BUF			= FT_SFX_BASE_ADR+4	;11 bytes
 
+FT_BASE_SIZE 		= FT_SFX_BUF+11-FT_BASE_ADR
 
 ;aliases for sound effect channels to use in user calls
 
@@ -238,7 +239,7 @@ FamiToneInit:
 	.endif
 	sta FT_PAL_ADJUST
 
-	jsr _FamiToneMusicStop	;initialize channels and envelopes
+	jsr FamiToneMusicStop	;initialize channels and envelopes
 
 	ldy #1
 	lda (FT_TEMP_PTR),y		;get instrument list address
@@ -272,7 +273,7 @@ FamiToneInit:
 	sta APU_PL1_SWEEP
 	sta APU_PL2_SWEEP
 
-	;jmp _FamiToneMusicStop
+	;jmp FamiToneMusicStop
 
 
 ;------------------------------------------------------------------------------
@@ -280,7 +281,7 @@ FamiToneInit:
 ; in: none
 ;------------------------------------------------------------------------------
 
-_FamiToneMusicStop:
+FamiToneMusicStop:
 
 	lda #0
 	sta FT_SONG_SPEED		;stop music, reset pause flag
@@ -326,7 +327,7 @@ _FamiToneMusicStop:
 ; in: A number of subsong
 ;------------------------------------------------------------------------------
 
-_FamiToneMusicPlay:
+FamiToneMusicPlay:
 
 	ldx FT_SONG_LIST_L
 	stx <FT_TEMP_PTR_L
@@ -351,7 +352,7 @@ _FamiToneMusicPlay:
 	lda FT_SONG_LIST_L		;restore pointer LSB
 	sta <FT_TEMP_PTR_L
 
-	jsr _FamiToneMusicStop	;stop music, initialize channels and envelopes
+	jsr FamiToneMusicStop	;stop music, initialize channels and envelopes
 
 	ldx #.lobyte(FT_CHANNELS)	;initialize channel structures
 
@@ -376,9 +377,10 @@ _FamiToneMusicPlay:
 	cpx #.lobyte(FT_CHANNELS)+FT_CHANNELS_ALL
 	bne @set_channels
 
-
+	.if(FT_PAL_SUPPORT)
 	lda FT_PAL_ADJUST		;read tempo for PAL or NTSC
 	beq @pal
+	.endif
 	iny
 	iny
 @pal:
@@ -405,7 +407,7 @@ _FamiToneMusicPlay:
 ; in: A 0 or not 0 to play or pause
 ;------------------------------------------------------------------------------
 
-_FamiToneMusicPause:
+FamiToneMusicPause:
 
 	tax					;set SZ flags for A
 	beq @unpause

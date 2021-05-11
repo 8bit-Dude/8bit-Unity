@@ -34,6 +34,11 @@
   #pragma code-name("SHADOW_RAM")
 #endif
 
+#ifdef __NES__
+  #pragma rodata-name("BANK0")
+  #pragma code-name("BANK0")
+#endif
+
 #ifdef __ATARI__
   void SetPalette() {
     POKE(0x02c8, bmpPalette[0]);

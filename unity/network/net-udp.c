@@ -30,6 +30,11 @@
   #pragma code-name("SHADOW_RAM")
 #endif
 
+#ifdef __NES__
+  #pragma rodata-name("BANK0")
+  #pragma code-name("BANK0")
+#endif
+
 #if defined __HUB__
   // Nothing
 #elif defined __FUJINET__	

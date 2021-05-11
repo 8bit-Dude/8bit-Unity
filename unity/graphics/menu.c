@@ -30,6 +30,11 @@
   #pragma code-name("SHADOW_RAM")
 #endif
 
+#ifdef __NES__
+  #pragma rodata-name("BANK0")
+  #pragma code-name("BANK0")
+#endif
+
 #define FLICK_RATE 20 	// Ticks
 
 clock_t cursorClock;

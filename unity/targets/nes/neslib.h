@@ -1,6 +1,9 @@
 //NES hardware-dependent functions by Shiru (shiru@mail.ru)
 //Feel free to do anything you want with this code, consider it Public Domain
 
+// nesdoug version, 2019-09
+// changes, removed sprid from oam functions, oam_spr 11% faster, meta 5% faster
+
 //Versions history:
 // 050517 - pad polling code optimized, button bits order reversed
 // 280215 - fixed palette glitch caused by the active DMC DMA glitch
@@ -12,9 +15,8 @@
 // previous versions were created since mid-2011, there were many updates
 
 
-// switch between char banks
 
-void __fastcall__ bank_switch(unsigned char bank);
+
 
 //set bg and spr palettes, data is 32 bytes array
 
@@ -55,7 +57,7 @@ void __fastcall__ pal_bg_bright(unsigned char bright);
 void __fastcall__ ppu_wait_nmi(void);
 
 //wait virtual frame, it is always 50hz, frame-to-frame in PAL, frameskip in NTSC
-
+//don't use this one
 void __fastcall__ ppu_wait_frame(void);
 
 //turn off rendering, nmi still enabled when rendering is disabled
@@ -85,31 +87,61 @@ unsigned char __fastcall__ ppu_system(void);
 
 
 //clear OAM buffer, all the sprites are hidden
+// Note: changed. Now also changes sprid (index to buffer) to zero
 
 void __fastcall__ oam_clear(void);
+
 
 //set sprite display mode, 0 for 8x8 sprites, 1 for 8x16 sprites
 
 void __fastcall__ oam_size(unsigned char size);
 
-//set sprite in OAM buffer, chrnum is tile, attr is attribute, sprid is offset in OAM in bytes
-//returns sprid+4, which is offset for a next sprite
+//set sprite in OAM buffer, chrnum is tile, attr is attribute
+// Note: sprid removed for speed
 
-void __fastcall__ oam_spr(unsigned char x,unsigned char y,unsigned char chrnum,unsigned char attr,unsigned char sprid);
+void __fastcall__ oam_spr(unsigned char x,unsigned char y,unsigned char chrnum,unsigned char attr);
+
+
 
 //set metasprite in OAM buffer
 //meta sprite is a const unsigned char array, it contains four bytes per sprite
 //in order x offset, y offset, tile, attribute
 //x=128 is end of a meta sprite
-//returns sprid+4, which is offset for a next sprite
+// Note: sprid removed for speed
 
-void __fastcall__ oam_meta_spr(unsigned char x,unsigned char y,unsigned char sprid,const unsigned char *data);
+void __fastcall__ oam_meta_spr(unsigned char x,unsigned char y,const unsigned char *data);
+
 
 //hide all remaining sprites from given offset
+// Note: sprid removed for speed
+// Now also changes sprid (index to buffer) to zero
+void __fastcall__ oam_hide_rest(void);
 
-void __fastcall__ oam_hide_rest(unsigned char sprid);
+
+// to manually change the sprid (index to sprite buffer)
+// perhaps as part of a sprite shuffling algorithm
+// Note: this should be a multiple of 4 (0,4,8,12,etc.)
+
+void __fastcall__ oam_set(unsigned char index);
+
+// returns the sprid (index to the sprite buffer)
+
+unsigned char __fastcall__ oam_get(void);
 
 
+
+
+//play a music in FamiTone format
+
+void __fastcall__ music_play(unsigned char song);
+
+//stop music
+
+void __fastcall__ music_stop(void);
+
+//pause and unpause music
+
+void __fastcall__ music_pause(unsigned char pause);
 
 //play FamiTone sound effect on channel 0..3
 
@@ -147,7 +179,17 @@ void __fastcall__ scroll(unsigned int x,unsigned int y);
 //         otherwise empty frames without split will be inserted, resulting in jumpy screen
 //warning: only X scroll could be changed in this version
 
-void __fastcall__ split(unsigned int x,unsigned int y);
+void __fastcall__ split(unsigned int x); //removed y, not used %%
+
+
+//select current chr bank for sprites, 0..1
+
+void __fastcall__ bank_spr(unsigned char n);
+
+//select current chr bank for background, 0..1
+
+void __fastcall__ bank_bg(unsigned char n);
+
 
 
 //when display is enabled, vram access could only be done with this vram update system
@@ -166,13 +208,15 @@ void __fastcall__ split(unsigned int x,unsigned int y);
 
 //length of this data should be under 256 bytes
 
-void __fastcall__ set_vram_update(unsigned char *buf);
+void __fastcall__ set_vram_update(const unsigned char *buf);
+//%% changed, added "const"
 
 //all following vram functions only work when display is disabled
 
 //do a series of VRAM writes, the same format as for set_vram_update, but writes done right away
 
-void __fastcall__ flush_vram_update(unsigned char *buf);
+void __fastcall__ flush_vram_update(const unsigned char *buf);
+//%% changed, added "const"
 
 //set vram pointer to write operations if you need to write some data to vram
 
@@ -196,8 +240,8 @@ void __fastcall__ vram_read(unsigned char *dst,unsigned int size);
 
 //write a block to current address of vram, works only when rendering is turned off
 
-void __fastcall__ vram_write(unsigned char *src,unsigned int size);
-
+void __fastcall__ vram_write(const unsigned char *src,unsigned int size);
+//%% changed, added "const"
 
 //unpack RLE data to current address of vram, mostly used for nametables
 
@@ -207,7 +251,7 @@ void __fastcall__ vram_unrle(const unsigned char *data);
 
 //like a normal memcpy, but does not return anything
 
-void __fastcall__ memcpy(void *dst,void *src,unsigned int len);
+//void __fastcall__ memcpy(void *dst,void *src,unsigned int len);
 
 //like memset, but does not return anything
 
@@ -216,6 +260,8 @@ void __fastcall__ memfill(void *dst,unsigned char value,unsigned int len);
 //delay for N frames
 
 void __fastcall__ delay(unsigned char frames);
+
+
 
 #define PAD_A			0x80
 #define PAD_B			0x40
@@ -259,3 +305,4 @@ void __fastcall__ delay(unsigned char frames);
 
 #define MSB(x)			(((x)>>8))
 #define LSB(x)			(((x)&0xff))
+

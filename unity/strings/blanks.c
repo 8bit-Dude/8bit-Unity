@@ -34,6 +34,11 @@
   #pragma code-name("SHADOW_RAM")
 #endif
 
+#ifdef __NES__
+  #pragma rodata-name("BANK0")
+  #pragma code-name("BANK0")
+#endif
+
 #ifdef __ATARI__
   extern unsigned char inkColor1,inkColor2;
   extern unsigned char paperColor1,paperColor2;
@@ -149,7 +154,7 @@ void PrintBlanks(unsigned char width, unsigned char height)
 		vram_list[3+width] = NT_UPD_EOF;
 		set_vram_update(vram_list);
 		ppu_wait_frame();
-		txtY++;
+		txtY++; i++;
 	}
 	txtY = bckY;
 #endif

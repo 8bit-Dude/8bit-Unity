@@ -26,7 +26,15 @@
  
 #include "../../unity.h"
 
-unsigned char vram_list[128];
+#pragma bss-name(push, "XRAM")
+  // extra RAM at $6000-$7fff
+  unsigned char bankLevel;
+  unsigned char bankBuffer[MAX_BANK_DEPTH];
+  unsigned char vram_list[256];
+#pragma bss-name(pop)
+
+#pragma rodata-name("BANK0")
+#pragma code-name("BANK0")
 
 void __fastcall__ SetVramAddr(void) 
 {

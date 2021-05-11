@@ -36,9 +36,7 @@
  */
 
 // CC65 includes
-#ifndef __NES__
-  #include <string.h>
-#endif
+#include <string.h>
 #include <conio.h>
 #include <dirent.h>
 #include <peekpoke.h>
@@ -125,8 +123,8 @@ extern unsigned char screenCol1, screenCol2, screenWidth;
 extern unsigned char screenRow1, screenRow2, screenHeight;
 extern unsigned char worldWidth, worldHeight, worldMaxX, worldMaxY;
 
-// Lynx specific functions (see Lynx/display.c)
-#if defined __LYNX__
+// Console specific functions
+#if defined(__LYNX__) || defined(__NES__)
   void UpdateDisplay(void);
   void ShowKeyboardOverlay(void);
   void HideKeyboardOverlay(void);

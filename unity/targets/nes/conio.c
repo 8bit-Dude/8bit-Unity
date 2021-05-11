@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Anthony Beaucamp.
+ * Copyright (c) 2021 Anthony Beaucamp.
  *
  * This software is provided 'as-is', without any express or implied warranty.
  * In no event will the authors be held liable for any damages arising from
@@ -23,47 +23,35 @@
  *   used to endorse or promote products derived from this software without
  *   specific prior written permission.
  */
+ 
+#include "../../unity.h"
 
-#include "unity.h"
+#pragma rodata-name("BANK0")
+#pragma code-name("BANK0")
 
-#ifdef __APPLE2__
-  #pragma code-name("LC")
-#endif
+unsigned char key = 0;
 
-#ifdef __ATARIXL__
-  #pragma code-name("SHADOW_RAM")
-#endif
-
-#ifdef __NES__
-  #pragma rodata-name("BANK0")
-  #pragma code-name("BANK0")
-#endif
-
-unsigned char GetLocalIP(unsigned char* ip)
+char cgetc(void)
 {
-#if defined __HUB__
-	// Check if data was received from Hub
-	clock_t timer = clock();
-	QueueHub(HUB_SYS_IP, 0, 0);
-	while (1) {
-		// Inquire next packet
-		UpdateHub();	
+	unsigned char res;
+	while (!key) kbhit();
+	res = key; 
+	while (kbhit());
+	return res;
+}
 
-		// Check if we received packet
-		if (recvLen && recvHub[0] == HUB_SYS_IP) { 
-			recvLen = 0;  // Clear packet
-			memcpy(ip, &recvHub[2], recvHub[1]);
-			return 1; 
-		}		
-		
-		// Check time-out
-		if ((clock() - timer) >= 20) { return 0; }	
+unsigned char kbhit(void)
+{
+	unsigned char i;
+	i = GetJoy(0);
+	if (!(i & 64)) {
+		key = KB_SP;
+		return 1;
 	}
-	
-#elif defined __FUJINET__	
-	// TODO	
-	
-#elif defined __IP65__
-	// TODO	
-#endif
+	if (!(i & 128)) {
+		key = KB_EN;
+		return 1;
+	}
+	key = 0;
+	return 0;
 }

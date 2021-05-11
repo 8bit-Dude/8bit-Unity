@@ -26,29 +26,78 @@
  
 #include "../../unity.h"
 
-unsigned char key = 0;
+#pragma rodata-name("BANK0")
+#pragma code-name("BANK0")
 
-char cgetc(void)
+//extern unsigned char cursorData, keybrdData; 
+
+// Soft keyboard functions
+clock_t keybrdClock = 0;
+unsigned char keybrdShow = 0, keybrdVal = 0; 
+unsigned char keybrdJoy = 0, keybrdPressed = 0;
+signed char keybrdRow = 0, keybrdCol = 0;
+
+const signed char keyCodes[4][13] = { { 49, 50, 51, 52, 53, 54, 55, 56, 57, 48, 45, 95, 43 },
+									  { 81, 87, 69, 82, 84, 89, 85, 73, 79, 80, 40, 41, 20 },
+									  { 65, 83, 68, 70, 71, 72, 74, 75, 76, 58, 39, 33, 13 },
+									  { 90, 88, 67, 86, 66, 78, 77, 44, 46, 63, 47, 92, 32 } };
+
+void ShowKeyboardOverlay() 
 {
-	unsigned char res;
-	while (!key) kbhit();
-	res = key; 
-	while (kbhit());
-	return res;
+	keybrdShow = 1;
+	keybrdPressed = 1;
+}
+void HideKeyboardOverlay() 
+{
+	keybrdShow = 0;
+}
+void SetKeyboardOverlay(unsigned char x, unsigned char y) 
+{
+	//keybrdSCB.hpos = x;
+	//keybrdSCB.vpos = y;
+}
+unsigned char GetKeyboardOverlay() 
+{
+	unsigned char val = keybrdVal;
+	keybrdVal = 0;
+	return val;
+}
+unsigned char KeyboardOverlayHit() 
+{
+	return keybrdVal;
 }
 
-unsigned char kbhit(void)
+void UpdateKeyboardOverlay() 
 {
-	unsigned char i;
-	i = GetJoy(0);
-	if (!(i & 64)) {
-		key = KB_SP;
-		return 1;
+	// Is keyboard activated?
+	if (!keybrdShow) { return; }
+
+	// Check if cursor was already pressed
+	keybrdJoy = GetJoy(0);
+	if (keybrdJoy != 255) {
+		// Process next event
+		if (!keybrdPressed) {  
+			keybrdPressed = 1;
+			keybrdClock = clock()-20;
+			if (!(keybrdJoy & JOY_LEFT)) { keybrdCol -= 1; if (keybrdCol<0)  keybrdCol = 12; }
+			if (!(keybrdJoy & JOY_RIGHT)){ keybrdCol += 1; if (keybrdCol>12) keybrdCol = 0; }
+			if (!(keybrdJoy & JOY_UP))   { keybrdRow -= 1; if (keybrdRow<0)  keybrdRow = 3; }
+			if (!(keybrdJoy & JOY_DOWN)) { keybrdRow += 1; if (keybrdRow>3)  keybrdRow = 0; }
+			if (!(keybrdJoy & JOY_BTN1)) { keybrdVal = keyCodes[keybrdRow][keybrdCol]; }
+			if (!(keybrdJoy & JOY_BTN2)) { keybrdVal = CH_DEL; }
+		}
+	} else { 
+		// Flag joy release
+		keybrdPressed = 0; 
 	}
-	if (!(i & 128)) {
-		key = KB_EN;
-		return 1;
-	}
-	key = 0;
-	return 0;
+	
+	// Draw keyboard and cursor
+	//SuzyDraw(&keybrdSCB);
+	if (clock()-keybrdClock > 40) { 
+		keybrdClock = clock();	 
+	} else if (clock()-keybrdClock > 20) {
+		//cursorSCB.hpos = (keybrdSCB.hpos+1) + keybrdCol*4;
+		//cursorSCB.vpos = (keybrdSCB.vpos+1) + keybrdRow*6;
+		//SuzyDraw(&cursorSCB);
+	}	
 }

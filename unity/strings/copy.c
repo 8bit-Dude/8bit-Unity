@@ -34,6 +34,11 @@
   #pragma code-name("SHADOW_RAM")
 #endif
 
+#ifdef __NES__
+  #pragma rodata-name("BANK0")
+  #pragma code-name("BANK0")
+#endif
+
 // Copy string from one area of screen to another
 void CopyStr(unsigned char col1, unsigned char row1, unsigned char col2, unsigned char row2, unsigned char len)
 {
@@ -94,4 +99,3 @@ void CopyStr(unsigned char col1, unsigned char row1, unsigned char col2, unsigne
 	}
 #endif	
 }
-

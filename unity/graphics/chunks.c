@@ -44,6 +44,11 @@
   #pragma code-name("SHADOW_RAM")
 #endif
 
+#ifdef __NES__
+  #pragma rodata-name("BANK0")
+  #pragma code-name("BANK0")
+#endif
+
 #if (defined __ORIC__)
   unsigned char buffer[512];
 #else

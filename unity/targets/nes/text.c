@@ -26,6 +26,9 @@
 
 #include "../../unity.h"
 
+#pragma rodata-name("BANK0")
+#pragma code-name("BANK0")
+
 // Workaround for missing text printing
 
 void screensize(unsigned char *xSize, unsigned char *ySize) 

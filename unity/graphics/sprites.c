@@ -34,6 +34,11 @@
   #pragma code-name("SHADOW_RAM")
 #endif
 
+#ifdef __NES__
+  #pragma rodata-name("BANK0")
+  #pragma code-name("BANK0")
+#endif
+
 // Platform specific function
 #if defined __APPLE2__
     #define byteWIDTH 2		// 2 bytes per 7 pixels (4 bytes between AUX/MAIN in DHR)
@@ -81,6 +86,7 @@
 									   0,0,0,0, 8,0,0,0, 0,8,0,0, 8,8,0,0, 128,
 									   0,0,0,0, 8,0,0,0, 0,8,0,0, 8,8,0,0, 128,
 									   0,0,0,0, 8,0,0,0, 0,8,0,0, 8,8,0,0, 128 };
+	unsigned char sprCollision[SPRITE_NUM];
 	
 #elif defined __ORIC__	
 	#define byteWIDTH 2		// Byte width of sprite (12 pixels)
@@ -685,8 +691,9 @@ void SetSprite(unsigned char index, unsigned int frame)
 	metaSprite[ 6] = base+0x01;
 	metaSprite[10] = base+0x10;
 	metaSprite[14] = base+0x11;
-	oam_meta_spr(spriteX-8, spriteY-8, index<<4, metaSprite);
-	//oam_spr(spriteX, spriteY, frame, 0, index<<2);
+	oam_set(index<<4);
+	oam_meta_spr(spriteX-8, spriteY-8, metaSprite);
+	//oam_spr(spriteX, spriteY, frame, 0);
 #endif
 }
 

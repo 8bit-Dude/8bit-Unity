@@ -88,7 +88,7 @@ _g_y: .res 1
 	jmp incsp2
 .endproc
 
-.segment	"DATA"
+.segment	"RODATA"
 
 octant_adjust:
 	.byte %00111111		;; x+,y+,|x|>|y|

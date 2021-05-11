@@ -34,6 +34,11 @@
   #pragma code-name("SHADOW_RAM")
 #endif
 
+#ifdef __NES__
+  #pragma rodata-name("BANK0")
+  #pragma code-name("BANK0")
+#endif
+
 // Atari specific variables & functions
 #ifdef __ATARI__
   unsigned char inkColor1,inkColor2;
@@ -280,6 +285,7 @@ void PrintStr(const char *buffer)
 	vram_list[i] = NT_UPD_EOF;
 	set_vram_update(vram_list);
 	ppu_wait_frame();
+	
 #else	
 	unsigned char *src = buffer;
 	unsigned char bckX = txtX;

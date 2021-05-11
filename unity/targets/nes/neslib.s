@@ -1,35 +1,35 @@
-
 ;NES hardware-dependent functions by Shiru (shiru@mail.ru)
 ;with improvements by VEG
 ;Feel free to do anything you want with this code, consider it Public Domain
 
-;v050517
+;nesdoug version, 2019-09
+;minor change %%, added ldx #0 to functions returning char
+;removed sprid from c functions to speed them up
+;music and nmi changed for mmc1
 
-	.export _memcpy,_memfill,_delay
-	.export _ppu_wait_frame,_ppu_wait_nmi
+;SOUND_BANK is defined at the top of crt0.s
+;and needs to match the bank where the music is
+
+
+	.export _pal_all,_pal_bg,_pal_spr,_pal_col,_pal_clear
+	.export _pal_bright,_pal_spr_bright,_pal_bg_bright
 	.export _ppu_off,_ppu_on_all,_ppu_on_bg,_ppu_on_spr,_ppu_mask,_ppu_system
-	.export _pal_all,_pal_bg,_pal_spr, _pal_bright,_pal_spr_bright,_pal_bg_bright
 	.export _oam_clear,_oam_size,_oam_spr,_oam_meta_spr,_oam_hide_rest
-	.export _vram_adr,_vram_fill,_vram_unrle, _vram_read,_vram_write
-	.export _set_vram_update,_flush_vram_update
-	.export _pad_poll,_pad_trigger,_pad_state
-	.export _sfx_play,_sample_play
+	.export _ppu_wait_frame,_ppu_wait_nmi
 	.export _scroll,_split
-
-	.include "famitone2.s"
-
-
-;BANK switching
-	.export _bank_switch
-
-bank_table:
-	.byte $00, $01, $02, $03, $04, $05, $06, $07
+	.export _bank_spr,_bank_bg
+	.export _vram_read,_vram_write
+	.export _music_play,_music_stop,_music_pause
+	.export _sfx_play,_sample_play
+	.export _pad_poll,_pad_trigger,_pad_state
+	.export _vram_adr,_vram_put,_vram_fill,_vram_inc,_vram_unrle
+	.export _set_vram_update,_flush_vram_update
+	.export _memcpy,_memfill,_delay,_clock
 	
-_bank_switch:
-	tax
-	sta bank_table, X
-	rts
+	.export _flush_vram_update_nmi, _oam_set, _oam_get
 
+	.importzp sreg
+	
 
 ;NMI handler
 
@@ -39,6 +39,12 @@ nmi:
 	pha
 	tya
 	pha
+	
+	inc     <CLOCK
+	bne     @doneClock
+	inc     <CLOCK+1
+	
+@doneClock:	
 
 	lda <PPU_MASK_VAR	;if rendering is disabled, do not access the VRAM at all
 	and #%00011000
@@ -46,6 +52,14 @@ nmi:
 	jmp	@skipAll
 
 @doUpdate:
+
+;for split screens with different CHR bank at top	
+	lda nmiChrTileBank
+	cmp #NO_CHR_BANK 
+	beq @no_chr_chg
+	jsr _set_chr_bank_0
+@no_chr_chg:
+
 
 	lda #>OAM_BUF		;update OAM
 	sta PPU_OAM_DMA
@@ -128,7 +142,15 @@ nmi:
 
 @skipNtsc:
 
+;switch the music into the prg bank first
+	lda BP_BANK ;save current prg bank
+	pha
+	lda #SOUND_BANK
+	jsr _set_prg_bank
 	jsr FamiToneUpdate
+	pla
+	sta BP_BANK ;restore prg bank
+	jsr _set_prg_bank
 
 	pla
 	tay
@@ -196,6 +218,77 @@ _pal_spr:
 
 
 
+;void __fastcall__ pal_col(unsigned char index,unsigned char color);
+
+_pal_col:
+
+	sta <PTR
+	jsr popa
+	and #$1f
+	tax
+	lda <PTR
+	sta PAL_BUF,x
+	inc <PAL_UPDATE
+	rts
+
+
+
+;void __fastcall__ pal_clear(void);
+
+_pal_clear:
+
+	lda #$0f
+	ldx #0
+
+@1:
+
+	sta PAL_BUF,x
+	inx
+	cpx #$20
+	bne @1
+	stx <PAL_UPDATE
+	rts
+
+
+
+;void __fastcall__ pal_spr_bright(unsigned char bright);
+
+_pal_spr_bright:
+
+	tax
+	lda palBrightTableL,x
+	sta <PAL_SPR_PTR
+	lda palBrightTableH,x	;MSB is never zero
+	sta <PAL_SPR_PTR+1
+	sta <PAL_UPDATE
+	rts
+
+
+
+;void __fastcall__ pal_bg_bright(unsigned char bright);
+
+_pal_bg_bright:
+
+	tax
+	lda palBrightTableL,x
+	sta <PAL_BG_PTR
+	lda palBrightTableH,x	;MSB is never zero
+	sta <PAL_BG_PTR+1
+	sta <PAL_UPDATE
+	rts
+
+
+
+;void __fastcall__ pal_bright(unsigned char bright);
+
+_pal_bright:
+
+	jsr _pal_spr_bright
+	txa
+	jmp _pal_bg_bright
+
+
+
 ;void __fastcall__ ppu_off(void);
 
 _ppu_off:
@@ -255,6 +348,7 @@ _ppu_mask:
 _ppu_system:
 
 	lda <NTSC_MODE
+	ldx #0
 	rts
 
 
@@ -264,6 +358,7 @@ _ppu_system:
 _oam_clear:
 
 	ldx #0
+	stx SPRID ; automatically sets sprid to zero
 	lda #$ff
 @1:
 	sta OAM_BUF,x
@@ -273,6 +368,26 @@ _oam_clear:
 	inx
 	bne @1
 	rts
+	
+	
+;void __fastcall__ oam_set(unsigned char index);	
+;to manually set the position
+;a = sprid
+
+_oam_set:
+	and #$fc ;strip those low 2 bits, just in case
+	sta SPRID
+	rts
+	
+	
+;unsigned char __fastcall__ oam_get(void);	
+;returns the sprid
+
+_oam_get:
+	lda SPRID
+	ldx #0
+	rts
+	
 
 
 
@@ -296,16 +411,16 @@ _oam_size:
 
 
 
-;void __fastcall__ oam_spr(unsigned char x,unsigned char y,unsigned char chrnum,unsigned char attr,unsigned char sprid);
+;void __fastcall__ oam_spr(unsigned char x,unsigned char y,unsigned char chrnum,unsigned char attr);
+;sprid removed
 
 _oam_spr:
 
-	tax
-
-	ldy #0		;four popa calls replacement
-	lda (sp),y
-	iny
+	ldx SPRID
+	;a = chrnum
 	sta OAM_BUF+2,x
+
+	ldy #0		;3 popa calls replacement
 	lda (sp),y
 	iny
 	sta OAM_BUF+1,x
@@ -317,33 +432,37 @@ _oam_spr:
 
 	lda <sp
 	clc
-	adc #4
+	adc #3 ;4
 	sta <sp
 	bcc @1
 	inc <sp+1
 
 @1:
 
+	txa
+	clc
+	adc #4
+	sta SPRID
 	rts
 
 
 
-;void __fastcall__ oam_meta_spr(unsigned char x,unsigned char y,unsigned char sprid,const unsigned char *data);
+;void __fastcall__ oam_meta_spr(unsigned char x,unsigned char y,const unsigned char *data);
+;sprid removed
 
 _oam_meta_spr:
 
 	sta <PTR
 	stx <PTR+1
 
-	ldy #2		;three popa calls replacement, performed in reversed order
+	ldy #1		;2 popa calls replacement, performed in reversed order
 	lda (sp),y
 	dey
 	sta <SCRX
 	lda (sp),y
-	dey
 	sta <SCRY
-	lda (sp),y
-	tax
+	
+	ldx SPRID
 
 @1:
 
@@ -374,22 +493,24 @@ _oam_meta_spr:
 @2:
 
 	lda <sp
-	adc #2			;carry is always set here, so it adds 3
+	adc #1 ;2			;carry is always set here, so it adds 3
 	sta <sp
 	bcc @3
 	inc <sp+1
 
 @3:
 
+	stx SPRID
 	rts
 
 
 
-;void __fastcall__ oam_hide_rest(unsigned char sprid);
+;void __fastcall__ oam_hide_rest(void);
+;sprid removed
 
 _oam_hide_rest:
 
-	tax
+	ldx SPRID
 	lda #240
 
 @1:
@@ -400,6 +521,8 @@ _oam_hide_rest:
 	inx
 	inx
 	bne @1
+	;x is zero
+	stx SPRID
 	rts
 
 
@@ -409,7 +532,7 @@ _oam_hide_rest:
 _ppu_wait_frame:
 
 	lda <FRAME_CNT1
-
+	
 @1:
 
 	cmp <FRAME_CNT1
@@ -434,6 +557,7 @@ _ppu_wait_frame:
 _ppu_wait_nmi:
 
 	lda <FRAME_CNT1
+	
 @1:
 
 	cmp <FRAME_CNT1
@@ -539,11 +663,11 @@ _scroll:
 
 
 
-;;void __fastcall__ split(unsigned int x,unsigned int y);
-
+;;void __fastcall__ split(unsigned int x);
+;minor changes %%
 _split:
 
-	jsr popax
+;	jsr popax
 	sta <SCROLL_X1
 	txa
 	and #$01
@@ -569,6 +693,43 @@ _split:
 	sta PPU_SCROLL
 	lda <PPU_CTRL_VAR1
 	sta PPU_CTRL
+
+	rts
+
+
+
+;void __fastcall__ bank_spr(unsigned char n);
+
+_bank_spr:
+
+	and #$01
+	asl a
+	asl a
+	asl a
+	sta <TEMP
+	lda <PPU_CTRL_VAR
+	and #%11110111
+	ora <TEMP
+	sta <PPU_CTRL_VAR
+
+	rts
+
+
+
+;void __fastcall__ bank_bg(unsigned char n);
+
+_bank_bg:
+
+	and #$01
+	asl a
+	asl a
+	asl a
+	asl a
+	sta <TEMP
+	lda <PPU_CTRL_VAR
+	and #%11101111
+	ora <TEMP
+	sta <PPU_CTRL_VAR
 
 	rts
 
@@ -621,18 +782,85 @@ _vram_write:
 
 
 
+;void __fastcall__ music_play(unsigned char song);
+;a = song #
+
+_music_play:
+	tax
+	lda BP_BANK ;save current prg bank
+	pha
+	lda #SOUND_BANK
+	jsr _set_prg_bank
+	txa ;song number
+	jsr FamiToneMusicPlay
+	
+	pla
+	sta BP_BANK ;restore prg bank
+	jmp _set_prg_bank
+	;rts
+
+
+;void __fastcall__ music_stop(void);
+
+_music_stop:
+	lda BP_BANK ;save current prg bank
+	pha
+	lda #SOUND_BANK
+	jsr _set_prg_bank
+	jsr FamiToneMusicStop
+	
+	pla
+	sta BP_BANK ;restore prg bank
+	jmp _set_prg_bank
+	;rts
+
+
+
+;void __fastcall__ music_pause(unsigned char pause);
+;a = pause or not
+
+_music_pause:
+	tax
+	lda BP_BANK ;save current prg bank
+	pha
+	lda #SOUND_BANK
+	jsr _set_prg_bank
+	txa ;song number
+	jsr FamiToneMusicPause
+	
+	pla
+	sta BP_BANK ;restore prg bank
+	jmp _set_prg_bank
+	;rts
+
+	
+
+
+
 ;void __fastcall__ sfx_play(unsigned char sound,unsigned char channel);
 
 _sfx_play:
 
 .if(FT_SFX_ENABLE)
-
+; a = channel
 	and #$03
 	tax
 	lda @sfxPriority,x
 	tax
-	jsr popa
-	jmp FamiToneSfxPlay
+	
+	lda BP_BANK ;save current prg bank
+	pha
+	lda #SOUND_BANK
+	jsr _set_prg_bank
+	
+	jsr popa ;a = sound
+	;x = channel offset
+	jsr FamiToneSfxPlay
+	
+	pla
+	sta BP_BANK ;restore prg bank
+	jmp _set_prg_bank
+	;rts
 
 @sfxPriority:
 
@@ -644,11 +872,23 @@ _sfx_play:
 
 
 ;void __fastcall__ sample_play(unsigned char sample);
+;a = sample #
 
-.if(FT_DPCM_ENABLE)
-_sample_play=FamiToneSamplePlay
-.else
 _sample_play:
+.if(FT_DPCM_ENABLE)
+	tax
+	lda BP_BANK ;save current prg bank
+	pha
+	lda #SOUND_BANK
+	jsr _set_prg_bank
+	txa ;sample number
+	jsr FamiToneSamplePlay
+	
+	pla
+	sta BP_BANK ;restore prg bank
+	jmp _set_prg_bank
+	;rts
+.else
 	rts
 .endif
 
@@ -696,7 +936,8 @@ _pad_poll:
 	sta <PAD_STATET,y
 	txa
 	sta <PAD_STATEP,y
-
+	
+	ldx #0
 	rts
 
 
@@ -710,6 +951,7 @@ _pad_trigger:
 	pla
 	tax
 	lda <PAD_STATET,x
+	ldx #0
 	rts
 
 
@@ -720,7 +962,9 @@ _pad_state:
 
 	tax
 	lda <PAD_STATE,x
+	ldx #0
 	rts
+
 
 
 ;void __fastcall__ set_vram_update(unsigned char *buf);
@@ -743,7 +987,7 @@ _flush_vram_update:
 	sta <NAME_UPD_ADR+0
 	stx <NAME_UPD_ADR+1
 
-_flush_vram_update_nmi:
+_flush_vram_update_nmi: ;minor changes %
 
 	ldy #0
 
@@ -827,6 +1071,16 @@ _vram_adr:
 
 
 
+;void __fastcall__ vram_put(unsigned char n);
+
+_vram_put:
+
+	sta PPU_DATA
+
+	rts
+
+
+
 ;void __fastcall__ vram_fill(unsigned char n,unsigned int len);
 
 _vram_fill:
@@ -858,6 +1112,27 @@ _vram_fill:
 	bne @3
 
 @4:
+
+	rts
+
+
+
+;void __fastcall__ vram_inc(unsigned char n);
+
+_vram_inc:
+
+	ora #0
+	beq @1
+	lda #$04
+
+@1:
+
+	sta <TEMP
+	lda <PPU_CTRL_VAR
+	and #$fb
+	ora <TEMP
+	sta <PPU_CTRL_VAR
+	sta PPU_CTRL
 
 	rts
 
@@ -955,6 +1230,17 @@ _memfill:
 
 	rts
 
+;clock_t __fastcall__ clock(unsigned char frames);
+
+_clock:
+
+	ldy     #0              ; High word is always zero
+	sty     sreg+1
+	sty     sreg
+	ldx     CLOCK+1
+	lda     CLOCK
+	
+	rts
 
 
 ;void __fastcall__ delay(unsigned char frames);
@@ -971,45 +1257,7 @@ _delay:
 
 	rts
 
-		
-		
-;void __fastcall__ pal_spr_bright(unsigned char bright);
 
-_pal_spr_bright:
-
-	tax
-	lda palBrightTableL,x
-	sta <PAL_SPR_PTR
-	lda palBrightTableH,x	;MSB is never zero
-	sta <PAL_SPR_PTR+1
-	sta <PAL_UPDATE
-	rts
-
-
-
-;void __fastcall__ pal_bg_bright(unsigned char bright);
-
-_pal_bg_bright:
-
-	tax
-	lda palBrightTableL,x
-	sta <PAL_BG_PTR
-	lda palBrightTableH,x	;MSB is never zero
-	sta <PAL_BG_PTR+1
-	sta <PAL_UPDATE
-	rts
-
-
-
-;void __fastcall__ pal_bright(unsigned char bright);
-
-_pal_bright:
-
-	jsr _pal_spr_bright
-	txa
-	jmp _pal_bg_bright
-	
-	
 
 palBrightTableL:
 
@@ -1044,4 +1292,3 @@ palBrightTable8:
 	.byte $30,$30,$30,$30,$30,$30,$30,$30,$30,$30,$30,$30,$30,$30,$30,$30
 	.byte $30,$30,$30,$30,$30,$30,$30,$30,$30,$30,$30,$30,$30,$30,$30,$30
 	.byte $30,$30,$30,$30,$30,$30,$30,$30,$30,$30,$30,$30,$30,$30,$30,$30
-	

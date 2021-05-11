@@ -34,17 +34,15 @@
   #pragma code-name("SHADOW_RAM")
 #endif
 
+#ifdef __NES__
+  #pragma rodata-name("BANK0")
+  #pragma code-name("BANK0")
+#endif
+
 #ifdef __CBM__
   // see C64/SID.s
   extern unsigned int sidInitAddr;	// Defelmask default: $0903
   extern unsigned int sidPlayAddr;	// Defelmask default: $0806
-#endif	
-
-#ifdef __NES__
-  // see nes/famitone2.s
-  void __fastcall__ FamiToneMusicPlay(unsigned char song);
-  void __fastcall__ FamiToneMusicStop(void);
-  void __fastcall__ FamiToneMusicPause(unsigned char pause);  
 #endif	
 
 #if defined(__ATARI__) || defined(__CBM__) || defined(__ORIC__)
@@ -112,7 +110,7 @@ void PauseMusic(unsigned char state)
 	else
 		lynx_snd_continue();
 #elif defined __NES__	
-	FamiToneMusicPause(state);	
+	music_pause(state);	
 #endif	
 }
 
@@ -141,7 +139,7 @@ void PlayMusic()
 	}
 	lynx_snd_continue();
 #elif defined __NES__	
-	FamiToneMusicPlay(0);
+	music_play(0);
 #endif	
 }
 
@@ -163,7 +161,7 @@ void StopMusic()
 #elif defined __LYNX__	
 	lynx_snd_stop();
 #elif defined __NES__	
-	FamiToneMusicStop();
+	music_stop();
 #endif	
 }
 

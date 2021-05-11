@@ -34,6 +34,11 @@
   #pragma code-name("SHADOW_RAM")
 #endif
 
+#ifdef __NES__
+  #pragma rodata-name("BANK0")
+  #pragma code-name("BANK0")
+#endif
+
 // Zero Page pointers (for tile decoding and scrolling)
 #if defined(__APPLE2__)
   #define charPtrZP 0xce
