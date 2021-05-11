@@ -99,21 +99,16 @@
 #define TCK_PER_SEC	CLK_TCK
 
 // Dummy functions
-#define UpdateDisplay ppu_wait_frame
 #define bordercolor   textcolor
 #define bgcolor       textcolor
 #define clrscr        ClearBitmap
 
-// Array for printing to VRAM
-extern unsigned char vram_attr[64];
-extern unsigned char vram_list[256];
-
-// VRAM updating functions
+// Display update functions
 void __fastcall__ SetVramAttr(void);
 void __fastcall__ SetVramName(void);
 void __fastcall__ SetVramChar(unsigned char chr);
 void __fastcall__ SetVramColor(unsigned char forcePush);
-void __fastcall__ SetVramEOF(void);
+extern unsigned char autoRefresh; // Toggle for automatic screen refresh after PrintStr(), PrintNum(), PrintBlanks(), SetChunk() ...
 
 // Hires gfx functions (see blitXXX.s)
 void __fastcall__ BlitCharmap(void);

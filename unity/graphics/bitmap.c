@@ -51,6 +51,7 @@
 #ifdef __NES__
   // Default background palette
   unsigned char palBG[16]={ 0x0f, 0x00, 0x10, 0x30, 0x0f,0x01,0x21,0x31,0x0f,0x06,0x16,0x26,0x0f,0x09,0x19,0x29 };
+  extern unsigned char vram_attr[64];
 #endif
 
 // Initialize Bitmap Screen
@@ -186,6 +187,9 @@ void ClearBitmap(void)
 }
 
 // Load bitmap from file
+#if defined __NES__
+  unsigned char* data;
+#endif
 void LoadBitmap(char *filename) 
 {
 #if defined __ORIC__
@@ -196,16 +200,15 @@ void LoadBitmap(char *filename)
 		UpdateDisplay();	
 
 #elif defined __NES__
-	unsigned char* data;
-	ppu_off();	
 	data = FileRead(filename);
 	if (data) {
+		ppu_off();	
 		memcpy(palBG, data, 4);	// Copy palette 0
 		pal_bg(palBG);			// Assign palettes
 		vram_adr(NAMETABLE_A);
 		vram_unrle(&data[4]);	// Decompress name-table
+		ppu_on_all();
 	}
-	ppu_on_all();
 	
 #elif defined __APPLE2__
   #if defined __DECRUNCH__	

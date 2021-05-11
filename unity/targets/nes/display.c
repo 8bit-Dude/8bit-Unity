@@ -31,35 +31,37 @@
   unsigned char bankLevel;
   unsigned char bankBuffer[MAX_BANK_DEPTH];
   unsigned char vram_list[256];
-  unsigned char vram_list_index;
+  unsigned char vram_list_index = 0;
+  unsigned char vram_list_length;
   unsigned char vram_attr[64];
-  unsigned char vram_attr_index;
+  unsigned char vram_attr_index = 0;
   unsigned char vram_attr_color;
   unsigned char vram_attr_horz;
   unsigned char vram_attr_vert;
+  unsigned char autoRefresh = 1;
 #pragma bss-name(pop)
 
 #pragma rodata-name("BANK0")
 #pragma code-name("BANK0")
 
+void __fastcall__ SetVramAddr(unsigned int vaddr)
+{
+	vram_list[vram_list_index++] = MSB(vaddr)|NT_UPD_HORZ;
+	vram_list[vram_list_index++] = LSB(vaddr);
+	vram_list_length = vram_list_index++;
+	vram_list[vram_list_length] = 0;
+}
+
 void __fastcall__ SetVramName(void) 
 {
 	// Set VRAM address in Name Table
-	unsigned int vaddr = NTADR_A(txtX,(txtY+2));
-	vram_list[0] = MSB(vaddr)|NT_UPD_HORZ;
-	vram_list[1] = LSB(vaddr);
-	vram_list[2] = 0; 
-	vram_list_index = 3;	
+	SetVramAddr(NTADR_A(txtX,(txtY+2)));
 }
 
 void __fastcall__ SetVramAttr(void) 
 {
 	// Set VRAM address in Attribute Table
-	unsigned int vaddr = get_at_addr(0,txtX*8,(txtY+2)*8);
-	vram_list[0] = MSB(vaddr)|NT_UPD_HORZ;
-	vram_list[1] = LSB(vaddr);
-	vram_list[2] = 0;  	
-	vram_list_index = 3;	
+	SetVramAddr(get_at_addr(0,txtX*8,(txtY+2)*8));
 	
 	// Prepare attribute variables
 	vram_attr_color = (inkColor << 6) | (inkColor << 4) | (inkColor << 2) | inkColor;
@@ -68,11 +70,27 @@ void __fastcall__ SetVramAttr(void)
 	vram_attr_horz = (txtX%4); 
 }
 
+void CheckVramQueue(void)
+{
+	// Check if there is still space...
+	if (vram_list_index == 255) {
+		// Flush current queue
+		UpdateDisplay();
+		
+		// Restart new queue with offset location
+		vram_list[vram_list_index++] = vram_list[vram_list_length-2];
+		vram_list[vram_list_index++] = vram_list[vram_list_length-1]+vram_list[vram_list_length];
+		vram_list_length = vram_list_index++;
+		vram_list[vram_list_length] = 0;
+	}	
+}
+
 void __fastcall__ SetVramChar(unsigned char chr)
-{	
+{		
 	// Push to VRAM list
+	CheckVramQueue();
 	vram_list[vram_list_index++] = chr;
-	vram_list[2] += 1;
+	vram_list[vram_list_length] += 1;
 }
 
 void __fastcall__ SetVramColor(unsigned char forcePush) 
@@ -87,17 +105,22 @@ void __fastcall__ SetVramColor(unsigned char forcePush)
 	
 	// Push to VRAM list (when reaching edge of cell)
 	if (vram_attr_horz==3 || forcePush) {
-		vram_attr_horz = 0;
+		CheckVramQueue();
 		vram_list[vram_list_index++] = vram_attr[vram_attr_index++];
-		vram_list[2] += 1;
+		vram_list[vram_list_length] += 1;
+		vram_attr_horz = 0;
 	} else {
 		vram_attr_horz++;
 	}
 }
 
-void __fastcall__ SetVramEOF(void)
+void __fastcall__ UpdateDisplay(void)
 {
-	vram_list[vram_list_index] = NT_UPD_EOF;
-	set_vram_update(vram_list);
-	ppu_wait_frame();
+	// Flush VRAM queue
+	if (vram_list_index) {
+		vram_list[vram_list_index] = NT_UPD_EOF;
+		set_vram_update(vram_list);
+		ppu_wait_nmi();
+		vram_list_index = 0;
+	}
 }

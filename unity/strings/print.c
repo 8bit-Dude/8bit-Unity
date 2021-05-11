@@ -87,12 +87,10 @@ void PrintChr(unsigned char chr)
 	// Write char to VRAM buffer
 	SetVramName();
 	SetVramChar(chr);
-	SetVramEOF();
 
 	// Write attribute to VRAM buffer
 	SetVramAttr();
 	SetVramColor(1);
-	SetVramEOF();
 	
 #else	
 	// Declare variables
@@ -268,8 +266,6 @@ void PrintChr(unsigned char chr)
 #endif
 }
 
-
-
 // Parse string and print characters one-by-one (can be slow...)
 void PrintStr(const char *buffer)
 {
@@ -288,7 +284,6 @@ void PrintStr(const char *buffer)
 			chr += 160;
 		SetVramChar(chr);
 	}
-	SetVramEOF();
 
 	// Write attributes to VRAM buffer
 	src = buffer;
@@ -297,7 +292,10 @@ void PrintStr(const char *buffer)
 		src++;
 		SetVramColor(!*src);
 	}
-	SetVramEOF();	
+	
+	// Display immediately?
+	if (autoRefresh) { UpdateDisplay(); }
+	
 #else	
 	unsigned char *src = buffer;
 	unsigned char bckX = txtX;
@@ -307,6 +305,7 @@ void PrintStr(const char *buffer)
 	}
 	txtX = bckX;
   #if defined __LYNX__
+	// Display immediately?
 	if (autoRefresh) { UpdateDisplay(); }
   #endif
 #endif  

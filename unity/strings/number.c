@@ -58,7 +58,7 @@ void PrintNum(unsigned int num)
 		step /= 10u;
 	}
 	txtX = bckX;
-#if defined __LYNX__
+#if defined(__LYNX__) || defined(__NES__)
 	if (autoRefresh) { UpdateDisplay(); }
 #endif	
 }

@@ -289,7 +289,6 @@ void SetChunk(unsigned char* chunk, unsigned char x, unsigned char y)
 		memcpy((char*)(BITMAPRAM+(y+i)*82+x/2u+1), (char*)src, bytes);
 		src += bytes;
 	}
-	// Auto-refresh screen
 	UpdateDisplay();
 	
 #elif defined __NES__
@@ -301,8 +300,8 @@ void SetChunk(unsigned char* chunk, unsigned char x, unsigned char y)
 		SetVramName();
 		for (j=0; j<w; j++)
 			SetVramChar(*ptr++);
-		SetVramEOF();	
 		txtY++;
 	}	
+	UpdateDisplay();
 #endif
 }
