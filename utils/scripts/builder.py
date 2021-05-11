@@ -1625,7 +1625,7 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Build Unity Library
-            cTarget = [ 'targets\\nes\\conio.c', 'targets\\nes\\files.c', 'targets\\nes\\keyboard.c', 'targets\\nes\\text.c', 'targets\\nes\\vram.c' ]
+            cTarget = [ 'targets\\nes\\conio.c', 'targets\\nes\\display.c', 'targets\\nes\\files.c', 'targets\\nes\\keyboard.c', 'targets\\nes\\text.c' ]
             sTarget = [ 'graphics\\scroll.s', 'targets\\nes\\blitCharmap.s', 'targets\\nes\\crt0.s', 'targets\\nes\\joystick.s' ]
             BuildUnityLibrary(self, fp, '-t nes', '', cCore+cTarget, sCore+sTarget, buildFolder+'/nes')
 
