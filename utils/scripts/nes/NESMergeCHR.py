@@ -28,14 +28,13 @@ import io, sys
 
 # Read binary files
 data = []
-for i in range(1,4):
+for i in range(1,3):
     f = io.open(sys.argv[i], 'rb')
     data.append(f.read())
     f.close()
 
 # Merge into single file
-f = io.open(sys.argv[4], 'wb')
-f.write(data[0][0:16*192]) # BCKG: 192 chars
-f.write(data[1][0:16*64 ]) # FONT:  64 chars
-f.write(data[2][0:16*256]) # SPRS: 256 chars
+f = io.open(sys.argv[3], 'wb')
+f.write(data[0][   0  :16*192]) # BCKG: 192 chars
+f.write(data[1][16*192:16*256]) # FONT:  64 chars
 f.close()

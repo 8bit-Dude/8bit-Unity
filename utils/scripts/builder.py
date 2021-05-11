@@ -1508,10 +1508,17 @@ class Application:
             fp.write('echo --------------- CONVERT ASSETS ---------------  \n\n')
             
             # Process Bitmaps / Chunks / Sprites / Shared
+            fp.write('copy utils\\scripts\\nes\\font.chr ' + buildFolder + '\\nes\\font.chr\n')
+
+            if len(sprites) > 0:
+                fp.write('copy ' + sprites[0][0:-3].replace('/', '\\') + 'chr ' + buildFolder + '\\nes\\sprites.chr\n')
+            else:
+                fp.write('copy utils\\scripts\\nes\\font.chr ' + buildFolder + '\\nes\\sprites.chr\n')
+                         
             for i in range(len(bitmaps)):
                 item = bitmaps[i]
                 fb = FileBase(item, '.png')
-                fp.write('utils\\py27\\python utils/scripts/nes/NESMergeCHR.py ' + item[0:-3] + 'chr utils/scripts/nes/font.chr ' + sprites[0][0:-3] + 'chr ' + buildFolder + '/nes/' + fb + '.chr\n')
+                fp.write('utils\\py27\\python utils/scripts/nes/NESMergeCHR.py ' + item[0:-3] + 'chr utils/scripts/nes/font.chr ' + buildFolder + '/nes/' + fb + '.chr\n')
                 fp.write('utils\\py27\\python utils/scripts/nes/NESMergePNT.py ' + item[0:-3] + 'pal ' + item[0:-3] + 'rle ' + buildFolder + '/nes/' + fb + '.img\n\n')
             
             for item in music:
@@ -1593,13 +1600,15 @@ class Application:
 
             # Write list of tilesets
             fp.write('@echo .segment "CHARS" >> data.asm\n')
+            fp.write('@echo _tileset00: .incbin "font.chr" >> data.asm\n')
+            fp.write('@echo _tileset01: .incbin "sprites.chr" >> data.asm\n')
             for i in range(len(bitmaps)):
                 fb = FileBase(bitmaps[i], '.png')
-                fp.write('@echo _tileset' + str(i).zfill(2) + ': .incbin "' + fb + '.chr" >> data.asm\n')                
+                fp.write('@echo _tileset' + str(i+2).zfill(2) + ': .incbin "' + fb + '.chr" >> data.asm\n')                
             fp.write('@echo ; >> data.asm\n')
                 
             # Link Music 
-            fp.write('@echo .segment "RODATA" >> data.asm\n')
+            fp.write('@echo .segment "BANK6" >> data.asm\n')
             fp.write('@echo .global _music_data >> data.asm\n')            
             if len(music):
                 fp.write('@echo _music_data: .include "music.s" >> data.asm\n')
@@ -1616,12 +1625,12 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Build Unity Library
-            cTarget = [ 'targets\\nes\\files.c', 'targets\\nes\\keyboard.c', 'targets\\nes\\text.c', 'targets\\nes\\vram.c' ]
+            cTarget = [ 'targets\\nes\\conio.c', 'targets\\nes\\files.c', 'targets\\nes\\keyboard.c', 'targets\\nes\\text.c', 'targets\\nes\\vram.c' ]
             sTarget = [ 'graphics\\scroll.s', 'targets\\nes\\blitCharmap.s', 'targets\\nes\\crt0.s', 'targets\\nes\\joystick.s' ]
             BuildUnityLibrary(self, fp, '-t nes', '', cCore+cTarget, sCore+sTarget, buildFolder+'/nes')
 
             # Compile Program
-            comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/' + diskname.lower() + '-nes.nes -m ' + buildFolder + '/' + diskname.lower() + '-nes.map -t nes -Cl -Oi -C unity/targets/nes/nrom_128_horz.cfg -I unity '
+            comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/' + diskname.lower() + '-nes.nes -m ' + buildFolder + '/' + diskname.lower() + '-nes.map -t nes -Cl -Oirs -C unity/targets/nes/MMC1/MMC1_128_128.cfg -I unity '
             for item in code:
                 comp += (item + ' ')
             fp.write(comp  + buildFolder + '/nes/data.asm ' + buildFolder + '/nes/unity.lib ' + 'nes.lib\n\n')
