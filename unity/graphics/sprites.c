@@ -620,7 +620,7 @@ void SetSprite(unsigned char index, unsigned int frame)
 	inkVAL = PEEK(sprCOLOR+index);
 	inkMUL = (sprMULTICOLOR[index] != 0);
 	inkAddr = scrAddr[index] + (spriteY&1)*40;
-	if (inkMUL || inkVAL != SPR_AIC) {
+	if (inkMUL || inkVAL != PAL_AIC) {
 		if (inkMUL) {
 			mulAddr = sprMULTICOLOR[index];
 			inkVAL = PEEK(mulAddr);

@@ -50,7 +50,7 @@
 
 #ifdef __NES__
   // Default background palette
-  const unsigned char palBG[16]={ 0x0f, 0x00, 0x10, 0x30, 0x0f,0x01,0x21,0x31,0x0f,0x06,0x16,0x26,0x0f,0x09,0x19,0x29 };
+  unsigned char palBG[16]={ 0x0f, 0x00, 0x10, 0x30, 0x0f,0x01,0x21,0x31,0x0f,0x06,0x16,0x26,0x0f,0x09,0x19,0x29 };
 #endif
 
 // Initialize Bitmap Screen
@@ -178,8 +178,9 @@ void ClearBitmap(void)
 #elif defined __NES__
 	ppu_off();
 	pal_bg(palBG);			// Re-assign default palette
-	vram_adr(NAMETABLE_A);
-	vram_fill(0,32*32);		// Fill screen with chr 0
+	bzero(vram_attr, 64);	// Reset color attributes (shadow)
+	vram_adr(NAMETABLE_A);	// Go to top of nametable
+	vram_fill(0, 0x400);	// Fill with 0s
 	ppu_on_all();
 #endif
 }
@@ -199,7 +200,8 @@ void LoadBitmap(char *filename)
 	ppu_off();	
 	data = FileRead(filename);
 	if (data) {
-		pal_bg(data);			// Assign palette
+		memcpy(palBG, data, 4);	// Copy palette 0
+		pal_bg(palBG);			// Assign palettes
 		vram_adr(NAMETABLE_A);
 		vram_unrle(&data[4]);	// Decompress name-table
 	}

@@ -148,7 +148,7 @@ void PrintBlanks(unsigned char width, unsigned char height)
 #elif defined __NES__
 	unsigned char bckY = txtY;
 	while (i<height) {
-		SetVramAddr();
+		SetVramName();
 		vram_list[2] = width;
 		bzero(&vram_list[3], width);
 		vram_list[3+width] = NT_UPD_EOF;

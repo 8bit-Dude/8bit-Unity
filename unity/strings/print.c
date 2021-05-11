@@ -83,14 +83,16 @@ void PrintChr(unsigned char chr)
 		chr += 128;
 	else
 		chr += 160;
-	
-	// Send to VRAM
-	SetVramAddr();	
-	vram_list[2] = 1;
-	vram_list[3] = chr;
-	vram_list[4] = NT_UPD_EOF;
-	set_vram_update(vram_list);
-	ppu_wait_frame();
+
+	// Write char to VRAM buffer
+	SetVramName();
+	SetVramChar(chr);
+	SetVramEOF();
+
+	// Write attribute to VRAM buffer
+	SetVramAttr();
+	SetVramColor(1);
+	SetVramEOF();
 	
 #else	
 	// Declare variables
@@ -266,26 +268,36 @@ void PrintChr(unsigned char chr)
 #endif
 }
 
+
+
 // Parse string and print characters one-by-one (can be slow...)
 void PrintStr(const char *buffer)
 {
 #if defined __NES__
-	unsigned char *src = buffer;
-	unsigned char chr, i=3;
-	SetVramAddr();
+	unsigned char chr, *src;
+	
+	// Write chars to VRAM buffer
+	src = buffer;
+	SetVramName();
 	while (*src) {
+		// Handle Lower/Upper Case
 		chr = *src++;
 		if (chr > 96)
 			chr += 128;
 		else
 			chr += 160;
-		vram_list[i++] = chr;
-		vram_list[2] += 1;
+		SetVramChar(chr);
 	}
-	vram_list[i] = NT_UPD_EOF;
-	set_vram_update(vram_list);
-	ppu_wait_frame();
-	
+	SetVramEOF();
+
+	// Write attributes to VRAM buffer
+	src = buffer;
+	SetVramAttr();
+	while (*src) {
+		src++;
+		SetVramColor(!*src);
+	}
+	SetVramEOF();	
 #else	
 	unsigned char *src = buffer;
 	unsigned char bckX = txtX;

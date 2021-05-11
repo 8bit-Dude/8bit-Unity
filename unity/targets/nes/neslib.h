@@ -286,6 +286,11 @@ void __fastcall__ delay(unsigned char frames);
 #define NAMETABLE_C		0x2800
 #define NAMETABLE_D		0x2c00
 
+#define ATTRTABLE_A		0x23c0
+#define ATTRTABLE_B		0x27c0
+#define ATTRTABLE_C		0x2bc0
+#define ATTRTABLE_D		0x2fc0
+
 #define NULL			0
 #define TRUE			1
 #define FALSE			0

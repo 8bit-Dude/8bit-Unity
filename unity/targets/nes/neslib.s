@@ -25,6 +25,7 @@
 	.export _vram_adr,_vram_put,_vram_fill,_vram_inc,_vram_unrle
 	.export _set_vram_update,_flush_vram_update
 	.export _memcpy,_memfill,_delay,_clock
+	.export _get_at_addr
 	
 	.export _flush_vram_update_nmi, _oam_set, _oam_get
 
@@ -1256,6 +1257,32 @@ _delay:
 	bne @1
 
 	rts
+	
+	
+;int __fastcall__ get_at_addr(char nt, char x, char y);
+_get_at_addr:
+	and #$e0
+	sta TEMP
+	
+	jsr popa
+	and #$e0
+	lsr a
+	lsr a
+	lsr a
+	ora TEMP
+	lsr a
+	lsr a
+	ora #$c0
+	sta TEMP
+	
+	jsr popa
+	and #3
+	asl a
+	asl a
+	ora #$23
+	tax
+	lda TEMP
+	rts	
 
 
 

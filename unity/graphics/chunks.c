@@ -134,14 +134,14 @@ void GetChunk(unsigned char** chunk, unsigned char x, unsigned char y, unsigned 
 	POKE(ptr++, y);
 	POKE(ptr++, w);
 	POKE(ptr++, h);
+	ppu_off();	
 	for (i=0; i<h; ++i) {
 		vaddr = NTADR_A(x,y);
-		ppu_off();	
 		vram_adr(vaddr);
 		vram_read(ptr, w);
-		ppu_on_all();	
 		ptr += w; y++;
 	}	
+	ppu_on_all();	
 	
 #else	
 	// Allocate memory for bitmap chunk
@@ -293,18 +293,16 @@ void SetChunk(unsigned char* chunk, unsigned char x, unsigned char y)
 	UpdateDisplay();
 	
 #elif defined __NES__
-	unsigned char i, *ptr = chunk+2;
-	unsigned char w = PEEK(ptr++);
-	unsigned char h = PEEK(ptr++);
-	unsigned int vaddr;
-	x /= 8u; y /= 8u; 
+	unsigned char i, j, *ptr = chunk+2;
+	unsigned char w = *ptr++;
+	unsigned char h = *ptr++;
+	txtX = x/8u; txtY = (y/8u)-2;
 	for (i=0; i<h; ++i) {
-		vaddr = NTADR_A(x,y);
-		ppu_off();	
-		vram_adr(vaddr);
-		vram_write(ptr, w);
-		ppu_on_all();
-		ptr += w; y++;
+		SetVramName();
+		for (j=0; j<w; j++)
+			SetVramChar(*ptr++);
+		SetVramEOF();	
+		txtY++;
 	}	
 #endif
 }
