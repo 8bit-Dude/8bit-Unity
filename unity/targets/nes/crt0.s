@@ -301,8 +301,6 @@ detectNTSC:
 	.include "MMC1/mmc1_macros.asm"
 	.include "MMC1/bank_helpers.asm"
 	.include "neslib.s"
-	;.include "nesdoug.s"
-
 
 	
 ; I put all the music stuff on bank 6

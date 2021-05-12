@@ -15,8 +15,15 @@
 // previous versions were created since mid-2011, there were many updates
 
 
+/////////////////////////////////////////////////////
+// Extras (from NES Doug)
+
+int __fastcall__ get_at_addr(char nt, char x, char y);
+// gets a ppu address in the attribute table from x and y coordinates (in pixels)
+// x is screen pixels 0-255, y is screen pixels 0-239, nt is nametable 0-3
 
 
+/////////////////////////////////////////////////////
 
 //set bg and spr palettes, data is 32 bytes array
 

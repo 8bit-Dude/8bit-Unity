@@ -27,9 +27,6 @@
 #include "../../unity.h"
 
 #pragma bss-name(push, "XRAM")
-  // extra RAM at $6000-$7fff
-  unsigned char bankLevel;
-  unsigned char bankBuffer[MAX_BANK_DEPTH];
   unsigned char vram_list[256];
   unsigned char vram_list_index = 0;
   unsigned char vram_list_length;
@@ -39,6 +36,7 @@
   unsigned char vram_attr_horz;
   unsigned char vram_attr_vert;
   unsigned char autoRefresh = 1;
+  unsigned char palBG[16]={ 0x0f, 0x00, 0x10, 0x30, 0x0f,0x01,0x21,0x31,0x0f,0x06,0x16,0x26,0x0f,0x09,0x19,0x29 };  
 #pragma bss-name(pop)
 
 #pragma rodata-name("BANK0")

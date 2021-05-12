@@ -35,7 +35,6 @@
  */
  
 #include "neslib.h"
-#include "nesdoug.h" 
 #include "MMC1/bank_helpers.h"
 
 // Character Mode
@@ -87,13 +86,17 @@
 #define BLACK  0
 #define WHITE  0
 #define GREY   0
+#define YELLOW 0
 #define BLUE   1
+#define CYAN   1
 #define PURPLE 1
 #define RED    2
+#define BROWN  2
 #define ORANGE 2
+#define PINK   2
 #define GREEN  3
 #define LGREEN 3
-#define YELLOW 3
+#define DGREEN 3
 
 // Clock
 #define TCK_PER_SEC	CLK_TCK
@@ -103,16 +106,21 @@
 #define bgcolor       textcolor
 #define clrscr        ClearBitmap
 
-// Display update functions
+// Display functions
+extern unsigned char autoRefresh, palBG[16];
 void __fastcall__ SetVramAttr(void);
 void __fastcall__ SetVramName(void);
 void __fastcall__ SetVramChar(unsigned char chr);
 void __fastcall__ SetVramColor(unsigned char forcePush);
-extern unsigned char autoRefresh; // Toggle for automatic screen refresh after PrintStr(), PrintNum(), PrintBlanks(), SetChunk() ...
+
+// ROM/RAM transfer functions
+void memcpyBanked(unsigned char* dst, unsigned char* src, unsigned int len, unsigned char bank);
 
 // Hires gfx functions (see blitXXX.s)
 void __fastcall__ BlitCharmap(void);
 
 // Reading files from ROM (see files.c)
-void DirList(void);
+extern unsigned char fileNum, fileIndex, *fileNames[];    
+extern unsigned int  fileSizes[];
 unsigned char* FileRead(const char* filename);
+void DirList(void);

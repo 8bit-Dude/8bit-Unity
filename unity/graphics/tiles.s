@@ -31,56 +31,59 @@
 	.import _decodeWidth, _decodeHeight
 	.import _blockWidth, _charmapWidth
 
-; Zeropage addresses
+	.segment	"BSS"
+
+_curCol: .res 1
+
+	; Zeropage addresses
 
 .ifdef __APPLE2__
-	tilesetDataZP = $ef
 	charPtrZP = $ce
 	decPtr1ZP = $fb
 	decPtr2ZP = $fd
+	tilePtrZP = $ef
+	BUFFER:  .res 4
 .endif
 
 .ifdef __ATARI__
-	tilesetDataZP = $e0
 	charPtrZP = $e2
 	decPtr1ZP = $e4
 	decPtr2ZP = $e6
+	tilePtrZP = $e0
+	BUFFER:  .res 4
 .endif	
 	
 .ifdef __CBM__
-	tilesetDataZP = $61
 	charPtrZP = $63
 	decPtr1ZP = $fb
 	decPtr2ZP = $fd
+	tilePtrZP = $61
+	BUFFER:  .res 4
 .endif	
 
 .ifdef __LYNX__
-	tilesetDataZP = $b3
 	charPtrZP = $b5
 	decPtr1ZP = $b7
 	decPtr2ZP = $b9
+	tilePtrZP = $b3
+	BUFFER:  .res 4
 .endif	
 
 .ifdef __NES__
-	tilesetDataZP = $00
-	charPtrZP = $00
-	decPtr1ZP = $00
-	decPtr2ZP = $00
+	charPtrZP = $f0
+	decPtr1ZP = $f2
+	decPtr2ZP = $f4
+	tilePtrZP = $f6
+	BUFFER    = $f8
 .endif
 
 .ifdef __ATMOS__
-	tilesetDataZP = $b0
 	charPtrZP = $b2
 	decPtr1ZP = $b4
 	decPtr2ZP = $b6
+	tilePtrZP = $b0
+	BUFFER:  .res 4
 .endif
-
-	.segment	"BSS"
-
-_tmpTil: .res 1
-_tmpChr: .res 4
-_curCol: .res 1
-_curRow: .res 1
 
 	.segment	"CODE"	
 
@@ -88,7 +91,7 @@ _curRow: .res 1
 ; void __near__ _DecodeTiles2x2 (void)
 ;	Convert Tilemap to Charmap
 ;	Zero Page Data:
-;		tilesetDataZP: 16 bit address of tileset data
+;		tilePtrZP: 16 bit address of tileset data
 ;		charPtrZP: 16 bit address of location in charmap (auto-updated)
 ;		decPtr1ZP: 16 bit address of first line (auto-updated)
 ;		decPtr2ZP: 16 bit address of second line (auto-updated)
@@ -128,7 +131,7 @@ loopRows:
 		clc	
 	nocarryChrPtr:
 
-		; Update location in screen buffer (line 1)
+		; Update location in decode buffer (line 1)
 		lda decPtr1ZP			
 		clc	
 		adc _blockWidth
@@ -138,7 +141,7 @@ loopRows:
 		clc	
 	nocarryScrPtr1:
 
-		; Update location in screen buffer (line 2)
+		; Update location in decode buffer (line 2)
 		lda decPtr2ZP		
 		clc	
 		adc _blockWidth
@@ -156,58 +159,58 @@ doneRows:
 ; ---------------------------------------------------------------	
 
 processTile:
-	; Get Tile Value (x2)
+	; Get Tile Value and multiply it by 2 (TileX2)
 	lda (charPtrZP),y
 	asl A
-	sta _tmpTil
+	sta BUFFER+0
 
-	; Set Tile Set Data Address
+	; Set base address of Tileset
 	lda _tilesetData+1
-	sta  tilesetDataZP+1
+	sta  tilePtrZP+1
 	lda _tilesetData
-	sta  tilesetDataZP
+	sta  tilePtrZP
 
-	; Add Tile Value (x2)
+	; Add TileX2 index (2 times)
 	clc	
-	adc _tmpTil
-	sta tilesetDataZP	
+	adc BUFFER+0
+	sta tilePtrZP	
 	bcc nocarry1
-	inc tilesetDataZP+1
+	inc tilePtrZP+1
 	clc	
 nocarry1:
 	clc
-	adc _tmpTil
-	sta tilesetDataZP	
+	adc BUFFER+0
+	sta tilePtrZP	
 	bcc nocarry2
-	inc tilesetDataZP+1
+	inc tilePtrZP+1
 nocarry2:
 	
-	; Get All Chars
+	; Get Tile: 2x2 chars
 	ldy #0
-	lda (tilesetDataZP),y
-	sta _tmpChr+0
+	lda (tilePtrZP),y
+	sta BUFFER+0
 	iny
-	lda (tilesetDataZP),y
-	sta _tmpChr+1
+	lda (tilePtrZP),y
+	sta BUFFER+1
 	iny
-	lda (tilesetDataZP),y
-	sta _tmpChr+2
+	lda (tilePtrZP),y
+	sta BUFFER+2
 	iny
-	lda (tilesetDataZP),y
-	sta _tmpChr+3
+	lda (tilePtrZP),y
+	sta BUFFER+3
 	
-	; Assign Chars to Buffer (4 bytes per Tile)
+	; Assign chars to Decode buffer
 	lda _curCol
 	asl A
 	tay
-	lda _tmpChr+0
+	lda BUFFER+0
 	sta (decPtr1ZP),y
-	lda _tmpChr+2
+	lda BUFFER+2
 	sta (decPtr2ZP),y
 	iny
-	lda _tmpChr+1
+	lda BUFFER+1
 	sta (decPtr1ZP),y
-	lda _tmpChr+3
+	lda BUFFER+3
 	sta (decPtr2ZP),y
 	
 	rts

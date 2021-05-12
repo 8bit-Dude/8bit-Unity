@@ -77,12 +77,9 @@
   #define scrPtr1ZP 0xb7
   #define scrPtr2ZP 0xb9
 #elif defined(__NES__)
-  #define charPtrZP 0x00
-  #define decPtr1ZP 0x00
-  #define decPtr2ZP 0x00 
-  #define scrPtrZP  0x00
-  #define scrPtr1ZP 0x00
-  #define scrPtr2ZP 0x00 
+  #define charPtrZP 0xf0
+  #define decPtr1ZP 0xf2
+  #define decPtr2ZP 0xf4 
 #elif defined(__ORIC__)
   #define charPtrZP 0xb2
   #define decPtr1ZP 0xb4
@@ -112,7 +109,7 @@
   #define CHAR_WIDTH       1u
   #define CHAR_HEIGHT      1u
   #define LINE_SIZE	  	  32u	
-  #define ROW_SIZE		  32u
+  #define ROW_SIZE		  25u
 #elif defined(__ORIC__)
   #define CHAR_WIDTH       1u
   #define CHAR_HEIGHT      8u
@@ -146,17 +143,28 @@ unsigned char screenCol1 = 0, screenCol2 = CMP_COLS, screenWidth = CMP_COLS;
 unsigned char screenRow1 = 0, screenRow2 = CMP_ROWS, screenHeight = CMP_ROWS;
 unsigned char lineBlock;
 
-// Drawing properties
-unsigned char blockWidth, decodeWidth, decodeHeight, *decodeData;
+// Decoding properties
+unsigned char blockWidth, decodeWidth, decodeHeight;
 unsigned char tileX, tileY, tileCols, tileRows;
 unsigned char scrollCols, scrollRows, scrollDirX, scrollDirY;
   
 // Pointers to various data sets
-unsigned char *charmapData;
-unsigned char *charsetData;
-unsigned char *charflagData;
-unsigned char *tilesetData;
-unsigned char *screenData;
+#if defined __NES__
+ #pragma bss-name(push, "XRAM")
+  unsigned char tileset[128*TILE_WIDTH*TILE_HEIGHT];  
+  unsigned char *tilesetData = tileset;
+  unsigned char charmapData[0x1000];
+  unsigned char charflagData[128];  
+  unsigned char decodeData[0x400];  
+ #pragma bss-name(pop)
+#else
+  unsigned char *tilesetData;
+  unsigned char *charmapData;
+  unsigned char *charsetData;
+  unsigned char *charflagData;
+  unsigned char *decodeData;
+  unsigned char *screenData;
+#endif
 #if defined __CBM__	
   unsigned char *charattData;
   unsigned char *colorData;
@@ -198,8 +206,9 @@ void InitCharmap(unsigned char col1, unsigned char col2, unsigned char row1, uns
 	bmpRows = chrRows + 8*(CMP_ROWS-row2) + 2;
 	bmpAddr = BITMAPRAM1 + row2*(8*40);
 	InitBitmap();
-	CharmapDLIST(); // Setup DLIST
+	CharmapDLIST();
 #elif defined __CBM__
+	// Charmap/Bitmap transition params
 	rasterLine = 57 + row2*8;
 	colorData  = (char*)(COLORRAM + screenRow1*LINE_SIZE + screenCol1*CHAR_WIDTH);
 #endif
@@ -242,7 +251,7 @@ void HideCharmap()
 // Clear entire screen
 void ClearCharmap()
 {
-#if (defined __APPLE2__) || (defined __LYNX__) || (defined __ORIC__)
+#if (defined __APPLE2__) || (defined __LYNX__)  || (defined __NES__) || (defined __ORIC__)
 	ClearBitmap();
 
 #elif defined __ATARI__
@@ -255,6 +264,9 @@ void ClearCharmap()
 }
 
 // Load charset and associated attributes / flags
+#if defined __NES__
+  extern unsigned char fileIndex;
+#endif
 void LoadCharset(char* filename)
 {
 #if defined __APPLE2__
@@ -297,6 +309,19 @@ void LoadCharset(char* filename)
 		charflagData = (char*)(charsetData+0x0400);
 		ClearBitmap();
 	}
+
+#elif defined __NES__
+    unsigned char* data = FileRead(filename);
+	if (data) {
+		// Copy palette data to XRAM
+		memcpyBanked(palBG, data, 4, 1);
+		
+		// Switch to new palette/charset
+		ppu_off();			
+		pal_bg(palBG);
+		set_chr_bank_0(2+fileIndex);
+		ppu_on_all();
+	}
 	
 #elif defined __ORIC__
 	if (!charsetData)
@@ -309,8 +334,10 @@ void LoadCharset(char* filename)
 // Load charmap from file
 void LoadCharmap(char *filename, unsigned int w, unsigned int h) 
 {
-#if (defined __CBM__)
+#if defined(__CBM__)
 	FILE* fp;
+#elif defined(__NES__)
+	unsigned char* data;
 #endif
 	unsigned int size = w*h;
 	
@@ -328,8 +355,10 @@ void LoadCharmap(char *filename, unsigned int w, unsigned int h)
 #if defined  __ATARI__
 	charmapData = (char*)CHARMAPRAM;
 #else
+  #ifndef __NES__
 	if (charmapData) free(charmapData);	
 	charmapData = malloc(size);
+  #endif	
 #endif	
 	
 	// Load data from file
@@ -355,6 +384,11 @@ void LoadCharmap(char *filename, unsigned int w, unsigned int h)
 	
 #elif defined __ORIC__
 	FileRead(filename, charmapData);	
+	
+#elif defined __NES__
+	data = FileRead(filename);
+	if (data)
+		memcpyBanked(charmapData, data, size, 1);	
 #endif
 }
 
@@ -368,8 +402,10 @@ void LoadTileset(char *filename, unsigned int n)
 
 	// Assign memory and ZP pointer
 	unsigned int size = n*TILE_WIDTH*TILE_HEIGHT;	
+#ifndef __NES__
 	if (tilesetData) free(tilesetData);	
 	tilesetData = malloc(size);
+#endif
 	
 #if (defined __APPLE2__)
 	if (FileOpen(filename)) {
@@ -393,6 +429,11 @@ void LoadTileset(char *filename, unsigned int n)
 	
 #elif defined __ORIC__
 	FileRead(filename, tilesetData);	
+
+#elif defined __NES__
+	unsigned char* data = FileRead(filename);
+	if (data)
+		memcpyBanked(tilesetData, data, size, 1);	
 #endif
 	
 	// Allocate buffer for tile to char conversion
@@ -400,17 +441,21 @@ void LoadTileset(char *filename, unsigned int n)
 	decodeWidth  = screenWidth+TILE_WIDTH;
 	tileRows = decodeHeight/TILE_HEIGHT;
 	tileCols = decodeWidth/TILE_WIDTH;
+#ifndef __NES__	
 	if (decodeData) free(decodeData);	
 	decodeData = malloc(decodeWidth*decodeHeight);
+#endif
 }
 
 void FreeCharmap()
 {
-#ifndef __ATARI__
+#ifndef __NES__
+  #ifndef __ATARI__
 	if (charmapData) free(charmapData);	
 	if (charsetData) free(charsetData);
-#endif	
+  #endif	
 	if (tilesetData) free(tilesetData);	
+#endif	
 }
 
 unsigned char GetFlag(unsigned char x, unsigned char y)
@@ -502,6 +547,10 @@ unsigned int DecodeTiles()
 
 void ScrollCharmap(unsigned char x, unsigned char y)
 {
+#ifdef __NES__	
+	DrawCharmap(x, y);
+	
+#else
 	signed char stepX, stepY;
 	unsigned int src, srcOff, dstOff;
 	unsigned int cpyDst = 0, cpySrc = 0;
@@ -647,10 +696,16 @@ void ScrollCharmap(unsigned char x, unsigned char y)
 		screenCol1 = tmp2;
 	#endif
 	}		
+#endif	
 }
 
 void DrawCharmap(unsigned char x, unsigned char y)
 {
+#ifdef __NES__
+	unsigned char i,j;
+	unsigned char *ptr;
+#endif
+	
 	// Platform specific handling
 #if defined(__APPLE2__)
 	x = 2*(x/2u)+1;
@@ -668,12 +723,28 @@ void DrawCharmap(unsigned char x, unsigned char y)
 
 	// Save new coordinates (for scrolling)
 	worldX = x; worldY = y;
-	
+		
+#ifdef __NES__
+	// Decode tiles (if necessary)
+	ptr = DecodeTiles();
+
+	// Send to VRAM
+	txtX = screenCol1; txtY = screenRow1;
+	for (j=0; j<screenHeight; j++) {
+		SetVramName();
+		for (i=0; i<screenWidth; i++)
+			SetVramChar(*(ptr+i));
+		UpdateDisplay();
+		ptr += decodeWidth;
+		txtY++; 
+	}
+
+#else
 	// Decode tiles (if necessary)
 	POKEW(charPtrZP, DecodeTiles());
-
-	// Draw to screen
-#ifndef __APPLE2__
+	
+	// Blit decoded map to screen
+ #ifndef __APPLE2__
 	POKEW(scrPtrZP, (unsigned int)screenData);
   #if defined __ATARI__
 	POKEW(charattDataZP, CHARATRRAM);
@@ -681,6 +752,7 @@ void DrawCharmap(unsigned char x, unsigned char y)
 	POKEW(charattDataZP, charattData);
 	POKEW(colPtrZP, colorData);
   #endif
-#endif
+ #endif
 	BlitCharmap();
+#endif
 }
