@@ -1273,8 +1273,7 @@ class Application:
             fp.write('copy utils\\scripts\\lynx\\cursor.spr ' + buildFolder + '\\lynx\\cursor.dat\n')
             fp.write('copy utils\\scripts\\lynx\\keyboard.spr ' + buildFolder + '\\lynx\\keyboard.dat\n')
             fp.write('\n')
-                
-                
+                                
             # Copy Chipper sfx and music data
             fp.write('copy unity\\targets\\lynx\\chipper.s ' + buildFolder + '\\lynx\\soundbs.mac\n')    
             for i in range(len(music)):
@@ -1507,24 +1506,43 @@ class Application:
             
             fp.write('echo --------------- CONVERT ASSETS ---------------  \n\n')
             
-            # Process Bitmaps / Chunks / Sprites / Shared
-            fp.write('copy utils\\scripts\\nes\\font.chr ' + buildFolder + '\\nes\\font.chr\n')
+            # Process Bitmaps / Chunks / Sprites / Shared                         
+            for item in bitmaps:
+                fb = FileBase(item, '.png')
+                fp.write('utils\\py27\\python utils/scripts/nes/NESMergeCHR.py ' + item[0:-3] + 'chr utils/scripts/nes/font.chr ' + buildFolder + '/nes/' + fb + '.chr\n')
+                fp.write('utils\\py27\\python utils/scripts/nes/NESMergePNT.py ' + item[0:-3] + 'pal ' + item[0:-3] + 'rle ' + buildFolder + '/nes/' + fb + '.img\n\n')
+
+            for item in charset:
+                fb = FileBase(item, '.png')
+                fp.write('utils\\py27\\python utils/scripts/nes/NESMergeCHR.py ' + item[0:-3] + 'chr utils/scripts/nes/font.chr ' + buildFolder + '/nes/' + fb + '.chr\n')
+                fp.write('copy ' + item[0:-3].replace('/', '\\') + 'pal ' + buildFolder + '\\nes\\' + fb + '.pal\n\n')
+            
+            if len(charmaps) > 0:
+                for item in charmaps:
+                    fb = FileBase(item, '')
+                    fp.write('copy ' + item.replace('/', '\\') + ' ' + buildFolder + '\\nes\\' + fb + '\n')
+                fp.write('\n')
 
             if len(sprites) > 0:
                 fp.write('copy ' + sprites[0][0:-3].replace('/', '\\') + 'chr ' + buildFolder + '\\nes\\sprites.chr\n')
             else:
                 fp.write('copy utils\\scripts\\nes\\font.chr ' + buildFolder + '\\nes\\sprites.chr\n')
-                         
-            for i in range(len(bitmaps)):
-                item = bitmaps[i]
-                fb = FileBase(item, '.png')
-                fp.write('utils\\py27\\python utils/scripts/nes/NESMergeCHR.py ' + item[0:-3] + 'chr utils/scripts/nes/font.chr ' + buildFolder + '/nes/' + fb + '.chr\n')
-                fp.write('utils\\py27\\python utils/scripts/nes/NESMergePNT.py ' + item[0:-3] + 'pal ' + item[0:-3] + 'rle ' + buildFolder + '/nes/' + fb + '.img\n\n')
+            fp.write('\n')
             
             for item in music:
                 fb = FileBase(item, '')
                 fp.write('copy ' + item.replace('/', '\\') + ' ' + buildFolder + '\\nes\\music.txt\n')
                 fp.write('utils\\scripts\\nes\\text2data -ca65 build/nes/music.txt\n\n')
+
+            if len(shared) > 0:             
+                for item in shared:
+                    fb = FileBase(item, '')
+                    fp.write('copy ' + item.replace('/', '\\') + ' ' + buildFolder + '\\nes\\' + fb + '\n')
+                fp.write('\n')                
+
+            # Default charset (font only)        
+            fp.write('copy utils\\scripts\\nes\\font.chr ' + buildFolder + '\\nes\\font.chr\n\n')
+            
 
             fp.write('echo ---------------- LINK ASSETS ----------------  \n\n')
 
@@ -1534,7 +1552,7 @@ class Application:
             fp.write('set /a CHUNKNUM=0\n')
             if len(chunks) > 0:
                 fp.write('for /f "tokens=*" %%A in (chunks.lst) do set CHUNKNAMES=!CHUNKNAMES!_shkName!CHUNKNUM!,&&set /a CHUNKNUM+=1\n')
-            fp.write('set /a FILENUM=!CHUNKNUM!+' + str(len(bitmaps)) + '\n')
+            fp.write('set /a FILENUM=!CHUNKNUM!+' + str(len(bitmaps)+len(charset)+len(charmaps)+len(shared)) + '\n')
             fp.write('\n')
             
             # Get Size of various files
@@ -1542,6 +1560,15 @@ class Application:
             for i in range(len(bitmaps)):
                 fb = FileBase(bitmaps[i], '.png')
                 filelist += fb + '.img,'
+            for i in range(len(charset)):
+                fb = FileBase(charset[i], '.png')
+                filelist += fb + '.pal,'
+            for item in charmaps:
+                fb = FileBase(item, '')
+                filelist += fb + ','
+            for item in shared:
+                fb = FileBase(item, '')
+                filelist += fb + ','
             fp.write('set FILESIZES=\n')
             fp.write('for %%I in (' + filelist[0:-1] + ') do set FILESIZES=!FILESIZES!%%~zI,\n')
             if len(chunks) > 0:
@@ -1552,7 +1579,6 @@ class Application:
             fp.write('@echo .global _fileNum >> data.asm\n')
             fp.write('@echo .global _fileSizes >> data.asm\n')
             fp.write('@echo .global _fileNames >> data.asm\n')
-            fp.write('@echo .global _fileDatas >> data.asm\n')
             fp.write('@echo ; >> data.asm\n')
             
             # Num and sizes of files
@@ -1560,7 +1586,7 @@ class Application:
             fp.write('@echo _fileNum: .byte %FILENUM% >> data.asm\n')  
 
             # List of file names and data
-            if len(bitmaps) > 0:
+            if len(bitmaps) > 0 or len(charmaps) > 0 or len(charset) > 0:
                 # Declare all Bitmap, Shared and Chunk files
                 fp.write('@echo _fileSizes: .word %FILESIZES:~0,-1% >> data.asm\n')
                 fp.write('@echo _fileNames: .addr ')
@@ -1570,27 +1596,42 @@ class Application:
                         fp.write(',')
                     fp.write('_bmpName' + str(i).zfill(2))
                     counter += 1
-                fp.write(' >> data.asm\n')
-
-                # Write list of bitmap names
-                for i in range(len(bitmaps)):
-                    fb = FileBase(bitmaps[i], '.png')
-                    fp.write('@echo _bmpName' + str(i).zfill(2) + ': .byte "' + fb + '.img",0 >> data.asm\n')
-                fp.write('@echo ; >> data.asm\n')
-
-                fp.write('@echo _fileDatas: .addr ')
-                counter = 0
-                for i in range(len(bitmaps)):
+                for i in range(len(charset)):
                     if counter > 0:
                         fp.write(',')
-                    fp.write('_bmpData' + str(i).zfill(2))
+                    fp.write('_chrName' + str(i).zfill(2))
+                    counter += 1
+                for i in range(len(charmaps)):
+                    if counter > 0:
+                        fp.write(',')
+                    fp.write('_mapName' + str(i).zfill(2))
+                    counter += 1
+                for i in range(len(shared)):
+                    if counter > 0:
+                        fp.write(',')
+                    fp.write('_shrName' + str(i).zfill(2))
                     counter += 1
                 fp.write(' >> data.asm\n')
 
-                # Write list of bitmap datas
+                # Write list of Bitmap names
                 for i in range(len(bitmaps)):
                     fb = FileBase(bitmaps[i], '.png')
-                    fp.write('@echo _bmpData' + str(i).zfill(2) + ': .incbin "' + fb + '.img" >> data.asm\n')
+                    fp.write('@echo _bmpName' + str(i).zfill(2) + ': .byte "' + fb + '.img",0 >> data.asm\n')
+
+                # Write list of Charset names
+                for i in range(len(charset)):
+                    fb = FileBase(charset[i], '.png')
+                    fp.write('@echo _chrName' + str(i).zfill(2) + ': .byte "' + fb + '.chr",0 >> data.asm\n')
+                    
+                # Write list of Charmaps/Tilesets
+                for i in range(len(charmaps)):
+                    fb = FileBase(charmaps[i], '')
+                    fp.write('@echo _mapName' + str(i).zfill(2) + ': .byte "' + fb + '",0 >> data.asm\n')
+                    
+                # Write list of Shared
+                for i in range(len(shared)):
+                    fb = FileBase(shared[i], '')
+                    fp.write('@echo _shrName' + str(i).zfill(2) + ': .byte "' + fb + '",0 >> data.asm\n')                    
             else:
                 fp.write('@echo _fileSizes: .word 0 >> data.asm\n')
                 fp.write('@echo _fileNames: .addr _dummy >> data.asm\n')
@@ -1598,13 +1639,20 @@ class Application:
                 fp.write('@echo _dummy: .byte 0 >> data.asm\n')
             fp.write('@echo ; >> data.asm\n')
 
-            # Write list of tilesets
-            fp.write('@echo .segment "CHARS" >> data.asm\n')
-            fp.write('@echo _tileset00: .incbin "font.chr" >> data.asm\n')
-            fp.write('@echo _tileset01: .incbin "sprites.chr" >> data.asm\n')
+            # Write asset files to PRG banks
+            fp.write('@echo .segment "BANK1" >> data.asm\n')
             for i in range(len(bitmaps)):
                 fb = FileBase(bitmaps[i], '.png')
-                fp.write('@echo _tileset' + str(i+2).zfill(2) + ': .incbin "' + fb + '.chr" >> data.asm\n')                
+                fp.write('@echo _bmpData' + str(i).zfill(2) + ': .incbin "' + fb + '.img" >> data.asm\n')
+            for i in range(len(charset)):
+                fb = FileBase(charset[i], '.png')
+                fp.write('@echo _chrData' + str(i).zfill(2) + ': .incbin "' + fb + '.pal" >> data.asm\n')
+            for i in range(len(charmaps)):
+                fb = FileBase(charmaps[i], '')
+                fp.write('@echo _mapData' + str(i).zfill(2) + ': .incbin "' + fb + '" >> data.asm\n')                
+            for i in range(len(shared)):
+                fb = FileBase(shared[i], '')
+                fp.write('@echo _shrData' + str(i).zfill(2) + ': .incbin "' + fb + '" >> data.asm\n')                
             fp.write('@echo ; >> data.asm\n')
                 
             # Link Music 
@@ -1616,6 +1664,21 @@ class Application:
                 fp.write('@echo _music_data: .byte 0 >> data.asm\n')
             fp.write('@echo ; >> data.asm\n')
 
+            # Write list of CHR pages (including default font and sprites)
+            fp.write('@echo .segment "CHARS" >> data.asm\n')
+            fp.write('@echo _tileset00: .incbin "font.chr" >> data.asm\n')
+            fp.write('@echo _tileset01: .incbin "sprites.chr" >> data.asm\n')
+            counter = 2
+            for i in range(len(bitmaps)):
+                fb = FileBase(bitmaps[i], '.png')
+                fp.write('@echo _tileset' + str(counter).zfill(2) + ': .incbin "' + fb + '.chr" >> data.asm\n')                
+                counter += 1
+            for i in range(len(charset)):
+                fb = FileBase(charset[i], '.png')
+                fp.write('@echo _tileset' + str(counter).zfill(2) + ': .incbin "' + fb + '.chr" >> data.asm\n')                
+                counter += 1
+            fp.write('@echo ; >> data.asm\n')
+            
             # Done, return to base folder
             fp.write('\n')
             fp.write('cd ..\n')
@@ -1625,7 +1688,7 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Build Unity Library
-            cTarget = [ 'targets\\nes\\conio.c', 'targets\\nes\\display.c', 'targets\\nes\\files.c', 'targets\\nes\\keyboard.c', 'targets\\nes\\text.c' ]
+            cTarget = [ 'targets\\nes\\conio.c', 'targets\\nes\\display.c', 'targets\\nes\\files.c', 'targets\\nes\\keyboard.c', 'targets\\nes\\memory.c', 'targets\\nes\\text.c' ]
             sTarget = [ 'graphics\\scroll.s', 'targets\\nes\\blitCharmap.s', 'targets\\nes\\crt0.s', 'targets\\nes\\joystick.s' ]
             BuildUnityLibrary(self, fp, '-t nes', '', cCore+cTarget, sCore+sTarget, buildFolder+'/nes')
 
