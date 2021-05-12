@@ -1,6 +1,11 @@
 
 #include "definitions.h"
 
+#ifdef __NES__
+  #pragma rodata-name("BANK0")
+  #pragma code-name("BANK0")
+#endif
+
 #if defined __APPLE2__
  #if defined __DHR__
   #define RACE_ROAD LGREY
@@ -31,6 +36,10 @@
   unsigned char MenuPause(void);
   extern unsigned char pauseEvt;
   extern unsigned char gamePaused;
+#elif defined __NES__
+  #define RACE_ROAD BLACK
+  #define RACE_MARK WHITE
+  #define RACE_WALL RED
 #endif
 
 // See slicks.c
@@ -145,6 +154,9 @@ void GameReset()
 	#elif defined __LYNX__
 		spriteX = cars[i].x2/16u; 
 		spriteY = cars[i].y2/16u;
+	#elif defined __NES__
+		spriteX = cars[i].x2/10u; 
+		spriteY = cars[i].y2/8u+16;
 	#endif
 	#if defined __ATARI__
 		SetMultiColorSprite(2*i, f);
@@ -237,8 +249,8 @@ void GameInit(const char* map)
 			#if defined __ORIC__
 				txtX = slot-1; SetAttributes(inkColor);
 			#endif					
-                txtX = slot;   PrintChr(&charLetter[15*3]);	// 'P'
-				txtX = slot+1; PrintChr(&charDigit[(i+1)*3]);
+                txtX = slot;   PrintChr('p');
+				txtX = slot+1; PrintChr(CHR_DIGIT+1+i);
             }
         }
         // Initiate laps
@@ -271,7 +283,7 @@ unsigned char GameRace()
 	#if defined __ATARI__ 
 		RecolorSprite(i, 0, 0x08);
 	#elif defined __ORIC__ 
-		RecolorSprite(i, 0, SPR_AIC);
+		RecolorSprite(i, 0, PAL_AIC);
 	#elif defined __CBM__
 		RecolorSprite(i, 0, LGREY);
 	#elif defined __LYNX__
@@ -302,7 +314,7 @@ unsigned char GameRace()
     // Red light
 #if defined __ORIC__ 
 	LocateSprite(LIGHT_X, 24);	
-	RecolorSprite(SPR2_SLOT, 0, SPR_RED);
+	RecolorSprite(SPR2_SLOT, 0, PAL_RED);
 	SetSprite(SPR2_SLOT, 16);
 #elif defined __ATARI__  
 	RecolorSprite(SPR2_SLOT, 0, 0x22);  
@@ -322,7 +334,7 @@ unsigned char GameRace()
     // Orange light	
 #if defined __ORIC__ 
 	LocateSprite(LIGHT_X+LIGHT_SP, 24);	
-	RecolorSprite(SPR2_SLOT+1, 0, SPR_RED);
+	RecolorSprite(SPR2_SLOT+1, 0, PAL_RED);
 	SetSprite(5, 16);	
 #elif defined __ATARI__  
 	RecolorSprite(SPR2_SLOT+1, 0, 0x1a);  
@@ -342,7 +354,7 @@ unsigned char GameRace()
     // Green light
 #if defined __ORIC__ 
 	LocateSprite(LIGHT_X+2*LIGHT_SP, 24);	
-	RecolorSprite(SPR2_SLOT+2, 0, SPR_GREEN);
+	RecolorSprite(SPR2_SLOT+2, 0, PAL_GREEN);
 	SetSprite(SPR2_SLOT+2, 16);	
 #elif defined __ATARI__  
 	RecolorSprite(SPR2_SLOT+2, 0, 0xc4);  
@@ -668,7 +680,10 @@ char GameLoop()
 			spriteY = iY/8u;
 		#elif defined __LYNX__
 			spriteX = iX/16u; 
-			spriteY = iY/16u;				
+			spriteY = iY/16u;	
+		#elif defined __NES__
+			spriteX = iX/10u; 
+			spriteY = iY/8u+16;
 		#endif				
 		
 			// Get again background color

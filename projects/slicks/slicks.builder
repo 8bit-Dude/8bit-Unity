@@ -25,7 +25,9 @@
             "projects/slicks/navigation/suzuka.nav", 
             "projects/slicks/navigation/trial.nav"
         ], 
-        "charmap": []
+        "charmap": [], 
+        "tilesize": "None", 
+        "customVBI": "No"
     }, 
     "platform": {
         "Apple": {
@@ -129,6 +131,7 @@
                 "projects/slicks/bitmaps/trial-c64.png"
             ], 
             "charset": [], 
+            "charsetColors": " ", 
             "sprites": [
                 "projects/slicks/sprites/sprites-c64.png"
             ], 
@@ -167,6 +170,34 @@
             ], 
             "music": [
                 "projects/slicks/music/speednik-lynx.asm"
+            ], 
+            "chunks": []
+        }, 
+        "NES": {
+            "spriteFrames": "18", 
+            "spriteWidth": "16", 
+            "spriteHeight": "16", 
+            "bitmap": [
+                "projects/slicks/bitmaps/menu-nes.png", 
+                "projects/slicks/bitmaps/arizona-nes.png", 
+                "projects/slicks/bitmaps/arto-nes.png", 
+                "projects/slicks/bitmaps/cramp-nes.png", 
+                "projects/slicks/bitmaps/freeway-nes.png", 
+                "projects/slicks/bitmaps/gta-nes.png", 
+                "projects/slicks/bitmaps/island-nes.png", 
+                "projects/slicks/bitmaps/mtcarlo-nes.png", 
+                "projects/slicks/bitmaps/rally-nes.png", 
+                "projects/slicks/bitmaps/river-nes.png", 
+                "projects/slicks/bitmaps/stadium-nes.png", 
+                "projects/slicks/bitmaps/suzuka-nes.png", 
+                "projects/slicks/bitmaps/trial-nes.png"
+            ], 
+            "charset": [], 
+            "sprites": [
+                "projects/slicks/sprites/sprites-nes.png"
+            ], 
+            "music": [
+                "projects/slicks/music/speednik-nes.txt"
             ], 
             "chunks": []
         }, 

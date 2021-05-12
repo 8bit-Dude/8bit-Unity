@@ -3,34 +3,40 @@
 
 // Sprite definitions
 #if defined __APPLE2__
-	#define spriteCols   7	
-	#define spriteRows   5	
-	unsigned char spriteColors[] = { };	//  Colors are pre-assigned in the sprite sheet
+  #define spriteCols   7
+  #define spriteRows   5
+  const unsigned char spriteColors[] = { };	//  Colors are pre-assigned in the sprite sheet
   #if defined __DHR__	
-	unsigned char inkColors[] = { BLUE, RED, GREEN, YELLOW, WHITE };		// P1, P2, P3, P4, SERVER INFO
+	const unsigned char inkColors[] = { BLUE, RED, GREEN, YELLOW, WHITE };		// P1, P2, P3, P4, SERVER INFO
   #else
-	unsigned char inkColors[] = { BLUE, PURPLE, GREEN, ORANGE, WHITE };		// P1, P2, P3, P4, SERVER INFO
+	const unsigned char inkColors[] = { BLUE, PURPLE, GREEN, ORANGE, WHITE };		// P1, P2, P3, P4, SERVER INFO
   #endif
 #elif defined __ATARI__
-	#define spriteCols   8
-	#define spriteRows   10
-	unsigned char spriteColors[] = { 0x84, 0xe4, 0x24, 0xe4, 0xb6, 0xe4, 0xe8, 0xe4, 0x04, 0x04, 0x04, 0x04 };	// Refer to atari palette in docs
-	unsigned char inkColors[] = { BLUE, RED, GREEN, YELLOW, WHITE };		// P1, P2, P3, P4, SERVER INFO
+  #define spriteCols   8
+  #define spriteRows   10
+  const unsigned char spriteColors[] = { 0x84, 0xe4, 0x24, 0xe4, 0xb6, 0xe4, 0xe8, 0xe4, 0x04, 0x04, 0x04, 0x04 };	// Refer to atari palette in docs
+  const unsigned char inkColors[] = { BLUE, RED, GREEN, YELLOW, WHITE };		// P1, P2, P3, P4, SERVER INFO
 #elif defined __ORIC__
-	#define spriteCols   12
-	#define spriteRows   6
-	unsigned char spriteColors[] = { SPR_CYAN, SPR_MAGENTA, SPR_GREEN, SPR_WHITE, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC };	
-	unsigned char inkColors[] = { CYAN, LPURPLE, LGREEN, GREY, WHITE };		// P1, P2, P3, P4, SERVER INFO
+  #define spriteCols   12
+  #define spriteRows   6
+  const unsigned char spriteColors[] = { PAL_CYAN, PAL_MAGENTA, PAL_GREEN, PAL_WHITE, PAL_AIC, PAL_AIC, PAL_AIC, PAL_AIC };	
+  const unsigned char inkColors[] = { CYAN, LPURPLE, LGREEN, GREY, WHITE };		// P1, P2, P3, P4, SERVER INFO
 #elif defined __CBM__
-	#define spriteCols   12
-	#define spriteRows   21
-	unsigned char spriteColors[] = { BLUE, RED, GREEN, YELLOW, LGREY, LGREY, LGREY, 0, CYAN, BLACK };	// P1, P2, P3, P4, Light1, Light2, Light3, n/a, Shared Color 1, Shared Color 2
-	unsigned char inkColors[] = { BLUE, RED, LGREEN, YELLOW, WHITE };		// P1, P2, P3, P4, SERVER INFO
+  #define spriteCols   12
+  #define spriteRows   21
+  const unsigned char spriteColors[] = { BLUE, RED, GREEN, YELLOW, LGREY, LGREY, LGREY, 0, CYAN, BLACK };	// P1, P2, P3, P4, Light1, Light2, Light3, n/a, Shared Color 1, Shared Color 2
+  const unsigned char inkColors[] = { BLUE, RED, LGREEN, YELLOW, WHITE };		// P1, P2, P3, P4, SERVER INFO
 #elif defined __LYNX__
-	#define spriteCols   8
-	#define spriteRows   9
-	unsigned char *spriteColors =  0;  //  All sprites use the default palette
-	unsigned char inkColors[] = { DBLUE, ORANGE, LGREEN, YELLOW, WHITE };	// P1, P2, P3, P4, SERVER INFO
+  #define spriteCols   8
+  #define spriteRows   9
+  unsigned char *spriteColors =  0;  //  All sprites use the default palette
+  const unsigned char inkColors[] = { DBLUE, ORANGE, LGREEN, YELLOW, WHITE };	// P1, P2, P3, P4, SERVER INFO
+#elif defined __NES__
+  #define spriteCols    8
+  #define spriteRows    8
+  const unsigned char spriteColors[] = { PAL_BLACK, PAL_BLUE, PAL_CYAN, PAL_GREY,  PAL_BLACK, PAL_RED, PAL_CYAN, PAL_GREY, 
+										 PAL_BLACK, PAL_GREEN, PAL_CYAN, PAL_GREY, PAL_BLACK, PAL_YELLOW, PAL_CYAN, PAL_GREY }; // 4 palettes of 4 colors
+  const unsigned char inkColors[] = { BLUE, RED, LGREEN, YELLOW, WHITE };		// P1, P2, P3, P4	
 #endif
 
 // Build Information
@@ -80,6 +86,10 @@ int main (void)
 	RecolorSprite(2, 0, 0x05); // BLUE -> GREEN
 	RecolorSprite(3, 0, 0x09); // BLUE -> YELLOW
 	sprCushion = 5;
+#elif defined __NES__
+	RecolorSprite(1, 0, 1); // Use Palette 1
+	RecolorSprite(2, 0, 2); // Use Palette 2
+	RecolorSprite(3, 0, 3); // Use Palette 3
 #endif   
 
 	// Main Loop

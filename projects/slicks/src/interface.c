@@ -5,6 +5,11 @@
   #pragma code-name("SHADOW_RAM")
 #endif
 
+#ifdef __NES__
+  #pragma rodata-name("BANK0")
+  #pragma code-name("BANK0")
+#endif
+
 // Platform specific colors
 #if defined __APPLE2__
 	#define INK_LAPS   	 GREEN
@@ -44,15 +49,32 @@
 	#define PAUSE_COL 		 15
 	#define PAUSE_LOCAL_ROW   6
 	#define PAUSE_ONLINE_ROW  2
+#elif defined __NES__
+	#define INK_LAPS   	 BLACK
+	#define INK_TAB		 GREEN
+	#define INK_HIGHLT	 BLACK
+	#define PAPER_HIGHLT YELLOW
+	#define PAPER_SCORES GREY
+	#define SCORES_ROW   8	
+	#define PAUSE_COL 		  7
+	#define PAUSE_LOCAL_ROW   6
+	#define PAUSE_ONLINE_ROW  2
 #endif
 
 // Platform specific panel location/size
 #if defined __LYNX__
+	void __fastcall__ SuzyFlip(void);
 	#define MENU_COL 22
 	#define MENU_ROW  2
 	#define MENU_WID 17
 	#define MENU_HEI 13
 	#define MENU_BLD TXT_ROWS-1
+#elif defined __NES__
+	#define MENU_COL 14
+	#define MENU_ROW  2
+	#define MENU_WID 17
+	#define MENU_HEI 16
+	#define MENU_BLD TXT_ROWS-2
 #else
 	#define MENU_COL 22
 	#define MENU_ROW  4
@@ -79,27 +101,27 @@ extern unsigned char svUsers[MAX_PLAYERS][5];
 extern unsigned char clIndex, clUser[5], clPass[13];
 extern char networkReady, chatBuffer[20], udpBuffer[28];
 
-// See Unity/Lynx/Suzy.s
-void __fastcall__ SuzyFlip(void);
-
 // List of controller types
 #if defined __LYNX__
-	unsigned char controlIndex[MAX_PLAYERS] = { 4, 1, 1, 1 };
-	unsigned char controlBackup[MAX_PLAYERS] = { 4, 1, 1, 1 };
+  unsigned char controlIndex[MAX_PLAYERS] = { 4, 1, 1, 1 };
+  unsigned char controlBackup[MAX_PLAYERS] = { 4, 1, 1, 1 };
 #else
-	unsigned char controlIndex[MAX_PLAYERS] = { 4, 1, 0, 0 };
-	unsigned char controlBackup[MAX_PLAYERS] = { 4, 1, 0, 0 };
+  unsigned char controlIndex[MAX_PLAYERS] = { 4, 1, 0, 0 };
+  unsigned char controlBackup[MAX_PLAYERS] = { 4, 1, 0, 0 };
 #endif
+
 #if defined __APPLE2__
-	const char* controlList[LEN_CONTROL] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "PADDLE 1", "PADDLE 2", "PADDLE 3", "PADDLE 4", "NETWORK" };
+  const char* controlList[LEN_CONTROL] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "PADDLE 1", "PADDLE 2", "PADDLE 3", "PADDLE 4", "NETWORK" };
 #elif defined __ATARI__
-	const char* controlList[LEN_CONTROL] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "JOY 1", "JOY 2", "HUB 1", "HUB 2", "NETWORK" };
+  const char* controlList[LEN_CONTROL] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "JOY 1", "JOY 2", "HUB 1", "HUB 2", "NETWORK" };
 #elif defined __ORIC__
-	const char* controlList[LEN_CONTROL] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "A,D,CTRL", "J,L,RET", "HUB/IJK 1", "HUB/IJK 2", "NETWORK" };
+  const char* controlList[LEN_CONTROL] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "A,D,CTRL", "J,L,RET", "HUB/IJK 1", "HUB/IJK 2", "NETWORK" };
 #elif defined __CBM__
-	const char* controlList[LEN_CONTROL] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "JOY 1", "JOY 2", "JOY 3", "JOY 4", "NETWORK" };
+  const char* controlList[LEN_CONTROL] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "JOY 1", "JOY 2", "JOY 3", "JOY 4", "NETWORK" };
 #elif defined __LYNX__
-	const char* controlList[LEN_CONTROL] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "JOY 1", "HUB 1", "HUB 2", "HUB 3", "NETWORK" };
+  const char* controlList[LEN_CONTROL] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "JOY 1", "HUB 1", "HUB 2", "HUB 3", "NETWORK" };
+#elif defined __NES__
+  const char* controlList[LEN_CONTROL] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "JOY 1", "JOY 2", "NETWORK" };
 #endif
 
 // Performance Drawing
@@ -130,19 +152,21 @@ unsigned char serversLoaded;
 
 // Chat Row Management
 #if defined __APPLE2__
-#if defined __DHR__
-static char chatBG[320];
-#else
-static char chatBG[160];
-#endif
+ #if defined __DHR__
+  static char chatBG[320];
+ #else
+  static char chatBG[160];
+ #endif
 #elif defined __ATARI__
-static char chatBG[320];
+  static char chatBG[320];
 #elif defined __ORIC__
-static char chatBG[160];
+  static char chatBG[160];
 #elif defined __CBM__
-static char chatBG[180];
+  static char chatBG[180];
 #elif defined __LYNX__
-static char chatBG[1320];
+  static char chatBG[1320];
+#elif defined __NES__
+  static char chatBG[20];
 #endif
 
 void BackupRestoreChatRow(unsigned char mode)
@@ -260,7 +284,7 @@ void InputField(char *buffer, unsigned char len)
 	InputStr(len, buffer, len, 0);
 
 	// Run input loop
-#if defined __LYNX__ 
+#if defined(__LYNX__) || defined(__NES__)
 	ShowKeyboardOverlay();
 	while (1) {
 		while (!KeyboardOverlayHit()) { UpdateDisplay(); } // Refresh Lynx screen
@@ -279,14 +303,14 @@ void InputField(char *buffer, unsigned char len)
 #endif
 }
 
-#if defined __LYNX__
-clock_t cursorClock;
+#if defined(__LYNX__) || defined(__NES__)
+unsigned char gamePaused = 0;
+const unsigned char *pauseLabel[] = { "resume", "race!", "next!", "quit", "hello!", "bye!", "thanks!", "congrats", "so close", "hang on", "ready" };
+const unsigned char pauseAction[] = { KB_PAUSE, KB_START, KB_NEXT, KB_QUIT, 4, 5, 6, 7, 8, 9, 10 };
 unsigned char cursorJoy, cursorKey, cursorBut2, cursorPressed;
 unsigned char cursorFlick, cursorCol = MENU_COL, cursorRow = MENU_ROW+2;
 unsigned char cursorTop = MENU_ROW+2, cursorHeight = MENU_HEI-2;
-unsigned char *pauseLabel[] = { "resume", "race!", "next!", "quit", "hello!", "bye!", "thanks!", "congrats", "so close", "hang on", "ready" };
-unsigned char pauseAction[] = { KB_PAUSE, KB_START, KB_NEXT, KB_QUIT, 4, 5, 6, 7, 8, 9, 10 };
-unsigned char gamePaused = 0;
+clock_t cursorClock;
 
 void LynxCursorFlicker()
 {
@@ -300,8 +324,8 @@ void LynxCursorFlicker()
 	if (cursorFlick) {
 		inkColor = YELLOW;
 		txtY = cursorRow;
-		PrintChr(&charHyphen[0]); txtX++;
-		PrintChr(&charBracket[3]);
+		PrintChr('-'); txtX++;
+		PrintChr('>');
 		inkColor = WHITE;
 	}
 	cursorFlick = !cursorFlick;
@@ -312,6 +336,7 @@ void LynxCursorControl()
 	// Process screen flips
 	if (kbhit()) {
 		switch (cgetc()) {
+	#ifdef __LYNX__
 		case KB_FLIP:
 			SuzyFlip();
 			break;
@@ -319,6 +344,7 @@ void LynxCursorControl()
 			if (!gamePaused)
 				NextMusic(0);
 			break;
+	#endif
 		case KB_PAUSE:
 			cursorKey = KB_PAUSE;
 			return;
@@ -411,7 +437,11 @@ void BackupRestorePauseBg(unsigned char mode)
 {
 	unsigned char i;
 	unsigned int addr1 = chatBG;
+#if defined(__LYNX__)	
 	unsigned int addr2 = BITMAPRAM+1+2*PAUSE_COL+492*PAUSE_ONLINE_ROW;
+#elif defined(__NES__)	
+	unsigned int addr2 = PAUSE_COL+32*PAUSE_ONLINE_ROW;
+#endif
 	for (i=0; i<(11*6); ++i) {
 		if (!mode)
 			memcpy(addr1, addr2, 20);
@@ -529,7 +559,7 @@ void MenuMap()
 	
 	// Print Characters
 	inkColor = INK_HIGHLT; paperColor = PAPER_HIGHLT;
-	txtX = MENU_COL+2; PrintChr(&charLetter[12*3]);	// 'M'
+	txtX = MENU_COL+2; PrintChr('m');
 	inkColor = WHITE; paperColor = BLACK;
 	txtX = MENU_COL+3; PrintStr("AP:");
 	txtX = MENU_COL+7; PrintStr(mapList[gameMap]);	
@@ -545,7 +575,7 @@ void MenuLaps()
 	
 	// Print Characters
 	inkColor = INK_HIGHLT; paperColor = PAPER_HIGHLT;
-	txtX = MENU_COL+2; PrintChr(&charLetter[11*3]);	// 'L'
+	txtX = MENU_COL+2; PrintChr('l');
 	inkColor = WHITE; paperColor = BLACK;
 	txtX = MENU_COL+3; PrintStr("AP:");
 	txtX = MENU_COL+7; PrintNum(lapNumber[lapIndex]);
@@ -579,6 +609,9 @@ void SpriteAnimation(unsigned char index, unsigned char frame)
 #elif defined __LYNX__
 	spriteX = 100+index*13; 
 	spriteY = 6;
+#elif defined __NES__
+	spriteX = 160+index*21; 
+	spriteY = 24;
 #endif		
 #if defined __ATARI__
 	SetMultiColorSprite(2*index, frame);
@@ -720,7 +753,7 @@ unsigned char MenuWait()
 #else
 	// Animate sprites while waiting for key input
 	unsigned char i,f;
-#if defined __LYNX__
+#if defined(__LYNX__) || defined(__NES__)
 	while (1) {
 #else
 	while (!kbhit()) {
@@ -735,7 +768,7 @@ unsigned char MenuWait()
 				SpriteAnimation(i, f);
 			}
 		}	
-	#if defined __LYNX__
+	#if defined(__LYNX__) || defined(__NES__)
 		LynxCursorControl();
 		if (cursorKey) { return cursorKey; }
 		if (gameMode == MODE_LOCAL || (gameMode == MODE_ONLINE && serversLoaded)) { 
@@ -795,7 +828,7 @@ void MenuServers()
 			txtY = (MENU_ROW+2)+j;
 		#ifndef __LYNX__	
 			inkColor = INK_HIGHLT; paperColor = PAPER_HIGHLT;			
-			txtX = MENU_COL+0; PrintChr(&charDigit[(j+1)*3]);
+			txtX = MENU_COL+0; PrintChr(CHR_DIGIT+1+j);
 		#endif
 			while (PEEK(++packet) != 10 && PEEK(packet) !=0) {
 				buffer[k++] = PEEK(packet);
@@ -810,9 +843,9 @@ void MenuServers()
 	}
 }
 
-unsigned char  loginCol[] = { MENU_COL+2, MENU_COL+1, MENU_COL+1, MENU_COL+2, MENU_COL+1 };
-unsigned char  loginRow[] = { MENU_ROW+2, MENU_ROW+4, MENU_ROW+6, MENU_ROW+8, MENU_ROW+9 };
-unsigned char *loginTxt[] = { "PLEASE LOGIN", "USER:", "PASS:", "REGISTER AT", "8BIT-SLICKS.COM" };
+const unsigned char  loginCol[] = { MENU_COL+2, MENU_COL+1, MENU_COL+1, MENU_COL+2, MENU_COL+1 };
+const unsigned char  loginRow[] = { MENU_ROW+2, MENU_ROW+4, MENU_ROW+6, MENU_ROW+8, MENU_ROW+9 };
+const unsigned char *loginTxt[] = { "PLEASE LOGIN", "USER:", "PASS:", "REGISTER AT", "8BIT-SLICKS.COM" };
 
 // Sub-function of GameMenu()
 unsigned char MenuLogin(unsigned char serverIndex)
@@ -839,11 +872,11 @@ unsigned char MenuLogin(unsigned char serverIndex)
 	}
 	txtY = MENU_ROW+4;
 	txtX = MENU_COL+6;      InputField(clUser, 4);
-	txtX += strlen(clUser); PrintChr(charBlank);
+	txtX += strlen(clUser); PrintChr(' ');
 	maskInput = 1;
 	txtY = MENU_ROW+6;
 	txtX = MENU_COL+6;      InputField(clPass, 10);	
-	txtX += strlen(clPass); PrintChr(charBlank);
+	txtX += strlen(clPass); PrintChr(' ');
 	maskInput = 0;
 #if defined __LYNX__ 
 	// Save user/pass to EEPROM
@@ -890,13 +923,13 @@ void MenuPlayer(unsigned char i)
 	
 	// Print Characters
 	inkColor = inkColors[i]; paperColor = BLACK;
-	txtX = MENU_COL+2; PrintChr(&charLetter[15*3]);	// 'P'
+	txtX = MENU_COL+2; PrintChr('p');
 #ifndef __LYNX__
 	inkColor = INK_HIGHLT; paperColor = PAPER_HIGHLT;
 #endif
-	txtX = MENU_COL+3; PrintNum(i+1);				//  i
+	txtX = MENU_COL+3; PrintNum(i+1);
 	inkColor = WHITE; paperColor = BLACK;
-	txtX = MENU_COL+4; PrintChr(charColon);			// ':'
+	txtX = MENU_COL+4; PrintChr(':');
 	txtX = MENU_COL+6; PrintStr(controlList[controlIndex[i]]);	
 }
 
@@ -929,7 +962,7 @@ void MenuConnect()
 void MenuTab(unsigned char tab)
 {
 	txtY = MENU_ROW;
-#if defined __LYNX__
+#if defined(__LYNX__) || defined(__NES__)
 	// Highlight currently selected tab
 	inkColor = WHITE; paperColor = BLACK;	
 	if (tab == 0) { inkColor = INK_TAB; };
@@ -944,9 +977,9 @@ void MenuTab(unsigned char tab)
 #elif defined __ORIC__
 	// Highlight first letter of each tab
 	inkColor = BLACK; paperColor = AIC;
-	txtX = MENU_COL+0;  PrintStr("L");			
-	txtX = MENU_COL+6;  PrintStr("O");
-	txtX = MENU_COL+13; PrintStr("I");
+	txtX = MENU_COL+0;  PrintChr('L');			
+	txtX = MENU_COL+6;  PrintChr('O');
+	txtX = MENU_COL+13; PrintChr('I');
 	inkColor = AIC; paperColor = BLACK;
 	txtX = MENU_COL+1;  PrintStr("OCAL");
 	txtX = MENU_COL+7;  PrintStr("NLINE");
@@ -954,9 +987,9 @@ void MenuTab(unsigned char tab)
 #else
 	// Highlight first letter of each tab as well as current selection
 	inkColor = INK_HIGHLT; paperColor = PAPER_HIGHLT;
-	txtX = MENU_COL+0;  PrintStr("L");			
-	txtX = MENU_COL+6;  PrintStr("O");
-	txtX = MENU_COL+13; PrintStr("I");
+	txtX = MENU_COL+0;  PrintChr('L');			
+	txtX = MENU_COL+6;  PrintChr('O');
+	txtX = MENU_COL+13; PrintChr('I');
 	inkColor = WHITE; paperColor = BLACK;
 	if (tab == 0) { inkColor = INK_TAB; };
 	txtX = MENU_COL+1;  PrintStr("OCAL");
@@ -972,14 +1005,14 @@ void MenuTab(unsigned char tab)
 
 #if defined __LYNX__
   #define CREDIT_ROWS 8
-  unsigned char  creditCol[] = { MENU_COL+2, MENU_COL+0, MENU_COL+1, MENU_COL+0, MENU_COL+1, MENU_COL+1, MENU_COL+0, MENU_COL+1 };
-  unsigned char  creditRow[] = { MENU_ROW+2, MENU_ROW+4, MENU_ROW+5, MENU_ROW+7, MENU_ROW+8, MENU_ROW+9, MENU_ROW+11, MENU_ROW+12 };
-  unsigned char *creditTxt[] = { "2021 SONGBIRD", "CODE/GFX:", "ANTHONY BEAUCAMP", "MUSIC:", "ANDREW FISHER", "CARL FORHAN", "ORIGINAL IDEA:", "TIMO KAUPPINEN" };
+  const unsigned char  creditCol[] = { MENU_COL+2, MENU_COL+0, MENU_COL+1, MENU_COL+0, MENU_COL+1, MENU_COL+1, MENU_COL+0, MENU_COL+1 };
+  const unsigned char  creditRow[] = { MENU_ROW+2, MENU_ROW+4, MENU_ROW+5, MENU_ROW+7, MENU_ROW+8, MENU_ROW+9, MENU_ROW+11, MENU_ROW+12 };
+  const unsigned char *creditTxt[] = { "2021 SONGBIRD", "CODE/GFX:", "ANTHONY BEAUCAMP", "MUSIC:", "ANDREW FISHER", "CARL FORHAN", "ORIGINAL IDEA:", "TIMO KAUPPINEN" };
 #else
   #define CREDIT_ROWS 7
-  unsigned char  creditCol[] = { MENU_COL+5, MENU_COL+0, MENU_COL+1, MENU_COL+0, MENU_COL+1, MENU_COL+0, MENU_COL+1 };
-  unsigned char  creditRow[] = { MENU_ROW+2, MENU_ROW+4, MENU_ROW+5, MENU_ROW+7, MENU_ROW+8, MENU_ROW+10, MENU_ROW+11 };
-  unsigned char *creditTxt[] = { "CREDITS", "CODE/GFX:", "ANTHONY BEAUCAMP", "MUSIC:", "ANDREW FISHER", "ORIGINAL IDEA:", "TIMO KAUPPINEN" };	
+  const unsigned char  creditCol[] = { MENU_COL+5, MENU_COL+0, MENU_COL+1, MENU_COL+0, MENU_COL+1, MENU_COL+0, MENU_COL+1 };
+  const unsigned char  creditRow[] = { MENU_ROW+2, MENU_ROW+4, MENU_ROW+5, MENU_ROW+7, MENU_ROW+8, MENU_ROW+10, MENU_ROW+11 };
+  const unsigned char *creditTxt[] = { "CREDITS", "CODE/GFX:", "ANTHONY BEAUCAMP", "MUSIC:", "ANDREW FISHER", "ORIGINAL IDEA:", "TIMO KAUPPINEN" };	
 #endif
 
 // Main menu function
@@ -1004,7 +1037,7 @@ void GameMenu()
 	txtX = MENU_COL; txtY = MENU_BLD;
 	PrintStr(buildInfo);
 
-#if defined __LYNX__
+#if defined(__LYNX__) || defined(__NES__)
 	// Reset cursor state
 	cursorCol = MENU_COL;
 	cursorRow = MENU_ROW+2;
@@ -1037,7 +1070,7 @@ void GameMenu()
 		#endif		
 
 			// Race launcher
-		#if defined __LYNX__
+		#if defined(__LYNX__) || defined(__NES__)
 			txtX = MENU_COL+2; txtY = MENU_ROW+11;
 			PrintStr("RACE!");				
 		#else
@@ -1056,7 +1089,7 @@ void GameMenu()
 				// Switch Player 1-4
 				i = lastchar - 49;
 				if (i>=0 & i<4) {
-				#if defined __LYNX__
+				#if defined(__LYNX__) || defined(__NES__)
 					if (cursorBut2) {
 						controlIndex[i]--; if (controlIndex[i] >= NET_CONTROL) controlIndex[i] = NET_CONTROL-1;
 					} else {
@@ -1069,7 +1102,7 @@ void GameMenu()
 				}
 				// Switch Map
 				if (lastchar == KB_M) { 
-				#if defined __LYNX__
+				#if defined(__LYNX__) || defined(__NES__)
 					if (cursorBut2) {
 						gameMap--; if (gameMap >= mapNum) gameMap = mapNum-1;
 					} else {
@@ -1082,7 +1115,7 @@ void GameMenu()
 				}			
 				// Switch Laps
 				if (lastchar == KB_L) { 
-				#if defined __LYNX__
+				#if defined(__LYNX__) || defined(__NES__)
 					if (cursorBut2) {
 						lapIndex--; if (lapIndex >= LEN_LAPS) lapIndex = LEN_LAPS-1;
 					} else {
@@ -1168,7 +1201,7 @@ void GameMenu()
 				txtY = creditRow[i];
 				PrintStr(creditTxt[i]);
 			}
-
+			
 			// Process user input
 			while (1) { 
 				// Get Character

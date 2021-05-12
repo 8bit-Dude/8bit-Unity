@@ -10,7 +10,7 @@
 //#define NETCODE
 
 // Keyboard definitions
-#if defined __LYNX__
+#if defined(__LYNX__) || defined(__NES__)
 	#define KB_START 	49
 	#define KB_MUSIC 	50
 	#define KB_NEXT  	51
@@ -58,6 +58,8 @@
   #define spriteFrames 18
 #elif defined __LYNX__
   #define spriteFrames 18
+#elif defined __NES__
+  #define spriteFrames 18
 #endif
 
 #if defined __ATARI__
@@ -75,6 +77,8 @@
   #define LEN_CONTROL 9
 #elif defined __LYNX__
   #define LEN_CONTROL 9
+#elif defined __NES__
+  #define LEN_CONTROL 7
 #elif defined __ORIC__
   #define LEN_CONTROL 9
 #endif

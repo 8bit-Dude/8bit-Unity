@@ -4,6 +4,11 @@
 // See game.c
 extern unsigned char gameLineUp[4];
 
+
+#if defined __NES__
+ #pragma bss-name(push, "XRAM")
+#endif
+
 // Navigation variables
 Vehicle cars[MAX_PLAYERS];
 Waypoint ways[MAX_WAYPOINTS];
@@ -18,8 +23,12 @@ unsigned int lineupAng[MAX_PLAYERS];
 
 #if defined __LYNX__
   unsigned char *buffer = (unsigned char*)SHAREDRAM;
-#else
+#else	
   unsigned char buffer[128];
+#endif
+
+#if defined __NES__
+ #pragma bss-name(pop) 
 #endif
 
 // Function to load *.nav files
@@ -39,7 +48,10 @@ void LoadNavigation(char *filename)
 	FileRead(filename, buffer);
   #elif defined __LYNX__
 	FileRead(filename);
-  #else
+  #elif defined __NES__
+	p = FileRead(filename);
+	memcpyBanked(buffer, p, 128, 1);
+  #elif defined __CBM__
 	FILE* fp = fopen(filename, "rb");
 	fread(buffer, 1, 128, fp);
 	fclose(fp);
