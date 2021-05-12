@@ -734,11 +734,9 @@ void DrawCharmap(unsigned char x, unsigned char y)
 		SetVramName();
 		for (i=0; i<screenWidth; i++)
 			SetVramChar(*(ptr+i));
-		UpdateDisplay();
 		ptr += decodeWidth;
 		txtY++; 
 	}
-
 #else
 	// Decode tiles (if necessary)
 	POKEW(charPtrZP, DecodeTiles());

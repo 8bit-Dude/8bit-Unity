@@ -27,7 +27,8 @@
 #include "../../unity.h"
 
 #pragma bss-name(push, "XRAM")
-  unsigned char vram_list[256];
+  unsigned int  vram_addr;
+  unsigned char vram_list[100];		// This seems to be max. length NMI can handle
   unsigned char vram_list_index = 0;
   unsigned char vram_list_length;
   unsigned char vram_attr[64];
@@ -42,24 +43,42 @@
 #pragma rodata-name("BANK0")
 #pragma code-name("BANK0")
 
-void __fastcall__ SetVramAddr(unsigned int vaddr)
+void __fastcall__ UpdateDisplay(void)
 {
-	vram_list[vram_list_index++] = MSB(vaddr)|NT_UPD_HORZ;
-	vram_list[vram_list_index++] = LSB(vaddr);
+	// Flush VRAM queue
+	if (vram_list_index) {
+		vram_list[vram_list_index] = NT_UPD_EOF;
+		set_vram_update(vram_list);
+		ppu_wait_nmi();
+		vram_list_index = 0;
+	}
+}
+
+void __fastcall__ SetVramAddr(void)
+{
+	// Flush current queue?
+	if (vram_list_index > 96)
+		UpdateDisplay();
+	
+	// Setup next write command
+	vram_list[vram_list_index++] = MSB(vram_addr)|NT_UPD_HORZ;
+	vram_list[vram_list_index++] = LSB(vram_addr);
 	vram_list_length = vram_list_index++;
 	vram_list[vram_list_length] = 0;
 }
 
 void __fastcall__ SetVramName(void) 
-{
+{	
 	// Set VRAM address in Name Table
-	SetVramAddr(NTADR_A(txtX,(txtY+2)));
+	vram_addr = NTADR_A(txtX,(txtY+2));
+	SetVramAddr();
 }
 
 void __fastcall__ SetVramAttr(void) 
 {
 	// Set VRAM address in Attribute Table
-	SetVramAddr(get_at_addr(0,txtX*8,(txtY+2)*8));
+	vram_addr = get_at_addr(0,txtX*8,(txtY+2)*8);
+	SetVramAddr();
 	
 	// Prepare attribute variables
 	vram_attr_color = (inkColor << 6) | (inkColor << 4) | (inkColor << 2) | inkColor;
@@ -71,15 +90,10 @@ void __fastcall__ SetVramAttr(void)
 void CheckVramQueue(void)
 {
 	// Check if there is still space...
-	if (vram_list_index == 255) {
-		// Flush current queue
-		UpdateDisplay();
-		
-		// Restart new queue with offset location
-		vram_list[vram_list_index++] = vram_list[vram_list_length-2];
-		vram_list[vram_list_index++] = vram_list[vram_list_length-1]+vram_list[vram_list_length];
-		vram_list_length = vram_list_index++;
-		vram_list[vram_list_length] = 0;
+	if (vram_list_index == 99) {
+		// Restart queue at offset location
+		vram_addr += vram_list[vram_list_length];
+		SetVramAddr();
 	}	
 }
 
@@ -109,16 +123,5 @@ void __fastcall__ SetVramColor(unsigned char forcePush)
 		vram_attr_horz = 0;
 	} else {
 		vram_attr_horz++;
-	}
-}
-
-void __fastcall__ UpdateDisplay(void)
-{
-	// Flush VRAM queue
-	if (vram_list_index) {
-		vram_list[vram_list_index] = NT_UPD_EOF;
-		set_vram_update(vram_list);
-		ppu_wait_nmi();
-		vram_list_index = 0;
 	}
 }
