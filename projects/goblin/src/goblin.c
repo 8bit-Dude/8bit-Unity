@@ -14,8 +14,8 @@
 #elif defined __ORIC__
 	#define spriteCols   12
 	#define spriteRows   24
-	unsigned char spriteColors[] = { SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC };  // AIC color allows faster drawing!
-	unsigned char multiColorDef[] = { SPR_WHITE, 8, SPR_GREEN, 14, SPR_MAGENTA, 24 };	// Multicolor definition { color, row, ... }
+	unsigned char spriteColors[] = { PAL_AIC, PAL_AIC, PAL_AIC, PAL_AIC, PAL_AIC, PAL_AIC, PAL_AIC, PAL_AIC };  // AIC color allows faster drawing!
+	unsigned char multiColorDef[] = { PAL_WHITE, 8, PAL_GREEN, 14, PAL_MAGENTA, 24 };	// Multicolor definition { color, row, ... }
 #elif defined __CBM__
 	#define spriteCols   12
 	#define spriteRows   21
