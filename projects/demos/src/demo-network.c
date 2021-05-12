@@ -1,7 +1,7 @@
 
 #include "unity.h"
 
-extern const char keyNext, pressKeyMsg[];
+extern const char nextKey, nextMsg[];
 
 unsigned char svIp[] = { 199, 47, 196, 106 };
 unsigned char message[] = "Packet received"; //Messages can be up-to 256 bytes long (this string is NULL ended for printing convenience)
@@ -87,10 +87,10 @@ int DemoNetwork(void)
 	
 	// Just show next page message
 	gotoxy (0, line++);
-	cprintf(pressKeyMsg);
-	while (!kbhit () || cgetc () != keyNext) {
-	#if defined __LYNX__
-		UpdateDisplay(); // Refresh Lynx screen
+	cprintf(nextMsg);
+	while (!kbhit () || cgetc () != nextKey) {
+	#if defined(__LYNX__) || defined(__NES__)
+		UpdateDisplay(); // Manually refresh Display
 	#endif		
 	}
 

@@ -1,13 +1,22 @@
 
 #include "unity.h"
 
-extern const char keyNext, pressKeyMsg[];
+extern const char nextKey, nextMsg[];
+extern unsigned char nextCol;
 
-#if defined __ORIC__
-	const char* joyList[] = { "WASD+CTR", "IJKL+RET", "IJK/HUB 1", "IJK/HUB 2", "HUB 3" };
+#if defined __ATARI__
+  #if defined __HUB__
+	const char* joyList[] = { "JOY 1", "HUB 1", "HUB 2", "HUB 3" };
+  #else
+	const char* joyList[] = { "JOY 1", "JOY2" };
+  #endif	  
 #elif defined __LYNX__
 	const char* joyList[] = { "JOY 1", "HUB 1", "HUB 2", "HUB 3" };
-#else 
+#elif defined __NES__
+	const char* joyList[] = { "JOY 1", "JOY 2" };
+#elif defined __ORIC__
+	const char* joyList[] = { "WASD+CTR", "IJKL+RET", "IJK/HUB 1", "IJK/HUB 2", "HUB 3" };
+#else
 	const char* joyList[] = { "JOY 1", "JOY 2", "JOY 3", "JOY 4" };
 #endif
 
@@ -22,17 +31,14 @@ int DemoControls(void)
 	InitJoy();
 	
 	// Print header
-	gotoxy (8, 2);
-	cprintf(pressKeyMsg);	
-	gotoxy (7, 4);
-	cprintf("MOUSE");	
+	gotoxy(nextCol, 2); cprintf(nextMsg);	
+	gotoxy(7, 4);       cprintf("MOUSE");	
 	for (i=0; i<JOY_MAX; i++) {
-		gotoxy (7, 6+2*i);
-		cprintf(joyList[i]);
+		gotoxy(7, 6+2*i); cprintf(joyList[i]);
 	}
 	
 	// Display joystick actions until 'SPACE' is pressed
-	while (!kbhit () || cgetc () != keyNext) {
+	while (!kbhit () || cgetc () != nextKey) {
 		// Display mouse state
 		mou = GetMouse();
 		gotoxy (18, 4); sprintf(state, "%u  ", mou[0], state); cprintf(state);
@@ -53,16 +59,12 @@ int DemoControls(void)
 			if (joy & JOY_RIGHT) state[6] = 'R';
 			if (joy & JOY_BTN1)  state[8] = 'A';
 			if (joy & JOY_BTN2)  state[10] = 'B';
-			gotoxy (19, 6+2*i);
-			cprintf(state);
+			gotoxy (19, 6+2*i); cprintf(state);
 		}
-	#if defined __LYNX__
-		UpdateDisplay(); // Refresh Lynx screen
+	#if defined(__LYNX__) || defined(__NES__)
+		UpdateDisplay(); // Manually refresh Display
 	#endif
-	}	
-
-	// Reset state
-	clrscr();	
+	}
 	
     // Done
     return EXIT_SUCCESS;	

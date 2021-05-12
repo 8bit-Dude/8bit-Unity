@@ -125,7 +125,9 @@
                 "projects/demos/bitmaps/banner-nes.png", 
                 "projects/demos/bitmaps/stadium-nes.png"
             ], 
-            "charset": [], 
+            "charset": [
+                "projects/demos/charsets/quedex-nes.png"
+            ], 
             "sprites": [
                 "projects/demos/sprites/sprites-nes.png"
             ], 

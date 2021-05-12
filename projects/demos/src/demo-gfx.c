@@ -1,7 +1,18 @@
 
 #include "unity.h"
 
-extern const char keyNext, pressKeyMsg[];
+#ifdef __NES__
+  #define LINE_SPACING  2
+  #define TEXT_COL	   11
+  #define TEXT_ROW	    6
+#else
+  #define LINE_SPACING  1
+  #define TEXT_COL	   15
+  #define TEXT_ROW	    2
+#endif
+	
+extern const char nextKey, nextMsg[];
+extern unsigned char nextCol;
 
 int DemoGfx(void) 
 {
@@ -42,19 +53,22 @@ int DemoGfx(void)
 	textRows = 19;
 #elif defined __LYNX__
 	textRows = 12;
+#elif defined __NES__
+	textRows = 4;
 #elif defined __SHR__
 	textRows = 6;
 #else 
 	textRows = 16;
 #endif		
 	paperColor = BLACK;
-	txtX = 15; txtY = 2;
-	for (i=1; i<textRows; i++) {
+	txtX = TEXT_COL; txtY = TEXT_ROW;
+	for (i=0; i<textRows; i++) {
 		inkColor = i;
+		PrintStr("8BIT-UNITY"); 
 	#if defined __ORIC__
-		txtX = 14; SetAttributes(inkColor); txtX = 15;
+		txtX--; SetAttributes(inkColor); txtX++;
 	#endif
-		PrintStr("8BIT-UNITY"); txtY++;
+		txtY += LINE_SPACING;
 	}
 	
 	// Show Platform logos
@@ -71,13 +85,15 @@ int DemoGfx(void)
 		SetPixel(WHITE);
 	}
 
-	// Wait until 'SPACE' is pressed
+	// Show "next" Message
 	inkColor = BLACK; paperColor = WHITE; 
-	txtX = 9; txtY = TXT_ROWS-2;
-	PrintStr(pressKeyMsg);
-	while (!kbhit () || cgetc () != keyNext) {	
-	#if defined __LYNX__
-		UpdateDisplay(); // Refresh Lynx screen
+	txtX = nextCol; txtY = TXT_ROWS-2;
+	PrintStr(nextMsg);
+	
+	// Wait until 'SPACE' is pressed
+	while (!kbhit () || cgetc () != nextKey) {	
+	#if defined(__LYNX__) || defined(__NES__)
+		UpdateDisplay(); // Manually refresh Display
 	#endif		
 	}
 	

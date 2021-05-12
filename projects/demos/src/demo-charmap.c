@@ -1,7 +1,7 @@
 
 #include "unity.h"
 
-extern const char keyNext;
+extern const char nextKey;
 
 extern unsigned char worldMaxX, worldMaxY;	// See: units/graphics/charmap.c
 
@@ -27,12 +27,14 @@ int DemoCharmap(void)
 	txtX = 1; txtY = TXT_ROWS-1;
 #if defined __LYNX__	
 	PrintStr("Scroll with Joystick / OPT 1 for next");
+#elif defined __NES__
+	PrintStr("Scroll with Pad / Press SELECT");
 #else
 	PrintStr("Scroll with Joystick / SPACE for next");
 #endif
 	
 	// Wait until 'SPACE' is pressed
-	while (!kbhit () || cgetc () != keyNext) {	
+	while (!kbhit () || cgetc () != nextKey) {	
 		// Check joystick
 		joy = GetJoy(0); 
 		if (!(joy & JOY_UP))    { if (y > 0) 		 y -= 1; scroll = 1; }
@@ -49,8 +51,8 @@ int DemoCharmap(void)
 			scroll = 0;
 		}
 		
-	#if defined __LYNX__
-		UpdateDisplay(); // Refresh Lynx screen
+	#if defined(__LYNX__) || defined(__NES__)
+		UpdateDisplay(); // Manually refresh display
 	#endif		
 	}
 	

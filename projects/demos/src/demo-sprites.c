@@ -2,40 +2,55 @@
 #include "unity.h"
 #include <cc65.h>
 
-extern const char keyNext;
+extern const char nextKey;
 
 // Sprite definitions
 #if defined __APPLE2__
-	#define spriteFrames 64
-	#define spriteCols    7
-	#define spriteRows    5
-	unsigned char spriteColors[] = { };	//  Colors are pre-assigned in the sprite sheet
-	unsigned char inkColors[] = { BLUE, RED, GREEN, YELLOW };		// P1, P2, P3, P4
+  #define spriteFrames 64
+  #define spriteCols    7
+  #define spriteRows    5
+  const unsigned char spriteColors[] = { };	//  Colors are pre-assigned in the sprite sheet
+  const unsigned char inkColors[] = { BLUE, RED, GREEN, YELLOW };		// P1, P2, P3, P4
 #elif defined __ATARI__
-	#define spriteFrames 18
-	#define spriteCols    8
-	#define spriteRows   10
-	unsigned char spriteColors[] = {0x86, 0xe4, 0x26, 0xe4, 0xb6, 0xe4, 0xe8, 0xe4, 0x00, 0x00, 0x00, 0x00 };   // 0,2,4,6: car body, 1,3,5,7: car tires
-	unsigned char inkColors[] = { BLUE, RED, GREEN, YELLOW };		// P1, P2, P3, P4
-#elif defined __ORIC__
-	#define spriteFrames 16
-	#define spriteCols   12
-	#define spriteRows    6
-	unsigned char spriteColors[] = { SPR_CYAN, SPR_MAGENTA, SPR_GREEN, SPR_WHITE, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC };	// Matching more or less with above
-	unsigned char inkColors[] = { CYAN, LPURPLE, LGREEN, GREY };	// P1, P2, P3, P4
+  #define spriteFrames 18
+  #define spriteCols    8
+  #define spriteRows   10
+  const unsigned char spriteColors[] = {0x86, 0xe4, 0x26, 0xe4, 0xb6, 0xe4, 0xe8, 0xe4, 0x00, 0x00, 0x00, 0x00 };   // 0,2,4,6: car body, 1,3,5,7: car tires
+  const unsigned char inkColors[] = { BLUE, RED, GREEN, YELLOW };		// P1, P2, P3, P4
 #elif defined __CBM__
-	#define spriteFrames 16
-	#define spriteCols   12
-	#define spriteRows   21
-	unsigned char spriteColors[] = { BLUE, RED, GREEN, YELLOW, 0, 0, 0, 0, CYAN, BLACK };  // 0-8: Sprite colors, 9-10: Shared colors
-	unsigned char inkColors[] = { BLUE, RED, LGREEN, YELLOW };		// P1, P2, P3, P4
+  #define spriteFrames 16
+  #define spriteCols   12
+  #define spriteRows   21
+  const unsigned char spriteColors[] = { BLUE, RED, GREEN, YELLOW, 0, 0, 0, 0, CYAN, BLACK };  // 0-8: Sprite colors, 9-10: Shared colors
+  const unsigned char inkColors[] = { BLUE, RED, LGREEN, YELLOW };		// P1, P2, P3, P4
 #elif defined __LYNX__
-	#define spriteFrames 16
-	#define spriteCols    8
-	#define spriteRows    9
-	unsigned char *spriteColors = 0;  //  All sprites use the default palette
-	unsigned char inkColors[] = { BLUE, RED, LGREEN, YELLOW };		// P1, P2, P3, P4
+  #define spriteFrames 16
+  #define spriteCols    8
+  #define spriteRows    9
+  const unsigned char *spriteColors = 0;  //  All sprites use the default palette
+  const unsigned char inkColors[] = { BLUE, RED, LGREEN, YELLOW };		// P1, P2, P3, P4
+#elif defined __NES__
+  #define spriteFrames 16
+  #define spriteCols    8
+  #define spriteRows    8
+  const unsigned char spriteColors[] = { PAL_BLACK, PAL_BLUE, PAL_CYAN, PAL_GREY,  PAL_BLACK, PAL_RED, PAL_CYAN, PAL_GREY, 
+										 PAL_BLACK, PAL_GREEN, PAL_CYAN, PAL_GREY, PAL_BLACK, PAL_YELLOW, PAL_CYAN, PAL_GREY }; // 4 palettes of 4 colors
+  const unsigned char inkColors[] = { BLUE, RED, LGREEN, YELLOW };		// P1, P2, P3, P4
+#elif defined __ORIC__
+  #define spriteFrames 16
+  #define spriteCols   12
+  #define spriteRows    6
+  const unsigned char spriteColors[] = { PAL_CYAN, PAL_MAGENTA, PAL_GREEN, PAL_WHITE, PAL_AIC, PAL_AIC, PAL_AIC, PAL_AIC };	// Matching more or less with above
+  const unsigned char inkColors[] = { CYAN, LPURPLE, LGREEN, GREY };	// P1, P2, P3, P4
 #endif
+
+// Interface definitions
+#define SLOT_COL1 8
+#if defined __NES__
+  #define SLOT_WIDTH 6
+#else
+  #define SLOT_WIDTH 8
+#endif	
 
 int DemoSprites(void) 
 {
@@ -54,6 +69,10 @@ int DemoSprites(void)
 	RecolorSprite(1, 0, 0x08); // BLUE -> ORANGE
 	RecolorSprite(2, 0, 0x05); // BLUE -> GREEN
 	RecolorSprite(3, 0, 0x09); // BLUE -> YELLOW
+#elif defined __NES__
+	RecolorSprite(1, 0, 1); // Use Palette 1
+	RecolorSprite(2, 0, 2); // Use Palette 2
+	RecolorSprite(3, 0, 3); // Use Palette 3
 #endif
 
 	// Load and show bitmap
@@ -71,7 +90,7 @@ int DemoSprites(void)
 	txtX = 0; PrintStr("STADIUM");	
 	paperColor = BLACK; 
 	for (i=0; i<4; i++) {
-		slot = 8*(i+1);
+		slot = SLOT_COL1 + SLOT_WIDTH*i;
 		inkColor = inkColors[i];
 	#if defined __ORIC__
 		txtX = slot-1; SetAttributes(inkColor);
@@ -81,7 +100,7 @@ int DemoSprites(void)
 		txtX = slot+2; PrintNum(i+1);
 		txtX = slot+0; PrintStr("CAR");
 	}
-
+	
 	// Enable sprites
 	for (i=0; i<4; i++) {
 	#if defined __ATARI__
@@ -92,11 +111,11 @@ int DemoSprites(void)
 	}	
 
 	// Repeat until 'SPACE' is pressed
-	while (!kbhit () || cgetc () != keyNext) {
-	#if defined __APPLE2__
+	while (!kbhit () || cgetc () != nextKey) {
+	#if defined(__APPLE2__)
 		clk += 1;  // Manually update clock on Apple 2
-	#elif defined __LYNX__
-		UpdateDisplay(); // Refresh Lynx screen
+	#elif defined(__LYNX__) || defined(__NES__)
+		UpdateDisplay(); // Manually refresh Display
 	#endif
         // Update sprites position
         if (clock()>timer) {

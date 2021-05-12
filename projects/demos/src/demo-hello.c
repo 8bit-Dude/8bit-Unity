@@ -1,8 +1,9 @@
 
 #include "unity.h"
 
-const char welcomeMsg[] = "Welcome to 8bit Unity!";
-extern const char keyNext, pressKeyMsg[];
+extern const char nextKey, nextMsg[];
+const char helloMsg[] = "Welcome to 8bit Unity!";
+unsigned char helloCol, nextCol;
 
 int DemoHello(void) 
 {
@@ -13,13 +14,13 @@ int DemoHello(void)
 	
     // Ask for the screen size
     screensize(&xSize, &ySize);
-#ifndef __LYNX__
+#if defined(__APPLE2__) || defined(__ATARI__) || defined(__CBM__)
     // Top line
     cputc(CH_ULCORNER);
     chline(xSize - 2);
     cputc(CH_URCORNER);
 
-    // Vertical line, left side 
+    // Vertical line, left-side 
     cvlinexy(0, 1, ySize - 2);
 
     // Bottom line
@@ -27,31 +28,30 @@ int DemoHello(void)
     chline(xSize - 2);
     cputc(CH_LRCORNER);
 
-    // Vertical line, right side 
+    // Vertical line, right-side 
     cvlinexy(xSize - 1, 1, ySize - 2);
 #endif	
     // Write the greeting in the mid of the screen
-    gotoxy((xSize - strlen(welcomeMsg))/2, ySize/2-1);
-    cprintf(welcomeMsg);
-    gotoxy((xSize - strlen(pressKeyMsg))/2, ySize/2+1);
-    cprintf(pressKeyMsg);
+	helloCol = (xSize - strlen(helloMsg))/2;
+	nextCol  = (xSize - strlen(nextMsg))/2;
+    gotoxy(helloCol, ySize/2-1); cprintf(helloMsg);
+    gotoxy(nextCol,  ySize/2+1); cprintf(nextMsg);
 	
 	// Play music until keyboard is pressed
 	LoadMusic("demo.mus");
 	PlayMusic();
-	
+		
 	// Wait until 'SPACE' is pressed
-	while (!kbhit () || cgetc () != keyNext) {
-	#if defined __APPLE2__	
+	while (!kbhit () || cgetc () != nextKey) {
+	#if defined(__APPLE2__)
 		UpdateMusic();	 // Apple has no interrupts: need to progress track manually
-	#elif defined __LYNX__
-		UpdateDisplay(); // Refresh Lynx screen
+	#elif defined(__LYNX__) || defined(__NES__)
+		UpdateDisplay(); // Manually refresh Display
 	#endif
 	}
-
+	
 	// Reset state
 	StopMusic();
-	clrscr();
 	
     // Done
     return EXIT_SUCCESS;	
