@@ -29,7 +29,7 @@
 #elif defined __ORIC__
 	#define spriteCols   12
 	#define spriteRows   8
-	unsigned char spriteColors[] = { SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC };  // AIC color allows faster drawing!
+	unsigned char spriteColors[] = { PAL_AIC, PAL_AIC, PAL_AIC, PAL_AIC, PAL_AIC, PAL_AIC, PAL_AIC, PAL_AIC };  // AIC color allows faster drawing!
 #endif
 
 // Mouse state
