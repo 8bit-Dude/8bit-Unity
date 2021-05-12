@@ -1,4 +1,95 @@
+"""
+ * Copyright (c) 2021 Anthony Beaucamp.
+ *
+ * This software is provided 'as-is', without any express or implied warranty.
+ * In no event will the authors be held liable for any damages arising from
+ * the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ *   1. The origin of this software must not be misrepresented * you must not
+ *   claim that you wrote the original software. If you use this software in a
+ *   product, an acknowledgment in the product documentation would be
+ *   appreciated but is not required.
+ *
+ *   2. Altered source versions must be plainly marked as such, and must not
+ *   be misrepresented as being the original software.
+ *
+ *   3. This notice may not be removed or altered from any distribution.
+ *
+ *   4. The names of this software and/or it's copyright holders may not be
+ *   used to endorse or promote products derived from this software without
+ *   specific prior written permission.
+"""
 
+palette = [ [0x00, 82, 82, 82],
+            [0x01,  1, 26, 81],
+            [0x02, 15, 15,101],
+            [0x03, 35,  6, 99],
+            [0x04, 54,  3, 75],
+            [0x05, 64,  4, 38],
+            [0x06, 63,  9,  4],
+            [0x07, 50, 19,  0],
+            [0x08, 31, 32,  0],
+            [0x09, 11, 42,  0],
+            [0x0a,  0, 47,  0],
+            [0x0b,  0, 46, 10],
+            [0x0c,  0, 38, 45],
+            [0x0f,  0,  0,  0],
+            [0x10,160,160,160],
+            [0x11, 30, 74,157],
+            [0x12, 56, 55,188],
+            [0x13, 88, 40,184],
+            [0x14,117, 33,148],
+            [0x15,132, 35, 92],
+            [0x16,130, 46, 36],
+            [0x17,111, 63,  0],
+            [0x18, 81, 82,  0],
+            [0x19, 49, 99,  0],
+            [0x1a, 26,107,  5],
+            [0x1b, 14,105, 46],
+            [0x1c, 16, 92,104],
+            [0x20,254,255,255],
+            [0x21,105,158,252],
+            [0x22,137,135,255],
+            [0x23,174,118,255],
+            [0x24,206,109,241],
+            [0x25,224,112,178],
+            [0x26,222,124,112],
+            [0x27,200,145, 62],
+            [0x28,166,167, 37],
+            [0x29,129,186, 40],
+            [0x2a, 99,196, 70],
+            [0x2b, 84,193,125],
+            [0x2c, 86,179,192],
+            [0x2d, 60, 60, 60],
+            [0x30,254,255,255],
+            [0x31,190,214,253],
+            [0x32,204,204,255],
+            [0x33,221,196,255],
+            [0x34,234,192,249],
+            [0x35,242,193,223],
+            [0x36,241,199,194],
+            [0x37,232,208,170],
+            [0x38,217,218,157],
+            [0x39,201,226,158],
+            [0x3a,188,230,174],
+            [0x3b,180,229,199],
+            [0x3c,181,223,228],
+            [0x3d,169,169,169], ]
+            
+def GetPaletteIndex(rgb):
+    index = 0; best = 99999999999999999999
+    for i in range(len(palette)):
+        pal = palette[i]
+        norm = (rgb[0]-pal[1])**2 + (rgb[1]-pal[2])**2 + (rgb[2]-pal[3])**2
+        if norm < best:
+            best = norm
+            index = i
+    return palette[index][0]
+    
 #
 # Bitmap to multi-console CHR converter using Pillow, the
 # Python Imaging Library

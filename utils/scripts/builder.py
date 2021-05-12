@@ -1514,8 +1514,8 @@ class Application:
 
             for item in charset:
                 fb = FileBase(item, '.png')
-                fp.write('utils\\py27\\python utils/scripts/nes/NESMergeCHR.py ' + item[0:-3] + 'chr utils/scripts/nes/font.chr ' + buildFolder + '/nes/' + fb + '.chr\n')
-                fp.write('copy ' + item[0:-3].replace('/', '\\') + 'pal ' + buildFolder + '\\nes\\' + fb + '.pal\n\n')
+                fp.write('utils\\py27\\python utils/scripts/nes/NESCharset.py ' + item + ' ' + buildFolder + '/nes/'+ fb + '.chr ' + buildFolder + '/nes/'+ fb + '.pal\n')
+                fp.write('utils\\py27\\python utils/scripts/nes/NESMergeCHR.py ' + buildFolder + '/nes/'+ fb + '.chr utils/scripts/nes/font.chr ' + buildFolder + '/nes/' + fb + '.chr\n\n')
             
             if len(charmaps) > 0:
                 for item in charmaps:
