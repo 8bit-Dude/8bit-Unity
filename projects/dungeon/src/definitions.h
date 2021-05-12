@@ -34,12 +34,12 @@
 	#define SPRITE_WEAPON   0
 	#define SPRITE_PLAYER   1
 	#define SPRITE_ACTOR    2
-	#define COLOR_GOLD 	   SPR_YELLOW
-	#define COLOR_POTION   SPR_RED
-	#define COLOR_ARMOR    SPR_MAGENTA
-	#define COLOR_KEY      SPR_YELLOW
-	#define COLOR_SKELETON SPR_WHITE
-	#define COLOR_GOBLIN   SPR_GREEN	
+	#define COLOR_GOLD 	   PAL_YELLOW
+	#define COLOR_POTION   PAL_RED
+	#define COLOR_ARMOR    PAL_MAGENTA
+	#define COLOR_KEY      PAL_YELLOW
+	#define COLOR_SKELETON PAL_WHITE
+	#define COLOR_GOBLIN   PAL_GREEN	
 #else
 	#define SPRITE_WEAPON   0
 	#define SPRITE_PLAYER   1

@@ -24,8 +24,8 @@
 	#define spriteFrames 32
 	#define spriteCols   12
 	#define spriteRows   17
-	unsigned char spriteColors[] = { SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC };	// AIC (sword), AIC (player), AIC (actors)
-	unsigned char multiColorDef[] = { SPR_WHITE, 7, SPR_MAGENTA, 12 , SPR_YELLOW, 17 };	// Multicolor definition { color, row, ...  }
+	unsigned char spriteColors[] = { PAL_AIC, PAL_AIC, PAL_AIC, PAL_AIC, PAL_AIC, PAL_AIC, PAL_AIC, PAL_AIC };	// AIC (sword), AIC (player), AIC (actors)
+	unsigned char multiColorDef[] = { PAL_WHITE, 7, PAL_MAGENTA, 12 , PAL_YELLOW, 17 };	// Multicolor definition { color, row, ...  }
 #endif
 
 // See player.c
@@ -75,7 +75,7 @@ void GameLoop(void)
 	clock_t playerClock, actorClock;	
 
 	// Restart music playback
-#if (defined __ATARI__) || (defined __CBM__) || (defined __LYNX__)
+#if (defined __ATARI__) || (defined __LYNX__)
 	PlayMusic();
 #endif	
 	

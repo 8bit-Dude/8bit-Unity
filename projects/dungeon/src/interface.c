@@ -1,10 +1,10 @@
 
 #include "unity.h"
 
-char healthHeader[] = { 1 , 32, 32, 32, 0 };
-char armorHeader[]  = { 3 , 32, 32, 32, 0 };
-char goldHeader[]   = {'$', 32, 32, 32, 0 };
-char killsHeader[]  = { 4 , 32, 32, 32, 0 };
+char healthHeader[] = { 26 , 32, 32, 32, 0 };
+char armorHeader[]  = { 28 , 32, 32, 32, 0 };
+char goldHeader[]   = { '$', 32, 32, 32, 0 };
+char killsHeader[]  = { 29 , 32, 32, 32, 0 };
 
 extern unsigned char health, armor, gold, kills;
 
