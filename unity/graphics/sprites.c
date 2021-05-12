@@ -78,6 +78,7 @@
 	}
 
 #elif defined __NES__	
+ #pragma bss-name(push, "XRAM")
 	unsigned char metaSprites[136] = { 0,0,0,0, 8,0,0,0, 0,8,0,0, 8,8,0,0, 128,
 									   0,0,0,0, 8,0,0,0, 0,8,0,0, 8,8,0,0, 128,
 									   0,0,0,0, 8,0,0,0, 0,8,0,0, 8,8,0,0, 128,
@@ -87,6 +88,7 @@
 									   0,0,0,0, 8,0,0,0, 0,8,0,0, 8,8,0,0, 128,
 									   0,0,0,0, 8,0,0,0, 0,8,0,0, 8,8,0,0, 128 };
 	unsigned char sprCollision[SPRITE_NUM];
+ #pragma bss-name(pop)
 	
 #elif defined __ORIC__	
 	#define byteWIDTH 2		// Byte width of sprite (12 pixels)
@@ -686,11 +688,11 @@ void SetSprite(unsigned char index, unsigned int frame)
 #elif defined __NES__
 	unsigned char base, *metaSprite;
 	metaSprite = &metaSprites[index*17];
-	base = ((frame/8u)*32) + ((frame%8)*2);
-	metaSprite[ 2] = base;
-	metaSprite[ 6] = base+0x01;
-	metaSprite[10] = base+0x10;
-	metaSprite[14] = base+0x11;
+	base = frame*4;
+	metaSprite[ 2] = base++;
+	metaSprite[ 6] = base++;
+	metaSprite[10] = base++;
+	metaSprite[14] = base;
 	oam_set(index<<4);
 	oam_meta_spr(spriteX-8, spriteY-8, metaSprite);
 	//oam_spr(spriteX, spriteY, frame, 0);
