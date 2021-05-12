@@ -79,6 +79,7 @@ palette = [ [0x00, 82, 82, 82],
             [0x3b,180,229,199],
             [0x3c,181,223,228],
             [0x3d,169,169,169], ]
+
             
 def GetPaletteIndex(rgb):
     index = 0; best = 99999999999999999999
@@ -89,6 +90,62 @@ def GetPaletteIndex(rgb):
             best = norm
             index = i
     return palette[index][0]
+
+
+def RLECompression(input):
+
+    size = len(input)
+        
+    # Record value distribution
+    stat = [ 0 ] * 256;
+    for i in range(size):
+        stat[input[i]] += 1
+
+    # Find 0 occurance byte
+    tag=-1;
+    for i in range(256):
+        if(not stat[i]):
+            tag=i;
+            break;
+    if(tag<0): 
+        return None;
+
+    rep=1
+    sym_prev=-1
+    output = [ tag ]
+
+    for i in range(size):
+
+        sym=input[i]
+
+        if (sym_prev != sym or rep>=255 or i==size-1):
+            if(rep>1):
+                if(rep==2):
+                    output.append(sym_prev);
+                else:
+                    output.append(tag)
+                    output.append(rep-1)
+
+            output.append(sym)
+            sym_prev=sym
+            rep = 1
+
+        else:
+            rep += 1
+
+    output.append(tag)	#end of file marked with zero length rle
+    output.append(0)
+    return output
+
+
+def TileCompare(tile1, tile2):
+
+    match = 0
+    for i in range(8):
+        match += bin(255-tile1[i]^tile2[i]).count("1")
+        match += bin(255-tile1[i+8]^tile2[i+8]).count("1")
+    return match
+    
     
 #
 # Bitmap to multi-console CHR converter using Pillow, the
@@ -143,6 +200,7 @@ def EncodeChar(tile, planemap, hflip=False, little=False):
                             rowbits = 1
                 out.extend(thisrow[::-1] if little else thisrow)
     return bytes(out)
+    
 
 def EncodeTiles(im, tileWidth=8, tileHeight=8, formatTile=lambda im: EncodeChar(im, "0;1")):
     """Convert a bitmap image into a list of byte strings representing tiles."""

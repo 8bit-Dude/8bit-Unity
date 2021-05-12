@@ -1509,13 +1509,14 @@ class Application:
             # Process Bitmaps / Chunks / Sprites / Shared                         
             for item in bitmaps:
                 fb = FileBase(item, '.png')
-                fp.write('utils\\py27\\python utils/scripts/nes/NESMergeCHR.py ' + item[0:-3] + 'chr utils/scripts/nes/font.chr ' + buildFolder + '/nes/' + fb + '.chr\n')
-                fp.write('utils\\py27\\python utils/scripts/nes/NESMergePNT.py ' + item[0:-3] + 'pal ' + item[0:-3] + 'rle ' + buildFolder + '/nes/' + fb + '.img\n\n')
+                fp.write('utils\\py27\\python utils/scripts/nes/NESBitmap.py ' + item + ' ' + buildFolder + '/nes/'+ fb + '.chr ' + buildFolder + '/nes/'+ fb + '.img\n')
+            fp.write('\n')
 
             for item in charset:
                 fb = FileBase(item, '.png')
                 fp.write('utils\\py27\\python utils/scripts/nes/NESCharset.py ' + item + ' ' + buildFolder + '/nes/'+ fb + '.chr ' + buildFolder + '/nes/'+ fb + '.pal\n')
                 fp.write('utils\\py27\\python utils/scripts/nes/NESMergeCHR.py ' + buildFolder + '/nes/'+ fb + '.chr utils/scripts/nes/font.chr ' + buildFolder + '/nes/' + fb + '.chr\n\n')
+            fp.write('\n')
             
             if len(charmaps) > 0:
                 for item in charmaps:
