@@ -1524,7 +1524,9 @@ class Application:
                 fp.write('\n')
 
             if len(sprites) > 0:
-                fp.write('copy ' + sprites[0][0:-3].replace('/', '\\') + 'chr ' + buildFolder + '\\nes\\sprites.chr\n')
+                spriteWidth  = int(self.entry_NESSpriteWidth.get())
+                spriteHeight = int(self.entry_NESSpriteHeight.get())
+                fp.write('utils\\py27\\python utils/scripts/nes/NESSprites.py ' + sprites[0] + ' ' + buildFolder + '/nes/sprites.chr ' + str(spriteWidth) + ' ' + str(spriteHeight) + '\n')
             else:
                 fp.write('copy utils\\scripts\\nes\\font.chr ' + buildFolder + '\\nes\\sprites.chr\n')
             fp.write('\n')
