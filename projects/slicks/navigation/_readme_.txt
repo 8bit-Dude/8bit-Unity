@@ -1,0 +1,1 @@
+This folder contains text files from which navigation files (line-up, waypoints) are computed with the batch file

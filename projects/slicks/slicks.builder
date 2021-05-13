@@ -199,7 +199,11 @@
             "music": [
                 "projects/slicks/music/speednik-nes.txt"
             ], 
-            "chunks": []
+            "chunks": [], 
+            "raw": [
+                "projects/slicks/masks/arizona.msk", 
+                "projects/slicks/masks/arto.msk"
+            ]
         }, 
         "Oric": {
             "spriteFrames": "17", 

@@ -17,28 +17,28 @@
 	#define INK_HIGHLT	 BLACK
 	#define PAPER_HIGHLT YELLOW
 	#define PAPER_SCORES BLACK
-	#define SCORES_ROW   8
+	#define SCORES_ROW   	  8
 #elif defined __ATARI__
 	#define INK_LAPS   	 GREEN
 	#define INK_TAB		 GREEN
 	#define INK_HIGHLT	 BLACK
 	#define PAPER_HIGHLT YELLOW
 	#define PAPER_SCORES BLACK
-	#define SCORES_ROW   8
+	#define SCORES_ROW   	  8
 #elif defined __ORIC__
 	#define INK_LAPS   	 GREEN
 	#define INK_TAB		 GREEN
 	#define INK_HIGHLT	 BLACK
 	#define PAPER_HIGHLT YELLOW
 	#define PAPER_SCORES BLACK
-	#define SCORES_ROW   8
+	#define SCORES_ROW   	  8
 #elif defined __CBM__
 	#define INK_LAPS   	 BLACK
 	#define INK_TAB		 GREEN
 	#define INK_HIGHLT	 BLACK
 	#define PAPER_HIGHLT YELLOW
 	#define PAPER_SCORES GREY
-	#define SCORES_ROW   8
+	#define SCORES_ROW   	  8
 #elif defined __LYNX__
 	#define INK_LAPS   	 BLACK
 	#define INK_TAB		 YELLOW	
@@ -50,12 +50,12 @@
 	#define PAUSE_LOCAL_ROW   6
 	#define PAUSE_ONLINE_ROW  2
 #elif defined __NES__
-	#define INK_LAPS   	 BLACK
+	#define INK_LAPS   	 WHITE
 	#define INK_TAB		 GREEN
 	#define INK_HIGHLT	 BLACK
 	#define PAPER_HIGHLT YELLOW
 	#define PAPER_SCORES GREY
-	#define SCORES_ROW   8	
+	#define SCORES_ROW   	  8	
 	#define PAUSE_COL 		  7
 	#define PAUSE_LOCAL_ROW   6
 	#define PAUSE_ONLINE_ROW  2
@@ -529,24 +529,33 @@ void PrintLap(unsigned char i)
 {
 	if (cars[i].lap < 1) { return; }
 	inkColor = inkColors[i]; 
-	txtX = (i+2)*8-3; txtY = TXT_ROWS-1;
+	txtX = (SLOT_COL1+4) + SLOT_WIDTH*i; txtY = TXT_ROWS-1;
 	PrintNum(cars[i].lap);
 }
 
 // Print race message and laps
 void PrintRace()
 {	
-	// Print race message
 #if defined(__CBM__) || defined(__LYNX__)
 	paperColor = paperBuffer;
 #else
 	paperColor = BLACK; 
 #endif	
+
+	// Print race message
+#if defined(__NES__)
+	PrintBuffer("  RACE STARTED, GOAL:    LAPS!  ");
+#else
 	PrintBuffer("      RACE STARTED, GOAL:    LAPS!      ");
+#endif	
 	
 	// Print laps
 	inkColor = INK_LAPS; 
+#if defined(__NES__)
+	txtX = 22; txtY = 0; 
+#else
 	txtX = 26; txtY = 0; 
+#endif	
 	PrintNum(lapGoal);
 }
 

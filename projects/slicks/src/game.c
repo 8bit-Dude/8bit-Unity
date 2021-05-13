@@ -37,9 +37,9 @@
   extern unsigned char pauseEvt;
   extern unsigned char gamePaused;
 #elif defined __NES__
-  #define RACE_ROAD BLACK
-  #define RACE_MARK WHITE
-  #define RACE_WALL RED
+  #define RACE_ROAD 0	// see bgMask
+  #define RACE_MARK 0	//		"
+  #define RACE_WALL 2	//		"
 #endif
 
 // See slicks.c
@@ -116,6 +116,21 @@ unsigned char PlayerAvailable(unsigned char i)
 	}
 	return 0;
 }
+
+// GetPixel() "alternative" function for NES
+#if defined __NES__
+  #pragma bss-name(push, "XRAM")
+    unsigned char bgMask[736];	//  0=road/marking, 1=border/grass, 2=wall.
+	unsigned char pixelX, pixelY;
+    void LocatePixel(unsigned int x, unsigned int y) {
+		pixelX = x/5;
+		pixelY = y/4-2;
+	}
+    unsigned char GetPixel() {
+		return (bgMask[pixelY*16+pixelX/4u] >> ((pixelX%4)*2)) & 3;
+	}
+  #pragma bss-name(pop)  
+#endif
 
 // Reset Game
 void GameReset()
@@ -240,6 +255,12 @@ void GameInit(const char* map)
 	// Load Navigation
 	memcpy(&buffer[len], ".nav", 4);
 	LoadNavigation(&buffer[0]);
+
+	// NES: Load Background Mask (used by alternative GetPixel())
+#if defined __NES__
+	memcpy(&buffer[len], ".msk", 4);
+	FileRead(&buffer[0], bgMask);
+#endif
 	
     // Some extra logics depending on the game mode
 	if (gameMode == MODE_LOCAL) {
@@ -810,7 +831,7 @@ char GameLoop()
 		}				
 		
 		// Check Keyboard Press
-	#if defined __LYNX__
+	#if defined(__LYNX__)
 		if (kbhit() || KeyboardOverlayHit() || !(GetJoy(0) & JOY_BTN2)) {
 			if (chatting) {
 				lastKey = GetKeyboardOverlay();
@@ -823,9 +844,6 @@ char GameLoop()
 			// Special functions (flip screen, pause game)
 			if (!chatting) {
 				switch (lastKey) {
-				case KB_FLIP:
-					SuzyFlip();
-					break;
 				case KB_PAUSE: 
 					for (j=0; j<MAX_PLAYERS; ++j) { DisableSprite(j); }
 					gamePaused = 1; lynx_snd_pause(); BackupRestorePauseBg(0);
@@ -836,6 +854,9 @@ char GameLoop()
 					break;
 				case KB_MUSIC:
 					NextMusic(1);
+					break;
+				case KB_FLIP:
+					SuzyFlip();
 					break;
 				}
 			}

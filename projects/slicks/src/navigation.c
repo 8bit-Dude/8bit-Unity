@@ -4,7 +4,6 @@
 // See game.c
 extern unsigned char gameLineUp[4];
 
-
 #if defined __NES__
  #pragma bss-name(push, "XRAM")
 #endif
@@ -114,6 +113,10 @@ char CheckRamps(Vehicle *car)
     }
     return 0;
 }
+
+#ifdef __ATARIXL__
+  #pragma code-name("SHADOW_RAM")
+#endif
 
 // Functions to check navigation around cylinders
 signed char v1[2], v2[2], dist[2], cross[2], *vWay;

@@ -1,0 +1,1 @@
+This folder contains PNG files from which mask files are generated for the NES (since it does not have GetPixel() function).

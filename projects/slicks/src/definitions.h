@@ -10,14 +10,20 @@
 //#define NETCODE
 
 // Keyboard definitions
-#if defined(__LYNX__) || defined(__NES__)
+#if defined(__LYNX__)
 	#define KB_START 	49
 	#define KB_MUSIC 	50
 	#define KB_NEXT  	51
 	#define KB_CHAT 	KB_B
 	#define KB_FLIP 	KB_F	
 	#define KB_PAUSE 	KB_P
-	#define KB_QUIT 	KB_R	
+	#define KB_QUIT 	KB_R
+#elif defined(__NES__)
+	#define KB_START 	KB_EN
+	#define KB_QUIT 	KB_SP	
+	#define KB_NEXT 	KB_N
+	#define KB_CHAT 	KB_C
+	#define KB_PAUSE 	KB_P
 #elif defined __CBM__
 	#define KB_START 	CH_F1
 	#define KB_NEXT  	CH_F3
