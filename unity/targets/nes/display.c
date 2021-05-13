@@ -26,9 +26,11 @@
  
 #include "../../unity.h"
 
+#define VRAM_BUFFER_LEN 100  // This seems to be max. length NMI can handle
+
 #pragma bss-name(push, "XRAM")
   unsigned int  vram_addr;
-  unsigned char vram_list[100];		// This seems to be max. length NMI can handle
+  unsigned char vram_list[VRAM_BUFFER_LEN];		
   unsigned char vram_list_index = 0;
   unsigned char vram_list_length;
   unsigned char vram_attr[64];
@@ -57,7 +59,7 @@ void __fastcall__ UpdateDisplay(void)
 void __fastcall__ SetVramAddr(void)
 {
 	// Flush current queue?
-	if (vram_list_index > 96)
+	if (vram_list_index > VRAM_BUFFER_LEN-4)
 		UpdateDisplay();
 	
 	// Setup next write command
@@ -87,11 +89,11 @@ void __fastcall__ SetVramAttr(void)
 	vram_attr_horz = (txtX%4); 
 }
 
-void CheckVramQueue(void)
+void CheckVramBuffer(void)
 {
-	// Check if there is still space...
-	if (vram_list_index == 99) {
-		// Restart queue at offset location
+	// Is VRAM buffer full?
+	if (vram_list_index == VRAM_BUFFER_LEN-1) {
+		// Start new queue at offset location (this will flush previous contents)
 		vram_addr += vram_list[vram_list_length];
 		SetVramAddr();
 	}	
@@ -99,8 +101,8 @@ void CheckVramQueue(void)
 
 void __fastcall__ SetVramChar(unsigned char chr)
 {		
-	// Push to VRAM list
-	CheckVramQueue();
+	// Write to VRAM buffer
+	CheckVramBuffer();
 	vram_list[vram_list_index++] = chr;
 	vram_list[vram_list_length] += 1;
 }
@@ -115,11 +117,9 @@ void __fastcall__ SetVramColor(unsigned char forcePush)
 	// Update attribute data (shadow)
 	vram_attr[vram_attr_index] = (vram_attr[vram_attr_index] & ~mask) | (vram_attr_color & mask);
 	
-	// Push to VRAM list (when reaching edge of cell)
+	// Push to VRAM buffer when reaching edge of cell
 	if (vram_attr_horz==3 || forcePush) {
-		CheckVramQueue();
-		vram_list[vram_list_index++] = vram_attr[vram_attr_index++];
-		vram_list[vram_list_length] += 1;
+		SetVramChar(vram_attr[vram_attr_index++]);
 		vram_attr_horz = 0;
 	} else {
 		vram_attr_horz++;
