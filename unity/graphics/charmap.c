@@ -311,11 +311,7 @@ void LoadCharset(char* filename)
 	}
 
 #elif defined __NES__
-    unsigned char* data = FileRead(filename);
-	if (data) {
-		// Copy palette data to XRAM
-		memcpyBanked(palBG, data, 4, 1);
-		
+	if (FileRead(filename, palBG)) {
 		// Switch to new palette/charset
 		ppu_off();			
 		pal_bg(palBG);
@@ -382,13 +378,8 @@ void LoadCharmap(char *filename, unsigned int w, unsigned int h)
 		memcpy(charmapData, (char*)BITMAPRAM, size);
 	ClearBitmap();
 	
-#elif defined __ORIC__
+#elif defined(__NES__) || defined(__ORIC__)
 	FileRead(filename, charmapData);	
-	
-#elif defined __NES__
-	data = FileRead(filename);
-	if (data)
-		memcpyBanked(charmapData, data, size, 1);	
 #endif
 }
 
@@ -427,13 +418,8 @@ void LoadTileset(char *filename, unsigned int n)
 		memcpy(tilesetData, (char*)BITMAPRAM, size);
 	ClearBitmap();
 	
-#elif defined __ORIC__
+#elif defined(__NES__) || defined(__ORIC__)
 	FileRead(filename, tilesetData);	
-
-#elif defined __NES__
-	unsigned char* data = FileRead(filename);
-	if (data)
-		memcpyBanked(tilesetData, data, size, 1);	
 #endif
 	
 	// Allocate buffer for tile to char conversion

@@ -40,13 +40,20 @@ void DirList(void)
 	// Do nothing, file list is assembled at build time!
 }
 
-unsigned char* FileRead(const char* filename)
+unsigned int FileRead(const char* filename, unsigned char* dst)
 {
-	unsigned int addr = 0x8000;	// Base address of PRG0~PRG6 Banks
+	// Base address of PRG0~PRG6 Banks
+	unsigned int size, src = 0x8000;	
+	
+	// Search for file
 	for (fileIndex=0; fileIndex<fileNum; fileIndex++) {
-		if (!strcmp(filename, fileNames[fileIndex]))
-			return (unsigned char*)(addr);
-		addr += fileSizes[fileIndex];
+		size = fileSizes[fileIndex];
+		if (!strcmp(filename, fileNames[fileIndex])) {
+			// Bank ROM and load to Buffer
+			memcpyBanked(dst, src, size, 1);
+			return size;
+		}
+		src += size;
 	}
 	return 0;
 }

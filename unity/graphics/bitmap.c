@@ -198,17 +198,12 @@ void LoadBitmap(char *filename)
 		UpdateDisplay();	
 
 #elif defined __NES__
-    unsigned char* data = FileRead(filename);
-	if (data) {
-		// Copy Palette/RLE data to XRAM
-		memcpyBanked(palBG, &data[0], 4, 1);
-		memcpyBanked(rleData, &data[4], fileSizes[fileIndex]-4, 1);
-		
-		// Decompress RLE to VRAM
+    if (FileRead(filename, rleData)) {
 		ppu_off();	
-		vram_adr(NAMETABLE_A);
-		vram_unrle(rleData);			// Decompress name-table
-		set_chr_bank_0(2+fileIndex);	// Switch to char set
+		set_chr_bank_0(2+fileIndex);	// Switch char set
+		vram_adr(NAMETABLE_A);			// Go to top of VRAM
+		vram_unrle(&rleData[4]);		// Decompress name-table
+		memcpy(palBG, &rleData[0], 4);	// Copy palette data
 		pal_bg(palBG);					// Assign palette
 		ppu_on_all();
 	}

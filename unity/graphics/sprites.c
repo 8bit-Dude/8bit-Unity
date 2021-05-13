@@ -77,7 +77,7 @@
 		SetSprite(index, frame+sprFrames);
 	}
 
-#elif defined __NES__	
+#elif defined __NES__
  #pragma bss-name(push, "XRAM")
 	unsigned char metaSprites[136] = { 0,0,0,0, 8,0,0,0, 0,8,0,0, 8,8,0,0, 128,
 									   0,0,0,0, 8,0,0,0, 0,8,0,0, 8,8,0,0, 128,
