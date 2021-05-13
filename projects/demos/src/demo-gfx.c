@@ -25,14 +25,15 @@ int DemoGfx(void)
 	ShowBitmap();
 	
 	// Draw palette (Method #1: set pixel coordinates directly using global variables pixelX & pixelY)
-#if defined __ORIC__	
+#ifndef __NES__	
+  #if defined __ORIC__	
 	palette = 19; blockW = 6;	// Oric Hires (enforce 6 pixel groups)
-#elif defined __SHR__	
+  #elif defined __SHR__	
 	palette = 6;  blockW = 21;	// Apple Single Hires (enforce 7 pixel groups)
-#else	
+  #else	
 	palette = BMP_PALETTE; 
 	blockW = BMP_COLS/BMP_PALETTE;	
-#endif
+  #endif
 	blockH = (8*BMP_ROWS)/200;		// Display equivalent of 8 lines (rescaled on APPLE/ATMOS/LYNX)
 	for (color=0; color<palette; color++) {
 		for (row=0; row<blockH; row++) {
@@ -47,6 +48,7 @@ int DemoGfx(void)
 			}
 		}
 	}
+#endif
 	
 	// Print text (global variables inkColor & paperColor are assigned directly)
 #if defined __ORIC__
@@ -80,10 +82,12 @@ int DemoGfx(void)
 	}
 	
 	// Draw Line (Method #2: locate pixel against a 320 x 200 screen)
+#ifndef __NES__		
 	for (i=0; i<20; i++) {
 		LocatePixel(140+i*2, 170);
 		SetPixel(WHITE);
 	}
+#endif		
 
 	// Show "next" Message
 	inkColor = BLACK; paperColor = WHITE; 
