@@ -284,6 +284,7 @@ void Panel(unsigned char col, unsigned char row, unsigned char width, unsigned c
 
 void Line(unsigned char x1, unsigned char x2, unsigned char y1, unsigned char y2)
 {
+#ifndef __NES__	
 	if (x1 == x2) {
 		pixelX = x1;
 		for (pixelY=y1; pixelY<y2; pixelY++)
@@ -293,6 +294,7 @@ void Line(unsigned char x1, unsigned char x2, unsigned char y1, unsigned char y2
 		for (pixelX=x1; pixelX<x2; pixelX++)
 			SetPixel(inkColor); 
 	}
+#endif
 }
 
 void ListBox(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char* title, unsigned char* labels[], unsigned char len)

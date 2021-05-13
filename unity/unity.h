@@ -2,9 +2,9 @@
  *	API of the "8bit-Unity" SDK for CC65
  *	All functions are cross-platform for the Apple IIe, Atari XL/XE, and C64/C128
  *	
- *	Last modified: 2019/07/12
+ *	Last modified: 2021/05/13
  *	
- * Copyright (c) 2019 Anthony Beaucamp.
+ * Copyright (c) 2021 Anthony Beaucamp
  *
  * This software is provided 'as-is', without any express or implied warranty.
  * In no event will the authors be held liable for any damages arising from
@@ -88,10 +88,12 @@ void ClearBitmap(void);
 void LoadBitmap(char *filename);
 
 // Bitmap pixel functions (see pixel.c)
-unsigned char GetPixel(void);
-void SetPixel(unsigned char color);
-void LocatePixel(unsigned int x, unsigned int y);
-extern unsigned char pixelX, pixelY; // (see LocatePixel())
+#ifndef __NES__
+  unsigned char GetPixel(void);
+  void SetPixel(unsigned char color);
+  void LocatePixel(unsigned int x, unsigned int y);
+  extern unsigned char pixelX, pixelY; // (see LocatePixel())
+#endif
 
 // Bitmap chunks functions (see chunks.c)
 // 	Apple:  X/W must be multiples of 7 (e.g. 0,7,14,21...) |              No restrictions
