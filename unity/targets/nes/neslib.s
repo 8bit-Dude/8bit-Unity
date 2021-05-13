@@ -11,23 +11,30 @@
 ;and needs to match the bank where the music is
 
 
-	.export _pal_all,_pal_bg,_pal_spr,_pal_col,_pal_clear
-	.export _pal_bright,_pal_spr_bright,_pal_bg_bright
-	.export _ppu_off,_ppu_on_all,_ppu_on_bg,_ppu_on_spr,_ppu_mask,_ppu_system
-	.export _oam_clear,_oam_size,_oam_spr,_oam_meta_spr,_oam_hide_rest
-	.export _ppu_wait_frame,_ppu_wait_nmi
 	.export _scroll,_split
-	.export _bank_spr,_bank_bg
-	.export _vram_read,_vram_write
 	.export _music_play,_music_stop,_music_pause
 	.export _sfx_play,_sample_play
 	.export _pad_poll,_pad_trigger,_pad_state
+
+	;; PPU control functions
+	.export _ppu_off,_ppu_on_all,_ppu_on_bg,_ppu_on_spr,_ppu_mask,_ppu_system
+	.export _ppu_wait_frame,_ppu_wait_nmi
+
+	;; Palette control functions
+	.export _pal_all,_pal_bg,_pal_spr,_pal_col,_pal_clear
+	.export _pal_bright,_pal_spr_bright,_pal_bg_bright
+	
+	; VRAM update functions
 	.export _vram_adr,_vram_put,_vram_fill,_vram_inc,_vram_unrle
-	.export _set_vram_update,_flush_vram_update
+	.export _set_vram_update,_flush_vram_update,_flush_vram_update_nmi
+	.export _vram_read,_vram_write
+
 	.export _memcpy,_memfill,_delay,_clock
 	.export _get_at_addr
-	
-	.export _flush_vram_update_nmi, _oam_set, _oam_get
+
+	; Sprite functions
+	.export _oam_clear,_oam_size,_oam_spr,_oam_meta_spr,_oam_hide
+	.export _oam_set, _oam_get
 
 	.importzp sreg
 	
@@ -371,6 +378,7 @@ _oam_clear:
 	rts
 	
 	
+	
 ;void __fastcall__ oam_set(unsigned char index);	
 ;to manually set the position
 ;a = sprid
@@ -381,6 +389,7 @@ _oam_set:
 	rts
 	
 	
+	
 ;unsigned char __fastcall__ oam_get(void);	
 ;returns the sprid
 
@@ -389,6 +398,27 @@ _oam_get:
 	ldx #0
 	rts
 	
+
+
+;void __fastcall__ oam_hide(unsigned char num);
+;sprid removed
+
+_oam_hide:
+
+	tay
+	lda #240
+	ldx SPRID
+	
+@1:	
+	sta OAM_BUF,x
+	inx
+	inx
+	inx
+	inx
+	dey
+	bne @1	
+
+	rts
 
 
 
@@ -501,28 +531,6 @@ _oam_meta_spr:
 
 @3:
 
-	stx SPRID
-	rts
-
-
-
-;void __fastcall__ oam_hide_rest(void);
-;sprid removed
-
-_oam_hide_rest:
-
-	ldx SPRID
-	lda #240
-
-@1:
-
-	sta OAM_BUF,x
-	inx
-	inx
-	inx
-	inx
-	bne @1
-	;x is zero
 	stx SPRID
 	rts
 
@@ -696,45 +704,8 @@ _split:
 	sta PPU_CTRL
 
 	rts
-
-
-
-;void __fastcall__ bank_spr(unsigned char n);
-
-_bank_spr:
-
-	and #$01
-	asl a
-	asl a
-	asl a
-	sta <TEMP
-	lda <PPU_CTRL_VAR
-	and #%11110111
-	ora <TEMP
-	sta <PPU_CTRL_VAR
-
-	rts
-
-
-
-;void __fastcall__ bank_bg(unsigned char n);
-
-_bank_bg:
-
-	and #$01
-	asl a
-	asl a
-	asl a
-	asl a
-	sta <TEMP
-	lda <PPU_CTRL_VAR
-	and #%11101111
-	ora <TEMP
-	sta <PPU_CTRL_VAR
-
-	rts
-
-
+	
+	
 
 ;void __fastcall__ vram_read(unsigned char *dst,unsigned int size);
 

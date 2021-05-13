@@ -1,10 +1,12 @@
+
 //NES hardware-dependent functions by Shiru (shiru@mail.ru)
 //Feel free to do anything you want with this code, consider it Public Domain
 
-// nesdoug version, 2019-09
+// 8bit-Unity version, 2021-05
 // changes, removed sprid from oam functions, oam_spr 11% faster, meta 5% faster
 
 //Versions history:
+// 130521 - added more sprite functions and removed code unused by 8bit-Unity
 // 050517 - pad polling code optimized, button bits order reversed
 // 280215 - fixed palette glitch caused by the active DMC DMA glitch
 // 030914 - minor fixes in the VRAM update system
@@ -13,6 +15,54 @@
 //          unrle_vram renamed to vram_unrle, with adr argument removed
 // 060414 - many fixes and improvements, including sequental VRAM updates
 // previous versions were created since mid-2011, there were many updates
+
+#define PAD_A			0x80
+#define PAD_B			0x40
+#define PAD_SELECT		0x20
+#define PAD_START		0x10
+#define PAD_UP			0x08
+#define PAD_DOWN		0x04
+#define PAD_LEFT		0x02
+#define PAD_RIGHT		0x01
+
+#define OAM_FLIP_V		0x80
+#define OAM_FLIP_H		0x40
+#define OAM_BEHIND		0x20
+
+#define MASK_SPR		0x10
+#define MASK_BG			0x08
+#define MASK_EDGE_SPR	0x04
+#define MASK_EDGE_BG	0x02
+
+#define NAMETABLE_A		0x2000
+#define NAMETABLE_B		0x2400
+#define NAMETABLE_C		0x2800
+#define NAMETABLE_D		0x2c00
+
+#define ATTRTABLE_A		0x23c0
+#define ATTRTABLE_B		0x27c0
+#define ATTRTABLE_C		0x2bc0
+#define ATTRTABLE_D		0x2fc0
+
+#define NULL			0
+#define TRUE			1
+#define FALSE			0
+
+#define NT_UPD_HORZ		0x40
+#define NT_UPD_VERT		0x80
+#define NT_UPD_EOF		0xff
+
+//macro to calculate nametable address from X,Y in compile time
+
+#define NTADR_A(x,y) 	(NAMETABLE_A|(((y)<<5)|(x)))
+#define NTADR_B(x,y) 	(NAMETABLE_B|(((y)<<5)|(x)))
+#define NTADR_C(x,y) 	(NAMETABLE_C|(((y)<<5)|(x)))
+#define NTADR_D(x,y) 	(NAMETABLE_D|(((y)<<5)|(x)))
+
+//macro to get MSB and LSB
+
+#define MSB(x)			(((x)>>8))
+#define LSB(x)			(((x)&0xff))
 
 
 /////////////////////////////////////////////////////
@@ -109,7 +159,6 @@ void __fastcall__ oam_size(unsigned char size);
 void __fastcall__ oam_spr(unsigned char x,unsigned char y,unsigned char chrnum,unsigned char attr);
 
 
-
 //set metasprite in OAM buffer
 //meta sprite is a const unsigned char array, it contains four bytes per sprite
 //in order x offset, y offset, tile, attribute
@@ -117,12 +166,6 @@ void __fastcall__ oam_spr(unsigned char x,unsigned char y,unsigned char chrnum,u
 // Note: sprid removed for speed
 
 void __fastcall__ oam_meta_spr(unsigned char x,unsigned char y,const unsigned char *data);
-
-
-//hide all remaining sprites from given offset
-// Note: sprid removed for speed
-// Now also changes sprid (index to buffer) to zero
-void __fastcall__ oam_hide_rest(void);
 
 
 // to manually change the sprid (index to sprite buffer)
@@ -135,6 +178,9 @@ void __fastcall__ oam_set(unsigned char index);
 
 unsigned char __fastcall__ oam_get(void);
 
+// hide several sprites from current sprid
+
+void __fastcall__ oam_hide(unsigned char num);
 
 
 
@@ -187,15 +233,6 @@ void __fastcall__ scroll(unsigned int x,unsigned int y);
 //warning: only X scroll could be changed in this version
 
 void __fastcall__ split(unsigned int x); //removed y, not used %%
-
-
-//select current chr bank for sprites, 0..1
-
-void __fastcall__ bank_spr(unsigned char n);
-
-//select current chr bank for background, 0..1
-
-void __fastcall__ bank_bg(unsigned char n);
 
 
 
@@ -269,52 +306,4 @@ void __fastcall__ memfill(void *dst,unsigned char value,unsigned int len);
 void __fastcall__ delay(unsigned char frames);
 
 
-
-#define PAD_A			0x80
-#define PAD_B			0x40
-#define PAD_SELECT		0x20
-#define PAD_START		0x10
-#define PAD_UP			0x08
-#define PAD_DOWN		0x04
-#define PAD_LEFT		0x02
-#define PAD_RIGHT		0x01
-
-#define OAM_FLIP_V		0x80
-#define OAM_FLIP_H		0x40
-#define OAM_BEHIND		0x20
-
-#define MASK_SPR		0x10
-#define MASK_BG			0x08
-#define MASK_EDGE_SPR	0x04
-#define MASK_EDGE_BG	0x02
-
-#define NAMETABLE_A		0x2000
-#define NAMETABLE_B		0x2400
-#define NAMETABLE_C		0x2800
-#define NAMETABLE_D		0x2c00
-
-#define ATTRTABLE_A		0x23c0
-#define ATTRTABLE_B		0x27c0
-#define ATTRTABLE_C		0x2bc0
-#define ATTRTABLE_D		0x2fc0
-
-#define NULL			0
-#define TRUE			1
-#define FALSE			0
-
-#define NT_UPD_HORZ		0x40
-#define NT_UPD_VERT		0x80
-#define NT_UPD_EOF		0xff
-
-//macro to calculate nametable address from X,Y in compile time
-
-#define NTADR_A(x,y) 	(NAMETABLE_A|(((y)<<5)|(x)))
-#define NTADR_B(x,y) 	(NAMETABLE_B|(((y)<<5)|(x)))
-#define NTADR_C(x,y) 	(NAMETABLE_C|(((y)<<5)|(x)))
-#define NTADR_D(x,y) 	(NAMETABLE_D|(((y)<<5)|(x)))
-
-//macro to get MSB and LSB
-
-#define MSB(x)			(((x)>>8))
-#define LSB(x)			(((x)&0xff))
 

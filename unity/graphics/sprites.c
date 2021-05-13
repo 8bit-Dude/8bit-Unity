@@ -87,7 +87,9 @@
 									   0,0,0,0, 8,0,0,0, 0,8,0,0, 8,8,0,0, 128,
 									   0,0,0,0, 8,0,0,0, 0,8,0,0, 8,8,0,0, 128,
 									   0,0,0,0, 8,0,0,0, 0,8,0,0, 8,8,0,0, 128 };
-	unsigned char sprCollision[SPRITE_NUM];
+	unsigned char sprX[SPRITE_NUM], sprY[SPRITE_NUM];	// Screen coordinates
+	unsigned char sprDrawn[SPRITE_NUM], sprCollision[SPRITE_NUM], sprCushion = 2; // Enable and Collision status
+	unsigned char sprCols, sprRows;		// Sprite dimensions	
  #pragma bss-name(pop)
 	
 #elif defined __ORIC__	
@@ -241,6 +243,7 @@ void SetupSprites(unsigned int frames, unsigned char cols, unsigned char rows, c
 	frameSize = rows*((cols+(cols&1))/2+1)+1;
 	
 #elif defined __NES__
+	sprCols = cols; sprRows = rows;		
 	pal_spr(spriteColors);
 #endif
 }
@@ -361,12 +364,12 @@ void LocateSprite(unsigned int x, unsigned int y)
 #endif
 
 
-#if (defined __APPLE2__) || (defined __ATARI__) || (defined __ORIC__)  || (defined __LYNX__)
+#ifndef __C64__	// Other platforms don't have HW sprites, or not compatible with multiplexing (e.g. Atari)	
   unsigned char sc_dX, sc_dY;
  #if (defined __APPLE2__) || (defined __ORIC__)
   unsigned char sc_x1, sc_x2, sc_y1, sc_y2, sc_rows;
   unsigned int sc_bgPtr1, sc_bgPtr2;
- #elif (defined __ATARI__) || (defined __LYNX__)
+ #elif (defined __ATARI__) || (defined __LYNX__) || (defined __NES__)
   unsigned char sc_cushion;
  #endif		
   void SpriteCollisions(unsigned char index)
@@ -464,7 +467,7 @@ void LocateSprite(unsigned int x, unsigned int y)
 				}					
 			}
 		}
-	#elif (defined __ATARI__) || (defined __LYNX__)
+	#elif (defined __ATARI__) || (defined __LYNX__) || (defined __NES__)
 		sc_dY = sprY[i] - spriteY;
 		sc_cushion = sprRows-sprCushion;
 		if (sc_dY < sc_cushion || sc_dY>(256-sc_cushion)) {
@@ -696,6 +699,14 @@ void SetSprite(unsigned char index, unsigned int frame)
 	oam_set(index<<4);
 	oam_meta_spr(spriteX-8, spriteY-8, metaSprite);
 	//oam_spr(spriteX, spriteY, frame, 0);
+	
+	// Check collisions with other sprites
+	SpriteCollisions(index);	
+	
+	// Save sprite information
+	sprX[index] = spriteX;
+	sprY[index] = spriteY;	
+	sprDrawn[index] = 1;
 #endif
 }
 
@@ -751,13 +762,15 @@ void DisableSprite(signed char index)
 			sprDrawn[index] = 0;
 		}
 		sprBank[index/4u] &= ~sprMask[index];
-	#elif defined __NES__
-		// TODO		
 	#else
-		// Soft sprites: Restore background if neccessary
 	  #if (defined __APPLE2__) || (defined __ORIC__)
+		// Soft sprites: Restore background if neccessary
 		ClearSprite(index);
+	  #elif defined __NES__
+		// Hide metasprite
+		oam_set(index<<4); oam_hide(4);
 	  #endif
+		// Clear drawn flag
 		sprDrawn[index] = 0;
 	#endif
 	// Switch all sprites off
@@ -774,6 +787,8 @@ void DisableSprite(signed char index)
 		// Clear sprite slots
 		bzero(sprDrawn, SPRITE_NUM);
 	#elif defined __NES__
+		// Clear sprite slots
+		bzero(sprDrawn, SPRITE_NUM);
 		oam_clear();
 	#else
 		// Soft sprites: Restore background if necessary
