@@ -37,6 +37,13 @@
 #include "neslib.h"
 #include "MMC1/bank_helpers.h"
 
+// Memory Allocation (XRAM
+#define BITMAPRAM   0x0300	// Stores RLE data
+#define CHARMAPRAM  0x1000	// Stores charmap data
+#define CHARFLAGRAM 0x0080	// Stores charflag data
+#define DECODERAM   0x0400	// Decoded char data
+#define CHUNKRAM    0x0400	// Stores chunk data
+
 // Character Mode
 #define TXT_COLS 32
 #define TXT_ROWS 25

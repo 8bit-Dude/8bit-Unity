@@ -151,19 +151,19 @@ unsigned char scrollCols, scrollRows, scrollDirX, scrollDirY;
 // Pointers to various data sets
 #if defined __NES__
  #pragma bss-name(push, "XRAM")
+  unsigned char charmapData[CHARMAPRAM];
+  unsigned char charflagData[CHARFLAGRAM];  
+  unsigned char decodeData[DECODERAM];  
   unsigned char tileset[128*TILE_WIDTH*TILE_HEIGHT];  
   unsigned char *tilesetData = tileset;
-  unsigned char charmapData[0x1000];
-  unsigned char charflagData[128];  
-  unsigned char decodeData[0x400];  
  #pragma bss-name(pop)
 #else
-  unsigned char *tilesetData;
   unsigned char *charmapData;
   unsigned char *charsetData;
   unsigned char *charflagData;
   unsigned char *decodeData;
   unsigned char *screenData;
+  unsigned char *tilesetData;
 #endif
 #if defined __CBM__	
   unsigned char *charattData;

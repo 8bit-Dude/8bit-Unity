@@ -50,7 +50,7 @@
 
 #ifdef __NES__
  #pragma bss-name(push, "XRAM")
-  unsigned char rleData[0x300];  
+  unsigned char rleData[BITMAPRAM];  
  #pragma bss-name(pop)
   extern unsigned char vram_attr[64];
 #endif

@@ -49,7 +49,12 @@
   #pragma code-name("BANK0")
 #endif
 
-#if (defined __ORIC__)
+#if (defined __NES__)
+ #pragma bss-name(push, "XRAM")
+  unsigned char buffer[CHUNKRAM];
+  unsigned char* ptr = buffer;
+ #pragma bss-name(pop)
+#elif (defined __ORIC__)
   unsigned char buffer[512];
 #else
   unsigned char buffer[4];
@@ -65,8 +70,6 @@ unsigned int ChunkSize(unsigned char w, unsigned char h)
 	return 4+(w*h*10)/32u;
 #elif defined __LYNX__
 	return 4+(w*h)/2u;
-#elif defined __NES__
-	return 4+(w*h)/64u;
 #elif defined __ORIC__
 	return 4+(w*h)/6u;
 #endif	
@@ -126,8 +129,10 @@ void LoadChunk(unsigned char** chunk, char *filename)
 void GetChunk(unsigned char** chunk, unsigned char x, unsigned char y, unsigned char w, unsigned char h)
 {
 #if defined __NES__
-	unsigned char i, *ptr = (unsigned char*)chunk;
+	// Transfer data from VRAM to XRAM
 	unsigned int vaddr;
+	unsigned char i;
+	*chunk = ptr;
 	x /= 8u; y /= 8u;
 	h /= 8u; w /= 8u;	
 	POKE(ptr++, x);
