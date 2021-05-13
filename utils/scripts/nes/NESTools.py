@@ -82,7 +82,7 @@ palette = [ [0x00, 82, 82, 82],
             
             
 def RGB2HSV(rgb):
-    r, g, b = rgb[0]/255.0, rgb[1]/255.0, rgb[2]/255.0
+    r, g, b = float(rgb[0])/255.0, float(rgb[1])/255.0, float(rgb[2])/255.0
     mx = max(r, g, b)
     mn = min(r, g, b)
     df = mx-mn
@@ -99,11 +99,11 @@ def RGB2HSV(rgb):
     else:
         s = (df/mx)*100
     v = mx*100
-    return [h, s, v]
+    return [int(h), int(s), int(v)]
 
             
 def GetPaletteIndex(rgb):
-    index = 0; best = 99999999999999999999
+    index = 0; best = 99999999
     #hsv = RGB2HSV(rgb)
     for i in range(len(palette)):
         pal = palette[i][1:4]

@@ -24,13 +24,13 @@
  *   specific prior written permission.
 """
  
-import io,struct, sys
+import io,struct, sys, csv
 from PIL import Image
 from NESTools import GetPaletteIndex, EncodeTiles
 
 input = sys.argv[1]
 outCHR = sys.argv[2]
-outPAL = sys.argv[3]
+outFLG = sys.argv[3]
 
 #################################
 # Read source bitmap and palette
@@ -39,26 +39,37 @@ colors = max(list(img1.getdata()))
 print "Charset size: {%i,%i}; Number of colors: %i" % (img1.size[0], img1.size[1], colors)
 
 #######################################
-# Get palette RGB
-dump = img1.getpalette()
-pal = [ ]
-for i in range(4):
-    rgb = dump[i*3:i*3+3]
-    pal.append(chr(GetPaletteIndex(rgb)))
-pal = ''.join(pal)
+# Encode data to Charset file
+charData = ''.join(EncodeTiles(img1, 8, 8))
+padding = ''.join([chr(0)] * (4096-len(charData)))
 
-#######################################
-# Encode data to Charset
-data = ''.join(EncodeTiles(img1, 8, 8))
-padding = ''.join([chr(0)] * (4096-len(data)))
-            
-###########################
-# Output binary files
 f2 = io.open(outCHR, 'wb')
-f2.write(data)
+f2.write(charData)
 f2.write(padding)
 f2.close()
 
-f2 = io.open(outPAL, 'wb')
-f2.write(pal)
+################################
+# Convert character flags
+flagData = [chr(0)] * 128
+with open(input.replace('-nes.png', '.csv')) as csvfile:
+    i = 0
+    rows = csv.reader(csvfile, delimiter=',')
+    for row in rows:
+        for elt in row:
+            flagData[i] = chr(int(elt))
+            i += 1
+flagData = ''.join(flagData)
+            
+#######################################
+# Generate palette
+dump = img1.getpalette()
+palData = [ ]
+for i in range(4):
+    rgb = dump[i*3:i*3+3]
+    palData.append(chr(GetPaletteIndex(rgb)))
+palData = ''.join(palData)
+
+f2 = io.open(outFLG, 'wb')
+f2.write(flagData)
+f2.write(palData)
 f2.close()
