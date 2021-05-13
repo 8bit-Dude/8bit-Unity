@@ -73,9 +73,9 @@ void ProcessPlayer()
 	}
 				
 	// Check if new position is allowed?
-	flagX = mapX+(scrX*40)/320u-screenCol1;
-	flagY1 = mapY+(scrY*25)/200u-screenRow1;
-	flagY2 = mapY+((scrY+5)*25)/200u-screenRow1;
+	flagX = mapX+(scrX*CMP_COLS)/320u-screenCol1;
+	flagY1 = mapY+(scrY*CMP_ROWS)/200u-screenRow1;
+	flagY2 = mapY+((scrY+5)*CMP_ROWS)/200u-screenRow1;
 	if (GetFlag(flagX, flagY1) || GetFlag(flagX, flagY2))
 		collision = 1;
 	
