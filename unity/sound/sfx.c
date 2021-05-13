@@ -315,7 +315,7 @@
 		unsigned int addr = 0x4000 + (index%2)*4;
 		POKE(addr++, data[0]);		// Pulse   
 		addr++; //POKE(0x4001,  data[1])	// Ramp
-		POKE(addr++, pitch);		// Freq1
+		POKE(addr++, 255-2*pitch/3u);	// Freq1
 		POKE(addr++, data[2]);		// Length
 	}
 #endif

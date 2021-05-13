@@ -189,6 +189,9 @@ unsigned char GetPixel()
 	} else {
 		return (PEEK((char*)addr) & 240) >> 4;
 	}	
+	
+#elif defined __NES__
+	return 0;
 #endif	
 }
 
