@@ -311,7 +311,10 @@ void LoadCharset(char* filename)
 	}
 
 #elif defined __NES__
-	if (FileRead(filename, palBG)) {
+	if (FileRead(filename, charflagData)) {
+		// Copy palette data
+		memcpy(palBG, &charflagData[0x80], 4);
+		
 		// Switch to new palette/charset
 		ppu_off();			
 		pal_bg(palBG);

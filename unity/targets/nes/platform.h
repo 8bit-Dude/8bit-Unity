@@ -40,7 +40,7 @@
 // Memory Allocation (XRAM
 #define BITMAPRAM   0x0300	// Stores RLE data
 #define CHARMAPRAM  0x1000	// Stores charmap data
-#define CHARFLAGRAM 0x0080	// Stores charflag data
+#define CHARFLAGRAM 0x0084	// Stores charflag+palette data
 #define DECODERAM   0x0400	// Decoded char data
 #define CHUNKRAM    0x0400	// Stores chunk data
 
