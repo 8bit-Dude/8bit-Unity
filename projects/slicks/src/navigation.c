@@ -44,13 +44,10 @@ void LoadNavigation(char *filename)
   #elif defined __ATARI__
 	FileOpen(filename);
 	FileRead(buffer, 128);
-  #elif defined __ORIC__
-	FileRead(filename, buffer);
   #elif defined __LYNX__
 	FileRead(filename);
-  #elif defined __NES__
-	p = FileRead(filename);
-	memcpyBanked(buffer, p, 128, 1);
+  #elif defined(__NES__) || defined(__ORIC__)
+	FileRead(filename, buffer);
   #elif defined __CBM__
 	FILE* fp = fopen(filename, "rb");
 	fread(buffer, 1, 128, fp);

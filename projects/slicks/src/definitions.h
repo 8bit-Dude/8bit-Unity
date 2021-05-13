@@ -46,6 +46,12 @@
 
 // Interface definitions
 #define ROW_CHAT (TXT_ROWS-2)
+#define SLOT_COL1 8
+#if defined __NES__
+  #define SLOT_WIDTH 6
+#else
+  #define SLOT_WIDTH 8
+#endif	
 
 // Sprite definitions
 #if defined __APPLE2__

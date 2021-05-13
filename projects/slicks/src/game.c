@@ -177,19 +177,23 @@ void GameReset()
 	if (gameStep == STEP_WARMUP) {
         if (gameMode == MODE_ONLINE) {
 		#if defined __CBM__
-            PrintBuffer("  WARMUP: F1-RACE, F3-NEXT MAP, C-CHAT  ");   
+            PrintBuffer("  WARMUP: F1=RACE, F3=NEXT MAP, C=CHAT  ");   
 		#elif defined __LYNX__
-            PrintBuffer("   WARMUP: OP1-RACE, PAU-MENU, B-CHAT   ");   
+            PrintBuffer("   WARMUP: OP1=RACE, PAU=MENU, B=CHAT   ");   
+		#elif defined __NES__
+            PrintBuffer("WARMUP: STA=RACE,SEL=MENU,B=CHAT");   
 		#else
-            PrintBuffer("   WARMUP: 1-RACE, 2-NEXT MAP, C-CHAT   ");   
+            PrintBuffer("   WARMUP: 1=RACE, 2=NEXT MAP, C=CHAT   ");   
 		#endif
         } else {
 		#if defined __CBM__
-            PrintBuffer("  WARMUP: F1-RACE, F3-NEXT MAP, Q-Quit  ");   
+            PrintBuffer("  WARMUP: F1=RACE, F3=NEXT MAP, Q=Quit  ");   
 		#elif defined __LYNX__
-            PrintBuffer("  WARMUP: OP1-RACE, PAU-MENU, RS-Quit   ");   
+            PrintBuffer("  WARMUP: OP1=RACE, PAU=MENU, RS=Quit   ");   
+		#elif defined __NES__
+            PrintBuffer("   WARMUP: STA=RACE, SEL=MENU   ");   
 		#else
-            PrintBuffer("   WARMUP: 1-RACE, 2-NEXT MAP, Q-Quit   ");   
+            PrintBuffer("   WARMUP: 1=RACE, 2=NEXT MAP, Q=Quit   ");   
 		#endif
         }
 	} else {
@@ -201,7 +205,7 @@ void GameReset()
 // Initialize Game
 void GameInit(const char* map)
 {
-	char i, slot, len, buffer[13];
+	char i, len, buffer[13];
 	
 	// Assign clock dependent physics params
 	tck4 = 4*TCK_PER_SEC;
@@ -243,14 +247,14 @@ void GameInit(const char* map)
         for (i=0; i<MAX_PLAYERS; ++i) {
             // Print player numbers in score board
             if (controlIndex[i]) {
-				slot = (i+1)*8;
                 inkColor = inkColors[i]; 
+				txtX = SLOT_COL1 + SLOT_WIDTH*i;
 				txtY = TXT_ROWS-1;
 			#if defined __ORIC__
-				txtX = slot-1; SetAttributes(inkColor);
+				txtX--; SetAttributes(inkColor); txtX++; 
 			#endif					
-                txtX = slot;   PrintChr('p');
-				txtX = slot+1; PrintChr(CHR_DIGIT+1+i);
+				PrintChr('p'); txtX++;
+				PrintChr(CHR_DIGIT+1+i);
             }
         }
         // Initiate laps
@@ -757,8 +761,8 @@ char GameLoop()
 			if (iJmp)	
 				JumpSFX(i);
 			else
-		#endif
 			if (iVel < velDrift || deltaAngle < 25)
+		#endif
 				EngineSFX(i, iVel);
 		#if defined __LYNX__	
 			else

@@ -71,8 +71,8 @@
 	#define MENU_BLD TXT_ROWS-1
 #elif defined __NES__
 	#define MENU_COL 14
-	#define MENU_ROW  2
-	#define MENU_WID 17
+	#define MENU_ROW  4
+	#define MENU_WID 18
 	#define MENU_HEI 16
 	#define MENU_BLD TXT_ROWS-2
 #else
@@ -611,7 +611,7 @@ void SpriteAnimation(unsigned char index, unsigned char frame)
 	spriteY = 6;
 #elif defined __NES__
 	spriteX = 160+index*21; 
-	spriteY = 24;
+	spriteY = 31;
 #endif		
 #if defined __ATARI__
 	SetMultiColorSprite(2*index, frame);
