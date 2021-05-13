@@ -10,7 +10,9 @@
             "projects/goblin/src/scene.c"
         ], 
         "shared": [], 
-        "charmap": []
+        "charmap": [], 
+        "tilesize": "None", 
+        "customVBI": "No"
     }, 
     "platform": {
         "Apple": {
@@ -34,7 +36,9 @@
             "chunks": [
                 "projects/goblin/chunks/chunks-apple.txt"
             ], 
-            "diskSize": "140KB"
+            "diskSize": "140KB", 
+            "crunchAssets": "No", 
+            "networkDriver": "IP65(TCP/UDP)"
         }, 
         "Atari": {
             "spriteFrames": "14", 
@@ -54,8 +58,9 @@
             "chunks": [
                 "projects/goblin/chunks/chunks-atari.txt"
             ], 
-            "noText": false, 
-            "diskSize": "180KB"
+            "diskSize": "180KB", 
+            "crunchAssets": "No", 
+            "networkDriver": "IP65(TCP/UDP)"
         }, 
         "C64": {
             "spriteFrames": "14", 
@@ -66,6 +71,7 @@
                 "projects/goblin/bitmaps/scene1-c64.png"
             ], 
             "charset": [], 
+            "charsetColors": " ", 
             "sprites": [
                 "projects/goblin/sprites/sprites-c64.png"
             ], 
@@ -74,7 +80,9 @@
             ], 
             "chunks": [
                 "projects/goblin/chunks/chunks-c64.txt"
-            ]
+            ], 
+            "crunchAssets": "No", 
+            "networkDriver": "IP65(TCP/UDP)"
         }, 
         "Lynx": {
             "spriteFrames": "14", 
@@ -96,6 +104,23 @@
             "chunks": [
                 "projects/goblin/chunks/chunks-lynx.txt"
             ]
+        }, 
+        "NES": {
+            "spriteFrames": "14", 
+            "spriteWidth": "16", 
+            "spriteHeight": "16", 
+            "bitmap": [
+                "projects/goblin/bitmaps/banner-nes.png", 
+                "projects/goblin/bitmaps/scene1-nes.png"
+            ], 
+            "charset": [], 
+            "sprites": [
+                "projects/goblin/sprites/sprites-nes.png"
+            ], 
+            "music": [
+                "projects/goblin/music/goblin-nes.txt"
+            ], 
+            "chunks": []
         }, 
         "Oric": {
             "spriteFrames": "14", 

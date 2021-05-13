@@ -34,7 +34,7 @@ void PrintMessage(unsigned char *msg)
 		if (msg[i] == '\n') {
 			txtX = 0; txtY++;
 		} else {
-			PrintChr(GetChr(msg[i]));
+			PrintChr(msg[i]);
 			txtX++;
 		}
 		++i;

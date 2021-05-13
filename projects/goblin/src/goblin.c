@@ -24,6 +24,10 @@
 	#define spriteCols   9
 	#define spriteRows   13
 	unsigned char *spriteColors = 0; //  All sprites use the default palette
+#elif defined __NES__
+	#define spriteCols   16
+	#define spriteRows   16
+	unsigned char *spriteColors = 0; //  All sprites use the default palette
 #endif
 
 // Accessible polygon in scene
