@@ -16,7 +16,8 @@
             "projects/dungeon/charmaps/level1.map", 
             "projects/dungeon/charmaps/level1.tls"
         ], 
-        "tilesize": "2x2"
+        "tilesize": "2x2", 
+        "customVBI": "No"
     }, 
     "platform": {
         "Apple": {
@@ -74,6 +75,7 @@
             "charset": [
                 "projects/dungeon/charsets/quedex-c64.png"
             ], 
+            "charsetColors": " ", 
             "sprites": [
                 "projects/dungeon/sprites/sprites-c64.png"
             ], 
@@ -102,6 +104,22 @@
             "music": [
                 "projects/dungeon/music/dungeon-lynx.asm"
             ], 
+            "chunks": []
+        }, 
+        "NES": {
+            "spriteFrames": "32", 
+            "spriteWidth": "16", 
+            "spriteHeight": "16", 
+            "bitmap": [
+                "projects/dungeon/bitmaps/menu-nes.png"
+            ], 
+            "charset": [
+                "projects/dungeon/charsets/quedex-nes.png"
+            ], 
+            "sprites": [
+                "projects/dungeon/sprites/sprites-nes.png"
+            ], 
+            "music": [], 
             "chunks": []
         }, 
         "Oric": {

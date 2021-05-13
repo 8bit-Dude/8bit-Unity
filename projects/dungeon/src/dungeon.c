@@ -20,6 +20,12 @@
 	#define spriteCols    8
 	#define spriteRows   12
 	unsigned char* spriteColors = 0;	//  All sprites use the default palette
+#elif defined __NES__
+	#define spriteFrames 32
+	#define spriteCols   16
+	#define spriteRows   16
+    const unsigned char spriteColors[] = { PAL_BLACK, PAL_BROWN, PAL_GREEN, PAL_YELLOW, PAL_BLACK, PAL_BROWN, PAL_GREEN, PAL_YELLOW, 
+										   PAL_BLACK, PAL_BROWN, PAL_GREEN, PAL_YELLOW, PAL_BLACK, PAL_BROWN, PAL_GREEN, PAL_YELLOW }; // 4 palettes of 4 colors
 #elif defined __ORIC__
 	#define spriteFrames 32
 	#define spriteCols   12

@@ -39,7 +39,7 @@ void LoadActors(const char* filename)
 	unsigned char* navBuffer = (char*)SHAREDRAM;
 	bzero(SHAREDRAM, 128);
 	FileRead(filename);
-#elif (defined __ORIC__)
+#elif (defined __NES__) || (defined __ORIC__)
 	unsigned char navBuffer[128];
 	FileRead(filename, navBuffer);
 #endif	
