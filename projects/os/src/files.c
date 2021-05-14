@@ -122,7 +122,7 @@ void PreviewImage(void)
 
 void PreviewText(void)
 {
-	unsigned int addr, end;
+	unsigned char *addr, *end;
 #if (defined __APPLE2__) || (defined __CBM__)	
 	FILE* fp;
 #endif
@@ -152,14 +152,14 @@ void PreviewText(void)
 
 	// Display in preview box
 	paperColor = DESK_COLOR; inkColor = BLACK;
-	addr = (unsigned int)textBuffer;
+	addr = textBuffer;
 	end = addr+strlen(textBuffer);
 	txtX=18; txtY=1; 
 	while (addr<end) {
-		if (*(char*)(addr) == '\n') {
+		if (*addr == '\n') {
 			txtX = 18; txtY++;
 		} else {
-			PrintChr(GetChr(*(char*)(addr))); txtX++; 
+			PrintChr(*addr); txtX++; 
 			if (txtX>TXT_COLS-2) { txtX = 18; txtY++; }
 		} addr++;
 	}
