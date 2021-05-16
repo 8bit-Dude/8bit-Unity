@@ -26,20 +26,12 @@
 
 #include "../../unity.h"
 
-#pragma rodata-name ("BANK1")
-#pragma code-name ("BANK1")
-
-void memcpyBank1(unsigned char* dst, unsigned char* src, unsigned int len)
-{
-	memcpy(dst, src, len);	
-}
-
 #pragma rodata-name ("CODE")
 #pragma code-name ("CODE")
 
 void memcpyBanked(unsigned char* dst, unsigned char* src, unsigned int len, unsigned char bank)
 {
 	set_prg_bank(bank);
-	memcpyBank1(dst, src, len);
+	memcpy(dst, src, len);	
 	set_prg_bank(0);
 }
