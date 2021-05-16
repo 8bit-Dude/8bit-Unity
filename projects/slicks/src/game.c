@@ -308,7 +308,7 @@ unsigned char GameRace()
 	#if defined __ATARI__ 
 		RecolorSprite(i, 0, 0x08);
 	#elif defined __ORIC__ 
-		RecolorSprite(i, 0, PAL_AIC);
+		RecolorSprite(i, 0, SPR_AIC);
 	#elif defined __CBM__
 		RecolorSprite(i, 0, LGREY);
 	#elif defined __LYNX__
@@ -339,7 +339,7 @@ unsigned char GameRace()
     // Red light
 #if defined __ORIC__ 
 	LocateSprite(LIGHT_X, 24);	
-	RecolorSprite(SPR2_SLOT, 0, PAL_RED);
+	RecolorSprite(SPR2_SLOT, 0, SPR_RED);
 	SetSprite(SPR2_SLOT, 16);
 #elif defined __ATARI__  
 	RecolorSprite(SPR2_SLOT, 0, 0x22);  
@@ -359,7 +359,7 @@ unsigned char GameRace()
     // Orange light	
 #if defined __ORIC__ 
 	LocateSprite(LIGHT_X+LIGHT_SP, 24);	
-	RecolorSprite(SPR2_SLOT+1, 0, PAL_RED);
+	RecolorSprite(SPR2_SLOT+1, 0, SPR_RED);
 	SetSprite(5, 16);	
 #elif defined __ATARI__  
 	RecolorSprite(SPR2_SLOT+1, 0, 0x1a);  
@@ -379,7 +379,7 @@ unsigned char GameRace()
     // Green light
 #if defined __ORIC__ 
 	LocateSprite(LIGHT_X+2*LIGHT_SP, 24);	
-	RecolorSprite(SPR2_SLOT+2, 0, PAL_GREEN);
+	RecolorSprite(SPR2_SLOT+2, 0, SPR_GREEN);
 	SetSprite(SPR2_SLOT+2, 16);	
 #elif defined __ATARI__  
 	RecolorSprite(SPR2_SLOT+2, 0, 0xc4);  

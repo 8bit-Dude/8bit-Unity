@@ -19,7 +19,7 @@
 #elif defined __ORIC__
   #define spriteCols   12
   #define spriteRows   6
-  const unsigned char spriteColors[] = { PAL_CYAN, PAL_MAGENTA, PAL_GREEN, PAL_WHITE, PAL_AIC, PAL_AIC, PAL_AIC, PAL_AIC };	
+  const unsigned char spriteColors[] = { SPR_CYAN, SPR_MAGENTA, SPR_GREEN, SPR_WHITE, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC };	
   const unsigned char inkColors[] = { CYAN, LPURPLE, LGREEN, GREY, WHITE };		// P1, P2, P3, P4, SERVER INFO
 #elif defined __CBM__
   #define spriteCols   12
@@ -34,8 +34,8 @@
 #elif defined __NES__
   #define spriteCols    8
   #define spriteRows    8
-  const unsigned char spriteColors[] = { PAL_BLACK, PAL_BLUE, PAL_CYAN, PAL_GREY,  PAL_BLACK, PAL_RED, PAL_CYAN, PAL_GREY, 
-										 PAL_BLACK, PAL_GREEN, PAL_CYAN, PAL_GREY, PAL_BLACK, PAL_YELLOW, PAL_CYAN, PAL_GREY }; // 4 palettes of 4 colors
+  const unsigned char spriteColors[] = { SPR_BLACK, SPR_BLUE, SPR_CYAN, SPR_GREY,  SPR_BLACK, SPR_RED, SPR_CYAN, SPR_GREY, 
+										 SPR_BLACK, SPR_GREEN, SPR_CYAN, SPR_GREY, SPR_BLACK, SPR_YELLOW, SPR_CYAN, SPR_GREY }; // 4 palettes of 4 colors
   const unsigned char inkColors[] = { BLUE, RED, GREEN, YELLOW, WHITE };		// P1, P2, P3, P4	
 #endif
 
