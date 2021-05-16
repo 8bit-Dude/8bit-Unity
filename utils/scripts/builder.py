@@ -1602,10 +1602,26 @@ class Application:
             if len(chunks) > 0:
                 fp.write('for /f "tokens=*" %%A in (chunks.lst) do set FILESIZES=!FILESIZES!%%~zA,\n') 
             fp.write('\n')
+            
+            # Assign Bank Numbers (fill-up each $4000 block)
+            fp.write('set FILEBANKS=\n')
+            fp.write('set /a INDEX=0\n')
+            fp.write('set /a CURBANK=1\n')
+            fp.write('set /a CUMSIZE=0\n')
+            fp.write('(for %%a in (%FILESIZES%) do ( \n')
+            fp.write('   set /a CUMSIZE = !CUMSIZE!+%%a\n')
+            fp.write('   if 16384 LSS !CUMSIZE! set /a CURBANK=!CURBANK!+1\n')
+            fp.write('   if 16384 LSS !CUMSIZE! set /a CUMSIZE=%%a\n')
+            fp.write('   set FILEBANKS=!FILEBANKS!!CURBANK!,\n')
+            fp.write('   set BANKS[!INDEX!]=!CURBANK!\n')
+            fp.write('   set /a INDEX=!INDEX!+1\n')
+            fp.write('))\n')
+            fp.write('\n')
 
             # Generate assembly file with list of read-only data
             fp.write('@echo .global _fileNum >> data.asm\n')
             fp.write('@echo .global _fileSizes >> data.asm\n')
+            fp.write('@echo .global _fileBanks >> data.asm\n')
             fp.write('@echo .global _fileNames >> data.asm\n')
             fp.write('@echo ; >> data.asm\n')
             
@@ -1617,6 +1633,7 @@ class Application:
             if len(bitmaps) > 0 or len(charmaps) > 0 or len(charset) > 0 or len(raw) > 0 or len(shared) > 0:
                 # Declare all Bitmap, Shared and Chunk files
                 fp.write('@echo _fileSizes: .word %FILESIZES:~0,-1% >> data.asm\n')
+                fp.write('@echo _fileBanks: .byte %FILEBANKS:~0,-1% >> data.asm\n')
                 fp.write('@echo _fileNames: .addr ')
                 counter = 0
                 for i in range(len(bitmaps)):
@@ -1677,22 +1694,32 @@ class Application:
             fp.write('@echo ; >> data.asm\n')
 
             # Write asset files to PRG banks
-            fp.write('@echo .segment "BANK1" >> data.asm\n')
+            counter = 0
             for i in range(len(bitmaps)):
                 fb = FileBase(bitmaps[i], '.png')
+                fp.write('@echo .segment "BANK!BANKS[%i]!" >> data.asm\n' % counter)
                 fp.write('@echo _bmpData' + str(i).zfill(2) + ': .incbin "' + fb + '.img" >> data.asm\n')
+                counter += 1
             for i in range(len(charset)):
                 fb = FileBase(charset[i], '.png')
+                fp.write('@echo .segment "BANK!BANKS[%i]!" >> data.asm\n' % counter)
                 fp.write('@echo _chrData' + str(i).zfill(2) + ': .incbin "' + fb + '.dat" >> data.asm\n')
+                counter += 1
             for i in range(len(charmaps)):
                 fb = FileBase(charmaps[i], '')
+                fp.write('@echo .segment "BANK!BANKS[%i]!" >> data.asm\n' % counter)
                 fp.write('@echo _mapData' + str(i).zfill(2) + ': .incbin "' + fb + '" >> data.asm\n')                
+                counter += 1
             for i in range(len(raw)):
                 fb = FileBase(raw[i], '')
+                fp.write('@echo .segment "BANK!BANKS[%i]!" >> data.asm\n' % counter)
                 fp.write('@echo _rawData' + str(i).zfill(2) + ': .incbin "' + fb + '" >> data.asm\n')                
+                counter += 1
             for i in range(len(shared)):
                 fb = FileBase(shared[i], '')
+                fp.write('@echo .segment "BANK!BANKS[%i]!" >> data.asm\n' % counter)
                 fp.write('@echo _shrData' + str(i).zfill(2) + ': .incbin "' + fb + '" >> data.asm\n')                
+                counter += 1
             fp.write('@echo ; >> data.asm\n')
                 
             # Link Music 
