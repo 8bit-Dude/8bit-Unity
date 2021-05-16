@@ -174,6 +174,7 @@
             "chunks": []
         }, 
         "NES": {
+            "bitmapTiles": "192", 
             "spriteFrames": "18", 
             "spriteWidth": "16", 
             "spriteHeight": "16", 
@@ -202,7 +203,17 @@
             "chunks": [], 
             "raw": [
                 "projects/slicks/masks/arizona.msk", 
-                "projects/slicks/masks/arto.msk"
+                "projects/slicks/masks/arto.msk", 
+                "projects/slicks/masks/cramp.msk", 
+                "projects/slicks/masks/freeway.msk", 
+                "projects/slicks/masks/gta.msk", 
+                "projects/slicks/masks/island.msk", 
+                "projects/slicks/masks/mtcarlo.msk", 
+                "projects/slicks/masks/rally.msk", 
+                "projects/slicks/masks/river.msk", 
+                "projects/slicks/masks/stadium.msk", 
+                "projects/slicks/masks/suzuka.msk", 
+                "projects/slicks/masks/trial.msk"
             ]
         }, 
         "Oric": {
