@@ -1577,7 +1577,7 @@ class Application:
             fp.write('set /a CHUNKNUM=0\n')
             if len(chunks) > 0:
                 fp.write('for /f "tokens=*" %%A in (chunks.lst) do set CHUNKNAMES=!CHUNKNAMES!_shkName!CHUNKNUM!,&&set /a CHUNKNUM+=1\n')
-            fp.write('set /a FILENUM=!CHUNKNUM!+' + str(len(bitmaps)+len(charset)+len(charmaps)+len(shared)) + '\n')
+            fp.write('set /a FILENUM=!CHUNKNUM!+' + str(len(bitmaps)+len(charset)+len(charmaps)+len(raw)+len(shared)) + '\n')
             fp.write('\n')
             
             # Get Size of various files
