@@ -33,14 +33,14 @@ extern const char nextKey;
   #define spriteFrames 16
   #define spriteCols    8
   #define spriteRows    8
-  const unsigned char spriteColors[] = { PAL_BLACK, PAL_BLUE, PAL_CYAN, PAL_GREY,  PAL_BLACK, PAL_RED, PAL_CYAN, PAL_GREY, 
-										 PAL_BLACK, PAL_GREEN, PAL_CYAN, PAL_GREY, PAL_BLACK, PAL_YELLOW, PAL_CYAN, PAL_GREY }; // 4 palettes of 4 colors
+  const unsigned char spriteColors[] = { SPR_BLACK, SPR_BLUE, SPR_CYAN, SPR_GREY,  SPR_BLACK, SPR_RED, SPR_CYAN, SPR_GREY, 
+										 SPR_BLACK, SPR_GREEN, SPR_CYAN, SPR_GREY, SPR_BLACK, SPR_YELLOW, SPR_CYAN, SPR_GREY }; // 4 palettes of 4 colors
   const unsigned char inkColors[] = { BLUE, RED, LGREEN, YELLOW };		// P1, P2, P3, P4
 #elif defined __ORIC__
   #define spriteFrames 16
   #define spriteCols   12
   #define spriteRows    6
-  const unsigned char spriteColors[] = { PAL_CYAN, PAL_MAGENTA, PAL_GREEN, PAL_WHITE, PAL_AIC, PAL_AIC, PAL_AIC, PAL_AIC };	// Matching more or less with above
+  const unsigned char spriteColors[] = { SPR_CYAN, SPR_MAGENTA, SPR_GREEN, SPR_WHITE, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC };	// Matching more or less with above
   const unsigned char inkColors[] = { CYAN, LPURPLE, LGREEN, GREY };	// P1, P2, P3, P4
 #endif
 
