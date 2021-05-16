@@ -14,8 +14,8 @@
 #elif defined __ORIC__
 	#define spriteCols   12
 	#define spriteRows   24
-	unsigned char spriteColors[] = { PAL_AIC, PAL_AIC, PAL_AIC, PAL_AIC, PAL_AIC, PAL_AIC, PAL_AIC, PAL_AIC };  // AIC color allows faster drawing!
-	unsigned char multiColorDef[] = { PAL_WHITE, 8, PAL_GREEN, 14, PAL_MAGENTA, 24 };	// Multicolor definition { color, row, ... }
+	unsigned char spriteColors[] = { SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC };  // AIC color allows faster drawing!
+	unsigned char multiColorDef[] = { SPR_WHITE, 8, SPR_GREEN, 14, SPR_MAGENTA, 24 };	// Multicolor definition { color, row, ... }
 #elif defined __CBM__
 	#define spriteCols   12
 	#define spriteRows   21
@@ -27,7 +27,8 @@
 #elif defined __NES__
 	#define spriteCols   16
 	#define spriteRows   16
-	unsigned char *spriteColors = 0; //  All sprites use the default palette
+    const unsigned char spriteColors[] = { SPR_BLACK, SPR_BROWN, SPR_GREEN, SPR_YELLOW, SPR_BLACK, SPR_BROWN, SPR_GREEN, SPR_YELLOW, 
+										   SPR_BLACK, SPR_BROWN, SPR_GREEN, SPR_YELLOW, SPR_BLACK, SPR_BROWN, SPR_GREEN, SPR_YELLOW }; // 4 palettes of 4 colors
 #endif
 
 // Accessible polygon in scene
@@ -166,9 +167,11 @@ void SplashScreen(void)
 	
 	// Show credit/build
 	txtX = TXT_COLS-12; txtY = TXT_ROWS-4;
-#if (defined __ORIC__)
+#if defined(__ORIC__)
 	inkColor = AIC;
 	PrintBlanks(12, 3);
+#elif defined(__NES__)
+	inkColor = INK_DEFAULT; 
 #else		
 	pixelX = 0; pixelY = 0;
 	paperColor = GetPixel(); 
