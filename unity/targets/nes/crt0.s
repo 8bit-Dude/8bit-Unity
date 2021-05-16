@@ -66,8 +66,8 @@ VRAM_BUF	=$0700
 NTSC_MODE: 			.res 1
 FRAME_CNT1: 		.res 1
 FRAME_CNT2: 		.res 1
-NAME_UPD_ADR: 		.res 2
-NAME_UPD_ENABLE: 	.res 1
+NAME_DATA: 			.res 2
+NAME_UPDATE: 		.res 1
 PAL_UPDATE: 		.res 1
 PAL_BG_PTR: 		.res 2
 PAL_SPR_PTR: 		.res 2

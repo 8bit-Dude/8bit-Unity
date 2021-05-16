@@ -11,7 +11,6 @@
 ;and needs to match the bank where the music is
 
 
-	.export _scroll,_split
 	.export _music_play,_music_stop,_music_pause
 	.export _sfx_play,_sample_play
 	.export _pad_poll,_pad_trigger,_pad_state
@@ -26,8 +25,7 @@
 	
 	; VRAM update functions
 	.export _vram_adr,_vram_put,_vram_fill,_vram_inc,_vram_unrle
-	.export _set_vram_update,_flush_vram_update,_flush_vram_update_nmi
-	.export _vram_read,_vram_write
+	.export _set_vram_update, _vram_read,_vram_write
 
 	.export _memcpy,_memfill,_delay,_clock
 	.export _get_at_addr
@@ -39,44 +37,90 @@
 	.importzp sreg
 	
 
-;NMI handler
-
-nmi:
+;------------------------
+nmi:	;NMI handler
 	pha
 	txa
 	pha
 	tya
 	pha
+
+	lda <PPU_MASK_VAR	;if rendering is disabled, do not access the VRAM at all
+	and #%00011000
+	beq @skipAll
+
+@doUpdate:
+
+	lda #>OAM_BUF			;update OAM
+	sta PPU_OAM_DMA
+
+@updPalette:
+
+	lda <PAL_UPDATE			;update palette needed?
+	beq @updVRAM
+
+	jsr _palette_update_nmi
+
+@updVRAM:
 	
+	lda <NAME_UPDATE	;update VRAM needed?
+	beq @doneUpdate
+
+	jsr _vram_update_nmi
+
+@doneUpdate:
+
+	lda #0
+	sta PPU_ADDR
+	sta PPU_ADDR
+
+	lda <PPU_CTRL_VAR
+	sta PPU_CTRL
+
+@skipAll:
+
+	lda <PPU_MASK_VAR
+	sta PPU_MASK
+
+	inc <FRAME_CNT1
+	inc <FRAME_CNT2
+	lda <FRAME_CNT2
+	cmp #6
+	bne @skipNtsc
+	lda #0
+	sta <FRAME_CNT2
+
+@skipNtsc:
+
 	inc     <CLOCK
 	bne     @doneClock
 	inc     <CLOCK+1
 	
 @doneClock:	
 
-	lda <PPU_MASK_VAR	;if rendering is disabled, do not access the VRAM at all
-	and #%00011000
-	bne @doUpdate
-	jmp	@skipAll
+	;switch the music into the prg bank first
+	lda BP_BANK ;save current prg bank
+	pha
+	lda #SOUND_BANK
+	jsr _set_prg_bank
+	jsr FamiToneUpdate
+	pla
+	sta BP_BANK ;restore prg bank
+	jsr _set_prg_bank
 
-@doUpdate:
+	pla
+	tay
+	pla
+	tax
+	pla
 
-;for split screens with different CHR bank at top	
-	lda nmiChrTileBank
-	cmp #NO_CHR_BANK 
-	beq @no_chr_chg
-	jsr _set_chr_bank_0
-@no_chr_chg:
+irq:
 
-
-	lda #>OAM_BUF		;update OAM
-	sta PPU_OAM_DMA
-
-	lda <PAL_UPDATE		;update palette if needed
-	bne @updPal
-	jmp @updVRAM
-
-@updPal:
+    rti
+	
+	
+;------------------------	
+_palette_update_nmi:
 
 	ldx #0
 	stx <PAL_UPDATE
@@ -112,66 +156,87 @@ nmi:
 	lda (PAL_SPR_PTR),y
 	sta PPU_DATA
 	.endrepeat
-	.endrepeat
-
-@updVRAM:
+	.endrepeat	
 	
-	lda <NAME_UPD_ENABLE
-	beq @skipUpd
+	rts
+	
+	
+;------------------------	
+_vram_update_nmi:
 
-	jsr _flush_vram_update_nmi
+	ldy #0
+	sty <NAME_UPDATE
 
-@skipUpd:
+@updName:
 
-	lda #0
+	lda (NAME_DATA),y
+	iny
+	;cmp #$40				;is it a non-sequental write?
+	;bcs @updNotSeq
+	;sta PPU_ADDR
+	;lda (NAME_DATA),y
+	;iny
+	;sta PPU_ADDR
+	;lda (NAME_DATA),y
+	;iny
+	;sta PPU_DATA
+	;jmp @updName
+
+@updNotSeq:
+
+	;tax
+	;lda <PPU_CTRL_VAR
+	;cpx #$80				;is it a horizontal or vertical sequence?
+	;bcc @updHorzSeq
+	;cpx #$ff				;is it end of the update?
+	;beq @updDone
+	
+	cmp #$ff		; Simplified for speed (8bit-Dude)
+	beq @updDone
+
+@updVertSeq:
+
+	;ora #$04
+	;bne @updNameSeq			;bra
+
+@updHorzSeq:
+
+	;and #$fb
+
+@updNameSeq:
+
+	;sta PPU_CTRL
+
+	;txa
+	;and #$3f
 	sta PPU_ADDR
+	lda (NAME_DATA),y
+	iny
 	sta PPU_ADDR
-
-	lda <SCROLL_X
-	sta PPU_SCROLL
-	lda <SCROLL_Y
-	sta PPU_SCROLL
-
-	lda <PPU_CTRL_VAR
-	sta PPU_CTRL
-
-@skipAll:
-
-	lda <PPU_MASK_VAR
-	sta PPU_MASK
-
-	inc <FRAME_CNT1
-	inc <FRAME_CNT2
-	lda <FRAME_CNT2
-	cmp #6
-	bne @skipNtsc
-	lda #0
-	sta <FRAME_CNT2
-
-@skipNtsc:
-
-;switch the music into the prg bank first
-	lda BP_BANK ;save current prg bank
-	pha
-	lda #SOUND_BANK
-	jsr _set_prg_bank
-	jsr FamiToneUpdate
-	pla
-	sta BP_BANK ;restore prg bank
-	jsr _set_prg_bank
-
-	pla
-	tay
-	pla
+	lda (NAME_DATA),y
+	iny
 	tax
-	pla
 
-irq:
+@updNameLoop:
 
-    rti
+	lda (NAME_DATA),y
+	iny
+	sta PPU_DATA
+	dex
+	bne @updNameLoop
+
+	;lda <PPU_CTRL_VAR
+	;sta PPU_CTRL
+
+	jmp @updName
+
+@updDone:
+
+	rts
 
 
 
+;------------------------	
 ;void __fastcall__ pal_all(const char *data);
 
 _pal_all:
@@ -297,6 +362,7 @@ _pal_bright:
 
 
 
+;------------------------	
 ;void __fastcall__ ppu_off(void);
 
 _ppu_off:
@@ -361,6 +427,7 @@ _ppu_system:
 
 
 
+;------------------------	
 ;void __fastcall__ oam_clear(void);
 
 _oam_clear:
@@ -629,82 +696,6 @@ _vram_unrle:
 
 	rts
 
-
-
-;void __fastcall__ scroll(unsigned int x,unsigned int y);
-
-_scroll:
-
-	sta <TEMP
-
-	txa
-	bne @1
-	lda <TEMP
-	cmp #240
-	bcs @1
-	sta <SCROLL_Y
-	lda #0
-	sta <TEMP
-	beq @2	;bra
-
-@1:
-
-	sec
-	lda <TEMP
-	sbc #240
-	sta <SCROLL_Y
-	lda #2
-	sta <TEMP
-
-@2:
-
-	jsr popax
-	sta <SCROLL_X
-	txa
-	and #$01
-	ora <TEMP
-	sta <TEMP
-	lda <PPU_CTRL_VAR
-	and #$fc
-	ora <TEMP
-	sta <PPU_CTRL_VAR
-	rts
-
-
-
-;;void __fastcall__ split(unsigned int x);
-;minor changes %%
-_split:
-
-;	jsr popax
-	sta <SCROLL_X1
-	txa
-	and #$01
-	sta <TEMP
-	lda <PPU_CTRL_VAR
-	and #$fc
-	ora <TEMP
-	sta <PPU_CTRL_VAR1
-
-@3:
-
-	bit PPU_STATUS
-	bvs @3
-
-@4:
-
-	bit PPU_STATUS
-	bvc @4
-
-	lda <SCROLL_X1
-	sta PPU_SCROLL
-	lda #0
-	sta PPU_SCROLL
-	lda <PPU_CTRL_VAR1
-	sta PPU_CTRL
-
-	rts
-	
 	
 
 ;void __fastcall__ vram_read(unsigned char *dst,unsigned int size);
@@ -806,8 +797,6 @@ _music_pause:
 	;rts
 
 	
-
-
 
 ;void __fastcall__ sfx_play(unsigned char sound,unsigned char channel);
 
@@ -943,90 +932,10 @@ _pad_state:
 
 _set_vram_update:
 
-	sta <NAME_UPD_ADR+0
-	stx <NAME_UPD_ADR+1
-	ora <NAME_UPD_ADR+1
-	sta <NAME_UPD_ENABLE
-
-	rts
-
-
-
-;void __fastcall__ flush_vram_update(unsigned char *buf);
-
-_flush_vram_update:
-
-	sta <NAME_UPD_ADR+0
-	stx <NAME_UPD_ADR+1
-
-_flush_vram_update_nmi: ;minor changes %
-
-	ldy #0
-
-@updName:
-
-	lda (NAME_UPD_ADR),y
-	iny
-	cmp #$40				;is it a non-sequental write?
-	bcs @updNotSeq
-	sta PPU_ADDR
-	lda (NAME_UPD_ADR),y
-	iny
-	sta PPU_ADDR
-	lda (NAME_UPD_ADR),y
-	iny
-	sta PPU_DATA
-	jmp @updName
-
-@updNotSeq:
-
-	tax
-	lda <PPU_CTRL_VAR
-	cpx #$80				;is it a horizontal or vertical sequence?
-	bcc @updHorzSeq
-	cpx #$ff				;is it end of the update?
-	beq @updDone
-
-@updVertSeq:
-
-	ora #$04
-	bne @updNameSeq			;bra
-
-@updHorzSeq:
-
-	and #$fb
-
-@updNameSeq:
-
-	sta PPU_CTRL
-
-	txa
-	and #$3f
-	sta PPU_ADDR
-	lda (NAME_UPD_ADR),y
-	iny
-	sta PPU_ADDR
-	lda (NAME_UPD_ADR),y
-	iny
-	tax
-
-@updNameLoop:
-
-	lda (NAME_UPD_ADR),y
-	iny
-	sta PPU_DATA
-	dex
-	bne @updNameLoop
-
-	lda <PPU_CTRL_VAR
-	sta PPU_CTRL
-
-	jmp @updName
-
-@updDone:
-
-	lda #0
-	sta <NAME_UPD_ENABLE
+	sta <NAME_DATA+0
+	stx <NAME_DATA+1
+	ora <NAME_DATA+1
+	sta <NAME_UPDATE
 
 	rts
 	

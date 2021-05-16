@@ -89,21 +89,31 @@
 #endif
 
 // Codes of special Characters
-#define CHR_DATA_TOP  	18
-#define CHR_ARROW_DOWN	18
-#define CHR_ARROW_LEFT	19
-#define CHR_ARROW_RIGHT	20
-#define CHR_ARROW_UP	21
-#define CHR_LINE_HORZ	22
-#define CHR_LINE_VERT	23
-#define CHR_SLIDER_HORZ	24
-#define CHR_SLIDER_VERT	25
-#define CHR_HEART		26
-#define CHR_POTION  	27
-#define CHR_SHIELD  	28
-#define CHR_DEATH   	29
-#define CHR_AMMO    	30
-#define CHR_BLOCK   	31
+#define CHR_DATA_TOP  	 9
+#define CHR_HEART		 9
+#define CHR_POTION  	10
+#define CHR_SHIELD  	11
+#define CHR_DEATH   	12
+#define CHR_AMMO    	13
+#define CHR_BLOCK_SMALL 14
+#define CHR_BLOCK_LARGE 15
+#define CHR_ARROW_UP	16
+#define CHR_ARROW_DOWN	17
+#define CHR_ARROW_LEFT	18
+#define CHR_ARROW_RIGHT	19
+#define CHR_CORNER_TL	20
+#define CHR_CORNER_TR	21
+#define CHR_CORNER_BL	22
+#define CHR_CORNER_BR	23
+#define CHR_JOIN_UP		24
+#define CHR_JOIN_DOWN	25
+#define CHR_JOIN_LEFT	26
+#define CHR_JOIN_RIGHT	27
+#define CHR_LINE_HORZ	28
+#define CHR_LINE_VERT	29
+#define CHR_SLIDER_HORZ	30
+#define CHR_SLIDER_VERT	31
+#define CHR_BLANK		32
 #define CHR_DIGIT   	48
 #define CHR_LETTER   	65
 	

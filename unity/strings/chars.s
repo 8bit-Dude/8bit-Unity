@@ -30,37 +30,55 @@
 
 _charData:
 
-; Widget Data
-_charArrowDown:
-	.byte %01000100, %01000100, %11101110	; CUSTOM 18
-_charArrowLeft:
-	.byte %00001100, %11101110, %11000000	; CUSTOM 19
-_charArrowRight:
-	.byte %00000110, %11101110, %01100000	; CUSTOM 20
-_charArrowUp:
-	.byte %11101110, %11100100, %01000100	; CUSTOM 21
-_charLineHorz:
-	.byte %00000000, %11101110, %00000000	; CUSTOM 22
-_charLineVert:
-	.byte %01000100, %01000100, %01000100	; CUSTOM 23
-_charSliderHorz:
-	.byte %00000111, %11101110, %11100000	; CUSTOM 24
-_charSliderVert:
-	.byte %01001110, %11101110, %11100100	; CUSTOM 25
-	
 ; Icon Data
 _charHeart:		
-	.byte %00001010, %11101110, %11100100	; CUSTOM 26
+	.byte %00001010, %11101110, %11100100	; CUSTOM 09
 _charPotion:
-	.byte %00000100, %01001110, %11101110	; CUSTOM 27
+	.byte %00000100, %01001110, %11101110	; CUSTOM 10
 _charShield:
-	.byte %00001110, %11101110, %11100100	; CUSTOM 28
+	.byte %00001110, %11101110, %11100100	; CUSTOM 11
 _charDeath:
-	.byte %00000100, %11101110, %01000100	; CUSTOM 29 
+	.byte %00000100, %11101110, %01000100	; CUSTOM 12 
 _charAmmo:
-	.byte %10100000, %10101010, %10101010	; CUSTOM 30
-_charBlock:
-	.byte %00001110, %11101110, %11100000	; CUSTOM 31
+	.byte %10100000, %10101010, %10101010	; CUSTOM 13
+_charBlockSmall:
+	.byte %00001110, %11101110, %11100000	; CUSTOM 14
+_charBlockLarge:
+	.byte %11111111, %11111111, %11111111	; CUSTOM 15
+
+; Widget Data
+_charArrowUp:
+	.byte %11101110, %11100100, %01000100	; CUSTOM 16
+_charArrowDown:
+	.byte %01000100, %01000100, %11101110	; CUSTOM 17
+_charArrowLeft:
+	.byte %00001100, %11101110, %11000000	; CUSTOM 18
+_charArrowRight:
+	.byte %00000110, %11101110, %01100000	; CUSTOM 19
+_charCornerTL:
+	.byte %00000000, %01110111, %01000100	; CUSTOM 20
+_charCornerTR:
+	.byte %00000000, %11001100, %01000100	; CUSTOM 21
+_charCornerBL:
+	.byte %01000100, %01110111, %00000000	; CUSTOM 22
+_charCornerBR:
+	.byte %01000100, %11001100, %00000000	; CUSTOM 23
+_charJoinUp:
+	.byte %01000100, %11111111, %00000000	; CUSTOM 24
+_charJoinDown:
+	.byte %00000000, %11111111, %01000100	; CUSTOM 25
+_charJoinLeft:
+	.byte %01000100, %11001100, %01000100	; CUSTOM 26
+_charJoinRight:
+	.byte %01000100, %01110111, %01000100	; CUSTOM 27
+_charLineHorz:
+	.byte %00000000, %11111111, %00000000	; CUSTOM 28
+_charLineVert:
+	.byte %01000100, %01000100, %01000100	; CUSTOM 29
+_charSliderHorz:
+	.byte %00000111, %11101110, %11100000	; CUSTOM 30
+_charSliderVert:
+	.byte %01001110, %11101110, %11100100	; CUSTOM 31
 	
 ; ASCII Data
 _charBlank:

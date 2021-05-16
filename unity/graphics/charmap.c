@@ -109,7 +109,7 @@
   #define CHAR_WIDTH       1u
   #define CHAR_HEIGHT      1u
   #define LINE_SIZE	  	  32u	
-  #define ROW_SIZE		  25u
+  #define ROW_SIZE		  32u
 #elif defined(__ORIC__)
   #define CHAR_WIDTH       1u
   #define CHAR_HEIGHT      8u
@@ -536,9 +536,8 @@ unsigned int DecodeTiles()
 
 void ScrollCharmap(unsigned char x, unsigned char y)
 {
-#ifdef __NES__	
+#ifdef __NES__
 	DrawCharmap(x, y);
-	
 #else
 	signed char stepX, stepY;
 	unsigned int src, srcOff, dstOff;

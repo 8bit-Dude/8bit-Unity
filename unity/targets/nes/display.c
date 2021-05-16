@@ -26,7 +26,7 @@
  
 #include "../../unity.h"
 
-#define VRAM_BUFFER_LEN 100  // This seems to be max. length NMI can handle
+#define VRAM_BUFFER_LEN 103  // Max. length that NMI can handle within VBLANK
 
 #pragma bss-name(push, "XRAM")
   unsigned int  vram_addr;
@@ -39,7 +39,10 @@
   unsigned char vram_attr_horz;
   unsigned char vram_attr_vert;
   unsigned char autoRefresh = 1;
-  unsigned char palBG[16]={ 0x0f, 0x00, 0x10, 0x30, 0x0f,0x01,0x21,0x31,0x0f,0x06,0x16,0x26,0x0f,0x09,0x19,0x29 };  
+  unsigned char palBG[16]={ 0x0f, 0x00, 0x10, 0x30, 	// Grays
+							0x0f, 0x01, 0x11, 0x21, 	// Blues
+							0x0f, 0x06, 0x16, 0x26, 	// Reds
+							0x0f, 0x09, 0x19, 0x29 };  	// Greens
 #pragma bss-name(pop)
 
 #pragma rodata-name("BANK0")
