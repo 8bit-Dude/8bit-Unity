@@ -62,32 +62,32 @@
 #define BMP_ROWS    200
 #define BMP_PALETTE   4
 
-// Choice of colors to put in Palette
-#define PAL_AQUA	0x31
-#define PAL_BLACK   0x0F
-#define PAL_BLUE	0x11
-#define PAL_DBLUE	0x01
-#define PAL_MBLUE	0x11
-#define PAL_LBLUE	0x21
-#define PAL_BROWN	0x17
-#define PAL_CYAN	0x3C
-#define PAL_GREEN	0x19
-#define PAL_DGREEN	0x09
-#define PAL_MGREEN	0x19
-#define PAL_LGREEN	0x29
-#define PAL_GREY	0x00
-#define PAL_DGREY	0x2D
-#define PAL_MGREY	0x00
-#define PAL_LGREY	0x10
-#define PAL_ORANGE	0x27
-#define PAL_PINK	0x25
-#define PAL_PURPLE	0x14
-#define PAL_RED		0x16
-#define PAL_DRED	0x06
-#define PAL_MRED	0x16
-#define PAL_LRED	0x26
-#define PAL_WHITE	0x30
-#define PAL_YELLOW	0x38
+// Colors available for Sprite Palette
+#define SPR_AQUA	0x31
+#define SPR_BLACK   0x0F
+#define SPR_BLUE	0x11
+#define SPR_DBLUE	0x01
+#define SPR_MBLUE	0x11
+#define SPR_LBLUE	0x21
+#define SPR_BROWN	0x17
+#define SPR_CYAN	0x3C
+#define SPR_GREEN	0x19
+#define SPR_DGREEN	0x09
+#define SPR_MGREEN	0x19
+#define SPR_LGREEN	0x29
+#define SPR_GREY	0x00
+#define SPR_DGREY	0x2D
+#define SPR_MGREY	0x00
+#define SPR_LGREY	0x10
+#define SPR_ORANGE	0x27
+#define SPR_PINK	0x25
+#define SPR_PURPLE	0x14
+#define SPR_RED		0x16
+#define SPR_DRED	0x06
+#define SPR_MRED	0x16
+#define SPR_LRED	0x26
+#define SPR_WHITE	0x30
+#define SPR_YELLOW	0x38
 
 // Text printing colors (uses palettes 1-3)
 #define BLACK  0

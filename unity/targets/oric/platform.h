@@ -88,15 +88,15 @@
 #define LRED    18
 #define PURPLE  19
 
-// Sprite Palette
-#define PAL_AIC		3
-#define PAL_RED		1
-#define PAL_GREEN	2
-#define PAL_YELLOW	3
-#define PAL_BLUE	4
-#define PAL_MAGENTA 5
-#define PAL_CYAN  	6
-#define PAL_WHITE  	7
+// Colors available for Sprite Palette
+#define SPR_AIC		3
+#define SPR_RED		1
+#define SPR_GREEN	2
+#define SPR_YELLOW	3
+#define SPR_BLUE	4
+#define SPR_MAGENTA 5
+#define SPR_CYAN  	6
+#define SPR_WHITE  	7
 
 // Clock
 #define TCK_PER_SEC	CLK_TCK
