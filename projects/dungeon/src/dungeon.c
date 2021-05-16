@@ -24,14 +24,14 @@
 	#define spriteFrames 32
 	#define spriteCols   16
 	#define spriteRows   16
-    const unsigned char spriteColors[] = { PAL_BLACK, PAL_BROWN, PAL_GREEN, PAL_YELLOW, PAL_BLACK, PAL_BROWN, PAL_GREEN, PAL_YELLOW, 
-										   PAL_BLACK, PAL_BROWN, PAL_GREEN, PAL_YELLOW, PAL_BLACK, PAL_BROWN, PAL_GREEN, PAL_YELLOW }; // 4 palettes of 4 colors
+    const unsigned char spriteColors[] = { SPR_BLACK, SPR_BROWN, SPR_GREEN, SPR_YELLOW, SPR_BLACK, SPR_BROWN, SPR_GREEN, SPR_YELLOW, 
+										   SPR_BLACK, SPR_BROWN, SPR_GREEN, SPR_YELLOW, SPR_BLACK, SPR_BROWN, SPR_GREEN, SPR_YELLOW }; // 4 palettes of 4 colors
 #elif defined __ORIC__
 	#define spriteFrames 32
 	#define spriteCols   12
 	#define spriteRows   17
-	unsigned char spriteColors[] = { PAL_AIC, PAL_AIC, PAL_AIC, PAL_AIC, PAL_AIC, PAL_AIC, PAL_AIC, PAL_AIC };	// AIC (sword), AIC (player), AIC (actors)
-	unsigned char multiColorDef[] = { PAL_WHITE, 7, PAL_MAGENTA, 12 , PAL_YELLOW, 17 };	// Multicolor definition { color, row, ...  }
+	unsigned char spriteColors[] = { SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC };	// AIC (sword), AIC (player), AIC (actors)
+	unsigned char multiColorDef[] = { SPR_WHITE, 7, SPR_MAGENTA, 12 , SPR_YELLOW, 17 };	// Multicolor definition { color, row, ...  }
 #endif
 
 // See player.c

@@ -150,8 +150,8 @@ void ProcessWeapon()
 			DamageMonster(selActor);
 		} else {
 			// Look for Map Interactions
-			flagX = mapX+(weaponX*40)/320u-screenCol1;
-			flagY1 = mapY+(weaponY*25)/200u-screenRow1;
+			flagX = mapX+(weaponX*CMP_COLS)/320u-screenCol1;
+			flagY1 = mapY+(weaponY*CMP_ROWS)/200u-screenRow1;
 			switch (GetFlag(flagX, flagY1)) {
 			case FLAG_BARREL:
 				GenerateReward(flagX, flagY1);
