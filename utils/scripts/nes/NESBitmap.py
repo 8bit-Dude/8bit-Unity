@@ -31,7 +31,13 @@ from NESTools import GetPaletteIndex, EncodeTiles, TileCompare, RLECompression
 input = sys.argv[1]
 outCHR = sys.argv[2]
 outIMG = sys.argv[3]
-maxTiles = 192
+maxTiles = int(sys.argv[4])
+
+#######################################
+# Read default font file
+f1 = io.open("utils/scripts/nes/font.chr", 'rb')
+font = f1.read()
+f1.close()
 
 #################################
 # Read source bitmap and palette
@@ -45,8 +51,8 @@ dump = img1.getpalette()
 pal = [ ]
 for i in range(4):
     rgb = dump[i*3:i*3+3]
-    pal.append(chr(GetPaletteIndex(rgb)))
-pal = ''.join(pal)
+    pal.append(GetPaletteIndex(rgb, pal))
+palData = ''.join( [chr(p) for p in pal] )
 
 #######################################
 # Encode data to Chars
@@ -135,12 +141,6 @@ for tile in sorted(drop, reverse=True):
     chars.pop(tile)
     
 #######################################
-# Read default font file
-f1 = io.open("utils/scripts/nes/font.chr", 'rb')
-font = f1.read()
-f1.close()
-    
-#######################################
 # Encode and write Charset
 for i in range(len(chars)):
     char = chars[i]
@@ -159,6 +159,6 @@ names = head+names+foot
 rle = RLECompression(names)
 data = ''.join([chr(b) for b in rle])
 f2 = io.open(outIMG, 'wb')
-f2.write(pal)
+f2.write(palData)
 f2.write(data)
 f2.close()

@@ -31,7 +31,7 @@ from PIL import Image, ImageTk
 import os, pickle, pygubu, sys, collections, json, codecs
 
 cCore = [ 'adaptors\\joystick.c','adaptors\\mouse.c',    'geom\\geom2d.c',     'math\\dot.c', 
-          'graphics\\bitmap.c',  'graphics\\charmap.c',  'graphics\\chunks.c', 'graphics\\logos.c',  'graphics\\menu.c',   'graphics\\pixel.c',  'graphics\\scaling.c', 'graphics\\sprites.c', 'graphics\\widgets.c', 
+          'graphics\\bitmap.c',  'graphics\\charmap.c',  'graphics\\chunks.c', 'graphics\\logos.c',  'graphics\\menu.c',  'graphics\\scaling.c', 'graphics\\sprites.c', 'graphics\\widgets.c', 
           'network\\net-base.c', 'network\\net-easy.c',  'network\\net-ip.c',  'network\\net-tcp.c', 'network\\net-udp.c', 'network\\net-url.c', 'network\\net-web.c', 
           'strings\\blanks.c',   'strings\\copy.c',      'strings\\input.c',   'strings\\number.c',  'strings\\print.c', 
           'sound\\music.c',      'sound\\sfx.c' ]
@@ -151,6 +151,7 @@ class Application:
     listbox_NESSprites = None
     listbox_NESChunks = None
     listbox_NESMusic = None
+    listbox_NESRaw = None
     
     listbox_OricBitmap = None
     listbox_OricCharset = None
@@ -259,6 +260,8 @@ class Application:
         self.listbox_NESChunks = self.builder.get_object('Listbox_NESChunks')        
         self.listbox_NESSprites = self.builder.get_object('Listbox_NESSprites')        
         self.listbox_NESMusic = self.builder.get_object('Listbox_NESMusic')     
+        self.listbox_NESRaw = self.builder.get_object('Listbox_NESRaw')     
+        self.entry_NESBitmapTiles = self.builder.get_object('Entry_NESBitmapTiles')
         self.entry_NESSpriteFrames = self.builder.get_object('Entry_NESSpriteFrames')
         self.entry_NESSpriteWidth = self.builder.get_object('Entry_NESSpriteWidth')
         self.entry_NESSpriteHeight = self.builder.get_object('Entry_NESSpriteHeight')
@@ -295,7 +298,8 @@ class Application:
                          self.entry_OricSpriteFrames,  self.entry_OricSpriteWidth,  self.entry_OricSpriteHeight,
                          self.entry_OricDithering,     self.entry_LynxMusicMemory,  self.entry_LynxSharedMemory,
                          self.entry_OricEnforcedColors,self.entry_C64CharsetColors,
-                         self.entry_NESSpriteFrames,   self.entry_NESSpriteWidth,   self.entry_NESSpriteHeight ]
+                         self.entry_NESSpriteFrames,   self.entry_NESSpriteWidth,   self.entry_NESSpriteHeight,
+                         self.entry_NESBitmapTiles     ]
         self.listboxes = [ self.listbox_Code, 
                            self.listbox_AppleBitmapDHR,self.listbox_AppleSpritesDHR,self.listbox_AppleMusic,
                            self.listbox_AtariBitmap,   self.listbox_AtariSprites, self.listbox_AtariMusic,
@@ -309,7 +313,7 @@ class Application:
                            self.listbox_LynxCharset,   self.listbox_OricCharset,  self.listbox_Charmap,
                            self.listbox_AppleBitmapSHR,self.listbox_AppleSpritesSHR, self.listbox_AppleCharsetSHR,
                            self.listbox_NESBitmap,     self.listbox_NESSprites,   self.listbox_NESMusic, 
-                           self.listbox_NESChunks,     self.listbox_NESCharset ]
+                           self.listbox_NESChunks,     self.listbox_NESCharset,   self.listbox_NESRaw ]
         self.comboboxes = [ self.combobox_AtariDiskSize, self.combobox_AppleDiskSize,
                             self.combobox_AppleNetworkDriver, self.combobox_AtariNetworkDriver, self.combobox_C64NetworkDriver,
                             self.combobox_AppleCrunchAssets, self.combobox_AtariCrunchAssets, self.combobox_C64CrunchAssets,
@@ -550,6 +554,7 @@ class Application:
                     ('chunks', ('listbox', self.listbox_LynxChunks)),
                 ]),
                 ('NES', [
+                    ('bitmapTiles', ('entry', self.entry_NESBitmapTiles)),
                     ('spriteFrames', ('entry', self.entry_NESSpriteFrames)),
                     ('spriteWidth', ('entry', self.entry_NESSpriteWidth)),
                     ('spriteHeight', ('entry', self.entry_NESSpriteHeight)),
@@ -558,6 +563,7 @@ class Application:
                     ('sprites', ('listbox', self.listbox_NESSprites)),
                     ('music', ('listbox', self.listbox_NESMusic)),
                     ('chunks', ('listbox', self.listbox_NESChunks)),
+                    ('raw', ('listbox', self.listbox_NESRaw)),
                 ]),                
                 ('Oric', [
                     ('spriteFrames', ('entry', self.entry_OricSpriteFrames)),
@@ -818,6 +824,15 @@ class Application:
 
     def NESMusicRem(self):
         self.listbox_NESMusic.delete(0, ACTIVE)         
+
+    def NESRawAdd(self):
+        filename = askopenfilename(initialdir = "../../", title = "Select Raw Data", filetypes = (("Raw data","*.*"),)) 
+        if filename is not '':
+            filename = filename.replace(self.cwd, '')
+            self.listbox_NESRaw.insert(END, filename)
+
+    def NESRawRem(self):
+        self.listbox_NESRaw.delete(0, ACTIVE)
     
     def OricBitmapAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Bitmap", filetypes = (("PNG files","*.png"),)) 
@@ -906,7 +921,7 @@ class Application:
                 fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
                 # Build Unity Library
-                cTarget = [ 'targets\\apple2\\CLOCK.c', 'targets\\apple2\\directory.c', 'targets\\apple2\\files.c', 'targets\\apple2\\hires.c', 'targets\\apple2\\memory.c', 'targets\\apple2\\pixelDHR.c', 'targets\\apple2\\pixelSHR.c' ]                            
+                cTarget = [ 'graphics\\pixel.c', 'targets\\apple2\\CLOCK.c', 'targets\\apple2\\directory.c', 'targets\\apple2\\files.c', 'targets\\apple2\\hires.c', 'targets\\apple2\\memory.c', 'targets\\apple2\\pixelDHR.c', 'targets\\apple2\\pixelSHR.c' ]                            
                 sTarget = [ 'strings\\chars.s', 'targets\\apple2\\blitCharmap.s', 'targets\\apple2\\blitSprite.s', 'targets\\apple2\\decrunch.s', 'targets\\apple2\\DUET.s', 'targets\\apple2\\hiresLines.s', 'targets\\apple2\\joystick.s', 'targets\\apple2\\MOCKING.s', 'targets\\apple2\\PADDLE.s', 'targets\\apple2\\prodos.s', 'targets\\apple2\\scroll.s', 'targets\\apple2\\serial.s' ]
                 symbols = ''
                 if 'IP65' in self.combobox_AppleNetworkDriver.get():    
@@ -1018,7 +1033,7 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Build Unity Library
-            cTarget = [ 'targets\\atari\\directory.c', 'targets\\atari\\files.c' ]
+            cTarget = [ 'graphics\\pixel.c', 'targets\\atari\\directory.c', 'targets\\atari\\files.c' ]
             sTarget = [ 'graphics\\scroll.s', 'strings\\chars.s', 'targets\\atari\\blitCharmap.s', 'targets\\atari\\blitSprites.s', 'targets\\atari\\decrunch.s', 'targets\\atari\\DLIST-bmp.s', 'targets\\atari\\DLIST-chr.s', 'targets\\atari\\DLI.s', 'targets\\atari\\ROM.s', 'targets\\atari\\VBI.s', 'targets\\atari\\xbios.s' ]
             symbols = ''
             if '8bit-Hub' in self.combobox_AtariNetworkDriver.get(): 
@@ -1136,7 +1151,7 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Build Unity Library
-            cTarget = [ 'targets\\c64\\directory.c', 'targets\\c64\\VIC2.c' ]
+            cTarget = [ 'graphics\\pixel.c', 'targets\\c64\\directory.c', 'targets\\c64\\VIC2.c' ]
             sTarget = [ 'graphics\\scroll.s', 'strings\\chars.s', 'targets\\c64\\decrunch.s', 'targets\\c64\\DLI.s', 'targets\\c64\\joystick.s', 'targets\\c64\\blitCharmap.s', 'targets\\c64\\ROM.s', 'targets\\c64\\SID.s']
             symbols = ''
             if 'IP65' in self.combobox_C64NetworkDriver.get():    
@@ -1466,7 +1481,7 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Build Unity Library
-            cTarget = [ 'adaptors\\hub.c', 'targets\\lynx\\cgetc.c', 'targets\\lynx\\display.c', 'targets\\lynx\\files.c', 'targets\\lynx\\keyboard.c', 'targets\\lynx\\screen.c', 'targets\\lynx\\text.c' ]
+            cTarget = [ 'graphics\\pixel.c', 'adaptors\\hub.c', 'targets\\lynx\\cgetc.c', 'targets\\lynx\\display.c', 'targets\\lynx\\files.c', 'targets\\lynx\\keyboard.c', 'targets\\lynx\\screen.c', 'targets\\lynx\\text.c' ]
             sTarget = [ 'graphics\\scroll.s', 'strings\\chars.s', 'targets\\lynx\\header.s', 'targets\\lynx\\blitCharmap.s', 'targets\\lynx\\serial.s', 'targets\\lynx\\suzy.s' ]
             symbols = ' -D __HUB__ -D __MUSSIZE__='  + self.entry_LynxMusicMemory.get().replace('$','0x') + ' -D __SHRSIZE__='  + self.entry_LynxSharedMemory.get().replace('$','0x')
             BuildUnityLibrary(self, fp, '-t lynx --cpu 65SC02', symbols, cCore+cTarget, sCore+sTarget, buildFolder+'/lynx')
@@ -1496,6 +1511,7 @@ class Application:
         sprites = list(self.listbox_NESSprites.get(0, END))
         chunks = list(self.listbox_NESChunks.get(0, END))
         music = list(self.listbox_NESMusic.get(0, END))
+        raw = list(self.listbox_NESRaw.get(0, END))
         with open('../../' + buildFolder+'/'+diskname+"-nes.bat", "wb") as fp:
             # Info
             fp.write('echo off\n\n')
@@ -1509,13 +1525,13 @@ class Application:
             # Process Bitmaps / Chunks / Sprites / Shared                         
             for item in bitmaps:
                 fb = FileBase(item, '.png')
-                fp.write('utils\\py27\\python utils/scripts/nes/NESBitmap.py ' + item + ' ' + buildFolder + '/nes/'+ fb + '.chr ' + buildFolder + '/nes/'+ fb + '.img\n')
+                maxTiles = int(self.entry_NESBitmapTiles.get())
+                fp.write('utils\\py27\\python utils/scripts/nes/NESBitmap.py ' + item + ' ' + buildFolder + '/nes/'+ fb + '.chr ' + buildFolder + '/nes/'+ fb + '.img ' + str(maxTiles) + '\n')
             fp.write('\n')
 
             for item in charset:
                 fb = FileBase(item, '.png')
-                fp.write('utils\\py27\\python utils/scripts/nes/NESCharset.py ' + item + ' ' + buildFolder + '/nes/'+ fb + '.chr ' + buildFolder + '/nes/'+ fb + '.pal\n')
-                fp.write('utils\\py27\\python utils/scripts/nes/NESMergeCHR.py ' + buildFolder + '/nes/'+ fb + '.chr utils/scripts/nes/font.chr ' + buildFolder + '/nes/' + fb + '.chr\n\n')
+                fp.write('utils\\py27\\python utils/scripts/nes/NESCharset.py ' + item + ' ' + buildFolder + '/nes/'+ fb + '.chr ' + buildFolder + '/nes/'+ fb + '.dat\n')
             fp.write('\n')
             
             if len(charmaps) > 0:
@@ -1536,6 +1552,12 @@ class Application:
                 fb = FileBase(item, '')
                 fp.write('copy ' + item.replace('/', '\\') + ' ' + buildFolder + '\\nes\\music.txt\n')
                 fp.write('utils\\scripts\\nes\\text2data -ca65 build/nes/music.txt\n\n')
+
+            if len(raw) > 0:             
+                for item in raw:
+                    fb = FileBase(item, '')
+                    fp.write('copy ' + item.replace('/', '\\') + ' ' + buildFolder + '\\nes\\' + fb + '\n')
+                fp.write('\n')                
 
             if len(shared) > 0:             
                 for item in shared:
@@ -1565,8 +1587,11 @@ class Application:
                 filelist += fb + '.img,'
             for i in range(len(charset)):
                 fb = FileBase(charset[i], '.png')
-                filelist += fb + '.pal,'
+                filelist += fb + '.dat,'
             for item in charmaps:
+                fb = FileBase(item, '')
+                filelist += fb + ','
+            for item in raw:
                 fb = FileBase(item, '')
                 filelist += fb + ','
             for item in shared:
@@ -1589,7 +1614,7 @@ class Application:
             fp.write('@echo _fileNum: .byte %FILENUM% >> data.asm\n')  
 
             # List of file names and data
-            if len(bitmaps) > 0 or len(charmaps) > 0 or len(charset) > 0:
+            if len(bitmaps) > 0 or len(charmaps) > 0 or len(charset) > 0 or len(raw) > 0 or len(shared) > 0:
                 # Declare all Bitmap, Shared and Chunk files
                 fp.write('@echo _fileSizes: .word %FILESIZES:~0,-1% >> data.asm\n')
                 fp.write('@echo _fileNames: .addr ')
@@ -1608,6 +1633,11 @@ class Application:
                     if counter > 0:
                         fp.write(',')
                     fp.write('_mapName' + str(i).zfill(2))
+                    counter += 1
+                for i in range(len(raw)):
+                    if counter > 0:
+                        fp.write(',')
+                    fp.write('_rawName' + str(i).zfill(2))
                     counter += 1
                 for i in range(len(shared)):
                     if counter > 0:
@@ -1630,6 +1660,11 @@ class Application:
                 for i in range(len(charmaps)):
                     fb = FileBase(charmaps[i], '')
                     fp.write('@echo _mapName' + str(i).zfill(2) + ': .byte "' + fb + '",0 >> data.asm\n')
+
+                # Write list of Raw files
+                for i in range(len(raw)):
+                    fb = FileBase(raw[i], '')
+                    fp.write('@echo _rawName' + str(i).zfill(2) + ': .byte "' + fb + '",0 >> data.asm\n')
                     
                 # Write list of Shared
                 for i in range(len(shared)):
@@ -1638,7 +1673,6 @@ class Application:
             else:
                 fp.write('@echo _fileSizes: .word 0 >> data.asm\n')
                 fp.write('@echo _fileNames: .addr _dummy >> data.asm\n')
-                fp.write('@echo _fileDatas: .addr _dummy >> data.asm\n')
                 fp.write('@echo _dummy: .byte 0 >> data.asm\n')
             fp.write('@echo ; >> data.asm\n')
 
@@ -1649,10 +1683,13 @@ class Application:
                 fp.write('@echo _bmpData' + str(i).zfill(2) + ': .incbin "' + fb + '.img" >> data.asm\n')
             for i in range(len(charset)):
                 fb = FileBase(charset[i], '.png')
-                fp.write('@echo _chrData' + str(i).zfill(2) + ': .incbin "' + fb + '.pal" >> data.asm\n')
+                fp.write('@echo _chrData' + str(i).zfill(2) + ': .incbin "' + fb + '.dat" >> data.asm\n')
             for i in range(len(charmaps)):
                 fb = FileBase(charmaps[i], '')
                 fp.write('@echo _mapData' + str(i).zfill(2) + ': .incbin "' + fb + '" >> data.asm\n')                
+            for i in range(len(raw)):
+                fb = FileBase(raw[i], '')
+                fp.write('@echo _rawData' + str(i).zfill(2) + ': .incbin "' + fb + '" >> data.asm\n')                
             for i in range(len(shared)):
                 fb = FileBase(shared[i], '')
                 fp.write('@echo _shrData' + str(i).zfill(2) + ': .incbin "' + fb + '" >> data.asm\n')                
@@ -1692,7 +1729,7 @@ class Application:
 
             # Build Unity Library
             cTarget = [ 'targets\\nes\\conio.c', 'targets\\nes\\display.c', 'targets\\nes\\files.c', 'targets\\nes\\keyboard.c', 'targets\\nes\\memory.c', 'targets\\nes\\text.c' ]
-            sTarget = [ 'graphics\\scroll.s', 'targets\\nes\\blitCharmap.s', 'targets\\nes\\crt0.s', 'targets\\nes\\joystick.s' ]
+            sTarget = [ 'targets\\nes\\blitCharmap.s', 'targets\\nes\\crt0.s', 'targets\\nes\\joystick.s' ]
             BuildUnityLibrary(self, fp, '-t nes', '', cCore+cTarget, sCore+sTarget, buildFolder+'/nes')
 
             # Compile Program
@@ -1727,7 +1764,7 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
     
             # Build Unity Library
-            cTarget = [ 'adaptors\\hub.c', 'targets\\oric\\directory.c', 'targets\\oric\\files.c' ]
+            cTarget = [ 'adaptors\\hub.c', 'graphics\\pixel.c', 'targets\\oric\\directory.c', 'targets\\oric\\files.c' ]
             sTarget = [ 'graphics\\scroll.s', 'strings\\chars.s', 'targets\\oric\\blitCharmap.s', 'targets\\oric\\blitSprite.s', 'targets\\oric\\paseIJK.s', 'targets\\oric\\keyboard.s', 'targets\\oric\\sedoric.s', 'targets\\oric\\MYM.s' ]
             symbols = ' -D __HUB__'
             BuildUnityLibrary(self, fp, '-t atmos', symbols, cCore+cTarget, sCore+sTarget, buildFolder+'/oric')

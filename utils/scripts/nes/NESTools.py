@@ -102,10 +102,15 @@ def RGB2HSV(rgb):
     return [int(h), int(s), int(v)]
 
             
-def GetPaletteIndex(rgb):
+def GetPaletteIndex(rgb, ignore):
     index = 0; best = 99999999
     #hsv = RGB2HSV(rgb)
     for i in range(len(palette)):
+        # Already assigned?
+        if palette[i][0] in ignore:
+            continue
+        
+        # Compute similarity
         pal = palette[i][1:4]
         norm = abs(rgb[0]-pal[0]) + abs(rgb[1]-pal[1]) + abs(rgb[2]-pal[2])
         #pal = RGB2HSV(palette[i][1:4])
@@ -113,6 +118,7 @@ def GetPaletteIndex(rgb):
         if norm < best:
             best = norm
             index = i
+            
     return palette[index][0]
 
 

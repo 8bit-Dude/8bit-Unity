@@ -30,7 +30,14 @@ from NESTools import GetPaletteIndex, EncodeTiles
 
 input = sys.argv[1]
 outCHR = sys.argv[2]
-outFLG = sys.argv[3]
+outDAT = sys.argv[3]
+maxTiles = 128
+
+#######################################
+# Read default font file
+f1 = io.open("utils/scripts/nes/font.chr", 'rb')
+font = f1.read()
+f1.close()
 
 #################################
 # Read source bitmap and palette
@@ -40,12 +47,10 @@ print "Charset size: {%i,%i}; Number of colors: %i" % (img1.size[0], img1.size[1
 
 #######################################
 # Encode data to Charset file
-charData = ''.join(EncodeTiles(img1, 8, 8))
-padding = ''.join([chr(0)] * (4096-len(charData)))
-
+chars = ''.join(EncodeTiles(img1, 8, 8))
 f2 = io.open(outCHR, 'wb')
-f2.write(charData)
-f2.write(padding)
+f2.write(chars[0:16*maxTiles])
+f2.write(font[16*maxTiles:16*256])
 f2.close()
 
 ################################
@@ -63,13 +68,13 @@ flagData = ''.join(flagData)
 #######################################
 # Generate palette
 dump = img1.getpalette()
-palData = [ ]
+pal = [ ]
 for i in range(4):
     rgb = dump[i*3:i*3+3]
-    palData.append(chr(GetPaletteIndex(rgb)))
-palData = ''.join(palData)
+    pal.append(GetPaletteIndex(rgb, pal))
+palData = ''.join( [chr(p) for p in pal] )
 
-f2 = io.open(outFLG, 'wb')
+f2 = io.open(outDAT, 'wb')
 f2.write(flagData)
 f2.write(palData)
 f2.close()
