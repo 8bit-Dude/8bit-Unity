@@ -91,7 +91,7 @@ unsigned char *names[4] = { "SAM", "JOE", "TOM", "LUC" };
 #elif defined __ORIC__
 	#define spriteCols   12
 	#define spriteRows   13
-	unsigned char spriteColors[] = { PAL_AIC, PAL_AIC, PAL_AIC, PAL_AIC, PAL_AIC, PAL_AIC, PAL_AIC, PAL_AIC };  // AIC color for faster drawing!
+	unsigned char spriteColors[] = { SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC };  // AIC color for faster drawing!
 #elif defined __CBM__
 	#define spriteCols   12
 	#define spriteRows   21
