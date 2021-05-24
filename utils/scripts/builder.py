@@ -1119,11 +1119,14 @@ class Application:
             fp.write('copy utils\\scripts\\atari\\xbios.cfg ' + buildFolder + '\\atari\\xbios.cfg\n')
 
             # Disk builder
-            if self.combobox_AtariDiskSize.get() == '180KB':                
-                diskSize = '720'
-            else:
-                diskSize = '1440'
-            fp.write('utils\\scripts\\atari\\dir2atr.exe -d -B utils/scripts/atari/xboot.obx ' + diskSize + ' ' + buildFolder + '/' + diskname + '-atari.atr ' + buildFolder + '\\atari\n')
+            if self.combobox_AtariDiskSize.get() == '360KB':                
+                fp.write('utils\\scripts\\atari\\dir2atr.exe -md -B utils/scripts/atari/xboot.obx 1440 ' + buildFolder + '/' + diskname + '-atari.atr ' + buildFolder + '\\atari\n')
+            elif self.combobox_AtariDiskSize.get() == '180KB':                
+                fp.write('utils\\scripts\\atari\\dir2atr.exe -mD -B utils/scripts/atari/xboot.obx ' + buildFolder + '/' + diskname + '-atari.atr ' + buildFolder + '\\atari\n')
+            elif self.combobox_AtariDiskSize.get() == '130KB':                
+                fp.write('utils\\scripts\\atari\\dir2atr.exe -mE -B utils/scripts/atari/xboot.obx ' + buildFolder + '/' + diskname + '-atari.atr ' + buildFolder + '\\atari\n')
+            elif self.combobox_AtariDiskSize.get() == '90KB':                
+                fp.write('utils\\scripts\\atari\\dir2atr.exe -mS -B utils/scripts/atari/xboot.obx ' + buildFolder + '/' + diskname + '-atari.atr ' + buildFolder + '\\atari\n')
 
             fp.write('echo --------------- ATARI DISK READY --------------- \n\n')
             
@@ -1512,6 +1515,7 @@ class Application:
         chunks = list(self.listbox_NESChunks.get(0, END))
         music = list(self.listbox_NESMusic.get(0, END))
         raw = list(self.listbox_NESRaw.get(0, END))
+        maxTiles = int(self.entry_NESBitmapTiles.get())
         with open('../../' + buildFolder+'/'+diskname+"-nes.bat", "wb") as fp:
             # Info
             fp.write('echo off\n\n')
@@ -1525,7 +1529,6 @@ class Application:
             # Process Bitmaps / Chunks / Sprites / Shared                         
             for item in bitmaps:
                 fb = FileBase(item, '.png')
-                maxTiles = int(self.entry_NESBitmapTiles.get())
                 fp.write('utils\\py27\\python utils/scripts/nes/NESBitmap.py ' + item + ' ' + buildFolder + '/nes/'+ fb + '.chr ' + buildFolder + '/nes/'+ fb + '.img ' + str(maxTiles) + '\n')
             fp.write('\n')
 
@@ -1564,6 +1567,9 @@ class Application:
                     fb = FileBase(item, '')
                     fp.write('copy ' + item.replace('/', '\\') + ' ' + buildFolder + '\\nes\\' + fb + '\n')
                 fp.write('\n')                
+
+            if len(chunks) > 0:
+                fp.write('utils\\py27\\python utils/scripts/nes/NESChunks.py ' + chunks[0] + ' ' + buildFolder + '/nes/ ' + str(maxTiles) + '\n')
 
             # Default charset (font only)        
             fp.write('copy utils\\scripts\\nes\\font.chr ' + buildFolder + '\\nes\\font.chr\n\n')
@@ -1820,7 +1826,7 @@ class Application:
                 fp.write('header -a0 ../../../' + buildFolder + '/oric/' + fb + '.dat ../../../' + buildFolder + '/oric/' + fb + '.chr $A000\n')
                 
             if len(chunks) > 0:
-                fp.write('..\\..\\py27\\python ProcessChunks.py ../../../' + chunks[0] + ' ../../../' + buildFolder + '/oric/ ' + self.entry_OricDithering.get() + '\n')
+                fp.write('..\\..\\py27\\python OricChunks.py ../../../' + chunks[0] + ' ../../../' + buildFolder + '/oric/ ' + self.entry_OricDithering.get() + '\n')
                 fp.write('for /f "tokens=*" %%A in (..\\..\\..\\' + buildFolder + '\\oric\\chunks.lst) do header -a0 ../../../%%A ../../../%%A $8000\n')
             fp.write('cd ..\\..\\..\n')
 

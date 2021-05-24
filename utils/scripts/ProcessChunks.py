@@ -324,106 +324,6 @@ def ExportLynx(filename, coords, pixdata):
     output.close()    
     
     
-############################################
-def ExportOric(filename, coords, pixdata, paldata):    
-
-    # Process in blocks of 3 x 1 pixels > encoded to 6 x 2 pixels (2 bytes)
-    imgWidth  = (coords[2]-coords[0])
-    imgHeight = (coords[3]-coords[1]) 
-    imgSize   = (2*imgHeight*imgWidth/3)    
-    buffer    = [0] * imgSize
-    noRemap   = [19]
-
-    # Force BW over WB order for grey colour
-    pixdata = [pix if pix != 5 else 10 for pix in pixdata]
-
-    # Get RGB components of palette
-    rgb = []
-    for i in range(20):
-        rgb.append(paldata[i*3:i*3+3])
-
-    # Inversion groups
-    groups = [ [0,1,2,3,4],         # line 1 and 2 non-inverted
-               [5,6,7,8,9],         # line 1 inverted
-               [10,11,12,13,14],    # line 2 inverted
-               [15,16,17,18,19] ]   # line 1 and 2 inverted
-               
-    # Convert to AIC format
-    for y in range(imgHeight):        
-        # Process in blocks of 3x1 pixels (encoded as 6x2)
-        for x in range(imgWidth/3):
-            # Find most frequent colour in block
-            block = pixdata[y*imgWidth+x*3:y*imgWidth+x*3+3]
-            gcount = []
-            for i in block:
-                for g in range(len(groups)):
-                    if i in groups[g]:
-                        gcount.append(g)
-            count = Counter(gcount)
-            gsel = count.most_common(1)[0][0]
-                
-            # Process other colors
-            for i in range(3):            
-                # In same group?
-                if block[i] not in groups[gsel]:            
-                    # Find nearest color in group
-                    delta = []
-                    vec1 = rgb[block[i]]
-                    for k in range(len(groups[gsel])):
-                        index = groups[gsel][k]
-                        if index in noRemap:
-                            delta.append( 999999 )
-                        else:
-                            vec2 = rgb[index]
-                            delta.append( sqrt( (vec1[0]-vec2[0])**2 + (vec1[1]-vec2[1])**2 + (vec1[2]-vec2[2])**2 ) )
-                    swap = delta.index(min(delta))
-                    block[i] = groups[gsel][swap]
-            
-            # Assign inversion bit
-            byte1 = (2*y+0)*(imgWidth/3)+x
-            byte2 = (2*y+1)*(imgWidth/3)+x
-            if gsel == 0:
-                buffer[byte1] = 64
-                buffer[byte2] = 64
-            if gsel == 1:
-                buffer[byte1] = 192
-                buffer[byte2] = 64
-            if gsel == 2:
-                buffer[byte1] = 64
-                buffer[byte2] = 192
-            if gsel == 3:
-                buffer[byte1] = 192
-                buffer[byte2] = 192
-                
-            # Assign bits
-            for i in range(3):
-                index = block[i] % 5
-                if index == 1:
-                    buffer[byte1] += 32 / 4**i
-                    buffer[byte2] += 16 / 4**i
-                if index == 2:
-                    buffer[byte1] += (32+16) / 4**i
-                if index == 3:
-                    buffer[byte2] += (32+16) / 4**i
-                if index == 4:
-                    buffer[byte1] += (32+16) / 4**i
-                    buffer[byte2] += (32+16) / 4**i
-            
-    # Convert to char
-    for i in range(len(buffer)):
-        buffer[i] = chr(buffer[i])
-                
-    #################
-    # Write DAT file
-    output = io.open(filename, 'wb')
-    output.write(chr(coords[0]))
-    output.write(chr(coords[1]))
-    output.write(chr(imgWidth))
-    output.write(chr(imgHeight))
-    output.write(''.join(buffer))
-    output.close()
-    
-    
 ############################################    
 # Process chunks definition file
 platform = sys.argv[1]
@@ -491,8 +391,6 @@ for line in lines:
         ExportC64(outfile, coords, pixdata, paldata)
     if platform == 'lynx':
         ExportLynx(outfile, coords, pixdata)
-    if platform == 'oric':
-        ExportOric(outfile, coords, pixdata, paldata)
 
     # Print some info
     coords[2] -= coords[0]

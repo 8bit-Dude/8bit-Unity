@@ -1202,7 +1202,7 @@
                     <child>
                       <object class="ttk.Combobox" id="Combobox_AtariDiskSize">
                         <property name="state">readonly</property>
-                        <property name="values">180KB 360KB</property>
+                        <property name="values">90KB 130KB 180KB 360KB</property>
                         <property name="width">8</property>
                         <layout>
                           <property name="column">1</property>
