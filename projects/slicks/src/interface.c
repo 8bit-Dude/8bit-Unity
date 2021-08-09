@@ -12,49 +12,49 @@
 
 // Platform specific colors
 #if defined __APPLE2__
-	#define INK_LAPS   	 GREEN
+	#define INK_LAPS   	 RED
 	#define INK_TAB		 GREEN
 	#define INK_HIGHLT	 BLACK
 	#define PAPER_HIGHLT YELLOW
 	#define PAPER_SCORES BLACK
 	#define SCORES_ROW   	  8
 #elif defined __ATARI__
-	#define INK_LAPS   	 GREEN
+	#define INK_LAPS   	 RED
 	#define INK_TAB		 GREEN
 	#define INK_HIGHLT	 BLACK
 	#define PAPER_HIGHLT YELLOW
 	#define PAPER_SCORES BLACK
 	#define SCORES_ROW   	  8
 #elif defined __ORIC__
-	#define INK_LAPS   	 GREEN
+	#define INK_LAPS   	 RED
 	#define INK_TAB		 GREEN
 	#define INK_HIGHLT	 BLACK
 	#define PAPER_HIGHLT YELLOW
 	#define PAPER_SCORES BLACK
 	#define SCORES_ROW   	  8
 #elif defined __CBM__
-	#define INK_LAPS   	 BLACK
+	#define INK_LAPS   	 RED
 	#define INK_TAB		 GREEN
 	#define INK_HIGHLT	 BLACK
 	#define PAPER_HIGHLT YELLOW
-	#define PAPER_SCORES GREY
+	#define PAPER_SCORES BLACK
 	#define SCORES_ROW   	  8
 #elif defined __LYNX__
-	#define INK_LAPS   	 BLACK
+	#define INK_LAPS   	 RED
 	#define INK_TAB		 YELLOW	
 	#define INK_HIGHLT	 WHITE
 	#define PAPER_HIGHLT BLACK
-	#define PAPER_SCORES GREY
+	#define PAPER_SCORES BLACK
 	#define SCORES_ROW   	  4
 	#define PAUSE_COL 		 15
 	#define PAUSE_LOCAL_ROW   6
 	#define PAUSE_ONLINE_ROW  2
 #elif defined __NES__
-	#define INK_LAPS   	 WHITE
+	#define INK_LAPS   	 RED
 	#define INK_TAB		 GREEN
 	#define INK_HIGHLT	 BLACK
 	#define PAPER_HIGHLT YELLOW
-	#define PAPER_SCORES GREY
+	#define PAPER_SCORES BLACK
 	#define SCORES_ROW   	  8	
 	#define PAUSE_COL 		  7
 	#define PAUSE_LOCAL_ROW   6
@@ -141,11 +141,6 @@ void DrawFPS(unsigned long f)
 	fpsClock = clock();	
 }
 #endif
-
-// Paper for message Buffer
-#if defined(__CBM__) || defined(__LYNX__)
-  unsigned char paperBuffer;
-#endif 
 
 // Flag for Server load status
 unsigned char serversLoaded;
@@ -312,6 +307,65 @@ unsigned char cursorFlick, cursorCol = MENU_COL, cursorRow = MENU_ROW+2;
 unsigned char cursorTop = MENU_ROW+2, cursorHeight = MENU_HEI-2;
 clock_t cursorClock;
 
+#if defined(__LYNX__)
+char eepromID[] = "SLICKS";
+
+void LynxResetEEPROM(void)
+{
+	unsigned char i; 
+	
+	// Write ID and Blanks to EEPROM
+	i = 0;
+	while (i < 6) {	
+		lynx_eeprom_write(i, eepromID[i]);
+		i++;	
+	}
+	while (i < 64) {
+		lynx_eeprom_write(i, 0);
+		i++;
+	}
+}
+
+void LynxReadEEPROM()
+{
+	unsigned char i;
+	
+	// Check EEPROM ID
+	i = 0;
+	while (i < 6) {
+		if (eepromID[i] != (unsigned char)lynx_eeprom_read(i)) {
+			LynxResetEEPROM();
+			break;
+		}
+		i++;
+	}
+
+	// Read user/pass from EEPROM?
+	i = 0;
+	while (i < 18) {
+		clUser[i] = (unsigned char)lynx_eeprom_read(i+6);
+		i++;
+	}
+}
+
+void LynxWriteEEPROM(void)
+{
+	unsigned char i; 
+	
+	// Write ID/User/Pass to EEPROM
+	i = 0;
+	while (i < 6) {	
+		lynx_eeprom_write(i, eepromID[i]);
+		i++;	
+	}
+	i = 0;
+	while (i < 18) {	
+		lynx_eeprom_write(i+6, clUser[i]);
+		i++;
+	}	
+}
+#endif
+
 void LynxCursorFlicker()
 {
 	// Only do preiodically
@@ -325,7 +379,7 @@ void LynxCursorFlicker()
 		inkColor = YELLOW;
 		txtY = cursorRow;
 		PrintChr('-'); txtX++;
-		PrintChr('>');
+		PrintChr(')');
 		inkColor = WHITE;
 	}
 	cursorFlick = !cursorFlick;
@@ -343,6 +397,10 @@ void LynxCursorControl()
 		case KB_MUSIC:
 			if (!gamePaused)
 				NextMusic(0);
+			break;
+		case KB_NEXT:
+			LynxResetEEPROM();
+			BleepSFX(128);
 			break;
 	#endif
 		case KB_PAUSE:
@@ -536,11 +594,7 @@ void PrintLap(unsigned char i)
 // Print race message and laps
 void PrintRace()
 {	
-#if defined(__CBM__) || defined(__LYNX__)
-	paperColor = paperBuffer;
-#else
 	paperColor = BLACK; 
-#endif	
 
 	// Print race message
 #if defined(__NES__)
@@ -622,11 +676,7 @@ void SpriteAnimation(unsigned char index, unsigned char frame)
 	spriteX = 160+index*21; 
 	spriteY = 31;
 #endif		
-#if defined __ATARI__
-	SetMultiColorSprite(2*index, frame);
-#else		
 	SetSprite(index, frame);
-#endif		
 }
 
 #ifdef __APPLE2__
@@ -669,11 +719,7 @@ void PrintScores()
 			dist[i] = GetWaypointDistance(car);
 		#if defined(__ATARI__) || defined(__CBM__)
 			if (car->x2 > 15*64-32 && car->x2 < 25*64+32 && car->y2 > 8*64-32 && car->y2 < 17*64+32) {
-			#if defined(__ATARI__)			
-				DisableMultiColorSprite(2*i);	// Car sprite
-			#else
 				DisableSprite(i);				// Car sprite
-			#endif
 				DisableSprite(SPR2_SLOT+i);		// Jump sprite			
 			}
 		#elif defined(__LYNX__)
@@ -859,20 +905,17 @@ const unsigned char *loginTxt[] = { "PLEASE LOGIN", "USER:", "PASS:", "REGISTER 
 // Sub-function of GameMenu()
 unsigned char MenuLogin(unsigned char serverIndex)
 {
-	unsigned char res = 0;
+	unsigned char res = 0;	
 	
 	// Clear panel
 	txtX = MENU_COL; txtY = MENU_ROW+2;
 	PrintBlanks(MENU_WID, MENU_HEI-2);
 	
-#if defined __LYNX__ 
-	// Load user/pass from EEPROM and set Softkeyboard position
-	while (res < 18) {
-		clUser[res] = lynx_eeprom_read(res);
-		res++;
-	}
+#if defined __LYNX__
+	LynxReadEEPROM();
 	SetKeyboardOverlay(11,60);
 #endif	
+
 	// Prompt for authentication
 	for (res=0; res<5; res++) {
 		txtX = loginCol[res];
@@ -887,14 +930,11 @@ unsigned char MenuLogin(unsigned char serverIndex)
 	txtX = MENU_COL+6;      InputField(clPass, 10);	
 	txtX += strlen(clPass); PrintChr(' ');
 	maskInput = 0;
+	
 #if defined __LYNX__ 
-	// Save user/pass to EEPROM
-	res = 0;
-	while (res < 18) {	
-		lynx_eeprom_write(res, clUser[res]);
-		res++;
-	}
-#endif	
+	LynxWriteEEPROM();
+#endif
+	
 	// Show action message
 	inkColor = YELLOW;
 	txtX = MENU_COL+2; txtY = MENU_ROW+11;
@@ -931,9 +971,13 @@ void MenuPlayer(unsigned char i)
 	PrintBlanks(MENU_WID-6, 1);
 	
 	// Print Characters
+#if defined __SHR__
+	inkColor = WHITE; paperColor = BLACK;
+#else
 	inkColor = inkColors[i]; paperColor = BLACK;
+#endif
 	txtX = MENU_COL+2; PrintChr('p');
-#ifndef __LYNX__
+#if !defined(__LYNX__) && !defined(__NES__)
 	inkColor = INK_HIGHLT; paperColor = PAPER_HIGHLT;
 #endif
 	txtX = MENU_COL+3; PrintNum(i+1);
@@ -1034,11 +1078,7 @@ void GameMenu()
 		// Counter rotating vehicles
 		if (i&1) { f = 8; } else { f = 0; }
 		SpriteAnimation(i,f);
-	#if defined __ATARI__
-		EnableMultiColorSprite(2*i);
-	#else	
 		EnableSprite(i);
-	#endif
 	}	
 		
 	// Show version, credits, and start music
@@ -1190,6 +1230,7 @@ void GameMenu()
 					} else {
 						// Redraw server list
 						sleep(2);
+						txtX = MENU_COL; txtY = MENU_ROW+2;
 						PrintBlanks(MENU_WID, MENU_HEI-2);
 						MenuServers();
 					}

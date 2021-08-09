@@ -3,8 +3,8 @@
 
 // Sprite definitions
 #if defined __APPLE2__
-  #define spriteCols   7
-  #define spriteRows   5
+  #define spriteCols    7
+  #define spriteRows    5
   const unsigned char spriteColors[] = { };	//  Colors are pre-assigned in the sprite sheet
   #if defined __DHR__	
 	const unsigned char inkColors[] = { BLUE, RED, GREEN, YELLOW, WHITE };		// P1, P2, P3, P4, SERVER INFO
@@ -12,13 +12,15 @@
 	const unsigned char inkColors[] = { BLUE, PURPLE, GREEN, ORANGE, WHITE };		// P1, P2, P3, P4, SERVER INFO
   #endif
 #elif defined __ATARI__
-  #define spriteCols   8
+  #define spriteCols    8
   #define spriteRows   10
-  const unsigned char spriteColors[] = { 0x84, 0xe4, 0x24, 0xe4, 0xb6, 0xe4, 0xe8, 0xe4, 0x04, 0x04, 0x04, 0x04 };	// Refer to atari palette in docs
+  const unsigned char spriteColors[] = { SPR_BLUE, SPR_RED, SPR_GREEN, SPR_YELLOW,	// Bank 1
+										 SPR_GREY, SPR_GREY, SPR_GREY, SPR_GREY, 	// Bank 2
+										 SPR_GREY, SPR_GREY, SPR_GREY, SPR_GREY };  // Bank 3
   const unsigned char inkColors[] = { BLUE, RED, GREEN, YELLOW, WHITE };		// P1, P2, P3, P4, SERVER INFO
 #elif defined __ORIC__
   #define spriteCols   12
-  #define spriteRows   6
+  #define spriteRows    6
   const unsigned char spriteColors[] = { SPR_CYAN, SPR_MAGENTA, SPR_GREEN, SPR_WHITE, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC };	
   const unsigned char inkColors[] = { CYAN, LPURPLE, LGREEN, GREY, WHITE };		// P1, P2, P3, P4, SERVER INFO
 #elif defined __CBM__
@@ -27,10 +29,10 @@
   const unsigned char spriteColors[] = { BLUE, RED, GREEN, YELLOW, LGREY, LGREY, LGREY, 0, CYAN, BLACK };	// P1, P2, P3, P4, Light1, Light2, Light3, n/a, Shared Color 1, Shared Color 2
   const unsigned char inkColors[] = { BLUE, RED, LGREEN, YELLOW, WHITE };		// P1, P2, P3, P4, SERVER INFO
 #elif defined __LYNX__
-  #define spriteCols   8
-  #define spriteRows   9
+  #define spriteCols    8
+  #define spriteRows    9
   unsigned char *spriteColors =  0;  //  All sprites use the default palette
-  const unsigned char inkColors[] = { DBLUE, ORANGE, LGREEN, YELLOW, WHITE };	// P1, P2, P3, P4, SERVER INFO
+  const unsigned char inkColors[] = { BLUE, ORANGE, LGREEN, YELLOW, WHITE };	// P1, P2, P3, P4, SERVER INFO
 #elif defined __NES__
   #define spriteCols    8
   #define spriteRows    8
@@ -40,7 +42,7 @@
 #endif
 
 // Build Information
-const char* buildInfo = "BUILD: 2021/04/18";
+const char* buildInfo = "BUILD: 2021/08/09";
 
 // List of available maps
 unsigned char mapNum  = 12;
@@ -74,8 +76,11 @@ int main (void)
 	// Show banner
 #if defined __LYNX__
     LoadBitmap("promo.img");
+	ShowBitmap();	
 	bannerClock = clock()+8*TCK_PER_SEC;
-    while (clock()<bannerClock && !kbhit());
+    while (clock()<bannerClock)
+		if (kbhit()) { cgetc(); break; }
+	HideBitmap();	
 #endif
 	
 	// Setup sprites

@@ -107,8 +107,8 @@
                 "projects/slicks/music/speednik-atari.rmt"
             ], 
             "chunks": [], 
-            "diskSize": "360KB", 
-            "crunchAssets": "No", 
+            "diskSize": "130KB", 
+            "crunchAssets": "Yes", 
             "networkDriver": "IP65(UDP)"
         }, 
         "C64": {
@@ -201,7 +201,7 @@
                 "projects/slicks/music/speednik-nes.txt"
             ], 
             "chunks": [], 
-            "raw": [
+            "mask": [
                 "projects/slicks/masks/arizona.msk", 
                 "projects/slicks/masks/arto.msk", 
                 "projects/slicks/masks/cramp.msk", 

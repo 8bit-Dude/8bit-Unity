@@ -48,9 +48,6 @@ extern unsigned char inkColors[];
 // See interface.c
 extern const char *mapList[];
 extern unsigned char controlIndex[], controlBackup[], lapNumber[];
-#if defined(__CBM__) || defined(__LYNX__)
-  extern unsigned char paperBuffer;
-#endif
 
 // See navigation.c
 extern Vehicle cars[MAX_PLAYERS];
@@ -93,7 +90,7 @@ int tck4, accRate, decRate, jmpTCK;
 #endif
 const char rotMax[4] = { 3, 4, 5, 2 };
 const int velMin = 200;
-const int velMax[4] = { 420, 480, 540, 600 };
+const int velMax[4] = { 390, 460, 530, 600 };
 const int velDrift = 450;
 const int velRamp = 800;
 
@@ -173,22 +170,13 @@ void GameReset()
 		spriteX = cars[i].x2/10u; 
 		spriteY = cars[i].y2/8u+16;
 	#endif
-	#if defined __ATARI__
-		SetMultiColorSprite(2*i, f);
-		EnableMultiColorSprite(2*i);
-	#else
 		SetSprite(i, f);
 		EnableSprite(i);
-	#endif
     }
     
 	// Display warmup message
 	inkColor = WHITE; 
-#if defined(__CBM__) || defined(__LYNX__)
-	paperColor = paperBuffer;
-#else
 	paperColor = BLACK; 
-#endif
 	if (gameStep == STEP_WARMUP) {
         if (gameMode == MODE_ONLINE) {
 		#if defined __CBM__
@@ -241,12 +229,7 @@ void GameInit(const char* map)
 	// Load Bitmap and backup chat row
 	LoadBitmap(&buffer[0]);
 	BackupRestoreChatRow(0);
-
-	// Get paper color of top buffer
-#if defined(__CBM__) || defined(__LYNX__)
-	pixelX = 0; pixelY = 0;
-	paperBuffer = GetPixel();	
-#endif		
+	
 	// Print map name in lower left corner
 	inkColor = WHITE; paperColor = BLACK;
 	txtX = 0; txtY = TXT_ROWS-1;
@@ -306,13 +289,13 @@ unsigned char GameRace()
     for (i=SPR2_SLOT; i<SPR2_SLOT+3; ++i) {
 		LocateSprite(LIGHT_X+(i-SPR2_SLOT)*LIGHT_SP, LIGHT_Y);
 	#if defined __ATARI__ 
-		RecolorSprite(i, 0, 0x08);
-	#elif defined __ORIC__ 
-		RecolorSprite(i, 0, SPR_AIC);
+		RecolorSprite(i, 0, SPR_LGREY);
 	#elif defined __CBM__
 		RecolorSprite(i, 0, LGREY);
 	#elif defined __LYNX__
 		RecolorSprite(i, 7, 0xef);
+	#elif defined __ORIC__ 
+		RecolorSprite(i, 0, SPR_AIC);
 	#endif		
 		SetSprite(i, 16);
         EnableSprite(i);
@@ -337,17 +320,17 @@ unsigned char GameRace()
 #endif	
 
     // Red light
-#if defined __ORIC__ 
-	LocateSprite(LIGHT_X, 24);	
-	RecolorSprite(SPR2_SLOT, 0, SPR_RED);
-	SetSprite(SPR2_SLOT, 16);
-#elif defined __ATARI__  
-	RecolorSprite(SPR2_SLOT, 0, 0x22);  
+#if defined __ATARI__  
+	RecolorSprite(SPR2_SLOT, 0, SPR_RED);  
 #elif defined __CBM__  
 	RecolorSprite(SPR2_SLOT, 0, RED);  
 #elif defined __LYNX__
 	RecolorSprite(SPR2_SLOT, 7, 0xbf);
 	UpdateDisplay();
+#elif defined __ORIC__ 
+	LocateSprite(LIGHT_X, 24);	
+	RecolorSprite(SPR2_SLOT, 0, SPR_RED);
+	SetSprite(SPR2_SLOT, 16);
 #endif	
 	BleepSFX(64); 
 #ifndef __APPLE2__
@@ -357,17 +340,17 @@ unsigned char GameRace()
 #endif	
 
     // Orange light	
-#if defined __ORIC__ 
-	LocateSprite(LIGHT_X+LIGHT_SP, 24);	
-	RecolorSprite(SPR2_SLOT+1, 0, SPR_RED);
-	SetSprite(5, 16);	
-#elif defined __ATARI__  
-	RecolorSprite(SPR2_SLOT+1, 0, 0x1a);  
+#if defined __ATARI__  
+	RecolorSprite(SPR2_SLOT+1, 0, SPR_ORANGE);  
 #elif defined __CBM__  
 	RecolorSprite(SPR2_SLOT+1, 0, ORANGE);  
 #elif defined __LYNX__
 	RecolorSprite(SPR2_SLOT+1, 7, 0x8f);	
 	UpdateDisplay();
+#elif defined __ORIC__ 
+	LocateSprite(LIGHT_X+LIGHT_SP, 24);	
+	RecolorSprite(SPR2_SLOT+1, 0, SPR_RED);
+	SetSprite(5, 16);	
 #endif	
 	BleepSFX(64); 
 #ifndef __APPLE2__
@@ -377,17 +360,17 @@ unsigned char GameRace()
 #endif	
 
     // Green light
-#if defined __ORIC__ 
-	LocateSprite(LIGHT_X+2*LIGHT_SP, 24);	
-	RecolorSprite(SPR2_SLOT+2, 0, SPR_GREEN);
-	SetSprite(SPR2_SLOT+2, 16);	
-#elif defined __ATARI__  
-	RecolorSprite(SPR2_SLOT+2, 0, 0xc4);  
+#if defined __ATARI__  
+	RecolorSprite(SPR2_SLOT+2, 0, SPR_GREEN);  
 #elif defined __CBM__  
 	RecolorSprite(SPR2_SLOT+2, 0, GREEN);  
 #elif defined __LYNX__
 	RecolorSprite(SPR2_SLOT+2, 7, 0x4f);	
 	UpdateDisplay();
+#elif defined __ORIC__ 
+	LocateSprite(LIGHT_X+2*LIGHT_SP, 24);	
+	RecolorSprite(SPR2_SLOT+2, 0, SPR_GREEN);
+	SetSprite(SPR2_SLOT+2, 16);	
 #endif
 	BleepSFX(128); 
 
@@ -412,7 +395,7 @@ unsigned char GameRace()
 #ifndef __APPLE2__
     for (i=SPR2_SLOT; i<SPR2_SLOT+3; ++i) {
 	#if defined __ATARI__  
-		RecolorSprite(i, 0, 0x04);  
+		RecolorSprite(i, 0, SPR_BLACK);  
 	#elif defined __CBM__  
 		RecolorSprite(i, 0, BLACK);  
 	#elif defined __LYNX__
@@ -743,26 +726,14 @@ char GameLoop()
 			}
 			
 			// Display main sprite
-		#if (defined __ATARI__)
-			SetMultiColorSprite(2*i, iSpr);		
-		#else	
 			SetSprite(i, iSpr);		
-		#endif
 		
 			// Check collisions
-		#if (defined __ATARI__)			
-			collisions = COLLISIONS(2*i);
-		#else	
 			collisions = COLLISIONS(i);
-		#endif
 			if (collisions) {
 				for (j=0; j<MAX_PLAYERS; j++) {
 					if (i != j) {
-					#if (defined __ATARI__)			
-						if (COLLIDING(collisions,2*j)) {
-					#else	
 						if (COLLIDING(collisions,j)) {
-					#endif
 							// Check neither are flying
 							if (iJmp || (clock()-cars[j].jmp) < jmpTCK) { continue; }
 							// Apply impulse to other car, and reduce own velocity
