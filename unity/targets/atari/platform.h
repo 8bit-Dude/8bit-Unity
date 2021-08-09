@@ -75,6 +75,28 @@
 #define WHITE  	11
 #define YELLOW 	15
 
+// Sprite Palette (refer to Atari palette in /docs/Palettes)
+#define SPR_BLACK   0x00
+#define SPR_DGREY   0x04
+#define SPR_GREY    0x06
+#define SPR_LGREY   0x08
+#define SPR_WHITE   0x0e
+#define SPR_ORANGE  0x1a
+#define SPR_DRED    0x22
+#define SPR_RED     0x24
+#define SPR_LRED    0x26
+#define SPR_PINK    0x3a
+#define SPR_PURPLE  0x58
+#define SPR_DBLUE   0x82
+#define SPR_BLUE    0x84
+#define SPR_LBLUE   0x86
+#define SPR_CYAN    0x9c
+#define SPR_DGREEN  0xb4
+#define SPR_GREEN   0xb6
+#define SPR_LGREEN  0xb8
+#define SPR_YELLOW  0xdc
+#define SPR_BROWN   0xf8
+
 // Clock
 #define TCK_PER_SEC	CLK_TCK
 
