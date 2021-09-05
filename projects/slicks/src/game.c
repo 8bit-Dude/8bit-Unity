@@ -36,6 +36,7 @@
   unsigned char MenuPause(void);
   extern unsigned char pauseEvt;
   extern unsigned char gamePaused;
+  unsigned char LockBackButton = 0;
 #elif defined __NES__
   #define RACE_ROAD 0	// see bgMask
   #define RACE_MARK 0	//		"
@@ -803,7 +804,9 @@ char GameLoop()
 		
 		// Check Keyboard Press
 	#if defined(__LYNX__)
-		if (kbhit() || KeyboardOverlayHit() || !(GetJoy(0) & JOY_BTN2)) {
+		if (GetJoy(0) & JOY_BTN2)
+			LockBackButton = 0;
+		if (kbhit() || KeyboardOverlayHit() || (!(GetJoy(0) & JOY_BTN2) && !LockBackButton)) {
 			if (chatting) {
 				lastKey = GetKeyboardOverlay();
 			} else if (!(GetJoy(0) & JOY_BTN2)) {
@@ -846,6 +849,7 @@ char GameLoop()
 					BackupRestoreChatRow(1);
 				#if defined __LYNX__
 					HideKeyboardOverlay();
+					LockBackButton = 1;
 				#endif						
 				}
 			} else {
@@ -868,8 +872,8 @@ char GameLoop()
 					}
 				}					
 				// Enable chat
-				if (gameMode == MODE_ONLINE & lastKey == KB_CHAT) {
-				#if defined __LYNX__ 
+				if (gameMode == MODE_ONLINE && lastKey == KB_CHAT) {
+				#if defined __LYNX__
 					BackupRestoreChatRow(0);
 					ShowKeyboardOverlay();
 				#endif
