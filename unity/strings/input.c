@@ -88,6 +88,10 @@ unsigned char InputStr(unsigned char width, char *buffer, unsigned char len, uns
 					PrintChr(' ');
 					txtX--;					
 				}
+		#if (defined __LYNX__)
+			} else {
+				return 1;
+		#endif
 			}
 		} else {
 			// Is field already full?

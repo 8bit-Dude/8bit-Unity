@@ -40,7 +40,7 @@ SCB_REHV_PAL keybrdSCB =  { BPP_4 | TYPE_NONCOLL, REHV | PACKED, 0, 0, (char*)&k
 clock_t keybrdClock = 0;
 unsigned char keybrdShow = 0, keybrdVal = 0; 
 unsigned char keybrdJoy = 0, keybrdPressed = 0;
-signed char keybrdRow = 0, keybrdCol = 0;
+signed char keybrdRow = 2, keybrdCol = 12;
 signed char keyCodes[4][13] = { { 49, 50, 51, 52, 53, 54, 55, 56, 57, 48, 45, 95, 43 },
 								{ 81, 87, 69, 82, 84, 89, 85, 73, 79, 80, 40, 41, 20 },
 								{ 65, 83, 68, 70, 71, 72, 74, 75, 76, 58, 39, 33, 13 },
