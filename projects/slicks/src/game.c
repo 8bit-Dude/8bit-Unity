@@ -137,6 +137,10 @@ void GameReset()
     
     // Reset Game State
 	ResetLineUp();
+
+	// Reset SFX
+    for (i=0; i<2; ++i)       
+        EngineSFX(i, 0);
 	
     // Reset Players
     for (i=0; i<MAX_PLAYERS; ++i) {        
@@ -451,7 +455,7 @@ char GameLoop()
 #endif
 	int iX, iY, iVel, iVelMax, iAng1, iAng2, iCos, iSin, iTmp, steps;
 	unsigned char iCtrl, iRotMax, iJoy, iColor, collisions; 
-	unsigned char res, lastKey, iJmp, iDir, iSpr, i, j;
+	unsigned char res, lastKey, iJmp, iDir, iSpr, i, j, channel;
 	char chatting = 0;
 	
 	// Flush key entries
@@ -750,16 +754,20 @@ char GameLoop()
 			}
 			
 			// Update sound
+			if ((gameMode == MODE_LOCAL && i == 0) || (gameMode == MODE_ONLINE && iCtrl == NET_CONTROL))
+				channel = 0;
+			else
+				channel = 1;
 		#if defined __LYNX__	
 			if (iJmp)	
-				JumpSFX(i);
+				JumpSFX(channel);
 			else
 			if (iVel < velDrift || deltaAngle < 25)
 		#endif
-				EngineSFX(i, iVel);
+				EngineSFX(channel, iVel);
 		#if defined __LYNX__	
 			else
-				ScreechSFX(i);					
+				ScreechSFX(channel);					
 		#endif
 			
 			// Update car position

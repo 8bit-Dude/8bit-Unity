@@ -35,17 +35,17 @@ void BumpSFX(void)
 	PlaySFX(SFX_BUMP, PITCH_BUMP, VOLUME_BUMP, CHAN_BUMP);
 }
 
-void EngineSFX(unsigned char car, unsigned int rpm)
+void EngineSFX(unsigned char channel, unsigned int rpm)
 {	
-	PlaySFX(SFX_ENGINE, (rpm*17)/80u + car*6, VOLUME_ENGINE, car&1);	// Multiplex on channels 1/2
+	PlaySFX(SFX_ENGINE, (rpm*17)/80u + channel*6, VOLUME_ENGINE, channel);	// Multiplex on channels 1/2
 }
 
-void JumpSFX(unsigned char car)
+void JumpSFX(unsigned char channel)
 {
-	PlaySFX(SFX_ENGINE, 192, VOLUME_JUMP, car&1);	// Multiplex on channels 1/2
+	PlaySFX(SFX_ENGINE, 192, VOLUME_JUMP, channel);	// Multiplex on channels 1/2
 }
 
-void ScreechSFX(unsigned char car)
+void ScreechSFX(unsigned char channel)
 {
-	PlaySFX(SFX_SCREECH, 192, VOLUME_JUMP, car&1);	// Multiplex on channels 1/2
+	PlaySFX(SFX_SCREECH, 192, VOLUME_JUMP, channel);	// Multiplex on channels 1/2
 }

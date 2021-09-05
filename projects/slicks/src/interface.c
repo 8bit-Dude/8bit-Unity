@@ -763,7 +763,7 @@ void PrintScores()
 			txtY = SCORES_ROW+2*i+1;
 		#if defined __ORIC__
 			txtX = 15; SetAttributes(inkColor);
-		#endif			
+		#endif
 			if (gameMode == MODE_ONLINE) {
 				string = svUsers[j];
 			} else {
@@ -923,11 +923,17 @@ unsigned char MenuLogin(unsigned char serverIndex)
 		PrintStr(loginTxt[res]);
 	}
 	txtY = MENU_ROW+4;
-	txtX = MENU_COL+6;      InputField(clUser, 4);
+	txtX = MENU_COL+6;    
+	do {
+		InputField(clUser, 4);
+	} while (!clUser[0]);
 	txtX += strlen(clUser); PrintChr(' ');
 	maskInput = 1;
 	txtY = MENU_ROW+6;
-	txtX = MENU_COL+6;      InputField(clPass, 10);	
+	txtX = MENU_COL+6;
+	do {
+		InputField(clPass, 10);	
+	} while (!clPass[0]);
 	txtX += strlen(clPass); PrintChr(' ');
 	maskInput = 0;
 	
