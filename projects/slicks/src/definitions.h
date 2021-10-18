@@ -195,6 +195,7 @@ unsigned char NetworkUpdate(void);
 //See sfx.c
 void BleepSFX(unsigned char pitch);
 void BumpSFX(void);
-void EngineSFX(unsigned char channel, unsigned int rpm);
-void JumpSFX(unsigned char channel);
-void ScreechSFX(unsigned char channel);
+void EngineSFX(unsigned char index, unsigned int rpm);
+void JumpSFX(unsigned char index);
+void ScreechSFX(unsigned char index);
+void UpdateSFX(void);

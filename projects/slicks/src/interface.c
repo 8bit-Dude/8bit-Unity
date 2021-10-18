@@ -159,7 +159,7 @@ unsigned char serversLoaded;
 #elif defined __CBM__
   static char chatBG[180];
 #elif defined __LYNX__
-  static char chatBG[1320];
+  static char chatBG[1440];
 #elif defined __NES__
   static char chatBG[20];
 #endif
@@ -300,8 +300,8 @@ void InputField(char *buffer, unsigned char len)
 
 #if defined(__LYNX__) || defined(__NES__)
 unsigned char gamePaused = 0;
-const unsigned char *pauseLabel[] = { "resume", "race!", "next!", "quit", "hello!", "bye!", "thanks!", "congrats", "so close", "hang on", "ready" };
-const unsigned char pauseAction[] = { KB_PAUSE, KB_START, KB_NEXT, KB_QUIT, 4, 5, 6, 7, 8, 9, 10 };
+const unsigned char *pauseLabel[] = { "resume", "race!", "next!", "quit", "bye!", "congrats", "hang on", "hello!", "ready", "so close", "thanks!", "yes" };
+const unsigned char pauseAction[] = { KB_PAUSE, KB_START, KB_NEXT, KB_QUIT, 4, 5, 6, 7, 8, 9, 10, 11 };
 unsigned char cursorJoy, cursorKey, cursorBut2, cursorPressed;
 unsigned char cursorFlick, cursorCol = MENU_COL, cursorRow = MENU_ROW+2;
 unsigned char cursorTop = MENU_ROW+2, cursorHeight = MENU_HEI-2;
@@ -441,7 +441,7 @@ void LynxCursorControl()
 				if (gameMode == MODE_LOCAL) {
 					cursorRow = PAUSE_LOCAL_ROW+3;
 				} else {
-					cursorRow = PAUSE_ONLINE_ROW+10;
+					cursorRow = PAUSE_ONLINE_ROW+11;
 				}
 			}
 		} else {		
@@ -461,7 +461,7 @@ void LynxCursorControl()
 			if (gameMode == MODE_LOCAL) {
 			    if (cursorRow > PAUSE_LOCAL_ROW+3)  { cursorRow = cursorTop; }
 			} else {
-				if (cursorRow > PAUSE_ONLINE_ROW+10) { cursorRow = cursorTop; }
+				if (cursorRow > PAUSE_ONLINE_ROW+11) { cursorRow = cursorTop; }
 			}
 		} else {
 			if (gameMode == MODE_LOCAL) {
@@ -500,7 +500,7 @@ void BackupRestorePauseBg(unsigned char mode)
 #elif defined(__NES__)	
 	unsigned int addr2 = PAUSE_COL+32*PAUSE_ONLINE_ROW;
 #endif
-	for (i=0; i<(11*6); ++i) {
+	for (i=0; i<(12*6); ++i) {
 		if (!mode)
 			memcpy(addr1, addr2, 20);
 		else
@@ -523,7 +523,7 @@ unsigned char MenuPause()
 		cursorRow = PAUSE_LOCAL_ROW;
 		cursorTop = PAUSE_LOCAL_ROW;
 	} else {
-		cursorHeight = 11;	
+		cursorHeight = 12;	
 		cursorRow = PAUSE_ONLINE_ROW;
 		cursorTop = PAUSE_ONLINE_ROW;
 	}		
@@ -549,7 +549,7 @@ unsigned char MenuPause()
 		// Process Cursor
 		LynxCursorControl();
 		if (cursorKey) { 
-			if (gameMode == MODE_ONLINE && cursorKey < 11) {
+			if (gameMode == MODE_ONLINE && cursorKey < 12) {
 				// Process chat event then exit menu
 				memcpy(chatBuffer, pauseLabel[cursorKey], 9);
 				ClientEvent(EVENT_CHAT);
@@ -585,10 +585,16 @@ void MenuGFX()
 // Display lap numbers
 void PrintLap(unsigned char i)
 {
-	if (cars[i].lap < 1) { return; }
-	inkColor = inkColors[i]; 
-	txtX = (SLOT_COL1+4) + SLOT_WIDTH*i; txtY = TXT_ROWS-1;
-	PrintNum(cars[i].lap);
+	// Set cursor
+	txtX = (SLOT_COL1+5) + SLOT_WIDTH*i; 
+	txtY = TXT_ROWS-1;
+	
+	if (cars[i].lap < 1) { 
+		PrintBlanks(2,1);	
+	} else {
+		inkColor = inkColors[i]; 
+		PrintNum(cars[i].lap);
+	}
 }
 
 // Print race message and laps

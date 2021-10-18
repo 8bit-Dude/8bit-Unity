@@ -137,15 +137,14 @@ void GameReset()
     
     // Reset Game State
 	ResetLineUp();
-
-	// Reset SFX
-    for (i=0; i<2; ++i)       
-        EngineSFX(i, 0);
 	
     // Reset Players
     for (i=0; i<MAX_PLAYERS; ++i) {        
         // Reset SFX
         EngineSFX(i, 0);
+		
+		// Reset Lap count
+		PrintLap(i);
 	
         // Player available?
 		if (!PlayerAvailable(i)) { continue; }
@@ -178,6 +177,9 @@ void GameReset()
 		SetSprite(i, f);
 		EnableSprite(i);
     }
+	
+	// Process sound effects
+	UpdateSFX();
     
 	// Display warmup message
 	inkColor = WHITE; 
@@ -455,7 +457,7 @@ char GameLoop()
 #endif
 	int iX, iY, iVel, iVelMax, iAng1, iAng2, iCos, iSin, iTmp, steps;
 	unsigned char iCtrl, iRotMax, iJoy, iColor, collisions; 
-	unsigned char res, lastKey, iJmp, iDir, iSpr, i, j, channel;
+	unsigned char res, lastKey, iJmp, iDir, iSpr, i, j;
 	char chatting = 0;
 	
 	// Flush key entries
@@ -751,23 +753,19 @@ char GameLoop()
 						}
 					}
 				}
-			}
+			}		
 			
 			// Update sound
-			if ((gameMode == MODE_LOCAL && i == 0) || (gameMode == MODE_ONLINE && iCtrl == NET_CONTROL))
-				channel = 0;
-			else
-				channel = 1;
-		#if defined __LYNX__	
+		#if defined(__LYNX__) || defined(__CBM__)
 			if (iJmp)	
-				JumpSFX(channel);
+				JumpSFX(i);
 			else
 			if (iVel < velDrift || deltaAngle < 25)
 		#endif
-				EngineSFX(channel, iVel);
-		#if defined __LYNX__	
+				EngineSFX(i, iVel);
+		#if defined(__LYNX__) || defined(__CBM__)
 			else
-				ScreechSFX(channel);					
+				ScreechSFX(i);					
 		#endif
 			
 			// Update car position
@@ -808,7 +806,10 @@ char GameLoop()
 				car->x1 = car->x2;
 				car->y1 = car->y2;						
 			}			
-		}				
+		}
+
+		// Process sound effects
+		UpdateSFX();
 		
 		// Check Keyboard Press
 	#if defined(__LYNX__)
