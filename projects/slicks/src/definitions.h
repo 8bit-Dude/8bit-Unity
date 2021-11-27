@@ -134,9 +134,9 @@ typedef struct {
 	int impx;	 // Impulse
 	int impy;	 
     clock_t jmp; // Jump Time
-	unsigned char joy;  // joystick
-	unsigned char way;	// Current waypoint
-	signed char lap;	// Current lap
+	unsigned char joy;     // joystick
+	unsigned char way;	   // Current waypoint
+	signed char lap;	   // Current lap
 } Vehicle;
 
 // Waypoint structure
@@ -177,7 +177,6 @@ void GameMenu(void);
 void LoadNavigation(char *filename);
 void ResetLineUp(void);
 void GetWaypoint(Vehicle *car);
-int GetWaypointDistance(Vehicle *car);
 int GetWaypointAngle(Vehicle *car);
 char CheckWaypoint(Vehicle *car);
 char CheckRamps(Vehicle *car);

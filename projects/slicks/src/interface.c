@@ -17,35 +17,40 @@
 	#define INK_HIGHLT	 BLACK
 	#define PAPER_HIGHLT YELLOW
 	#define PAPER_SCORES BLACK
-	#define SCORES_ROW   	  8
+	#define SCORES_COL   	12
+	#define SCORES_ROW   	 7
 #elif defined __ATARI__
 	#define INK_LAPS   	 RED
 	#define INK_TAB		 GREEN
 	#define INK_HIGHLT	 BLACK
 	#define PAPER_HIGHLT YELLOW
 	#define PAPER_SCORES BLACK
-	#define SCORES_ROW   	  8
+	#define SCORES_COL   	12
+	#define SCORES_ROW   	 7
 #elif defined __ORIC__
 	#define INK_LAPS   	 RED
 	#define INK_TAB		 GREEN
 	#define INK_HIGHLT	 BLACK
 	#define PAPER_HIGHLT YELLOW
 	#define PAPER_SCORES BLACK
-	#define SCORES_ROW   	  8
+	#define SCORES_COL   	12
+	#define SCORES_ROW   	 7
 #elif defined __CBM__
 	#define INK_LAPS   	 RED
 	#define INK_TAB		 GREEN
 	#define INK_HIGHLT	 BLACK
 	#define PAPER_HIGHLT YELLOW
 	#define PAPER_SCORES BLACK
-	#define SCORES_ROW   	  8
+	#define SCORES_COL   	12
+	#define SCORES_ROW   	 7
 #elif defined __LYNX__
 	#define INK_LAPS   	 RED
 	#define INK_TAB		 YELLOW	
 	#define INK_HIGHLT	 WHITE
 	#define PAPER_HIGHLT BLACK
 	#define PAPER_SCORES BLACK
-	#define SCORES_ROW   	  4
+	#define SCORES_COL   	 12
+	#define SCORES_ROW   	  3
 	#define PAUSE_COL 		 15
 	#define PAUSE_LOCAL_ROW   6
 	#define PAUSE_ONLINE_ROW  2
@@ -55,7 +60,8 @@
 	#define INK_HIGHLT	 BLACK
 	#define PAPER_HIGHLT YELLOW
 	#define PAPER_SCORES BLACK
-	#define SCORES_ROW   	  8	
+	#define SCORES_COL   	 12
+	#define SCORES_ROW   	  7
 	#define PAUSE_COL 		  7
 	#define PAUSE_LOCAL_ROW   6
 	#define PAUSE_ONLINE_ROW  2
@@ -90,6 +96,7 @@ extern unsigned char mapNum, lapNumber[], inkColors[];
 // See game.c
 extern unsigned char gameMode, gameMap, gameStep;
 extern unsigned char lapIndex, lapGoal;
+extern unsigned int lapBest[MAX_PLAYERS];
 
 // See navigation.c
 extern Vehicle cars[MAX_PLAYERS];
@@ -97,7 +104,7 @@ extern Vehicle cars[MAX_PLAYERS];
 // See network.c
 extern unsigned int packet;
 extern unsigned char svMap, svStep; 
-extern unsigned char svUsers[MAX_PLAYERS][5];
+extern unsigned char clName[MAX_PLAYERS][5];
 extern unsigned char clIndex, clUser[5], clPass[13];
 extern char networkReady, chatBuffer[20], udpBuffer[28];
 
@@ -335,7 +342,7 @@ void LynxReadEEPROM()
 	while (i < 6) {
 		if (eepromID[i] != (unsigned char)lynx_eeprom_read(i)) {
 			LynxResetEEPROM();
-			break;
+			return;
 		}
 		i++;
 	}
@@ -585,13 +592,10 @@ void MenuGFX()
 // Display lap numbers
 void PrintLap(unsigned char i)
 {
-	// Set cursor
-	txtX = (SLOT_COL1+5) + SLOT_WIDTH*i; 
-	txtY = TXT_ROWS-1;
-	
-	if (cars[i].lap < 1) { 
-		PrintBlanks(2,1);	
-	} else {
+	// Set cursor	
+	if (cars[i].lap > 0) { 
+		txtX = (SLOT_COL1+5) + SLOT_WIDTH*i; 
+		txtY = TXT_ROWS-1;
 		inkColor = inkColors[i]; 
 		PrintNum(cars[i].lap);
 	}
@@ -690,15 +694,17 @@ void SpriteAnimation(unsigned char index, unsigned char frame)
 #endif
 
 // Print score after round ends
-signed int score[4];
+extern Waypoint *way;
+extern signed char *vWay;
 void PrintScores()
 {
 	Vehicle *car;
-	signed int s;
+	unsigned char i, j, scale;
+	signed int dx, dy, s;
 	unsigned int d;
-	unsigned char i, j;
 	unsigned int dist[4] = {0, 0, 0, 0};
 	unsigned char rank[4] = {0, 1, 2, 3};
+	signed int score[4] = {-1, -1, -1, -1};
 	unsigned char* string;
 	
 	// Play the background music
@@ -714,6 +720,7 @@ void PrintScores()
 	// Compute scores and waypoint distances
 	for (i=0; i<MAX_PLAYERS; ++i) {
 		if (controlIndex[i] > 0) {
+			// Compute Score
 			car = &cars[i];
 			if (car->lap < 0) { car->lap = 0; }
 			score[i] = car->lap*18;
@@ -722,14 +729,21 @@ void PrintScores()
 			} else {
 				score[i] += 16;
 			}
-			dist[i] = GetWaypointDistance(car);
+			
+			// Compute Distance to next Waypoint
+			GetWaypoint(car);
+			dx = (car->x2 - way->x - vWay[0]);
+			dy = (car->y2 - way->y - vWay[1]);
+			dist[i] = ABS(dx)+ABS(dy);			
+			
+			// Move Sprites overlapping score board
 		#if defined(__ATARI__) || defined(__CBM__)
-			if (car->x2 > 15*64-32 && car->x2 < 25*64+32 && car->y2 > 8*64-32 && car->y2 < 17*64+32) {
+			if (car->x2 > SCORES_COL*64-32 && car->x2 < (SCORES_COL+17)*64+32 && car->y2 > SCORES_ROW*64-32 && car->y2 < (SCORES_ROW+10)*64+32) {
 				DisableSprite(i);				// Car sprite
 				DisableSprite(SPR2_SLOT+i);		// Jump sprite			
 			}
 		#elif defined(__LYNX__)
-			if (car->x2 > 15*64-32 && car->x2 < 25*64+32 && car->y2 > 4*96-48 && car->y2 < 13*96+48) {
+			if (car->x2 > SCORES_COL*64-32 && car->x2 < (SCORES_COL+17)*64+32 && car->y2 > SCORES_ROW*96-48 && car->y2 < (SCORES_ROW+10)*96+48) {
 				DisableSprite(i);			// Car sprite
 				DisableSprite(SPR2_SLOT+i);	// Jump sprite			
 			} else {
@@ -740,8 +754,6 @@ void PrintScores()
 				SetSprite(i, j);
 			}
 		#endif	
-		} else {
-			score[i] = -1;
 		}
 	}
 		
@@ -757,33 +769,64 @@ void PrintScores()
 	}
 	
 	// Create blank area
-	paperColor = PAPER_SCORES;
-	txtX = 15; txtY = SCORES_ROW;
-	PrintBlanks(10, 9);
+	paperColor = PAPER_SCORES; inkColor = WHITE;
+	txtX = SCORES_COL; txtY = SCORES_ROW;
+	PrintBlanks(17, 10);
+	txtX = SCORES_COL+8; 
+	PrintStr("Best Lap"); 
 	
 	// Print results and wait
 	for (i=0; i<MAX_PLAYERS; ++i) {
-		if (score[i] >= 0) {
+		if (controlIndex[i] > 0) {
 			j = rank[i];
 			inkColor = inkColors[j];
-			txtY = SCORES_ROW+2*i+1;
+			txtY += 2;
 		#if defined __ORIC__
-			txtX = 15; SetAttributes(inkColor);
+			txtX = SCORES_COL+1; SetAttributes(inkColor);
 		#endif
 			if (gameMode == MODE_ONLINE) {
-				string = svUsers[j];
+				string = clName[j];
 			} else {
 				if (i == 0) { string = "WIN"; } else { string = "LOSE"; } 
 			}
-			txtX = 16; PrintStr(string);
+			txtX = SCORES_COL+2; PrintStr(string);
 			inkColor = WHITE;
 		#if defined __ORIC__
-			txtX = 20; SetAttributes(inkColor);
+			txtX = SCORES_COL+6; SetAttributes(inkColor);
 		#endif		
-			txtX = 21; PrintStr("- -");
-			txtX = 22; PrintNum(i+1);
+			txtX = SCORES_COL+7; PrintChr('-');
+			
+			// Scale (ticks per secs)
+			if (gameMode == MODE_LOCAL)
+				scale = TCK_PER_SEC;
+			else
+				scale = 100;
+			
+			if (lapBest[j] < 65500) {
+				// Print second
+				d = lapBest[j]/scale;
+				if (d<10) {
+					txtX = SCORES_COL+10; 
+				} else 
+				if (d<100) {
+					txtX = SCORES_COL+9; 
+				} else {
+					txtX = SCORES_COL+8; 
+				}
+				PrintNum(d);
+				
+				// Print hundreds of second
+				d = ((lapBest[j]%scale)*100)/scale;
+				txtX = SCORES_COL+11; 
+				PrintChr('.');	txtX++; 				
+				if (d<10) {
+					PrintChr('0'); txtX++; 
+				}
+				PrintNum(d); txtX = SCORES_COL+14; 
+				PrintChr('"');				
+			}
 		#if defined __ORIC__
-			txtX = 24; SetAttributes(AIC);
+			txtX = SCORES_COL+20; SetAttributes(AIC);
 		#endif			
 		}
 	}
@@ -1149,7 +1192,7 @@ void GameMenu()
 				
 				// Switch Player 1-4
 				i = lastchar - 49;
-				if (i>=0 & i<4) {
+				if (i>=0 && i<4) {
 				#if defined(__LYNX__) || defined(__NES__)
 					if (cursorBut2) {
 						controlIndex[i]--; if (controlIndex[i] >= NET_CONTROL) controlIndex[i] = NET_CONTROL-1;
@@ -1234,7 +1277,7 @@ void GameMenu()
 				} else {
 					i = lastchar - 49;
 				}
-				if (networkReady & i>=0 & i<13) {
+				if (networkReady && i>=0 && i<13) {
 					// Try to Login...
 					if (MenuLogin(i)) {
 						// Start game

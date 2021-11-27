@@ -9,11 +9,13 @@ extern unsigned char gameLineUp[4];
 #endif
 
 // Navigation variables
+Waypoint *way;
 Vehicle cars[MAX_PLAYERS];
 Waypoint ways[MAX_WAYPOINTS];
 Ramp ramps[MAX_RAMPS];
 unsigned char numWays;
 unsigned char numRamps;
+signed char *vWay;
 
 // Lineup positions
 unsigned int lineupX[MAX_PLAYERS];
@@ -114,13 +116,28 @@ char CheckRamps(Vehicle *car)
     return 0;
 }
 
+int GetWaypointAngle(Vehicle *car)
+{
+	unsigned char dx = 128, dy = 128;	
+	GetWaypoint(car);
+	dx += (way->x + 8*vWay[0] - car->x2)/16u;
+	dy -= (way->y + 8*vWay[1] - car->y2)/16u;
+	return (45*(unsigned int)atan2(dy,dx))/32u;
+}
+
+void GetWaypoint(Vehicle *car)
+{
+	// Prepare waypoint variables
+	way = &ways[car->way/2u];
+	vWay = way->v[car->way&1];
+}
+
 #ifdef __ATARIXL__
   #pragma code-name("SHADOW_RAM")
 #endif
 
 // Functions to check navigation around cylinders
-signed char v1[2], v2[2], dist[2], cross[2], *vWay;
-Waypoint *way;
+signed char v1[2], v2[2], dist[2], cross[2];
 
 char CheckWaypoint(Vehicle *car)
 {
@@ -173,27 +190,4 @@ char CheckWaypoint(Vehicle *car)
 	return 0;
 }
 
-int GetWaypointDistance(Vehicle *car)
-{
-	signed char dx, dy;	
-	GetWaypoint(car);
-	dx = (car->x2 - way->x)/16u;
-	dy = (car->y2 - way->y)/16u;	
-	return ABS(dx)+ABS(dy);
-}
 
-int GetWaypointAngle(Vehicle *car)
-{
-	unsigned char dx = 128, dy = 128;	
-	GetWaypoint(car);
-	dx += (way->x + 8*vWay[0] - car->x2)/16u;
-	dy -= (way->y + 8*vWay[1] - car->y2)/16u;
-	return (45*(unsigned int)atan2(dy,dx))/32u;
-}
-
-void GetWaypoint(Vehicle *car)
-{
-	// Prepare waypoint variables
-	way = &ways[car->way/2u];
-	vWay = way->v[car->way&1];
-}

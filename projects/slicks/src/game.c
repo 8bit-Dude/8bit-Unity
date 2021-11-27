@@ -56,7 +56,7 @@ extern unsigned char numWays;
 
 // See network.c
 extern unsigned char clIndex;
-extern unsigned char svUsers[MAX_PLAYERS][5];
+extern unsigned char clName[MAX_PLAYERS][5];
 extern unsigned char svMap, svStep; 
 extern char chatBuffer[20];
 
@@ -101,6 +101,8 @@ const signed char sin[16] = {0,6,11,14,16,14,11,6,0,-6,-11,-14,-16,-14,-11,-6};
 
 // Clock management
 clock_t gameClock;
+clock_t lapClock[MAX_PLAYERS];
+unsigned int lapBest[MAX_PLAYERS];
 unsigned long gameFrame;
 
 unsigned char PlayerAvailable(unsigned char i)
@@ -144,38 +146,36 @@ void GameReset()
         EngineSFX(i, 0);
 		
 		// Reset Lap count
-		PrintLap(i);
-	
-        // Player available?
-		if (!PlayerAvailable(i)) { continue; }
-
-		// Reset laps and sprite
 		txtX = (i+2)*8u-3;
 		txtY = TXT_ROWS-1;
 		PrintStr("  ");
-		f = ((cars[i].ang1+12)%(360))/23u;
-	#if defined __APPLE2__
-		f += i*16u;
-		spriteX = (cars[i].x2*7u)/128u;
-		spriteY = (cars[i].y2*3u)/25u;
-	#elif defined __ATARI__
-		spriteX = cars[i].x2/16u + 45; 
-		spriteY = cars[i].y2/8u;		
-	#elif defined __ORIC__
-		spriteX = cars[i].x2/32u;	
-		spriteY = cars[i].y2/8u;			
-	#elif defined __CBM__
-		spriteX = cars[i].x2/8u; 
-		spriteY = cars[i].y2/8u;
-	#elif defined __LYNX__
-		spriteX = cars[i].x2/16u; 
-		spriteY = cars[i].y2/16u;
-	#elif defined __NES__
-		spriteX = cars[i].x2/10u; 
-		spriteY = cars[i].y2/8u+16;
-	#endif
-		SetSprite(i, f);
-		EnableSprite(i);
+	
+		// Reset sprite
+		if (PlayerAvailable(i)) {
+			f = ((cars[i].ang1+12)%(360))/23u;
+		#if defined __APPLE2__
+			f += i*16u;
+			spriteX = (cars[i].x2*7u)/128u;
+			spriteY = (cars[i].y2*3u)/25u;
+		#elif defined __ATARI__
+			spriteX = cars[i].x2/16u + 45; 
+			spriteY = cars[i].y2/8u;		
+		#elif defined __ORIC__
+			spriteX = cars[i].x2/32u;	
+			spriteY = cars[i].y2/8u;			
+		#elif defined __CBM__
+			spriteX = cars[i].x2/8u; 
+			spriteY = cars[i].y2/8u;
+		#elif defined __LYNX__
+			spriteX = cars[i].x2/16u; 
+			spriteY = cars[i].y2/16u;
+		#elif defined __NES__
+			spriteX = cars[i].x2/10u; 
+			spriteY = cars[i].y2/8u+16;
+		#endif
+			SetSprite(i, f);
+			EnableSprite(i);
+		}
     }
 	
 	// Process sound effects
@@ -273,7 +273,7 @@ void GameInit(const char* map)
 	} else {
         // Disable all players and reset user names...
         for (i=0; i<MAX_PLAYERS; ++i) { 
-			svUsers[i][0] = 0;
+			clName[i][0] = 0;
             controlIndex[i] = 0;
         }
 		// Assign 1st Controller to Client
@@ -418,6 +418,13 @@ unsigned char GameRace()
 #if defined __APPLE2__
 	clk += 1;
 #endif	
+
+	// Set Lap Timers
+	for (i=0; i<MAX_PLAYERS; ++i) {
+		lapClock[i] = gameClock;
+		lapBest[i] = 65500;
+	}
+	
 	return 1;
 }
 
@@ -458,6 +465,7 @@ char GameLoop()
 	int iX, iY, iVel, iVelMax, iAng1, iAng2, iCos, iSin, iTmp, steps;
 	unsigned char iCtrl, iRotMax, iJoy, iColor, collisions; 
 	unsigned char res, lastKey, iJmp, iDir, iSpr, i, j;
+	unsigned int lapTime;
 	char chatting = 0;
 	
 	// Flush key entries
@@ -611,7 +619,7 @@ char GameLoop()
 					// Check navigation? (not every frames)
 					if (gameFrame % MAX_PLAYERS == i)					
 						// Get angle to next waypoint
-						car->ang3 = GetWaypointAngle(car) + 3*i;
+						car->ang3 = GetWaypointAngle(car) + 4*i;
 					
 					// Lerp to navigation target
 					iAng2 = LerpAngle(iAng2, car->ang3, 2*iTmp);
@@ -777,7 +785,7 @@ char GameLoop()
 			car->joy = iJoy;
 
 			// Check navigation
-			if (iCtrl != NET_CONTROL & gameStep > STEP_WARMUP & (gameFrame&1) == (i&1)) {
+			if (iCtrl != NET_CONTROL && gameStep > STEP_WARMUP && (gameFrame&1) == (i&1)) {
 				// Check current cylinder
 				if (CheckWaypoint(car)) {
 					car->way++;
@@ -787,18 +795,25 @@ char GameLoop()
 						car->lap += 1;
 						
 						// Local: Process lap
-						if (gameMode == MODE_LOCAL) {
+						if (gameMode == MODE_LOCAL && car->lap > 0) {							
 							// Play lap sound
-							if (car->lap > 0) { BleepSFX(128); }
+							BleepSFX(128); 
 
-							// Update lap count
+							// Update lap count								
 							PrintLap(i);
 							
+							// Compute lap time
+							lapTime = gameClock - lapClock[i];
+							lapClock[i] = gameClock;
+							if (lapTime < lapBest[i]) {
+								lapBest[i] = lapTime;
+							}	
+
 							// Check for winner
 							if (car->lap == lapGoal) {
 								PrintScores();
 								return 1; 
-							}								
+							}	
 						}
 					}
 				}
