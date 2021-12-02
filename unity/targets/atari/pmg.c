@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Anthony Beaucamp.
+ * Copyright (c) 2019 Anthony Beaucamp.
  *
  * This software is provided 'as-is', without any express or implied warranty.
  * In no event will the authors be held liable for any damages arising from
@@ -23,52 +23,31 @@
  *   used to endorse or promote products derived from this software without
  *   specific prior written permission.
  */
+ 
+// ATARI Specific Sprite Functions
 
-#include "../../unity.h"
-#include <stdarg.h>
+#include <unity.h>
 
-// Workaround for missing text printing
-
-void screensize(unsigned char *xSize, unsigned char *ySize) 
-{
-	*xSize = 40; *ySize = 17;
+extern unsigned char sprFrames;
+ 
+void EnableMultiColorSprite(unsigned char index) {
+	EnableSprite(index++);
+	EnableSprite(index);
 }
 
-void gotoxy(unsigned char col, unsigned char row) 
-{
-	txtX = col; txtY = row;
+void DisableMultiColorSprite(unsigned char index) {
+	DisableSprite(index++);
+	DisableSprite(index);		
 }
 
-int cprintf(const char* format, ...) 
-{
-	PrintStr(format);
-	txtX += strlen(format);
-	while (txtX > 39) {
-		txtX -= 40;
-		txtY++;
-	}
+void SetMultiColorSprite(unsigned char index, unsigned int frame) {
+	SetSprite(index++, frame);
+	SetSprite(index, frame+sprFrames);
 }
 
-int scanf(const char *format, ...)
-{
-	unsigned char buffer[16];
-	va_list vl;
-	
-	// Reset buffer
-	buffer[0] = 0;
-
-	// Run input loop
-	ShowKeyboardOverlay();
-	while (1) {
-		if (KeyboardOverlayHit() && InputStr(16, buffer, 16, GetKeyboardOverlay()))
-			break;
-		UpdateDisplay();
-	}
-	HideKeyboardOverlay();
-	
-	// Decode arguments
-	va_start(vl, format);	
-	sscanf(buffer, format, vl);
-	va_end(vl);
-	return 1; 
+void DoubleWidthSprite(unsigned char index, unsigned char onoff) {
+	if (onoff)
+		POKE(0xD008+index, 1);
+	else
+		POKE(0xD008+index, 0);
 }

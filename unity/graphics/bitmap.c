@@ -39,13 +39,8 @@
   #pragma code-name("BANK0")
 #endif
 
-#ifdef __ATARI__
-  void SetPalette() {
-    POKE(0x02c8, bmpPalette[0]);
-    POKE(0x02c4, bmpPalette[1]);
-    POKE(0x02c5, bmpPalette[2]);
-    POKE(0x02c6, bmpPalette[3]);			
-  }
+#ifdef __ATARIXL__
+  extern unsigned char doubleBuffer;  
 #endif
 
 #ifdef __NES__
@@ -72,14 +67,12 @@ void InitBitmap()
 	POKEW(0x005E, 0);	// OLDADR
 	POKE(0x005D, 0);	// OLDCHR
 	
-	// Set default palette
-	SetPalette();
-	
 	// Switch OFF ANTIC
 	POKE(559, (16+8+2));
 
 	// Setup DLI/VBI
 	StartDLI(); StartVBI();		
+	doubleBuffer = 1;
 	
 #elif defined __ORIC__
 	// Switch to Hires mode
@@ -102,8 +95,10 @@ void ShowBitmap()
 	POKE(0xD011, PEEK(0xD011)|32);	// Set bitmap mode
 	
 #elif defined __ATARI__
-	// Setup DLIST and screen DMA
-	BitmapDLIST(); bitmapVBI = 1;
+	// Set palette, DLIST and screen DMA
+	SetPalette(bmpPalette);	
+	BitmapDLIST(); 
+	bitmapVBI = 1;
 	POKE(559, PEEK(559)|32);
 	
 #elif defined __APPLE2__
@@ -247,14 +242,12 @@ void LoadBitmap(char *filename)
 		FileRead((char*)&size, 2);
 		FileRead((char*)BITMAPRAM2-8, size);	// Read and decrunch frame 2
 		Decrunch(BITMAPRAM2-8+size);		
-		SetPalette();
 	}
   #else
 	if (FileOpen(filename)) {		
 		FileRead(bmpPalette, 4);			// 4 bytes palette
 		FileRead((char*)BITMAPRAM1, 8000);	// 8000 bytes for frame 1
 		FileRead((char*)BITMAPRAM2, 8000);	// 8000 bytes for frame 2
-		SetPalette();
 	}
   #endif
   

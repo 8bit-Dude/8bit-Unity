@@ -89,7 +89,8 @@
 #endif
 
 // Codes of special Characters
-#define CHR_DATA_TOP  	 9
+#define CHR_DATA_TOP  	 8
+#define CHR_COIN  	 	 8
 #define CHR_HEART		 9
 #define CHR_POTION  	10
 #define CHR_SHIELD  	11

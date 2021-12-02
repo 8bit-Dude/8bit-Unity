@@ -113,11 +113,14 @@ void FileRead(void* buf, unsigned int len);
 // Frame/Sprite Flicker Routine (see DLI.s)
 void BitmapDLIST(void);
 void CharmapDLIST(void);
+void ParallaxDLIST(void);
 void StartDLI(void);
 void StartVBI(void);
 void StopVBI(void);
+void SetPalette(unsigned char *palette);
 extern unsigned char bitmapVBI, charmapVBI, spriteVBI, bmpToggle, chrToggle, sprToggle, chrRows, bmpRows;
 extern unsigned char chrPalette[], bmpPalette[];
+extern unsigned char doubleBuffer;
 extern unsigned int  bmpAddr;
 
 // Gfx functions (see blitCharmap.s)

@@ -31,6 +31,8 @@
 _charData:
 
 ; Icon Data
+_charCoin:		
+	.byte %00000100, %11101110, %11100100	; CUSTOM 08
 _charHeart:		
 	.byte %00001010, %11101110, %11100100	; CUSTOM 09
 _charPotion:

@@ -144,7 +144,7 @@ unsigned char screenRow1 = 0, screenRow2 = CMP_ROWS, screenHeight = CMP_ROWS;
 unsigned char lineBlock;
 
 // Decoding properties
-unsigned char blockWidth, decodeWidth, decodeHeight;
+unsigned char blockWidth, lineWidth, decodeWidth, decodeHeight;
 unsigned char tileX, tileY, tileCols, tileRows;
 unsigned char scrollCols, scrollRows, scrollDirX, scrollDirY;
   
@@ -188,6 +188,7 @@ unsigned char scrollCols, scrollRows, scrollDirX, scrollDirY;
 void InitCharmap(unsigned char col1, unsigned char col2, unsigned char row1, unsigned char row2) 
 {
 	// Define rendering window
+	lineWidth = 40;
 	screenCol1 = col1; screenCol2 = col2;
 	screenRow1 = row1; screenRow2 = row2;
 	screenWidth = col2-col1; screenHeight = row2-row1;	
@@ -201,12 +202,14 @@ void InitCharmap(unsigned char col1, unsigned char col2, unsigned char row1, uns
 #if (defined __APPLE2__) || (defined __LYNX__) || (defined __ORIC__)
 	InitBitmap();
 #elif defined __ATARI__	
-	// Charmap/Bitmap transition params
+	// Init Graphic Mode
+	InitBitmap();
+	doubleBuffer = 0;
+	
+	// Charmap/Bitmap transition params	
 	chrRows = row2-1;
 	bmpRows = chrRows + 8*(CMP_ROWS-row2) + 2;
 	bmpAddr = BITMAPRAM1 + row2*(8*40);
-	InitBitmap();
-	CharmapDLIST();
 #elif defined __CBM__
 	// Charmap/Bitmap transition params
 	rasterLine = 57 + row2*8;
@@ -221,9 +224,10 @@ void ShowCharmap()
 	ShowBitmap();
 	
 #elif defined __ATARI__	
-	// Enable Screen DMA and VBI
+	// Set palette, DLIST and screen DMA
+	SetPalette(chrPalette);
+	CharmapDLIST(); charmapVBI = 1;
 	POKE(559, PEEK(559)|32);	
-	charmapVBI = 1;
 	
 #elif defined __CBM__	
 	SetupVIC2(); // Switch memory bank and multicolor mode	

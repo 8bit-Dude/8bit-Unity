@@ -27,7 +27,7 @@
 	.export _BlitCharmap
 	
 	.import _screenWidth, _screenHeight
-	.import _blockWidth
+	.import _blockWidth, _lineWidth
 	
 charattDataZP = $e0
 charPointerZP = $e2
@@ -86,10 +86,10 @@ loopRows:
 
 	doneCols:
 
-		; Update address of screen (+40)
+		; Update address of location in screen RAM
 		clc	
 		lda scrPointerZP
-		adc #40
+		adc _lineWidth
 		sta scrPointerZP
 		bcc nocarryScrPtr	; Check if carry to high byte
 		inc scrPointerZP+1

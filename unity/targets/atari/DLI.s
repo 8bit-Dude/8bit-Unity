@@ -24,39 +24,53 @@
 ;   specific prior written permission.
 ;
 
-	.export _StartDLI
+	.export _StartDLI, _StopDLI
 	.export _countDLI
+	;.export _parallaxDLI
+	.export _bmpRows, _chrRows
+	;.export _hScroll
+
 	.export _posPM0, _colPM0
+	.export _posPM1, _colPM1
+	.export _posPM2, _colPM2
+	.export _posPM3, _colPM3
 	
 	.import _SwapPalette
 	.import _charmapVBI
-	.import _chrRows
 	
 		
 ; ROM addresses
 vdslst = $0200
 sdlstl = $0230	
-nmien  = $d40e	
+nmien  = $d40e
+hscrol = $d404	
+wsync  = $d40a
 	
 	.segment	"DATA"	
 
-; DLI counter
-_countDLI: .byte 0
+; DLI counters
+_bmpRows:	  .byte 0
+_chrRows:  	  .byte 0
+_countDLI: 	  .byte 0
+;_parallaxDLI: .byte 0
 
 ; Sprite parameters
-_posPM0: .res 25
-_posPM1: .res 25
-_posPM2: .res 25
-_posPM3: .res 25
-_colPM0: .res 25
-_colPM1: .res 25
-_colPM2: .res 25
-_colPM3: .res 25
+_posPM0: .byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+_posPM1: .byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+_posPM2: .byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+_posPM3: .byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+_colPM0: .byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+_colPM1: .byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+_colPM2: .byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+_colPM3: .byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+
+; Parallax parameters
+;_hScroll: .byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 
 	.segment	"CODE"
 
 ; ---------------------------------------------------------------
-; void __near__ _StartDLI (void)
+; void __near__ StartDLI (void)
 ; ---------------------------------------------------------------	
 
 .proc _StartDLI: near
@@ -67,6 +81,23 @@ _colPM3: .res 25
     lda #(<DLI)
 	sta vdslst
     lda #(>DLI)
+	sta vdslst+1
+	cli
+	rts
+.endproc
+
+; ---------------------------------------------------------------
+; void __near__ StopDLI (void)
+; ---------------------------------------------------------------	
+
+.proc _StopDLI: near
+	; Copy address of DLI routine
+	sei
+	lda	#$c0	
+	sta nmien
+    lda #$B3
+	sta vdslst
+    lda #$E7
 	sta vdslst+1
 	cli	
 	rts
@@ -83,7 +114,12 @@ DLI:
 	pha
 	
 	; Load line counter
-	ldx _countDLI
+	ldx _countDLI	
+			
+	; Update parallax
+	;sta wsync
+	;lda _hScroll,x
+	;sta hscrol
 	
 	; Update position and color of players
 	lda _posPM0,x  

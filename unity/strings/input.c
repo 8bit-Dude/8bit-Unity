@@ -69,6 +69,9 @@ unsigned char InputStr(unsigned char width, char *buffer, unsigned char len, uns
 	} else {
 		// Process Return Key
 		if (key == CH_ENTER) { 
+			txtX += offset;
+			PrintChr(' ');
+			txtX -= offset;
 			return 1; 
 		} else
 		// Process Delete Key
@@ -90,6 +93,9 @@ unsigned char InputStr(unsigned char width, char *buffer, unsigned char len, uns
 				}
 		#if (defined __LYNX__)
 			} else {
+				txtX += offset;
+				PrintChr(' ');
+				txtX -= offset;
 				return 1;
 		#endif
 			}

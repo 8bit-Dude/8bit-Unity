@@ -179,11 +179,11 @@ void PrintChr(unsigned char chr)
 		for (i=0; i<8; ++i) {
 			if (i&1) {
 				POKE((char*)dst1, bgByte2);
-				if (bitmapVBI)
+				if (doubleBuffer)
 					POKE((char*)dst2, bgByte1);
 			} else {
 				POKE((char*)dst1, bgByte1);
-				if (bitmapVBI)
+				if (doubleBuffer)
 					POKE((char*)dst2, bgByte2);
 			}
 			dst1 +=40; dst2 +=40;
@@ -195,13 +195,13 @@ void PrintChr(unsigned char chr)
 			line = src[i];
 			POKE((char*)dst1, BYTE4(((line&128) ? inkColor2 : paperColor2), ((line&64) ? inkColor1 : paperColor1), ((line&32) ? inkColor2 : paperColor2), paperColor1)); dst1 +=40;
 			POKE((char*)dst1, BYTE4(((line&8  ) ? inkColor1 : paperColor1), ((line&4 ) ? inkColor2 : paperColor2), ((line&2 ) ? inkColor1 : paperColor1), paperColor2)); dst1 +=40;
-			if (bitmapVBI) {
+			if (doubleBuffer) {
 				POKE((char*)dst2, BYTE4(((line&128) ? inkColor1 : paperColor1), ((line&64) ? inkColor2 : paperColor2), ((line&32) ? inkColor1 : paperColor1), paperColor2)); dst2 +=40;
 				POKE((char*)dst2, BYTE4(((line&8  ) ? inkColor2 : paperColor2), ((line&4 ) ? inkColor1 : paperColor1), ((line&2 ) ? inkColor2 : paperColor2), paperColor1)); dst2 +=40;
 			}
 		}
 		POKE((char*)dst1, bgByte2);
-		if (bitmapVBI)
+		if (doubleBuffer)
 			POKE((char*)dst2, bgByte1);
 	}
 	

@@ -24,24 +24,18 @@
 ;   specific prior written permission.
 ;
 
-	.export _CharmapDLIST
+	.export _ParallaxDLIST
 
-	.import _chrRows, _bmpRows, _bmpAddr
-
-; Char palette
-colorSHADOW0 = $02c8
-colorSHADOW1 = $02c4
-colorSHADOW2 = $02c5
-colorSHADOW3 = $02c6
-colorSHADOW4 = $02c7	
+; Work variable
+_addr: .res 2
 
 	.segment	"CODE"
 
 ; ---------------------------------------------------------------
-; void __near__ _CharmapDLIST (void)
+; void __near__ ParallaxDLIST (void)
 ; ---------------------------------------------------------------	
 
-.proc _CharmapDLIST: near
+.proc _ParallaxDLIST: near
 	lda #$00		; Lower addres of DLIST $0920 -> $0900
 	sta $0230	
 	
@@ -49,58 +43,50 @@ header:
 	lda #$70		
 	sta $0900
 	sta $0901
-	lda #$f0		
+	lda #$f0	
 	sta $0902
 	
-setupChrAddr:	
-	lda #$c4		; DLI + Address + Text Mode
-	sta $0903
+setupPlxList:		
 	lda #$70
-	sta $0904
+	sta _addr+0
 	lda #$09
-	sta $0905
+	sta _addr+1
 	
+	ldy #0
 	ldx #0
-	lda #$84		; DLI + Text Mode
 loopCHR:
-	sta $0906,x
+	lda #$d4		; DLI + Address + Text Mode
+	sta $0903,x
 	inx
-	cpx _chrRows
+	lda _addr+0
+	sta $0903,x
+	inx
+	lda _addr+1
+	sta $0903,x
+	inx
+	
+	lda _addr+0		
+	clc	
+	adc #44
+	sta _addr+0	
+	bcc nocarry
+	inc _addr+1
+nocarry:
+	
+	iny
+	cpy #25
 	bcc loopCHR
-	
-checkSplit:	
-	lda _chrRows	; Is this a split screen?
-	cmp #24
-	beq footer
-	
-setupBmpAddr:
-	lda #$ce		; DLI + Address + Hires Mode
-	sta $0906,x
-	inx
-	lda _bmpAddr
-	sta $0906,x
-	inx
-	lda _bmpAddr+1
-	sta $0906,x
-	inx
-	
-	lda #$0e		; Hires Mode
-loopBMP:
-	sta $0906,x
-	inx
-	cpx _bmpRows
-	bne loopBMP
 	
 footer:	
 	lda #$41		; Footer
-	sta $0906,x
+	sta $0903,x
 	inx
 
 	lda #$20
-	sta $0906,x
+	sta $0903,x
 	inx
 
 	lda #$09
-	sta $0906,x
+	sta $0903,x
 	rts
 .endproc

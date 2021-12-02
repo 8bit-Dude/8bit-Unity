@@ -23,52 +23,16 @@
  *   used to endorse or promote products derived from this software without
  *   specific prior written permission.
  */
+ 
+ #include <peekpoke.h>
+ 
+unsigned char doubleBuffer;
 
-#include "../../unity.h"
-#include <stdarg.h>
-
-// Workaround for missing text printing
-
-void screensize(unsigned char *xSize, unsigned char *ySize) 
+void SetPalette(unsigned char *palette) 
 {
-	*xSize = 40; *ySize = 17;
-}
-
-void gotoxy(unsigned char col, unsigned char row) 
-{
-	txtX = col; txtY = row;
-}
-
-int cprintf(const char* format, ...) 
-{
-	PrintStr(format);
-	txtX += strlen(format);
-	while (txtX > 39) {
-		txtX -= 40;
-		txtY++;
-	}
-}
-
-int scanf(const char *format, ...)
-{
-	unsigned char buffer[16];
-	va_list vl;
-	
-	// Reset buffer
-	buffer[0] = 0;
-
-	// Run input loop
-	ShowKeyboardOverlay();
-	while (1) {
-		if (KeyboardOverlayHit() && InputStr(16, buffer, 16, GetKeyboardOverlay()))
-			break;
-		UpdateDisplay();
-	}
-	HideKeyboardOverlay();
-	
-	// Decode arguments
-	va_start(vl, format);	
-	sscanf(buffer, format, vl);
-	va_end(vl);
-	return 1; 
+	POKE(0x02c8, palette[0]);
+	POKE(0x02c4, palette[1]);
+	POKE(0x02c5, palette[2]);
+	POKE(0x02c6, palette[3]);			
+	POKE(0x02c7, palette[4]);			
 }

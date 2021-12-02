@@ -63,19 +63,7 @@
 	extern unsigned char sprLine[SPRITE_NUM], sprOff[SPRITE_NUM], sprColor[SPRITE_NUM];
 	extern unsigned int  sprSrc[SPRITE_NUM], sprDst[SPRITE_NUM];
 	unsigned char *sprData, sprFrames, sprYOffset, sprCollision[SPRITE_NUM], sprCushion = 2;
-	unsigned char sprMask[] = { 1, 2, 4, 8, 1, 2, 4, 8, 1, 2, 4, 8 };
-	void EnableMultiColorSprite(unsigned char index) {
-		EnableSprite(index++);
-		EnableSprite(index);
-	}
-	void DisableMultiColorSprite(unsigned char index) {
-		DisableSprite(index++);
-		DisableSprite(index);		
-	}
-	void SetMultiColorSprite(unsigned char index, unsigned int frame) {
-		SetSprite(index++, frame);
-		SetSprite(index, frame+sprFrames);
-	}
+	unsigned char sprMask[] = { 1, 2, 4, 8, 1, 2, 4, 8, 1, 2, 4, 8 };	
 
 #elif defined __NES__
  #pragma bss-name(push, "XRAM")
