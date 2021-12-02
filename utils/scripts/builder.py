@@ -31,8 +31,8 @@ from PIL import Image, ImageTk
 import os, pickle, pygubu, sys, collections, json, codecs
 
 cCore = [ 'adaptors\\joystick.c','adaptors\\mouse.c',    'geom\\geom2d.c',     'math\\dot.c', 
-          'graphics\\bitmap.c',  'graphics\\charmap.c',  'graphics\\chunks.c', 'graphics\\logos.c',  'graphics\\menu.c',  'graphics\\scaling.c', 'graphics\\sprites.c', 'graphics\\widgets.c', 
-          'network\\net-base.c', 'network\\net-easy.c',  'network\\net-ip.c',  'network\\net-tcp.c', 'network\\net-udp.c', 'network\\net-url.c', 'network\\net-web.c', 
+          'graphics\\bitmap.c',  'graphics\\charmap.c',  'graphics\\chunks.c', 'graphics\\logos.c',  'graphics\\menu.c',   'graphics\\parallax.c', 'graphics\\scaling.c', 'graphics\\sprites.c', 'graphics\\widgets.c', 
+          'network\\net-base.c', 'network\\net-easy.c',  'network\\net-ip.c',  'network\\net-tcp.c', 'network\\net-udp.c', 'network\\net-url.c',   'network\\net-web.c', 
           'strings\\blanks.c',   'strings\\copy.c',      'strings\\input.c',   'strings\\number.c',  'strings\\print.c', 
           'sound\\music.c',      'sound\\sfx.c' ]
 
@@ -151,7 +151,7 @@ class Application:
     listbox_NESSprites = None
     listbox_NESChunks = None
     listbox_NESMusic = None
-    listbox_NESRaw = None
+    listbox_NESMask = None
     
     listbox_OricBitmap = None
     listbox_OricCharset = None
@@ -260,7 +260,7 @@ class Application:
         self.listbox_NESChunks = self.builder.get_object('Listbox_NESChunks')        
         self.listbox_NESSprites = self.builder.get_object('Listbox_NESSprites')        
         self.listbox_NESMusic = self.builder.get_object('Listbox_NESMusic')     
-        self.listbox_NESRaw = self.builder.get_object('Listbox_NESRaw')     
+        self.listbox_NESMask = self.builder.get_object('Listbox_NESMask')     
         self.entry_NESBitmapTiles = self.builder.get_object('Entry_NESBitmapTiles')
         self.entry_NESSpriteFrames = self.builder.get_object('Entry_NESSpriteFrames')
         self.entry_NESSpriteWidth = self.builder.get_object('Entry_NESSpriteWidth')
@@ -313,7 +313,7 @@ class Application:
                            self.listbox_LynxCharset,   self.listbox_OricCharset,  self.listbox_Charmap,
                            self.listbox_AppleBitmapSHR,self.listbox_AppleSpritesSHR, self.listbox_AppleCharsetSHR,
                            self.listbox_NESBitmap,     self.listbox_NESSprites,   self.listbox_NESMusic, 
-                           self.listbox_NESChunks,     self.listbox_NESCharset,   self.listbox_NESRaw ]
+                           self.listbox_NESChunks,     self.listbox_NESCharset,   self.listbox_NESMask ]
         self.comboboxes = [ self.combobox_AtariDiskSize, self.combobox_AppleDiskSize,
                             self.combobox_AppleNetworkDriver, self.combobox_AtariNetworkDriver, self.combobox_C64NetworkDriver,
                             self.combobox_AppleCrunchAssets, self.combobox_AtariCrunchAssets, self.combobox_C64CrunchAssets,
@@ -563,7 +563,7 @@ class Application:
                     ('sprites', ('listbox', self.listbox_NESSprites)),
                     ('music', ('listbox', self.listbox_NESMusic)),
                     ('chunks', ('listbox', self.listbox_NESChunks)),
-                    ('raw', ('listbox', self.listbox_NESRaw)),
+                    ('mask', ('listbox', self.listbox_NESMask)),
                 ]),                
                 ('Oric', [
                     ('spriteFrames', ('entry', self.entry_OricSpriteFrames)),
@@ -825,14 +825,14 @@ class Application:
     def NESMusicRem(self):
         self.listbox_NESMusic.delete(0, ACTIVE)         
 
-    def NESRawAdd(self):
-        filename = askopenfilename(initialdir = "../../", title = "Select Raw Data", filetypes = (("Raw data","*.*"),)) 
+    def NESMaskAdd(self):
+        filename = askopenfilename(initialdir = "../../", title = "Select Mask Data", filetypes = (("Mask data","*.msk"),)) 
         if filename is not '':
             filename = filename.replace(self.cwd, '')
-            self.listbox_NESRaw.insert(END, filename)
+            self.listbox_NESMask.insert(END, filename)
 
-    def NESRawRem(self):
-        self.listbox_NESRaw.delete(0, ACTIVE)
+    def NESMaskRem(self):
+        self.listbox_NESMask.delete(0, ACTIVE)
     
     def OricBitmapAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Bitmap", filetypes = (("PNG files","*.png"),)) 
@@ -1033,8 +1033,8 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Build Unity Library
-            cTarget = [ 'graphics\\pixel.c', 'targets\\atari\\directory.c', 'targets\\atari\\files.c' ]
-            sTarget = [ 'graphics\\scroll.s', 'strings\\chars.s', 'targets\\atari\\blitCharmap.s', 'targets\\atari\\blitSprites.s', 'targets\\atari\\decrunch.s', 'targets\\atari\\DLIST-bmp.s', 'targets\\atari\\DLIST-chr.s', 'targets\\atari\\DLI.s', 'targets\\atari\\ROM.s', 'targets\\atari\\VBI.s', 'targets\\atari\\xbios.s' ]
+            cTarget = [ 'graphics\\pixel.c', 'targets\\atari\\directory.c', 'targets\\atari\\display.c', 'targets\\atari\\files.c', 'targets\\atari\\pmg.c' ]
+            sTarget = [ 'graphics\\scroll.s', 'strings\\chars.s', 'targets\\atari\\blitCharmap.s', 'targets\\atari\\blitSprites.s', 'targets\\atari\\decrunch.s', 'targets\\atari\\DLIST-bmp.s', 'targets\\atari\\DLIST-chr.s', 'targets\\atari\\DLIST-plx.s', 'targets\\atari\\DLI.s', 'targets\\atari\\ROM.s', 'targets\\atari\\VBI.s', 'targets\\atari\\xbios.s' ]
             symbols = ''
             if '8bit-Hub' in self.combobox_AtariNetworkDriver.get(): 
                 cTarget.append('adaptors\\hub.c')
@@ -1514,7 +1514,7 @@ class Application:
         sprites = list(self.listbox_NESSprites.get(0, END))
         chunks = list(self.listbox_NESChunks.get(0, END))
         music = list(self.listbox_NESMusic.get(0, END))
-        raw = list(self.listbox_NESRaw.get(0, END))
+        mask = list(self.listbox_NESMask.get(0, END))
         maxTiles = int(self.entry_NESBitmapTiles.get())
         with open('../../' + buildFolder+'/'+diskname+"-nes.bat", "wb") as fp:
             # Info
@@ -1556,8 +1556,8 @@ class Application:
                 fp.write('copy ' + item.replace('/', '\\') + ' ' + buildFolder + '\\nes\\music.txt\n')
                 fp.write('utils\\scripts\\nes\\text2data -ca65 build/nes/music.txt\n\n')
 
-            if len(raw) > 0:             
-                for item in raw:
+            if len(mask) > 0:             
+                for item in mask:
                     fb = FileBase(item, '')
                     fp.write('copy ' + item.replace('/', '\\') + ' ' + buildFolder + '\\nes\\' + fb + '\n')
                 fp.write('\n')                
@@ -1583,7 +1583,7 @@ class Application:
             fp.write('set /a CHUNKNUM=0\n')
             if len(chunks) > 0:
                 fp.write('for /f "tokens=*" %%A in (chunks.lst) do set CHUNKNAMES=!CHUNKNAMES!_shkName!CHUNKNUM!,&&set /a CHUNKNUM+=1\n')
-            fp.write('set /a FILENUM=!CHUNKNUM!+' + str(len(bitmaps)+len(charset)+len(charmaps)+len(raw)+len(shared)) + '\n')
+            fp.write('set /a FILENUM=!CHUNKNUM!+' + str(len(bitmaps)+len(charset)+len(charmaps)+len(mask)+len(shared)) + '\n')
             fp.write('\n')
             
             # Get Size of various files
@@ -1597,7 +1597,7 @@ class Application:
             for item in charmaps:
                 fb = FileBase(item, '')
                 filelist += fb + ','
-            for item in raw:
+            for item in mask:
                 fb = FileBase(item, '')
                 filelist += fb + ','
             for item in shared:
@@ -1636,7 +1636,7 @@ class Application:
             fp.write('@echo _fileNum: .byte %FILENUM% >> data.asm\n')  
 
             # List of file names and data
-            if len(bitmaps) > 0 or len(charmaps) > 0 or len(charset) > 0 or len(raw) > 0 or len(shared) > 0:
+            if len(bitmaps) > 0 or len(charmaps) > 0 or len(charset) > 0 or len(mask) > 0 or len(shared) > 0:
                 # Declare all Bitmap, Shared and Chunk files
                 fp.write('@echo _fileSizes: .word %FILESIZES:~0,-1% >> data.asm\n')
                 fp.write('@echo _fileBanks: .byte %FILEBANKS:~0,-1% >> data.asm\n')
@@ -1657,10 +1657,10 @@ class Application:
                         fp.write(',')
                     fp.write('_mapName' + str(i).zfill(2))
                     counter += 1
-                for i in range(len(raw)):
+                for i in range(len(mask)):
                     if counter > 0:
                         fp.write(',')
-                    fp.write('_rawName' + str(i).zfill(2))
+                    fp.write('_maskName' + str(i).zfill(2))
                     counter += 1
                 for i in range(len(shared)):
                     if counter > 0:
@@ -1684,10 +1684,10 @@ class Application:
                     fb = FileBase(charmaps[i], '')
                     fp.write('@echo _mapName' + str(i).zfill(2) + ': .byte "' + fb + '",0 >> data.asm\n')
 
-                # Write list of Raw files
-                for i in range(len(raw)):
-                    fb = FileBase(raw[i], '')
-                    fp.write('@echo _rawName' + str(i).zfill(2) + ': .byte "' + fb + '",0 >> data.asm\n')
+                # Write list of Mask files
+                for i in range(len(mask)):
+                    fb = FileBase(mask[i], '')
+                    fp.write('@echo _maskName' + str(i).zfill(2) + ': .byte "' + fb + '",0 >> data.asm\n')
                     
                 # Write list of Shared
                 for i in range(len(shared)):
@@ -1716,10 +1716,10 @@ class Application:
                 fp.write('@echo .segment "BANK!BANKS[%i]!" >> data.asm\n' % counter)
                 fp.write('@echo _mapData' + str(i).zfill(2) + ': .incbin "' + fb + '" >> data.asm\n')                
                 counter += 1
-            for i in range(len(raw)):
-                fb = FileBase(raw[i], '')
+            for i in range(len(mask)):
+                fb = FileBase(mask[i], '')
                 fp.write('@echo .segment "BANK!BANKS[%i]!" >> data.asm\n' % counter)
-                fp.write('@echo _rawData' + str(i).zfill(2) + ': .incbin "' + fb + '" >> data.asm\n')                
+                fp.write('@echo _maskData' + str(i).zfill(2) + ': .incbin "' + fb + '" >> data.asm\n')                
                 counter += 1
             for i in range(len(shared)):
                 fb = FileBase(shared[i], '')
