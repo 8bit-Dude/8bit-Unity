@@ -99,43 +99,6 @@ void ResetLineUp()
 	}
 }
 
-// Function to check ramp logics
-Ramp *ramp;
-char CheckRamps(Vehicle *car)
-{
-    // Gotta check them all...
-    unsigned char i;
-	for (i=0; i<numRamps; ++i) {
-        ramp = &ramps[i];
-        if (car->x2 < ramp->x[0] && car->x2 < ramp->x[1]) { continue; }
-        if (car->x2 > ramp->x[0] && car->x2 > ramp->x[1]) { continue; }
-        if (car->y2 < ramp->y[0] && car->y2 < ramp->y[1]) { continue; }
-        if (car->y2 > ramp->y[0] && car->y2 > ramp->y[1]) { continue; }
-        return 1;
-    }
-    return 0;
-}
-
-int GetWaypointAngle(Vehicle *car)
-{
-	unsigned char dx = 128, dy = 128;	
-	GetWaypoint(car);
-	dx += (way->x + 8*vWay[0] - car->x2)/16u;
-	dy -= (way->y + 8*vWay[1] - car->y2)/16u;
-	return (45*(unsigned int)atan2(dy,dx))/32u;
-}
-
-void GetWaypoint(Vehicle *car)
-{
-	// Prepare waypoint variables
-	way = &ways[car->way/2u];
-	vWay = way->v[car->way&1];
-}
-
-#ifdef __ATARIXL__
-  #pragma code-name("SHADOW_RAM")
-#endif
-
 // Functions to check navigation around cylinders
 signed char v1[2], v2[2], dist[2], cross[2];
 
@@ -190,4 +153,43 @@ char CheckWaypoint(Vehicle *car)
 	return 0;
 }
 
+#ifdef __ATARIXL__
+  #pragma code-name("SHADOW_RAM")
+#endif
 
+// Function to check ramp logics
+Ramp *ramp;
+char CheckRamps(Vehicle *car)
+{
+    // Gotta check them all...
+    unsigned char i;
+	for (i=0; i<numRamps; ++i) {
+        ramp = &ramps[i];
+        if (car->x2 < ramp->x[0] && car->x2 < ramp->x[1]) { continue; }
+        if (car->x2 > ramp->x[0] && car->x2 > ramp->x[1]) { continue; }
+        if (car->y2 < ramp->y[0] && car->y2 < ramp->y[1]) { continue; }
+        if (car->y2 > ramp->y[0] && car->y2 > ramp->y[1]) { continue; }
+        return 1;
+    }
+    return 0;
+}
+
+void GetWaypoint(Vehicle *car)
+{
+	// Prepare waypoint variables
+	way = &ways[car->way/2u];
+	vWay = way->v[car->way&1];
+}
+
+#ifdef __APPLE2__
+  #pragma code-name("LC")
+#endif
+
+int GetWaypointAngle(Vehicle *car)
+{
+	unsigned char dx = 128, dy = 128;	
+	GetWaypoint(car);
+	dx += (way->x + 8*vWay[0] - car->x2)/16u;
+	dy -= (way->y + 8*vWay[1] - car->y2)/16u;
+	return (45*(unsigned int)atan2(dy,dx))/32u;
+}

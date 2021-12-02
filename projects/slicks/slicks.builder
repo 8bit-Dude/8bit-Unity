@@ -7,6 +7,7 @@
             "projects/slicks/src/slicks.c", 
             "projects/slicks/src/game.c", 
             "projects/slicks/src/interface.c", 
+            "projects/slicks/src/consoles.c", 
             "projects/slicks/src/navigation.c", 
             "projects/slicks/src/network.c", 
             "projects/slicks/src/sfx.c"
@@ -21,9 +22,7 @@
             "projects/slicks/navigation/mtcarlo.nav", 
             "projects/slicks/navigation/rally.nav", 
             "projects/slicks/navigation/river.nav", 
-            "projects/slicks/navigation/stadium.nav", 
-            "projects/slicks/navigation/suzuka.nav", 
-            "projects/slicks/navigation/trial.nav"
+            "projects/slicks/navigation/stadium.nav"
         ], 
         "charmap": [], 
         "tilesize": "None", 
@@ -45,9 +44,7 @@
                 "projects/slicks/bitmaps/mtcarlo-apple-dhr.png", 
                 "projects/slicks/bitmaps/rally-apple-dhr.png", 
                 "projects/slicks/bitmaps/river-apple-dhr.png", 
-                "projects/slicks/bitmaps/stadium-apple-dhr.png", 
-                "projects/slicks/bitmaps/suzuka-apple-dhr.png", 
-                "projects/slicks/bitmaps/trial-apple-dhr.png"
+                "projects/slicks/bitmaps/stadium-apple-dhr.png"
             ], 
             "bitmapSHR": [
                 "projects/slicks/bitmaps/menu-apple-shr.png", 
@@ -60,9 +57,7 @@
                 "projects/slicks/bitmaps/mtcarlo-apple-shr.png", 
                 "projects/slicks/bitmaps/rally-apple-shr.png", 
                 "projects/slicks/bitmaps/river-apple-shr.png", 
-                "projects/slicks/bitmaps/stadium-apple-shr.png", 
-                "projects/slicks/bitmaps/suzuka-apple-shr.png", 
-                "projects/slicks/bitmaps/trial-apple-shr.png"
+                "projects/slicks/bitmaps/stadium-apple-shr.png"
             ], 
             "charsetDHR": [], 
             "charsetSHR": [], 
@@ -95,9 +90,7 @@
                 "projects/slicks/bitmaps/mtcarlo-atari.png", 
                 "projects/slicks/bitmaps/rally-atari.png", 
                 "projects/slicks/bitmaps/river-atari.png", 
-                "projects/slicks/bitmaps/stadium-atari.png", 
-                "projects/slicks/bitmaps/suzuka-atari.png", 
-                "projects/slicks/bitmaps/trial-atari.png"
+                "projects/slicks/bitmaps/stadium-atari.png"
             ], 
             "charset": [], 
             "sprites": [
@@ -126,9 +119,7 @@
                 "projects/slicks/bitmaps/mtcarlo-c64.png", 
                 "projects/slicks/bitmaps/rally-c64.png", 
                 "projects/slicks/bitmaps/river-c64.png", 
-                "projects/slicks/bitmaps/stadium-c64.png", 
-                "projects/slicks/bitmaps/suzuka-c64.png", 
-                "projects/slicks/bitmaps/trial-c64.png"
+                "projects/slicks/bitmaps/stadium-c64.png"
             ], 
             "charset": [], 
             "charsetColors": " ", 
@@ -160,9 +151,7 @@
                 "projects/slicks/bitmaps/mtcarlo-lynx.png", 
                 "projects/slicks/bitmaps/rally-lynx.png", 
                 "projects/slicks/bitmaps/river-lynx.png", 
-                "projects/slicks/bitmaps/stadium-lynx.png", 
-                "projects/slicks/bitmaps/suzuka-lynx.png", 
-                "projects/slicks/bitmaps/trial-lynx.png"
+                "projects/slicks/bitmaps/stadium-lynx.png"
             ], 
             "charset": [], 
             "sprites": [
@@ -189,9 +178,7 @@
                 "projects/slicks/bitmaps/mtcarlo-nes.png", 
                 "projects/slicks/bitmaps/rally-nes.png", 
                 "projects/slicks/bitmaps/river-nes.png", 
-                "projects/slicks/bitmaps/stadium-nes.png", 
-                "projects/slicks/bitmaps/suzuka-nes.png", 
-                "projects/slicks/bitmaps/trial-nes.png"
+                "projects/slicks/bitmaps/stadium-nes.png"
             ], 
             "charset": [], 
             "sprites": [
@@ -211,9 +198,7 @@
                 "projects/slicks/masks/mtcarlo.msk", 
                 "projects/slicks/masks/rally.msk", 
                 "projects/slicks/masks/river.msk", 
-                "projects/slicks/masks/stadium.msk", 
-                "projects/slicks/masks/suzuka.msk", 
-                "projects/slicks/masks/trial.msk"
+                "projects/slicks/masks/stadium.msk"
             ]
         }, 
         "Oric": {
@@ -233,9 +218,7 @@
                 "projects/slicks/bitmaps/mtcarlo-oric.png", 
                 "projects/slicks/bitmaps/rally-oric.png", 
                 "projects/slicks/bitmaps/river-oric.png", 
-                "projects/slicks/bitmaps/stadium-oric.png", 
-                "projects/slicks/bitmaps/suzuka-oric.png", 
-                "projects/slicks/bitmaps/trial-oric.png"
+                "projects/slicks/bitmaps/stadium-oric.png"
             ], 
             "charset": [], 
             "sprites": [

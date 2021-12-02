@@ -54,7 +54,11 @@ void JumpSFX(unsigned char index)
 void ScreechSFX(unsigned char index)
 {
 	sfx[index] = SFX_SCREECH;
+#if defined(__CBM__)	
+	frq[index] = 160;
+#else
 	frq[index] = 192;
+#endif
 	vol[index] = VOLUME_HIGH;
 }
 

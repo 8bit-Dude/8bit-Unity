@@ -42,11 +42,11 @@
 #endif
 
 // Build Information
-const char* buildInfo = "BUILD: 2021/11/27";
+const char* buildInfo = "BUILD: 2021/12/02";
 
 // List of available maps
-unsigned char mapNum  = 12;
-const char *mapList[] = {"arizona","arto","cramp","freeway","gta","island","mtcarlo","rally","river","stadium","suzuka","trial"};
+unsigned char mapNum  = 10;
+const char *mapList[] = {"arizona","arto","cramp","freeway","gta","island","mtcarlo","rally","river","stadium"};
 
 // List of lap goals
 unsigned char lapNumber[] = { 5, 10, 20, 50 };

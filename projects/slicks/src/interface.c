@@ -10,85 +10,6 @@
   #pragma code-name("BANK0")
 #endif
 
-// Platform specific colors
-#if defined __APPLE2__
-	#define INK_LAPS   	 RED
-	#define INK_TAB		 GREEN
-	#define INK_HIGHLT	 BLACK
-	#define PAPER_HIGHLT YELLOW
-	#define PAPER_SCORES BLACK
-	#define SCORES_COL   	12
-	#define SCORES_ROW   	 7
-#elif defined __ATARI__
-	#define INK_LAPS   	 RED
-	#define INK_TAB		 GREEN
-	#define INK_HIGHLT	 BLACK
-	#define PAPER_HIGHLT YELLOW
-	#define PAPER_SCORES BLACK
-	#define SCORES_COL   	12
-	#define SCORES_ROW   	 7
-#elif defined __ORIC__
-	#define INK_LAPS   	 RED
-	#define INK_TAB		 GREEN
-	#define INK_HIGHLT	 BLACK
-	#define PAPER_HIGHLT YELLOW
-	#define PAPER_SCORES BLACK
-	#define SCORES_COL   	12
-	#define SCORES_ROW   	 7
-#elif defined __CBM__
-	#define INK_LAPS   	 RED
-	#define INK_TAB		 GREEN
-	#define INK_HIGHLT	 BLACK
-	#define PAPER_HIGHLT YELLOW
-	#define PAPER_SCORES BLACK
-	#define SCORES_COL   	12
-	#define SCORES_ROW   	 7
-#elif defined __LYNX__
-	#define INK_LAPS   	 RED
-	#define INK_TAB		 YELLOW	
-	#define INK_HIGHLT	 WHITE
-	#define PAPER_HIGHLT BLACK
-	#define PAPER_SCORES BLACK
-	#define SCORES_COL   	 12
-	#define SCORES_ROW   	  3
-	#define PAUSE_COL 		 15
-	#define PAUSE_LOCAL_ROW   6
-	#define PAUSE_ONLINE_ROW  2
-#elif defined __NES__
-	#define INK_LAPS   	 RED
-	#define INK_TAB		 GREEN
-	#define INK_HIGHLT	 BLACK
-	#define PAPER_HIGHLT YELLOW
-	#define PAPER_SCORES BLACK
-	#define SCORES_COL   	 12
-	#define SCORES_ROW   	  7
-	#define PAUSE_COL 		  7
-	#define PAUSE_LOCAL_ROW   6
-	#define PAUSE_ONLINE_ROW  2
-#endif
-
-// Platform specific panel location/size
-#if defined __LYNX__
-	void __fastcall__ SuzyFlip(void);
-	#define MENU_COL 22
-	#define MENU_ROW  2
-	#define MENU_WID 17
-	#define MENU_HEI 13
-	#define MENU_BLD TXT_ROWS-1
-#elif defined __NES__
-	#define MENU_COL 14
-	#define MENU_ROW  4
-	#define MENU_WID 18
-	#define MENU_HEI 16
-	#define MENU_BLD TXT_ROWS-2
-#else
-	#define MENU_COL 22
-	#define MENU_ROW  4
-	#define MENU_WID 17
-	#define MENU_HEI 16
-	#define MENU_BLD TXT_ROWS-2
-#endif
-
 // See slicks.c
 extern const char* buildInfo, *mapList[]; 
 extern unsigned char mapNum, lapNumber[], inkColors[];
@@ -97,6 +18,9 @@ extern unsigned char mapNum, lapNumber[], inkColors[];
 extern unsigned char gameMode, gameMap, gameStep;
 extern unsigned char lapIndex, lapGoal;
 extern unsigned int lapBest[MAX_PLAYERS];
+
+// See consoles.c
+extern unsigned char cursorBut2, cursorKey, cursorTop;
 
 // See navigation.c
 extern Vehicle cars[MAX_PLAYERS];
@@ -108,6 +32,12 @@ extern unsigned char clName[MAX_PLAYERS][5];
 extern unsigned char clIndex, clUser[5], clPass[13];
 extern char networkReady, chatBuffer[20], udpBuffer[28];
 
+// List of best lap times
+unsigned int bestLapTime[] = { 6039, 6039, 6039, 6039, 6039, 6039, 
+							   6039, 6039, 6039, 6039, 6039, 6039,
+							   6039, 6039, 6039, 6039, 6039, 6039,
+							   6039, 6039, 6039, 6039 };
+
 // List of controller types
 #if defined __LYNX__
   unsigned char controlIndex[MAX_PLAYERS] = { 4, 1, 1, 1 };
@@ -117,6 +47,7 @@ extern char networkReady, chatBuffer[20], udpBuffer[28];
   unsigned char controlBackup[MAX_PLAYERS] = { 4, 1, 0, 0 };
 #endif
 
+// List of controller strings
 #if defined __APPLE2__
   const char* controlList[LEN_CONTROL] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "PADDLE 1", "PADDLE 2", "PADDLE 3", "PADDLE 4", "NETWORK" };
 #elif defined __ATARI__
@@ -155,20 +86,20 @@ unsigned char serversLoaded;
 // Chat Row Management
 #if defined __APPLE2__
  #if defined __DHR__
-  static char chatBG[320];
+  char chatBG[320];
  #else
-  static char chatBG[160];
+  char chatBG[160];
  #endif
 #elif defined __ATARI__
-  static char chatBG[320];
+  char chatBG[320];
 #elif defined __ORIC__
-  static char chatBG[160];
+  char chatBG[160];
 #elif defined __CBM__
-  static char chatBG[180];
+  char chatBG[180];
 #elif defined __LYNX__
-  static char chatBG[1440];
+  char chatBG[1440];
 #elif defined __NES__
-  static char chatBG[20];
+  char chatBG[20];
 #endif
 
 void BackupRestoreChatRow(unsigned char mode)
@@ -305,272 +236,6 @@ void InputField(char *buffer, unsigned char len)
 #endif
 }
 
-#if defined(__LYNX__) || defined(__NES__)
-unsigned char gamePaused = 0;
-const unsigned char *pauseLabel[] = { "resume", "race!", "next!", "quit", "bye!", "congrats", "hang on", "hello!", "ready", "so close", "thanks!", "yes" };
-const unsigned char pauseAction[] = { KB_PAUSE, KB_START, KB_NEXT, KB_QUIT, 4, 5, 6, 7, 8, 9, 10, 11 };
-unsigned char cursorJoy, cursorKey, cursorBut2, cursorPressed;
-unsigned char cursorFlick, cursorCol = MENU_COL, cursorRow = MENU_ROW+2;
-unsigned char cursorTop = MENU_ROW+2, cursorHeight = MENU_HEI-2;
-clock_t cursorClock;
-
-#if defined(__LYNX__)
-char eepromID[] = "SLICKS";
-
-void LynxResetEEPROM(void)
-{
-	unsigned char i; 
-	
-	// Write ID and Blanks to EEPROM
-	i = 0;
-	while (i < 6) {	
-		lynx_eeprom_write(i, eepromID[i]);
-		i++;	
-	}
-	while (i < 64) {
-		lynx_eeprom_write(i, 0);
-		i++;
-	}
-}
-
-void LynxReadEEPROM()
-{
-	unsigned char i;
-	
-	// Check EEPROM ID
-	i = 0;
-	while (i < 6) {
-		if (eepromID[i] != (unsigned char)lynx_eeprom_read(i)) {
-			LynxResetEEPROM();
-			return;
-		}
-		i++;
-	}
-
-	// Read user/pass from EEPROM?
-	i = 0;
-	while (i < 18) {
-		clUser[i] = (unsigned char)lynx_eeprom_read(i+6);
-		i++;
-	}
-}
-
-void LynxWriteEEPROM(void)
-{
-	unsigned char i; 
-	
-	// Write ID/User/Pass to EEPROM
-	i = 0;
-	while (i < 6) {	
-		lynx_eeprom_write(i, eepromID[i]);
-		i++;	
-	}
-	i = 0;
-	while (i < 18) {	
-		lynx_eeprom_write(i+6, clUser[i]);
-		i++;
-	}	
-}
-#endif
-
-void LynxCursorFlicker()
-{
-	// Only do preiodically
-	if (clock()-cursorClock < 20) { return; }
-	cursorClock = clock();
-	
-	// Reset Column and show Cursor
-	txtX = cursorCol; txtY = cursorTop;
-	PrintBlanks(2, cursorHeight);
-	if (cursorFlick) {
-		inkColor = YELLOW;
-		txtY = cursorRow;
-		PrintChr('-'); txtX++;
-		PrintChr(')');
-		inkColor = WHITE;
-	}
-	cursorFlick = !cursorFlick;
-}
-
-void LynxCursorControl()
-{
-	// Process screen flips
-	if (kbhit()) {
-		switch (cgetc()) {
-	#ifdef __LYNX__
-		case KB_FLIP:
-			SuzyFlip();
-			break;
-		case KB_MUSIC:
-			if (!gamePaused)
-				NextMusic(0);
-			break;
-		case KB_NEXT:
-			LynxResetEEPROM();
-			BleepSFX(128);
-			break;
-	#endif
-		case KB_PAUSE:
-			cursorKey = KB_PAUSE;
-			return;
-		}
-	}
-	
-	// Check if cursor was already pressed
-	cursorKey = 0;
-	cursorJoy = GetJoy(0);
-	if (cursorJoy != 255) {
-		if (cursorPressed) { return; }
-		cursorPressed = 1;
-		cursorFlick = 1;
-		cursorClock = 0;
-	} else { 
-		cursorPressed = 0; 
-	}
-	
-	// Process next event
-	if (!(cursorJoy & JOY_LEFT)) { 
-		if (!gamePaused) {
-				 if (gameMode == MODE_INFO)   { cursorKey = KB_O; cursorRow = MENU_ROW+2; }
-			else if (gameMode == MODE_ONLINE) { cursorKey = KB_L; cursorRow = MENU_ROW+2; }
-		}
-	}	
-	if (!(cursorJoy & JOY_RIGHT)) { 
-		if (!gamePaused) {
-				 if (gameMode == MODE_LOCAL)  { cursorKey = KB_O; cursorRow = MENU_ROW+2; }
-			else if (gameMode == MODE_ONLINE) { cursorKey = KB_I; cursorRow = MENU_ROW+2; }
-		}
-	}	
-	if (!(cursorJoy & JOY_UP)) { 
-		cursorRow -= 1; 
-		if (gamePaused) {
-			if (cursorRow < cursorTop) {
-				if (gameMode == MODE_LOCAL) {
-					cursorRow = PAUSE_LOCAL_ROW+3;
-				} else {
-					cursorRow = PAUSE_ONLINE_ROW+11;
-				}
-			}
-		} else {		
-			if (gameMode == MODE_LOCAL) {
-					 if (cursorRow  < MENU_ROW+2)  { cursorRow = MENU_ROW+11;}			
-				else if (cursorRow == MENU_ROW+6)  { cursorRow = MENU_ROW+5; }			
-				else if (cursorRow == MENU_ROW+8)  { cursorRow = MENU_ROW+7; }			
-				else if (cursorRow == MENU_ROW+10) { cursorRow = MENU_ROW+9; }			
-			} else if (gameMode == MODE_ONLINE) {
-					 if (cursorRow  < MENU_ROW+2)  { cursorRow = MENU_ROW+10; }
-			}
-		}
-	}
-	if (!(cursorJoy & JOY_DOWN)) { 
-		cursorRow += 1; 
-		if (gamePaused) {
-			if (gameMode == MODE_LOCAL) {
-			    if (cursorRow > PAUSE_LOCAL_ROW+3)  { cursorRow = cursorTop; }
-			} else {
-				if (cursorRow > PAUSE_ONLINE_ROW+11) { cursorRow = cursorTop; }
-			}
-		} else {
-			if (gameMode == MODE_LOCAL) {
-					 if (cursorRow  > MENU_ROW+11) { cursorRow = MENU_ROW+2; }
-				else if (cursorRow == MENU_ROW+10) { cursorRow = MENU_ROW+11; }
-				else if (cursorRow == MENU_ROW+8)  { cursorRow = MENU_ROW+9; }			
-				else if (cursorRow == MENU_ROW+6)  { cursorRow = MENU_ROW+7; }			
-			} else if (gameMode == MODE_ONLINE) {
-					 if (cursorRow  > MENU_ROW+10) { cursorRow = MENU_ROW+2; }
-			}
-		}
-	}
-	if (!(cursorJoy & JOY_BTN1) || !(cursorJoy & JOY_BTN2)) { 
-		cursorBut2 = 0;
-		if (!(cursorJoy & JOY_BTN2))
-			cursorBut2 = 1;
-		if (gamePaused) {
-				cursorKey = pauseAction[cursorRow-cursorTop];
-		} else {
-			if (gameMode == MODE_LOCAL) {
-					 if (cursorRow == MENU_ROW+11) { cursorKey = KB_SP; }
-				else if (cursorRow == MENU_ROW+9)  { cursorKey = KB_L; }
-				else if (cursorRow == MENU_ROW+7)  { cursorKey = KB_M; }
-				else if (cursorRow >= MENU_ROW+2)  { cursorKey = 49 - (MENU_ROW+2) + cursorRow; }
-			}   else if (gameMode == MODE_ONLINE)  { cursorKey = 49 - (MENU_ROW+2) + cursorRow; }
-		}
-	}
-}
-
-void BackupRestorePauseBg(unsigned char mode)
-{
-	unsigned char i;
-	unsigned int addr1 = chatBG;
-#if defined(__LYNX__)	
-	unsigned int addr2 = BITMAPRAM+1+2*PAUSE_COL+492*PAUSE_ONLINE_ROW;
-#elif defined(__NES__)	
-	unsigned int addr2 = PAUSE_COL+32*PAUSE_ONLINE_ROW;
-#endif
-	for (i=0; i<(12*6); ++i) {
-		if (!mode)
-			memcpy(addr1, addr2, 20);
-		else
-			memcpy(addr2, addr1, 20);
-		addr1 += 20; addr2 += 82;
-	}		
-	
-}
-
-unsigned char pauseEvt;
-
-unsigned char MenuPause()
-{
-	unsigned char i;
-	
-	// Set Cursor and Print options
-	cursorCol = PAUSE_COL;
-	if (gameMode == MODE_LOCAL) {
-		cursorHeight = 4;	
-		cursorRow = PAUSE_LOCAL_ROW;
-		cursorTop = PAUSE_LOCAL_ROW;
-	} else {
-		cursorHeight = 12;	
-		cursorRow = PAUSE_ONLINE_ROW;
-		cursorTop = PAUSE_ONLINE_ROW;
-	}		
-	paperColor = PAPER_SCORES;
-	txtX = PAUSE_COL; txtY = cursorRow;
-	PrintBlanks(10, cursorHeight);
-	inkColor = WHITE;
-	txtX = PAUSE_COL+2; 
-	for (i=0; i<cursorHeight; i++) {
-		if (i>3) inkColor = inkColors[clIndex];
-		PrintStr(pauseLabel[i]);
-		txtY++;
-	}
-	inkColor = WHITE;
-			
-	while (!kbhit()) {
-		// In online mode, check if a race/map/timeout event occured
-		if (gameMode == MODE_ONLINE) {
-			pauseEvt = NetworkUpdate();
-			if (pauseEvt == EVENT_RACE || pauseEvt == EVENT_MAP || pauseEvt == ERR_TIMEOUT)
-				return 0;
-		}
-		// Process Cursor
-		LynxCursorControl();
-		if (cursorKey) { 
-			if (gameMode == MODE_ONLINE && cursorKey < 12) {
-				// Process chat event then exit menu
-				memcpy(chatBuffer, pauseLabel[cursorKey], 9);
-				ClientEvent(EVENT_CHAT);
-				return KB_PAUSE;
-			} else {
-				return cursorKey; 
-			}
-		}
-		LynxCursorFlicker(); 
-		UpdateDisplay();
-	}	
-}
-#endif
-
 #if defined __ATARIXL__
 // Sub-function of GameMenu()
 void MenuGFX()
@@ -689,9 +354,34 @@ void SpriteAnimation(unsigned char index, unsigned char frame)
 	SetSprite(index, frame);
 }
 
-#ifdef __APPLE2__
-  #pragma code-name("LC")
-#endif
+void PrintBestLap(unsigned int ticks, unsigned char tckPerSec) 
+{	
+	unsigned int d; 
+	
+	// Print second	
+	d = ticks/tckPerSec;
+	if (d>99)
+		d = 99;
+	if (d<10)
+		txtX++; 
+	PrintNum(d);
+
+	// Print decimal point
+	txtX++; 
+	if (d>=10)
+		txtX++; 
+	PrintStr(".  \"");
+	txtX++; 
+
+	// Print hundreds of second	
+	if (d<99)
+		d = ((ticks%tckPerSec)*100)/tckPerSec;
+	if (d<10) {
+		PrintChr('0'); 
+		txtX++; 
+	}
+	PrintNum(d);
+}
 
 // Print score after round ends
 extern Waypoint *way;
@@ -699,7 +389,7 @@ extern signed char *vWay;
 void PrintScores()
 {
 	Vehicle *car;
-	unsigned char i, j, scale;
+	unsigned char i, j, tckPerSec;
 	signed int dx, dy, s;
 	unsigned int d;
 	unsigned int dist[4] = {0, 0, 0, 0};
@@ -768,6 +458,12 @@ void PrintScores()
         }				
 	}
 	
+	// Time scale (ticks per secs)
+	if (gameMode == MODE_LOCAL)
+		tckPerSec = TCK_PER_SEC;
+	else
+		tckPerSec = 100;	
+	
 	// Create blank area
 	paperColor = PAPER_SCORES; inkColor = WHITE;
 	txtX = SCORES_COL; txtY = SCORES_ROW;
@@ -795,43 +491,21 @@ void PrintScores()
 			txtX = SCORES_COL+6; SetAttributes(inkColor);
 		#endif		
 			txtX = SCORES_COL+7; PrintChr('-');
-			
-			// Scale (ticks per secs)
-			if (gameMode == MODE_LOCAL)
-				scale = TCK_PER_SEC;
-			else
-				scale = 100;
-			
-			if (lapBest[j] < 65500) {
-				// Print second
-				d = lapBest[j]/scale;
-				if (d<10) {
-					txtX = SCORES_COL+10; 
-				} else 
-				if (d<100) {
-					txtX = SCORES_COL+9; 
-				} else {
-					txtX = SCORES_COL+8; 
-				}
-				PrintNum(d);
-				
-				// Print hundreds of second
-				d = ((lapBest[j]%scale)*100)/scale;
-				txtX = SCORES_COL+11; 
-				PrintChr('.');	txtX++; 				
-				if (d<10) {
-					PrintChr('0'); txtX++; 
-				}
-				PrintNum(d); txtX = SCORES_COL+14; 
-				PrintChr('"');				
-			}
+		
+			// Display best lap time
+			d = lapBest[j];
+			txtX = SCORES_COL+9;
+			PrintBestLap(d, tckPerSec);				
+			if (gameMode == MODE_LOCAL && controlIndex[j]>3 && d < bestLapTime[gameMap])
+				bestLapTime[gameMap] = d;
 		#if defined __ORIC__
 			txtX = SCORES_COL+20; SetAttributes(AIC);
-		#endif			
+		#endif
 		}
 	}
 #if defined __LYNX__
 	UpdateDisplay();
+	WriteEEPROM();
 #endif		
 	// Wait a few seconds
 	paperColor = BLACK;
@@ -873,11 +547,10 @@ unsigned char MenuWait()
 			}
 		}	
 	#if defined(__LYNX__) || defined(__NES__)
-		LynxCursorControl();
+		CursorControl();
 		if (cursorKey) { return cursorKey; }
-		if (gameMode == MODE_LOCAL || (gameMode == MODE_ONLINE && serversLoaded)) { 
-			LynxCursorFlicker(); 
-		}			
+		if (gameMode == MODE_LOCAL || (gameMode == MODE_ONLINE && serversLoaded)) 
+			CursorFlicker(); 		
 		UpdateDisplay(); // Refresh Lynx screen
 	#endif	
 	}
@@ -961,7 +634,7 @@ unsigned char MenuLogin(unsigned char serverIndex)
 	PrintBlanks(MENU_WID, MENU_HEI-2);
 	
 #if defined __LYNX__
-	LynxReadEEPROM();
+	ReadEEPROM();
 	SetKeyboardOverlay(11,60);
 #endif	
 
@@ -976,26 +649,26 @@ unsigned char MenuLogin(unsigned char serverIndex)
 	do {
 		InputField(clUser, 4);
 	} while (!clUser[0]);
-	txtX += strlen(clUser); PrintChr(' ');
 	maskInput = 1;
 	txtY = MENU_ROW+6;
 	txtX = MENU_COL+6;
 	do {
 		InputField(clPass, 10);	
 	} while (!clPass[0]);
-	txtX += strlen(clPass); PrintChr(' ');
 	maskInput = 0;
 	
 #if defined __LYNX__ 
-	LynxWriteEEPROM();
+	WriteEEPROM();
 #endif
 	
-	// Show action message
+	// Try to connect...
 	inkColor = YELLOW;
 	txtX = MENU_COL+2; txtY = MENU_ROW+11;
 	PrintStr("CONNECTING...");
 	ServerConnect();	
-	res = ClientJoin(serverIndex);	
+	res = ClientJoin(serverIndex);
+
+	// Show answer 	
 	inkColor = WHITE;
 	txtX = MENU_COL+1; txtY = MENU_ROW+12;
 	if (res == ERR_MESSAGE) {
@@ -1014,6 +687,8 @@ unsigned char MenuLogin(unsigned char serverIndex)
 		gameStep = svStep;
 		return 1;
 	}	
+	
+	// Something went wrong...
 	ServerDisconnect();
 	return 0;
 }
@@ -1289,7 +964,7 @@ void GameMenu()
 						PrintBlanks(MENU_WID, MENU_HEI-2);
 						MenuServers();
 					}
-				}				
+				}
 
 				// Switch screen?
 				if (lastchar == KB_L) { gameMode = MODE_LOCAL; break; }
@@ -1298,17 +973,72 @@ void GameMenu()
 			}
 		}
 
-        else {
-			// Display CREDITS
+        else {						
+			// Display INFO menu
 			MenuTab(2);
+			
+		#ifndef __LYNX__			
+		
+			// Display CREDITS
 			for (i=0; i<CREDIT_ROWS; i++) {
 				txtX = creditCol[i];
 				txtY = creditRow[i];
 				PrintStr(creditTxt[i]);
-			}
-			
-			// Process user input
+			}					
+		
 			while (1) { 
+				
+		#else
+			
+			lastchar = KB_U;
+			ReadEEPROM();
+			while (1) { 
+			
+				// Display page contents
+				if (lastchar == KB_U) {
+					// Reset screen
+					txtX = MENU_COL; txtY = MENU_ROW+2;
+					PrintBlanks(MENU_WID, MENU_HEI-2);
+					
+					// Display CREDITS
+					f = (cursorRow - MENU_ROW - 2)*8;
+					if (f > mapNum) {
+						for (i=0; i<CREDIT_ROWS; i++) {
+							txtX = creditCol[i];
+							txtY = creditRow[i];
+							PrintStr(creditTxt[i]);
+						}					
+					} else {
+						txtX = MENU_COL+2; 
+						PrintStr("BEST LAP TIME");
+						txtY = MENU_ROW+4;
+						for (i=f; i<f+8; i++) {
+							// Last map?
+							if (i >= mapNum)
+								break;
+							
+							// Map name
+							txtX = MENU_COL+1; 
+							PrintStr(mapList[i]);
+							
+							// Best lap time
+							txtX = MENU_COL+10;
+							PrintBestLap(bestLapTime[i], TCK_PER_SEC);
+							txtY++;
+						}
+					}
+				}
+				
+				// Display page numbers
+				inkColor = YELLOW;
+				txtX = MENU_COL+13;
+				txtY = MENU_ROW+MENU_HEI-1;
+				PrintStr("  / "); txtX++;
+				PrintNum(cursorRow -MENU_ROW-1); txtX+=2;
+				PrintNum(mapNum/8u+2);
+				inkColor = WHITE;
+		#endif
+			
 				// Get Character
 				lastchar = MenuWait();
             

@@ -422,7 +422,7 @@ unsigned char GameRace()
 	// Set Lap Timers
 	for (i=0; i<MAX_PLAYERS; ++i) {
 		lapClock[i] = gameClock;
-		lapBest[i] = 65500;
+		lapBest[i] = 6039;
 	}
 	
 	return 1;
@@ -462,7 +462,7 @@ char GameLoop()
 #if (defined __ATARI__) || (defined __C64__) || (defined __LYNX__)
 	unsigned char sprShadow;
 #endif
-	int iX, iY, iVel, iVelMax, iAng1, iAng2, iCos, iSin, iTmp, steps;
+	int iX, iY, iVel, iVelMax, iAng1, iAng2, iCos, iSin, iTmp, ticks;
 	unsigned char iCtrl, iRotMax, iJoy, iColor, collisions; 
 	unsigned char res, lastKey, iJmp, iDir, iSpr, i, j;
 	unsigned int lapTime;
@@ -494,8 +494,8 @@ char GameLoop()
 	
     // Main loop of Application
 	while (1) {
-		// Get steps and update clock
-		steps = (int)(clock()-gameClock);
+		// Get ticks and update clock
+		ticks = (int)(clock()-gameClock);
 		gameClock = clock();
 		#if defined __LYNX__
 			UpdateDisplay(); // Refresh Lynx screen
@@ -536,8 +536,9 @@ char GameLoop()
 				iVelMax = velMax[3];
 				iRotMax = rotMax[3];
 			} else {
-				iVelMax = velMax[iCtrl-1];
-				iRotMax = rotMax[iCtrl-1];
+				j = iCtrl-1;
+				iVelMax = velMax[j];
+				iRotMax = rotMax[j];
 			}				
 			
 			// Gently LERP network players
@@ -546,10 +547,10 @@ char GameLoop()
 					iX += car->x1; car->x1 = 0;
 					iY += car->y1; car->y1 = 0;
 				} else {
-					if      (car->x1 > 0) { if (car->x1 >= steps) { iX += steps; car->x1 -= steps; } else { iX++; car->x1--; } }
-					else if (car->x1 < 0) { if (car->x1 <= steps) { iX -= steps; car->x1 += steps; } else { iX--; car->x1++; } }
-					if      (car->y1 > 0) { if (car->y1 >= steps) { iY += steps; car->y1 -= steps; } else { iY++; car->y1--; } }
-					else if (car->y1 < 0) { if (car->y1 <= steps) { iY -= steps; car->y1 += steps; } else { iY--; car->y1++; } }
+					if      (car->x1 > 0) { if (car->x1 >= ticks) { iX += ticks; car->x1 -= ticks; } else { iX++; car->x1--; } }
+					else if (car->x1 < 0) { if (car->x1 <= ticks) { iX -= ticks; car->x1 += ticks; } else { iX--; car->x1++; } }
+					if      (car->y1 > 0) { if (car->y1 >= ticks) { iY += ticks; car->y1 -= ticks; } else { iY++; car->y1--; } }
+					else if (car->y1 < 0) { if (car->y1 <= ticks) { iY -= ticks; car->y1 += ticks; } else { iY--; car->y1++; } }
 				}
 			}
 
@@ -578,7 +579,7 @@ char GameLoop()
 			// Process Vehicle Control (when not jumping)
 			if (!iJmp) {
 				// Process Human Players
-				iTmp = MIN(45, rotRate*steps);
+				iTmp = MIN(45, rotRate*ticks);
 				if (iCtrl > 3) {
 					// State provided by network
 					if (iCtrl == NET_CONTROL) {
@@ -589,10 +590,10 @@ char GameLoop()
 						iJoy = 255-JOY_BTN1*GetButton(iCtrl-4);
 						res = GetPaddle(iCtrl-4);
 						if (res > 159) { 
-							iAng2 -= ((res-127)/33u)*steps;
+							iAng2 -= ((res-127)/33u)*ticks;
 							iJoy -= JOY_RIGHT;
 						} else if (res < 93) {
-							iAng2 += ((127-res)/33u)*steps;
+							iAng2 += ((127-res)/33u)*ticks;
 							iJoy -= JOY_LEFT;
 						}
 					}
@@ -606,15 +607,15 @@ char GameLoop()
 					if (!(iJoy & JOY_RIGHT)) iAng2 -= iTmp;
 				#endif						
 					if (!(iJoy & JOY_BTN1)) { 
-						iVel += accRate*steps;
+						iVel += accRate*ticks;
 					} else {
-						iVel -= decRate*steps;					
+						iVel -= decRate*ticks;					
 						if (iVel < 0) { iVel = 0; }
 					}
 				// Process AI Players (only when racing)
 				} else if (gameStep > STEP_WARMUP) {
 					// Compute velocity
-					iVel += accRate*steps;
+					iVel += accRate*ticks;
 
 					// Check navigation? (not every frames)
 					if (gameFrame % MAX_PLAYERS == i)					
@@ -643,7 +644,7 @@ char GameLoop()
 			iDir = iSpr;				
 		#else							
 			// Lerp trajectory angle to create "drift effect"
-			iAng1 = LerpAngle(iAng1, iAng2, iRotMax*steps);	
+			iAng1 = LerpAngle(iAng1, iAng2, iRotMax*ticks);	
 			
 			// Constrain velocity (and slow down when drifting)
 			if (iCtrl > 3) {	
@@ -671,11 +672,11 @@ char GameLoop()
 		
 			// Compute next position
 		#if defined __ORIC__
-			iTmp = steps * iVel / 16u;
+			iTmp = ticks * iVel / 16u;
 			iX += car->impx + ( iTmp * iCos ) / TCK_PER_SEC;
 			iY += car->impy - ( iTmp * iSin ) / TCK_PER_SEC;
 		#else				
-			iTmp = steps * iVel / 4u;
+			iTmp = ticks * iVel / 4u;
 			iX += car->impx + ( iTmp * iCos ) / tck4;
 			iY += car->impy - ( iTmp * iSin ) / tck4;
 		#endif                
@@ -796,18 +797,15 @@ char GameLoop()
 						
 						// Local: Process lap
 						if (gameMode == MODE_LOCAL && car->lap > 0) {							
-							// Play lap sound
+							// Play lap sound and update UI
 							BleepSFX(128); 
-
-							// Update lap count								
 							PrintLap(i);
 							
 							// Compute lap time
 							lapTime = gameClock - lapClock[i];
 							lapClock[i] = gameClock;
-							if (lapTime < lapBest[i]) {
+							if (lapTime < lapBest[i])
 								lapBest[i] = lapTime;
-							}	
 
 							// Check for winner
 							if (car->lap == lapGoal) {
@@ -868,7 +866,7 @@ char GameLoop()
 				txtX = 0; txtY = ROW_CHAT;
 				if (InputStr(19, chatBuffer, 19, lastKey)) {
 					// Return was pressed
-					if (strlen(&chatBuffer[0]) > 0) { ClientEvent(EVENT_CHAT); }
+					if (chatBuffer[0] != 0) { ClientEvent(EVENT_CHAT); }
 					chatting = 0;
 					BackupRestoreChatRow(1);
 				#if defined __LYNX__
@@ -915,7 +913,7 @@ char GameLoop()
 					return 0; 
 				}
 			#ifdef  __ATARI__
-				// Toggle RGB/BW
+				// Toggle Graphic Mode
 				if (lastKey == KB_G) bmpToggle ^= 2;
 			#endif
 			}

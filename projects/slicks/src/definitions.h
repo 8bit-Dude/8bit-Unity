@@ -59,6 +59,84 @@
   #define SLOT_WIDTH 8
 #endif	
 
+// Platform specific colors
+#if defined __APPLE2__
+	#define INK_LAPS   	 RED
+	#define INK_TAB		 GREEN
+	#define INK_HIGHLT	 BLACK
+	#define PAPER_HIGHLT YELLOW
+	#define PAPER_SCORES BLACK
+	#define SCORES_COL   	12
+	#define SCORES_ROW   	 7
+#elif defined __ATARI__
+	#define INK_LAPS   	 RED
+	#define INK_TAB		 GREEN
+	#define INK_HIGHLT	 BLACK
+	#define PAPER_HIGHLT YELLOW
+	#define PAPER_SCORES BLACK
+	#define SCORES_COL   	12
+	#define SCORES_ROW   	 7
+#elif defined __ORIC__
+	#define INK_LAPS   	 RED
+	#define INK_TAB		 GREEN
+	#define INK_HIGHLT	 BLACK
+	#define PAPER_HIGHLT YELLOW
+	#define PAPER_SCORES BLACK
+	#define SCORES_COL   	12
+	#define SCORES_ROW   	 7
+#elif defined __CBM__
+	#define INK_LAPS   	 RED
+	#define INK_TAB		 GREEN
+	#define INK_HIGHLT	 BLACK
+	#define PAPER_HIGHLT YELLOW
+	#define PAPER_SCORES BLACK
+	#define SCORES_COL   	12
+	#define SCORES_ROW   	 7
+#elif defined __LYNX__
+	#define INK_LAPS   	 RED
+	#define INK_TAB		 YELLOW	
+	#define INK_HIGHLT	 WHITE
+	#define PAPER_HIGHLT BLACK
+	#define PAPER_SCORES BLACK
+	#define SCORES_COL   	 12
+	#define SCORES_ROW   	  3
+	#define PAUSE_COL 		 15
+	#define PAUSE_LOCAL_ROW   6
+	#define PAUSE_ONLINE_ROW  2
+#elif defined __NES__
+	#define INK_LAPS   	 RED
+	#define INK_TAB		 GREEN
+	#define INK_HIGHLT	 BLACK
+	#define PAPER_HIGHLT YELLOW
+	#define PAPER_SCORES BLACK
+	#define SCORES_COL   	 12
+	#define SCORES_ROW   	  7
+	#define PAUSE_COL 		  7
+	#define PAUSE_LOCAL_ROW   6
+	#define PAUSE_ONLINE_ROW  2
+#endif
+
+// Menu location/size
+#if defined __LYNX__
+	#define MENU_COL 22
+	#define MENU_ROW  2
+	#define MENU_WID 17
+	#define MENU_HEI 13
+	#define MENU_BLD TXT_ROWS-1
+#elif defined __NES__
+	#define MENU_COL 14
+	#define MENU_ROW  4
+	#define MENU_WID 18
+	#define MENU_HEI 16
+	#define MENU_BLD TXT_ROWS-2
+#else
+	#define MENU_COL 22
+	#define MENU_ROW  4
+	#define MENU_WID 17
+	#define MENU_HEI 16
+	#define MENU_BLD TXT_ROWS-2
+#endif
+
 // Sprite definitions
 #if defined __APPLE2__
   #define spriteFrames 64
@@ -129,14 +207,14 @@ typedef struct {
 	int x2, y2;	 // New Position * 8 (integer)
 	int ang1; 	 // Vehicle Angle
 	int ang2;	 // Trajectory Angle
-	int ang3;	 // AI Target Angle
 	int vel;	 // Velocity
-	int impx;	 // Impulse
-	int impy;	 
-    clock_t jmp; // Jump Time
 	unsigned char joy;     // joystick
 	unsigned char way;	   // Current waypoint
-	signed char lap;	   // Current lap
+	signed char   lap;	   // Current lap
+    clock_t jmp; // Jump Time
+	int ang3;	 // AI Target Angle
+	int impx;	 // Impulse
+	int impy;	 
 } Vehicle;
 
 // Waypoint structure
@@ -172,6 +250,17 @@ void PrintRace(void);
 void PrintTimedOut(void);
 void PrintLap(unsigned char i);
 void GameMenu(void);
+
+// See consoles.c
+#if defined(__LYNX__) || defined(__NES__)
+  unsigned char CheckEEPROM(void);
+  void ResetEEPROM(void);
+  void ReadEEPROM(void);
+  void WriteEEPROM(void); 
+  void CursorControl(void);
+  void CursorFlicker(void);
+  unsigned char MenuPause(void);
+#endif
 
 // See navigation.c
 void LoadNavigation(char *filename);
