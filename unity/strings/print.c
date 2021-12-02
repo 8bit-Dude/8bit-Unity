@@ -97,7 +97,7 @@ void PrintChr(unsigned char chr)
 	unsigned char *src;
   #if defined __APPLE2__
 	unsigned int x,y;
-	unsigned char i,j,n;
+	unsigned char i,j,n,line;
   #elif defined __ATARI__	
 	unsigned char i,line;
 	unsigned int dst1,dst2;
@@ -126,7 +126,7 @@ void PrintChr(unsigned char chr)
   #if defined __APPLE2__
 	if (txtX&1) { n=4; } else { n=3; }
 	x = (txtX*35)/10u; y = (txtY*8);
-	SetHiresPointer(x, y);	
+	SetHiresPointer(x, y++);	
 	for (j=0; j<n; j++) {
 	  #if defined __DHR__	
 		SetColorDHR(paperColor);
@@ -136,26 +136,27 @@ void PrintChr(unsigned char chr)
 		hiresPixel++;
 	}
 	for (i=0; i<3; ++i) {
-		SetHiresPointer(x, y+i*2+1);
+		line = src[i];
+		SetHiresPointer(x, y++);
 		for (j=0; j<n; j++) {
 		  #if defined __DHR__	
-			SetColorDHR(((src[i]>>(7-j))&1) ? inkColor : paperColor);
+			SetColorDHR(((line>>(7-j))&1) ? inkColor : paperColor);
 		  #else
-			SetColorSHR(((src[i]>>(7-j))&1) ? inkColor : paperColor);
+			SetColorSHR(((line>>(7-j))&1) ? inkColor : paperColor);
 		  #endif
 			hiresPixel++;
 		}
-		SetHiresPointer(x, y+i*2+2);
+		SetHiresPointer(x, y++);
 		for (j=0; j<n; j++) {
 		  #if defined __DHR__	
-			SetColorDHR(((src[i]>>(3-j))&1) ? inkColor : paperColor);
+			SetColorDHR(((line>>(3-j))&1) ? inkColor : paperColor);
 		  #else
-			SetColorSHR(((src[i]>>(3-j))&1) ? inkColor : paperColor);
+			SetColorSHR(((line>>(3-j))&1) ? inkColor : paperColor);
 		  #endif
 			hiresPixel++;
 		}
 	}
-	SetHiresPointer(x, y+7);
+	SetHiresPointer(x, y);
 	for (j=0; j<n; j++) {
 	  #if defined __DHR__	
 		SetColorDHR(paperColor);
@@ -186,18 +187,18 @@ void PrintChr(unsigned char chr)
 				if (doubleBuffer)
 					POKE((char*)dst2, bgByte2);
 			}
-			dst1 +=40; dst2 +=40;
+			dst1 += 40; dst2 += 40;
 		}
 	} else {
-		POKE((char*)dst1, bgByte1); dst1 +=40;
-		POKE((char*)dst2, bgByte2); dst2 +=40;
+		POKE((char*)dst1, bgByte1); dst1 += 40;
+		POKE((char*)dst2, bgByte2); dst2 += 40;
 		for (i=0; i<3; ++i) {
 			line = src[i];
-			POKE((char*)dst1, BYTE4(((line&128) ? inkColor2 : paperColor2), ((line&64) ? inkColor1 : paperColor1), ((line&32) ? inkColor2 : paperColor2), paperColor1)); dst1 +=40;
-			POKE((char*)dst1, BYTE4(((line&8  ) ? inkColor1 : paperColor1), ((line&4 ) ? inkColor2 : paperColor2), ((line&2 ) ? inkColor1 : paperColor1), paperColor2)); dst1 +=40;
+			POKE((char*)dst1, BYTE4(((line&128) ? inkColor2 : paperColor2), ((line&64) ? inkColor1 : paperColor1), ((line&32) ? inkColor2 : paperColor2), paperColor1)); dst1 += 40;
+			POKE((char*)dst1, BYTE4(((line&8  ) ? inkColor1 : paperColor1), ((line&4 ) ? inkColor2 : paperColor2), ((line&2 ) ? inkColor1 : paperColor1), paperColor2)); dst1 += 40;
 			if (doubleBuffer) {
-				POKE((char*)dst2, BYTE4(((line&128) ? inkColor1 : paperColor1), ((line&64) ? inkColor2 : paperColor2), ((line&32) ? inkColor1 : paperColor1), paperColor2)); dst2 +=40;
-				POKE((char*)dst2, BYTE4(((line&8  ) ? inkColor2 : paperColor2), ((line&4 ) ? inkColor1 : paperColor1), ((line&2 ) ? inkColor2 : paperColor2), paperColor1)); dst2 +=40;
+				POKE((char*)dst2, BYTE4(((line&128) ? inkColor1 : paperColor1), ((line&64) ? inkColor2 : paperColor2), ((line&32) ? inkColor1 : paperColor1), paperColor2)); dst2 += 40;
+				POKE((char*)dst2, BYTE4(((line&8  ) ? inkColor2 : paperColor2), ((line&4 ) ? inkColor1 : paperColor1), ((line&2 ) ? inkColor2 : paperColor2), paperColor1)); dst2 += 40;
 			}
 		}
 		POKE((char*)dst1, bgByte2);
