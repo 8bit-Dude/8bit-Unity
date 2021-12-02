@@ -92,10 +92,8 @@ void ResetLineUp()
 		car->y2 =   lineupY[j];
 		car->ang1 = lineupAng[j];
 		car->ang2 = lineupAng[j];
-		car->vel = 0;		
-        car->way = 0;
+		bzero(&car->vel, 4);		
         car->lap = -1;
-        car->joy = 0;             
 	}
 }
 
