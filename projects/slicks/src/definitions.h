@@ -158,6 +158,21 @@
   #define SPR2_SLOT 4
 #endif
 
+// Lap time definitions
+#if defined __APPLE2__
+  #define LAPMAX  5940
+#elif defined __ATARI__
+  #define LAPMAX  6039
+#elif defined __CBM__
+  #define LAPMAX  6039
+#elif defined __LYNX__
+  #define LAPMAX  6039
+#elif defined __NES__
+  #define LAPMAX  6039
+#elif defined __ORIC__
+  #define LAPMAX  9999
+#endif
+
 // Controller definitions
 #if defined __APPLE2__
   #define LEN_CONTROL 9

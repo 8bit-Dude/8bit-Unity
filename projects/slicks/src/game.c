@@ -422,7 +422,7 @@ unsigned char GameRace()
 	// Set Lap Timers
 	for (i=0; i<MAX_PLAYERS; ++i) {
 		lapClock[i] = gameClock;
-		lapBest[i] = 6039;
+		lapBest[i] = LAPMAX;
 	}
 	
 	return 1;

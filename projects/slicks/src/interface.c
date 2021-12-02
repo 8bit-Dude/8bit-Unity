@@ -33,10 +33,10 @@ extern unsigned char clIndex, clUser[5], clPass[13];
 extern char networkReady, chatBuffer[20], udpBuffer[28];
 
 // List of best lap times
-unsigned int bestLapTime[] = { 6039, 6039, 6039, 6039, 6039, 6039, 
-							   6039, 6039, 6039, 6039, 6039, 6039,
-							   6039, 6039, 6039, 6039, 6039, 6039,
-							   6039, 6039, 6039, 6039 };
+unsigned int bestLapTime[] = { LAPMAX, LAPMAX, LAPMAX, LAPMAX, LAPMAX, LAPMAX, 
+							   LAPMAX, LAPMAX, LAPMAX, LAPMAX, LAPMAX, LAPMAX,
+							   LAPMAX, LAPMAX, LAPMAX, LAPMAX, LAPMAX, LAPMAX,
+							   LAPMAX, LAPMAX, LAPMAX, LAPMAX };
 
 // List of controller types
 #if defined __LYNX__
