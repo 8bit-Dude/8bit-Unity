@@ -26,7 +26,7 @@ extern unsigned char cursorBut2, cursorKey, cursorTop;
 extern Vehicle cars[MAX_PLAYERS];
 
 // See network.c
-extern unsigned int packet;
+extern unsigned char *packet;
 extern unsigned char svMap, svStep; 
 extern unsigned char clName[MAX_PLAYERS][5];
 extern unsigned char clIndex, clUser[5], clPass[13];
@@ -587,7 +587,7 @@ void MenuServers()
 	ServerConnect();
 	SendUDP(udpBuffer, 1);
 	timeout = clock()+2*TCK_PER_SEC;
-	while (!packet || PEEK(packet) != 1) {
+	while (!packet || *packet != 1) {
 		packet = RecvUDP(0); // Allow some time-out
 		if (clock() > timeout) break;
 	}
@@ -599,12 +599,12 @@ void MenuServers()
 	if (!packet) {
 		// Timeout error
 		txtX = MENU_COL+2; PrintStr("ERROR: TIMEOUT");
-	} else if (PEEK(packet) != 1) {
+	} else if (*packet != 1) {
 		// Unexpected error
 		txtX = MENU_COL+0; PrintStr("ERROR: CORRUPTION");
 	} else {
 		// Show server list				
-		n = PEEK(++packet);
+		n = ++*packet;
 		n = MIN(n,12);
 		j = 0;
 		while (j<n) {
@@ -615,8 +615,8 @@ void MenuServers()
 			inkColor = INK_HIGHLT; paperColor = PAPER_HIGHLT;			
 			txtX = MENU_COL+0; PrintChr(CHR_DIGIT+1+j);
 		#endif
-			while (PEEK(++packet) != 10 && PEEK(packet) !=0) {
-				buffer[k++] = PEEK(packet);
+			while (++*packet != 10 && *packet !=0) {
+				buffer[k++] = *packet;
 			}
 			k = MIN(k,15);
 			buffer[k] = 0;
@@ -681,7 +681,7 @@ unsigned char MenuLogin(unsigned char serverIndex)
 	txtX = MENU_COL+1; txtY = MENU_ROW+12;
 	if (res == ERR_MESSAGE) {
 		// Server error
-		PrintStr((char*)(packet+1));
+		PrintStr(++*packet);
 	} else if (res == ERR_TIMEOUT) {
 		// Timeout error
 		PrintStr("ERROR: TIMEOUT");					
