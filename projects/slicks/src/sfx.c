@@ -51,6 +51,7 @@ void JumpSFX(unsigned char index)
 	vol[index] = VOLUME_HIGH;
 }
 
+#if defined(__LYNX__) || defined(__CBM__)
 void ScreechSFX(unsigned char index)
 {
 	sfx[index] = SFX_SCREECH;
@@ -61,6 +62,7 @@ void ScreechSFX(unsigned char index)
 #endif
 	vol[index] = VOLUME_HIGH;
 }
+#endif
 
 void UpdateSFX()
 {		

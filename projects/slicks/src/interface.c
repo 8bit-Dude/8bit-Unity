@@ -351,7 +351,11 @@ void SpriteAnimation(unsigned char index, unsigned char frame)
 	spriteX = 160+index*21; 
 	spriteY = 31;
 #endif		
+#if defined MULTICOLOR
+	SetMultiColorSprite(2*index, frame); // Car body and tires
+#else
 	SetSprite(index, frame);
+#endif
 }
 
 void PrintBestLap(unsigned int ticks, unsigned char tckPerSec) 
@@ -429,7 +433,11 @@ void PrintScores()
 			// Move Sprites overlapping score board
 		#if defined(__ATARI__) || defined(__CBM__)
 			if (car->x2 > SCORES_COL*64-32 && car->x2 < (SCORES_COL+17)*64+32 && car->y2 > SCORES_ROW*64-32 && car->y2 < (SCORES_ROW+10)*64+32) {
+			#if defined MULTICOLOR
+				DisableMultiColorSprite(2*i);   // Car body and tires
+			#else
 				DisableSprite(i);				// Car sprite
+			#endif
 				DisableSprite(SPR2_SLOT+i);		// Jump sprite			
 			}
 		#elif defined(__LYNX__)
@@ -808,7 +816,11 @@ void GameMenu()
 		// Counter rotating vehicles
 		if (i&1) { f = 8; } else { f = 0; }
 		SpriteAnimation(i,f);
+	#if defined MULTICOLOR
+		EnableMultiColorSprite(2*i); // Car body and tires
+	#else  
 		EnableSprite(i);
+	#endif
 	}	
 		
 	// Show version, credits, and start music

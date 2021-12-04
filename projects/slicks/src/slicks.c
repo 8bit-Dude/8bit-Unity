@@ -14,9 +14,15 @@
 #elif defined __ATARI__
   #define spriteCols    8
   #define spriteRows   10
+ #if defined MULTICOLOR
+  const unsigned char spriteColors[] = { SPR_BLUE,  SPR_GREY, SPR_RED,    SPR_GREY, 	// Bank 1
+										 SPR_GREEN,	SPR_GREY, SPR_YELLOW, SPR_GREY, 	// Bank 2
+										 SPR_GREY,  SPR_GREY, SPR_GREY,   SPR_GREY };  	// Bank 3
+ #else
   const unsigned char spriteColors[] = { SPR_BLUE, SPR_RED, SPR_GREEN, SPR_YELLOW,	// Bank 1
 										 SPR_GREY, SPR_GREY, SPR_GREY, SPR_GREY, 	// Bank 2
 										 SPR_GREY, SPR_GREY, SPR_GREY, SPR_GREY };  // Bank 3
+ #endif
   const unsigned char inkColors[] = { BLUE, RED, GREEN, YELLOW, WHITE };		// P1, P2, P3, P4, SERVER INFO
 #elif defined __ORIC__
   #define spriteCols   12
@@ -42,7 +48,7 @@
 #endif
 
 // Build Information
-const char* buildInfo = "BUILD: 2021/12/02";
+const char* buildInfo = "BUILD: 2021/12/04";
 
 // List of available maps
 unsigned char mapNum  = 10;

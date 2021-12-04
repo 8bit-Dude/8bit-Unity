@@ -89,7 +89,7 @@ int tck4, accRate, decRate, jmpTCK;
   #define LIGHT_SP  24
   char rotRate = 3;
 #endif
-const char rotMax[4] = { 3, 4, 5, 2 };
+const char rotMax[4] = { 4, 5, 6, 2 };
 const int velMin = 200;
 const int velMax[4] = { 390, 460, 530, 600 };
 const int velDrift = 450;
@@ -173,8 +173,13 @@ void GameReset()
 			spriteX = cars[i].x2/10u; 
 			spriteY = cars[i].y2/8u+16;
 		#endif
+		#if defined MULTICOLOR
+			SetMultiColorSprite(2*i, f);  // Car body and tires
+			EnableMultiColorSprite(2*i);
+		#else  
 			SetSprite(i, f);
 			EnableSprite(i);
+		#endif		
 		}
     }
 	
@@ -289,6 +294,7 @@ unsigned char GameRace()
 {
     // Reset Game
 	unsigned char i,res;
+	unsigned int maxTime;
     GameReset();
 
     // Show light sprites
@@ -419,10 +425,16 @@ unsigned char GameRace()
 	clk += 1;
 #endif	
 
+	// Set Max　Timer value
+	if (gameMode == MODE_LOCAL)
+		maxTime = LAPMAX;
+	else
+		maxTime = 9999;
+
 	// Set Lap Timers
 	for (i=0; i<MAX_PLAYERS; ++i) {
 		lapClock[i] = gameClock;
-		lapBest[i] = LAPMAX;
+		lapBest[i] = maxTime;
 	}
 	
 	return 1;
@@ -436,8 +448,8 @@ int LerpAngle(int iAng1, int iAng2, int dAng)
 	signed char iSign = 1;
 	deltaAngle = iAng2 - iAng1;
 	if (deltaAngle < 0) {
-		iSign = -1;
 		deltaAngle = -deltaAngle;
+		iSign = -1;
 	}
 	if (deltaAngle > 180) {
 		deltaAngle = 360-deltaAngle;
@@ -620,10 +632,10 @@ char GameLoop()
 					// Check navigation? (not every frames)
 					if (gameFrame % MAX_PLAYERS == i)					
 						// Get angle to next waypoint
-						car->ang3 = GetWaypointAngle(car) + 4*i;
+						car->ang3 = GetWaypointAngle(car);
 					
 					// Lerp to navigation target
-					iAng2 = LerpAngle(iAng2, car->ang3, 2*iTmp);
+					iAng2 = LerpAngle(iAng2, car->ang3, 3*iTmp);
 				}
 			}
 		#if (defined __APPLE2__) || (defined __ORIC__)		// Simplified physics on slower systems...
@@ -742,14 +754,26 @@ char GameLoop()
 			}
 			
 			// Display main sprite
+		#if defined MULTICOLOR
+			SetMultiColorSprite(2*i, iSpr);	// Car body and tires
+		#else  
 			SetSprite(i, iSpr);		
+		#endif			
 		
 			// Check collisions
+		#if defined MULTICOLOR
+			collisions = COLLISIONS(2*i);
+		#else  			
 			collisions = COLLISIONS(i);
+		#endif			
 			if (collisions) {
 				for (j=0; j<MAX_PLAYERS; j++) {
 					if (i != j) {
+					#if defined MULTICOLOR
+						if (COLLIDING(collisions,2*j)) {
+					#else  			
 						if (COLLIDING(collisions,j)) {
+					#endif			
 							// Check neither are flying
 							if (iJmp || (clock()-cars[j].jmp) < jmpTCK) { continue; }
 							// Apply impulse to other car, and reduce own velocity

@@ -153,6 +153,7 @@
 #endif
 
 #if defined __ATARI__
+  #define MULTICOLOR
   #define SPR2_SLOT 8
 #else
   #define SPR2_SLOT 4

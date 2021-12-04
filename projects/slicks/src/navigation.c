@@ -108,21 +108,23 @@ char CheckWaypoint(Vehicle *car)
 	GetWaypoint(car);
 	
 	// Check waypoint vector dot products against old position
-	v1[0] = (car->x1 - way->x)/16u;
-	v1[1] = (car->y1 - way->y)/16u;	
+	v1[0] = (car->x1 - way->x)/32u;
+	v1[1] = (car->y1 - way->y)/32u;	
 	if ( (dot(v1, vWay) >= 0) ) {
 		
 		// Check waypoint vector dot products against new position
-		v2[0] = (car->x2 - way->x)/16u;
-		v2[1] = (car->y2 - way->y)/16u;				
+		v2[0] = (car->x2 - way->x)/32u;
+		v2[1] = (car->y2 - way->y)/32u;				
 		if ( (dot(v2, vWay) >= 0) ) {
 			
-			// Check proximty to waypoint
-			dist[0] = v2[0] - vWay[0]/2u;
-			dist[1] = v2[1] - vWay[1]/2u;
-			if (dot(dist, dist) < 50)
-				return 1;
-			
+			// Check proximty to waypoint (except for finish line!)
+			if (car->way) {
+				dist[0] = v2[0] - vWay[0]/4u;
+				dist[1] = v2[1] - vWay[1]/4u;
+				if (dot(dist, dist) < 32)
+					return 1;
+			}
+		
 			// Compute dot products with 90 deg rotated vector
 			cross[0] = -vWay[1];
 			cross[1] =  vWay[0];
@@ -132,17 +134,13 @@ char CheckWaypoint(Vehicle *car)
 			// Check dot products with 90 deg rotated vector
 			if (dotCross1 >= 0 && dotCross2 <= 0) { 
 			#ifdef DEBUG_NAV
-				txtX = 0; txtY = 0;
-				PrintBlanks(2, 0);
-				PrintNum(car->way+1);
+				txtX = 0; txtY = 0; PrintBlanks(2, 0); PrintNum(car->way+1);
 			#endif
 				return 1; 
 			}
 			if (dotCross1 <= 0 && dotCross2 >= 0) { 
 			#ifdef DEBUG_NAV
-				txtX = 0; txtY = 0;
-				PrintBlanks(2, 0);
-				PrintNum(car->way+1);
+				txtX = 0; txtY = 0; PrintBlanks(2, 0); PrintNum(car->way+1);
 			#endif
 				return 1; 
 			}
@@ -150,10 +148,6 @@ char CheckWaypoint(Vehicle *car)
 	}
 	return 0;
 }
-
-#ifdef __ATARIXL__
-  #pragma code-name("SHADOW_RAM")
-#endif
 
 // Function to check ramp logics
 Ramp *ramp;
@@ -172,6 +166,48 @@ char CheckRamps(Vehicle *car)
     return 0;
 }
 
+#ifdef __ATARIXL__
+  #pragma code-name("SHADOW_RAM")
+#endif
+
+const signed char tan[] = {91,30,17,11,8,6,4,2,1,-1,-2,-4,-6,-8,-11,-17,-30,-91,-128};
+
+int GetWaypointAngle(Vehicle *car)
+{
+	unsigned char i = 0;
+	signed char dy, tn;	
+	signed int dx;
+	
+	// Compute vector to waypoint
+	GetWaypoint(car);
+	dx =  (way->x + 8*vWay[0] - car->x2)/8;
+	dy = -(way->y + 8*vWay[1] - car->y2)/64;
+	
+	// Fast atan2 routine with 36 x 10 degs increments
+	if (dy == 0) {
+		// Cannot divide by 0, so return value directly
+		if (dx >= 0)
+			return 0;
+		else
+			return 180;
+	} else {
+		// Use simple division and reference table
+		tn = dx/dy;
+		while (tn < tan[i])
+			i++;
+		
+		// Compute angle
+		dx = i*10u;
+		if (dy < 0)
+			dx += 180;
+		return dx;
+	}	
+}
+
+#ifdef __APPLE2__
+  #pragma code-name("LC")
+#endif
+
 void GetWaypoint(Vehicle *car)
 {
 	// Prepare waypoint variables
@@ -179,10 +215,7 @@ void GetWaypoint(Vehicle *car)
 	vWay = way->v[car->way&1];
 }
 
-#ifdef __APPLE2__
-  #pragma code-name("LC")
-#endif
-
+/*
 int GetWaypointAngle(Vehicle *car)
 {
 	unsigned char dx = 128, dy = 128;	
@@ -191,3 +224,4 @@ int GetWaypointAngle(Vehicle *car)
 	dy -= (way->y + 8*vWay[1] - car->y2)/16u;
 	return (45*(unsigned int)atan2(dy,dx))/32u;
 }
+*/
