@@ -26,7 +26,7 @@ extern unsigned char cursorBut2, cursorKey, cursorTop;
 extern Vehicle cars[MAX_PLAYERS];
 
 // See network.c
-extern unsigned char *packet;
+extern unsigned int packet;
 extern unsigned char svMap, svStep; 
 extern unsigned char clName[MAX_PLAYERS][5];
 extern unsigned char clIndex, clUser[5], clPass[13];
@@ -269,8 +269,6 @@ void PrintLap(unsigned char i)
 // Print race message and laps
 void PrintRace()
 {	
-	paperColor = BLACK; 
-
 	// Print race message
 #if defined(__NES__)
 	PrintBuffer("  RACE STARTED, GOAL:    LAPS!  ");
@@ -387,12 +385,17 @@ void PrintBestLap(unsigned int ticks, unsigned char tckPerSec)
 	PrintNum(d);
 }
 
-// Print score after round ends
+// See game.c
+extern Vehicle *iCar;
+extern int iX, iY;
+
+// See navigation.c
 extern Waypoint *way;
 extern signed char *vWay;
+
+// Print score after round ends
 void PrintScores()
 {
-	Vehicle *car;
 	unsigned char i, j, tckPerSec;
 	signed int dx, dy, s;
 	unsigned int d;
@@ -415,24 +418,26 @@ void PrintScores()
 	for (i=0; i<MAX_PLAYERS; ++i) {
 		if (controlIndex[i] > 0) {
 			// Compute Score
-			car = &cars[i];
-			if (car->lap < 0) { car->lap = 0; }
-			score[i] = car->lap*18;
-			if (car->way) {
-				score[i] += car->way;
+			iCar = &cars[i];
+			iX = iCar->x2;
+			iY = iCar->y2;
+			if (iCar->lap < 0) { iCar->lap = 0; }
+			score[i] = iCar->lap*18;
+			if (iCar->way) {
+				score[i] += iCar->way;
 			} else {
 				score[i] += 16;
 			}
 			
 			// Compute Distance to next Waypoint
-			GetWaypoint(car);
-			dx = (car->x2 - way->x - vWay[0]);
-			dy = (car->y2 - way->y - vWay[1]);
+			GetWaypoint();
+			dx = (iX - way->x - vWay[0]);
+			dy = (iY - way->y - vWay[1]);
 			dist[i] = ABS(dx)+ABS(dy);			
 			
 			// Move Sprites overlapping score board
 		#if defined(__ATARI__) || defined(__CBM__)
-			if (car->x2 > SCORES_COL*64-32 && car->x2 < (SCORES_COL+17)*64+32 && car->y2 > SCORES_ROW*64-32 && car->y2 < (SCORES_ROW+10)*64+32) {
+			if (iX > SCORES_COL*64-32 && iX < (SCORES_COL+19)*64+32 && iY > SCORES_ROW*64-32 && iY < (SCORES_ROW+10)*64+32) {
 			#if defined MULTICOLOR
 				DisableMultiColorSprite(2*i);   // Car body and tires
 			#else
@@ -441,13 +446,13 @@ void PrintScores()
 				DisableSprite(SPR2_SLOT+i);		// Jump sprite			
 			}
 		#elif defined(__LYNX__)
-			if (car->x2 > SCORES_COL*64-32 && car->x2 < (SCORES_COL+17)*64+32 && car->y2 > SCORES_ROW*96-48 && car->y2 < (SCORES_ROW+10)*96+48) {
+			if (iX > SCORES_COL*64-32 && iX < (SCORES_COL+19)*64+32 && iY > SCORES_ROW*96-48 && iY < (SCORES_ROW+10)*96+48) {
 				DisableSprite(i);			// Car sprite
 				DisableSprite(SPR2_SLOT+i);	// Jump sprite			
 			} else {
-				spriteX = car->x2/16u; 
-				spriteY = car->y2/16u;				
-				j = (car->ang2+12)/23u;
+				spriteX = iX/16u; 
+				spriteY = iY/16u;				
+				j = (iCar->ang2+12)/23u;
 				if (j>15) { j=0; }
 				SetSprite(i, j);
 			}
@@ -473,10 +478,10 @@ void PrintScores()
 		tckPerSec = 100;	
 	
 	// Create blank area
-	paperColor = PAPER_SCORES; inkColor = WHITE;
+	inkColor = WHITE;
 	txtX = SCORES_COL; txtY = SCORES_ROW;
-	PrintBlanks(17, 10);
-	txtX = SCORES_COL+8; 
+	PrintBlanks(19, 10);
+	txtX = SCORES_COL+9; 
 	PrintStr("Best Lap"); 
 	
 	// Print results and wait
@@ -486,28 +491,31 @@ void PrintScores()
 			inkColor = inkColors[j];
 			txtY += 2;
 		#if defined __ORIC__
-			txtX = SCORES_COL+1; SetAttributes(inkColor);
+			txtX = SCORES_COL+2; SetAttributes(inkColor);
 		#endif
 			if (gameMode == MODE_ONLINE) {
 				string = clName[j];
 			} else {
 				if (i == 0) { string = "WIN"; } else { string = "LOSE"; } 
 			}
-			txtX = SCORES_COL+2; PrintStr(string);
+			txtX = SCORES_COL+3; PrintStr(string);
 			inkColor = WHITE;
 		#if defined __ORIC__
-			txtX = SCORES_COL+6; SetAttributes(inkColor);
+			txtX = SCORES_COL+7; SetAttributes(inkColor);
 		#endif		
-			txtX = SCORES_COL+7; PrintChr('-');
+			txtX = SCORES_COL+8; PrintChr('-');
 		
 			// Display best lap time
 			d = lapBest[j];
-			txtX = SCORES_COL+9;
-			PrintBestLap(d, tckPerSec);				
-			if (gameMode == MODE_LOCAL && controlIndex[j]>3 && d < bestLapTime[gameMap])
+			if (gameMode == MODE_LOCAL && controlIndex[j]>3 && d < bestLapTime[gameMap]) {
 				bestLapTime[gameMap] = d;
+				inkColor = YELLOW;
+				txtX = SCORES_COL+17; PrintChr('*');
+				inkColor = RED;
+			}
+			txtX = SCORES_COL+10; PrintBestLap(d, tckPerSec);				
 		#if defined __ORIC__
-			txtX = SCORES_COL+20; SetAttributes(AIC);
+			txtX = SCORES_COL+21; SetAttributes(AIC);
 		#endif
 		}
 	}
@@ -516,7 +524,6 @@ void PrintScores()
 	WriteEEPROM();
 #endif		
 	// Wait a few seconds
-	paperColor = BLACK;
 #if defined __APPLE2__
 	UpdateMusic();
 #else
@@ -587,7 +594,7 @@ void MenuServers()
 	ServerConnect();
 	SendUDP(udpBuffer, 1);
 	timeout = clock()+2*TCK_PER_SEC;
-	while (!packet || *packet != 1) {
+	while (!packet || PEEK(packet) != 1) {
 		packet = RecvUDP(0); // Allow some time-out
 		if (clock() > timeout) break;
 	}
@@ -599,12 +606,12 @@ void MenuServers()
 	if (!packet) {
 		// Timeout error
 		txtX = MENU_COL+2; PrintStr("ERROR: TIMEOUT");
-	} else if (*packet != 1) {
+	} else if (PEEK(packet) != 1) {
 		// Unexpected error
 		txtX = MENU_COL+0; PrintStr("ERROR: CORRUPTION");
 	} else {
 		// Show server list				
-		n = ++*packet;
+		n = PEEK(++packet);
 		n = MIN(n,12);
 		j = 0;
 		while (j<n) {
@@ -615,8 +622,8 @@ void MenuServers()
 			inkColor = INK_HIGHLT; paperColor = PAPER_HIGHLT;			
 			txtX = MENU_COL+0; PrintChr(CHR_DIGIT+1+j);
 		#endif
-			while (++*packet != 10 && *packet !=0) {
-				buffer[k++] = *packet;
+			while (PEEK(++packet) != 10 && PEEK(packet) !=0) {
+				buffer[k++] = PEEK(packet);
 			}
 			k = MIN(k,15);
 			buffer[k] = 0;
@@ -681,7 +688,7 @@ unsigned char MenuLogin(unsigned char serverIndex)
 	txtX = MENU_COL+1; txtY = MENU_ROW+12;
 	if (res == ERR_MESSAGE) {
 		// Server error
-		PrintStr(++*packet);
+		PrintStr((char*)(packet+1));
 	} else if (res == ERR_TIMEOUT) {
 		// Timeout error
 		PrintStr("ERROR: TIMEOUT");					
@@ -710,9 +717,9 @@ void MenuPlayer(unsigned char i)
 	
 	// Print Characters
 #if defined __SHR__
-	inkColor = WHITE; paperColor = BLACK;
+	inkColor = WHITE;
 #else
-	inkColor = inkColors[i]; paperColor = BLACK;
+	inkColor = inkColors[i];
 #endif
 	txtX = MENU_COL+2; PrintChr('p');
 #if !defined(__LYNX__) && !defined(__NES__)
@@ -755,7 +762,7 @@ void MenuTab(unsigned char tab)
 	txtY = MENU_ROW;
 #if defined(__LYNX__) || defined(__NES__)
 	// Highlight currently selected tab
-	inkColor = WHITE; paperColor = BLACK;	
+	inkColor = WHITE;
 	if (tab == 0) { inkColor = INK_TAB; };
 	txtX = MENU_COL+0;  PrintStr("LOCAL");
 	inkColor = WHITE;	
@@ -796,20 +803,21 @@ void MenuTab(unsigned char tab)
 
 #if defined __LYNX__
   #define CREDIT_ROWS 8
-  const unsigned char  creditCol[] = { MENU_COL+2, MENU_COL+0, MENU_COL+1, MENU_COL+0, MENU_COL+1, MENU_COL+1, MENU_COL+0, MENU_COL+1 };
-  const unsigned char  creditRow[] = { MENU_ROW+2, MENU_ROW+4, MENU_ROW+5, MENU_ROW+7, MENU_ROW+8, MENU_ROW+9, MENU_ROW+11, MENU_ROW+12 };
-  const unsigned char *creditTxt[] = { "2021 SONGBIRD", "CODE/GFX:", "ANTHONY BEAUCAMP", "MUSIC:", "ANDREW FISHER", "CARL FORHAN", "ORIGINAL IDEA:", "TIMO KAUPPINEN" };
+  const unsigned char  creditCol[] = { MENU_COL+2, MENU_COL+4, MENU_COL+0, MENU_COL+5, MENU_COL+0, MENU_COL+0, MENU_COL+4, MENU_COL+0 };
+  const unsigned char  creditRow[] = { MENU_ROW+2, MENU_ROW+4, MENU_ROW+5, MENU_ROW+6, MENU_ROW+7, MENU_ROW+8, MENU_ROW+9, MENU_ROW+10 };
+  const unsigned char *creditTxt[] = { "2021 SONGBIRD", "CODE/GFX:", "ANTHONY BEAUCAMP", "MUSIC:", "ANDREW FISHER", "CARL FORHAN", "TESTING:", "FILIP SANTELLOCCO" };
 #else
   #define CREDIT_ROWS 7
-  const unsigned char  creditCol[] = { MENU_COL+5, MENU_COL+0, MENU_COL+1, MENU_COL+0, MENU_COL+1, MENU_COL+0, MENU_COL+1 };
+  const unsigned char  creditCol[] = { MENU_COL+5, MENU_COL+4, MENU_COL+0, MENU_COL+5, MENU_COL+0, MENU_COL+4, MENU_COL+0 };
   const unsigned char  creditRow[] = { MENU_ROW+2, MENU_ROW+4, MENU_ROW+5, MENU_ROW+7, MENU_ROW+8, MENU_ROW+10, MENU_ROW+11 };
-  const unsigned char *creditTxt[] = { "CREDITS", "CODE/GFX:", "ANTHONY BEAUCAMP", "MUSIC:", "ANDREW FISHER", "ORIGINAL IDEA:", "TIMO KAUPPINEN" };	
+  const unsigned char *creditTxt[] = { "CREDITS", "CODE/GFX:", "ANTHONY BEAUCAMP", "MUSIC:", "ANDREW FISHER", "TESTING:", "FILIP SANTELLOCCO" };	
 #endif
 
 // Main menu function
 void GameMenu()
 {
-	unsigned char i, f, lastchar;
+	unsigned char i, f;
+	unsigned char curPage, maxPage, lastchar;
 
 	// Display cars on the top
 	for (i=0; i<MAX_PLAYERS; i++) {
@@ -988,32 +996,33 @@ void GameMenu()
         else {						
 			// Display INFO menu
 			MenuTab(2);
-			
-		#ifndef __LYNX__			
-		
-			// Display CREDITS
-			for (i=0; i<CREDIT_ROWS; i++) {
-				txtX = creditCol[i];
-				txtY = creditRow[i];
-				PrintStr(creditTxt[i]);
-			}					
-		
-			while (1) { 
-				
-		#else
-			
+
+			// Setup pages
+			maxPage = mapNum/8u+2;
+		#if defined(__LYNX__)
 			lastchar = KB_U;
-			ReadEEPROM();
+		#else
+			curPage = 0;
+		#endif
 			while (1) { 
 			
 				// Display page contents
+			#if defined(__LYNX__)
 				if (lastchar == KB_U) {
+					ReadEEPROM();
+					curPage = cursorRow - MENU_ROW - 1;
+			#else
+				if (lastchar == KB_I) {
+					if (++curPage > maxPage)
+						curPage = 1;
+			#endif
+		
 					// Reset screen
 					txtX = MENU_COL; txtY = MENU_ROW+2;
 					PrintBlanks(MENU_WID, MENU_HEI-2);
 					
 					// Display CREDITS
-					f = (cursorRow - MENU_ROW - 2)*8;
+					f = (curPage-1)*8;
 					if (f > mapNum) {
 						for (i=0; i<CREDIT_ROWS; i++) {
 							txtX = creditCol[i];
@@ -1046,10 +1055,10 @@ void GameMenu()
 				txtX = MENU_COL+13;
 				txtY = MENU_ROW+MENU_HEI-1;
 				PrintStr("  / "); txtX++;
-				PrintNum(cursorRow -MENU_ROW-1); txtX+=2;
-				PrintNum(mapNum/8u+2);
+				PrintNum(curPage); txtX+=2;
+				PrintNum(maxPage);
 				inkColor = WHITE;
-		#endif
+		//#endif
 			
 				// Get Character
 				lastchar = MenuWait();

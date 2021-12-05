@@ -20,6 +20,9 @@ extern unsigned int bestLapTime[];
   extern char chatBG[20];  
 #endif
 
+// See navigation.c
+extern Vehicle cars[MAX_PLAYERS];
+
 // See network.c
 extern unsigned char clIndex, clUser[];
 extern char chatBuffer[20];
@@ -305,7 +308,6 @@ unsigned char MenuPause(void)
 		cursorRow = PAUSE_ONLINE_ROW;
 		cursorTop = PAUSE_ONLINE_ROW;
 	}		
-	paperColor = PAPER_SCORES;
 	txtX = PAUSE_COL; txtY = cursorRow;
 	PrintBlanks(10, cursorHeight);
 	inkColor = WHITE;
@@ -320,6 +322,7 @@ unsigned char MenuPause(void)
 	while (!kbhit()) {
 		// In online mode, check if a race/map/timeout event occured
 		if (gameMode == MODE_ONLINE) {
+			cars[clIndex].vel = 0;
 			pauseEvt = NetworkUpdate();
 			if (pauseEvt == EVENT_RACE || pauseEvt == EVENT_MAP || pauseEvt == ERR_TIMEOUT)
 				return 0;

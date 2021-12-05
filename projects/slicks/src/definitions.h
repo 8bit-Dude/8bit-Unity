@@ -65,40 +65,35 @@
 	#define INK_TAB		 GREEN
 	#define INK_HIGHLT	 BLACK
 	#define PAPER_HIGHLT YELLOW
-	#define PAPER_SCORES BLACK
-	#define SCORES_COL   	12
+	#define SCORES_COL   	11
 	#define SCORES_ROW   	 7
 #elif defined __ATARI__
 	#define INK_LAPS   	 RED
 	#define INK_TAB		 GREEN
 	#define INK_HIGHLT	 BLACK
 	#define PAPER_HIGHLT YELLOW
-	#define PAPER_SCORES BLACK
-	#define SCORES_COL   	12
+	#define SCORES_COL   	11
 	#define SCORES_ROW   	 7
 #elif defined __ORIC__
 	#define INK_LAPS   	 RED
 	#define INK_TAB		 GREEN
 	#define INK_HIGHLT	 BLACK
 	#define PAPER_HIGHLT YELLOW
-	#define PAPER_SCORES BLACK
-	#define SCORES_COL   	12
+	#define SCORES_COL   	11
 	#define SCORES_ROW   	 7
 #elif defined __CBM__
 	#define INK_LAPS   	 RED
 	#define INK_TAB		 GREEN
 	#define INK_HIGHLT	 BLACK
 	#define PAPER_HIGHLT YELLOW
-	#define PAPER_SCORES BLACK
-	#define SCORES_COL   	12
+	#define SCORES_COL   	11
 	#define SCORES_ROW   	 7
 #elif defined __LYNX__
 	#define INK_LAPS   	 RED
 	#define INK_TAB		 YELLOW	
 	#define INK_HIGHLT	 WHITE
 	#define PAPER_HIGHLT BLACK
-	#define PAPER_SCORES BLACK
-	#define SCORES_COL   	 12
+	#define SCORES_COL   	 11
 	#define SCORES_ROW   	  3
 	#define PAUSE_COL 		 15
 	#define PAUSE_LOCAL_ROW   6
@@ -108,8 +103,7 @@
 	#define INK_TAB		 GREEN
 	#define INK_HIGHLT	 BLACK
 	#define PAPER_HIGHLT YELLOW
-	#define PAPER_SCORES BLACK
-	#define SCORES_COL   	 12
+	#define SCORES_COL   	 11
 	#define SCORES_ROW   	  7
 	#define PAUSE_COL 		  7
 	#define PAUSE_LOCAL_ROW   6
@@ -281,10 +275,10 @@ void GameMenu(void);
 // See navigation.c
 void LoadNavigation(char *filename);
 void ResetLineUp(void);
-void GetWaypoint(Vehicle *car);
-int GetWaypointAngle(Vehicle *car);
-char CheckWaypoint(Vehicle *car);
-char CheckRamps(Vehicle *car);
+void GetWaypoint(void);
+int GetWaypointAngle(unsigned char i);
+char CheckWaypoint(void);
+char CheckRamps(void);
 
 // See network.c
 void ServerConnect(void);
@@ -300,6 +294,8 @@ unsigned char NetworkUpdate(void);
 void BleepSFX(unsigned char pitch);
 void BumpSFX(void);
 void EngineSFX(unsigned char index, unsigned int rpm);
-void JumpSFX(unsigned char index);
-void ScreechSFX(unsigned char index);
+#if defined(__LYNX__) || defined(__CBM__)
+  void JumpSFX(unsigned char index);
+  void ScreechSFX(unsigned char index);
+#endif
 void UpdateSFX(void);

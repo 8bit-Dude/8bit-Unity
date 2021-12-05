@@ -44,6 +44,7 @@ void EngineSFX(unsigned char index, unsigned int rpm)
 	vol[index] = VOLUME_LOW;
 }
 
+#if defined(__LYNX__) || defined(__CBM__)
 void JumpSFX(unsigned char index)
 {
 	sfx[index] = SFX_ENGINE;
@@ -51,7 +52,6 @@ void JumpSFX(unsigned char index)
 	vol[index] = VOLUME_HIGH;
 }
 
-#if defined(__LYNX__) || defined(__CBM__)
 void ScreechSFX(unsigned char index)
 {
 	sfx[index] = SFX_SCREECH;

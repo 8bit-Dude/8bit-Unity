@@ -188,7 +188,6 @@ void GameReset()
     
 	// Display warmup message
 	inkColor = WHITE; 
-	paperColor = BLACK; 
 	if (gameStep == STEP_WARMUP) {
         if (gameMode == MODE_ONLINE) {
 		#if defined __CBM__
@@ -213,8 +212,7 @@ void GameReset()
         }
 	} else {
 		PrintRace();
-	}	
-	paperColor = BLACK;
+	}
 }
 
 // Initialize Game
@@ -243,7 +241,7 @@ void GameInit(const char* map)
 	BackupRestoreChatRow(0);
 	
 	// Print map name in lower left corner
-	inkColor = WHITE; paperColor = BLACK;
+	inkColor = WHITE;
 	txtX = 0; txtY = TXT_ROWS-1;
 	PrintStr(mapList[gameMap]);
 
@@ -467,14 +465,15 @@ int LerpAngle(int iAng1, int iAng2, int dAng)
 }
 
 // Game loop (for 1 round)
+Vehicle *iCar;	// Also used in navigation
+int iX, iY;		// Also used in navigation
 char GameLoop()
 {		
 	// Game Management
-	Vehicle *car;
 #if (defined __ATARI__) || (defined __C64__) || (defined __LYNX__)
 	unsigned char sprShadow;
 #endif
-	int iX, iY, iVel, iVelMax, iAng1, iAng2, iCos, iSin, iTmp, ticks;
+	int iVel, iVelMax, iAng1, iAng2, iCos, iSin, iTmp, ticks;
 	unsigned char iCtrl, iRotMax, iJoy, iColor, collisions; 
 	unsigned char res, lastKey, iJmp, iDir, iSpr, i, j;
 	unsigned int lapTime;
@@ -535,12 +534,12 @@ char GameLoop()
 			}				
 		#endif
 			// Get player parameters
-			car = &cars[i];
-			iX = car->x2;
-			iY = car->y2;
-			iAng1 = car->ang1;
-			iAng2 = car->ang2;
-			iVel = car->vel;
+			iCar = &cars[i];
+			iX = iCar->x2;
+			iY = iCar->y2;
+			iAng1 = iCar->ang1;
+			iAng2 = iCar->ang2;
+			iVel = iCar->vel;
 			iJmp = 0;	
 			
 			// Get customized physics parameters
@@ -555,14 +554,14 @@ char GameLoop()
 			
 			// Gently LERP network players
 			if (iCtrl == NET_CONTROL) {
-				if (abs(car->x1)+abs(car->y1) > LERP_THRESHOLD) {
-					iX += car->x1; car->x1 = 0;
-					iY += car->y1; car->y1 = 0;
+				if (abs(iCar->x1)+abs(iCar->y1) > LERP_THRESHOLD) {
+					iX += iCar->x1; iCar->x1 = 0;
+					iY += iCar->y1; iCar->y1 = 0;
 				} else {
-					if      (car->x1 > 0) { if (car->x1 >= ticks) { iX += ticks; car->x1 -= ticks; } else { iX++; car->x1--; } }
-					else if (car->x1 < 0) { if (car->x1 <= ticks) { iX -= ticks; car->x1 += ticks; } else { iX--; car->x1++; } }
-					if      (car->y1 > 0) { if (car->y1 >= ticks) { iY += ticks; car->y1 -= ticks; } else { iY++; car->y1--; } }
-					else if (car->y1 < 0) { if (car->y1 <= ticks) { iY -= ticks; car->y1 += ticks; } else { iY--; car->y1++; } }
+					if      (iCar->x1 > 0) { if (iCar->x1 >= ticks) { iX += ticks; iCar->x1 -= ticks; } else { iX++; iCar->x1--; } }
+					else if (iCar->x1 < 0) { if (iCar->x1 <= ticks) { iX -= ticks; iCar->x1 += ticks; } else { iX--; iCar->x1++; } }
+					if      (iCar->y1 > 0) { if (iCar->y1 >= ticks) { iY += ticks; iCar->y1 -= ticks; } else { iY++; iCar->y1--; } }
+					else if (iCar->y1 < 0) { if (iCar->y1 <= ticks) { iY -= ticks; iCar->y1 += ticks; } else { iY--; iCar->y1++; } }
 				}
 			}
 
@@ -570,14 +569,17 @@ char GameLoop()
 			LocatePixel(iX/8u, iY/8u);
 			iColor = GetPixel();
 
+			// Fetch target waypoint
+			GetWaypoint();
+
 			// Decide the max velocity
-			if (CheckRamps(car)) {
+			if (CheckRamps()) {
 				// On ramp: check if jumping and increase max velocity
-				if (iVel >= 450) { car->jmp = clock(); }
+				if (iVel >= 450) { iCar->jmp = clock(); }
 				iVelMax = velRamp;
 			} else {
 				// Jumping: maintain speed                        
-				if ((clock()-car->jmp) < jmpTCK) {
+				if ((clock()-iCar->jmp) < jmpTCK) {
 					iVelMax = iVel;
 					iJmp = 1;
 				} else {
@@ -595,7 +597,7 @@ char GameLoop()
 				if (iCtrl > 3) {
 					// State provided by network
 					if (iCtrl == NET_CONTROL) {
-						iJoy = car->joy;
+						iJoy = iCar->joy;
 				#if defined __APPLE2__
 					// Process analog signal from paddles
 					} else {
@@ -611,9 +613,15 @@ char GameLoop()
 					}
 				#else
 					// Process digital signal from joysticks
-					} else
+					} else {
+					#if defined(__LYNX__) || defined(__NES__)						
+					  if (chatting)
+						iJoy = 255;
+					  else
+					#endif  
 						iJoy = GetJoy(iCtrl-4);
-
+					}
+					
 					// Process joystick input
 					if (!(iJoy & JOY_LEFT))  iAng2 += iTmp; 
 					if (!(iJoy & JOY_RIGHT)) iAng2 -= iTmp;
@@ -630,12 +638,12 @@ char GameLoop()
 					iVel += accRate*ticks;
 
 					// Check navigation? (not every frames)
-					if (gameFrame % MAX_PLAYERS == i)					
-						// Get angle to next waypoint
-						car->ang3 = GetWaypointAngle(car);
+					if (gameFrame % MAX_PLAYERS == i) {	
+						iCar->ang3 = GetWaypointAngle(i);
+					}
 					
 					// Lerp to navigation target
-					iAng2 = LerpAngle(iAng2, car->ang3, 3*iTmp);
+					iAng2 = LerpAngle(iAng2, iCar->ang3, 3*iTmp);
 				}
 			}
 		#if (defined __APPLE2__) || (defined __ORIC__)		// Simplified physics on slower systems...
@@ -685,16 +693,16 @@ char GameLoop()
 			// Compute next position
 		#if defined __ORIC__
 			iTmp = ticks * iVel / 16u;
-			iX += car->impx + ( iTmp * iCos ) / TCK_PER_SEC;
-			iY += car->impy - ( iTmp * iSin ) / TCK_PER_SEC;
+			iX += iCar->impx + ( iTmp * iCos ) / TCK_PER_SEC;
+			iY += iCar->impy - ( iTmp * iSin ) / TCK_PER_SEC;
 		#else				
 			iTmp = ticks * iVel / 4u;
-			iX += car->impx + ( iTmp * iCos ) / tck4;
-			iY += car->impy - ( iTmp * iSin ) / tck4;
+			iX += iCar->impx + ( iTmp * iCos ) / tck4;
+			iY += iCar->impy - ( iTmp * iSin ) / tck4;
 		#endif                
 			// Reset impulse
-			car->impx = 0;
-			car->impy = 0;
+			iCar->impx = 0;
+			iCar->impy = 0;
 			
 			// Check map boundaries				
 			if (iX < xMin) { iX = xMin; } else if (iX > xMax) { iX = xMax; }
@@ -730,8 +738,8 @@ char GameLoop()
 				if (iVel > velMin) { iVel = velMin; }
 				if (iCtrl > 3) {
 					if (iJmp) { iJmp = 0; }
-					iX = car->x2;
-					iY = car->y2;
+					iX = iCar->x2;
+					iY = iCar->y2;
 					BumpSFX();
 				}
 			}
@@ -802,25 +810,25 @@ char GameLoop()
 		#endif
 			
 			// Update car position
-			car->x2 = iX;
-			car->y2 = iY;
-			car->ang1 = iAng1;
-			car->ang2 = iAng2;
-			car->vel = iVel;
-			car->joy = iJoy;
+			iCar->x2 = iX;
+			iCar->y2 = iY;
+			iCar->ang1 = iAng1;
+			iCar->ang2 = iAng2;
+			iCar->vel = iVel;
+			iCar->joy = iJoy;
 
 			// Check navigation
 			if (iCtrl != NET_CONTROL && gameStep > STEP_WARMUP && (gameFrame&1) == (i&1)) {
 				// Check current cylinder
-				if (CheckWaypoint(car)) {
-					car->way++;
-					if ( car->way/2u == numWays) { car->way = 0; }
-					if ( car->way == 1) { 
+				if (CheckWaypoint()) {
+					iCar->way++;
+					if ( iCar->way/2u == numWays) { iCar->way = 0; }
+					if ( iCar->way == 1) { 
 						// Increment laps
-						car->lap += 1;
+						iCar->lap += 1;
 						
 						// Local: Process lap
-						if (gameMode == MODE_LOCAL && car->lap > 0) {							
+						if (gameMode == MODE_LOCAL && iCar->lap > 0) {							
 							// Play lap sound and update UI
 							BleepSFX(128); 
 							PrintLap(i);
@@ -832,7 +840,7 @@ char GameLoop()
 								lapBest[i] = lapTime;
 
 							// Check for winner
-							if (car->lap == lapGoal) {
+							if (iCar->lap == lapGoal) {
 								PrintScores();
 								return 1; 
 							}	
@@ -840,8 +848,8 @@ char GameLoop()
 					}
 				}
 				// Update old car position
-				car->x1 = car->x2;
-				car->y1 = car->y2;						
+				iCar->x1 = iCar->x2;
+				iCar->y1 = iCar->y2;						
 			}			
 		}
 
@@ -866,11 +874,19 @@ char GameLoop()
 				switch (lastKey) {
 				case KB_PAUSE: 
 					for (j=0; j<MAX_PLAYERS; ++j) { DisableSprite(j); }
-					gamePaused = 1; lynx_snd_pause(); BackupRestorePauseBg(0);
-					lastKey = MenuPause(); while (kbhit()) cgetc();
-					gamePaused = 0; lynx_snd_continue(); BackupRestorePauseBg(1); 
-					for (j=0; j<MAX_PLAYERS; ++j) { if (PlayerAvailable(j)) EnableSprite(j); }
-					gameClock = clock(); paperColor = BLACK;
+					BackupRestorePauseBg(0);			// Backup background GFX
+					gamePaused = 1; lynx_snd_pause(); 	// Disable music/sound
+					lastKey = MenuPause(); 				// Enter pause menu loop
+					while (kbhit()) cgetc();			// Flush keyboard
+					gamePaused = 0; lynx_snd_continue();// Resume music/sound
+					BackupRestorePauseBg(1); 			// Restore background GFX
+					for (j=0; j<MAX_PLAYERS; ++j) { 
+						if (PlayerAvailable(j)) {
+							lapClock[j] += (clock()-gameClock);  // Adjust lap clocks
+							EnableSprite(j); 
+						}
+					}
+					gameClock = clock();
 					break;
 				case KB_MUSIC:
 					NextMusic(1);

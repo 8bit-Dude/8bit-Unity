@@ -16,7 +16,7 @@
   #define spriteRows   10
  #if defined MULTICOLOR
   const unsigned char spriteColors[] = { SPR_BLUE,  SPR_GREY, SPR_RED,    SPR_GREY, 	// Bank 1
-										 SPR_GREEN,	SPR_GREY, SPR_YELLOW, SPR_GREY, 	// Bank 2
+										 SPR_DGREEN,SPR_GREY, SPR_DYELLOW,SPR_GREY, 	// Bank 2
 										 SPR_GREY,  SPR_GREY, SPR_GREY,   SPR_GREY };  	// Bank 3
  #else
   const unsigned char spriteColors[] = { SPR_BLUE, SPR_RED, SPR_GREEN, SPR_YELLOW,	// Bank 1
@@ -48,7 +48,7 @@
 #endif
 
 // Build Information
-const char* buildInfo = "BUILD: 2021/12/04";
+const char* buildInfo = "BUILD: 2021/12/05";
 
 // List of available maps
 unsigned char mapNum  = 10;
@@ -96,7 +96,7 @@ int main (void)
 	RecolorSprite(1, 0, 0x08); // BLUE -> ORANGE
 	RecolorSprite(2, 0, 0x05); // BLUE -> GREEN
 	RecolorSprite(3, 0, 0x09); // BLUE -> YELLOW
-	sprCushion = 5;
+	sprCushion = 6;	
 #elif defined __NES__
 	RecolorSprite(1, 0, 1); // Use Palette 1
 	RecolorSprite(2, 0, 2); // Use Palette 2
