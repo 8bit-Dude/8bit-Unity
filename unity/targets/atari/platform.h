@@ -94,7 +94,8 @@
 #define SPR_DGREEN  0xb4
 #define SPR_GREEN   0xb6
 #define SPR_LGREEN  0xb8
-#define SPR_YELLOW  0xdc
+#define SPR_DYELLOW 0xe4
+#define SPR_YELLOW  0xec
 #define SPR_BROWN   0xf8
 
 // Clock
