@@ -78,19 +78,22 @@ unsigned char GetJoy(unsigned char joy)
 #if defined(__ATARI__)
   #if defined(__HUB__)
 	if (joy && joyAdaptor) {
-		// Read joystick state from 8bit-Hub
+		// Get state from HUB
 		UpdateHub();			
-		return hubState[joy-1];
-	} else
+		return hubState[joy];
+	} else		
   #endif
-		// Read joystick state from directly
+		// Get state from registry
 		return (PEEK(0x0284+joy)<<4)+PEEK(0x0278+joy)+JOY_BTN2;
 	
 #elif defined __LYNX__
 	// 2 input types: D-Pad (#0) or 8bit-Hub (#1,#2,#3)
 	unsigned char reg, state;
-	switch (joy) {
-	case 0:
+	if (joy) {
+		// Get state from HUB
+		UpdateHub();
+		return hubState[joy];
+	} else {
 		// Get state from registry
 		reg = PEEK(0xfcb0); 
 		state = 255;
@@ -100,15 +103,8 @@ unsigned char GetJoy(unsigned char joy)
 		if (reg & 16)  { state &= ~JOY_RIGHT; }
 		if (reg & 2)   { state &= ~JOY_BTN2; }
 		if (reg & 1)   { state &= ~JOY_BTN1; }		
-		break;
-		
-	default:
-		// Get state from HUB
-		UpdateHub();
-		state = hubState[joy];
-		break;
+		return state;
 	}
-	return state;
 	
 #elif defined __ORIC__
 	// 3 input types: Keyboard (#0,#1) 8bit-Hub (#2,#3,#4) or ALTAI/PASE/IJK (#2,#3)

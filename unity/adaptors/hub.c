@@ -30,118 +30,114 @@
 // Debugging flags
 //#define DEBUG_HUB
 #if defined DEBUG_HUB
+  unsigned char i, ok, hd, tr, co, chk1, chk2, dbgID, dbgLen;
   clock_t tic, toc;
-  unsigned char ok, hd, tr, co;
 #endif  
 
-#if defined __APPLE2__
+// Serial functions
+#if defined(__APPLE2__) || defined(__LYNX__)
   #include <serial.h>
   unsigned char __fastcall__ SerialOpen(void* data); // See serial.s
   unsigned char __fastcall__ SerialGet(unsigned char* data);
   unsigned char __fastcall__ SerialPut(unsigned char data);
-  struct ser_params comParm = { SER_BAUD_19200, SER_BITS_8, SER_STOP_1, SER_PAR_NONE, SER_HS_HW };							  
-#elif defined __LYNX__
-  #include <serial.h>
-  unsigned char __fastcall__ SerialOpen(void* data); // See serial.s
-  unsigned char __fastcall__ SerialGet(unsigned char* data);
-  unsigned char __fastcall__ SerialPut(unsigned char data);
+ #if defined(__APPLE2__) 
+  struct ser_params comParm = { SER_BAUD_19200, SER_BITS_8, SER_STOP_1, SER_PAR_NONE, SER_HS_HW };
+ #elif defined(__LYNX__) 
   //struct ser_params comParm = { SER_BAUD_62500, SER_BITS_8, SER_STOP_1, SER_PAR_SPACE, SER_HS_NONE };							  
-#elif defined __ORIC__
-  unsigned char tick;
+ #endif
 #endif
 
-unsigned char hubState[7] = { COM_ERR_OFFLINE, 255, 255, 255, 255, 80, 100 };
+// Hub State
+unsigned char hubState[7] = { COM_ERR_OFFLINE, 255, 255, 255, 255, 255, 255 };
 unsigned char sendID = 0, sendLen = 0, sendHub[HUB_TX_LEN];
 unsigned char recvID = 0, recvLen = 0, recvHub[HUB_RX_LEN];
-unsigned char packetID = 0;
+unsigned char queueID = 0;
 
-unsigned char QueueHub(unsigned char packetCmd, unsigned char* packetBuffer, unsigned char packetLen)
-{
-	// Check if there is enough space in buffer
-	if (packetLen > 255-sendLen)
-		return 0;
-	
-	// Add to send buffer
-	if (++packetID > 15) { packetID = 1; }
-	sendHub[sendLen++] = packetID;	
-	sendHub[sendLen++] = packetLen+1;
-	sendHub[sendLen++] = packetCmd;
-	memcpy(&sendHub[sendLen], packetBuffer, packetLen);
-	sendLen += packetLen;
-	return 1;
-}
-
-void SendByte(unsigned char value)
-{
-	// Send 1 byte to HUB
-#if defined(__APPLE2__) || defined(__LYNX__)
-	unsigned char ch;
-	while (SerialPut(value) != SER_ERR_OK) ; // Send byte
-	while (SerialGet(&ch) != SER_ERR_OK) ;	 // Read byte (sent to oneself)	
-#elif defined(__ORIC__)
-	POKE(0x0301, value);		// Write to Printer Port
-	*((char*)0x300) &= 0xEF; 	// 11101111 - Send STROBE (falling signal)
-	tick++; tick++; tick++; 	// Wait some cycles...
-	*((char*)0x300) |= 0x10; 	// 00010000 - Reset STROBE
-#endif
-}
-
-unsigned char RecvByte(unsigned char* value)
-{
-	// Recv 1 byte from HUB
+#if defined(__ATARI__) || defined(__ORIC__)
+  void SendByte();
+  unsigned char RecvByte();
+  extern unsigned char byte;
+#else
+  void SendByte() {
+	while (SerialPut(byte) != SER_ERR_OK);  // Send byte
+	while (SerialGet(&byte) != SER_ERR_OK); // Read byte (sent to oneself)	
+  }
+  unsigned char RecvByte() {
 	unsigned char i = 255;
-	while (1) {  // Countdown i to 0
-	#if defined(__APPLE2__) || defined(__LYNX__)
-		if (SerialGet(value) == SER_ERR_OK) { break; }			// Look for incoming byte on ComLynx Port
-	#elif defined(__ORIC__)
-		if (PEEK(0x030d)&2) { *value = PEEK(0x0301); break; } 	// Look for ACKNOW on CA1 then read Printer Port
-	#endif
-		if (!i--) return 0;
+	while (i) {  // Countdown i to 0
+		if (SerialGet(&byte) == SER_ERR_OK) { return 1; }	// Look for incoming byte on ComLynx Port
+		i--;
 	}
-	return 1;
-}
+	return 0;
+  }
+#endif
 
 void RecvHub() 
 {
-	unsigned char i, len, ID, packetLen;
-	unsigned char header, footer, checksum;
+	unsigned char i, ID, len, checksum, packetLen;
 
-#if defined __ORIC__
-	SendByte(85);		// Ask Hub to send Data
-	POKE(0x0303, 0);	// Set Port A as Input
-	i = PEEK(0x0301);   // Reset ORA
-#endif	
+  #if defined(__ATARI__)
+	byte = 85; SendByte();		// Ask Hub to send Data
+	POKE(54018, 0b00111000);	// Switch to receive Mode
+	POKE(54016, 0b11000000);	// Set PIA State
+	POKE(54018, 0b00001100);
+	POKE(54016, 0b11000000);	// STROBE ON
+  #elif defined __ORIC__
+	byte = 85; SendByte();		// Ask Hub to send Data
+	POKE(0x0303, 0);			// Set Port A as Input
+	i = PEEK(0x0301);   		// Reset ORA
+  #endif	
 	
 	// Check header
-	if (!RecvByte(&header) || header != 170) {
-		if (hubState[0] != COM_ERR_OFFLINE) { hubState[0] = COM_ERR_HEADER; }
+	if (!RecvByte()) {
 		return;
 	}
-			
+	if (byte != 170) {
+		hubState[0] = COM_ERR_HEADER; 
+		return;
+	}
+					
 	// Get packet ID
-	if (!RecvByte(&ID)) { hubState[0] = COM_ERR_TRUNCAT; return; }
+	if (!RecvByte()) { 
+		hubState[0] = COM_ERR_TRUNCAT; return; 
+	}
+	ID = byte;
 	
 	// Read joystick/mouse data
 	for (i=1; i<7; i++) {
-		if (!RecvByte(&hubState[i])) { hubState[0] = COM_ERR_TRUNCAT; return; }
+		if (!RecvByte()) { 
+			hubState[0] = COM_ERR_TRUNCAT; return; 
+		}
+		hubState[i] = byte;
 	}
 
 	// Get buffer length
-	if (!RecvByte(&len)) { hubState[0] = COM_ERR_TRUNCAT; return; }
+	if (!RecvByte()) { 
+			hubState[0] = COM_ERR_TRUNCAT; return; 
+	}
+	len = byte;
 
 	// Read buffer data
 	for (i=0; i<len; i++) {
-		if (!RecvByte(&recvHub[i])) { hubState[0] = COM_ERR_TRUNCAT; return; }
+		if (!RecvByte()) { 
+			hubState[0] = COM_ERR_TRUNCAT; return; 
+		}
+		recvHub[i] = byte;
 	}	
 
 	// Get footer
-	if (!RecvByte(&footer)) { hubState[0] = COM_ERR_TRUNCAT; return; }
+	if (!RecvByte()) { 
+		hubState[0] = COM_ERR_TRUNCAT; return; 
+	}
 
 	// Verify checkum
 	checksum = ID;
 	for (i=1; i<7; i++) { checksum += hubState[i]; }
 	for (i=0; i<len; i++) { checksum += recvHub[i]; }
-	if (footer != checksum) { 
+#if defined DEBUG_HUB
+	dbgID = ID; dbgLen = len; chk1 = byte; chk2 = checksum;
+#endif	
+	if (byte != checksum) { 
 		hubState[0] = COM_ERR_CORRUPT; 
 		return; 
 	}
@@ -174,37 +170,62 @@ void SendHub()
 {
 	unsigned char i, checksum, packetLen;
 	
+  #if defined(__APPLE2__) || defined(__LYNX__)
+	while (SerialGet(&i) == SER_ERR_OK) ; // Clear UART Buffer
+  #elif defined(__ATARI__)
+	POKE(54018, 0b00111000);			// Switch to send Mode
+	POKE(54016, 0b11110000);	// Set PIA State
+	POKE(54018, 0b00001100);
+	POKE(54016, 0b10000000); 	// STROBE ON
+  #elif defined(__ORIC__)
+	__asm__("sei");		// Disable interrupts
+  #endif	
+	
 	// Send Header
-	SendByte(170);
+	byte = 170; SendByte();
 	
 	// Send Packet ID
 	if (sendLen) { sendID = sendHub[0]; }
 	checksum = (recvID & 0xf0) + sendID;
-	SendByte(checksum);
+	byte = checksum; SendByte();
 	
 	// Send Packet Data (if any)
 	if (sendLen) {	
 		packetLen = sendHub[1];
-		SendByte(packetLen);
+		byte = packetLen; SendByte();
 		for (i=2; i<packetLen+2; i++) {
-			SendByte(sendHub[i]); 
+			byte = sendHub[i]; SendByte(); 
 			checksum += sendHub[i];
 		}
 	} else {	
-		SendByte(0); 
+		byte = 0; SendByte(); 
 	}
 	
 	// Send footer
-	SendByte(checksum);
+	byte = checksum; SendByte();
+}
+
+unsigned char QueueHub(unsigned char packetCmd, unsigned char* packetBuffer, unsigned char packetLen)
+{
+	// Check if there is enough space in buffer
+	if (packetLen > 255-sendLen)
+		return 0;
+	
+	// Add to send buffer
+	if (++queueID > 15) { queueID = 1; }
+	sendHub[sendLen++] = queueID;	
+	sendHub[sendLen++] = packetLen+1;
+	sendHub[sendLen++] = packetCmd;
+	memcpy(&sendHub[sendLen], packetBuffer, packetLen);
+	sendLen += packetLen;
+	return 1;
 }
 
 clock_t updateClock;
 
 void UpdateHub() 
 {			
-	unsigned char i;
-	
-	// Throttle requests to respect refresh rate
+	// Throttle requests according to refresh rate
 	if (clock() < updateClock)
 		return;
 	updateClock = clock()+HUB_REFRESH_RATE;
@@ -213,42 +234,50 @@ void UpdateHub()
 	if (hubState[0] == COM_ERR_OFFLINE) {
 		// Queue reset command
 		if (sendHub[0] != HUB_SYS_RESET) {
+		  #if defined(__APPLE2__) || defined(__LYNX__)
+			// Setup serial interface
+			SerialOpen(0);  
+			//SerialOpen(&comParm);
+		  #elif defined(__ATARI__)
+			// Setup PIA pins
+			POKE(54018, 0b00111000);	// Switch to send Mode
+			POKE(54016, 0b11110000);	// Set PIA State
+			POKE(54018, 0b00001100);
+			POKE(54016, 0b10000000); 	// STROBE ON
+			while (clock() < updateClock);
+			updateClock = clock()+HUB_REFRESH_RATE;
+		  #endif		
+			// Setup initial request
 			recvID = 0; recvLen = 0;
 			sendID = 0; sendLen = 0;
 			QueueHub(HUB_SYS_RESET, 0, 0);
-		#if defined(__APPLE2__) || defined(__LYNX__)
-			SerialOpen(0);  // Setup serial interface
-			//SerialOpen(&comParm);  // Setup serial interface
-		#endif				
 		}
 	}
 
-#if defined DEBUG_HUB
+  #if defined DEBUG_HUB
 	tic = clock();
-#endif
-
-#if defined(__APPLE2__) || defined(__LYNX__)
-	while (SerialGet(&i) == SER_ERR_OK) ; // Clear UART Buffer
-#elif defined __ORIC__
-	__asm__("sei");		// Disable interrupts
-#endif
+  #endif
 
 	// Process HUB I/O
 	SendHub();
 	RecvHub();	
-
-#if defined __ORIC__
+	
+  #if defined __ORIC__
 	POKE(0x0303, 255);	// Set port A as Output
 	__asm__("cli");		// Resume interrupts	
-#endif	
+  #endif	
 
-#if defined DEBUG_HUB
+  #if defined DEBUG_HUB
 	toc = clock();
-	if (hubState[0] == COM_ERR_OK)      { gotoxy(0, TXT_ROWS-1); cprintf("TC%lu  ", toc-tic); 
-										  gotoxy(6, TXT_ROWS-1); cprintf("LN%u  ", recvLen);	
-										  ok+=1; gotoxy(12, TXT_ROWS-1); cprintf("OK%u  ", ok); }
-else if (hubState[0] == COM_ERR_HEADER)  { hd+=1; gotoxy(18, TXT_ROWS-1); cprintf("HD%u", hd); }	
-else if (hubState[0] == COM_ERR_TRUNCAT) { tr+=1; gotoxy(24, TXT_ROWS-1); cprintf("TR%u", tr); } 
-else if (hubState[0] == COM_ERR_CORRUPT) { co+=1; gotoxy(30, TXT_ROWS-1); cprintf("CO%u", co); }	
-#endif
+	gotoxy(0,  TXT_ROWS-3); cprintf("TC:%u ", toc-tic); 
+	gotoxy(7,  TXT_ROWS-3); cprintf("LN:%u ", recvLen);
+	 if (hubState[0] == COM_ERR_OK)      { ok+=1; gotoxy(14, TXT_ROWS-3); cprintf("OK:%u", ok); }
+else if (hubState[0] == COM_ERR_HEADER)  { hd+=1; gotoxy(21, TXT_ROWS-3); cprintf("HD:%u", hd); }	
+else if (hubState[0] == COM_ERR_TRUNCAT) { tr+=1; gotoxy(28, TXT_ROWS-3); cprintf("TR:%u", tr); } 
+else if (hubState[0] == COM_ERR_CORRUPT) { co+=1; gotoxy(35, TXT_ROWS-3); cprintf("CO:%u", co); } 
+	gotoxy(0,  TXT_ROWS-2); cprintf("CTRL:"); for (i=1; i<7; i++) { cprintf("%u,", hubState[i]); } 
+	gotoxy(0,  TXT_ROWS-1); cprintf("ID:%u ", dbgID); 
+	gotoxy(7,  TXT_ROWS-1); cprintf("C1:%u ", chk1); 
+	gotoxy(14, TXT_ROWS-1); cprintf("C2:%u ", chk2);
+  #endif
 }

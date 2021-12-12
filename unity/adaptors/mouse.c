@@ -53,7 +53,7 @@ unsigned char* GetMouse(void)
 {
     unsigned char step, joy;
 	mouseState[2] = 255;
-#if (defined __LYNX__) || (defined __ORIC__)
+#if defined __HUB__
 	// Get mouse state from Hub
 	UpdateHub();
 	if (hubState[5] != 255) {
@@ -86,7 +86,7 @@ unsigned char* GetMouse(void)
 		if (!(joy & JOY_DOWN))  { mouseState[1]  = MIN(MOU_YMAX, mouseState[1]+step); mouseState[2] &= ~MOU_MOTION; }
 		if (!(joy & JOY_BTN1))  { mouseState[2] &= ~MOU_LEFT; }
 		if (!(joy & JOY_BTN2))  { mouseState[2] &= ~MOU_RIGHT; } 
-#if (defined __LYNX__) || (defined __ORIC__)
+#if defined __HUB__
 	}
 #endif
 	return mouseState;
