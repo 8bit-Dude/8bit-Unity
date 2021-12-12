@@ -59,7 +59,7 @@ void LoadMusic(const char* filename)
 #elif defined __LYNX__
 	// Load from CART file system
 	FileRead(filename);
-#elif defined __ATARI__
+#elif defined __ATARIXL__
 	unsigned int end, pos = MUSICRAM;
 	if (FileOpen(filename)) {
 		// Consume 6 bytes of header

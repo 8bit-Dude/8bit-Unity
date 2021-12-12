@@ -169,7 +169,11 @@ extern unsigned char maskInput;
   #if (defined __HUB__)
 	#define JOY_MAX 4
   #else
-    #define JOY_MAX 2
+	#if (defined __ATARIXL__)
+		#define JOY_MAX 2
+	#else
+		#define JOY_MAX 4
+	#endif
   #endif
 #elif (defined __CBM__) || (defined __LYNX__)
     #define JOY_MAX 4

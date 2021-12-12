@@ -175,35 +175,48 @@ void PrintChr(unsigned char chr)
 	bgByte1 = BYTE4(paperColor1,paperColor2,paperColor1,paperColor2);
 	bgByte2 = BYTE4(paperColor2,paperColor1,paperColor2,paperColor1);	
 	dst1 = dst2 = txtY*320 + txtX;
-	dst1 += BITMAPRAM1; dst2 += BITMAPRAM2;
+	dst1 += BITMAPRAM1; 
+  #ifdef __ATARIXL__	
+	dst2 += BITMAPRAM2;
+  #endif
 	if (chr == ' ') {
 		for (i=0; i<8; ++i) {
 			if (i&1) {
-				POKE((char*)dst1, bgByte2);
-				if (doubleBuffer)
-					POKE((char*)dst2, bgByte1);
+								  POKE((char*)dst1, bgByte2);
+			  #ifdef __ATARIXL__	
+				if (doubleBuffer) POKE((char*)dst2, bgByte1);
+			  #endif	
 			} else {
-				POKE((char*)dst1, bgByte1);
-				if (doubleBuffer)
-					POKE((char*)dst2, bgByte2);
+								  POKE((char*)dst1, bgByte1);
+			  #ifdef __ATARIXL__	
+				if (doubleBuffer) POKE((char*)dst2, bgByte2);
+			  #endif	
 			}
-			dst1 += 40; dst2 += 40;
+			dst1 += 40; 
+		  #ifdef __ATARIXL__
+		    dst2 += 40;
+		  #endif	
 		}
 	} else {
-		POKE((char*)dst1, bgByte1); dst1 += 40;
-		POKE((char*)dst2, bgByte2); dst2 += 40;
+						  POKE((char*)dst1, bgByte1); dst1 += 40;
+	  #ifdef __ATARIXL__	
+	    if (doubleBuffer) POKE((char*)dst2, bgByte2); dst2 += 40;
+	  #endif
 		for (i=0; i<3; ++i) {
-			line = src[i];
-			POKE((char*)dst1, BYTE4(((line&128) ? inkColor2 : paperColor2), ((line&64) ? inkColor1 : paperColor1), ((line&32) ? inkColor2 : paperColor2), paperColor1)); dst1 += 40;
-			POKE((char*)dst1, BYTE4(((line&8  ) ? inkColor1 : paperColor1), ((line&4 ) ? inkColor2 : paperColor2), ((line&2 ) ? inkColor1 : paperColor1), paperColor2)); dst1 += 40;
+				line = src[i];
+				POKE((char*)dst1, BYTE4(((line&128) ? inkColor2 : paperColor2), ((line&64) ? inkColor1 : paperColor1), ((line&32) ? inkColor2 : paperColor2), paperColor1)); dst1 += 40;
+				POKE((char*)dst1, BYTE4(((line&8  ) ? inkColor1 : paperColor1), ((line&4 ) ? inkColor2 : paperColor2), ((line&2 ) ? inkColor1 : paperColor1), paperColor2)); dst1 += 40;
+		  #ifdef __ATARIXL__	
 			if (doubleBuffer) {
 				POKE((char*)dst2, BYTE4(((line&128) ? inkColor1 : paperColor1), ((line&64) ? inkColor2 : paperColor2), ((line&32) ? inkColor1 : paperColor1), paperColor2)); dst2 += 40;
 				POKE((char*)dst2, BYTE4(((line&8  ) ? inkColor2 : paperColor2), ((line&4 ) ? inkColor1 : paperColor1), ((line&2 ) ? inkColor2 : paperColor2), paperColor1)); dst2 += 40;
 			}
+		  #endif
 		}
-		POKE((char*)dst1, bgByte2);
-		if (doubleBuffer)
-			POKE((char*)dst2, bgByte1);
+						  POKE((char*)dst1, bgByte2);
+	  #ifdef __ATARIXL__	
+		if (doubleBuffer) POKE((char*)dst2, bgByte1);
+	  #endif
 	}
 	
   #elif defined __ORIC__

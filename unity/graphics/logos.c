@@ -114,12 +114,16 @@ void PrintLogo(unsigned char index)
 
 	// Get memory addresses
 	addr1 = BITMAPRAM1+txtY*320+txtX;
+  #ifdef __ATARIXL__	
 	addr2 = BITMAPRAM2+txtY*320+txtX;		
-	
+  #endif
+  
 	// Set Character data
 	for (i=0; i<8; ++i) {
 		POKE(addr1, logos[index][i]); addr1 += 40;
+	  #ifdef __ATARIXL__	
 		POKE(addr2, logos[index][i]); addr2 += 40;
+	  #endif
 	}
 	
 #elif defined __CBM__

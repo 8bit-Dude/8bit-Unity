@@ -56,7 +56,9 @@ void CopyStr(unsigned char col1, unsigned char row1, unsigned char col2, unsigne
 	dst = row1*320+col1;
 	for (i=0; i<8; ++i) {
 		memcpy((char*)BITMAPRAM1+dst, (char*)BITMAPRAM1+src, len);
+	  #ifdef __ATARIXL__	
 		memcpy((char*)BITMAPRAM2+dst, (char*)BITMAPRAM2+src, len);
+	  #endif	
 		src += 40; dst += 40;
 	}
 #elif defined __ORIC__

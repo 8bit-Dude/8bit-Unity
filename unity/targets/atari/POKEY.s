@@ -71,6 +71,7 @@ _sampleCtrl:  .res 4
 ; ---------------------------------------------------------------	
 		
 _PlayMusic:
+.ifdef __ATARIXL__
 	; Setup track address
 	ldx _musicAddr+0	; low byte of RMT module to X reg
 	ldy _musicAddr+1    ; hi byte of RMT module to Y reg
@@ -81,15 +82,18 @@ _PlayMusic:
 	lda #01
 	sta _musicVBI
 	jsr _StartVBI
+.endif	
 	rts
 
 _StopMusic:
+.ifdef __ATARIXL__
 	; Disable VBI
 	lda #00
 	sta _musicVBI
 	
 	; Reset RMT player (all sounds off)
 	jsr RMTPlayer+9
+.endif	
 	rts
 
 _SetupSFX:
@@ -104,6 +108,7 @@ _SetupSFX:
 ; ---------------------------------------------------------------
 
 _pokeyVBI:
+.ifdef __ATARIXL__
 	; Process music?
 	lda _musicVBI
 	beq skipMusicVBI
@@ -123,6 +128,7 @@ playFrame:
 	jsr _restore_rom
 	
 skipMusicVBI:
+.endif
 	
 	;-------------------
 	; Process SFX?

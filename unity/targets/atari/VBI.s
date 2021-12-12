@@ -26,13 +26,15 @@
 
 	.include "atari.inc"
 
-	.export _StartVBI, _StopVBI, _SwapPalette
-	.export _bitmapVBI, _charmapVBI, _spriteVBI
+	.export _StartVBI, _StopVBI 
+	.export _charmapVBI, _spriteVBI
+	.export _bmpAddr, _bmpPalette, _chrPalette, _SwapPalette
+.ifdef __ATARIXL__	
+	.export _bitmapVBI, _bmpToggle
+.endif	
+
 	;.export _parallaxRng, _parallaxSpd, _parallaxMax
 			
-	.export _bmpToggle, _bmpAddr
-	.export _bmpPalette, _chrPalette	
-	
 	.import _BlitSprites
 	.import _countDLI, _pokeyVBI
 	;.import _parallaxDLI
@@ -58,12 +60,14 @@ hscrol  = $d404
 	.segment	"DATA"	
 
 ; VBI parameters
-_bitmapVBI:  .byte 0
-_charmapVBI: .byte 0
-_spriteVBI:  .byte 0
+.ifdef __ATARIXL__	
+  _bitmapVBI:  .byte 0
+  _bmpToggle:  .byte 0
+.endif 
+  _charmapVBI: .byte 0
+  _spriteVBI:  .byte 0
 
 ; Bitmap/Charmap paramerers
-_bmpToggle:  .byte 0
 _bmpAddr:	 .res  2
 _bmpPalette: .byte $00, $24, $86, $d8, $00
 _chrPalette: .byte $00, $24, $86, $d8, $00
@@ -117,8 +121,109 @@ VBI:
 	sta _countDLI
 	
 	; Compute parallax?
-	;lda	_parallaxDLI
+	;lda_parallaxDLI
 	;beq skipParallax
+	;jsr _ProcessParallax 
+skipParallax:
+		
+	; Use double buffer bitmap?
+.ifdef __ATARIXL__	
+	lda _bitmapVBI
+	beq skipBitmapVBI
+	jsr _DoubleBuffer
+.endif
+skipBitmapVBI:	
+	
+	; Apply charmap/bitmap toggle?
+	lda	_charmapVBI
+	beq skipCharmapVBI
+	jsr _SwapPalette
+skipCharmapVBI:
+
+	; Apply sprite flicker?
+	lda _spriteVBI
+	beq skipSpriteVBI
+	jsr _BlitSprites
+skipSpriteVBI:
+
+	; Process POKEY sounds
+	jsr _pokeyVBI
+	
+.ifdef __CUSTOM_VBI__
+	; Process custom VBI
+	jsr _CustomVBI
+.endif
+
+	; Exit VBI
+	jmp XITVBV
+
+; ---------------------------------------------------------------
+; Bitmap flicker routine (switches between frame buffers)
+; ---------------------------------------------------------------
+.ifdef __ATARIXL__	
+_DoubleBuffer:	
+	; Toggle buffer 1/2
+	lda _bmpToggle
+	eor #$1
+	sta _bmpToggle
+	beq frame1
+
+frame2:	
+	; Switch bitmap buffer 1
+	lda #$70 
+	sta $0925
+	lda #$80 
+	sta $098d	
+	rts
+
+frame1:	
+	; Switch bitmap buffer 2
+	lda #$A0 
+	sta $0925
+	lda #$B0 
+	sta $098d		
+	rts
+.endif
+	
+; ---------------------------------------------------------------
+; Charmap/Bitmap palette swap routine
+; ---------------------------------------------------------------
+
+_SwapPalette:
+	; Reg. A toggles Charmap/Bitmap
+	beq palette2
+	
+palette1:
+	; Switch to CHR palette for the top of screen
+	lda _chrPalette+0
+	sta  colSHW0
+	lda _chrPalette+1
+	sta  colSHW1
+	lda _chrPalette+2
+	sta  colSHW2
+	lda _chrPalette+3
+	sta  colSHW3
+	lda _chrPalette+4
+	sta  colSHW4
+	rts
+	
+palette2:
+	; Switch to BMP palette for the bottom of screen
+	lda _bmpPalette+0
+	sta  colHWR0
+	lda _bmpPalette+1
+	sta  colHWR1
+	lda _bmpPalette+2
+	sta  colHWR2
+	lda _bmpPalette+3
+	sta  colHWR3
+	rts
+	
+; ---------------------------------------------------------------
+; Parallax routine
+; ---------------------------------------------------------------
+
+_ProcessParallax:
 	;ldx #0
 	;ldy #0
 loopIndx:	
@@ -162,95 +267,5 @@ processFraction:
 initialScroll:
 	;lda _hScroll
 	;sta hscrol
-skipParallax:
+	;rts
 	
-	; Apply bitmap frame flicker?
-	lda _bitmapVBI
-	beq skipBitmapVBI
-	jsr flickerFrames
-skipBitmapVBI:	
-	
-	; Apply charmap/bitmap toggle?
-	lda	_charmapVBI
-	beq skipCharmapVBI
-	jsr _SwapPalette
-skipCharmapVBI:
-
-	; Apply sprite flicker?
-	lda _spriteVBI
-	beq skipSpriteVBI
-	jsr _BlitSprites
-skipSpriteVBI:
-
-	; Process POKEY sounds
-	jsr _pokeyVBI
-	
-.ifdef __CUSTOM_VBI__
-	; Process custom VBI
-	jsr _CustomVBI
-.endif
-
-	; Exit VBI
-	jmp XITVBV
-
-; ---------------------------------------------------------------
-; Bitmap flicker routine (switches between frame buffers)
-; ---------------------------------------------------------------
-
-flickerFrames:	
-	; Toggle buffer 1/2
-	lda _bmpToggle
-	eor #$1
-	sta _bmpToggle
-	bne frame2
-
-frame1:	
-	; Switch bitmap buffer 1
-	lda #$A0 
-	sta $0925
-	lda #$B0 
-	sta $098d	
-	rts
-
-frame2:	
-	; Switch bitmap buffer 2
-	lda #$70 
-	sta $0925
-	lda #$80 
-	sta $098d		
-	rts
-	
-; ---------------------------------------------------------------
-; Charmap/Bitmap palette swap routine
-; ---------------------------------------------------------------
-
-_SwapPalette:
-	; Reg. A toggles Charmap/Bitmap
-	beq palette2
-	
-palette1:
-	; Switch to CHR palette for the top of screen
-	lda _chrPalette+0
-	sta  colSHW0
-	lda _chrPalette+1
-	sta  colSHW1
-	lda _chrPalette+2
-	sta  colSHW2
-	lda _chrPalette+3
-	sta  colSHW3
-	lda _chrPalette+4
-	sta  colSHW4
-	rts
-	
-palette2:
-	; Switch to BMP palette for the bottom of screen
-	lda _bmpPalette+0
-	sta  colHWR0
-	lda _bmpPalette+1
-	sta  colHWR1
-	lda _bmpPalette+2
-	sta  colHWR2
-	lda _bmpPalette+3
-	sta  colHWR3
-	rts
-		

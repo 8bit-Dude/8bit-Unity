@@ -42,8 +42,6 @@ colorSHADOW4 = $02c7
 ; ---------------------------------------------------------------	
 
 .proc _CharmapDLIST: near
-	lda #$00		; Lower addres of DLIST $0920 -> $0900
-	sta $0230	
 	
 header:
 	lda #$70		
@@ -102,5 +100,10 @@ footer:
 
 	lda #$09
 	sta $0906,x
+	
+	lda #$00		; Lower addres of DLIST $0920 -> $0900
+	sta $0230	
+	lda #$09
+	sta $0231		
 	rts
 .endproc

@@ -59,20 +59,28 @@ void PrintBlanks(unsigned char width, unsigned char height)
 	paperColor1 = paperColor&3;
 	paperColor2 = paperColor/4u;
 	addr1 = BITMAPRAM1+txtY*320+txtX;
+  #ifdef __ATARIXL__		
 	addr2 = BITMAPRAM2+txtY*320+txtX;
+  #endif
 	bgByte1 = BYTE4(paperColor1,paperColor2,paperColor1,paperColor2);
 	bgByte2 = BYTE4(paperColor2,paperColor1,paperColor2,paperColor1);
 	while (i<height*8) {
 		if (i&1) {
-			memset((char*)addr1, bgByte2, width);
-			if (doubleBuffer)
-				memset((char*)addr2, bgByte1, width);
+							  memset((char*)addr1, bgByte2, width);
+		  #ifdef __ATARIXL__	
+			if (doubleBuffer) memset((char*)addr2, bgByte1, width);
+		  #endif
 		} else {
-			memset((char*)addr1, bgByte1, width);
-			if (doubleBuffer)
-				memset((char*)addr2, bgByte2, width);
+							  memset((char*)addr1, bgByte1, width);
+		  #ifdef __ATARIXL__	
+			if (doubleBuffer) memset((char*)addr2, bgByte2, width);
+		  #endif
 		}
-		addr1 += 40; addr2 += 40; ++i;
+		addr1 += 40; 
+	  #ifdef __ATARIXL__	
+		addr2 += 40; 
+	  #endif
+		++i;
 	}	
 	
 #elif defined __APPLE2__

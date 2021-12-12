@@ -204,8 +204,12 @@ void InitCharmap(unsigned char col1, unsigned char col2, unsigned char row1, uns
 #elif defined __ATARI__	
 	// Init Graphic Mode
 	InitBitmap();
-	doubleBuffer = 0;
-	
+  #ifdef __ATARIXL__
+	doubleBuffer = 0;	// Disable Frame Blending
+  #else
+	POKE(0x02F4, 0xA0);	// Set Address of Char. Gen.
+  #endif
+  
 	// Charmap/Bitmap transition params	
 	chrRows = row2-1;
 	bmpRows = chrRows + 8*(CMP_ROWS-row2) + 2;

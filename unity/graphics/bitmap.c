@@ -71,9 +71,11 @@ void InitBitmap()
 	POKE(559, (16+8+2));
 
 	// Setup DLI/VBI
-	StartDLI(); StartVBI();		
+	StartDLI(); StartVBI();	
+  #ifdef __ATARIXL__
 	doubleBuffer = 1;
-	
+  #endif
+  
 #elif defined __ORIC__
 	// Switch to Hires mode
 	if PEEK((char*)0xC800)
@@ -98,7 +100,9 @@ void ShowBitmap()
 	// Set palette, DLIST and screen DMA
 	SetPalette(bmpPalette);	
 	BitmapDLIST(); 
+  #ifdef __ATARIXL__
 	bitmapVBI = 1;
+  #endif
 	POKE(559, PEEK(559)|32);
 	
 #elif defined __APPLE2__
@@ -120,7 +124,9 @@ void HideBitmap()
 		
 #elif defined __ATARI__
     // Switch off VBI and screen DMA
+  #ifdef __ATARIXL__
 	bitmapVBI = 0;
+  #endif
 	POKE(559, PEEK(559)&~32);
 	
 #elif defined __APPLE2__
@@ -148,7 +154,9 @@ void ClearBitmap(void)
 #elif defined __ATARI__
 	// clear both frames
 	bzero((char*)BITMAPRAM1, 8000);
+  #ifdef __ATARIXL__
 	bzero((char*)BITMAPRAM2, 8000);
+  #endif
 	
 #elif defined __ORIC__
 	// reset pixels and set AIC Paper/Ink
@@ -238,16 +246,20 @@ void LoadBitmap(char *filename)
 		FileRead(bmpPalette, 4);				// 4 bytes palette
 		FileRead((char*)&size, 2);
 		FileRead((char*)BITMAPRAM1-8, size);	// Read and decrunch frame 1
-		Decrunch(BITMAPRAM1-8+size);		
+		Decrunch(BITMAPRAM1-8+size);	
+	  #ifdef __ATARIXL__	
 		FileRead((char*)&size, 2);
 		FileRead((char*)BITMAPRAM2-8, size);	// Read and decrunch frame 2
 		Decrunch(BITMAPRAM2-8+size);		
+	  #endif	
 	}
   #else
 	if (FileOpen(filename)) {		
 		FileRead(bmpPalette, 4);			// 4 bytes palette
 		FileRead((char*)BITMAPRAM1, 8000);	// 8000 bytes for frame 1
+	  #ifdef __ATARIXL__	
 		FileRead((char*)BITMAPRAM2, 8000);	// 8000 bytes for frame 2
+	  #endif	
 	}
   #endif
   

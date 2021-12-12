@@ -65,7 +65,11 @@ unsigned int ChunkSize(unsigned char w, unsigned char h)
 #if defined __APPLE2__
 	return 4+(w*h*2)/7u;	// For each group of 7 pixels: 2 bytes in SHR, 4 bytes in DHR (2 in AUX + 2 in MAIN)
 #elif defined __ATARI__
-	return 4+(w*h*2)/4u;
+  #if defined __ATARIXL__
+	return 4+(w*h)/2u;
+  #else
+	return 4+(w*h)/4u;
+  #endif	  
 #elif defined __C64__
 	return 4+(w*h*10)/32u;
 #elif defined __LYNX__
@@ -179,10 +183,12 @@ void GetChunk(unsigned char** chunk, unsigned char x, unsigned char y, unsigned 
 		memcpy((char*)dst, (char*)(BITMAPRAM1+(y+i)*40u+x/4u), bytes);
 		dst += bytes;
 	}
+   #ifdef __ATARIXL__	
 	for (i=0; i<h; ++i) {
 		memcpy((char*)dst, (char*)(BITMAPRAM2+(y+i)*40u+x/4u), bytes);
 		dst += bytes;
 	}
+   #endif
   #elif defined __ORIC__
 	dst = BITMAPRAM + y*40 + x/6u;
 	POKE(0xb0, h); 			// Number of lines
@@ -246,11 +252,12 @@ void SetChunk(unsigned char* chunk, unsigned char x, unsigned char y)
 		memcpy((char*)(BITMAPRAM1+(y+i)*40+x/4u), (char*)src, bytes);
 		src += bytes;
 	}
+  #ifdef __ATARIXL__
 	for (i=0; i<h; ++i) {
 		memcpy((char*)(BITMAPRAM2+(y+i)*40+x/4u), (char*)src, bytes);
 		src += bytes;
 	}
-	
+  #endif
 #elif defined __ORIC__
 	unsigned char w = chunk[2];
 	unsigned char h = chunk[3];

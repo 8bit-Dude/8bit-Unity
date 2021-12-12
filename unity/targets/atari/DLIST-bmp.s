@@ -33,9 +33,6 @@
 ; ---------------------------------------------------------------	
 
 .proc _BitmapDLIST: near
-; Raise addres of DLIST $0900 -> $0920
-	lda #$20		
-	sta $0230	
 	
 ; Header
 	lda #$70		
@@ -48,7 +45,7 @@
 	sta $0923
 	lda #$10
 	sta $0924
-	lda #$70
+	lda #$a0
 	sta $0925
 
 ; 12 groups of 7xHires lines + 1xDLI
@@ -85,7 +82,7 @@ loop3:
 	sta $098b
 	lda #$00
 	sta $098c
-	lda #$80
+	lda #$b0
 	sta $098d
 	
 	lda #$0e	; Hires lines (x1)
@@ -118,5 +115,11 @@ loop6:
 	sta $09f0
 	lda #$09
 	sta $09f1
+	
+; Raise address of DLIST $0900 -> $0920
+	lda #$20		
+	sta $0230	
+	lda #$09
+	sta $0231	
 	rts
 .endproc

@@ -96,20 +96,33 @@ unsigned char GetPixel()
 	
 #elif defined __ATARI__
 	unsigned int offset;
-	unsigned char val1, val2, shift;
-	
+	unsigned char shift, mask, col1, col2;
+
 	// Compute pixel location
 	offset = (pixelY*40) + (pixelX/4u);
+	
+  #ifdef __ATARIXL__	
+	// Dual buffer
 	shift = 6 - 2*(pixelX&3);
-
-	// Dual buffer (colour/shade)
-	val1 = (PEEK((char*)BITMAPRAM1+offset) & ( 3 << shift )) >> shift;
-	val2 = (PEEK((char*)BITMAPRAM2+offset) & ( 3 << shift )) >> shift;
-	if (val1 > val2) {
-		return val1*4 + val2;
+	mask  = (3 << shift);
+	col1  = (PEEK((char*)BITMAPRAM1+offset) & mask) >> shift;
+	col2  = (PEEK((char*)BITMAPRAM2+offset) & mask) >> shift;
+	if (col1 > col2) {
+		return col1*4 + col2;
 	} else {
-		return val2*4 + val1;
+		return col2*4 + col1;
 	}
+  #else
+	// Single buffer  
+	shift = 4 - 2*(pixelX&2);
+	mask  = (15 << shift);
+	col1  = (PEEK((char*)BITMAPRAM1+offset) & mask) >> shift;	  
+	if ((pixelY+pixelX)&1) {
+		return col1;
+	} else {
+		return (((col1&3)<<2) + (col1>>2));
+	}
+  #endif
 	
 #elif defined __APPLE2__
 	// Use Hires routines
@@ -212,6 +225,9 @@ void SetPixel(unsigned char color)
 
 	// Compute pixel location
 	offset = (pixelY*40) + (pixelX/4u);
+	
+  #ifdef __ATARIXL__
+	// Dual buffer  
 	shift = 6 - 2*(pixelX&3);
 	mask = ~(3 << shift);
 	if ((pixelY+pixelX)&1) {
@@ -221,10 +237,19 @@ void SetPixel(unsigned char color)
 		col1 = (color&3) << shift;
 		col2 = (color>>2) << shift;
 	}
-
-	// Set color/color2 in dual buffer
 	POKE((char*)BITMAPRAM1+offset, (PEEK((char*)BITMAPRAM1+offset) & mask) | col1);
 	POKE((char*)BITMAPRAM2+offset, (PEEK((char*)BITMAPRAM2+offset) & mask) | col2);
+  #else
+	// Single buffer  
+	shift = 4 - 2*(pixelX&2);
+	mask = ~(15 << shift);
+	if ((pixelY+pixelX)&1) {
+		col1 = (color&15) << shift;
+	} else {
+		col1 = (((color&3)<<2) + (color>>2)) << shift;
+	}
+	POKE((char*)BITMAPRAM1+offset, (PEEK((char*)BITMAPRAM1+offset) & mask) | col1);
+  #endif
 
 #elif defined __CBM__
 	unsigned int offset;

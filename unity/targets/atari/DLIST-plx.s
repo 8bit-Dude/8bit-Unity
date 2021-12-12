@@ -36,8 +36,6 @@ _addr: .res 2
 ; ---------------------------------------------------------------	
 
 .proc _ParallaxDLIST: near
-	lda #$00		; Lower addres of DLIST $0920 -> $0900
-	sta $0230	
 	
 header:
 	lda #$70		
@@ -88,5 +86,10 @@ footer:
 
 	lda #$09
 	sta $0903,x
+	
+	lda #$00		; Lower addres of DLIST $0920 -> $0900
+	sta $0230	
+	lda #$09
+	sta $0231	
 	rts
 .endproc

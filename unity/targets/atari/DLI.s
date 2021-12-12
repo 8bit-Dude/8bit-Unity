@@ -24,11 +24,10 @@
 ;   specific prior written permission.
 ;
 
-	.export _StartDLI, _StopDLI
-	.export _countDLI
-	;.export _parallaxDLI
+	.export _StartDLI, _StopDLI, _countDLI
 	.export _bmpRows, _chrRows
-	;.export _hScroll
+	
+	;.export _parallaxDLI, _hScroll
 
 	.export _posPM0, _colPM0
 	.export _posPM1, _colPM1

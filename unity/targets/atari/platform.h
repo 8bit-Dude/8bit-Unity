@@ -36,8 +36,8 @@
 
 // Memory Map
 #define SCREENRAM  (0x0970) // 0950-0cff (text mode data)
-#define BITMAPRAM1 (0x7010) // 7010-8f50 (bitmap frame 1)
-#define BITMAPRAM2 (0xa010) // a010-bf50 (bitmap frame 2)
+#define BITMAPRAM1 (0xa010) // a010-bf50 (bitmap frame 1)
+#define BITMAPRAM2 (0x7010) // 7010-8f50 (bitmap frame 2)
 #define CHARSETRAM (0xa000) // a000-a3ff (char Set)
 #define CHARATRRAM (0xa400) // a400-a47f (char Attributes)
 #define CHARFLGRAM (0xa480) // a480-a4ff (char Flags)
@@ -62,6 +62,7 @@
 
 // Bitmap Palette
 #define BLACK  	0
+#define DRED 	1
 #define DBLUE   2
 #define DGREEN  3
 #define BROWN 	4
@@ -71,9 +72,9 @@
 #define PURPLE	9
 #define BLUE   	10
 #define CYAN   	10
-#define GREEN  	11
+#define GREEN  	15
 #define WHITE  	11
-#define YELLOW 	15
+#define YELLOW 	11
 
 // Sprite Palette (refer to Atari palette in /docs/Palettes)
 #define SPR_BLACK   0x00
