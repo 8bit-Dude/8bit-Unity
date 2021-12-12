@@ -63,7 +63,10 @@ def BuildUnityLibrary(self, fp, target, symbols, cList, sList, buildFolder):
 
     # Compile .c files
     for file in cList:
-        fp.write('utils\\cc65\\bin\\cc65 -Cl -O ' + target + ' ' + symbols + ' -I unity unity\\' + file + '\n')
+        if 'PIA.c' in file:
+            fp.write('utils\\cc65\\bin\\cc65 ' + target + ' ' + symbols + ' -I unity unity\\' + file + '\n')
+        else:
+            fp.write('utils\\cc65\\bin\\cc65 -Cl -O ' + target + ' ' + symbols + ' -I unity unity\\' + file + '\n')
         fp.write('utils\\cc65\\bin\\ca65 ' + target + ' ' + symbols + ' unity\\' + file[0:-2] + '.s\n')
 
     # Compile .s files
@@ -1023,118 +1026,148 @@ class Application:
         sprites = list(self.listbox_AtariSprites.get(0, END))
         chunks = list(self.listbox_AtariChunks.get(0, END))
         music = list(self.listbox_AtariMusic.get(0, END))
-        with open('../../' + buildFolder+'/'+diskname+"-atari.bat", "wb") as fp:
-            # Info
-            fp.write('echo off\n\n')
-            fp.write('mkdir atari\n')            
-            fp.write('cd ..\n\n')
-            fp.write('del ' + buildFolder + '\\atari\\*.* /F /Q\n\n')
-            
-            fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
+        
+        # Build 48 and 64k Versions
+        for target in ['48k', '64k']:
 
-            # Build Unity Library
-            cTarget = [ 'graphics\\pixel.c', 'targets\\atari\\directory.c', 'targets\\atari\\display.c', 'targets\\atari\\files.c', 'targets\\atari\\pmg.c' ]
-            sTarget = [ 'graphics\\scroll.s', 'strings\\chars.s', 'targets\\atari\\blitCharmap.s', 'targets\\atari\\blitSprites.s', 'targets\\atari\\decrunch.s', 'targets\\atari\\DLIST-bmp.s', 'targets\\atari\\DLIST-chr.s', 'targets\\atari\\DLIST-plx.s', 'targets\\atari\\DLI.s', 'targets\\atari\\ROM.s', 'targets\\atari\\VBI.s', 'targets\\atari\\xbios.s' ]
-            symbols = ''
-            if '8bit-Hub' in self.combobox_AtariNetworkDriver.get(): 
-                cTarget.append('adaptors\\hub.c')
-                symbols += '-D __HUB__ '
-            if 'Fujinet' in self.combobox_AtariNetworkDriver.get():    
-                cTarget.append('targets\\atari\\fujinet.c')
-                sTarget.append('targets\\atari\\fujiIRQ.s')
-                symbols += '-D __FUJINET__ '
-            if 'IP65' in self.combobox_AtariNetworkDriver.get():    
-                symbols += '-D __IP65__ '
-            if self.combobox_AtariCrunchAssets.get() == 'Yes':
-                symbols += '-D __DECRUNCH__ '                
-            BuildUnityLibrary(self, fp, '-t atarixl', symbols, cCore+cTarget, sCore+sTarget, buildFolder+'/atari')
-                        
-            # Compile Program
-            symbols = '-Wl -D,__STACKSIZE__=$0400 '
-            if '8bit-Hub' in self.combobox_AtariNetworkDriver.get(): 
-                symbols += '-D __HUB__ '
-            if 'Fujinet' in self.combobox_AtariNetworkDriver.get():    
-                symbols += '-D __FUJINET__ '
-            if 'IP65' in self.combobox_AtariNetworkDriver.get():    
-                symbols += '-D __IP65__ '
-            comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/atari/' + diskname.lower() + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-atari.map -Cl -O -t atarixl ' + symbols + '-C atarixl-largehimem.cfg -I unity '
-            for item in code:
-                comp += (item + ' ')
-            if self.combobox_AtariNetworkDriver.get() == 'IP65(TCP/UDP)':
-                fp.write(comp + 'unity/targets/atari/POKEY.s ' + buildFolder + '/atari/unity.lib unity/adaptors/ip65_tcp.lib unity/adaptors/ip65_atarixl.lib\n')
-            elif self.combobox_AtariNetworkDriver.get() == 'IP65(UDP)':
-                fp.write(comp + 'unity/targets/atari/POKEY.s ' + buildFolder + '/atari/unity.lib unity/adaptors/ip65.lib unity/adaptors/ip65_atarixl.lib\n')
+            # Bitmap encoding mode
+            if target == '64k':
+                graphics = 'double'
             else:
-                fp.write(comp + 'unity/targets/atari/POKEY.s ' + buildFolder + '/atari/unity.lib\n')
-            fp.write('utils\\cc65\\bin\\cl65 -t atarixl -C atari-asm.cfg -o ' + buildFolder + '/atari/basicoff.bin unity/targets/atari/BASICOFF.s\n')
-            fp.write('utils\\scripts\\atari\\mads.exe -o:' + buildFolder + '/atari/rmt.bin unity/targets/atari/RMT.a65\n\n')
+                graphics = 'single'
+        
+            with open('../../' + buildFolder+'/'+diskname+"-atari"+target+".bat", "wb") as fp:
+                # Info
+                fp.write('echo off\n\n')
+                fp.write('mkdir atari\n')            
+                fp.write('cd ..\n\n')
+                fp.write('del ' + buildFolder + '\\atari\\*.* /F /Q\n\n')
+                
+                fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
-            # Merging
-            fp.write('utils\\py27\\python utils\\scripts\\atari\\AtariMerge.py ' + buildFolder + '/atari/xautorun ' + buildFolder + '/atari/basicoff.bin ' + buildFolder + '/atari/' + diskname.lower() + '.bin ' + buildFolder + '/atari/rmt.bin\n')
-
-            fp.write('echo --------------- CONVERT ASSETS ---------------  \n\n')
-            
-            # Bitmaps
-            for item in bitmaps:
+                # Build Unity Library
+                cTarget = [ 'graphics\\pixel.c', 'targets\\atari\\directory.c', 'targets\\atari\\display.c', 'targets\\atari\\files.c', 'targets\\atari\\pmg.c' ]
+                sTarget = [ 'graphics\\scroll.s', 'strings\\chars.s', 'targets\\atari\\blitCharmap.s', 'targets\\atari\\blitSprites.s', 'targets\\atari\\decrunch.s', 'targets\\atari\\DLIST-bmp.s', 'targets\\atari\\DLIST-chr.s', 'targets\\atari\\DLIST-plx.s', 'targets\\atari\\DLI.s', 'targets\\atari\\ROM.s', 'targets\\atari\\VBI.s', 'targets\\atari\\xbios.s' ]
+                symbols = ''
+                if '8bit-Hub' in self.combobox_AtariNetworkDriver.get(): 
+                    cTarget.append('adaptors\\hub.c')
+                    cTarget.append('targets\\atari\\PIA.c')
+                    symbols += '-D __HUB__ '
+                if 'Fujinet' in self.combobox_AtariNetworkDriver.get():    
+                    cTarget.append('targets\\atari\\fujinet.c')
+                    sTarget.append('targets\\atari\\fujiIRQ.s')
+                    symbols += '-D __FUJINET__ '
+                if 'IP65' in self.combobox_AtariNetworkDriver.get():    
+                    symbols += '-D __IP65__ '
                 if self.combobox_AtariCrunchAssets.get() == 'Yes':
-                    fp.write('utils\\py27\\python utils\\scripts\\atari\\AtariBitmap.py crunch ' + item + ' ' + buildFolder + '/atari/' + FileBase(item, '.png') + '.img\n')
+                    symbols += '-D __DECRUNCH__ '     
+                if target == '48k':
+                    BuildUnityLibrary(self, fp, '-t atari', symbols, cCore+cTarget, sCore+sTarget, buildFolder+'/atari')
                 else:
-                    fp.write('utils\\py27\\python utils\\scripts\\atari\\AtariBitmap.py raw ' + item + ' ' + buildFolder + '/atari/' + FileBase(item, '.png') + '.img\n')
+                    BuildUnityLibrary(self, fp, '-t atarixl', symbols, cCore+cTarget, sCore+sTarget, buildFolder+'/atari')
+                            
+                # Compile Program
+                symbols = '-Wl -D,__STACKSIZE__=$0400 '
+                if '8bit-Hub' in self.combobox_AtariNetworkDriver.get(): 
+                    symbols += '-D __HUB__ '
+                if 'Fujinet' in self.combobox_AtariNetworkDriver.get():    
+                    symbols += '-D __FUJINET__ '
+                if 'IP65' in self.combobox_AtariNetworkDriver.get():    
+                    symbols += '-D __IP65__ '
+                if target == '48k':                        
+                    comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/atari/' + diskname.lower() + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-atari' + target + '.map -Cl -O -t atari ' + symbols + ' -I unity '
+                else:
+                    comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/atari/' + diskname.lower() + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-atari' + target + '.map -Cl -O -t atarixl ' + symbols + '-C atarixl-largehimem.cfg -I unity '
+                for item in code:
+                    comp += (item + ' ')
+                comp += 'unity/targets/atari/POKEY.s ' + buildFolder + '/atari/unity.lib '
+                if target == '48k':
+                    if self.combobox_AtariNetworkDriver.get() == 'IP65(TCP/UDP)':
+                        comp += 'unity/adaptors/ip65_tcp.lib unity/adaptors/ip65_atari.lib'
+                    elif self.combobox_AtariNetworkDriver.get() == 'IP65(UDP)':
+                        comp += 'unity/adaptors/ip65.lib unity/adaptors/ip65_atari.lib'
+                else:
+                    if self.combobox_AtariNetworkDriver.get() == 'IP65(TCP/UDP)':
+                        comp += 'unity/adaptors/ip65_tcp.lib unity/adaptors/ip65_atarixl.lib'
+                    elif self.combobox_AtariNetworkDriver.get() == 'IP65(UDP)':
+                        comp += 'unity/adaptors/ip65.lib unity/adaptors/ip65_atarixl.lib'
+                fp.write(comp + '\n')
                 
-            # Charmaps/Tilesets
-            for item in charmaps:
-                fp.write('copy ' + item.replace('/', '\\') + ' ' + buildFolder + '\\atari\n')
+                # BASIC disabler
+                if target == '48k':
+                    fp.write('utils\\cc65\\bin\\cl65 -t atari -C atari-asm.cfg -o ' + buildFolder + '/atari/basicoff.bin unity/targets/atari/BASICOFF.s\n')
+                else:
+                    fp.write('utils\\cc65\\bin\\cl65 -t atarixl -C atari-asm.cfg -o ' + buildFolder + '/atari/basicoff.bin unity/targets/atari/BASICOFF.s\n')
                 
-            # Charsets
-            if len(charset) > 0:
-                fb = FileBase(charset[0], '.png')
-                fp.write('utils\\py27\python utils\\scripts\\atari\\AtariCharset.py ' + charset[0] + ' ' + buildFolder + '/atari/' + fb + '.chr\n')
+                # RMT player
+                fp.write('utils\\scripts\\atari\\mads.exe -o:' + buildFolder + '/atari/rmt.bin unity/targets/atari/RMT.a65\n\n')
+
+                # Merging
+                fp.write('utils\\py27\\python utils\\scripts\\atari\\AtariMerge.py ' + buildFolder + '/atari/xautorun ' + buildFolder + '/atari/basicoff.bin ' + buildFolder + '/atari/' + diskname.lower() + '.bin ' + buildFolder + '/atari/rmt.bin\n')
+
+                fp.write('echo --------------- CONVERT ASSETS ---------------  \n\n')
                 
-            # Sprites    
-            if len(sprites) > 0:
-                spriteHeight = int(self.entry_AtariSpriteHeight.get())
-                fp.write('utils\\py27\\python utils\\scripts\\atari\\AtariSprites.py ' + sprites[0] + ' ' + buildFolder + '/atari/sprites.dat ' + str(spriteHeight) + '\n')
+                # Bitmaps
+                for item in bitmaps:
+                    if self.combobox_AtariCrunchAssets.get() == 'Yes':
+                        fp.write('utils\\py27\\python utils\\scripts\\atari\\AtariBitmap.py ' + graphics + ' crunch ' + item + ' ' + buildFolder + '/atari/' + FileBase(item, '.png') + '.img\n')
+                    else:
+                        fp.write('utils\\py27\\python utils\\scripts\\atari\\AtariBitmap.py ' + graphics + ' raw ' + item + ' ' + buildFolder + '/atari/' + FileBase(item, '.png') + '.img\n')
+                    
+                # Charmaps/Tilesets
+                for item in charmaps:
+                    fp.write('copy ' + item.replace('/', '\\') + ' ' + buildFolder + '\\atari\n')
+                    
+                # Charsets
+                if len(charset) > 0:
+                    fb = FileBase(charset[0], '.png')
+                    fp.write('utils\\py27\python utils\\scripts\\atari\\AtariCharset.py ' + charset[0] + ' ' + buildFolder + '/atari/' + fb + '.chr\n')
+                    
+                # Sprites    
+                if len(sprites) > 0:
+                    spriteHeight = int(self.entry_AtariSpriteHeight.get())
+                    fp.write('utils\\py27\\python utils\\scripts\\atari\\AtariSprites.py ' + sprites[0] + ' ' + buildFolder + '/atari/sprites.dat ' + str(spriteHeight) + '\n')
+                    
+                # Chunks
+                if len(chunks) > 0:
+                    fp.write('utils\\py27\\python utils\\scripts\\ProcessChunks.py atari ' + chunks[0] + ' ' + buildFolder + '/atari/\n')
+
+                # Shared Data
+                for item in shared:
+                    fp.write('copy ' + item.replace('/','\\') + ' ' + buildFolder + '\\atari\n')
+
+                # Music
+                for item in music:
+                    fp.write('copy ' + item.replace('/','\\') + ' ' + buildFolder + '\\atari\\' + FileBase(item, '.rmt') + '.mus\n')
+
+                fp.write('echo --------------- ATARI DISK BUILDER --------------- \n\n')
+
+                # Clean-up build folder
+                fp.write('del ' + buildFolder + '\\atari\\*.bin\n')
+                fp.write('del ' + buildFolder + '\\atari\\*.lib\n')
+                fp.write('del ' + buildFolder + '\\atari\\*.lst\n')
                 
-            # Chunks
-            if len(chunks) > 0:
-                fp.write('utils\\py27\\python utils\\scripts\\ProcessChunks.py atari ' + chunks[0] + ' ' + buildFolder + '/atari/\n')
+                # Copy xBios files
+                fp.write('copy utils\\scripts\\atari\\xbios.com ' + buildFolder + '\\atari\\autorun\n')
+                fp.write('copy utils\\scripts\\atari\\xbios.cfg ' + buildFolder + '\\atari\\xbios.cfg\n')
 
-            # Shared Data
-            for item in shared:
-                fp.write('copy ' + item.replace('/','\\') + ' ' + buildFolder + '\\atari\n')
+                # Disk builder
+                if self.combobox_AtariDiskSize.get() == '360KB':                
+                    fp.write('utils\\scripts\\atari\\dir2atr.exe -md -B utils/scripts/atari/xboot.obx 1440 ' + buildFolder + '/' + diskname + '-atari' + target + '.atr ' + buildFolder + '\\atari\n')
+                elif self.combobox_AtariDiskSize.get() == '180KB':                
+                    fp.write('utils\\scripts\\atari\\dir2atr.exe -mD -B utils/scripts/atari/xboot.obx ' + buildFolder + '/' + diskname + '-atari' + target + '.atr ' + buildFolder + '\\atari\n')
+                elif self.combobox_AtariDiskSize.get() == '130KB':                
+                    fp.write('utils\\scripts\\atari\\dir2atr.exe -mE -B utils/scripts/atari/xboot.obx ' + buildFolder + '/' + diskname + '-atari' + target + '.atr ' + buildFolder + '\\atari\n')
+                elif self.combobox_AtariDiskSize.get() == '90KB':                
+                    fp.write('utils\\scripts\\atari\\dir2atr.exe -mS -B utils/scripts/atari/xboot.obx ' + buildFolder + '/' + diskname + '-atari' + target + '.atr ' + buildFolder + '\\atari\n')
 
-            # Music
-            for item in music:
-                fp.write('copy ' + item.replace('/','\\') + ' ' + buildFolder + '\\atari\\' + FileBase(item, '.rmt') + '.mus\n')
-
-            fp.write('echo --------------- ATARI DISK BUILDER --------------- \n\n')
-
-            # Clean-up build folder
-            fp.write('del ' + buildFolder + '\\atari\\*.bin\n')
-            fp.write('del ' + buildFolder + '\\atari\\*.lib\n')
-            fp.write('del ' + buildFolder + '\\atari\\*.lst\n')
-            
-            # Copy xBios files
-            fp.write('copy utils\\scripts\\atari\\xbios.com ' + buildFolder + '\\atari\\autorun\n')
-            fp.write('copy utils\\scripts\\atari\\xbios.cfg ' + buildFolder + '\\atari\\xbios.cfg\n')
-
-            # Disk builder
-            if self.combobox_AtariDiskSize.get() == '360KB':                
-                fp.write('utils\\scripts\\atari\\dir2atr.exe -md -B utils/scripts/atari/xboot.obx 1440 ' + buildFolder + '/' + diskname + '-atari.atr ' + buildFolder + '\\atari\n')
-            elif self.combobox_AtariDiskSize.get() == '180KB':                
-                fp.write('utils\\scripts\\atari\\dir2atr.exe -mD -B utils/scripts/atari/xboot.obx ' + buildFolder + '/' + diskname + '-atari.atr ' + buildFolder + '\\atari\n')
-            elif self.combobox_AtariDiskSize.get() == '130KB':                
-                fp.write('utils\\scripts\\atari\\dir2atr.exe -mE -B utils/scripts/atari/xboot.obx ' + buildFolder + '/' + diskname + '-atari.atr ' + buildFolder + '\\atari\n')
-            elif self.combobox_AtariDiskSize.get() == '90KB':                
-                fp.write('utils\\scripts\\atari\\dir2atr.exe -mS -B utils/scripts/atari/xboot.obx ' + buildFolder + '/' + diskname + '-atari.atr ' + buildFolder + '\\atari\n')
-
-            fp.write('echo --------------- ATARI DISK READY --------------- \n\n')
-            
-            # Start emulator?
-            if callEmu:
-                fp.write('pause\n\n')
-                fp.write('cd "utils\emulators\Altirra-3.20"\n')
-                fp.write('Altirra.exe "..\\..\\..\\' + buildFolder + '\\' + diskname + '-atari.atr"\n')             
+                fp.write('echo --------------- ATARI DISK READY --------------- \n\n')
+                
+                # Start emulator?
+                if callEmu:
+                    fp.write('pause\n\n')
+                    fp.write('cd "utils\emulators\Altirra-3.20"\n')
+                    fp.write('Altirra.exe "..\\..\\..\\' + buildFolder + '\\' + diskname + '-atari' + target + '.atr"\n')             
 
         ####################################################
         # C64 script
@@ -1797,7 +1830,7 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
     
             # Build Unity Library
-            cTarget = [ 'adaptors\\hub.c', 'graphics\\pixel.c', 'targets\\oric\\directory.c', 'targets\\oric\\files.c' ]
+            cTarget = [ 'adaptors\\hub.c', 'graphics\\pixel.c', 'targets\\oric\\directory.c', 'targets\\oric\\files.c', 'targets\\oric\\VIA.c' ]
             sTarget = [ 'graphics\\scroll.s', 'strings\\chars.s', 'targets\\oric\\blitCharmap.s', 'targets\\oric\\blitSprite.s', 'targets\\oric\\paseIJK.s', 'targets\\oric\\keyboard.s', 'targets\\oric\\sedoric.s', 'targets\\oric\\MYM.s' ]
             symbols = ' -D __HUB__'
             BuildUnityLibrary(self, fp, '-t atmos', symbols, cCore+cTarget, sCore+sTarget, buildFolder+'/oric')

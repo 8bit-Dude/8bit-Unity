@@ -28,9 +28,10 @@ from PIL import Image
 import io, os, sys
 import subprocess
 
-compress = sys.argv[1]
-input = sys.argv[2]
-output = sys.argv[3]
+resolution = sys.argv[1]
+compress = sys.argv[2]
+input = sys.argv[3]
+output = sys.argv[4]
 
 try:
     ##############################
@@ -49,21 +50,19 @@ try:
     for y in range(200):
         for x in range(160):
             # Convert PNG to INP index 
+            color = pixdata[y*160+x]            
+            offset = y*40+x/4
             shift = 6 - 2*(x%4)
-            color = pixdata[y*160+x]
+            mask = 255 - (3<<shift)            
             if (x+y)%2:   # Alternate to create checker board
                 col2 = color%4 << shift
                 col1 = color/4 << shift
             else:
                 col1 = color%4 << shift
                 col2 = color/4 << shift
-                
-            # Assign bits in both buffers
-            offset = y*40+x/4
-            mask = 255 - (3<<shift)            
             buf1[offset] = (buf1[offset] & mask) | col1
             buf2[offset] = (buf2[offset] & mask) | col2  
-            
+    
     #################
     # Convert to CHR
     for i in range(8000):
@@ -75,45 +74,51 @@ try:
     if compress == 'crunch':
         # Write raw data files
         f = io.open(output.replace('.img','.raw1'), 'wb')
-        f.write(''.join([chr(0x10), chr(0x70)]))     # Load Address: $7010  
+        f.write(''.join([chr(0x10), chr(0xa0)]))     # Load Address: $a010         
         f.write(''.join(buf1))
         f.close()    
-        f = io.open(output.replace('.img','.raw2'), 'wb')	
-        f.write(''.join([chr(0x10), chr(0xa0)]))     # Load Address: $a010         
-        f.write(''.join(buf2))
-        f.close()    
+        if resolution == 'double':
+            f = io.open(output.replace('.img','.raw2'), 'wb')	
+            f.write(''.join([chr(0x10), chr(0x70)]))     # Load Address: $7010  
+            f.write(''.join(buf2))
+            f.close()    
         
         # Crunch data and read back
         subprocess.call(["utils/scripts/exomizer-3.1.0.exe", "mem", "-lnone", output.replace('.img','.raw1'), "-o", output.replace('.img','.sfx1')])
-        subprocess.call(["utils/scripts/exomizer-3.1.0.exe", "mem", "-lnone", output.replace('.img','.raw2'), "-o", output.replace('.img','.sfx2')])
+        if resolution == 'double':
+            subprocess.call(["utils/scripts/exomizer-3.1.0.exe", "mem", "-lnone", output.replace('.img','.raw2'), "-o", output.replace('.img','.sfx2')])
         
         # Read back compressed data
         f = io.open(output.replace('.img','.sfx1'), 'rb')
         sfx1 = f.read(); 
         f.close()
-        f = io.open(output.replace('.img','.sfx2'), 'rb')
-        sfx2 = f.read(); 
-        f.close()
+        if resolution == 'double':
+            f = io.open(output.replace('.img','.sfx2'), 'rb')
+            sfx2 = f.read(); 
+            f.close()
         
         # Consolidate to single file
         f = io.open(output, 'wb')	
         f.write(''.join(palette))
         f.write(''.join([chr(len(sfx1)%256), chr(len(sfx1)/256)])); f.write(sfx1)
-        f.write(''.join([chr(len(sfx2)%256), chr(len(sfx2)/256)])); f.write(sfx2)
+        if resolution == 'double':
+            f.write(''.join([chr(len(sfx2)%256), chr(len(sfx2)/256)])); f.write(sfx2)
         f.close()    
         
         # Clean-up
         os.remove(output.replace('.img','.raw1'))
-        os.remove(output.replace('.img','.raw2'))        
         os.remove(output.replace('.img','.sfx1'))
-        os.remove(output.replace('.img','.sfx2'))        
+        if resolution == 'double':
+            os.remove(output.replace('.img','.raw2'))        
+            os.remove(output.replace('.img','.sfx2'))        
         
     else:
         # Just write raw data
         f = io.open(output, 'wb')	
         f.write(''.join(palette))
         f.write(''.join(buf1))
-        f.write(''.join(buf2))
+        if resolution == 'double':
+            f.write(''.join(buf2))
         f.close()    
 
 except:
