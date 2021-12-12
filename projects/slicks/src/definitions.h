@@ -7,7 +7,9 @@
 //#define DEBUG_NAV
 
 // NetCode Toggle
-//#define NETCODE
+#ifndef __NES__
+  #define NETCODE
+#endif
 
 // Keyboard definitions
 #if defined(__LYNX__)
@@ -172,7 +174,15 @@
 #if defined __APPLE2__
   #define LEN_CONTROL 9
 #elif defined __ATARI__
+ #if defined __HUB__
   #define LEN_CONTROL 9
+ #else
+  #if defined __ATARIXL__		 
+    #define LEN_CONTROL 7
+  #else	
+    #define LEN_CONTROL 9
+  #endif	 
+ #endif	 
 #elif defined __CBM__
   #define LEN_CONTROL 9
 #elif defined __LYNX__

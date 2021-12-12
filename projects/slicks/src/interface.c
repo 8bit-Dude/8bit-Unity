@@ -43,23 +43,31 @@ unsigned int bestLapTime[] = { LAPMAX, LAPMAX, LAPMAX, LAPMAX, LAPMAX, LAPMAX,
   unsigned char controlIndex[MAX_PLAYERS] = { 4, 1, 1, 1 };
   unsigned char controlBackup[MAX_PLAYERS] = { 4, 1, 1, 1 };
 #else
-  unsigned char controlIndex[MAX_PLAYERS] = { 4, 1, 0, 0 };
-  unsigned char controlBackup[MAX_PLAYERS] = { 4, 1, 0, 0 };
+  unsigned char controlIndex[MAX_PLAYERS] = { 4, 1, 1, 0 };
+  unsigned char controlBackup[MAX_PLAYERS] = { 4, 1, 1, 0 };
 #endif
 
 // List of controller strings
 #if defined __APPLE2__
-  const char* controlList[LEN_CONTROL] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "PADDLE 1", "PADDLE 2", "PADDLE 3", "PADDLE 4", "NETWORK" };
+   const char* controlList[LEN_CONTROL-1] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "PADDLE 1", "PADDLE 2", "PADDLE 3", "PADDLE 4" };
 #elif defined __ATARI__
-  const char* controlList[LEN_CONTROL] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "JOY 1", "JOY 2", "HUB 1", "HUB 2", "NETWORK" };
+ #if defined __HUB__
+   const char* controlList[LEN_CONTROL-1] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "JOY 1", "HUB 1", "HUB 2", "HUB 3" };
+ #else
+  #if defined __ATARIXL__	 
+   const char* controlList[LEN_CONTROL-1] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "JOY 1", "JOY 2" };
+  #else
+   const char* controlList[LEN_CONTROL-1] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "JOY 1", "JOY 2", "JOY 3", "JOY 4" };
+  #endif	  
+ #endif	 
 #elif defined __ORIC__
-  const char* controlList[LEN_CONTROL] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "A,D,CTRL", "J,L,RET", "HUB/IJK 1", "HUB/IJK 2", "NETWORK" };
+   const char* controlList[LEN_CONTROL-1] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "A,D,CTRL", "J,L,RET", "HUB/IJK 1", "HUB/IJK 2" };
 #elif defined __CBM__
-  const char* controlList[LEN_CONTROL] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "JOY 1", "JOY 2", "JOY 3", "JOY 4", "NETWORK" };
+   const char* controlList[LEN_CONTROL-1] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "JOY 1", "JOY 2", "JOY 3", "JOY 4" };
 #elif defined __LYNX__
-  const char* controlList[LEN_CONTROL] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "JOY 1", "HUB 1", "HUB 2", "HUB 3", "NETWORK" };
+   const char* controlList[LEN_CONTROL-1] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "JOY 1", "HUB 1", "HUB 2", "HUB 3" };
 #elif defined __NES__
-  const char* controlList[LEN_CONTROL] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "JOY 1", "JOY 2", "NETWORK" };
+   const char* controlList[LEN_CONTROL-1] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "JOY 1", "JOY 2" };
 #endif
 
 // Performance Drawing
@@ -247,9 +255,9 @@ void MenuGFX()
 	inkColor = WHITE; paperColor = BLACK;
 	txtX = MENU_COL+3; 
 	if (bmpToggle & 2) {
-		PrintStr("FX: OFF  ");				
+		PrintStr("FX: SINGLE");				
 	} else {
-		PrintStr("FX: BLEND");				
+		PrintStr("FX: DOUBLE");				
 	}	
 }
 #endif
@@ -486,8 +494,8 @@ void PrintScores()
 	
 	// Print results and wait
 	for (i=0; i<MAX_PLAYERS; ++i) {
-		if (controlIndex[i] > 0) {
-			j = rank[i];
+		j = rank[i];
+		if (controlIndex[j] > 0) {
 			inkColor = inkColors[j];
 			txtY += 2;
 		#if defined __ORIC__
@@ -507,7 +515,7 @@ void PrintScores()
 		
 			// Display best lap time
 			d = lapBest[j];
-			if (gameMode == MODE_LOCAL && controlIndex[j]>3 && d < bestLapTime[gameMap]) {
+			if (controlIndex[j]>3 && controlIndex[j] < NET_CONTROL && d < bestLapTime[gameMap]) {
 				bestLapTime[gameMap] = d;
 				inkColor = YELLOW;
 				txtX = SCORES_COL+17; PrintChr('*');
@@ -864,7 +872,7 @@ void GameMenu()
 			MenuLaps();
 
 			// Platform specific menus
-		#if defined __ATARI__			
+		#if defined __ATARIXL__			
 			MenuGFX();
 		#endif		
 
@@ -925,7 +933,7 @@ void GameMenu()
 				#endif				
 					MenuLaps();
 				}
-			#if defined __ATARI__
+			#if defined __ATARIXL__
 				// Switch GFX Mode
 				if (lastchar == KB_G) { 
 					bmpToggle ^= 2;
@@ -999,7 +1007,7 @@ void GameMenu()
 
 			// Setup pages
 			maxPage = mapNum/8u+2;
-		#if defined(__LYNX__)
+		#if defined(__LYNX__) || defined(__NES__) 
 			lastchar = KB_U;
 		#else
 			curPage = 0;
@@ -1007,7 +1015,7 @@ void GameMenu()
 			while (1) { 
 			
 				// Display page contents
-			#if defined(__LYNX__)
+			#if defined(__LYNX__) || defined(__NES__) 
 				if (lastchar == KB_U) {
 					ReadEEPROM();
 					curPage = cursorRow - MENU_ROW - 1;
@@ -1058,7 +1066,6 @@ void GameMenu()
 				PrintNum(curPage); txtX+=2;
 				PrintNum(maxPage);
 				inkColor = WHITE;
-		//#endif
 			
 				// Get Character
 				lastchar = MenuWait();

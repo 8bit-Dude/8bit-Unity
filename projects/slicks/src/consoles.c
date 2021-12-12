@@ -6,6 +6,10 @@
   #pragma code-name("BANK0")
 #endif
 
+#ifdef __LYNX__
+void __fastcall__ SuzyFlip(void);
+#endif
+
 // See slicks.c
 extern unsigned char mapNum, inkColors[];
 
@@ -27,15 +31,12 @@ extern Vehicle cars[MAX_PLAYERS];
 extern unsigned char clIndex, clUser[];
 extern char chatBuffer[20];
 
-#ifdef __LYNX__
-void __fastcall__ SuzyFlip(void);
-#endif
-
-#if defined(__LYNX__)
+///////// EEPROM Functions //////////////
 char eepromID[] = "SS";
 
 unsigned char CheckEEPROM(void)
 {
+#if defined(__LYNX__)		
 	// Check EEPROM ID
 	unsigned char i = 0;
 	while (i < 2) {
@@ -45,11 +46,13 @@ unsigned char CheckEEPROM(void)
 		}
 		i++;
 	}
+#endif	
 	return 1;
 }
 
 void ResetEEPROM(void)
 {
+#if defined(__LYNX__)	
 	// Write ID and Blanks to EEPROM
 	unsigned char i = 0;
 	while (i < 2) {	
@@ -64,10 +67,12 @@ void ResetEEPROM(void)
 		lynx_eeprom_write(i++, 52);
 		lynx_eeprom_write(i++, 23);		
 	}
+#endif	
 }
 
 void ReadEEPROM(void)
 {
+#if defined(__LYNX__)	
 	unsigned int time;
 	unsigned char i=2, j=0;
 	
@@ -88,10 +93,12 @@ void ReadEEPROM(void)
 			time = LAPMAX;		
 		bestLapTime[j++] = time;
 	}
+#endif
 }
 
 void WriteEEPROM(void)
 {	
+#if defined(__LYNX__)	
 	unsigned int time;
 	unsigned char i=2, j=0;
 
@@ -106,10 +113,9 @@ void WriteEEPROM(void)
 		lynx_eeprom_write(i++, (unsigned char)(time%256));
 		lynx_eeprom_write(i++, (unsigned char)(time/256));
 	}	
-}
 #endif
+}
 
-#if defined(__LYNX__) || defined(__NES__)
 unsigned char gamePaused = 0;
 const unsigned char *pauseLabel[] = { "resume", "race!", "next!", "quit", "bye!", "congrats", "hang on", "hello!", "ready", "so close", "thanks!", "yes" };
 const unsigned char pauseAction[] = { KB_PAUSE, KB_START, KB_NEXT, KB_QUIT, 4, 5, 6, 7, 8, 9, 10, 11 };
@@ -343,4 +349,3 @@ unsigned char MenuPause(void)
 		UpdateDisplay();
 	}	
 }
-#endif

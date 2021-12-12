@@ -200,7 +200,6 @@ void GetWaypoint(void)
 	vWay = way->v[iCar->way&1];
 }
 
-
 #ifdef __ATARIXL__
   #pragma code-name("SHADOW_RAM")
 #endif
@@ -221,8 +220,3 @@ char CheckRamps(void)
     }
     return 0;
 }
-
-#ifdef __APPLE2__
-  #pragma code-name("LC")
-#endif
-
