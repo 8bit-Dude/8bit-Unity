@@ -54,14 +54,11 @@ unsigned char recvID = 0, recvLen = 0, recvHub[HUB_RX_LEN];
 unsigned char queueID = 0;
 
 #if defined(__ATARI__) || defined(__ORIC__)
-  void SendByte();
-  unsigned char RecvByte();
   extern unsigned char byte;
+  unsigned char RecvByte();
+  void SendByte();
 #else
-  void SendByte() {
-	while (SerialPut(byte) != SER_ERR_OK);  // Send byte
-	while (SerialGet(&byte) != SER_ERR_OK); // Read byte (sent to oneself)	
-  }
+  unsigned char byte;	
   unsigned char RecvByte() {
 	unsigned char i = 255;
 	while (i) {  // Countdown i to 0
@@ -69,6 +66,10 @@ unsigned char queueID = 0;
 		i--;
 	}
 	return 0;
+  }
+  void SendByte() {
+	while (SerialPut(byte) != SER_ERR_OK);  // Send byte
+	while (SerialGet(&byte) != SER_ERR_OK); // Read byte (sent to oneself)	
   }
 #endif
 
