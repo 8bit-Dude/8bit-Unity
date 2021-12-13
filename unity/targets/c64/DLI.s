@@ -30,15 +30,22 @@
 	.segment "DATA"	
 
 _rasterLine: .byte 0
+_backupVec: .res 2
 
-	.segment "CODE"	
+	.segment "LOWCODE"	
 	
 ; ---------------------------------------------------------------
 ; void __near__ _StartDLI (void)
 ; ---------------------------------------------------------------	
 
-.proc _StartDLI: near
+.proc _StartDLI: near	
+	LDA  $0314			 ; Backup current interrupt
+	STA _backupVec+0
+	LDA  $0315
+	STA _backupVec+1	
+	
 	SEI                  ; set interrupt bit, make the CPU ignore interrupt requests
+	
 	LDA #%01111111       ; switch off interrupt signals from CIA-1
 	STA $DC0D
 	
@@ -68,9 +75,19 @@ _rasterLine: .byte 0
 ; ---------------------------------------------------------------	
 
 .proc _StopDLI: near
-	SEI                  ; set interrupt bit, make the CPU ignore interrupt requests
+	SEI                  ; set interrupt bit, make the CPU ignore interrupt requests		
+
 	LDA #%00000000       ; disable raster interrupt signals from VIC
 	STA $D01A	
+
+	LDA _backupVec+0	 ; Restore old interrupt
+	STA  $0314			
+	LDA _backupVec+1	
+	STA  $0315
+
+	LDA #%11111111       ; switch on interrupt signals from CIA-1
+	STA $DC0D
+
 	CLI                  ; clear interrupt flag, allowing the CPU to respond to interrupt requests
 	RTS
 .endproc

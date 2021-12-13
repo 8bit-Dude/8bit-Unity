@@ -216,7 +216,7 @@ void InitCharmap(unsigned char col1, unsigned char col2, unsigned char row1, uns
 	bmpAddr = BITMAPRAM1 + row2*(8*40);
 #elif defined __CBM__
 	// Charmap/Bitmap transition params
-	rasterLine = 57 + row2*8;
+	rasterLine = 50 + row2*8;
 	colorData  = (char*)(COLORRAM + screenRow1*LINE_SIZE + screenCol1*CHAR_WIDTH);
 #endif
 }
