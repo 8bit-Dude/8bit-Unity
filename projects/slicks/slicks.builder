@@ -2,7 +2,7 @@
     "format": "8bit-Unity Project", 
     "formatVersion": 2, 
     "general": {
-        "disk": "slicks", 
+        "disk": "slicks-demo", 
         "code": [
             "projects/slicks/src/slicks.c", 
             "projects/slicks/src/game.c", 
@@ -12,7 +12,7 @@
             "projects/slicks/src/network.c", 
             "projects/slicks/src/sfx.c"
         ], 
-        "shared": [
+        "shared": [ 
             "projects/slicks/navigation/arizona.nav", 
             "projects/slicks/navigation/arto.nav", 
             "projects/slicks/navigation/cramp.nav", 
@@ -23,6 +23,16 @@
             "projects/slicks/navigation/rally.nav", 
             "projects/slicks/navigation/river.nav", 
             "projects/slicks/navigation/stadium.nav"
+            "projects/slicks/masks/arizona.msk", 
+            "projects/slicks/masks/arto.msk", 
+            "projects/slicks/masks/cramp.msk", 
+            "projects/slicks/masks/freeway.msk", 
+            "projects/slicks/masks/gta.msk", 
+            "projects/slicks/masks/island.msk", 
+            "projects/slicks/masks/mtcarlo.msk", 
+            "projects/slicks/masks/rally.msk", 
+            "projects/slicks/masks/river.msk", 
+            "projects/slicks/masks/stadium.msk",			
         ], 
         "charmap": [], 
         "tilesize": "None", 
@@ -32,7 +42,7 @@
         "Apple": {
             "spriteFrames": "64", 
             "spriteWidth": "7", 
-            "spriteHeight": "5", 
+            "spriteHeight": "6", 
             "bitmapDHR": [
                 "projects/slicks/bitmaps/menu-apple-dhr.png", 
                 "projects/slicks/bitmaps/arizona-apple-dhr.png", 
@@ -73,7 +83,8 @@
             "chunks": [], 
             "diskSize": "140KB", 
             "crunchAssets": "Yes", 
-            "networkDriver": "IP65(UDP)"
+            "networkDriver": "IP65(UDP)", 
+            "assetFilter": "*"
         }, 
         "Atari": {
             "spriteFrames": "18", 
@@ -102,7 +113,8 @@
             "chunks": [], 
             "diskSize": "130KB", 
             "crunchAssets": "Yes", 
-            "networkDriver": "IP65(UDP)"
+            "networkDriver": "IP65(UDP)", 
+            "assetFilter": "*"
         }, 
         "C64": {
             "spriteFrames": "18", 
@@ -131,14 +143,13 @@
             ], 
             "chunks": [], 
             "crunchAssets": "Yes", 
-            "networkDriver": "IP65(UDP)"
+            "networkDriver": "IP65(UDP)", 
+            "assetFilter": ".msk"
         }, 
         "Lynx": {
             "spriteFrames": "18", 
             "spriteWidth": "8", 
             "spriteHeight": "9", 
-            "musicMemory": "$0800", 
-            "sharedMemory": "$0100", 
             "bitmap": [
                 "projects/slicks/bitmaps/promo-lynx.png", 
                 "projects/slicks/bitmaps/menu-lynx.png", 
@@ -160,7 +171,10 @@
             "music": [
                 "projects/slicks/music/speednik-lynx.asm"
             ], 
-            "chunks": []
+            "chunks": [], 
+            "musicMemory": "$0800", 
+            "sharedMemory": "$0100", 
+            "assetFilter": ".msk"
         }, 
         "NES": {
             "bitmapTiles": "192", 
@@ -188,25 +202,13 @@
                 "projects/slicks/music/speednik-nes.txt"
             ], 
             "chunks": [], 
-            "mask": [
-                "projects/slicks/masks/arizona.msk", 
-                "projects/slicks/masks/arto.msk", 
-                "projects/slicks/masks/cramp.msk", 
-                "projects/slicks/masks/freeway.msk", 
-                "projects/slicks/masks/gta.msk", 
-                "projects/slicks/masks/island.msk", 
-                "projects/slicks/masks/mtcarlo.msk", 
-                "projects/slicks/masks/rally.msk", 
-                "projects/slicks/masks/river.msk", 
-                "projects/slicks/masks/stadium.msk"
-            ]
+            "assetFilter": "*"
         }, 
         "Oric": {
             "spriteFrames": "17", 
             "spriteWidth": "12", 
             "spriteHeight": "6", 
             "dithering": "0.2", 
-            "enforcedColors": "0,4,5,10,19", 
             "bitmap": [
                 "projects/slicks/bitmaps/menu-oric.png", 
                 "projects/slicks/bitmaps/arizona-oric.png", 
@@ -227,7 +229,8 @@
             "music": [
                 "projects/slicks/music/speednik-oric.ym"
             ], 
-            "chunks": []
+            "chunks": [], 
+            "assetFilter": "*"
         }
     }
 }
