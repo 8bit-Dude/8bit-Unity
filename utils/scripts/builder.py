@@ -221,6 +221,7 @@ class Application:
         self.combobox_AppleDiskSize = self.builder.get_object('Combobox_AppleDiskSize');
         self.combobox_AppleCrunchAssets = self.builder.get_object('Combobox_AppleCrunchAssets');
         self.combobox_AppleNetworkDriver = self.builder.get_object('Combobox_AppleNetworkDriver');
+        self.entry_AppleAssetFilter = self.builder.get_object('Entry_AppleAssetFilter')
         
         self.listbox_AtariBitmap = self.builder.get_object('Listbox_AtariBitmap')        
         self.listbox_AtariCharset = self.builder.get_object('Listbox_AtariCharset')        
@@ -233,6 +234,7 @@ class Application:
         self.combobox_AtariDiskSize = self.builder.get_object('Combobox_AtariDiskSize');
         self.combobox_AtariCrunchAssets = self.builder.get_object('Combobox_AtariCrunchAssets');
         self.combobox_AtariNetworkDriver = self.builder.get_object('Combobox_AtariNetworkDriver');
+        self.entry_AtariAssetFilter = self.builder.get_object('Entry_AtariAssetFilter')
         
         self.listbox_C64Bitmap = self.builder.get_object('Listbox_C64Bitmap')        
         self.listbox_C64Charset = self.builder.get_object('Listbox_C64Charset')        
@@ -245,6 +247,7 @@ class Application:
         self.entry_C64SpriteHeight = self.builder.get_object('Entry_C64SpriteHeight')
         self.combobox_C64CrunchAssets = self.builder.get_object('Combobox_C64CrunchAssets');
         self.combobox_C64NetworkDriver = self.builder.get_object('Combobox_C64NetworkDriver');
+        self.entry_C64AssetFilter = self.builder.get_object('Entry_C64AssetFilter')
         
         self.listbox_LynxBitmap = self.builder.get_object('Listbox_LynxBitmap')        
         self.listbox_LynxCharset = self.builder.get_object('Listbox_LynxCharset')        
@@ -256,6 +259,7 @@ class Application:
         self.entry_LynxSpriteHeight = self.builder.get_object('Entry_LynxSpriteHeight')
         self.entry_LynxMusicMemory = self.builder.get_object('Entry_LynxMusicMemory')
         self.entry_LynxSharedMemory = self.builder.get_object('Entry_LynxSharedMemory')
+        self.entry_LynxAssetFilter = self.builder.get_object('Entry_LynxAssetFilter')
 
         self.listbox_NESBitmap = self.builder.get_object('Listbox_NESBitmap')        
         self.listbox_NESCharset = self.builder.get_object('Listbox_NESCharset')        
@@ -266,6 +270,7 @@ class Application:
         self.entry_NESSpriteFrames = self.builder.get_object('Entry_NESSpriteFrames')
         self.entry_NESSpriteWidth = self.builder.get_object('Entry_NESSpriteWidth')
         self.entry_NESSpriteHeight = self.builder.get_object('Entry_NESSpriteHeight')
+        self.entry_NESAssetFilter = self.builder.get_object('Entry_NESAssetFilter')
         
         self.listbox_OricBitmap = self.builder.get_object('Listbox_OricBitmap')        
         self.listbox_OricCharset = self.builder.get_object('Listbox_OricCharset')        
@@ -276,6 +281,7 @@ class Application:
         self.entry_OricSpriteWidth = self.builder.get_object('Entry_OricSpriteWidth')
         self.entry_OricSpriteHeight = self.builder.get_object('Entry_OricSpriteHeight')
         self.entry_OricDithering = self.builder.get_object('Entry_OricDithering')
+        self.entry_OricAssetFilter = self.builder.get_object('Entry_OricAssetFilter')
                 
         # Set some defaults
         self.combobox_CustomVBI.current(0)
@@ -297,9 +303,10 @@ class Application:
                          self.entry_LynxSpriteFrames,  self.entry_LynxSpriteWidth,  self.entry_LynxSpriteHeight, 
                          self.entry_OricSpriteFrames,  self.entry_OricSpriteWidth,  self.entry_OricSpriteHeight,
                          self.entry_OricDithering,     self.entry_LynxMusicMemory,  self.entry_LynxSharedMemory,
-                         self.entry_C64CharsetColors,
-                         self.entry_NESSpriteFrames,   self.entry_NESSpriteWidth,   self.entry_NESSpriteHeight,
-                         self.entry_NESBitmapTiles     ]
+                         self.entry_C64CharsetColors,  self.entry_AppleAssetFilter,self.entry_AtariAssetFilter,
+                         self.entry_C64AssetFilter,   self.entry_LynxAssetFilter, self.entry_NESAssetFilter,
+                         self.entry_OricAssetFilter,  self.entry_NESSpriteFrames,  self.entry_NESSpriteWidth,   
+                         self.entry_NESSpriteHeight,   self.entry_NESBitmapTiles     ]
         self.listboxes = [ self.listbox_Code, 
                            self.listbox_AppleBitmapDHR,self.listbox_AppleSpritesDHR,self.listbox_AppleMusic,
                            self.listbox_AtariBitmap,   self.listbox_AtariSprites, self.listbox_AtariMusic,
@@ -514,6 +521,7 @@ class Application:
                     ('diskSize', ('Combobox', self.combobox_AppleDiskSize)),
                     ('crunchAssets', ('Combobox', self.combobox_AppleCrunchAssets)),
                     ('networkDriver', ('Combobox', self.combobox_AppleNetworkDriver)),
+                    ('assetFilter', ('entry', self.entry_AppleAssetFilter)),
                 ]),
                 ('Atari', [
                     ('spriteFrames', ('entry', self.entry_AtariSpriteFrames)),
@@ -527,6 +535,7 @@ class Application:
                     ('diskSize', ('Combobox', self.combobox_AtariDiskSize)),
                     ('crunchAssets', ('Combobox', self.combobox_AtariCrunchAssets)),
                     ('networkDriver', ('Combobox', self.combobox_AtariNetworkDriver)),
+                    ('assetFilter', ('entry', self.entry_AtariAssetFilter)),                    
                 ]),
                 ('C64', [
                     ('spriteFrames', ('entry', self.entry_C64SpriteFrames)),
@@ -540,18 +549,20 @@ class Application:
                     ('chunks', ('listbox', self.listbox_C64Chunks)),
                     ('crunchAssets', ('Combobox', self.combobox_C64CrunchAssets)),
                     ('networkDriver', ('Combobox', self.combobox_C64NetworkDriver)),
+                    ('assetFilter', ('entry', self.entry_C64AssetFilter)),                    
                 ]),
                 ('Lynx', [
                     ('spriteFrames', ('entry', self.entry_LynxSpriteFrames)),
                     ('spriteWidth', ('entry', self.entry_LynxSpriteWidth)),
                     ('spriteHeight', ('entry', self.entry_LynxSpriteHeight)),
-                    ('musicMemory', ('entry', self.entry_LynxMusicMemory)),
-                    ('sharedMemory', ('entry', self.entry_LynxSharedMemory)),
                     ('bitmap', ('listbox', self.listbox_LynxBitmap)),
                     ('charset', ('listbox', self.listbox_LynxCharset)),
                     ('sprites', ('listbox', self.listbox_LynxSprites)),
                     ('music', ('listbox', self.listbox_LynxMusic)),
                     ('chunks', ('listbox', self.listbox_LynxChunks)),
+                    ('musicMemory', ('entry', self.entry_LynxMusicMemory)),
+                    ('sharedMemory', ('entry', self.entry_LynxSharedMemory)),
+                    ('assetFilter', ('entry', self.entry_LynxAssetFilter)),
                 ]),
                 ('NES', [
                     ('bitmapTiles', ('entry', self.entry_NESBitmapTiles)),
@@ -563,6 +574,7 @@ class Application:
                     ('sprites', ('listbox', self.listbox_NESSprites)),
                     ('music', ('listbox', self.listbox_NESMusic)),
                     ('chunks', ('listbox', self.listbox_NESChunks)),
+                    ('assetFilter', ('entry', self.entry_NESAssetFilter)),
                 ]),                
                 ('Oric', [
                     ('spriteFrames', ('entry', self.entry_OricSpriteFrames)),
@@ -574,6 +586,7 @@ class Application:
                     ('sprites', ('listbox', self.listbox_OricSprites)),
                     ('music', ('listbox', self.listbox_OricMusic)),
                     ('chunks', ('listbox', self.listbox_OricChunks)),
+                    ('assetFilter', ('entry', self.entry_OricAssetFilter)),                    
                 ]),
             ]),
         ]
@@ -881,6 +894,7 @@ class Application:
         spritesSHR = list(self.listbox_AppleSpritesSHR.get(0, END))
         chunks = list(self.listbox_AppleChunks.get(0, END))
         music = list(self.listbox_AppleMusic.get(0, END))
+        sharedApple = [item for item in shared if self.entry_AppleAssetFilter.get() not in item]
         
         # Build Single and Double Hires Scripts
         for target in ['64k', '128k']:
@@ -991,7 +1005,7 @@ class Application:
                 for item in music:
                     fb = FileBase(item, '.m')
                     fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p ' + buildFolder + '/' + diskname + '-apple' + target + ext + ' ' + fb.upper() + '.MUS bin < ' +item + '\n')
-                for item in shared:
+                for item in sharedApple:
                     fb = FileBase(item, '')
                     fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p ' + buildFolder + '/' + diskname + '-apple' + target + ext + ' ' + fb.upper() + ' bin < ' + item + '\n')
                 if len(chunks) > 0:
@@ -1012,6 +1026,7 @@ class Application:
         sprites = list(self.listbox_AtariSprites.get(0, END))
         chunks = list(self.listbox_AtariChunks.get(0, END))
         music = list(self.listbox_AtariMusic.get(0, END))
+        sharedAtari = [item for item in shared if self.entry_AtariAssetFilter.get() not in item]
         
         # Build 48 and 64k Versions
         for target in ['48k', '64k']:
@@ -1119,7 +1134,7 @@ class Application:
                     fp.write('utils\\py27\\python utils\\scripts\\ProcessChunks.py atari ' + chunks[0] + ' ' + buildFolder + '/atari/\n')
 
                 # Shared Data
-                for item in shared:
+                for item in sharedAtari:
                     fp.write('copy ' + item.replace('/','\\') + ' ' + buildFolder + '\\atari\n')
 
                 # Music
@@ -1162,6 +1177,8 @@ class Application:
         sprites = list(self.listbox_C64Sprites.get(0, END))
         chunks = list(self.listbox_C64Chunks.get(0, END))
         music = list(self.listbox_C64Music.get(0, END))
+        sharedC64 = [item for item in shared if self.entry_C64AssetFilter.get() not in item]
+        
         with open('../../' + buildFolder+'/'+diskname+"-c64.bat", "wb") as fp:
             # Info
             fp.write('echo off\n\n')
@@ -1245,7 +1262,7 @@ class Application:
             for item in music:
                 fb = FileBase(item, '.sid')
                 fp.write('-write ' + buildFolder + '/c64/' + fb + '.sid ' + fb + '.mus ')              
-            for item in shared:
+            for item in sharedC64:
                 fp.write('-write ' + item + ' ' + FileBase(item, '') + ' ')                
             fp.write('\nfor /f "tokens=*" %%A in (' + buildFolder + '\c64\chunks.lst) do set C1541=!C1541!-write %%A %%~nxA \n')
             fp.write('%C1541%\n')
@@ -1265,6 +1282,8 @@ class Application:
         sprites = list(self.listbox_LynxSprites.get(0, END))
         chunks = list(self.listbox_LynxChunks.get(0, END))
         music = list(self.listbox_LynxMusic.get(0, END))
+        sharedLynx = [item for item in shared if self.entry_LynxAssetFilter.get() not in item]
+        
         with open('../../' + buildFolder+'/'+diskname+"-lynx.bat", "wb") as fp:
             # Info
             fp.write('echo off\n\n')
@@ -1318,8 +1337,8 @@ class Application:
             fp.write('\n')
 
             # Copy Shared files
-            if len(shared) > 0:             
-                for item in shared:
+            if len(sharedLynx) > 0:             
+                for item in sharedLynx:
                     fb = FileBase(item, '')
                     fp.write('copy ' + item.replace('/', '\\') + ' ' + buildFolder + '\\lynx\\' + fb + '\n')
                 fp.write('\n')
@@ -1332,7 +1351,7 @@ class Application:
             fp.write('set /a CHUNKNUM=0\n')
             if len(chunks) > 0:
                 fp.write('for /f "tokens=*" %%A in (chunks.lst) do set CHUNKNAMES=!CHUNKNAMES!_shkName!CHUNKNUM!,&&set /a CHUNKNUM+=1\n')
-            fp.write('set /a FILENUM=!CHUNKNUM!+' + str(len(bitmaps)+len(charmaps)+len(charset)+len(music)+len(shared)) + '\n')
+            fp.write('set /a FILENUM=!CHUNKNUM!+' + str(len(bitmaps)+len(charmaps)+len(charset)+len(music)+len(sharedLynx)) + '\n')
             fp.write('\n')
             
             # Get Size of various files
@@ -1348,7 +1367,7 @@ class Application:
                 filelist += fb + '.chr,'
             for i in range(len(music)):
                 filelist += 'music' + str(i).zfill(2) + '.asm,'
-            for item in shared:
+            for item in sharedLynx:
                 fb = FileBase(item, '')
                 filelist += fb + ','
             fp.write('set FILESIZES=\n')
@@ -1371,7 +1390,7 @@ class Application:
             fp.write('@echo _fileNum: .byte %FILENUM% >> data.asm\n')  
 
             # List of file names and data
-            if len(bitmaps) > 0 or len(charmaps) > 0 or len(charset) > 0 or len(music) > 0 or len(shared) > 0 or len(chunks) > 0:
+            if len(bitmaps) > 0 or len(charmaps) > 0 or len(charset) > 0 or len(music) > 0 or len(sharedLynx) > 0 or len(chunks) > 0:
                 # Declare all Bitmap, Shared and Chunk files
                 fp.write('@echo _fileSizes: .word %FILESIZES:~0,-1% >> data.asm\n')
                 fp.write('@echo _fileNames: .addr ')
@@ -1396,7 +1415,7 @@ class Application:
                         fp.write(',')
                     fp.write('_musName' + str(i).zfill(2))
                     counter += 1
-                for i in range(len(shared)):
+                for i in range(len(sharedLynx)):
                     if counter > 0:
                         fp.write(',')
                     fp.write('_shrName' + str(i).zfill(2))
@@ -1429,8 +1448,8 @@ class Application:
                     fp.write('@echo _musName' + str(i).zfill(2) + ': .byte "' + fb + '.mus",0 >> data.asm\n')
                     
                 # Write list of Shared
-                for i in range(len(shared)):
-                    fb = FileBase(shared[i], '')
+                for i in range(len(sharedLynx)):
+                    fb = FileBase(sharedLynx[i], '')
                     fp.write('@echo _shrName' + str(i).zfill(2) + ': .byte "' + fb + '",0 >> data.asm\n')
                     
                 # Write list of Chunks                
@@ -1463,8 +1482,8 @@ class Application:
                     fp.write('@echo .import _musData' + str(i).zfill(2) + ' >> data.asm\n')
                     
                 # Link list of shared
-                for i in range(len(shared)):
-                    fb = FileBase(shared[i], '')
+                for i in range(len(sharedLynx)):
+                    fb = FileBase(sharedLynx[i], '')
                     fp.write('@echo .segment "SHR' + str(i) + 'DATA" >> data.asm\n')
                     fp.write('@echo _shrData' + str(i).zfill(2) + ': .incbin "' + fb + '" >> data.asm\n')
                     
@@ -1497,8 +1516,8 @@ class Application:
             fp.write('\n')
 
             # Generate config and directory Files
-            fp.write('utils\\py27\\python utils/scripts/lynx/LynxConfig.py unity/targets/lynx/lynx.cfg ' + buildFolder + '/lynx/lynx.cfg ' + self.entry_LynxMusicMemory.get() + ' ' + self.entry_LynxSharedMemory.get() + ' ' + str(len(bitmaps)+len(charmaps)+len(charset)) + ' ' + str(len(music)) + ' ' + str(len(shared)) + ' %CHUNKNUM%\n')
-            fp.write('utils\\py27\\python utils/scripts/lynx/LynxDirectory.py unity/targets/lynx/directory.s ' + buildFolder + '/lynx/directory.asm ' + str(len(bitmaps)+len(charmaps)+len(charset)) + ' ' + str(len(music)) + ' ' + str(len(shared)) + ' %CHUNKNUM%\n')
+            fp.write('utils\\py27\\python utils/scripts/lynx/LynxConfig.py unity/targets/lynx/lynx.cfg ' + buildFolder + '/lynx/lynx.cfg ' + self.entry_LynxMusicMemory.get() + ' ' + self.entry_LynxSharedMemory.get() + ' ' + str(len(bitmaps)+len(charmaps)+len(charset)) + ' ' + str(len(music)) + ' ' + str(len(sharedLynx)) + ' %CHUNKNUM%\n')
+            fp.write('utils\\py27\\python utils/scripts/lynx/LynxDirectory.py unity/targets/lynx/directory.s ' + buildFolder + '/lynx/directory.asm ' + str(len(bitmaps)+len(charmaps)+len(charset)) + ' ' + str(len(music)) + ' ' + str(len(sharedLynx)) + ' %CHUNKNUM%\n')
                         
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
@@ -1534,6 +1553,8 @@ class Application:
         chunks = list(self.listbox_NESChunks.get(0, END))
         music = list(self.listbox_NESMusic.get(0, END))
         maxTiles = int(self.entry_NESBitmapTiles.get())
+        sharedNES = [item for item in shared if self.entry_NESAssetFilter.get() not in item]
+        
         with open('../../' + buildFolder+'/'+diskname+"-nes.bat", "wb") as fp:
             # Info
             fp.write('echo off\n\n')
@@ -1574,8 +1595,8 @@ class Application:
                 fp.write('copy ' + item.replace('/', '\\') + ' ' + buildFolder + '\\nes\\music.txt\n')
                 fp.write('utils\\scripts\\nes\\text2data -ca65 build/nes/music.txt\n\n')
 
-            if len(shared) > 0:             
-                for item in shared:
+            if len(sharedNES) > 0:             
+                for item in sharedNES:
                     fb = FileBase(item, '')
                     fp.write('copy ' + item.replace('/', '\\') + ' ' + buildFolder + '\\nes\\' + fb + '\n')
                 fp.write('\n')                
@@ -1595,7 +1616,7 @@ class Application:
             fp.write('set /a CHUNKNUM=0\n')
             if len(chunks) > 0:
                 fp.write('for /f "tokens=*" %%A in (chunks.lst) do set CHUNKNAMES=!CHUNKNAMES!_shkName!CHUNKNUM!,&&set /a CHUNKNUM+=1\n')
-            fp.write('set /a FILENUM=!CHUNKNUM!+' + str(len(bitmaps)+len(charset)+len(charmaps)+len(shared)) + '\n')
+            fp.write('set /a FILENUM=!CHUNKNUM!+' + str(len(bitmaps)+len(charset)+len(charmaps)+len(sharedNES)) + '\n')
             fp.write('\n')
             
             # Get Size of various files
@@ -1609,7 +1630,7 @@ class Application:
             for item in charmaps:
                 fb = FileBase(item, '')
                 filelist += fb + ','
-            for item in shared:
+            for item in sharedNES:
                 fb = FileBase(item, '')
                 filelist += fb + ','
             fp.write('set FILESIZES=\n')
@@ -1645,7 +1666,7 @@ class Application:
             fp.write('@echo _fileNum: .byte %FILENUM% >> data.asm\n')  
 
             # List of file names and data
-            if len(bitmaps) > 0 or len(charmaps) > 0 or len(charset) > 0 or len(shared) > 0:
+            if len(bitmaps) > 0 or len(charmaps) > 0 or len(charset) > 0 or len(sharedNES) > 0:
                 # Declare all Bitmap, Shared and Chunk files
                 fp.write('@echo _fileSizes: .word %FILESIZES:~0,-1% >> data.asm\n')
                 fp.write('@echo _fileBanks: .byte %FILEBANKS:~0,-1% >> data.asm\n')
@@ -1666,7 +1687,7 @@ class Application:
                         fp.write(',')
                     fp.write('_mapName' + str(i).zfill(2))
                     counter += 1
-                for i in range(len(shared)):
+                for i in range(len(sharedNES)):
                     if counter > 0:
                         fp.write(',')
                     fp.write('_shrName' + str(i).zfill(2))
@@ -1689,8 +1710,8 @@ class Application:
                     fp.write('@echo _mapName' + str(i).zfill(2) + ': .byte "' + fb + '",0 >> data.asm\n')
 
                 # Write list of Shared
-                for i in range(len(shared)):
-                    fb = FileBase(shared[i], '')
+                for i in range(len(sharedNES)):
+                    fb = FileBase(sharedNES[i], '')
                     fp.write('@echo _shrName' + str(i).zfill(2) + ': .byte "' + fb + '",0 >> data.asm\n')                    
             else:
                 fp.write('@echo _fileSizes: .word 0 >> data.asm\n')
@@ -1715,8 +1736,8 @@ class Application:
                 fp.write('@echo .segment "BANK!BANKS[%i]!" >> data.asm\n' % counter)
                 fp.write('@echo _mapData' + str(i).zfill(2) + ': .incbin "' + fb + '" >> data.asm\n')                
                 counter += 1
-            for i in range(len(shared)):
-                fb = FileBase(shared[i], '')
+            for i in range(len(sharedNES)):
+                fb = FileBase(sharedNES[i], '')
                 fp.write('@echo .segment "BANK!BANKS[%i]!" >> data.asm\n' % counter)
                 fp.write('@echo _shrData' + str(i).zfill(2) + ': .incbin "' + fb + '" >> data.asm\n')                
                 counter += 1
@@ -1780,6 +1801,8 @@ class Application:
         sprites = list(self.listbox_OricSprites.get(0, END))
         chunks = list(self.listbox_OricChunks.get(0, END))
         music = list(self.listbox_OricMusic.get(0, END))
+        sharedOric = [item for item in shared if self.entry_OricAssetFilter.get() not in item]
+        
         with open('../../' + buildFolder+'/'+diskname+"-oric48k.bat", "wb") as fp:
             # Info
             fp.write('echo off\n\n')
@@ -1838,7 +1861,7 @@ class Application:
                 fp.write('utils\\scripts\\oric\\ym2mym ' + item + ' ' + buildFolder + '/oric/' + fb + '.mus\n')
                 fp.write('utils\\scripts\\oric\\header -h1 -a0 ' + buildFolder + '/oric/' + fb + '.mus ' + buildFolder + '/oric/' + fb + '.mus $8000\n')
                 
-            for item in shared:
+            for item in sharedOric:
                 fb = FileBase(item, '')
                 fp.write('utils\\scripts\\oric\\header -a0 ' + item + ' ' + buildFolder + '/oric/' + fb + ' $A000\n')
                 
@@ -1860,7 +1883,7 @@ class Application:
             for item in music:
                 fb = FileBase(item, '.ym')
                 cmd += ' ' + buildFolder + '/oric/' + fb + '.mus'
-            for item in shared:
+            for item in sharedOric:
                 cmd += ' ' + buildFolder + '/oric/' + FileBase(item, '')
             fp.write(cmd + '\n')
             if len(chunks) > 0:

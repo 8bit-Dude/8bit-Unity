@@ -3,7 +3,7 @@
   <object class="ttk.Frame" id="mainwindow">
     <child>
       <object class="ttk.Notebook" id="Notebook_Assets">
-        <property name="height">460</property>
+        <property name="height">485</property>
         <property name="width">450</property>
         <layout>
           <property name="column">0</property>
@@ -35,7 +35,7 @@
 					</layout>
 					<child>
 					  <object class="tk.Listbox" id="Listbox_Code">
-						<property name="height">4</property>
+						<property name="height">5</property>
 						<property name="width">70</property>
 						<layout>
 						  <property name="column">0</property>
@@ -114,7 +114,7 @@
                     </layout>
                     <child>
                       <object class="tk.Listbox" id="Listbox_Charmap">
-                        <property name="height">4</property>
+                        <property name="height">5</property>
                         <property name="width">70</property>
                         <layout>
                           <property name="column">0</property>
@@ -193,7 +193,7 @@
                     </layout>
                     <child>
                       <object class="tk.Listbox" id="Listbox_Shared">
-                        <property name="height">4</property>
+                        <property name="height">5</property>
                         <property name="width">70</property>
                         <layout>
                           <property name="column">0</property>
@@ -849,6 +849,33 @@
                         </layout>
                       </object>
                     </child>
+                    <child>
+                      <object class="tk.Label" id="Label_AppleAssetFilter">
+                        <property name="text" translatable="yes">Excluded Assets</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">5</property>
+						  <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">2</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Entry" id="Entry_AppleAssetFilter">
+                        <property name="text" translatable="yes">*</property>
+						<property name="width">8</property>
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="padx">5</property>
+						  <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">2</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>										
                   </object>
                 </child>
               </object>
@@ -1269,7 +1296,34 @@
                           <property name="sticky">nw</property>
                         </layout>
                       </object>
-                    </child>					
+                    </child>
+                    <child>
+                      <object class="tk.Label" id="Label_AtariAssetFilter">
+                        <property name="text" translatable="yes">Excluded Assets</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">5</property>
+						  <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">2</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Entry" id="Entry_AtariAssetFilter">
+                        <property name="text" translatable="yes">*</property>
+						<property name="width">8</property>
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="padx">5</property>
+						  <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">2</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>										
                   </object>
                 </child>
               </object>
@@ -1690,7 +1744,35 @@
                           <property name="sticky">nw</property>
                         </layout>
                       </object>
+                    </child>
+					                    <child>
+                      <object class="tk.Label" id="Label_C64AssetFilter">
+                        <property name="text" translatable="yes">Excluded Assets</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">5</property>
+						  <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">2</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Entry" id="Entry_C64AssetFilter">
+                        <property name="text" translatable="yes">*</property>
+						<property name="width">8</property>
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="padx">5</property>
+						  <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">2</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
                     </child>					
+
                   </object>
                 </child>
               </object>
@@ -2017,7 +2099,6 @@
                 </child>
                 <child>
                   <object class="tk.LabelFrame" id="LabelFrame_LynxOptions">
-                    <property name="height">200</property>
                     <property name="text" translatable="yes">Options</property>
                     <property name="width">200</property>
                     <layout>
@@ -2029,7 +2110,7 @@
                     </layout>
                     <child>
                       <object class="tk.Label" id="Label_LynxMusicFiles">
-                        <property name="text" translatable="yes">Memory Allocation:       Music Files</property>
+                        <property name="text" translatable="yes">Memory Allocation:     Music Files</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="padx">5</property>
@@ -2080,7 +2161,35 @@
 						  <property name="sticky">nw</property>
 						</layout>
 					  </object>
-					</child>                  </object>
+					</child>                  
+                    <child>
+                      <object class="tk.Label" id="Label_LynxAssetFilter">
+                        <property name="text" translatable="yes">              Excluded Assets</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">5</property>
+						  <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">2</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Entry" id="Entry_LynxAssetFilter">
+                        <property name="text" translatable="yes">*</property>
+						<property name="width">8</property>
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="padx">5</property>
+						  <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">2</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>					
+				  </object>
                 </child>
               </object>
             </child>
@@ -2431,6 +2540,46 @@
                     </child>
                   </object>
                 </child>
+				<child>
+                  <object class="tk.LabelFrame" id="LabelFrame_NESOptions">
+                    <property name="text" translatable="yes">Options</property>
+                    <property name="width">200</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="pady">0</property>
+                      <property name="propagate">True</property>
+                      <property name="row">4</property>
+                      <property name="sticky">nw</property>
+                    </layout>
+                    <child>
+                      <object class="tk.Label" id="Label_NESAssetFilter">
+                        <property name="text" translatable="yes">Excluded Assets</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">5</property>
+						  <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">2</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Entry" id="Entry_NESAssetFilter">
+                        <property name="text" translatable="yes">*</property>
+						<property name="width">8</property>
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="padx">5</property>
+						  <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">2</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>					
+				  </object>
+                </child>				
               </object>
             </child>
           </object>
@@ -2781,6 +2930,46 @@
                     </child>
                   </object>
                 </child>
+				<child>
+                  <object class="tk.LabelFrame" id="LabelFrame_OricOptions">
+                    <property name="text" translatable="yes">Options</property>
+                    <property name="width">200</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="pady">0</property>
+                      <property name="propagate">True</property>
+                      <property name="row">4</property>
+                      <property name="sticky">nw</property>
+                    </layout>
+                    <child>
+                      <object class="tk.Label" id="Label_OricAssetFilter">
+                        <property name="text" translatable="yes">Excluded Assets</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">5</property>
+						  <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">2</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Entry" id="Entry_OricAssetFilter">
+                        <property name="text" translatable="yes">*</property>
+						<property name="width">8</property>
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="padx">5</property>
+						  <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">2</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>					
+				  </object>
+                </child>				
               </object>
             </child>
           </object>
