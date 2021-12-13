@@ -1,6 +1,8 @@
 
 #include "definitions.h"
 
+#if defined(__LYNX__) || defined(__NES__)
+
 #ifdef __NES__
   #pragma rodata-name("BANK0")
   #pragma code-name("BANK0")
@@ -349,3 +351,5 @@ unsigned char MenuPause(void)
 		UpdateDisplay();
 	}	
 }
+
+#endif

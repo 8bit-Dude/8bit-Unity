@@ -4,43 +4,46 @@
 #ifdef __NES__
   #pragma rodata-name("BANK0")
   #pragma code-name("BANK0")
+  #pragma bss-name(push, "XRAM")
 #endif
 
-#if defined __APPLE2__
- #if defined __DHR__
-  #define RACE_ROAD LGREY
-  #define RACE_MARK YELLOW
-  #define RACE_WALL PURPLE
- #else
-  #define RACE_ROAD BLACK
-  #define RACE_MARK WHITE
-  #define RACE_WALL PURPLE
- #endif	 
-#elif defined __ATARI__
+// Navigation mask
+#if defined(__ATARIXL__) || defined(__CBM__) || defined(__LYNX__)
+	// pass
+#elif defined(__APPLE2__) || defined(__NES__) || defined(__ATARI__) || defined(__ORIC__)
+    unsigned char bgMask[736];	//  0=road/marking, 1=border/grass, 2=wall.
+    unsigned char GetMask(unsigned int x, unsigned int y) {
+		unsigned char pixelX, pixelY;
+		pixelX = x/40u;		
+		pixelY = y/32u-2;
+		return (bgMask[pixelY*16+pixelX/4u] >> ((pixelX%4)*2)) & 3;
+	}
+#endif
+
+#if defined __NES__
+  #pragma bss-name(pop)  
+#endif
+
+#if defined __ATARIXL__
+  // Use background colors
   #define RACE_ROAD BLACK
   #define RACE_MARK GREY
   #define RACE_WALL BROWN
-#elif defined __ORIC__
-  #define RACE_ROAD BLACK
-  #define RACE_MARK LGREEN
-  #define RACE_WALL PURPLE
 #elif defined __CBM__
+  // Use background colors
   #define RACE_ROAD LGREY
   #define RACE_MARK YELLOW
   #define RACE_WALL PURPLE
 #elif defined __LYNX__
+  // Use background colors
   #define RACE_ROAD GREY
   #define RACE_MARK YELLOW
   #define RACE_WALL PURPLE
-  void BackupRestorePauseBg(unsigned char);
-  unsigned char MenuPause(void);
-  extern unsigned char pauseEvt;
-  extern unsigned char gamePaused;
-  unsigned char LockBackButton = 0;
-#elif defined __NES__
-  #define RACE_ROAD 0	// see bgMask
-  #define RACE_MARK 0	//		"
-  #define RACE_WALL 2	//		"
+#else
+  // Use navigation mask
+  #define RACE_ROAD 0	
+  #define RACE_MARK 0
+  #define RACE_WALL 2
 #endif
 
 // See slicks.c
@@ -105,6 +108,15 @@ clock_t lapClock[MAX_PLAYERS];
 unsigned int lapBest[MAX_PLAYERS];
 unsigned long gameFrame;
 
+// Pause menu
+#if defined __LYNX__
+  void BackupRestorePauseBg(unsigned char);
+  unsigned char MenuPause(void);
+  extern unsigned char pauseEvt;
+  extern unsigned char gamePaused;
+  unsigned char LockBackButton = 0;
+#endif
+
 unsigned char PlayerAvailable(unsigned char i)
 {
 	// CPU players not available during warmup phase
@@ -116,21 +128,6 @@ unsigned char PlayerAvailable(unsigned char i)
 	}
 	return 0;
 }
-
-// GetPixel() "alternative" function for NES
-#if defined __NES__
-  #pragma bss-name(push, "XRAM")
-    unsigned char bgMask[736];	//  0=road/marking, 1=border/grass, 2=wall.
-	unsigned char pixelX, pixelY;
-    void LocatePixel(unsigned int x, unsigned int y) {
-		pixelX = x/5;
-		pixelY = y/4-2;
-	}
-    unsigned char GetPixel() {
-		return (bgMask[pixelY*16+pixelX/4u] >> ((pixelX%4)*2)) & 3;
-	}
-  #pragma bss-name(pop)  
-#endif
 
 // Reset Game
 void GameReset()
@@ -249,8 +246,20 @@ void GameInit(const char* map)
 	memcpy(&buffer[len], ".nav", 4);
 	LoadNavigation(&buffer[0]);
 
-	// NES: Load Background Mask (used by alternative GetPixel())
-#if defined __NES__
+	// Load Background Mask (used as alternative to GetPixel())
+#if defined(__ATARIXL__) || defined(__CBM__) || defined(__LYNX__)
+	// pass
+#elif defined(__APPLE2__)
+	memcpy(&buffer[len], ".msk", 4);
+	if (FileOpen(&buffer[0])) {
+		FileRead(bgMask, 736);
+		FileClose();
+	}	
+#elif defined(__ATARI__)	
+	memcpy(&buffer[len], ".msk", 4);
+	FileOpen(&buffer[0]);
+	FileRead(bgMask, 736);
+#elif defined(__NES__) || defined(__ORIC__)
 	memcpy(&buffer[len], ".msk", 4);
 	FileRead(&buffer[0], bgMask);
 #endif
@@ -519,19 +528,7 @@ char GameLoop()
 			iCtrl = controlIndex[i];
 		#if defined __APPLE2__
 			// Regulate clock approximately...
-			if (gameMode == MODE_ONLINE) {
-			  #if defined __DHR_	
-				if (gameFrame%3) { clk += 1; } else { clk += 2; }
-			  #else
-				if (gameFrame&3) { clk += 1; } else { clk += 2; }
-			  #endif
-			} else {
-			  #if defined __DHR_	
-				if (gameFrame&3) { clk += 2; } else { clk += 1; }
-			  #else
-				if (gameFrame%3) { clk += 2; } else { clk += 1; }
-			  #endif
-			}				
+			if (gameFrame&3) { clk += 2; } else { clk += 1; }
 		#endif
 			// Get player parameters
 			iCar = &cars[i];
@@ -566,9 +563,13 @@ char GameLoop()
 			}
 
 			// Get background color
+		  #if defined(__ATARIXL__) || defined(__CBM__) || defined(__LYNX__)
 			LocatePixel(iX/8u, iY/8u);
 			iColor = GetPixel();
-
+		  #elif defined(__APPLE2__) || defined(__NES__) || defined(__ATARI__) || defined(__ORIC__)
+			iColor = GetMask(iX, iY);		  
+		  #endif
+		  
 			// Fetch target waypoint
 			GetWaypoint();
 
@@ -730,9 +731,15 @@ char GameLoop()
 			spriteY = iY/8u+16;
 		#endif				
 		
-			// Get again background color
+			// Get again background 
+		  #if defined(__ATARIXL__) || defined(__CBM__) || defined(__LYNX__)
 			LocatePixel(iX/8u, iY/8u);
 			iColor = GetPixel();
+		  #elif defined(__APPLE2__) || defined(__NES__) || defined(__ATARI__) || defined(__ORIC__)
+			iColor = GetMask(iX, iY);		  
+		  #endif
+		  
+			// Check background type
 			if (iColor == RACE_WALL) {
 				// Hit a wall: return to previous position
 				if (iVel > velMin) { iVel = velMin; }
@@ -952,7 +959,7 @@ char GameLoop()
 					}
 					return 0; 
 				}
-			#ifdef  __ATARI__
+			#ifdef  __ATARIXL__
 				// Toggle Graphic Mode
 				if (lastKey == KB_G) bmpToggle ^= 2;
 			#endif
