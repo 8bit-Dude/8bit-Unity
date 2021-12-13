@@ -25,6 +25,12 @@
 	#define VOLUME_HIGH   30
 #endif
 
+#if defined(__NES__)
+	#define SFX_OFFSET 8
+#else
+	#define SFX_OFFSET 0
+#endif	
+
 unsigned char sfx[4], frq[4], vol[4];
 
 void BleepSFX(unsigned char pitch)
@@ -40,7 +46,7 @@ void BumpSFX(void)
 void EngineSFX(unsigned char index, unsigned int rpm)
 {	
 	sfx[index] = SFX_ENGINE;
-	frq[index] = (rpm*17)/80u + index*6;
+	frq[index] = (rpm*17)/80u + index*6 + SFX_OFFSET;
 	vol[index] = VOLUME_LOW;
 }
 

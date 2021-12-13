@@ -138,13 +138,13 @@ void GameReset()
 	ResetLineUp();
 	
     // Reset Players
+	txtY = TXT_ROWS-1;
     for (i=0; i<MAX_PLAYERS; ++i) {        
         // Reset SFX
         EngineSFX(i, 0);
 		
 		// Reset Lap count
-		txtX = (i+2)*8u-3;
-		txtY = TXT_ROWS-1;
+		txtX = (SLOT_COL1+SLOT_OFFST) + SLOT_WIDTH*i;
 		PrintStr("  ");
 	
 		// Reset sprite
@@ -267,12 +267,12 @@ void GameInit(const char* map)
     // Some extra logics depending on the game mode
 	if (gameMode == MODE_LOCAL) {
         // Setup players
+		txtY = TXT_ROWS-1;
         for (i=0; i<MAX_PLAYERS; ++i) {
             // Print player numbers in score board
             if (controlIndex[i]) {
                 inkColor = inkColors[i]; 
 				txtX = SLOT_COL1 + SLOT_WIDTH*i;
-				txtY = TXT_ROWS-1;
 			#if defined __ORIC__
 				txtX--; SetAttributes(inkColor); txtX++; 
 			#endif					

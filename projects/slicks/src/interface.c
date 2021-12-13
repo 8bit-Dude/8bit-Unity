@@ -267,8 +267,8 @@ void PrintLap(unsigned char i)
 {
 	// Set cursor	
 	if (cars[i].lap > 0) { 
-		txtX = (SLOT_COL1+5) + SLOT_WIDTH*i; 
 		txtY = TXT_ROWS-1;
+		txtX = (SLOT_COL1+SLOT_OFFST) + SLOT_WIDTH*i; 
 		inkColor = inkColors[i]; 
 		PrintNum(cars[i].lap);
 	}
@@ -285,10 +285,10 @@ void PrintRace()
 #endif	
 	
 	// Print laps
-	inkColor = INK_LAPS; 
 #if defined(__NES__)
 	txtX = 22; txtY = 0; 
 #else
+	inkColor = INK_LAPS; 
 	txtX = 26; txtY = 0; 
 #endif	
 	PrintNum(lapGoal);
@@ -724,7 +724,7 @@ void MenuPlayer(unsigned char i)
 	PrintBlanks(MENU_WID-6, 1);
 	
 	// Print Characters
-#if defined __SHR__
+#if defined(__NES__) || defined __SHR__
 	inkColor = WHITE;
 #else
 	inkColor = inkColors[i];

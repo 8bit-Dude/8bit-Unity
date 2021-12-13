@@ -57,8 +57,10 @@
 #define SLOT_COL1 8
 #if defined __NES__
   #define SLOT_WIDTH 6
+  #define SLOT_OFFST 4
 #else
   #define SLOT_WIDTH 8
+  #define SLOT_OFFST 5
 #endif	
 
 // Platform specific colors
@@ -105,7 +107,7 @@
 	#define INK_TAB		 GREEN
 	#define INK_HIGHLT	 BLACK
 	#define PAPER_HIGHLT YELLOW
-	#define SCORES_COL   	 11
+	#define SCORES_COL   	  7
 	#define SCORES_ROW   	  7
 	#define PAUSE_COL 		  7
 	#define PAUSE_LOCAL_ROW   6
