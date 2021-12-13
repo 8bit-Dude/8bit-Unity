@@ -102,6 +102,7 @@
             "spriteHeight": "9", 
             "musicMemory": "$0C00", 
             "sharedMemory": "$0400", 
+            "sharedFilter": "*", 
             "bitmap": [
                 "projects/demos/bitmaps/banner-lynx.png", 
                 "projects/demos/bitmaps/stadium-lynx.png"
@@ -118,6 +119,7 @@
             "chunks": []
         }, 
         "NES": {
+            "bitmapTiles": "160", 
             "spriteFrames": "16", 
             "spriteWidth": "16", 
             "spriteHeight": "16", 
@@ -141,7 +143,6 @@
             "spriteWidth": "12", 
             "spriteHeight": "6", 
             "dithering": "0.2", 
-            "enforcedColors": " ", 
             "bitmap": [
                 "projects/demos/bitmaps/banner-oric.png", 
                 "projects/demos/bitmaps/stadium-oric.png"

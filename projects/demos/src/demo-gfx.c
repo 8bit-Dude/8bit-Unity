@@ -10,6 +10,18 @@
   #define TEXT_COL	   15
   #define TEXT_ROW	    2
 #endif
+
+#if defined __ORIC__
+  #define NUM_ROWS 	19
+#elif defined __LYNX__
+  #define NUM_ROWS 	12
+#elif defined __NES__
+  #define NUM_ROWS   4
+#elif defined __SHR__
+  #define NUM_ROWS   6
+#else 
+  #define NUM_ROWS  16
+#endif		
 	
 extern const char nextKey, nextMsg[];
 extern unsigned char nextCol;
@@ -17,7 +29,7 @@ extern unsigned char nextCol;
 int DemoGfx(void) 
 {
 	unsigned char i, color, row, palette;
-	unsigned char textRows, blockW, blockH;
+	unsigned char blockW, blockH;
 	
 	// Prepare bitmap
 	InitBitmap();
@@ -51,20 +63,9 @@ int DemoGfx(void)
 #endif
 	
 	// Print text (global variables inkColor & paperColor are assigned directly)
-#if defined __ORIC__
-	textRows = 19;
-#elif defined __LYNX__
-	textRows = 12;
-#elif defined __NES__
-	textRows = 4;
-#elif defined __SHR__
-	textRows = 6;
-#else 
-	textRows = 16;
-#endif		
 	paperColor = BLACK;
 	txtX = TEXT_COL; txtY = TEXT_ROW;
-	for (i=0; i<textRows; i++) {
+	for (i=0; i<NUM_ROWS; i++) {
 		inkColor = i;
 		PrintStr("8BIT-UNITY"); 
 	#if defined __ORIC__
@@ -75,7 +76,7 @@ int DemoGfx(void)
 	
 	// Show Platform logos
 	txtY = 3;
-	for (i=0; i<5; i++) { 
+	for (i=0; i<6; i++) { 
 		txtX = 2;		   PrintLogo(i);
 		txtX = TXT_COLS-3; PrintLogo(i);
 		txtY += 2;

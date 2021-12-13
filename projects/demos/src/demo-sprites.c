@@ -96,9 +96,9 @@ int DemoSprites(void)
 		txtX = slot-1; SetAttributes(inkColor);
 		txtX = slot+5; SetAttributes(AIC);	// Always reset attributes after a string!
 	#endif		
-		txtX = slot+4; PrintLogo(i);
-		txtX = slot+2; PrintNum(i+1);
 		txtX = slot+0; PrintStr("CAR");
+		txtX = slot+3; PrintNum(i+1);
+		txtX = slot+4; PrintLogo(i);
 	}
 	
 	// Enable sprites

@@ -8,7 +8,11 @@ extern unsigned char nextCol;
   #if defined __HUB__
 	const char* joyList[] = { "JOY 1", "HUB 1", "HUB 2", "HUB 3" };
   #else
-	const char* joyList[] = { "JOY 1", "JOY2" };
+   #if defined __ATARIXL__
+	const char* joyList[] = { "JOY 1", "JOY 2" };
+   #else	
+	const char* joyList[] = { "JOY 1", "JOY 2", "JOY 3", "JOY 4" };
+   #endif	  
   #endif	  
 #elif defined __LYNX__
 	const char* joyList[] = { "JOY 1", "HUB 1", "HUB 2", "HUB 3" };
@@ -22,7 +26,8 @@ extern unsigned char nextCol;
 
 int DemoControls(void) 
 {
-	unsigned char i, *mou, joy, state[12];
+	unsigned char i, *mou, joy;
+	unsigned char state[] = "           ";
 	
 	// Clear screen
 	clrscr();
@@ -41,8 +46,8 @@ int DemoControls(void)
 	while (!kbhit () || cgetc () != nextKey) {
 		// Display mouse state
 		mou = GetMouse();
-		gotoxy (18, 4); sprintf(state, "%u  ", mou[0], state); cprintf(state);
-		gotoxy (23, 4); sprintf(state, "%u  ", mou[1], state); cprintf(state);
+		gotoxy (18, 4); cprintf("%u  ", mou[0]);
+		gotoxy (23, 4); cprintf("%u  ", mou[1]);
 		strcpy(state, "   ");
 		if (mou[2] & MOU_LEFT)   state[0] = 'L';
 		if (mou[2] & MOU_MIDDLE) state[1] = 'M';

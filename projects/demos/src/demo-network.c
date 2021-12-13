@@ -8,7 +8,7 @@ unsigned char message[] = "Packet received"; //Messages can be up-to 256 bytes l
 
 int DemoNetwork(void)
 {
-	unsigned char state, line;
+	unsigned char state, line = 0;
 	unsigned char* packet;
 	
 	// Clear screen
