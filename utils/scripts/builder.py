@@ -154,7 +154,6 @@ class Application:
     listbox_NESSprites = None
     listbox_NESChunks = None
     listbox_NESMusic = None
-    listbox_NESMask = None
     
     listbox_OricBitmap = None
     listbox_OricCharset = None
@@ -263,7 +262,6 @@ class Application:
         self.listbox_NESChunks = self.builder.get_object('Listbox_NESChunks')        
         self.listbox_NESSprites = self.builder.get_object('Listbox_NESSprites')        
         self.listbox_NESMusic = self.builder.get_object('Listbox_NESMusic')     
-        self.listbox_NESMask = self.builder.get_object('Listbox_NESMask')     
         self.entry_NESBitmapTiles = self.builder.get_object('Entry_NESBitmapTiles')
         self.entry_NESSpriteFrames = self.builder.get_object('Entry_NESSpriteFrames')
         self.entry_NESSpriteWidth = self.builder.get_object('Entry_NESSpriteWidth')
@@ -277,7 +275,6 @@ class Application:
         self.entry_OricSpriteFrames = self.builder.get_object('Entry_OricSpriteFrames')
         self.entry_OricSpriteWidth = self.builder.get_object('Entry_OricSpriteWidth')
         self.entry_OricSpriteHeight = self.builder.get_object('Entry_OricSpriteHeight')
-        self.entry_OricEnforcedColors = self.builder.get_object('Entry_OricEnforcedColors')
         self.entry_OricDithering = self.builder.get_object('Entry_OricDithering')
                 
         # Set some defaults
@@ -300,7 +297,7 @@ class Application:
                          self.entry_LynxSpriteFrames,  self.entry_LynxSpriteWidth,  self.entry_LynxSpriteHeight, 
                          self.entry_OricSpriteFrames,  self.entry_OricSpriteWidth,  self.entry_OricSpriteHeight,
                          self.entry_OricDithering,     self.entry_LynxMusicMemory,  self.entry_LynxSharedMemory,
-                         self.entry_OricEnforcedColors,self.entry_C64CharsetColors,
+                         self.entry_C64CharsetColors,
                          self.entry_NESSpriteFrames,   self.entry_NESSpriteWidth,   self.entry_NESSpriteHeight,
                          self.entry_NESBitmapTiles     ]
         self.listboxes = [ self.listbox_Code, 
@@ -316,7 +313,7 @@ class Application:
                            self.listbox_LynxCharset,   self.listbox_OricCharset,  self.listbox_Charmap,
                            self.listbox_AppleBitmapSHR,self.listbox_AppleSpritesSHR, self.listbox_AppleCharsetSHR,
                            self.listbox_NESBitmap,     self.listbox_NESSprites,   self.listbox_NESMusic, 
-                           self.listbox_NESChunks,     self.listbox_NESCharset,   self.listbox_NESMask ]
+                           self.listbox_NESChunks,     self.listbox_NESCharset ]
         self.comboboxes = [ self.combobox_AtariDiskSize, self.combobox_AppleDiskSize,
                             self.combobox_AppleNetworkDriver, self.combobox_AtariNetworkDriver, self.combobox_C64NetworkDriver,
                             self.combobox_AppleCrunchAssets, self.combobox_AtariCrunchAssets, self.combobox_C64CrunchAssets,
@@ -566,14 +563,12 @@ class Application:
                     ('sprites', ('listbox', self.listbox_NESSprites)),
                     ('music', ('listbox', self.listbox_NESMusic)),
                     ('chunks', ('listbox', self.listbox_NESChunks)),
-                    ('mask', ('listbox', self.listbox_NESMask)),
                 ]),                
                 ('Oric', [
                     ('spriteFrames', ('entry', self.entry_OricSpriteFrames)),
                     ('spriteWidth', ('entry', self.entry_OricSpriteWidth)),
                     ('spriteHeight', ('entry', self.entry_OricSpriteHeight)),
                     ('dithering', ('entry', self.entry_OricDithering)),
-                    ('enforcedColors', ('entry', self.entry_OricEnforcedColors)),
                     ('bitmap', ('listbox', self.listbox_OricBitmap)),
                     ('charset', ('listbox', self.listbox_OricCharset)),
                     ('sprites', ('listbox', self.listbox_OricSprites)),
@@ -828,15 +823,6 @@ class Application:
     def NESMusicRem(self):
         self.listbox_NESMusic.delete(0, ACTIVE)         
 
-    def NESMaskAdd(self):
-        filename = askopenfilename(initialdir = "../../", title = "Select Mask Data", filetypes = (("Mask data","*.msk"),)) 
-        if filename is not '':
-            filename = filename.replace(self.cwd, '')
-            self.listbox_NESMask.insert(END, filename)
-
-    def NESMaskRem(self):
-        self.listbox_NESMask.delete(0, ACTIVE)
-    
     def OricBitmapAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Bitmap", filetypes = (("PNG files","*.png"),)) 
         if filename is not '':
@@ -1547,7 +1533,6 @@ class Application:
         sprites = list(self.listbox_NESSprites.get(0, END))
         chunks = list(self.listbox_NESChunks.get(0, END))
         music = list(self.listbox_NESMusic.get(0, END))
-        mask = list(self.listbox_NESMask.get(0, END))
         maxTiles = int(self.entry_NESBitmapTiles.get())
         with open('../../' + buildFolder+'/'+diskname+"-nes.bat", "wb") as fp:
             # Info
@@ -1589,12 +1574,6 @@ class Application:
                 fp.write('copy ' + item.replace('/', '\\') + ' ' + buildFolder + '\\nes\\music.txt\n')
                 fp.write('utils\\scripts\\nes\\text2data -ca65 build/nes/music.txt\n\n')
 
-            if len(mask) > 0:             
-                for item in mask:
-                    fb = FileBase(item, '')
-                    fp.write('copy ' + item.replace('/', '\\') + ' ' + buildFolder + '\\nes\\' + fb + '\n')
-                fp.write('\n')                
-
             if len(shared) > 0:             
                 for item in shared:
                     fb = FileBase(item, '')
@@ -1616,7 +1595,7 @@ class Application:
             fp.write('set /a CHUNKNUM=0\n')
             if len(chunks) > 0:
                 fp.write('for /f "tokens=*" %%A in (chunks.lst) do set CHUNKNAMES=!CHUNKNAMES!_shkName!CHUNKNUM!,&&set /a CHUNKNUM+=1\n')
-            fp.write('set /a FILENUM=!CHUNKNUM!+' + str(len(bitmaps)+len(charset)+len(charmaps)+len(mask)+len(shared)) + '\n')
+            fp.write('set /a FILENUM=!CHUNKNUM!+' + str(len(bitmaps)+len(charset)+len(charmaps)+len(shared)) + '\n')
             fp.write('\n')
             
             # Get Size of various files
@@ -1628,9 +1607,6 @@ class Application:
                 fb = FileBase(charset[i], '.png')
                 filelist += fb + '.dat,'
             for item in charmaps:
-                fb = FileBase(item, '')
-                filelist += fb + ','
-            for item in mask:
                 fb = FileBase(item, '')
                 filelist += fb + ','
             for item in shared:
@@ -1669,7 +1645,7 @@ class Application:
             fp.write('@echo _fileNum: .byte %FILENUM% >> data.asm\n')  
 
             # List of file names and data
-            if len(bitmaps) > 0 or len(charmaps) > 0 or len(charset) > 0 or len(mask) > 0 or len(shared) > 0:
+            if len(bitmaps) > 0 or len(charmaps) > 0 or len(charset) > 0 or len(shared) > 0:
                 # Declare all Bitmap, Shared and Chunk files
                 fp.write('@echo _fileSizes: .word %FILESIZES:~0,-1% >> data.asm\n')
                 fp.write('@echo _fileBanks: .byte %FILEBANKS:~0,-1% >> data.asm\n')
@@ -1689,11 +1665,6 @@ class Application:
                     if counter > 0:
                         fp.write(',')
                     fp.write('_mapName' + str(i).zfill(2))
-                    counter += 1
-                for i in range(len(mask)):
-                    if counter > 0:
-                        fp.write(',')
-                    fp.write('_maskName' + str(i).zfill(2))
                     counter += 1
                 for i in range(len(shared)):
                     if counter > 0:
@@ -1717,11 +1688,6 @@ class Application:
                     fb = FileBase(charmaps[i], '')
                     fp.write('@echo _mapName' + str(i).zfill(2) + ': .byte "' + fb + '",0 >> data.asm\n')
 
-                # Write list of Mask files
-                for i in range(len(mask)):
-                    fb = FileBase(mask[i], '')
-                    fp.write('@echo _maskName' + str(i).zfill(2) + ': .byte "' + fb + '",0 >> data.asm\n')
-                    
                 # Write list of Shared
                 for i in range(len(shared)):
                     fb = FileBase(shared[i], '')
@@ -1748,11 +1714,6 @@ class Application:
                 fb = FileBase(charmaps[i], '')
                 fp.write('@echo .segment "BANK!BANKS[%i]!" >> data.asm\n' % counter)
                 fp.write('@echo _mapData' + str(i).zfill(2) + ': .incbin "' + fb + '" >> data.asm\n')                
-                counter += 1
-            for i in range(len(mask)):
-                fb = FileBase(mask[i], '')
-                fp.write('@echo .segment "BANK!BANKS[%i]!" >> data.asm\n' % counter)
-                fp.write('@echo _maskData' + str(i).zfill(2) + ': .incbin "' + fb + '" >> data.asm\n')                
                 counter += 1
             for i in range(len(shared)):
                 fb = FileBase(shared[i], '')
@@ -1850,7 +1811,7 @@ class Application:
             fp.write('cd utils\\scripts\\oric\n')
             for item in bitmaps:
                 fb = FileBase(item, '.png')
-                fp.write('..\\..\\py27\\python OricBitmap.py ../../../' + item + ' ../../../' + buildFolder + '/oric/' + fb + '.dat ' + self.entry_OricDithering.get() + ' ' + self.entry_OricEnforcedColors.get() + '\n')
+                fp.write('..\\..\\py27\\python OricBitmap.py ../../../' + item + ' ../../../' + buildFolder + '/oric/' + fb + '.dat ' + self.entry_OricDithering.get() + '\n')
                 fp.write('header -a0 ../../../' + buildFolder + '/oric/' + fb + '.dat ../../../' + buildFolder + '/oric/' + fb + '.img $A000\n')
                 
             if len(charset) > 0:

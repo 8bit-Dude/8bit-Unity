@@ -2102,7 +2102,6 @@
                 <child>
                   <object class="tk.LabelFrame" id="LabelFrame_NESBitmaps">
                     <property name="text" translatable="yes">Bitmaps</property>
-                    <property name="width">100</property>
                     <layout>
                       <property name="column">0</property>
                       <property name="propagate">True</property>
@@ -2112,7 +2111,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_NESBitmap">
                         <property name="height">6</property>
-                        <property name="width">34</property>
+                        <property name="width">70</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -2127,7 +2126,7 @@
                         <property name="text" translatable="yes">Add File</property>
                         <layout>
                           <property name="column">0</property>
-                          <property name="padx">5</property>
+                          <property name="padx">25</property>
                           <property name="pady">5</property>
                           <property name="propagate">True</property>
                           <property name="row">1</property>
@@ -2141,7 +2140,7 @@
                         <property name="text" translatable="yes">Rem File</property>
                         <layout>
                           <property name="column">0</property>
-                          <property name="padx">80</property>
+                          <property name="padx">100</property>
                           <property name="pady">5</property>
                           <property name="propagate">True</property>
                           <property name="row">1</property>
@@ -2151,10 +2150,10 @@
                     </child>
 					<child>
 					  <object class="ttk.Label" id="Label_NESBitmapTile1">
-						<property name="text" translatable="yes">Tiles</property>
+						<property name="text" translatable="yes">Allocated Tiles (1~256)</property>
 						<layout>
 						  <property name="column">0</property>
-                          <property name="padx">187</property>						  
+                          <property name="padx">210</property>						  
                           <property name="pady">5</property>
 						  <property name="propagate">True</property>
 						  <property name="row">1</property>
@@ -2165,10 +2164,10 @@
 					<child>
 					  <object class="ttk.Entry" id="Entry_NESBitmapTiles">
 						<property name="text" translatable="yes">192</property>
-						<property name="width">4</property>
+						<property name="width">6</property>
 						<layout>
 						  <property name="column">0</property>
-                          <property name="padx">158</property>						  
+                          <property name="padx">340</property>						  
                           <property name="pady">5</property>
 						  <property name="propagate">True</property>
 						  <property name="row">1</property>
@@ -2178,59 +2177,6 @@
 					</child>				
                   </object>
                 </child>
-                <child>
-                  <object class="tk.LabelFrame" id="LabelFrame_NESMask">
-                    <property name="text" translatable="yes">Masks</property>
-                    <property name="width">100</property>
-					<layout>
-                      <property name="column">0</property>
-                      <property name="padx">215</property>
-                      <property name="propagate">True</property>
-                      <property name="row">0</property>
-                      <property name="sticky">nw</property>
-                    </layout>
-                    <child>
-                      <object class="tk.Listbox" id="Listbox_NESMask">
-                        <property name="height">6</property>
-                        <property name="width">34</property>
-                        <layout>
-                          <property name="column">0</property>
-                          <property name="propagate">True</property>
-                          <property name="row">0</property>
-                          <property name="sticky">nw</property>
-                        </layout>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="ttk.Button" id="Button_NESMaskAdd">
-                        <property name="command">NESMaskAdd</property>
-                        <property name="text" translatable="yes">Add File</property>
-                        <layout>
-                          <property name="column">0</property>
-                          <property name="padx">25</property>
-                          <property name="pady">5</property>
-                          <property name="propagate">True</property>
-                          <property name="row">1</property>
-                          <property name="sticky">nw</property>
-                        </layout>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="ttk.Button" id="Button_NESMaskRem">
-                        <property name="command">NESMaskRem</property>
-                        <property name="text" translatable="yes">Rem File</property>
-                        <layout>
-                          <property name="column">0</property>
-                          <property name="padx">100</property>
-                          <property name="pady">5</property>
-                          <property name="propagate">True</property>
-                          <property name="row">1</property>
-                          <property name="sticky">nw</property>
-                        </layout>
-                      </object>
-                    </child>
-                  </object>
-                </child>				
                 <child>
                   <object class="tk.LabelFrame" id="LabelFrame_NESCharset">
                     <property name="height">200</property>
@@ -2551,6 +2497,33 @@
                         </layout>
                       </object>
                     </child>
+					<child>
+					  <object class="ttk.Label" id="Label_OricDithering">
+						<property name="text" translatable="yes">Image dithering (0~1)</property>
+						<layout>
+						  <property name="column">0</property>
+                          <property name="padx">210</property>						  
+                          <property name="pady">5</property>
+						  <property name="propagate">True</property>
+						  <property name="row">1</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>
+					</child>
+					<child>
+					  <object class="ttk.Entry" id="Entry_OricDithering">
+						<property name="text" translatable="yes">0.2</property>
+						<property name="width">6</property>
+						<layout>
+						  <property name="column">0</property>
+                          <property name="padx">340</property>
+                          <property name="pady">5</property>
+						  <property name="propagate">True</property>
+						  <property name="row">1</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>
+					</child>					
                   </object>
                 </child>
                 <child>
@@ -2807,74 +2780,6 @@
                       </object>
                     </child>
                   </object>
-                </child>
-                <child>
-                  <object class="tk.LabelFrame" id="LabelFrame_OricOptions">
-                    <property name="height">200</property>
-                    <property name="text" translatable="yes">Options</property>
-                    <property name="width">200</property>
-                    <layout>
-                      <property name="column">0</property>
-                      <property name="pady">0</property>
-                      <property name="propagate">True</property>
-                      <property name="row">4</property>
-                      <property name="sticky">nw</property>
-                    </layout>
-					<child>
-					  <object class="ttk.Label" id="Label_OricDithering">
-						<property name="text" translatable="yes">Image dithering (0~1)</property>
-						<layout>
-						  <property name="column">0</property>
-                          <property name="padx">10</property>						  
-                          <property name="pady">5</property>
-						  <property name="propagate">True</property>
-						  <property name="row">1</property>
-						  <property name="sticky">nw</property>
-						</layout>
-					  </object>
-					</child>
-					<child>
-					  <object class="ttk.Entry" id="Entry_OricDithering">
-						<property name="text" translatable="yes">0.2</property>
-						<property name="width">8</property>
-						<layout>
-						  <property name="column">1</property>
-                          <property name="padx">5</property>
-                          <property name="pady">5</property>
-						  <property name="propagate">True</property>
-						  <property name="row">1</property>
-						  <property name="sticky">nw</property>
-						</layout>
-					  </object>
-					</child>
-					<child>
-					  <object class="ttk.Label" id="Label_OricEnforcedColors">
-						<property name="text" translatable="yes">Enforced colors [0:19]</property>
-						<layout>
-						  <property name="column">2</property>
-                          <property name="padx">10</property>						  
-                          <property name="pady">5</property>
-						  <property name="propagate">True</property>
-						  <property name="row">1</property>
-						  <property name="sticky">nw</property>
-						</layout>
-					  </object>
-					</child>
-					<child>
-					  <object class="ttk.Entry" id="Entry_OricEnforcedColors">
-						<property name="text" translatable="yes"> </property>
-						<property name="width">8</property>
-						<layout>
-						  <property name="column">3</property>
-                          <property name="padx">5</property>
-                          <property name="pady">5</property>
-						  <property name="propagate">True</property>
-						  <property name="row">1</property>
-						  <property name="sticky">nw</property>
-						</layout>
-					  </object>
-					</child>					
-				  </object>
                 </child>
               </object>
             </child>
