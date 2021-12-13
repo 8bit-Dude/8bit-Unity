@@ -43,6 +43,19 @@ void gotoxy(unsigned char col, unsigned char row)
 
 int cprintf(const char* format, ...) 
 {
-	PrintStr(format);
-	txtX += strlen(format);
+	va_list ap;
+	unsigned char value;
+	unsigned char buffer[40];
+	
+	va_start(ap, format);
+	value = va_arg(ap, unsigned char);
+	sprintf(buffer, format, value);
+	va_end(ap);
+	
+	PrintStr(buffer);
+	txtX += strlen(buffer);
+	while (txtX > 39) {
+		txtX -= 40;
+		txtY++;
+	}
 }

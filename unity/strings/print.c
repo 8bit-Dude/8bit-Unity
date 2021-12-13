@@ -170,7 +170,14 @@ void PrintChr(unsigned char chr)
 	clk += 1;
 	
   #elif defined __ATARI__	
+  #ifndef __ATARIXL__	
+	// Single buffer cannot do shaded colors
+    i = inkColor;
+	if (i==1 || i==4) i=5; if (i==2 || i==8) i=10; if (i==3 || i==12) i=15;
+	inkColor1 = i&3; inkColor2 = i/4u;
+  #else	
 	inkColor1 = inkColor&3; inkColor2 = inkColor/4u;
+  #endif  
 	paperColor1 = paperColor&3; paperColor2 = paperColor/4u;
 	bgByte1 = BYTE4(paperColor1,paperColor2,paperColor1,paperColor2);
 	bgByte2 = BYTE4(paperColor2,paperColor1,paperColor2,paperColor1);	
