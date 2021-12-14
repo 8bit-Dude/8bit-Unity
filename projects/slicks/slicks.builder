@@ -22,7 +22,7 @@
             "projects/slicks/navigation/mtcarlo.nav", 
             "projects/slicks/navigation/rally.nav", 
             "projects/slicks/navigation/river.nav", 
-            "projects/slicks/navigation/stadium.nav"
+            "projects/slicks/navigation/stadium.nav",
             "projects/slicks/masks/arizona.msk", 
             "projects/slicks/masks/arto.msk", 
             "projects/slicks/masks/cramp.msk", 
@@ -32,7 +32,7 @@
             "projects/slicks/masks/mtcarlo.msk", 
             "projects/slicks/masks/rally.msk", 
             "projects/slicks/masks/river.msk", 
-            "projects/slicks/masks/stadium.msk",			
+            "projects/slicks/masks/stadium.msk"			
         ], 
         "charmap": [], 
         "tilesize": "None", 
