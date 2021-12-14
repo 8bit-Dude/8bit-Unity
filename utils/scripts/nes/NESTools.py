@@ -24,6 +24,8 @@
  *   specific prior written permission.
 """
 
+import io
+
 palette = [ [0x00, 82, 82, 82],
             [0x01,  1, 26, 81],
             [0x02, 15, 15,101],
@@ -246,3 +248,127 @@ def EncodeTiles(im, tileWidth=8, tileHeight=8, formatTile=lambda im: EncodeChar(
                     data = formatTile(tile)
                     outdata.append(data)
     return outdata
+
+
+def CrunchTiles(names, chars, maxTiles):
+
+    #######################################
+    # Drop identical chars
+    if len(names) == 800:
+        ch = 1; nm = 0
+        while ch<len(chars):
+            matched = False
+            for i in range(0, ch):
+                if (chars[i] == chars[ch]):
+                    matched = True
+                    break
+            if matched:
+                names[nm] = i
+                for j in range(nm+1, 800):
+                    names[j] -= 1
+                chars.pop(ch)
+            else:
+                ch += 1
+            nm += 1
+
+    #######################################
+    # Compute Tile Popularity
+    popular = [ 0 ] * len(chars) 
+    popular[0] = 999 # Always keep first tile
+    for i in range(len(names)):
+        popular[names[i]] += 1
+
+    #######################################
+    # Compute Tile Similarity
+    similar = [ [], [], [], ]
+    for i in range(len(chars)-1):
+        for j in range(i+1, len(chars)):
+            n = TileCompare(chars[i], chars[j])
+            similar[0].append(n)
+            similar[1].append(i)
+            similar[2].append(j)
+
+    #######################################
+    # Sort Index of Similarity
+    indices = sorted(range(len(similar[0])), key=lambda k: similar[0][k])
+
+    #######################################
+    # Inspect most similar Tiles for dropping
+    i = -1; drop = []; swap = []
+    while len(chars) > maxTiles+len(drop):
+        ind = indices[i]
+        tile1 = similar[1][ind]
+        tile2 = similar[2][ind]
+        
+        # Check that neither tile dropped yet
+        if tile1 not in drop and tile2 not in drop:
+            # Pop least popular tile  
+            if popular[tile1]<popular[tile2]:
+                drop.append(tile1)
+                swap.append(tile2)
+            else:
+                drop.append(tile2)
+                swap.append(tile1)
+        i -= 1
+
+    #######################################
+    # Swap indices of Tiles to be dropped
+    for i in range(len(drop)):
+        d = drop[i]
+        s = swap[i]
+        for i in range(len(names)):
+            if names[i] == d:
+                names[i] = s
+
+    #######################################
+    # Drop unused tiles
+    for tile in sorted(drop, reverse=True):
+        for i in range(len(names)):
+            if names[i] > tile:
+                names[i] -= 1
+        chars.pop(tile) 
+        
+    return names, chars
+    
+    
+def ExportCharset(filename, chars, maxTiles):
+
+    #######################################
+    # Read default font file
+    f1 = io.open("utils/scripts/nes/font.chr", 'rb')
+    font = f1.read()
+    f1.close()
+
+    #######################################
+    # Encode and write Charset
+    for i in range(len(chars)):
+        char = chars[i]
+        chars[i] = ''.join([ chr(c) for c in char ])
+    chars = ''.join(chars)
+    f2 = io.open(filename, 'wb')
+    f2.write(chars[0:16*maxTiles])
+    f2.write(font[16*maxTiles:16*256])
+    f2.close() 
+    
+    
+def ExportNametable(filename, names, palette):
+
+    #######################################
+    # Write binary table
+    f2 = io.open(filename.replace(".img", ".nam"), 'wb')
+    data = ''.join([chr(b) for b in names])
+    f2.write(data)
+    f2.close()
+
+    #######################################
+    # Encode and write Nametable
+    head = [0] * 64
+    foot = [0] * 160
+    names = head+names+foot
+    rle = RLECompression(names)
+    data = ''.join([chr(b) for b in rle])
+    f2 = io.open(filename, 'wb')
+    f2.write(palette)
+    f2.write(data)
+    f2.close()    
+    

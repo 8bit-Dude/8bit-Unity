@@ -1692,6 +1692,11 @@ class Application:
                         fp.write(',')
                     fp.write('_shrName' + str(i).zfill(2))
                     counter += 1
+                if len(chunks) > 0:
+                    if counter > 0:
+                        fp.write(',')
+                    fp.write('%CHUNKNAMES:~0,-1%')
+                    counter += 1                    
                 fp.write(' >> data.asm\n')
 
                 # Write list of Bitmap names
@@ -1712,7 +1717,12 @@ class Application:
                 # Write list of Shared
                 for i in range(len(sharedNES)):
                     fb = FileBase(sharedNES[i], '')
-                    fp.write('@echo _shrName' + str(i).zfill(2) + ': .byte "' + fb + '",0 >> data.asm\n')                    
+                    fp.write('@echo _shrName' + str(i).zfill(2) + ': .byte "' + fb + '",0 >> data.asm\n') 
+
+                # Write list of Chunks                
+                if len(chunks) > 0:
+                    fp.write('set /a IND=0\n')
+                    fp.write('for /f "tokens=*" %%A in (chunks.lst) do @echo _shkName!IND!: .byte "%%~nxA",0 >> data.asm && set /a IND+=1\n')
             else:
                 fp.write('@echo _fileSizes: .word 0 >> data.asm\n')
                 fp.write('@echo _fileNames: .addr _dummy >> data.asm\n')
@@ -1741,6 +1751,11 @@ class Application:
                 fp.write('@echo .segment "BANK!BANKS[%i]!" >> data.asm\n' % counter)
                 fp.write('@echo _shrData' + str(i).zfill(2) + ': .incbin "' + fb + '" >> data.asm\n')                
                 counter += 1
+            if len(chunks) > 0:
+                fp.write('set /a IND=0\n')
+                fp.write('set /a BNK=%i\n' % counter)
+                fp.write('for /f "tokens=*" %%A in (chunks.lst) do set /a B=BANKS[!BNK!] && @echo .segment "BANK!B!" >> data.asm && @echo _shkData!IND!: .incbin "%%~nxA" >> data.asm && set /a IND+=1 && set /a BNK+=1\n')
+                                
             fp.write('@echo ; >> data.asm\n')
                 
             # Link Music 

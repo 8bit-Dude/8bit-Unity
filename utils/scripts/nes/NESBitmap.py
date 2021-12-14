@@ -26,33 +26,26 @@
  
 import io,struct, sys
 from PIL import Image
-from NESTools import GetPaletteIndex, EncodeTiles, TileCompare, RLECompression
+from NESTools import GetPaletteIndex, EncodeTiles, CrunchTiles, ExportNametable, ExportCharset
 
 input = sys.argv[1]
 outCHR = sys.argv[2]
 outIMG = sys.argv[3]
 maxTiles = int(sys.argv[4])
 
-#######################################
-# Read default font file
-f1 = io.open("utils/scripts/nes/font.chr", 'rb')
-font = f1.read()
-f1.close()
-
 #################################
-# Read source bitmap and palette
+# Read source bitmap
 img1 = Image.open(input)
 colors = max(list(img1.getdata()))
 print "Bitmap size: {%i,%i}; Number of colors: %i" % (img1.size[0], img1.size[1], colors)
 
 #######################################
-# Get palette RGB
-dump = img1.getpalette()
+# Create palette from RGB data
+rgb = img1.getpalette()
 pal = [ ]
 for i in range(4):
-    rgb = dump[i*3:i*3+3]
-    pal.append(GetPaletteIndex(rgb, pal))
-palData = ''.join( [chr(p) for p in pal] )
+    pal.append(GetPaletteIndex(rgb[i*3:i*3+3], pal))
+palette = ''.join( [chr(p) for p in pal] )
 
 #######################################
 # Encode data to Chars
@@ -66,99 +59,10 @@ for i in range(800):
 names = range(1,801)
 
 #######################################
-# Drop identical chars
-ch = 1; nm = 0
-while ch<len(chars):
-    matched = False
-    for i in range(0, ch):
-        if (chars[i] == chars[ch]):
-            matched = True
-            break
-    if matched:
-        names[nm] = i
-        for j in range(nm+1, 800):
-            names[j] -= 1
-        chars.pop(ch)
-    else:
-        ch += 1
-    nm += 1
-
-#######################################
-# Compute Tile Popularity
-popular = [ 0 ] * len(chars) 
-popular[0] = 999 # Always keep first tile
-for i in range(len(names)):
-    popular[names[i]] += 1
-
-#######################################
-# Compute Tile Similarity
-similar = [ [], [], [], ]
-for i in range(len(chars)-1):
-    for j in range(i+1, len(chars)):
-        n = TileCompare(chars[i], chars[j])
-        similar[0].append(n)
-        similar[1].append(i)
-        similar[2].append(j)
-
-#######################################
-# Sort Index of Similarity
-indices = sorted(range(len(similar[0])), key=lambda k: similar[0][k])
-
-#######################################
-# Inspect most similar Tiles for dropping
-i = -1; drop = []; swap = []
-while len(chars) > maxTiles+len(drop):
-    ind = indices[i]
-    tile1 = similar[1][ind]
-    tile2 = similar[2][ind]
-    
-    # Check that neither tile dropped yet
-    if tile1 not in drop and tile2 not in drop:
-        # Pop least popular tile  
-        if popular[tile1]<popular[tile2]:
-            drop.append(tile1)
-            swap.append(tile2)
-        else:
-            drop.append(tile2)
-            swap.append(tile1)
-    i -= 1
-
-#######################################
-# Swap indices of Tiles to be dropped
-for i in range(len(drop)):
-    d = drop[i]
-    s = swap[i]
-    for i in range(800):
-        if names[i] == d:
-            names[i] = s
-
-#######################################
-# Drop unused tiles
-for tile in sorted(drop, reverse=True):
-    for i in range(800):
-        if names[i] > tile:
-            names[i] -= 1
-    chars.pop(tile)
+# Crunch name table by dropping similar tiles
+names, chars = CrunchTiles(names, chars, maxTiles) 
     
 #######################################
-# Encode and write Charset
-for i in range(len(chars)):
-    char = chars[i]
-    chars[i] = ''.join([ chr(c) for c in char ])
-chars = ''.join(chars)
-f2 = io.open(outCHR, 'wb')
-f2.write(chars[0:16*maxTiles])
-f2.write(font[16*maxTiles:16*256])
-f2.close()
-
-#######################################
-# Encode and write Nametable
-head = [0] * 64
-foot = [0] * 160
-names = head+names+foot
-rle = RLECompression(names)
-data = ''.join([chr(b) for b in rle])
-f2 = io.open(outIMG, 'wb')
-f2.write(palData)
-f2.write(data)
-f2.close()
+# Export data
+ExportCharset(outCHR, chars, maxTiles)
+ExportNametable(outIMG, names, palette)
