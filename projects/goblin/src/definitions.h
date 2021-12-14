@@ -60,10 +60,6 @@ typedef struct {
 	char* label;
 } Item;
 
-// See chunks.c
-void GrabBackground(unsigned char** bcgr, unsigned char* anim);
-void DrawChunk(unsigned char* chunk);
-
 // See interface.c
 void PrintInteract(unsigned char item, unsigned char *label);
 void PrintMessage(unsigned char *msg);

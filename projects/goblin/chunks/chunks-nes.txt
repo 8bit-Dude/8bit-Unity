@@ -18,7 +18,7 @@
 #
 
 #  Charset        Input file      Output file
-'scene1.chr', 'chunks1-nes.png', 'notable.chk', [ 32, 48, 24, 48]		# Notable animation
+'scene1.chr', 'chunks1-nes.png', 'notable.chk', [ 32, 40, 32, 56]		# Notable animation
 'scene1.chr', 'chunks1-nes.png', 'oldmen.chk',  [168, 48, 24, 24]		# Old men animation
 'scene1.chr', 'chunks1-nes.png', 'bottle.chk',  [200, 64, 16, 24]		# Bottle removed
 'scene1.chr', 'chunks1-nes.png', 'sausage.chk', [ 48, 48, 16, 24]		# Sausage removed

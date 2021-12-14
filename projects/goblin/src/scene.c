@@ -25,6 +25,8 @@ unsigned char* chunkBcgr[3];
 // Initialize scene animations
 void InitScene()
 {	
+	unsigned char *coords;
+	
 	// Load bitmap
 	HideBitmap();
 	LoadBitmap("scene1.img");
@@ -38,9 +40,9 @@ void InitScene()
 	LoadChunk(&chunkAnim[4], "switch.chk");	 // Switch animation
 
 	// Grab background of some animations
-	GrabBackground(&chunkBcgr[0], chunkAnim[0]);  // Grab Notable bakground
-	GrabBackground(&chunkBcgr[1], chunkAnim[1]);  // Grab Old men background
-	GrabBackground(&chunkBcgr[2], chunkAnim[4]);  // Grab Switch background
+	coords = chunkAnim[0]; GetChunk(&chunkBcgr[0], coords[0], coords[1], coords[2], coords[3]);  // Grab Notable bakground
+	coords = chunkAnim[1]; GetChunk(&chunkBcgr[1], coords[0], coords[1], coords[2], coords[3]);  // Grab Old men bakground
+	coords = chunkAnim[4]; GetChunk(&chunkBcgr[2], coords[0], coords[1], coords[2], coords[3]);  // Grab Switch bakground
 
 	// Assign animations to interactables
 	interacts[1].chunk1 = chunkAnim[1];	 // Old men speaking
@@ -64,6 +66,13 @@ void InitScene()
 #endif	
 }
 
+// Draw graphic chunk to screen
+void DrawChunk(unsigned char* chunk)
+{
+	SetChunk(chunk, chunk[0], chunk[1]);	
+}
+
+// Wait function (used in animations)
 void Wait(unsigned char ticks) 
 {	
 	clock_t animClock = clock();

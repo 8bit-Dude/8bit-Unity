@@ -5,7 +5,6 @@
         "disk": "goblin", 
         "code": [
             "projects/goblin/src/goblin.c", 
-            "projects/goblin/src/chunks.c", 
             "projects/goblin/src/interface.c", 
             "projects/goblin/src/scene.c"
         ], 
