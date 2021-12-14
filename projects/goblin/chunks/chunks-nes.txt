@@ -1,0 +1,25 @@
+#
+# Chunks definition file
+#
+# Format: Input, Output, Charset, Coords
+#
+#   Input:    'file.png' chunk image (with correct size and palette for platform)
+#	Output:	  'file.chk' output containing the chunk data
+#	Charset:  'file.chr' common charset file
+# 	Coords:   [X, Y, W, H] on PNG file
+#
+# 	Coordinates restrictions:
+#   	Apple:  X/W must be multiples of 7 (e.g. 0,7,14,21...) |              No restrictions
+#   	Atari:  X/W must be multiples of 4 (e.g. 0,4,8,12... ) |              No restrictions
+#   	C64:    X/W must be multiples of 4 (e.g. 0,4,8,12... ) |  Y/H must be multiples of 8 (e.g. 0,8,16,24...)
+#   	Lynx:   X/W must be multiples of 2 (e.g. 0,2,4,6... )  |              No restrictions
+#   	NES:    X/W must be multiples of 8 (e.g. 0,8,16,24... )|  Y/H must be multiples of 8 (e.g. 0,8,16,24...)
+#   	Oric:   X/W must be multiples of 6 (e.g. 0,6,12,18...) |  Y/H must be multiples of 2 (e.g. 0,2,4,6...)
+#
+
+#  Charset        Input file      Output file
+'scene1.chr', 'chunks1-nes.png', 'notable.chk', [ 32, 48, 24, 48]		# Notable animation
+'scene1.chr', 'chunks1-nes.png', 'oldmen.chk',  [168, 48, 24, 24]		# Old men animation
+'scene1.chr', 'chunks1-nes.png', 'bottle.chk',  [200, 64, 16, 24]		# Bottle removed
+'scene1.chr', 'chunks1-nes.png', 'sausage.chk', [ 48, 48, 16, 24]		# Sausage removed
+'scene1.chr', 'chunks1-nes.png', 'switch.chk',  [  0, 96, 32,  8]		# Switch animation

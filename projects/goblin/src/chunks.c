@@ -10,8 +10,5 @@ void GrabBackground(unsigned char** bcgr, unsigned char* anim)
 // Draw graphic chunk to screen
 void DrawChunk(unsigned char* chunk)
 {
-	SetChunk(chunk, chunk[0], chunk[1]);
-#if defined __LYNX__
-	UpdateDisplay(); // Refresh Lynx screen
-#endif		
+	SetChunk(chunk, chunk[0], chunk[1]);	
 }

@@ -106,6 +106,7 @@
             ]
         }, 
         "NES": {
+            "bitmapTiles": "192", 
             "spriteFrames": "14", 
             "spriteWidth": "16", 
             "spriteHeight": "16", 
@@ -120,7 +121,10 @@
             "music": [
                 "projects/goblin/music/goblin-nes.txt"
             ], 
-            "chunks": []
+            "chunks": [
+                "projects/goblin/chunks/chunks-nes.txt"
+            ], 
+            "raw": []
         }, 
         "Oric": {
             "spriteFrames": "14", 
