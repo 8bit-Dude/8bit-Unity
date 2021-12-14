@@ -23,7 +23,7 @@ jobs:
       run: cd D:\a\8bit-Unity\8bit-Unity\; .\_builder_.bat -projectFile projects\slicks\slicks.builder -useGUI 0 -callEmu 0
 
     - name: Build 8bit Unity Slicks demo for Oric (.DSK file)
-      run: cd D:\a\8bit-Unity\8bit-Unity\build; .\slicks-oric48k.bat
+      run: cd D:\a\8bit-Unity\8bit-Unity\build; .\slicks-demo-oric48k.bat
 
     - name: Upload Oric DSK file
       uses: actions/upload-artifact@v2
