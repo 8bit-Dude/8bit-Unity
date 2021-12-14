@@ -43,6 +43,7 @@
 #define CHARFLAGRAM 0x0084	// Stores charflag+palette data
 #define DECODERAM   0x0400	// Decoded char data
 #define CHUNKRAM    0x0400	// Stores chunk data
+#define WIDGETRAM   0x0400	// Stores callback data
 
 // Character Mode
 #define TXT_COLS 32

@@ -51,13 +51,13 @@
 
 #if (defined __NES__)
  #pragma bss-name(push, "XRAM")
-  unsigned char buffer[CHUNKRAM];
-  unsigned char* ptr = buffer;
+  unsigned char chunkBuf[CHUNKRAM];
+  unsigned char* chunkPtr = chunkBuf;
  #pragma bss-name(pop)
 #elif (defined __ORIC__)
-  unsigned char buffer[512];
+  unsigned char chunkBuf[512];
 #else
-  unsigned char buffer[4];
+  unsigned char chunkBuf[4];
 #endif
 
 unsigned int ChunkSize(unsigned char w, unsigned char h)
@@ -83,49 +83,49 @@ void LoadChunk(unsigned char** chunk, char *filename)
 {
 #if defined __NES__
 	// NES: load chunk into XRAM
-	unsigned int size = FileRead(filename, ptr);
-	*chunk = ptr;
-	ptr += size;
+	unsigned int size = FileRead(filename, chunkPtr);
+	*chunk = chunkPtr;
+	chunkPtr += size;
 	
 #elif defined __LYNX__
 	// Lynx: load chunk into Shared RAM
-	unsigned char *buffer = (unsigned char*)SHAREDRAM;
+	unsigned char *chunkBuf = (unsigned char*)SHAREDRAM;
 	unsigned int size;
 	FileRead(filename);	
 	
 	// Compute chunk size and allocate memory
-	size = ChunkSize(buffer[2], buffer[3]);
+	size = ChunkSize(chunkBuf[2], chunkBuf[3]);
 	*chunk = (unsigned char*)malloc(size);
-	memcpy(*chunk, buffer, size);	
+	memcpy(*chunk, chunkBuf, size);	
 	
 #elif defined __ORIC__
-	// Block read chunk file (TODO: implement header reading, to get rid of buffer)
-	unsigned int size = FileRead(filename, buffer);
+	// Block read chunk file (TODO: implement header reading, to get rid of chunkBuf)
+	unsigned int size = FileRead(filename, chunkBuf);
 	*chunk = (unsigned char*)malloc(size);
-	memcpy(*chunk, buffer, size);
+	memcpy(*chunk, chunkBuf, size);
 	
 #elif defined(__ATARI__) /* || defined(__APPLE2__) */
 	unsigned int size;
 	if (FileOpen(filename)) {
-		// Read header into buffer
-		FileRead((char*)buffer, 4);
+		// Read header into chunkBuf
+		FileRead((char*)chunkBuf, 4);
 
 		// Compute chunk size, allocate memory and read data
-		size = ChunkSize(buffer[2], buffer[3]);
+		size = ChunkSize(chunkBuf[2], chunkBuf[3]);
 		*chunk = (unsigned char*)malloc(size);
-		memcpy(*chunk, buffer, 4);	
+		memcpy(*chunk, chunkBuf, 4);	
 		FileRead((char*)*chunk+4, size-4);		
 	}
 #elif defined(__APPLE2__) || defined(__CBM__)
-	// Read header into buffer
+	// Read header into chunkBuf
 	unsigned int size;
 	FILE* fp = fopen(filename, "rb");
-	fread(buffer, 1, 4, fp);
+	fread(chunkBuf, 1, 4, fp);
 	
 	// Compute chunk size and allocate memory
-	size = ChunkSize(buffer[2], buffer[3]);
+	size = ChunkSize(chunkBuf[2], chunkBuf[3]);
 	*chunk = (unsigned char*)malloc(size);
-	memcpy(*chunk, buffer, 4);
+	memcpy(*chunk, chunkBuf, 4);
   #if defined __DHR__
 	// Load AUX data first
 	fread(*chunk+4, 1, size-4, fp);
@@ -142,19 +142,19 @@ void GetChunk(unsigned char** chunk, unsigned char x, unsigned char y, unsigned 
 	// Transfer data from VRAM to XRAM
 	unsigned int vaddr;
 	unsigned char i;
-	*chunk = ptr;	
-	POKE(ptr++, x);
-	POKE(ptr++, y);
-	POKE(ptr++, w);
-	POKE(ptr++, h);
+	*chunk = chunkPtr;	
+	POKE(chunkPtr++, x);
+	POKE(chunkPtr++, y);
+	POKE(chunkPtr++, w);
+	POKE(chunkPtr++, h);
 	x /= 8u; y /= 8u; y += 2;
 	h /= 8u; w /= 8u;	
 	ppu_off();	
 	for (i=0; i<h; ++i) {
 		vaddr = NTADR_A(x,y);
 		vram_adr(vaddr);
-		vram_read(ptr, w);
-		ptr += w; y++;
+		vram_read(chunkPtr, w);
+		chunkPtr += w; y++;
 	}	
 	ppu_on_all();	
 	
@@ -310,14 +310,14 @@ void SetChunk(unsigned char* chunk, unsigned char x, unsigned char y)
 	UpdateDisplay();
 	
 #elif defined __NES__
-	unsigned char i, j, *ptr = chunk+2;
-	unsigned char w = (*ptr++/8u);
-	unsigned char h = (*ptr++/8u);
+	unsigned char i, j, *chunkPtr = chunk+2;
+	unsigned char w = (*chunkPtr++/8u);
+	unsigned char h = (*chunkPtr++/8u);
 	txtX = x/8u; txtY = (y/8u);
 	for (i=0; i<h; ++i) {
 		SetVramName();
 		for (j=0; j<w; j++)
-			SetVramChar(*ptr++);
+			SetVramChar(*chunkPtr++);
 		txtY++;
 	}	
 	UpdateDisplay();

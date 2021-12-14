@@ -30,12 +30,19 @@
   #pragma code-name("LC")
 #endif
 
-callback* callHead = NULL;
-callback* callList = NULL;
-
 #ifdef __ATARIXL__
   #pragma code-name("SHADOW_RAM")
 #endif
+
+#if (defined __NES__)
+ #pragma bss-name(push, "XRAM")
+  unsigned char widgetBuf[WIDGETRAM];
+  unsigned char* widgetPtr = widgetBuf;
+ #pragma bss-name(pop)
+#endif
+
+callback* callHead = NULL;
+callback* callList = NULL;
 
 unsigned long fraction;
 
@@ -159,7 +166,12 @@ callback* PushCallback(unsigned char col, unsigned char row, unsigned char width
 	callback* call;
 	
 	// Register callback
+#if (defined __NES__)
+	call = (callback*)widgetPtr;
+	widgetPtr += sizeof(callback);
+#else	
 	call = malloc(sizeof(callback));
+#endif
 	call->colBeg = col;
 	call->colEnd = (col+width);		
 	call->rowBeg = row;
@@ -186,13 +198,17 @@ void PopCallback(callback* call)
 	// Locate the call to pop
 	if (call == callHead) {
 		callHead = (callback*)call->next;
+	#ifndef __NES__	
 		free(call);
+	#endif
 	} else {
 		while (search) {
 			if (call == (callback*)search->next) {
 				next = (callback*)search->next;
 				search->next = next->next;
+			#ifndef __NES__	
 				free(call);	
+			#endif
 				return;
 			}
 			search = (callback*)search->next;		
@@ -203,12 +219,16 @@ void PopCallback(callback* call)
 void ClearCallbacks()
 {
 	// Clear-out all callbacks and reset ID counter
+#if (defined __NES__)
+	widgetPtr = widgetBuf;
+#else	
 	callback *next, *call = callHead;
 	while (call) {
 		next = (callback*)call->next;
 		free(call);
 		call = next;
-	}	
+	}
+#endif
 	callHead = 0;
 	callList = NULL;
 }
@@ -297,9 +317,9 @@ void Line(unsigned char x1, unsigned char x2, unsigned char y1, unsigned char y2
 #endif
 }
 
-void ListBox(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char* title, unsigned char* labels[], unsigned char len)
+void ListBox(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char* title, unsigned char* labels, unsigned char len)
 {
-	unsigned char i=0;	
+	unsigned char i=0, j=0;	
 	unsigned char* elt;
 	callback* call;
 	
@@ -308,12 +328,17 @@ void ListBox(unsigned char col, unsigned char row, unsigned char width, unsigned
 	
 	// Print list and register callbacks
 	txtX = col; txtY = row+1;
- 	while (i<(height-1) && i<len && labels[i]) {
-		elt = labels[i];
+ 	while (i<(height-1) && i<len) {
+		// Add callback
+		elt = &labels[j];
 		PrintStr(elt);
 		call = PushCallback(txtX, txtY, width, 1, CALLTYPE_LISTBOX);
 		call->buffer = elt;
 		call->value = i;
+		
+		// Search next string
+		while (labels[++j]) if (j==255) return;
+		while (!labels[++j]) if (j==255) return;
 		txtY++; i++;
 	}
 }

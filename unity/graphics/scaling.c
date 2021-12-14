@@ -44,6 +44,8 @@ unsigned char ColToX(unsigned char col)
 	return col*4u;
 #elif defined __LYNX__	// STD Mode: 160 x 102
 	return col*4u;
+#elif defined __NES__	// STD Mode: 256 x 256
+	return col*8u;
 #endif
 }
 
@@ -59,6 +61,8 @@ unsigned char XToCol(unsigned char x)
 	return x/4u;
 #elif defined __LYNX__	// STD Mode: 160 x 102
 	return x/4u;
+#elif defined __NES__	// STD Mode: 256 x 256
+	return x/8u;
 #endif
 }
 
@@ -74,6 +78,8 @@ unsigned char RowToY(unsigned char row)
 	return row*8u;
 #elif defined __LYNX__	// STD Mode: 160 x 102
 	return row*6u;
+#elif defined __NES__	// STD Mode: 256 x 256
+	return row*8u;
 #endif
 }
 
@@ -89,5 +95,7 @@ unsigned char YToRow(unsigned char y)
 	return y/8u;
 #elif defined __LYNX__	// STD Mode: 160 x 102
 	return y/6u;
+#elif defined __NES__	// STD Mode: 256 x 256
+	return y/8u;
 #endif
 }

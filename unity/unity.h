@@ -317,7 +317,7 @@ typedef struct {
 callback* Button(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char* label);
 callback* Icon(unsigned char col, unsigned char row, unsigned char* chunk);
 callback* Input(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char* buffer, unsigned char len);
-void ListBox(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char* title, unsigned char* labels[], unsigned char len);
+void ListBox(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char* title, unsigned char* labels, unsigned char len);
 void Panel(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char* title);
 void Line(unsigned char x1, unsigned char x2, unsigned char y1, unsigned char y2);
 callback* ScrollBar(unsigned char col, unsigned char row, unsigned char height, unsigned int *range);
