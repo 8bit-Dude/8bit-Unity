@@ -352,7 +352,27 @@ void LocateSprite(unsigned int x, unsigned int y)
 #endif
 
 
-#ifndef __C64__	// Other platforms don't have HW sprites, or not compatible with multiplexing (e.g. Atari)	
+#if defined(__C64__)	// Other platforms don't have HW sprites, or not compatible with multiplexing (e.g. Atari)	
+  unsigned long sprClock;
+  unsigned char sprCollision;
+  unsigned char COLLISIONS(unsigned char i) {
+	unsigned char mask;  
+	// Check clock (HW register can only be read once per frame)
+	if (sprClock != clock()) {
+		sprClock = clock();
+		sprCollision = PEEK(53278);
+	}
+	
+	// Check that sprite bit
+	mask = (1 << i);
+	if (sprCollision & mask)
+		// Return state of other collisions
+		return (sprCollision & ~mask);
+	else
+		// No collisions
+		return 0;
+  }
+#else
   unsigned char sc_dX, sc_dY;
  #if (defined __APPLE2__) || (defined __ORIC__)
   unsigned char sc_x1, sc_x2, sc_y1, sc_y2, sc_rows;
@@ -360,8 +380,7 @@ void LocateSprite(unsigned int x, unsigned int y)
  #elif (defined __ATARI__) || (defined __LYNX__) || (defined __NES__)
   unsigned char sc_cushion;
  #endif		
-  void SpriteCollisions(unsigned char index)
-  {
+  void SpriteCollisions(unsigned char index) {
 	unsigned char i;
 	// Check for collisions
   #if (defined __ORIC__)

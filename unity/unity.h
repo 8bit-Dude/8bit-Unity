@@ -282,12 +282,12 @@ void RecolorSprite(unsigned char index, unsigned char offset, unsigned char colo
 
 // Sprite collisions: Hardware on C64 vs. Software on Apple/Atari/Oric/Lynx 
 #if defined __CBM__
-  #define COLLISIONS(i) (PEEK(53278))		// On C64, all collisions are contained within a single register
+  unsigned char COLLISIONS(unsigned char i);
 #else
   extern unsigned char sprCollision[SPRITE_NUM];
   #define COLLISIONS(i) (sprCollision[i])
 #endif
-#define COLLIDING(collisions,i) ((collisions >> i) & 1) 
+#define COLLIDING(collisions,i) (collisions & (1<<i)) 
 
 // Scaling functions (char <> bitmap)
 unsigned char ColToX(unsigned char col);

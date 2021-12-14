@@ -126,7 +126,7 @@ unsigned char InputStr(unsigned char width, char *buffer, unsigned char len, uns
 	}
 
 	// Show cursor
-	PrintChr('_');
+	PrintChr(95);
 	txtX = bckX;
 	return 0;
 }
