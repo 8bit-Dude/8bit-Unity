@@ -13,9 +13,17 @@ extern unsigned char* icoChunk[NUM_ICOS];
 // See image.c
 extern char imageShowing;
 
-unsigned char  listNum = 0;
-unsigned char* listNames[16];
-unsigned char  listIds[16];
+#if defined(__NES__)
+ #pragma bss-name(push, "XRAM")
+#endif
+
+unsigned char listNum = 0;
+unsigned char listNames[16][17];
+unsigned char listIds[16];
+
+#if defined(__NES__)
+ #pragma bss-name(pop)
+#endif
 
 void GetFileList()
 {
@@ -34,8 +42,6 @@ void GetFileList()
 			continue;
 		
 		// Allocate string for name + size
-		listIds[listNum] = i;
-		listNames[listNum] = malloc(17);
 		memset(listNames[listNum], 32, 15);
 		listNames[listNum][16] = 0;
 		

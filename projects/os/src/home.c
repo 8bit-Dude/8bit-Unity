@@ -33,9 +33,13 @@ void ClearScreen()
 	unsigned char i;
 	
 	// Clear usable area
+#if defined(__NES__)
+	LoadBitmap("bench.img");
+#else
 	paperColor = DESK_COLOR;
 	txtX = 0; txtY = 0;
 	PrintBlanks(TXT_COLS, TXT_ROWS-1);
+#endif
 	
 	// Reset callbacks
 	ClearCallbacks();
@@ -63,7 +67,11 @@ void DrawTaskBar()
 #endif
   #define APP_COL1   2
   #define APP_ROW1   1
+#if (defined __NES__)
+  #define APP_HSPAN  8
+#else
   #define APP_HSPAN  10
+#endif
 
 void HomeScreen(void)
 {
@@ -79,6 +87,6 @@ void HomeScreen(void)
 
 	// Add Taskbar Message
 	paperColor = WHITE; inkColor = BLACK; 
-	txtX = 21; txtY = TXT_ROWS-1;
+	txtX = TXT_COLS-18; txtY = TXT_ROWS-1;
 	PrintStr(version);
 }

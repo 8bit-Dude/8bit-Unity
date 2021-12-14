@@ -23,6 +23,11 @@
 	#define spriteCols   12
 	#define spriteRows   8
 	unsigned char spriteColors[] = { SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC };  // AIC color allows faster drawing!
+#elif defined __NES__
+	#define spriteCols   16
+	#define spriteRows   16
+    const unsigned char spriteColors[] = { SPR_BLACK, SPR_WHITE, SPR_BLACK, SPR_BLACK, SPR_BLACK, SPR_BLACK, SPR_BLACK, SPR_BLACK, 
+										   SPR_BLACK, SPR_BLACK, SPR_BLACK, SPR_BLACK, SPR_BLACK, SPR_BLACK, SPR_BLACK, SPR_BLACK }; // 4 palettes of 4 colors
 #endif
 
 // Mouse state

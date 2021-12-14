@@ -16,7 +16,9 @@
         "shared": [
             "projects/os/shared/readme.txt"
         ], 
-        "charmap": []
+        "charmap": [], 
+        "tilesize": "None", 
+        "customVBI": "No"
     }, 
     "platform": {
         "Apple": {
@@ -45,7 +47,9 @@
                 "projects/os/chunks/chunks-apple.txt"
             ], 
             "diskSize": "140KB", 
-            "networkDriver": "IP65(TCP/UDP)"
+            "crunchAssets": "No", 
+            "networkDriver": "IP65(TCP/UDP)", 
+            "assetFilter": "*"
         }, 
         "Atari": {
             "spriteFrames": "2", 
@@ -69,7 +73,9 @@
                 "projects/os/chunks/chunks-atari.txt"
             ], 
             "diskSize": "180KB", 
-            "networkDriver": "IP65(TCP/UDP)"
+            "crunchAssets": "No", 
+            "networkDriver": "IP65(TCP/UDP)", 
+            "assetFilter": "*"
         }, 
         "C64": {
             "spriteFrames": "2", 
@@ -82,6 +88,7 @@
                 "projects/os/bitmaps/vangogh-c64.png"
             ], 
             "charset": [], 
+            "charsetColors": " ", 
             "sprites": [
                 "projects/os/sprites/sprites-c64.png"
             ], 
@@ -92,14 +99,14 @@
             "chunks": [
                 "projects/os/chunks/chunks-c64.txt"
             ], 
-            "networkDriver": "IP65(TCP/UDP)"
+            "crunchAssets": "No", 
+            "networkDriver": "IP65(TCP/UDP)", 
+            "assetFilter": "*"
         }, 
         "Lynx": {
             "spriteFrames": "2", 
             "spriteWidth": "9", 
             "spriteHeight": "13", 
-            "musicMemory": "$0C00", 
-            "sharedMemory": "$0400", 
             "bitmap": [
                 "projects/os/bitmaps/hokusai-lynx.png", 
                 "projects/os/bitmaps/munch-lynx.png", 
@@ -119,14 +126,34 @@
             ], 
             "chunks": [
                 "projects/os/chunks/chunks-lynx.txt"
-            ]
+            ], 
+            "musicMemory": "$0C00", 
+            "sharedMemory": "$0400", 
+            "assetFilter": "*"
+        }, 
+        "NES": {
+            "bitmapTiles": "160", 
+            "spriteFrames": "2", 
+            "spriteWidth": "16", 
+            "spriteHeight": "16", 
+            "bitmap": [
+                "projects/os/bitmaps/bench-nes.png"
+            ], 
+            "charset": [], 
+            "sprites": [
+                "projects/os/sprites/sprites-nes.png"
+            ], 
+            "music": [], 
+            "chunks": [
+                "projects/os/chunks/chunks-nes.txt"
+            ], 
+            "assetFilter": "*"
         }, 
         "Oric": {
             "spriteFrames": "2", 
             "spriteWidth": "12", 
             "spriteHeight": "8", 
             "dithering": "0.2", 
-            "enforcedColors": " ", 
             "bitmap": [
                 "projects/os/bitmaps/hokusai-oric.png", 
                 "projects/os/bitmaps/munch-oric.png", 
@@ -144,7 +171,8 @@
             ], 
             "chunks": [
                 "projects/os/chunks/chunks-oric.txt"
-            ]
+            ], 
+            "assetFilter": "*"
         }
     }
 }
