@@ -81,7 +81,13 @@ unsigned int ChunkSize(unsigned char w, unsigned char h)
 
 void LoadChunk(unsigned char** chunk, char *filename) 
 {
-#if defined __LYNX__
+#if defined __NES__
+	// NES: load chunk into XRAM
+	unsigned int size = FileRead(filename, ptr);
+	*chunk = ptr;
+	ptr += size;
+	
+#elif defined __LYNX__
 	// Lynx: load chunk into Shared RAM
 	unsigned char *buffer = (unsigned char*)SHAREDRAM;
 	unsigned int size;
@@ -136,13 +142,13 @@ void GetChunk(unsigned char** chunk, unsigned char x, unsigned char y, unsigned 
 	// Transfer data from VRAM to XRAM
 	unsigned int vaddr;
 	unsigned char i;
-	*chunk = ptr;
-	x /= 8u; y /= 8u;
-	h /= 8u; w /= 8u;	
+	*chunk = ptr;	
 	POKE(ptr++, x);
 	POKE(ptr++, y);
 	POKE(ptr++, w);
 	POKE(ptr++, h);
+	x /= 8u; y /= 8u; y += 2;
+	h /= 8u; w /= 8u;	
 	ppu_off();	
 	for (i=0; i<h; ++i) {
 		vaddr = NTADR_A(x,y);
@@ -305,9 +311,9 @@ void SetChunk(unsigned char* chunk, unsigned char x, unsigned char y)
 	
 #elif defined __NES__
 	unsigned char i, j, *ptr = chunk+2;
-	unsigned char w = *ptr++;
-	unsigned char h = *ptr++;
-	txtX = x/8u; txtY = (y/8u)-2;
+	unsigned char w = (*ptr++/8u);
+	unsigned char h = (*ptr++/8u);
+	txtX = x/8u; txtY = (y/8u);
 	for (i=0; i<h; ++i) {
 		SetVramName();
 		for (j=0; j<w; j++)
