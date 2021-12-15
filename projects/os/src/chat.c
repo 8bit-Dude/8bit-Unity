@@ -1,6 +1,10 @@
 
 #include "definitions.h"
 
+#ifndef __NES__
+  #define CHAT_CODE
+#endif
+
 #define REQ_LOGIN 	1
 #define REQ_PAGE 	2
 #define REQ_RECV 	3
@@ -29,15 +33,18 @@ unsigned int scrollRange[2] = {0, 1};
 
 void ChatPage()
 {
+#if defined(CHAT_CODE)	
 	chatRequest[0] = REQ_PAGE;
 	POKEW(&chatRequest[1], scrollRange[0]);
 	chatRequest[3] = MSG_PER_PAGE;
 	SendTCP(chatRequest, 4);	
+#endif
 }
 
 
 void ChatRefresh(void)
 {
+#if defined(CHAT_CODE)	
 	unsigned int i;
 	paperColor = DESK_COLOR;
 	txtX = 0; txtY = 2;
@@ -46,10 +53,12 @@ void ChatRefresh(void)
 		txtY += 5;
 	}
 	ChatPage();
+#endif
 }
 
 void ChatSend()
 {
+#if defined(CHAT_CODE)	
 	// Make message length checks
 	unsigned char len;
 	len = strlen(chatBuffer);
@@ -78,10 +87,13 @@ void ChatSend()
 	// Refresh messages
 	scrollRange[0] = 0;
 	ChatRefresh();
+#endif
 }
 
 void ChatLogin()
 {
+#if defined(CHAT_CODE)	
+
 #if defined __LYNX__ 
 	// Save user/pass to EEPROM
 	//unsigned char i = 0;
@@ -89,16 +101,17 @@ void ChatLogin()
 	//	lynx_eeprom_write(i, chatUser[i]); i++;
 	//}
 #endif
-
 	// Send login request to server
 	chatRequest[0] = REQ_LOGIN; 
 	chatRequest[1] = strlen(chatUser);
 	chatRequest[2] = strlen(chatPass);
 	SendTCP(chatRequest, 24);	
+#endif
 }
 
 void ChatMessage(unsigned char index, unsigned char* packet)
 {
+#if defined(CHAT_CODE)	
 	unsigned char i, l, buffer[29];
 
 	// Find message slot
@@ -122,10 +135,12 @@ void ChatMessage(unsigned char index, unsigned char* packet)
 		PrintStr(buffer);
 		i += 28; txtY++;
 	}
+#endif
 }
 
 void ChatScreen(void)
 {			
+#if defined(CHAT_CODE)	
 	unsigned char i=0;
 	
 	// Clear screen
@@ -135,9 +150,9 @@ void ChatScreen(void)
 	inkColor = BLACK;	
 	
 	// Do we have net access?
-	txtX = 12; txtY = 7;
 	if (!netConnected) {
 		Panel(10, 3, 20, 9, "");	
+		txtX = 12; txtY = 7;
 		PrintStr("Network Init...");	
 		ServerConnect();
 	}
@@ -196,6 +211,7 @@ void ChatScreen(void)
 		// Request page
 		ChatPage();		
 	}	
+#endif
 }
 
 #ifdef __ATARIXL__
@@ -204,6 +220,7 @@ void ChatScreen(void)
 
 void ChatPacket(unsigned char *packet)
 {
+#if defined(CHAT_CODE)	
 	unsigned char i;
 
 	// Process received packets
@@ -248,10 +265,12 @@ void ChatPacket(unsigned char *packet)
 		}
 		break;
 	}
+#endif
 }
 
 void ChatCallback(callback* call)
 {
+#if defined(CHAT_CODE)	
 	if (!chatLogged) {
 		if (call == callPass) {
 			maskInput = 1;
@@ -272,4 +291,5 @@ void ChatCallback(callback* call)
 			return;
 		}
 	}
+#endif
 }

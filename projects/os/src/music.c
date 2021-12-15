@@ -1,17 +1,31 @@
 
 #include "definitions.h"
 
-#if (defined __ORIC__)
-  #define LOGO_X    102
+#if (defined __NES__)
+  #define LOGO_X     104	
+  #define LOGO_Y     8
+  #define BUTT_COL1  4
+  #define BUTT_ROW1  11
+  #define BUTT_HSPAN 7
+#elif (defined __ORIC__)
+  #define LOGO_X     102
+  #define LOGO_Y     8
+  #define BUTT_COL1  6
+  #define BUTT_ROW1  11
+  #define BUTT_HSPAN 7
 #elif (defined __APPLE2__)
-  #define LOGO_X    56
+  #define LOGO_X     56
+  #define LOGO_Y     8
+  #define BUTT_COL1  6
+  #define BUTT_ROW1  11
+  #define BUTT_HSPAN 7
 #else
-  #define LOGO_X    65	
+  #define LOGO_X     65	
+  #define LOGO_Y     8
+  #define BUTT_COL1  6
+  #define BUTT_ROW1  11
+  #define BUTT_HSPAN 7
 #endif
-#define LOGO_Y      8
-#define BUTT_COL1   6
-#define BUTT_ROW1   11
-#define BUTT_HSPAN  7
 
 #define MUSIC_STOPPED 0
 #define MUSIC_PLAYING 1
@@ -25,7 +39,6 @@ extern unsigned char* appChunk[NUM_APPS];
 extern unsigned char* icoChunk[NUM_ICOS];
 
 char musicSel = 127, musicState = 0;
-
 callback* musicCall[4];
 
 void PlayTrack(char *fname)
@@ -73,9 +86,9 @@ void MusicTitle()
 	unsigned char* track = fileNames[musicSel];
 	
 	paperColor = BLACK; inkColor = WHITE;
-	txtX = 10; txtY = 7;	
+	txtX = (TXT_COLS)/2-10; txtY = 7;	
 	PrintBlanks(20, 3); 
-	txtX = 20-strlen(track)/2u; txtY = 8;	
+	txtX = (TXT_COLS)/2-strlen(track)/2u; txtY = 8;	
 	PrintStr(track);	
 }
 

@@ -132,18 +132,24 @@
             "assetFilter": "*"
         }, 
         "NES": {
-            "bitmapTiles": "160", 
+            "bitmapTiles": "176", 
             "spriteFrames": "2", 
             "spriteWidth": "16", 
             "spriteHeight": "16", 
             "bitmap": [
-                "projects/os/bitmaps/bench-nes.png"
+                "projects/os/bitmaps/bench-nes.png", 
+                "projects/os/bitmaps/hokusai-nes.png", 
+                "projects/os/bitmaps/munch-nes.png", 
+                "projects/os/bitmaps/picasso-nes.png", 
+                "projects/os/bitmaps/vangogh-nes.png"
             ], 
             "charset": [], 
             "sprites": [
                 "projects/os/sprites/sprites-nes.png"
             ], 
-            "music": [], 
+            "music": [
+                "projects/os/music/goblin-nes.txt"
+            ], 
             "chunks": [
                 "projects/os/chunks/chunks-nes.txt"
             ], 

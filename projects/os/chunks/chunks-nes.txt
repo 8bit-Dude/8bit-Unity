@@ -15,11 +15,11 @@
 #   	Oric:   X/W must be multiples of 6 (e.g. 0,6,12,18...) |  Y/H must be multiples of 2 (e.g. 0,2,4,6...)
 #
 
-'bench.chr', 'icons-nes.png', 'files.chk',  [16,   24, 40, 40]
-'bench.chr', 'icons-nes.png', 'image.chk',  [72,   24, 40, 40]
-'bench.chr', 'icons-nes.png', 'music.chk',  [128,  24, 40, 40]
-'bench.chr', 'icons-nes.png', 'chat.chk',   [184,  24, 40, 40]
-'bench.chr', 'icons-nes.png', 'stop.chk',   [16,  160, 24, 32]
-'bench.chr', 'icons-nes.png', 'play.chk',   [48,  160, 24, 32]
-'bench.chr', 'icons-nes.png', 'prev.chk',   [80,  160, 24, 32]
-'bench.chr', 'icons-nes.png', 'next.chk',   [112, 160, 24, 32]
+'bench.chr', 'icons-nes.png', 'files.chk',  [16,   24, 48, 40]
+'bench.chr', 'icons-nes.png', 'image.chk',  [72,   24, 48, 40]
+'bench.chr', 'icons-nes.png', 'music.chk',  [128,  24, 48, 40]
+'bench.chr', 'icons-nes.png', 'chat.chk',   [184,  24, 48, 40]
+'bench.chr', 'icons-nes.png', 'stop.chk',   [16,  160, 32, 32]
+'bench.chr', 'icons-nes.png', 'play.chk',   [48,  160, 32, 32]
+'bench.chr', 'icons-nes.png', 'prev.chk',   [80,  160, 32, 32]
+'bench.chr', 'icons-nes.png', 'next.chk',   [112, 160, 32, 32]

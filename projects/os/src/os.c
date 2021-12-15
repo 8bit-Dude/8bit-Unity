@@ -1,15 +1,15 @@
 
 #include "definitions.h"
 
-// See home.c
-char appSel = APP_HOME;
-callback *homeCall, *appCall[4];
-
 // See mouse.c
 extern unsigned char* mouse;
 
 // See network.c
 extern unsigned char netConnected;
+
+// See home.c
+char appSel = APP_HOME;
+callback *homeCall, *appCall[4];
 
 void ProcessCallback(callback* call)
 {

@@ -40,10 +40,15 @@ void GetFileList()
 		ext = &fileNames[i][len-3];
 		if (strncmp(ext, imageExt, 3) && strncmp(ext, musicExt, 3) && strncmp(ext, textExt, 3))
 			continue;
+	#if defined(__NES__)
+		if (!strncmp(fileNames[i], "bench.img", 9))
+			continue;
+	#endif	
 		
 		// Allocate string for name + size
 		memset(listNames[listNum], 32, 15);
 		listNames[listNum][16] = 0;
+		listIds[listNum] = i;
 		
 		// Copy over name + size
 		memcpy(listNames[listNum], fileNames[i], len);
@@ -83,29 +88,43 @@ void SelectFile(char dir, unsigned char* extension, char* fileSel)
 		*fileSel += dir;
 		if (*fileSel > fileNum) *fileSel = fileNum-1;
 		if (*fileSel == fileNum) *fileSel = 0;
-				
+						
 		// Check if file extension matches
 		len = strlen(fileNames[*fileSel]);
-		if (!strncmp(&fileNames[*fileSel][len-3], extension, 3)) 
+		if (!strncmp(&fileNames[*fileSel][len-3], extension, 3))
+		#if defined(__NES__)
+		  if (strncmp(fileNames[*fileSel], "bench.img", 9))
+		#endif				
 			break;
 	}
 }
 
-#if (defined __LYNX__)
+#if (defined __APPLE2__)
+  #define PREVIEW_X 91
+  #define PREVIEW_Y 16
+  #define BUTT_COL  26
+  #define BUTT_ROW  9
+#elif (defined __LYNX__)
   #define PREVIEW_X 100
   #define PREVIEW_Y 12
+  #define BUTT_COL  26
+  #define BUTT_ROW  9
+#elif (defined __NES__)
+  #define PREVIEW_X 168
+  #define PREVIEW_Y 16
+  #define BUTT_COL  22
+  #define BUTT_ROW  9
 #elif (defined __ORIC__)
   #define PREVIEW_X 154
   #define PREVIEW_Y 16
-#elif (defined __APPLE2__)
-  #define PREVIEW_X 91
-  #define PREVIEW_Y 16
+  #define BUTT_COL  26
+  #define BUTT_ROW  9
 #else
   #define PREVIEW_X 100
   #define PREVIEW_Y 16
+  #define BUTT_COL  26
+  #define BUTT_ROW  9
 #endif
-  #define BUTT_COL 26
-  #define BUTT_ROW 9
 
 #if (defined __LYNX__)
 	unsigned char* textBuffer;
@@ -151,7 +170,7 @@ void PreviewText(void)
 	textBuffer = (char*)SHAREDRAM;
 	bzero(SHAREDRAM, 256);
 	FileRead(currFile);
-#elif (defined __ORIC__)
+#elif (defined __ORIC__) || (defined __NES__)
 	FileRead(currFile, textBuffer);
 #endif
 	UnpauseTrack();
@@ -178,9 +197,13 @@ void FilesScreen(void)
 	DrawTaskBar();		
 
 	// Display Media files in ListBox
+#if defined(__NES__)	
+	inkColor = WHITE;
+#else
 	paperColor = DESK_COLOR; inkColor = BLACK;
-	ListBox(1, 0, 16, TXT_ROWS-2, "Files", listNames, listNum);
+#endif
 	Panel(18, 0, TXT_COLS-19, TXT_ROWS-2, "Preview");	
+	ListBox(1, 0, 16, TXT_ROWS-2, "Files", listNames, listNum);
 	imageShowing = 0;
 }
 
@@ -189,12 +212,14 @@ void FileCallback(callback* call)
 	// Handle listbox calls
 	if (call->type == CALLTYPE_LISTBOX) {		
 		// Reset preview area
+	#ifndef __NES__	
 		paperColor = DESK_COLOR;
 		txtX = 18; txtY = 1;
-	#if (defined __APPLE2__)
+	  #if (defined __APPLE2__)
 		PrintBlanks(TXT_COLS-20, TXT_ROWS-3);
-	#else
+	  #else
 		PrintBlanks(TXT_COLS-19, TXT_ROWS-3);
+	  #endif
 	#endif
 	
 		// Clear preview callbacks

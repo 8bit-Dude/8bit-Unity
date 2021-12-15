@@ -1,15 +1,16 @@
 
 #include "definitions.h"
 
-// App/Icons parameters
 extern char appSel;
 extern callback *homeCall;
 extern callback *appCall[4];
+
+// App/Icons Data Pointers
 unsigned char* appChunk[NUM_APPS];
 unsigned char* icoChunk[NUM_ICOS];
 
 // Version definitions
-char version[] = "8BIT-OS 2021/04/18";
+char version[] = "8BIT-OS 2021/12/15";
 
 void LoadChunks()
 {
@@ -68,7 +69,7 @@ void DrawTaskBar()
   #define APP_COL1   2
   #define APP_ROW1   1
 #if (defined __NES__)
-  #define APP_HSPAN  8
+  #define APP_HSPAN  7
 #else
   #define APP_HSPAN  10
 #endif
