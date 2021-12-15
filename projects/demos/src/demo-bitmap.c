@@ -10,7 +10,7 @@
 #elif defined __LYNX__
   const unsigned char coords[3][4] = { { 12, 3, 30, 20 }, { 64, 3, 30, 20 }, {116, 3, 30, 20} };
 #elif defined __NES__
-  const unsigned char coords[3][4] = { { 16, 8, 48, 56 }, {104, 8, 48, 56 }, {192, 8, 48, 56} };
+  const unsigned char coords[3][4] = { { 16, 0, 48, 48 }, {104, 0, 48, 48 }, {192, 0, 48, 48} };
 #elif defined __ORIC__
   const unsigned char coords[3][4] = { { 18, 4, 48, 42 }, { 96, 4, 48, 42 }, {174, 4, 48, 42} };
 #endif
