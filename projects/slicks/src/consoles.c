@@ -290,8 +290,10 @@ void CursorControl(void)
 	}
 }
 
-extern unsigned char *chunkPtr;
-extern unsigned char chunkBuf[];
+#if defined(__NES__)
+  extern unsigned char *chunkPtr;
+  extern unsigned char chunkBuf[];
+#endif 
 
 void BackupRestorePauseBg(unsigned char mode)
 {
