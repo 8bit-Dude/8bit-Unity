@@ -59,6 +59,8 @@ void LoadMusic(const char* filename)
 #elif defined __LYNX__
 	// Load from CART file system
 	FileRead(filename);
+#elif defined __NES__	
+	music_load(0);
 #elif defined __ATARIXL__
 	unsigned int end, pos = MUSICRAM;
 	if (FileOpen(filename)) {

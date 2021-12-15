@@ -37,10 +37,6 @@ FT_SFX_ENABLE   = 0		;undefine to exclude all sound effects code
 ; CC65 symbols	
     .include "zeropage.inc"
 
-; Assets
-	.import _music_data
-
-
 PPU_CTRL	=$2000
 PPU_MASK	=$2001
 PPU_STATUS	=$2002
@@ -270,26 +266,12 @@ detectNTSC:
 	lda #0
 	sta PPU_SCROLL
 	sta PPU_SCROLL
-	
-	
-	
-	lda #SOUND_BANK ;PRG bank where all the music stuff is there
-					;SOUND_BANK is defined above
-	jsr _set_prg_bank
-	
-	ldx #<_music_data
-	ldy #>_music_data
-	lda <NTSC_MODE
-	jsr FamiToneInit
 
 .if(FT_SFX_ENABLE)
 	ldx #<sounds_data
 	ldy #>sounds_data
 	jsr FamiToneSfxInit
 .endif
-	
-	lda #$00 ;PRG bank #0 at $8000, back to basic
-	jsr _set_prg_bank
 	
 	;for split screens with different CHR bank at top... disable it
 	jsr _unset_nmi_chr_tile_bank

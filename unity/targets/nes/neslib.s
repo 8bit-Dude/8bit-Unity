@@ -11,7 +11,7 @@
 ;and needs to match the bank where the music is
 
 
-	.export _music_play,_music_stop,_music_pause
+	.export _music_load,_music_play,_music_stop,_music_pause
 	.export _sfx_play,_sample_play
 	.export _pad_poll,_pad_trigger,_pad_state
 
@@ -34,7 +34,11 @@
 	.export _oam_clear,_oam_size,_oam_spr,_oam_meta_spr,_oam_hide
 	.export _oam_set, _oam_get
 
+	; Zero page
 	.importzp sreg
+	
+	; Assets
+	.import _music00	
 	
 
 ;------------------------
@@ -743,6 +747,21 @@ _vram_write:
 
 	rts
 
+;void __fastcall__ music_load(unsigned int addr);
+
+_music_load:
+
+	lda #SOUND_BANK ;PRG bank where all the music stuff is there
+					;SOUND_BANK is defined above
+	jsr _set_prg_bank
+	
+	ldx #<_music00
+	ldy #>_music00
+	lda <NTSC_MODE
+	jsr FamiToneInit
+	
+	lda #$00 ;PRG bank #0 at $8000, back to basic
+	jsr _set_prg_bank	
 
 
 ;void __fastcall__ music_play(unsigned char song);

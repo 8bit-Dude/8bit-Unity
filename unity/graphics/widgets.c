@@ -104,19 +104,27 @@ callback* CheckCallbacks(unsigned char col, unsigned char row)
 				break;
 				
 			case CALLTYPE_LISTBOX:
-				// Change highlight to new item
-				if (callList) {
-					inkColor = callList->ink;
-					paperColor = callList->paper;
+				// Change highlight to new item			
+				if (callList) {	
 					txtX = callList->colBeg;
 					txtY = callList->rowBeg;
+			#if defined __NES__
+					txtX--; PrintChr(CHR_LINE_VERT);
+			#else				
+					inkColor = callList->ink;
+					paperColor = callList->paper;
 					PrintStr(callList->buffer);
+			#endif
 				}
-				inkColor = call->paper;
-				paperColor = call->ink;
 				txtX = call->colBeg;
 				txtY = call->rowBeg;
+			#if defined __NES__
+				txtX--; PrintChr(CHR_SLIDER_VERT);
+			#else				
+				inkColor = call->paper;
+				paperColor = call->ink;
 				PrintStr(call->buffer);
+			#endif
 				callList = call;
 				break;
 
@@ -278,11 +286,50 @@ callback* Input(unsigned char col, unsigned char row, unsigned char width, unsig
 	return call;
 }
 
+#if defined __NES__
+void Border(unsigned char x1, unsigned char x2, unsigned char y1, unsigned char y2) 
+{
+	txtY = y1;
+	while (txtY < y2) {
+		txtX = x2; PrintChr(CHR_LINE_VERT);
+		txtX = x1; PrintChr(CHR_LINE_VERT);
+		txtY++;
+	}
+	PrintChr(CHR_CORNER_BL); 
+	txtX++;
+	while (txtX < x2) {
+		PrintChr(CHR_LINE_HORZ);
+		txtX++;
+	}
+	PrintChr(CHR_CORNER_BR); 	
+}	
+#else
+void Line(unsigned char x1, unsigned char x2, unsigned char y1, unsigned char y2) 
+{
+	if (x1 == x2) {
+		pixelX = x1;
+		for (pixelY=y1; pixelY<y2; pixelY++)
+			SetPixel(inkColor); 
+	} else {
+		pixelY = y1;
+		for (pixelX=x1; pixelX<x2; pixelX++)
+			SetPixel(inkColor); 
+	}
+}
+#endif
+
 void Panel(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char* title)
 {
 	unsigned char xC, xCW, yR, yRH;
 	unsigned char ink, paper;
+		
+#if defined __NES__
+	// Create border
+	Border(col-1, col+width, row, row+height);
 	
+	// Reset cursor
+	txtX = col; txtY = row;
+#else	
 	// Clear area
 	txtX = col; txtY = row;
 	PrintBlanks(width, height);
@@ -293,6 +340,7 @@ void Panel(unsigned char col, unsigned char row, unsigned char width, unsigned c
 	Line(xC, xCW, yRH+1, yRH+1);
 	Line(xC-1, xC-1, yR, yRH+2);
 	Line(xCW, xCW, yR, yRH+2);
+#endif
 	
 	// Add Title
 	ink = inkColor; paper = paperColor;
@@ -300,21 +348,6 @@ void Panel(unsigned char col, unsigned char row, unsigned char width, unsigned c
 	PrintBlanks(width, 1);
 	PrintStr(title);	
 	inkColor = ink; paperColor = paper;
-}
-
-void Line(unsigned char x1, unsigned char x2, unsigned char y1, unsigned char y2)
-{
-#ifndef __NES__	
-	if (x1 == x2) {
-		pixelX = x1;
-		for (pixelY=y1; pixelY<y2; pixelY++)
-			SetPixel(inkColor); 
-	} else {
-		pixelY = y1;
-		for (pixelX=x1; pixelX<x2; pixelX++)
-			SetPixel(inkColor); 
-	}
-#endif
 }
 
 void ListBox(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char* title, unsigned char* labels, unsigned char len)
