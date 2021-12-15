@@ -109,7 +109,7 @@ unsigned int lapBest[MAX_PLAYERS];
 unsigned long gameFrame;
 
 // Pause menu
-#if defined __LYNX__
+#if defined(__LYNX__) || defined(__NES__)
   void BackupRestorePauseBg(unsigned char);
   unsigned char MenuPause(void);
   extern unsigned char pauseEvt;
@@ -864,7 +864,7 @@ char GameLoop()
 		UpdateSFX();
 		
 		// Check Keyboard Press
-	#if defined(__LYNX__)
+	#if defined(__LYNX__) || defined(__NES__)
 		if (GetJoy(0) & JOY_BTN2)
 			LockBackButton = 0;
 		if (kbhit() || KeyboardOverlayHit() || (!(GetJoy(0) & JOY_BTN2) && !LockBackButton)) {
@@ -882,10 +882,10 @@ char GameLoop()
 				case KB_PAUSE: 
 					for (j=0; j<MAX_PLAYERS; ++j) { DisableSprite(j); }
 					BackupRestorePauseBg(0);			// Backup background GFX
-					gamePaused = 1; lynx_snd_pause(); 	// Disable music/sound
+					gamePaused = 1; PauseMusic(1); 		// Disable music/sound
 					lastKey = MenuPause(); 				// Enter pause menu loop
 					while (kbhit()) cgetc();			// Flush keyboard
-					gamePaused = 0; lynx_snd_continue();// Resume music/sound
+					gamePaused = 0; PauseMusic(0);		// Resume music/sound
 					BackupRestorePauseBg(1); 			// Restore background GFX
 					for (j=0; j<MAX_PLAYERS; ++j) { 
 						if (PlayerAvailable(j)) {
@@ -895,12 +895,14 @@ char GameLoop()
 					}
 					gameClock = clock();
 					break;
+			#if defined(__LYNX__)		
 				case KB_MUSIC:
 					NextMusic(1);
 					break;
 				case KB_FLIP:
 					SuzyFlip();
 					break;
+			#endif
 				}
 			}
 	#else

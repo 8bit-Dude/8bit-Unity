@@ -22,10 +22,10 @@
 	#define KB_QUIT 	KB_R
 #elif defined(__NES__)
 	#define KB_START 	KB_EN
-	#define KB_QUIT 	KB_SP	
+	#define KB_QUIT 	KB_Q	
 	#define KB_NEXT 	KB_N
 	#define KB_CHAT 	KB_C
-	#define KB_PAUSE 	KB_P
+	#define KB_PAUSE 	KB_SP
 #elif defined __CBM__
 	#define KB_START 	CH_F1
 	#define KB_NEXT  	CH_F3
@@ -99,9 +99,6 @@
 	#define PAPER_HIGHLT BLACK
 	#define SCORES_COL   	 11
 	#define SCORES_ROW   	  3
-	#define PAUSE_COL 		 15
-	#define PAUSE_LOCAL_ROW   6
-	#define PAUSE_ONLINE_ROW  2
 #elif defined __NES__
 	#define INK_LAPS   	 RED
 	#define INK_TAB		 GREEN
@@ -109,9 +106,6 @@
 	#define PAPER_HIGHLT YELLOW
 	#define SCORES_COL   	  7
 	#define SCORES_ROW   	  7
-	#define PAUSE_COL 		  7
-	#define PAUSE_LOCAL_ROW   6
-	#define PAUSE_ONLINE_ROW  2
 #endif
 
 // Menu location/size

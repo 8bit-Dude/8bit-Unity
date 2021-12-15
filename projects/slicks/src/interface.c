@@ -107,7 +107,7 @@ unsigned char serversLoaded;
 #elif defined __LYNX__
   char chatBG[1440];
 #elif defined __NES__
-  char chatBG[20];
+  char* chatBG;
 #endif
 
 void BackupRestoreChatRow(unsigned char mode)

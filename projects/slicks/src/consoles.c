@@ -3,6 +3,16 @@
 
 #if defined(__LYNX__) || defined(__NES__)
 
+#if defined(__LYNX__)
+  #define PAUSE_COL 		15
+  #define PAUSE_LOCAL_ROW   6
+  #define PAUSE_ONLINE_ROW  2
+#elif defined(__NES__)
+  #define PAUSE_COL 		11
+  #define PAUSE_LOCAL_ROW   10
+  #define PAUSE_ONLINE_ROW  6	
+#endif
+
 #ifdef __NES__
   #pragma rodata-name("BANK0")
   #pragma code-name("BANK0")
@@ -23,7 +33,7 @@ extern unsigned int bestLapTime[];
 #if defined __LYNX__
   extern char chatBG[1440];
 #elif defined __NES__
-  extern char chatBG[20];  
+  extern char *chatBG;  
 #endif
 
 // See navigation.c
@@ -280,15 +290,16 @@ void CursorControl(void)
 	}
 }
 
+extern unsigned char *chunkPtr;
+extern unsigned char chunkBuf[];
+
 void BackupRestorePauseBg(unsigned char mode)
 {
+#if defined(__LYNX__)
+	// Copy screen data
 	unsigned char i;
 	unsigned int addr1 = chatBG;
-#if defined(__LYNX__)	
 	unsigned int addr2 = BITMAPRAM+1+2*PAUSE_COL+492*PAUSE_ONLINE_ROW;
-#elif defined(__NES__)	
-	unsigned int addr2 = PAUSE_COL+32*PAUSE_ONLINE_ROW;
-#endif
 	for (i=0; i<(12*6); ++i) {
 		if (!mode)
 			memcpy(addr1, addr2, 20);
@@ -296,7 +307,15 @@ void BackupRestorePauseBg(unsigned char mode)
 			memcpy(addr2, addr1, 20);
 		addr1 += 20; addr2 += 82;
 	}		
-	
+#elif defined(__NES__)	
+	// Use chunks
+	if (!mode) {
+		GetChunk(&chatBG, PAUSE_COL*8, PAUSE_ONLINE_ROW*8, 10*8, 12*8);
+	} else {
+		SetChunk(chatBG, PAUSE_COL*8, PAUSE_ONLINE_ROW*8);
+		chunkPtr = chunkBuf;  // Reset Chunk Buffer
+	}
+#endif	
 }
 
 unsigned char pauseEvt;
