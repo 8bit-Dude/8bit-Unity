@@ -1590,10 +1590,9 @@ class Application:
                 fp.write('copy utils\\scripts\\nes\\font.chr ' + buildFolder + '\\nes\\sprites.chr\n')
             fp.write('\n')
             
-            for item in music:
-                fb = FileBase(item, '')
-                fp.write('copy ' + item.replace('/', '\\') + ' ' + buildFolder + '\\nes\\music.txt\n')
-                fp.write('utils\\scripts\\nes\\text2data -ca65 build/nes/music.txt\n\n')
+            for i in range(len(music)):
+                fp.write('copy ' + music[i].replace('/', '\\') + ' ' + buildFolder + '\\nes\\music' + str(i).zfill(2) + '.txt\n')
+                fp.write('utils\\scripts\\nes\\text2data -ca65 build/nes/music' + str(i).zfill(2) + '.txt\n\n')
 
             if len(sharedNES) > 0:             
                 for item in sharedNES:
@@ -1616,7 +1615,7 @@ class Application:
             fp.write('set /a CHUNKNUM=0\n')
             if len(chunks) > 0:
                 fp.write('for /f "tokens=*" %%A in (chunks.lst) do set CHUNKNAMES=!CHUNKNAMES!_shkName!CHUNKNUM!,&&set /a CHUNKNUM+=1\n')
-            fp.write('set /a FILENUM=!CHUNKNUM!+' + str(len(bitmaps)+len(charset)+len(charmaps)+len(sharedNES)) + '\n')
+            fp.write('set /a FILENUM=!CHUNKNUM!+' + str(len(bitmaps)+len(charset)+len(charmaps)+len(sharedNES)+len(music)) + '\n')
             fp.write('\n')
             
             # Get Size of various files
@@ -1666,10 +1665,15 @@ class Application:
             fp.write('@echo _fileNum: .byte %FILENUM% >> data.asm\n')  
 
             # List of file names and data
-            if len(bitmaps) > 0 or len(charmaps) > 0 or len(charset) > 0 or len(sharedNES) > 0:
+            if len(bitmaps) > 0 or len(charmaps) > 0 or len(charset) > 0 or len(sharedNES) > 0 or len(music) > 0:
                 # Declare all Bitmap, Shared and Chunk files
-                fp.write('@echo _fileSizes: .word %FILESIZES:~0,-1% >> data.asm\n')
-                fp.write('@echo _fileBanks: .byte %FILEBANKS:~0,-1% >> data.asm\n')
+                musSize = ''
+                musBank = ''
+                for i in range(len(music)):
+                    musSize += ',10'
+                    musBank += ',6'
+                fp.write('@echo _fileSizes: .word %FILESIZES:~0,-1%' + musSize + ' >> data.asm\n')
+                fp.write('@echo _fileBanks: .byte %FILEBANKS:~0,-1%' + musBank + ' >> data.asm\n')
                 fp.write('@echo _fileNames: .addr ')
                 counter = 0
                 for i in range(len(bitmaps)):
@@ -1696,7 +1700,12 @@ class Application:
                     if counter > 0:
                         fp.write(',')
                     fp.write('%CHUNKNAMES:~0,-1%')
-                    counter += 1                    
+                    counter += 1    
+                for i in range(len(music)):
+                    if counter > 0:
+                        fp.write(',')
+                    fp.write('_musName' + str(i).zfill(2))
+                    counter += 1
                 fp.write(' >> data.asm\n')
 
                 # Write list of Bitmap names
@@ -1723,6 +1732,12 @@ class Application:
                 if len(chunks) > 0:
                     fp.write('set /a IND=0\n')
                     fp.write('for /f "tokens=*" %%A in (chunks.lst) do @echo _shkName!IND!: .byte "%%~nxA",0 >> data.asm && set /a IND+=1\n')
+                    
+                # Write list of Musics
+                for i in range(len(music)):
+                    fb = FileBase(music[i], '.txt')
+                    fp.write('@echo _musName' + str(i).zfill(2) + ': .byte "' + fb + '.mus",0 >> data.asm\n')
+                                        
             else:
                 fp.write('@echo _fileSizes: .word 0 >> data.asm\n')
                 fp.write('@echo _fileNames: .addr _dummy >> data.asm\n')
@@ -1760,11 +1775,12 @@ class Application:
                 
             # Link Music 
             fp.write('@echo .segment "BANK6" >> data.asm\n')
-            fp.write('@echo .global _music_data >> data.asm\n')            
+            fp.write('@echo .global _music00 >> data.asm\n')            
             if len(music):
-                fp.write('@echo _music_data: .include "music.s" >> data.asm\n')
+                for i in range(len(music)):
+                    fp.write('@echo _music00: .include "music' + str(i).zfill(2) + '.s" >> data.asm\n')
             else:
-                fp.write('@echo _music_data: .byte 0 >> data.asm\n')
+                fp.write('@echo _music00: .byte 0 >> data.asm\n')
             fp.write('@echo ; >> data.asm\n')
 
             # Write list of CHR pages (including default font and sprites)

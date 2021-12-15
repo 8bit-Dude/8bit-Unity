@@ -256,7 +256,7 @@ def CrunchTiles(names, chars, maxTiles):
     # Drop identical chars
     if len(names) == 800:
         ch = 1; nm = 0
-        while ch<len(chars):
+        while ch<len(chars) and len(chars) > maxTiles:
             matched = False
             for i in range(0, ch):
                 if (chars[i] == chars[ch]):
