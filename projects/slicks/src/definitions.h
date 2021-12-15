@@ -7,9 +7,7 @@
 //#define DEBUG_NAV
 
 // NetCode Toggle
-#ifndef __NES__
-  #define NETCODE
-#endif
+#define NETCODE
 
 // Keyboard definitions
 #if defined(__LYNX__)
