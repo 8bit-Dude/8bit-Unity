@@ -63,5 +63,9 @@ unsigned char InitNetwork(void)
 	if (ip65_init(ETH_INIT_DEFAULT)) return ADAPTOR_ERR;
 	if (dhcp_init()) return DHCP_ERR;
 	return NETWORK_OK;
+	
+#else
+	return ADAPTOR_ERR;
+	
 #endif
 }
