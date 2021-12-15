@@ -26,6 +26,11 @@
 
 #include <cc65.h>
 
+#ifdef __NES__
+  #pragma rodata-name("BANK0")
+  #pragma code-name("BANK0")
+#endif
+
 signed int dot(signed char *v1, signed char *v2)
 {
 	return imul8x8r16(v1[0], v2[0]) + imul8x8r16(v1[1], v2[1]);
