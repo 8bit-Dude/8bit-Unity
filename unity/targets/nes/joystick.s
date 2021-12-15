@@ -11,7 +11,7 @@
 
 encoded: .res 1
 	
-	.segment "CODE"
+	.segment "BANK0"
 
 ; ---------------------------------------------------------------
 ; void __fastcall__ InitJoy (void)

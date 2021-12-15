@@ -16,15 +16,6 @@
 // 060414 - many fixes and improvements, including sequental VRAM updates
 // previous versions were created since mid-2011, there were many updates
 
-#define PAD_A			0x80
-#define PAD_B			0x40
-#define PAD_SELECT		0x20
-#define PAD_START		0x10
-#define PAD_UP			0x08
-#define PAD_DOWN		0x04
-#define PAD_LEFT		0x02
-#define PAD_RIGHT		0x01
-
 #define OAM_FLIP_V		0x80
 #define OAM_FLIP_H		0x40
 #define OAM_BEHIND		0x20
@@ -175,14 +166,6 @@ void __fastcall__ sample_play(unsigned char sample);
 
 //poll controller and return flags like PAD_LEFT etc, input is pad number (0 or 1)
 unsigned char __fastcall__ pad_poll(unsigned char pad);
-
-//poll controller in trigger mode, a flag is set only on button down, not hold
-//if you need to poll the pad in both normal and trigger mode, poll it in the
-//trigger mode for first, then use pad_state
-unsigned char __fastcall__ pad_trigger(unsigned char pad);
-
-//get previous pad state without polling ports
-unsigned char __fastcall__ pad_state(unsigned char pad);
 
 
 //set scroll, including rhe top bits

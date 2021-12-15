@@ -13,7 +13,7 @@
 
 	.export _music_load,_music_play,_music_stop,_music_pause
 	.export _sfx_play,_sample_play
-	.export _pad_poll,_pad_trigger,_pad_state
+	.export _pad_poll
 
 	;; PPU control functions
 	.export _ppu_off,_ppu_on_all,_ppu_on_bg,_ppu_on_spr,_ppu_mask,_ppu_system
@@ -919,32 +919,6 @@ _pad_poll:
 	
 	ldx #0
 	rts
-
-
-
-;unsigned char __fastcall__ pad_trigger(unsigned char pad);
-
-_pad_trigger:
-
-	pha
-	jsr _pad_poll
-	pla
-	tax
-	lda <PAD_STATET,x
-	ldx #0
-	rts
-
-
-
-;unsigned char __fastcall__ pad_state(unsigned char pad);
-
-_pad_state:
-
-	tax
-	lda <PAD_STATE,x
-	ldx #0
-	rts
-
 
 
 ;void __fastcall__ set_vram_update(unsigned char *buf);
