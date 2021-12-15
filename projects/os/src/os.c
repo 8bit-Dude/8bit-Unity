@@ -1,6 +1,10 @@
 
 #include "definitions.h"
 
+#ifdef __NES__
+  #pragma code-name("BANK0")
+#endif
+
 // See mouse.c
 extern unsigned char* mouse;
 

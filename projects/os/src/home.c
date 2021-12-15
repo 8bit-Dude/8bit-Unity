@@ -1,6 +1,10 @@
 
 #include "definitions.h"
 
+#ifdef __NES__
+  #pragma code-name("BANK0")
+#endif
+
 extern char appSel;
 extern callback *homeCall;
 extern callback *appCall[4];

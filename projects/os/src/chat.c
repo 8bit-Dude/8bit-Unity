@@ -1,9 +1,7 @@
 
 #include "definitions.h"
 
-#ifndef __NES__
-  #define CHAT_CODE
-#endif
+#define CHAT_CODE
 
 #define REQ_LOGIN 	1
 #define REQ_PAGE 	2
@@ -67,7 +65,9 @@ void ChatSend()
 		paperColor = DESK_COLOR; inkColor = BLACK;
 		PrintStr("Min Length: 8 chars!"); 		
 		sleep(1); PrintBlanks(20, 1);
+	#ifndef __NES__	
 		Line(lineX1, lineX2, lineY, lineY);
+	#endif
 		return;
 	}
 	
@@ -201,13 +201,14 @@ void ChatScreen(void)
 		callScroll = ScrollBar(TXT_COLS-1, 1, TXT_ROWS-2, scrollRange);
 		
 		// Add separators
+	#ifndef __NES__
 		lineX1 = ColToX(0)+2;
 		lineX2 = ColToX(TXT_COLS-2)+2;
 		for (i=0; i<MSG_PER_PAGE; i++) {
 			lineY = RowToY(5*i+1)+3;
 			Line(lineX1, lineX2, lineY, lineY);
 		}
-		
+	#endif
 		// Request page
 		ChatPage();		
 	}	
