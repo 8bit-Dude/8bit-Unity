@@ -25,7 +25,7 @@
         "Apple": {
             "spriteFrames": "64", 
             "spriteWidth": "7", 
-            "spriteHeight": "5", 
+            "spriteHeight": "6", 
             "bitmapDHR": [
                 "projects/demos/bitmaps/banner-apple-dhr.png", 
                 "projects/demos/bitmaps/stadium-apple-dhr.png"
@@ -50,7 +50,8 @@
             "chunks": [], 
             "diskSize": "140KB", 
             "crunchAssets": "No", 
-            "networkDriver": "IP65(TCP/UDP)"
+            "networkDriver": "IP65(TCP/UDP)", 
+            "assetFilter": "*"
         }, 
         "Atari": {
             "spriteFrames": "18", 
@@ -72,7 +73,8 @@
             "chunks": [], 
             "diskSize": "180KB", 
             "crunchAssets": "No", 
-            "networkDriver": "IP65(TCP/UDP)"
+            "networkDriver": "IP65(TCP/UDP)", 
+            "assetFilter": "*"
         }, 
         "C64": {
             "spriteFrames": "16", 
@@ -94,15 +96,13 @@
             ], 
             "chunks": [], 
             "crunchAssets": "No", 
-            "networkDriver": "IP65(TCP/UDP)"
+            "networkDriver": "IP65(TCP/UDP)", 
+            "assetFilter": "*"
         }, 
         "Lynx": {
             "spriteFrames": "16", 
             "spriteWidth": "8", 
             "spriteHeight": "9", 
-            "musicMemory": "$0C00", 
-            "sharedMemory": "$0400", 
-            "sharedFilter": "*", 
             "bitmap": [
                 "projects/demos/bitmaps/banner-lynx.png", 
                 "projects/demos/bitmaps/stadium-lynx.png"
@@ -116,7 +116,10 @@
             "music": [
                 "projects/demos/music/demo-lynx.asm"
             ], 
-            "chunks": []
+            "chunks": [], 
+            "musicMemory": "$0C00", 
+            "sharedMemory": "$0400", 
+            "assetFilter": "*"
         }, 
         "NES": {
             "bitmapTiles": "160", 
@@ -136,7 +139,8 @@
             "music": [
                 "projects/demos/music/demo-nes.txt"
             ], 
-            "chunks": []
+            "chunks": [], 
+            "assetFilter": "*"
         }, 
         "Oric": {
             "spriteFrames": "16", 
@@ -156,7 +160,8 @@
             "music": [
                 "projects/demos/music/demo-oric.ym"
             ], 
-            "chunks": []
+            "chunks": [], 
+            "assetFilter": "*"
         }
     }
 }

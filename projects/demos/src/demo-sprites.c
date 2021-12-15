@@ -8,7 +8,7 @@ extern const char nextKey;
 #if defined __APPLE2__
   #define spriteFrames 64
   #define spriteCols    7
-  #define spriteRows    5
+  #define spriteRows    6
   const unsigned char spriteColors[] = { };	//  Colors are pre-assigned in the sprite sheet
   const unsigned char inkColors[] = { BLUE, RED, GREEN, YELLOW };		// P1, P2, P3, P4
 #elif defined __ATARI__
