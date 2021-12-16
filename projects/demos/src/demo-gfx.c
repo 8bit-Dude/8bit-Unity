@@ -37,7 +37,15 @@ int DemoGfx(void)
 	ShowBitmap();
 	
 	// Draw palette (Method #1: set pixel coordinates directly using global variables pixelX & pixelY)
-#ifndef __NES__	
+#if defined __NES__
+	txtY = 0;
+	for (color=0; color<4; color++) {
+		inkColor = color;
+		for (txtX=(color)*8; txtX<(color+1)*8; txtX++) {
+			PrintChr(CHR_BLOCK_LARGE);
+		}
+	}
+#else
   #if defined __ORIC__	
 	palette = 19; blockW = 6;	// Oric Hires (enforce 6 pixel groups)
   #elif defined __SHR__	
@@ -75,7 +83,7 @@ int DemoGfx(void)
 	}
 	
 	// Show Platform logos
-	txtY = 3;
+	txtY = 3; inkColor = WHITE;
 	for (i=0; i<6; i++) { 
 		txtX = 2;		   PrintLogo(i);
 		txtX = TXT_COLS-3; PrintLogo(i);
