@@ -152,7 +152,7 @@ void __fastcall__ oam_hide(unsigned char num);
 
 
 //play a music in FamiTone format
-void __fastcall__ music_load(unsigned int addr);
+void __fastcall__ music_load(unsigned char *addr);
 void __fastcall__ music_play(unsigned char song);
 void __fastcall__ music_stop(void);
 void __fastcall__ music_pause(unsigned char pause);

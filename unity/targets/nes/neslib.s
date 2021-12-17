@@ -35,10 +35,7 @@
 	.export _oam_set, _oam_get
 
 	; Zero page
-	.importzp sreg
-	
-	; Assets
-	.import _music00	
+	.importzp sreg	
 	
 
 ;------------------------
@@ -747,16 +744,19 @@ _vram_write:
 
 	rts
 
-;void __fastcall__ music_load(unsigned int addr);
+;void __fastcall__ music_load(unsigned char *addr);
 
 _music_load:
 
+	sta <PTR
+	stx <PTR+1
+	
 	lda #SOUND_BANK ;PRG bank where all the music stuff is there
 					;SOUND_BANK is defined above
 	jsr _set_prg_bank
 	
-	ldx #<_music00
-	ldy #>_music00
+	ldx <PTR
+	ldy <PTR+1
 	lda <NTSC_MODE
 	jsr FamiToneInit
 	

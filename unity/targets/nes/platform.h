@@ -64,6 +64,7 @@
 #define BMP_PALETTE   4
 
 // Colors available for Sprite Palette
+#define SPR_VOID    0x00
 #define SPR_AQUA	0x31
 #define SPR_BLACK   0x0F
 #define SPR_BLUE	0x11
