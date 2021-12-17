@@ -454,12 +454,23 @@ void PrintScores()
 				DisableSprite(SPR2_SLOT+i);		// Jump sprite			
 			}
 		#elif defined(__LYNX__)
-			if (iX > SCORES_COL*64-32 && iX < (SCORES_COL+19)*64+32 && iY > SCORES_ROW*96-48 && iY < (SCORES_ROW+10)*96+48) {
+			if (iX > SCORES_COL*64-32 && iX < (SCORES_COL+19)*64+32 && iY > SCORES_ROW*96-32 && iY < (SCORES_ROW+10)*96+32) {
 				DisableSprite(i);			// Car sprite
 				DisableSprite(SPR2_SLOT+i);	// Jump sprite			
 			} else {
 				spriteX = iX/16u; 
 				spriteY = iY/16u;				
+				j = (iCar->ang2+12)/23u;
+				if (j>15) { j=0; }
+				SetSprite(i, j);
+			}
+		#elif defined(__NES__)
+			if (iX > SCORES_COL*80-32 && iX < (SCORES_COL+19)*80+32 && iY > SCORES_ROW*64-32 && iY < (SCORES_ROW+10)*64+32) {
+				DisableSprite(i);				// Car sprite
+				DisableSprite(SPR2_SLOT+i);		// Jump sprite			
+			} else {
+				spriteX = iX/10u; 
+				spriteY = iY/8u+16;				
 				j = (iCar->ang2+12)/23u;
 				if (j>15) { j=0; }
 				SetSprite(i, j);

@@ -316,11 +316,13 @@ unsigned char GameRace()
 		RecolorSprite(i, 7, 0xef);
 	#elif defined __ORIC__ 
 		RecolorSprite(i, 0, SPR_AIC);
+	#elif defined __NES__
+		RecolorSprite(i, 0, 3); // Use Palette 3 (Yellow)
 	#endif		
 		SetSprite(i, 16);
         EnableSprite(i);
     }
-  #if defined __LYNX__	
+  #if defined(__LYNX__)
 	UpdateDisplay();
   #endif			
 #endif	
@@ -348,8 +350,12 @@ unsigned char GameRace()
 	RecolorSprite(SPR2_SLOT, 7, 0xbf);
 	UpdateDisplay();
 #elif defined __ORIC__ 
-	LocateSprite(LIGHT_X, 24);	
+	LocateSprite(LIGHT_X, LIGHT_Y);	
 	RecolorSprite(SPR2_SLOT, 0, SPR_RED);
+	SetSprite(SPR2_SLOT, 16);
+#elif defined __NES__
+	LocateSprite(LIGHT_X, LIGHT_Y);	
+	RecolorSprite(SPR2_SLOT, 0, 1); // Use Palette 1 (Red)
 	SetSprite(SPR2_SLOT, 16);
 #endif	
 	BleepSFX(64); 
@@ -368,9 +374,13 @@ unsigned char GameRace()
 	RecolorSprite(SPR2_SLOT+1, 7, 0x8f);	
 	UpdateDisplay();
 #elif defined __ORIC__ 
-	LocateSprite(LIGHT_X+LIGHT_SP, 24);	
+	LocateSprite(LIGHT_X+LIGHT_SP, LIGHT_Y);	
 	RecolorSprite(SPR2_SLOT+1, 0, SPR_RED);
 	SetSprite(5, 16);	
+#elif defined __NES__
+	LocateSprite(LIGHT_X+LIGHT_SP, LIGHT_Y);	
+	RecolorSprite(SPR2_SLOT+1, 0, 1); // Use Palette 1 (Red)
+	SetSprite(SPR2_SLOT+1, 16);
 #endif	
 	BleepSFX(64); 
 #ifndef __APPLE2__
@@ -388,8 +398,12 @@ unsigned char GameRace()
 	RecolorSprite(SPR2_SLOT+2, 7, 0x4f);	
 	UpdateDisplay();
 #elif defined __ORIC__ 
-	LocateSprite(LIGHT_X+2*LIGHT_SP, 24);	
+	LocateSprite(LIGHT_X+2*LIGHT_SP, LIGHT_Y);	
 	RecolorSprite(SPR2_SLOT+2, 0, SPR_GREEN);
+	SetSprite(SPR2_SLOT+2, 16);	
+#elif defined __NES__
+	LocateSprite(LIGHT_X+2*LIGHT_SP, LIGHT_Y);	
+	RecolorSprite(SPR2_SLOT+2, 0, 2); // Use Palette 2 (Green)	
 	SetSprite(SPR2_SLOT+2, 16);	
 #endif
 	BleepSFX(128); 
@@ -479,7 +493,7 @@ int iX, iY;		// Also used in navigation
 char GameLoop()
 {		
 	// Game Management
-#if (defined __ATARI__) || (defined __C64__) || (defined __LYNX__)
+#if (defined __ATARI__) || (defined __C64__) || (defined __LYNX__) || (defined __NES__)
 	unsigned char sprShadow;
 #endif
 	int iVel, iVelMax, iAng1, iAng2, iCos, iSin, iTmp, ticks;
@@ -753,7 +767,7 @@ char GameLoop()
 
 			// Display sprite
 			if (iJmp) {
-			#if (defined __ATARI__) || (defined __C64__) || (defined __LYNX__)
+			#if (defined __ATARI__) || (defined __C64__) || (defined __LYNX__) || (defined __NES__)
 				sprShadow |= (1<<i);
 				SetSprite(SPR2_SLOT+i, 17);	// Display shadow Sprite
 				EnableSprite(SPR2_SLOT+i);
