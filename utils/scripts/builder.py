@@ -1142,7 +1142,7 @@ class Application:
                     symbols += '-D __IP65__ '
                 if 'Fujinet' in networkOptions:
                     symbols += '-D __FUJINET__ '                
-                fp.write('utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/atari/launcher.bin ' + symbols + ' -I unity utils/scripts/atari/launcher.c ' + buildFolder + '/atari/unity.lib\n\n')
+                fp.write('utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/atari/launcher.bin ' + symbols + ' -I unity unity/targets/atari/launcher.c ' + buildFolder + '/atari/unity.lib\n\n')
 
                 # RMT player
                 fp.write('utils\\scripts\\atari\\mads.exe -o:' + buildFolder + '/atari/rmt.bin unity/targets/atari/RMT.a65\n\n')
@@ -1222,7 +1222,12 @@ class Application:
         chunks = list(self.listbox_C64Chunks.get(0, END))
         music = list(self.listbox_C64Music.get(0, END))
         sharedC64 = [item for item in shared if self.entry_C64AssetFilter.get() not in item]
-        
+        networkOptions = []
+        if self.checkbutton_C64Network8bitHub.get():
+            networkOptions.append('8bit-Hub')
+        if self.checkbutton_C64NetworkRRNet.get():
+            networkOptions.append('RR-Net')
+            
         with open('../../' + buildFolder+'/'+diskname+"-c64.bat", "wb") as fp:
             # Info
             fp.write('echo off\n\n')
@@ -1233,33 +1238,48 @@ class Application:
             
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
-            # Build Unity Library
-            cTarget = [ 'graphics\\pixel.c', 'targets\\c64\\directory.c', 'targets\\c64\\VIC2.c' ]
-            sTarget = [ 'graphics\\scroll.s', 'strings\\chars.s', 'targets\\c64\\decrunch.s', 'targets\\c64\\DLI.s', 'targets\\c64\\joystick.s', 'targets\\c64\\blitCharmap.s', 'targets\\c64\\ROM.s', 'targets\\c64\\SID.s']
-            symbols = ''
-            
-            # Network settings
-            #if '8bit-Hub' in self.combobox_C64NetworkProtocols.get(): 
-            #    cTarget.append('adaptors\\hub.c')
-            #    cTarget.append('targets\\c64\\CIA.c')
-            #    symbols += '-D __HUB__ '            
-            #if 'IP65' in self.combobox_C64NetworkProtocols.get():    
-            symbols += '-D __IP65__ '
+            # Build Unity Library for eah network target
+            for network in networkOptions:
+                cTarget = [ 'graphics\\pixel.c', 'targets\\c64\\directory.c', 'targets\\c64\\VIC2.c' ]
+                sTarget = [ 'graphics\\scroll.s', 'strings\\chars.s', 'targets\\c64\\decrunch.s', 'targets\\c64\\DLI.s', 'targets\\c64\\joystick.s', 'targets\\c64\\blitCharmap.s', 'targets\\c64\\ROM.s', 'targets\\c64\\SID.s']
+                symbols = ''
                 
-            # Graphic settings
-            if self.combobox_C64CrunchAssets.get() == 'Yes':
-                symbols += '-D __DECRUNCH__ '
+                # Network settings
+                if network == '8bit-Hub': 
+                    cTarget.append('adaptors\\hub.c')
+                    cTarget.append('targets\\c64\\CIA.c')
+                    executable = 'hub'
+                    symbols += '-D __HUB__ '            
+                if network == 'RR-Net': 
+                    symbols += '-D __IP65__ '
+                    executable = 'rrnet'
+                    
+                # Graphic settings
+                if self.combobox_C64CrunchAssets.get() == 'Yes':
+                    symbols += '-D __DECRUNCH__ '
+                    
+                BuildUnityLibrary(self, fp, '-t c64', symbols, cCore+cTarget, sCore+sTarget, buildFolder+'/c64')
                 
-            BuildUnityLibrary(self, fp, '-t c64', symbols, cCore+cTarget, sCore+sTarget, buildFolder+'/c64')
-            
-            # Compile Program                        
-            comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/c64/' + diskname.lower() + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-c64.map -Cl -O -t c64 -C unity/targets/c64/c64.cfg -I unity '
-            for item in code:
-                comp += (item + ' ')
-            if self.combobox_C64NetworkProtocols.get() == 'TCP/UDP':
-                fp.write(comp + buildFolder + '/c64/unity.lib unity/adaptors/ip65_tcp.lib unity/adaptors/ip65_c64.lib\n\n')
-            else:
-                fp.write(comp + buildFolder + '/c64/unity.lib unity/adaptors/ip65.lib unity/adaptors/ip65_c64.lib\n\n')
+                # Compile Program                        
+                comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/c64/' + executable + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-c64.map -Cl -O -t c64 -C unity/targets/c64/c64.cfg -I unity '
+                for item in code:
+                    comp += (item + ' ')
+                if network == '8bit-Hub':
+                    fp.write(comp + buildFolder + '/c64/unity.lib\n\n')
+                if network == 'RR-Net': 
+                    if self.combobox_C64NetworkProtocols.get() == 'TCP/UDP':
+                        fp.write(comp + buildFolder + '/c64/unity.lib unity/adaptors/ip65_tcp.lib unity/adaptors/ip65_c64.lib\n\n')
+                    else:
+                        fp.write(comp + buildFolder + '/c64/unity.lib unity/adaptors/ip65.lib unity/adaptors/ip65_c64.lib\n\n')
+
+            # LAUNCHER program
+            symbols = '-Cl -O -t c64 '
+            if '8bit-Hub' in networkOptions:
+                symbols += '-D __HUB__ '
+            if 'RR-Net' in networkOptions:
+                symbols += '-D __IP65__ '
+            fp.write('utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/c64/launcher.bin ' + symbols + ' -C unity/targets/c64/c64.cfg -I unity unity/targets/c64/launcher.c ' + buildFolder + '/c64/unity.lib\n\n')
+            fp.write('utils\\scripts\\exomizer-3.0.2.exe sfx $180d ' + buildFolder + '/c64/launcher.bin -o ' + buildFolder + '/c64/launcher.prg\n')
             
             fp.write('echo --------------- CONVERT ASSETS ---------------  \n\n')
             
@@ -1295,14 +1315,25 @@ class Application:
             fp.write('echo --------------- C64 DISK BUILDER --------------- \n\n')
 
             # Compress files
-            if len(sprites) > 0:
-                fp.write('utils\\scripts\\exomizer-3.0.2.exe sfx $180d ' + buildFolder + '/c64/' + diskname.lower() + '.bin ' + buildFolder + '/c64/sprites.dat -o ' + buildFolder + '/c64/loader.prg\n')          
-            else:
-                fp.write('utils\\scripts\\exomizer-3.0.2.exe sfx $180d ' + buildFolder + '/c64/' + diskname.lower() + '.bin -o ' + buildFolder + '/c64/loader.prg\n')
+            for network in networkOptions:
+                if network == '8bit-Hub': 
+                    executable = 'hub'
+                if network == 'RR-Net': 
+                    executable = 'rrnet'            
+                if len(sprites) > 0:
+                    fp.write('utils\\scripts\\exomizer-3.0.2.exe sfx $180d ' + buildFolder + '/c64/' + executable + '.bin ' + buildFolder + '/c64/sprites.dat -o ' + buildFolder + '/c64/' + executable + '.prg\n\n')          
+                else:
+                    fp.write('utils\\scripts\\exomizer-3.0.2.exe sfx $180d ' + buildFolder + '/c64/' + executable + '.bin -o ' + buildFolder + '/c64/' + executable + '.prg\n\n')
 
             # Disk builder
-            fp.write('set C1541=utils\\scripts\\c64\\c1541 -format loader,666 d64 ' + buildFolder + '/' + diskname + '-c64.d64 -attach ' + buildFolder + '/' + diskname + '-c64.d64 ')
-            fp.write('-write ' + buildFolder + '/c64/loader.prg loader.prg ')
+            fp.write('set C1541=utils\\scripts\\c64\\c1541 -format launcher,666 d64 ' + buildFolder + '/' + diskname + '-c64.d64 -attach ' + buildFolder + '/' + diskname + '-c64.d64 ')
+            fp.write('-write ' + buildFolder + '/c64/launcher.prg launcher.prg ')
+            for network in networkOptions:
+                if network == '8bit-Hub': 
+                    executable = 'hub.prg'
+                if network == 'RR-Net': 
+                    executable = 'rrnet.prg'            
+                fp.write('-write ' + buildFolder + '/c64/' + executable + ' ' + executable + ' ')
             for item in bitmaps:
                 fb = FileBase(item, '.png')
                 fp.write('-write ' + buildFolder + '/c64/' + fb + '.img ' + fb + '.img ')
