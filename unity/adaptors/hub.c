@@ -29,7 +29,7 @@
 
 // Debugging flags
 //#define DEBUG_HUB
-#if defined DEBUG_HUB
+#if defined(DEBUG_HUB)
   unsigned char i, ok, hd, tr, co, chk1, chk2, dbgID, dbgLen;
   clock_t tic, toc;
 #endif  
@@ -42,10 +42,37 @@
   unsigned char __fastcall__ SerialPut(unsigned char data);
  #if defined(__APPLE2__) 
   struct ser_params comParm = { SER_BAUD_19200, SER_BITS_8, SER_STOP_1, SER_PAR_NONE, SER_HS_HW };
- #elif defined(__LYNX__) 
-  //struct ser_params comParm = { SER_BAUD_62500, SER_BITS_8, SER_STOP_1, SER_PAR_SPACE, SER_HS_NONE };							  
+ #elif defined(__LYNX__)
+  unsigned char comParm = 0;  //struct ser_params comParm = { SER_BAUD_62500, SER_BITS_8, SER_STOP_1, SER_PAR_SPACE, SER_HS_NONE };							  
  #endif
+  unsigned char byte;	
+  unsigned char RecvByte() 
+  {
+	unsigned char i = 255;
+	while (i) {  // Countdown i to 0
+		if (SerialGet(&byte) == SER_ERR_OK)		// Wait for byte to arrive on serial port
+			return 1;
+		i--;
+	}
+	return 0;
+  }
+  unsigned char SendByte() 
+  {
+	while (SerialPut(byte) != SER_ERR_OK);  // Send byte
+	while (SerialGet(&byte) != SER_ERR_OK); // Read byte (sent to oneself)	
+	return 1;
+  } 
+#elif defined(__ATARI__) || defined(__CBM__) || defined(__NES__) || defined(__ORIC__)
+  void InputMode();
+  void OutputMode();
+  unsigned char SendByte();
+  unsigned char RecvByte();
+  extern unsigned char byte;
 #endif
+
+#if defined __NES__
+ #pragma bss-name(push, "XRAM")
+#endif 
 
 // Hub State
 unsigned char hubState[7] = { COM_ERR_OFFLINE, 255, 255, 255, 255, 255, 255 };
@@ -53,40 +80,18 @@ unsigned char sendID = 0, sendLen = 0, sendHub[HUB_TX_LEN];
 unsigned char recvID = 0, recvLen = 0, recvHub[HUB_RX_LEN];
 unsigned char queueID = 0;
 
-#if defined(__ATARI__) || defined(__ORIC__)
-  extern unsigned char byte;
-  unsigned char RecvByte();
-  void SendByte();
-#else
-  unsigned char byte;	
-  unsigned char RecvByte() {
-	unsigned char i = 255;
-	while (i) {  // Countdown i to 0
-		if (SerialGet(&byte) == SER_ERR_OK) { return 1; }	// Look for incoming byte on ComLynx Port
-		i--;
-	}
-	return 0;
-  }
-  void SendByte() {
-	while (SerialPut(byte) != SER_ERR_OK);  // Send byte
-	while (SerialGet(&byte) != SER_ERR_OK); // Read byte (sent to oneself)	
-  }
-#endif
+#if defined __NES__
+  #pragma bss-name(pop)
+#endif 
 
 void RecvHub() 
 {
 	unsigned char i, ID, len, checksum, packetLen;
 
-  #if defined(__ATARI__)
-	byte = 85; SendByte();		// Ask Hub to send Data
-	POKE(54018, 0b00111000);	// Switch to receive Mode
-	POKE(54016, 0b11000000);	// Set PIA State
-	POKE(54018, 0b00001100);
-	POKE(54016, 0b11000000);	// STROBE ON
-  #elif defined __ORIC__
-	byte = 85; SendByte();		// Ask Hub to send Data
-	POKE(0x0303, 0);			// Set Port A as Input
-	i = PEEK(0x0301);   		// Reset ORA
+  #if defined(__ATARI__) || defined(__CBM__) || defined(__NES__) || defined(__ORIC__)
+	// Ask Hub to send Data  
+	byte = 85; if (!SendByte()) return;
+	InputMode();
   #endif	
 	
 	// Check header
@@ -173,37 +178,32 @@ void SendHub()
 	
   #if defined(__APPLE2__) || defined(__LYNX__)
 	while (SerialGet(&i) == SER_ERR_OK) ; // Clear UART Buffer
-  #elif defined(__ATARI__)
-	POKE(54018, 0b00111000);			// Switch to send Mode
-	POKE(54016, 0b11110000);	// Set PIA State
-	POKE(54018, 0b00001100);
-	POKE(54016, 0b10000000); 	// STROBE ON
-  #elif defined(__ORIC__)
-	__asm__("sei");		// Disable interrupts
+  #elif defined(__ATARI__) || defined(__CBM__) || defined(__NES__) || defined(__ORIC__)
+	OutputMode();
   #endif	
 	
 	// Send Header
-	byte = 170; SendByte();
+	byte = 170; if (!SendByte()) return;
 	
 	// Send Packet ID
 	if (sendLen) { sendID = sendHub[0]; }
 	checksum = (recvID & 0xf0) + sendID;
-	byte = checksum; SendByte();
+	byte = checksum; if (!SendByte()) return;
 	
 	// Send Packet Data (if any)
 	if (sendLen) {	
 		packetLen = sendHub[1];
-		byte = packetLen; SendByte();
+		byte = packetLen; if (!SendByte()) return;
 		for (i=2; i<packetLen+2; i++) {
-			byte = sendHub[i]; SendByte(); 
+			byte = sendHub[i]; if (!SendByte()) return;
 			checksum += sendHub[i];
 		}
 	} else {	
-		byte = 0; SendByte(); 
+		byte = 0; if (!SendByte()) return; 
 	}
 	
 	// Send footer
-	byte = checksum; SendByte();
+	byte = checksum; if (!SendByte()) return;
 }
 
 unsigned char QueueHub(unsigned char packetCmd, unsigned char* packetBuffer, unsigned char packetLen)
@@ -235,36 +235,31 @@ void UpdateHub()
 	if (hubState[0] == COM_ERR_OFFLINE) {
 		// Queue reset command
 		if (sendHub[0] != HUB_SYS_RESET) {
-		  #if defined(__APPLE2__) || defined(__LYNX__)
-			// Setup serial interface
-			SerialOpen(0);  
-			//SerialOpen(&comParm);
-		  #elif defined(__ATARI__)
-			// Setup PIA pins
-			POKE(54018, 0b00111000);	// Switch to send Mode
-			POKE(54016, 0b11110000);	// Set PIA State
-			POKE(54018, 0b00001100);
-			POKE(54016, 0b10000000); 	// STROBE ON
-			while (clock() < updateClock);
-			updateClock = clock()+HUB_REFRESH_RATE;
-		  #endif		
 			// Setup initial request
 			recvID = 0; recvLen = 0;
 			sendID = 0; sendLen = 0;
 			QueueHub(HUB_SYS_RESET, 0, 0);
+		  #if defined(__APPLE2__) || defined(__LYNX__)
+		   // Setup serial interface
+			SerialOpen(&comParm); 
+		  #endif		
 		}
 	}
 
   #if defined DEBUG_HUB
 	tic = clock();
   #endif
+  
+  #if defined __ORIC__
+	__asm__("sei");		// Disable interrupts
+  #endif	
 
 	// Process HUB I/O
 	SendHub();
 	RecvHub();	
 	
   #if defined __ORIC__
-	POKE(0x0303, 255);	// Set port A as Output
+	OutputMode();
 	__asm__("cli");		// Resume interrupts	
   #endif	
 

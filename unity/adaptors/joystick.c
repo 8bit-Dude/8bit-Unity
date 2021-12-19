@@ -41,12 +41,6 @@
   #pragma rodata-name("BANK0")
   #pragma code-name("BANK0")
 #endif
-  
-#if (defined __ATARI__)  
-  #define ADAPTOR_NONE 0
-  #define ADAPTOR_HUB  1
-  unsigned char joyAdaptor = ADAPTOR_NONE;	// Default to no adaptor
-#endif
 
 #if (defined __ORIC__)
   #define ADAPTOR_NONE 0
@@ -61,15 +55,13 @@
 
 void InitJoy(void)
 {	
-#if defined(__ATARI__) || defined(__ORIC__)
-  #if defined(__HUB__)
+#if defined(__ORIC__)
 	// Check if 8bit-Hub is connected
 	if (hubState[0] == COM_ERR_OFFLINE) 
 		UpdateHub();
 	if (hubState[0] != COM_ERR_OFFLINE) {
 		joyAdaptor = ADAPTOR_HUB;
 	}
-  #endif
 #endif
 }
 
@@ -77,7 +69,7 @@ unsigned char GetJoy(unsigned char joy)
 {
 #if defined(__ATARI__)
   #if defined(__HUB__)
-	if (joy && joyAdaptor) {
+	if (joy) {
 		// Get state from HUB
 		UpdateHub();			
 		return hubState[joy];

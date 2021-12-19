@@ -31,38 +31,21 @@ unsigned char cnt;
 
 void OutputMode()
 {
-	POKE(0x0303, 255);		// Set port A as Output	
+	
 }
 
 void InputMode()
 {
-	POKE(0x0303, 0);		// Set Port A as Input
-	cnt = PEEK(0x0301);   	// Reset ORA	
+	
 }
   
 unsigned char SendByte()
 {
-	// Send 1 byte to HUB
-	POKE(0x0301, byte);			// Write to Printer Port
-	*((char*)0x300) &= 0xEF; 	// 11101111 - Send STROBE (falling signal)
-	cnt++; cnt++; cnt++; 		// Wait some cycles...
-	*((char*)0x300) |= 0x10; 	// 00010000 - Reset STROBE
-	return 1;
+	return 0;
 }
 
 unsigned char RecvByte()
 {
-	// Recv 1 byte from HUB
-	cnt = 255;
-	cnt--; cnt--; cnt--; cnt--; cnt--; cnt--; cnt--; cnt--; 
-	cnt--; cnt--; cnt--; cnt--; cnt--; cnt--; cnt--; cnt--;
-	while (cnt) {  // Countdown i to 0
-		if (PEEK(0x030d)&2) {	// Look for ACKNOW on CA1 then read Printer Port
-			byte = PEEK(0x0301); 
-			return 1; 
-		} 	
-		cnt--;
-	}
 	return 0;
 }
 

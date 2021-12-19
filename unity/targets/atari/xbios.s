@@ -33,9 +33,11 @@
 	
 	.export _xbios_list_dir
 	.export _xbios_get_entry
+	.export _xbios_run_file
 	.export _xbios_open_file
 	.export _xbios_load_data
 
+xBIOS_RUN_FILE    = $0506
 xBIOS_OPEN_FILE   = $0509
 xBIOS_LOAD_DATA   = $050c
 xBIOS_SET_LENGTH  = $051e	
@@ -43,7 +45,7 @@ xBIOS_LIST_DIR    = $0512
 xBIOS_DFLT_DEVICE = $052a
 xBIOS_GET_ENTRY   = $053c
 
-_xbios_fname:  .byte 0,0
+_xbios_fname:  .res  11
 _xbios_dest:   .byte 0,0
 _xbios_len:    .byte 0,0
 
@@ -74,6 +76,17 @@ _xbios_get_entry:
 	jsr _restore_rom
 	txa
 	rts
+	
+_xbios_run_file:
+	; Disable OS clicks
+	lda #0
+	sta $41
+	;jsr _xbios_set_device
+	jsr _enable_rom
+	ldy _xbios_fname
+	ldx _xbios_fname+1
+	jsr xBIOS_RUN_FILE
+	rts	
 	
 _xbios_open_file:
 	; Disable OS clicks

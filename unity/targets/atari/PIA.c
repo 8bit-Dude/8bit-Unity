@@ -28,69 +28,163 @@
  
 unsigned char byte;
 unsigned char cnt;
+
+void OutputMode()
+{
+	POKE(54018, 0b00111000);	// Switch to output Mode
+	POKE(54016, 0b11110000);	// Set PIA State
+	POKE(54018, 0b00001100);
+	POKE(54016, 0b10000000); 	// STROBE ON	
+	//cnt--; cnt--; cnt--; cnt--; // Wait some cycles...
+}
+
+void InputMode()
+{
+	POKE(54018, 0b00111000);	// Switch to receive Mode
+	POKE(54016, 0b11000000);	// Set PIA State
+	POKE(54018, 0b00001100);
+	POKE(54016, 0b11000000);	// STROBE ON	
+	//cnt--; cnt--; cnt--; cnt--; // Wait some cycles...
+}
  
-void SendByte()
+unsigned char SendByte()
 {
 	// Send 1 byte as 4 x 2bits
 	cnt = 255;
 	while (cnt) {  // Countdown i to 0
-		if (PEEK(53265)) {	// Ready? (JOY1 Trigger)
+		if (PEEK(53265)) {	// Ready? (Check JOY1 Trigger)
 			POKE(54016, (byte&0b00000011)<<4);  // STROBE OFF & Write Bits 1/2
-			cnt--; cnt--;  						// Wait some cycles...
+			cnt--; cnt--; cnt--; 
+			//cnt--; // Wait some cycles...
 			POKE(54016,    	  0b10000000);  	// STROBE ON
-			cnt--;         		  					// Wait some cycles...
+			cnt--; cnt--; 
+			//cnt--; cnt--; // Wait some cycles...
 			
 			POKE(54016, (byte&0b00001100)<<2);  // STROBE OFF & Write Bits 3/4
-			cnt--; cnt--;  						// Wait some cycles...
+			cnt--; cnt--; cnt--; 
+			//cnt--; // Wait some cycles...
 			POKE(54016,    	  0b10000000);  	// STROBE ON
-			cnt--;         		  					// Wait some cycles...
+			cnt--; cnt--; 
+			//cnt--; cnt--; // Wait some cycles...
 			
 			POKE(54016, (byte&0b00110000));     // STROBE OFF & Write Bits 5/6
-			cnt--; cnt--;  						// Wait some cycles...
+			cnt--; cnt--; cnt--; 
+			//cnt--; // Wait some cycles...
 			POKE(54016,    	  0b10000000);  	// STROBE ON		
-			cnt--;         		  					// Wait some cycles...
+			cnt--; cnt--; 
+			//cnt--; cnt--; // Wait some cycles...
 			
 			POKE(54016, (byte&0b11000000)>>2);  // STROBE OFF & Write Bits 7/8
-			cnt--; cnt--;  						// Wait some cycles...
+			cnt--; cnt--; cnt--; 
+			//cnt--; // Wait some cycles...
 			POKE(54016,    	  0b10000000);  	// STROBE ON		
-			return;
-		}
-		cnt--;
-	}
-}
-
-unsigned char RecvByte()
-{
-	// Recv 1 byte from HUB
-	cnt = 255;
-	while (cnt) {  // Countdown i to 0
-		if (PEEK(53265)) {	// Ready? (JOY1 Trigger)
-			byte = 0;
-			POKE(54016, 0b01000000);  				// STROBE OFF
-			cnt--; cnt--;     		  				// Wait some cycles...
-			byte |= ((PEEK(54016)&0b00110000)>>4);  // Read Bits 1/2
-			POKE(54016, 0b11000000);  				// STROBE ON
-			cnt--;         		  					// Wait some cycles...
-			
-			POKE(54016, 0b01000000); 				// STROBE OFF
-			cnt--; cnt--;  		  					// Wait some cycles...
-			byte |= ((PEEK(54016)&0b00110000)>>2);  // Read Bits 3/4
-			POKE(54016, 0b11000000);  				// STROBE ON
-			cnt--;         		  					// Wait some cycles...
-			
-			POKE(54016, 0b01000000);  				// STROBE OFF
-			cnt--; cnt--;  		  					// Wait some cycles...
-			byte |= ((PEEK(54016)&0b00110000));	    // Read Bits 5/6
-			POKE(54016, 0b11000000);  				// STROBE ON
-			cnt--;         		  					// Wait some cycles...
-			
-			POKE(54016, 0b01000000);  				// STROBE OFF
-			cnt--; cnt--;  		  					// Wait some cycles...
-			byte |= ((PEEK(54016)&0b00110000)<<2);  // Read Bits 7/8
-			POKE(54016, 0b11000000);  				// STROBE ON
+			cnt--; cnt--; 
+			//cnt--; cnt--; // Wait some cycles...
 			return 1;
 		}
 		cnt--;
 	}
 	return 0;
 }
+
+unsigned char RecvByte()
+{
+	// Receive 1 byte as 4 x 2bits
+	cnt = 255;
+	while (cnt) {  // Countdown i to 0
+		if (PEEK(53265)) {	// Ready? (JOY1 Trigger)
+			byte = 0;
+			POKE(54016, 0b01000000);  				// STROBE OFF
+			cnt--; cnt--; cnt--; 
+			//cnt--; 			// Wait some cycles...
+			byte |= ((PEEK(54016)&0b00110000)>>4);  // Read Bits 1/2
+			POKE(54016, 0b11000000);  				// STROBE ON
+			cnt--; cnt--; 
+			//cnt--; cnt--; 			// Wait some cycles...
+			
+			POKE(54016, 0b01000000); 				// STROBE OFF
+			cnt--; cnt--; cnt--; 
+			//cnt--; 			// Wait some cycles...
+			byte |= ((PEEK(54016)&0b00110000)>>2);  // Read Bits 3/4
+			POKE(54016, 0b11000000);  				// STROBE ON
+			cnt--; cnt--; 
+			//cnt--; cnt--; 			// Wait some cycles...
+			
+			POKE(54016, 0b01000000);  				// STROBE OFF
+			cnt--; cnt--; cnt--; 
+			//cnt--; 			// Wait some cycles...
+			byte |= ((PEEK(54016)&0b00110000));	    // Read Bits 5/6
+			POKE(54016, 0b11000000);  				// STROBE ON
+			cnt--; cnt--; 
+			//cnt--; cnt--; 			// Wait some cycles...		
+			
+			POKE(54016, 0b01000000);  				// STROBE OFF
+			cnt--; cnt--; cnt--; 
+			//cnt--; 			// Wait some cycles...
+			byte |= ((PEEK(54016)&0b00110000)<<2);  // Read Bits 7/8
+			POKE(54016, 0b11000000);  				// STROBE ON
+			cnt--; cnt--; 
+			//cnt--; cnt--; 			// Wait some cycles...
+			return 1;
+		}
+		cnt--;
+	}
+	return 0;
+}
+
+
+/*
+void SendByte(unsigned char value)
+{
+	unsigned char i = 255;
+	while (1) {  // Countdown i to 0
+		if (PEEK(53265)) {	// Ready? (JOY1 Trigger)
+			POKE(54016, (value&0b00000011)<<4); // STROBE OFF & Write Bits 1/2
+			i--; i--;  							// Wait some cycles...
+			POKE(54016,    	  0b10000000);  	// STROBE ON
+			POKE(54016, (value&0b00001100)<<2); // STROBE OFF & Write Bits 3/4
+			i--; i--;  							// Wait some cycles...
+			POKE(54016,    	  0b10000000);  	// STROBE ON
+			POKE(54016, (value&0b00110000));    // STROBE OFF & Write Bits 5/6
+			i--; i--;  							// Wait some cycles...
+			POKE(54016,    	  0b10000000);  	// STROBE ON		
+			POKE(54016, (value&0b11000000)>>2); // STROBE OFF & Write Bits 7/8
+			i--; i--;  							// Wait some cycles...
+			POKE(54016,    	  0b10000000);  	// STROBE ON		
+			return;
+		}
+		if (!i--) return;
+	}	
+}
+
+unsigned char RecvByte(unsigned char* value)
+{
+	unsigned char i = 255;
+	*value = 0;
+	while (1) {  // Countdown i to 0
+		if (PEEK(53265)) {	// Ready? (JOY1 Trigger)
+			POKE(54016, 0b01000000);  				// STROBE OFF
+			i--; i--;     		  					// Wait some cycles...
+			*value |= ((PEEK(54016)&0b00110000)>>4);// Read Bits 1/2
+			POKE(54016, 0b11000000);  				// STROBE ON
+			i--; i--;     		  					// Wait some cycles...
+			POKE(54016, 0b01000000); 				// STROBE OFF
+			i--; i--;     		  					// Wait some cycles...
+			*value |= ((PEEK(54016)&0b00110000)>>2);// Read Bits 3/4
+			POKE(54016, 0b11000000);  				// STROBE ON
+			i--; i--;     		  					// Wait some cycles...
+			POKE(54016, 0b01000000);  				// STROBE OFF
+			i--; i--;     		  					// Wait some cycles...
+			*value |= ((PEEK(54016)&0b00110000));	// Read Bits 5/6
+			POKE(54016, 0b11000000);  				// STROBE ON
+			i--; i--;     		  					// Wait some cycles...
+			POKE(54016, 0b01000000);  				// STROBE OFF
+			i--; i--;     		  					// Wait some cycles...
+			*value |= ((PEEK(54016)&0b00110000)<<2);// Read Bits 7/8
+			POKE(54016, 0b11000000);  				// STROBE ON
+			return 1;
+		}
+		if (!i--) return 0;
+	}	
+}
+*/

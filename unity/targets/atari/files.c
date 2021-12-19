@@ -38,32 +38,35 @@
 extern unsigned char __fastcall__ xbios_open_file(void);
 extern void __fastcall__ xbios_load_data(void);
 
-extern const char* xbios_fname;
+extern char* xbios_fname;
 extern void* xbios_dest;
 extern unsigned int xbios_len;
 
-// Using XBIOS for File Management
-unsigned char FileOpen(const char* fname)
-{
+void FileSet(const char* fname) {
 	// Convert filename to xbios format (FILENAMEEXT)
-	unsigned char i=0, j=0, rename[11];
+	unsigned char i=0, j=0;
 	while (i<8) {
 		if (fname[j] != '.')
 			if (fname[j] > 96)
-				rename[i++] = fname[j++]-32;
+				xbios_fname[i++] = fname[j++]-32;
 			else
-				rename[i++] = fname[j++];
+				xbios_fname[i++] = fname[j++];
 		else
-			rename[i++] = ' ';
+			xbios_fname[i++] = ' ';
 	}
 	j++;
 	while (i<11) {
 		if (fname[j] > 96)
-			rename[i++] = fname[j++]-32;
+			xbios_fname[i++] = fname[j++]-32;
 		else
-			rename[i++] = fname[j++];
+			xbios_fname[i++] = fname[j++];
 	}
-    xbios_fname = rename;
+}
+	
+// Using XBIOS for File Management
+unsigned char FileOpen(const char* fname)
+{
+	FileSet(fname);
 	return xbios_open_file();
 }
 
