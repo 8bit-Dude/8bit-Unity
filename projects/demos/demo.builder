@@ -50,8 +50,10 @@
             "chunks": [], 
             "diskSize": "140KB", 
             "crunchAssets": "No", 
-            "networkDriver": "IP65(TCP/UDP)", 
-            "assetFilter": "*"
+            "assetFilter": "*", 
+            "network8bitHub": true, 
+            "networkUthernet": true, 
+            "networkProtocols": "TCP/UDP"
         }, 
         "Atari": {
             "spriteFrames": "18", 
@@ -73,8 +75,11 @@
             "chunks": [], 
             "diskSize": "180KB", 
             "crunchAssets": "No", 
-            "networkDriver": "IP65(TCP/UDP)", 
-            "assetFilter": "*"
+            "assetFilter": "*", 
+            "network8bitHub": true, 
+            "networkDragonCart": true, 
+            "networkFujinet": true, 
+            "networkProtocols": "TCP/UDP"
         }, 
         "C64": {
             "spriteFrames": "16", 
@@ -96,8 +101,10 @@
             ], 
             "chunks": [], 
             "crunchAssets": "No", 
-            "networkDriver": "IP65(TCP/UDP)", 
-            "assetFilter": "*"
+            "assetFilter": "*", 
+            "network8bitHub": true, 
+            "networkRRNet": true, 
+            "networkProtocols": "TCP/UDP"
         }, 
         "Lynx": {
             "spriteFrames": "16", 

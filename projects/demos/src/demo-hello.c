@@ -3,7 +3,8 @@
 
 extern const char nextKey, nextMsg[];
 const char helloMsg[] = "Welcome to 8bit Unity!";
-unsigned char helloCol, nextCol;
+const char versionMsg[] = "(version 0.5)";
+unsigned char helloCol, versionCol, nextCol;
 
 int DemoHello(void) 
 {
@@ -31,11 +32,14 @@ int DemoHello(void)
     // Vertical line, right-side 
     cvlinexy(xSize - 1, 1, ySize - 2);
 #endif	
+
     // Write the greeting in the mid of the screen
 	helloCol = (xSize - strlen(helloMsg))/2;
+	versionCol = (xSize - strlen(versionMsg))/2;
 	nextCol  = (xSize - strlen(nextMsg))/2;
-    gotoxy(helloCol, ySize/2-1); cprintf(helloMsg);
-    gotoxy(nextCol,  ySize/2+1); cprintf(nextMsg);
+    gotoxy(helloCol, ySize/2-2);   cprintf(helloMsg);
+    gotoxy(versionCol, ySize/2); cprintf(versionMsg);
+    gotoxy(nextCol,  ySize/2+2);   cprintf(nextMsg);
 	
 	// Play music until keyboard is pressed
 	LoadMusic("demo.mus");
