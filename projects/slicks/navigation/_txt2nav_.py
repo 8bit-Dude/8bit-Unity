@@ -63,7 +63,7 @@ for map in maps:
 	# Write binary nav file
 	f2 = io.open(map+'.nav', 'wb')
 
-	f2.write(struct.pack('B', len(grid)))	# Number of grid points
+    # Line-up
 	for j in range(0,2):
 		for i in range(len(grid)):
 			f2.write(struct.pack('h', 8*int(grid[i][j])))   # Coords
@@ -71,17 +71,27 @@ for map in maps:
 		for i in range(len(grid)):
 			f2.write(struct.pack('h',   int(grid[i][j])))   # Angles    
 
+    # Waypoints
 	f2.write(struct.pack('B', len(cyls)))	# Number of waypoints
-	for i in range(len(cyls)):
+	for i in range(0, len(cyls)):           # Write waypoint data
 		for j in range(0,2):
 			f2.write(struct.pack('h', 8*int(cyls[i][j])))   # Coords of waypoint
 		for j in range(2,6):
 			f2.write(struct.pack('b',   int(cyls[i][j])))     # In/Out vectors
+	for i in range(len(cyls), 8):           # Pad with zeroes
+		for j in range(0,2):
+			f2.write(struct.pack('h', 0))
+		for j in range(2,6):
+			f2.write(struct.pack('b', 0))
 
+    # Ramps
 	f2.write(struct.pack('B', len(ramps)))	# Number of ramps
-	for i in range(len(ramps)):
+	for i in range(0, len(ramps)):          # Write ramp data
 		for j in range(0,4):
 			f2.write(struct.pack('h', 8*int(ramps[i][j])))    # Coords of ramp * 8
+	for i in range(len(ramps), 3):          # Pad with zeroes
+		for j in range(0,4):
+			f2.write(struct.pack('h', 0))
             
 	f2.close()
 

@@ -8,33 +8,29 @@ extern unsigned char gameLineUp[4];
  #pragma bss-name(push, "XRAM")
 #endif
 
-// Navigation variables
-Vehicle cars[MAX_PLAYERS];
-Waypoint ways[MAX_WAYPOINTS];
-Ramp ramps[MAX_RAMPS];
-unsigned char numWays;
-unsigned char numRamps;
-signed char *vWay;
-Waypoint *way;
-
 // Lineup positions
 unsigned int lineupX[MAX_PLAYERS];
 unsigned int lineupY[MAX_PLAYERS];
 unsigned int lineupAng[MAX_PLAYERS];
 
-// See game.c
-extern Vehicle *iCar;
-extern int iX, iY;
+// Waypoints and ramps
+unsigned char numWays;
+Waypoint ways[MAX_WAYPOINTS];
+unsigned char numRamps;
+Ramp ramps[MAX_RAMPS];
 
-#if defined __LYNX__
-  unsigned char *buffer = (unsigned char*)SHAREDRAM;
-#else	
-  unsigned char buffer[128];
-#endif
+// Navigation variables
+Vehicle cars[MAX_PLAYERS];
+signed char *vWay;
+Waypoint *way;
 
 #if defined __NES__
  #pragma bss-name(pop) 
 #endif
+
+// See game.c
+extern Vehicle *iCar;
+extern int iX, iY;
 
 // Function to load *.nav files
 void LoadNavigation(char *filename)
@@ -43,37 +39,26 @@ void LoadNavigation(char *filename)
 	unsigned char n,*p;
   #if defined __APPLE2__
 	if (FileOpen(filename)) {
-		FileRead(buffer, 128);
+		FileRead(lineupX, 114);
 		FileClose();
 	}
   #elif defined __ATARI__
-	FileOpen(filename);
-	FileRead(buffer, 128);
+	if (FileOpen(filename)) {
+		FileRead(lineupX, 114);
+	}
   #elif defined __LYNX__
 	FileRead(filename);
+	memcpy(lineupX, (unsigned char*)SHAREDRAM, 114);
+	
   #elif defined(__NES__) || defined(__ORIC__)
-	FileRead(filename, buffer);
+	FileRead(filename, lineupX);
+	
   #elif defined __CBM__
 	FILE* fp = fopen(filename, "rb");
-	fread(buffer, 1, 128, fp);
+	fread(lineupX, 1, 114, fp);
 	fclose(fp);
   #endif
-  
-	// Read Lineup
-	p = buffer;
-	n = *p*2; p++;
-	memcpy(lineupX, p, n); p += n;
-	memcpy(lineupY, p, n); p += n;
-	memcpy(lineupAng, p, n); p += n;
-	
-	// Read Navigation Cylinders
-	numWays = *p; p++;
-	memcpy(&ways[0].x, p, numWays*8); p += numWays*8;
-	
-	// Read Jump Ramps
-	numRamps = *p; p++;
-	memcpy(&ramps[0].x[0], p, numRamps*8);
-	
+
 #ifdef DEBUG_NAV
 	for (n=0; n<numWays; ++n) {
 		// Display waypoints (debugging)

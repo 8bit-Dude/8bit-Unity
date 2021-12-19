@@ -12,7 +12,7 @@
             "projects/slicks/src/network.c", 
             "projects/slicks/src/sfx.c"
         ], 
-        "shared": [ 
+        "shared": [
             "projects/slicks/navigation/arizona.nav", 
             "projects/slicks/navigation/arto.nav", 
             "projects/slicks/navigation/cramp.nav", 
@@ -22,7 +22,7 @@
             "projects/slicks/navigation/mtcarlo.nav", 
             "projects/slicks/navigation/rally.nav", 
             "projects/slicks/navigation/river.nav", 
-            "projects/slicks/navigation/stadium.nav",
+            "projects/slicks/navigation/stadium.nav", 
             "projects/slicks/masks/arizona.msk", 
             "projects/slicks/masks/arto.msk", 
             "projects/slicks/masks/cramp.msk", 
@@ -32,7 +32,7 @@
             "projects/slicks/masks/mtcarlo.msk", 
             "projects/slicks/masks/rally.msk", 
             "projects/slicks/masks/river.msk", 
-            "projects/slicks/masks/stadium.msk"			
+            "projects/slicks/masks/stadium.msk"
         ], 
         "charmap": [], 
         "tilesize": "None", 
@@ -83,8 +83,10 @@
             "chunks": [], 
             "diskSize": "140KB", 
             "crunchAssets": "Yes", 
-            "networkDriver": "IP65(UDP)", 
-            "assetFilter": "*"
+            "assetFilter": "*", 
+            "network8bitHub": true, 
+            "networkUthernet": true, 
+            "networkProtocols": "(UDP-only)"
         }, 
         "Atari": {
             "spriteFrames": "18", 
@@ -111,10 +113,13 @@
                 "projects/slicks/music/speednik-atari.rmt"
             ], 
             "chunks": [], 
-            "diskSize": "130KB", 
+            "diskSize": "180KB", 
             "crunchAssets": "Yes", 
-            "networkDriver": "IP65(UDP)", 
-            "assetFilter": "*"
+            "assetFilter": "*", 
+            "network8bitHub": true, 
+            "networkDragonCart": true, 
+            "networkFujinet": false, 
+            "networkProtocols": "(UDP-only)"
         }, 
         "C64": {
             "spriteFrames": "18", 
@@ -143,8 +148,10 @@
             ], 
             "chunks": [], 
             "crunchAssets": "Yes", 
-            "networkDriver": "IP65(UDP)", 
-            "assetFilter": ".msk"
+            "assetFilter": ".msk", 
+            "network8bitHub": true, 
+            "networkRRNet": true, 
+            "networkProtocols": "(UDP-only)"
         }, 
         "Lynx": {
             "spriteFrames": "18", 
