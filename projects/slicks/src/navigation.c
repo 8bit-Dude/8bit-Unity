@@ -185,10 +185,6 @@ void GetWaypoint(void)
 	vWay = way->v[iCar->way&1];
 }
 
-#ifdef __ATARIXL__
-  #pragma code-name("SHADOW_RAM")
-#endif
-
 // Function to check ramp logics
 Ramp *ramp;
 char CheckRamps(void)

@@ -58,6 +58,10 @@ void JumpSFX(unsigned char index)
 	vol[index] = VOLUME_HIGH;
 }
 
+#ifdef __ATARIXL__
+  #pragma code-name("SHADOW_RAM")
+#endif
+
 void ScreechSFX(unsigned char index)
 {
 	sfx[index] = SFX_SCREECH;

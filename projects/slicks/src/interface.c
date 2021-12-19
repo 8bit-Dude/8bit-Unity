@@ -355,7 +355,7 @@ void SpriteAnimation(unsigned char index, unsigned char frame)
 	spriteY = 6;
 #elif defined __NES__
 	spriteX = 160+index*21; 
-	spriteY = 31;
+	spriteY = 29;
 #endif		
 #if defined MULTICOLOR
 	SetMultiColorSprite(2*index, frame); // Car body and tires
@@ -470,7 +470,7 @@ void PrintScores()
 				DisableSprite(SPR2_SLOT+i);		// Jump sprite			
 			} else {
 				spriteX = iX/10u; 
-				spriteY = iY/8u+16;				
+				spriteY = iY/8u+14;				
 				j = (iCar->ang2+12)/23u;
 				if (j>15) { j=0; }
 				SetSprite(i, j);

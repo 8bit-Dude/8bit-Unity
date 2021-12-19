@@ -168,7 +168,7 @@ void GameReset()
 			spriteY = cars[i].y2/16u;
 		#elif defined __NES__
 			spriteX = cars[i].x2/10u; 
-			spriteY = cars[i].y2/8u+16;
+			spriteY = cars[i].y2/8u+14;
 		#endif
 		#if defined MULTICOLOR
 			SetMultiColorSprite(2*i, f);  // Car body and tires
@@ -232,7 +232,22 @@ void GameInit(const char* map)
 	len = strlen(map);
 	memcpy(&buffer[0], map, len);
 	memcpy(&buffer[len], ".img", 5);
-	
+
+	// Check Map is on this Disk...
+#if defined(__ATARI__) || defined(__APPLE2__)
+	while (!FileOpen(&buffer[0])) {
+		ClearBitmap();
+		txtX = 2; txtY = 12;
+		inkColor = BLACK; paperColor = GREEN;
+		PrintStr(" Please flip disk and press any key ");
+		inkColor = WHITE; paperColor = BLACK;
+		ShowBitmap(); cgetc(); HideBitmap();
+	}
+#endif
+#if defined(__APPLE2__)
+	FileClose();	
+#endif
+
 	// Load Bitmap and backup chat row
 	LoadBitmap(&buffer[0]);
 	BackupRestoreChatRow(0);
@@ -742,7 +757,7 @@ char GameLoop()
 			spriteY = iY/16u;	
 		#elif defined __NES__
 			spriteX = iX/10u; 
-			spriteY = iY/8u+16;
+			spriteY = iY/8u+14;
 		#endif				
 		
 			// Get again background 
