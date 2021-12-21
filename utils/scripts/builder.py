@@ -968,16 +968,13 @@ class Application:
             
                     # Compile Program
                     symbols += ' -Wl -D,__STACKSIZE__=$0400,-D,__HIMEM__=$B800,-D,__LCADDR__=$D000,-D,__LCSIZE__=$1000'
-                    comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/apple/' + executable + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-apple' + target + '.map -Cl -O -t apple2 ' + symbols + ' -C apple2-hgr.cfg -I unity '
+                    comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/apple/' + executable + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-apple' + target + '-' + network + '.map -Cl -O -t apple2 ' + symbols + ' -C apple2-hgr.cfg -I unity '
                     for item in code:
                         comp += item + ' '
                     if self.combobox_AppleNetworkProtocols.get() == 'TCP/UDP':
                         fp.write(comp + buildFolder + '/apple/unity.lib unity/adaptors/ip65_tcp.lib unity/adaptors/ip65_apple2.lib\n\n')
                     else:
-                        fp.write(comp + buildFolder + '/apple/unity.lib unity/adaptors/ip65.lib unity/adaptors/ip65_apple2.lib\n\n')
-                        
-                    # Compress Program
-                    fp.write('utils\\scripts\\exomizer-3.1.0.exe sfx bin ' + buildFolder + '/apple/' + executable + '.bin -o ' + buildFolder + '/apple/' + executable + '\n\n')    
+                        fp.write(comp + buildFolder + '/apple/unity.lib unity/adaptors/ip65.lib unity/adaptors/ip65_apple2.lib\n\n')                        
                 
                 # Loader program
                 symbols = '-Cl -O -t apple2 -C apple2-hgr.cfg '
@@ -987,9 +984,6 @@ class Application:
                     symbols += '-D __IP65__ '
                 fp.write('utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/apple/LOADER.bin ' + symbols + ' -I unity unity/targets/apple2/loader.c ' + buildFolder + '/apple/unity.lib\n\n')
 
-                # Compress Program
-                fp.write('utils\\scripts\\exomizer-3.1.0.exe sfx bin ' + buildFolder + '/apple/LOADER.bin -o ' + buildFolder + '/apple/LOADER\n\n')
-                                
                 fp.write('echo --------------- CONVERT ASSETS ---------------  \n\n')
 
                 # Bitmaps
@@ -1013,7 +1007,21 @@ class Application:
                 if len(chunks) > 0:
                     fp.write('utils\\py27\\python utils\\scripts\\ProcessChunks.py apple-' + graphics + ' ' + chunks[0] + ' ' + buildFolder + '/apple/\n')
 
-                fp.write('echo --------------- APPLE DISK BUILDER --------------- \n\n')
+                fp.write('\necho --------------- APPLE DISK BUILDER --------------- \n\n')
+                
+                # Compress binary files
+                for network in networkOptions:
+                    if network == '8bit-Hub': 
+                        executable = 'HUB'
+                    elif network == 'Uthernet': 
+                        executable = 'UTHERNET'                    
+                    fp.write('utils\\scripts\\exomizer-3.1.0.exe sfx bin ' + buildFolder + '/apple/' + executable + '.bin -o ' + buildFolder + '/apple/' + executable + '\n\n')    
+                fp.write('utils\\scripts\\exomizer-3.1.0.exe sfx bin ' + buildFolder + '/apple/LOADER.bin -o ' + buildFolder + '/apple/LOADER\n\n')
+                
+                # Clean-up build folder
+                fp.write('del ' + buildFolder + '\\apple\\*.bin\n')
+                fp.write('del ' + buildFolder + '\\apple\\*.lib\n')
+                fp.write('del ' + buildFolder + '\\apple\\*.lst\n')                
 
                 # Disk builder
                 if self.combobox_AppleDiskSize.get() == '140KB':                
@@ -1210,7 +1218,10 @@ class Application:
                 for item in music:
                     fp.write('copy ' + item.replace('/','\\') + ' ' + buildFolder + '\\atari\\' + FileBase(item, '.rmt') + '.mus\n')
 
-                fp.write('echo --------------- ATARI DISK BUILDER --------------- \n\n')
+                fp.write('\necho --------------- ATARI DISK BUILDER --------------- \n\n')
+
+                # Compress binary files
+                #fp.write('utils\scripts\exomizer-3.1.0.exe sfx sys -t 168 build/atari/hub.xex -Di_table_addr=$b000 -o build/atari/hub.xex\n')
 
                 # Clean-up build folder
                 fp.write('del ' + buildFolder + '\\atari\\*.bin\n')
@@ -1286,7 +1297,7 @@ class Application:
                 BuildUnityLibrary(self, fp, '-t c64', symbols, cCore+cTarget, sCore+sTarget, buildFolder+'/c64')
                 
                 # Compile Program                        
-                comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/c64/' + executable + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-c64.map -Cl -O -t c64 -C unity/targets/c64/c64.cfg -I unity '
+                comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/c64/' + executable + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-c64-' + network + '.map -Cl -O -t c64 -C unity/targets/c64/c64.cfg -I unity '
                 for item in code:
                     comp += (item + ' ')
                 if network == '8bit-Hub':
@@ -1304,7 +1315,6 @@ class Application:
             if 'RR-Net' in networkOptions:
                 symbols += '-D __IP65__ '
             fp.write('utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/c64/loader.bin ' + symbols + ' -C unity/targets/c64/c64.cfg -I unity unity/targets/c64/loader.c ' + buildFolder + '/c64/unity.lib\n\n')
-            fp.write('utils\\scripts\\exomizer-3.0.2.exe sfx $180d ' + buildFolder + '/c64/loader.bin -o ' + buildFolder + '/c64/loader.prg\n')
             
             fp.write('echo --------------- CONVERT ASSETS ---------------  \n\n')
             
@@ -1337,9 +1347,9 @@ class Application:
                 fp.write('    copy ' + item.replace('/', '\\') + ' ' + buildFolder + '\\c64\\' + fb + '.sid\n')
                 fp.write(')\n')
 
-            fp.write('echo --------------- C64 DISK BUILDER --------------- \n\n')
+            fp.write('\necho --------------- C64 DISK BUILDER --------------- \n\n')
 
-            # Compress files
+            # Compress binary files
             for network in networkOptions:
                 if network == '8bit-Hub': 
                     executable = 'hub'
@@ -1349,6 +1359,12 @@ class Application:
                     fp.write('utils\\scripts\\exomizer-3.0.2.exe sfx $180d ' + buildFolder + '/c64/' + executable + '.bin ' + buildFolder + '/c64/sprites.dat -o ' + buildFolder + '/c64/' + executable + '.prg\n\n')          
                 else:
                     fp.write('utils\\scripts\\exomizer-3.0.2.exe sfx $180d ' + buildFolder + '/c64/' + executable + '.bin -o ' + buildFolder + '/c64/' + executable + '.prg\n\n')
+            fp.write('utils\\scripts\\exomizer-3.0.2.exe sfx $180d ' + buildFolder + '/c64/loader.bin -o ' + buildFolder + '/c64/loader.prg\n\n')
+
+            # Clean-up build folder
+            fp.write('del ' + buildFolder + '\\c64\\*.bin\n')
+            fp.write('del ' + buildFolder + '\\c64\\*.lib\n')
+            fp.write('del ' + buildFolder + '\\c64\\*.lst\n')
 
             # Disk builder
             fp.write('set C1541=utils\\scripts\\c64\\c1541 -format loader,666 d64 ' + buildFolder + '/' + diskname + '-c64.d64 -attach ' + buildFolder + '/' + diskname + '-c64.d64 ')
