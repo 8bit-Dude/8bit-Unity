@@ -30,15 +30,16 @@ int main (void)
     // Vertical line, right-side 
     cvlinexy(xSize - 1, 1, ySize - 2);
 	
-    // Write the greeting in the mid of the screen
+    // Display selection menu
     gotoxy(11, 8);  cprintf("Network Interface:");
+    gotoxy(13, 10); cprintf("0 - None");		
 #if defined __HUB__	
-    gotoxy(13, 10); cprintf("1 - 8bit-Hub");	
+    gotoxy(13, 11); cprintf("1 - 8bit-Hub");	
 #endif
 #if defined __IP65__	
-    gotoxy(13, 11); cprintf("2 - RR-Net");	
+    gotoxy(13, 12); cprintf("2 - RR-Net");	
 #endif
-    gotoxy(11, 14);  cprintf("< 8bit-Launcher >");
+    gotoxy(10, 14);  cprintf("< 8bit-Unity Loader >");
 	
 	//////////////////////////////////////////////////
 	// Create file load & run routine in higher memory
@@ -93,6 +94,11 @@ int main (void)
 		key = cgetc();
 		
 		switch (key) {
+		case '0':
+			gotoxy(7, 17); cprintf(" Loading None version...");
+			cbm_k_setlfs(0, 8, 0);
+			cbm_k_setnam("hub.prg");
+			__asm__("jmp $C000");	// Execute
 #if defined __HUB__				
 		case '1':
 			gotoxy(5, 17); cprintf(" Loading 8bit-Hub version...");

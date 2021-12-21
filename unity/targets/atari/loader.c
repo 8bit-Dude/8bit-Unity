@@ -36,22 +36,28 @@ int main (void)
 	
     // Write the greeting in the mid of the screen
     gotoxy(11, 8);  cprintf("Network Interface:");
+    gotoxy(13, 10); cprintf("1 - None");	
 #if defined __HUB__	
-    gotoxy(13, 10); cprintf("1 - 8bit-Hub");	
+    gotoxy(13, 11); cprintf("1 - 8bit-Hub");	
 #endif
 #if defined __IP65__	
-    gotoxy(13, 11); cprintf("2 - DragonCart");	
+    gotoxy(13, 12); cprintf("2 - DragonCart");	
 #endif
 #if defined __FUJINET__	
-    gotoxy(13, 12); cprintf("3 - Fujinet");	
+    gotoxy(13, 13); cprintf("3 - Fujinet");	
 #endif
-    gotoxy(11, 14);  cprintf("< 8bit-Launcher >");
+    gotoxy(10, 15);  cprintf("< 8bit-Unity Loader >");
 	
 	while (1) {
 		// Run selected debug
 		key = cgetc();
 		
 		switch (key) {
+		case '0':
+			gotoxy(7, 17); cprintf(" Loading None version...");
+			FileSet("hub.xex");
+			xbios_run_file();
+			break;
 #if defined __HUB__				
 		case '1':
 			gotoxy(5, 17); cprintf(" Loading 8bit-Hub version...");
