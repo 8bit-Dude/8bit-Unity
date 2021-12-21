@@ -175,6 +175,7 @@ class Application:
 
         # Create a builder
         self.builder = pygubu.Builder()
+        self.builder.add_resource_path(os.getcwd())
 
         # Load an ui file
         self.builder.add_from_file('builder.ui')
@@ -183,15 +184,15 @@ class Application:
         master.title("8bit-Unity Disk Builder") 
         
         # Add file menu
-        menubar = Menu(master)
-        fileMenu = Menu(menubar)
-        fileMenu.add_command(label="New", command=self.FileNew)
-        fileMenu.add_command(label="Load", command=self.FileLoad)
-        fileMenu.add_command(label="Save", command=self.FileSave)
-        fileMenu.add_separator()
-        fileMenu.add_command(label="Exit", command=self.FileExit)        
-        menubar.add_cascade(label="File", menu=fileMenu)
-        master.config(menu=menubar)
+        # menubar = Menu(master)
+        # fileMenu = Menu(menubar)
+        # fileMenu.add_command(label="New", command=self.FileNew)
+        # fileMenu.add_command(label="Load", command=self.FileLoad)
+        # fileMenu.add_command(label="Save", command=self.FileSave)
+        # fileMenu.add_separator()
+        # fileMenu.add_command(label="Exit", command=self.FileExit)        
+        # menubar.add_cascade(label="File", menu=fileMenu)
+        # master.config(menu=menubar)
         
         # Create widgets using a master as parent
         self.mainwindow = self.builder.get_object('mainwindow', master)        
@@ -888,7 +889,7 @@ class Application:
     def OricMusicRem(self):
         self.listbox_OricMusic.delete(0, ACTIVE) 
 
-    def GenerateBuilder(self):
+    def GenerateScripts(self):
         diskname = self.entry_Disk.get()
         code = list(self.listbox_Code.get(0, END))
         charmaps = list(self.listbox_Charmap.get(0, END))

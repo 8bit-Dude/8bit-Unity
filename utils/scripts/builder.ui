@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <interface>
   <object class="ttk.Frame" id="mainwindow">
+    <property name="height">800</property>
     <child>
       <object class="ttk.Notebook" id="Notebook_Assets">
         <property name="height">485</property>
@@ -8,7 +9,7 @@
         <layout>
           <property name="column">0</property>
           <property name="propagate">True</property>
-          <property name="row">0</property>
+          <property name="row">1</property>
           <property name="sticky">nw</property>
         </layout>
         <child>
@@ -228,58 +229,6 @@
                           <property name="propagate">True</property>
                           <property name="row">1</property>
                           <property name="sticky">nw</property>
-                        </layout>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="tk.LabelFrame" id="LabelFrame_Disk">
-                    <property name="text" translatable="yes">Disk</property>
-                    <layout>
-                      <property name="column">0</property>
-                      <property name="propagate">True</property>
-                      <property name="row">4</property>
-                      <property name="sticky">nw</property>
-                    </layout>
-                    <child>
-                      <object class="ttk.Label" id="Label_Disk">
-                        <property name="text" translatable="yes">Disk Name</property>
-                        <layout>
-                          <property name="column">0</property>
-                          <property name="padx">20</property>
-                          <property name="pady">10</property>
-                          <property name="propagate">True</property>
-                          <property name="row">2</property>
-                          <property name="sticky">nw</property>
-                        </layout>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="ttk.Entry" id="Entry_Disk">
-                        <property name="text" translatable="yes">diskname</property>
-                        <property name="width">16</property>
-                        <layout>
-                          <property name="column">1</property>
-                          <property name="padx">10</property>
-                          <property name="pady">10</property>
-                          <property name="propagate">True</property>
-                          <property name="row">2</property>
-                          <property name="sticky">nw</property>
-                        </layout>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="ttk.Button" id="Button_Generate">
-                        <property name="command">GenerateBuilder</property>
-                        <property name="text" translatable="yes">Generate Build Scripts</property>
-                        <layout>
-                          <property name="column">2</property>
-                          <property name="padx">40</property>
-                          <property name="pady">10</property>
-                          <property name="propagate">True</property>
-                          <property name="row">2</property>
-                          <property name="sticky">ne</property>
                         </layout>
                       </object>
                     </child>
@@ -886,7 +835,7 @@
                           <property name="row">2</property>
                         </layout>
                       </object>
-                    </child>					
+                    </child>
                     <child>
                       <object class="ttk.Combobox" id="Combobox_AppleNetworkProtocols">
                         <property name="state">readonly</property>
@@ -901,7 +850,7 @@
                           <property name="sticky">nw</property>
                         </layout>
                       </object>
-                    </child>					
+                    </child>
                   </object>
                 </child>
               </object>
@@ -1323,7 +1272,7 @@
                       </object>
                     </child>
                     <child>
-                      <object class="tk.Label" id="Label_AtariNetworkDriver">
+                      <object class="tk.Label" id="Label_1">
                         <property name="text" translatable="yes">Network</property>
                         <layout>
                           <property name="column">0</property>
@@ -1360,7 +1309,7 @@
                           <property name="row">2</property>
                         </layout>
                       </object>
-                    </child>					
+                    </child>
                     <child>
                       <object class="ttk.Checkbutton" id="Checkbutton_AtariNetworkDragonCart">
                         <property name="text" translatable="yes">DragonCart</property>
@@ -1388,7 +1337,7 @@
                           <property name="sticky">nw</property>
                         </layout>
                       </object>
-                    </child>					
+                    </child>
                   </object>
                 </child>
               </object>
@@ -1847,7 +1796,7 @@
                           <property name="row">2</property>
                         </layout>
                       </object>
-                    </child>					
+                    </child>
                     <child>
                       <object class="ttk.Combobox" id="Combobox_C64NetworkProtocols">
                         <property name="state">readonly</property>
@@ -1862,7 +1811,7 @@
                           <property name="sticky">nw</property>
                         </layout>
                       </object>
-                    </child>					
+                    </child>
                   </object>
                 </child>
               </object>
@@ -3062,6 +3011,114 @@
                 </child>
               </object>
             </child>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="ttk.Frame" id="Icons">
+        <property name="height">30</property>
+        <property name="width">200</property>
+        <layout>
+          <property name="column">0</property>
+          <property name="propagate">True</property>
+          <property name="row">0</property>
+          <property name="sticky">nw</property>
+        </layout>
+        <child>
+          <object class="ttk.Button" id="FileNew">
+            <property name="command">FileNew</property>
+            <property name="image">new.gif</property>
+            <property name="text" translatable="yes"> </property>
+            <layout>
+              <property name="column">0</property>
+              <property name="padx">1</property>
+              <property name="pady">2</property>
+              <property name="propagate">True</property>
+              <property name="row">0</property>
+              <property name="sticky">nw</property>
+            </layout>
+          </object>
+        </child>
+        <child>
+          <object class="ttk.Button" id="FileLoad">
+            <property name="command">FileLoad</property>
+            <property name="image">load.gif</property>
+            <property name="text" translatable="yes"> </property>
+            <layout>
+              <property name="column">1</property>
+              <property name="padx">1</property>
+              <property name="pady">2</property>
+              <property name="propagate">True</property>
+              <property name="row">0</property>
+              <property name="sticky">nw</property>
+            </layout>
+          </object>
+        </child>
+        <child>
+          <object class="ttk.Button" id="FileSave">
+            <property name="command">FileSave</property>
+            <property name="image">save.gif</property>
+            <property name="text" translatable="yes"> </property>
+            <layout>
+              <property name="column">2</property>
+              <property name="padx">1</property>
+              <property name="pady">2</property>
+              <property name="propagate">True</property>
+              <property name="row">0</property>
+              <property name="sticky">nw</property>
+            </layout>
+          </object>
+        </child>
+        <child>
+          <object class="ttk.Button" id="GenerateScripts">
+            <property name="command">GenerateScripts</property>
+            <property name="image">script.gif</property>
+            <property name="text" translatable="yes"> </property>
+            <layout>
+              <property name="column">3</property>
+              <property name="padx">1</property>
+              <property name="pady">2</property>
+              <property name="propagate">True</property>
+              <property name="row">0</property>
+              <property name="sticky">nw</property>
+            </layout>
+          </object>
+        </child>
+        <child>
+          <object class="ttk.Label" id="Label_Space">
+            <property name="text" translatable="yes"> </property>
+            <layout>
+              <property name="column">4</property>
+              <property name="padx">30</property>
+              <property name="propagate">True</property>
+              <property name="row">0</property>
+              <property name="sticky">w</property>
+            </layout>
+          </object>
+        </child>		
+        <child>
+          <object class="ttk.Label" id="Label_Disk">
+            <property name="text" translatable="yes">Disk Name</property>
+            <layout>
+              <property name="column">5</property>
+              <property name="padx">10</property>
+              <property name="propagate">True</property>
+              <property name="row">0</property>
+              <property name="sticky">w</property>
+            </layout>
+          </object>
+        </child>
+        <child>
+          <object class="ttk.Entry" id="Entry_Disk">
+            <property name="text" translatable="yes">diskname</property>
+			<property name="width">18</property>
+            <layout>
+              <property name="column">6</property>
+              <property name="propagate">True</property>
+              <property name="row">0</property>
+              <property name="sticky">w</property>
+            </layout>
           </object>
         </child>
       </object>
