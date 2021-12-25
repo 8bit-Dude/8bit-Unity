@@ -62,7 +62,7 @@ unsigned int FileOpen(const char* filename)
 unsigned int FileRead(char* buffer, signed int len)
 {
 	// Check remaining size
-	if (len == -1)
+	if (len == -1 || len > fileSizes[fileIndex] - consummed)
 		len = fileSizes[fileIndex] - consummed;
 	
 	// Copy chunk of data while bank switching

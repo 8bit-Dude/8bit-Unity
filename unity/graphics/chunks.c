@@ -98,7 +98,7 @@ void LoadChunk(unsigned char** chunk, char *filename)
 	// Block read chunk file (TODO: implement header reading, to get rid of chunkBuf)
 	unsigned int size;
 	if (FileOpen(filename)) {
-		size = FileRead(filename, chunkBuf);
+		size = FileRead(chunkBuf, -1);
 		*chunk = (unsigned char*)malloc(size);
 		memcpy(*chunk, chunkBuf, size);
 	}
