@@ -24,7 +24,8 @@
 ;   specific prior written permission.
 ;
 
-	.export _StartDLI, _StopDLI, _countDLI
+	.export _StartDLI, _StopDLI
+	.export _countDLI, _spriteDLI, _paletteDLI
 	.export _bmpRows, _chrRows
 	
 	;.export _parallaxDLI, _hScroll
@@ -35,7 +36,6 @@
 	.export _posPM3, _colPM3
 	
 	.import _SwapPalette
-	.import _charmapVBI
 	
 		
 ; ROM addresses
@@ -51,6 +51,8 @@ wsync  = $d40a
 _bmpRows:	  .byte 0
 _chrRows:  	  .byte 0
 _countDLI: 	  .byte 0
+_paletteDLI:  .byte 0
+_spriteDLI:   .byte 0
 ;_parallaxDLI: .byte 0
 
 ; Sprite parameters
@@ -115,40 +117,43 @@ DLI:
 	; Load line counter
 	ldx _countDLI	
 			
-	; Update parallax
+	; Update parallax?
+	;lda _parallaxDLI
+	;beq skipParallaxDLI	
 	;sta wsync
 	;lda _hScroll,x
 	;sta hscrol
+;skipParallaxDLI:	
 	
-	; Update position and color of players
+	; Update position and color of sprites?
+	lda	_spriteDLI
+	beq skipSpriteDLI	
 	lda _posPM0,x  
 	sta $d000
 	lda _colPM0,x 
 	sta $d012
-	
 	lda _posPM1,x  
 	sta $d001
 	lda _colPM1,x 
 	sta $d013
-
 	lda _posPM2,x  
 	sta $d002
 	lda _colPM2,x 
 	sta $d014
-
 	lda _posPM3,x  
 	sta $d003
 	lda _colPM3,x 
 	sta $d015
+skipSpriteDLI:	
 	
-	; Apply charmap/bitmap toggle?
-	lda	_charmapVBI
-	beq skipSwapPalette
+	; Swap charmap/bitmap palette?
+	lda	_paletteDLI
+	beq skipPaletteDLI
 	dex
 	cpx _chrRows
-	bne skipSwapPalette
+	bne skipPaletteDLI
 	jsr _SwapPalette
-skipSwapPalette:
+skipPaletteDLI:
 	
 	; increment line counter
 	inc _countDLI

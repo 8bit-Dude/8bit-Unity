@@ -26,8 +26,7 @@
 
 	.include "atari.inc"
 
-	.export _StartVBI, _StopVBI 
-	.export _charmapVBI, _spriteVBI
+	.export _StartVBI, _StopVBI, _spriteVBI
 	.export _bmpAddr, _bmpPalette, _chrPalette, _SwapPalette
 .ifdef __ATARIXL__	
 	.export _bitmapVBI, _bmpToggle
@@ -36,12 +35,8 @@
 	;.export _parallaxRng, _parallaxSpd, _parallaxMax
 			
 	.import _BlitSprites
-	.import _countDLI, _pokeyVBI
-	;.import _parallaxDLI
-	;.import _hScroll
-.ifdef __CUSTOM_VBI__
-	.import _CustomVBI
-.endif
+	.import _countDLI, _paletteDLI, _spriteDLI, _pokeyVBI
+	;.import _parallaxDLI, _hScroll
 
 ; ROM addresses
 atract  = $004d
@@ -64,7 +59,6 @@ hscrol  = $d404
   _bitmapVBI:  .byte 0
   _bmpToggle:  .byte 0
 .endif 
-  _charmapVBI: .byte 0
   _spriteVBI:  .byte 0
 
 ; Bitmap/Charmap paramerers
@@ -135,13 +129,14 @@ skipParallax:
 skipBitmapVBI:	
 	
 	; Apply charmap/bitmap toggle?
-	lda	_charmapVBI
-	beq skipCharmapVBI
+	lda	_paletteDLI
+	beq skipPaletteVBI
 	jsr _SwapPalette
-skipCharmapVBI:
+skipPaletteVBI:
 
 	; Apply sprite flicker?
 	lda _spriteVBI
+	sta _spriteDLI
 	beq skipSpriteVBI
 	jsr _BlitSprites
 skipSpriteVBI:
@@ -149,11 +144,6 @@ skipSpriteVBI:
 	; Process POKEY sounds
 	jsr _pokeyVBI
 	
-.ifdef __CUSTOM_VBI__
-	; Process custom VBI
-	jsr _CustomVBI
-.endif
-
 	; Exit VBI
 	jmp XITVBV
 

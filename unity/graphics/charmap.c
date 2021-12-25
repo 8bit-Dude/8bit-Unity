@@ -230,7 +230,8 @@ void ShowCharmap()
 #elif defined __ATARI__	
 	// Set palette, DLIST and screen DMA
 	SetPalette(chrPalette);
-	CharmapDLIST(); charmapVBI = 1;
+	CharmapDLIST(); 
+	paletteDLI = 1;
 	POKE(559, PEEK(559)|32);	
 	
 #elif defined __CBM__	
@@ -246,9 +247,9 @@ void HideCharmap()
 	HideBitmap();
 	
 #elif defined __ATARI__	
-	// Disable Screen DMA and VBI
+	// Disable Screen DMA and Palette DLI
 	POKE(559, PEEK(559)&~32);
-	charmapVBI = 0;
+	paletteDLI = 0;
 	
 #elif defined __CBM__	
 	StopDLI();	  // Stop raster line interrupt

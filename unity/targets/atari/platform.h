@@ -115,7 +115,7 @@ void StartDLI(void);
 void StartVBI(void);
 void StopVBI(void);
 void SetPalette(unsigned char *palette);
-extern unsigned char bitmapVBI, charmapVBI, spriteVBI, bmpToggle, chrToggle, sprToggle, chrRows, bmpRows;
+extern unsigned char bitmapVBI, spriteVBI, paletteDLI, bmpToggle, chrToggle, sprToggle, chrRows, bmpRows;
 extern unsigned char chrPalette[], bmpPalette[];
 extern unsigned char doubleBuffer;
 extern unsigned int  bmpAddr;
