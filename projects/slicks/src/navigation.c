@@ -35,29 +35,15 @@ extern int iX, iY;
 // Function to load *.nav files
 void LoadNavigation(char *filename)
 {
+#ifdef DEBUG_NAV
+	unsigned char n;
+#endif
+
 	// Read nav file contents
-	unsigned char n,*p;
-  #if defined __APPLE2__
 	if (FileOpen(filename)) {
 		FileRead(lineupX, 114);
 		FileClose();
 	}
-  #elif defined __ATARI__
-	if (FileOpen(filename)) {
-		FileRead(lineupX, 114);
-	}
-  #elif defined __LYNX__
-	FileRead(filename);
-	memcpy(lineupX, (unsigned char*)SHAREDRAM, 114);
-	
-  #elif defined(__NES__) || defined(__ORIC__)
-	FileRead(filename, lineupX);
-	
-  #elif defined __CBM__
-	FILE* fp = fopen(filename, "rb");
-	fread(lineupX, 1, 114, fp);
-	fclose(fp);
-  #endif
 
 #ifdef DEBUG_NAV
 	for (n=0; n<numWays; ++n) {

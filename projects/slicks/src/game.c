@@ -264,19 +264,12 @@ void GameInit(const char* map)
 	// Load Background Mask (used as alternative to GetPixel())
 #if defined(__ATARIXL__) || defined(__CBM__) || defined(__LYNX__)
 	// pass
-#elif defined(__APPLE2__)
+#else
 	memcpy(&buffer[len], ".msk", 4);
 	if (FileOpen(&buffer[0])) {
 		FileRead(bgMask, 736);
 		FileClose();
 	}	
-#elif defined(__ATARI__)	
-	memcpy(&buffer[len], ".msk", 4);
-	FileOpen(&buffer[0]);
-	FileRead(bgMask, 736);
-#elif defined(__NES__) || defined(__ORIC__)
-	memcpy(&buffer[len], ".msk", 4);
-	FileRead(&buffer[0], bgMask);
 #endif
 	
     // Some extra logics depending on the game mode
