@@ -1,6 +1,11 @@
 
 #include "definitions.h"
 
+#ifdef __NES__
+  #pragma rodata-name("BANK0")
+  #pragma code-name("BANK0")
+#endif
+
 // Sprite definitions
 #define spriteFrames 14
 #if defined __APPLE2__	
@@ -27,14 +32,15 @@
 #elif defined __NES__
 	#define spriteCols   16
 	#define spriteRows   16
-    const unsigned char spriteColors[] = { SPR_BLACK, SPR_BROWN, SPR_GREEN, SPR_YELLOW, SPR_BLACK, SPR_BROWN, SPR_GREEN, SPR_YELLOW, 
-										   SPR_BLACK, SPR_BROWN, SPR_GREEN, SPR_YELLOW, SPR_BLACK, SPR_BROWN, SPR_GREEN, SPR_YELLOW }; // 4 palettes of 4 colors
+    const unsigned char spriteColors[] = { SPR_VOID, SPR_BLACK, SPR_GREEN, SPR_YELLOW, 
+										   SPR_VOID, SPR_BLACK, SPR_GREEN, SPR_YELLOW, 
+										   SPR_VOID, SPR_VOID, SPR_VOID, SPR_VOID, 
+										   SPR_VOID, SPR_VOID, SPR_VOID, SPR_VOID }; // 4 palettes of 3 colors (1st color is unused)
 #endif
 
 // Accessible polygon in scene
-#define MAX_POLYGON 19
-signed int polygonX[MAX_POLYGON] = {   0,  53, 120, 138,  65,   0,  0, 32, 180, 270, 282, 251, 232, 210, 229, 320, 320,   0,   0 };
-signed int polygonY[MAX_POLYGON] = { 138, 162, 169, 144, 138, 107, 99, 95, 78, 102, 120, 137, 124, 143, 168, 116, 180, 180, 138 };
+extern signed int polygonX[];
+extern signed int polygonY[];
 
 // See scene.cabs
 extern Interact interacts[MAX_INTERACT];
@@ -90,7 +96,7 @@ void GameLoop(void)
 			if (mouseY > INVENTORY_Y) {
 				sceneItem = SelectItem(mouseX, mouseY);
 				if (sceneItem != 255) {
-					PrintInteract(sceneItem, "\0");
+					PrintInteract(sceneItem, 0);
 				} else {
 					txtX = 0; txtY = TXT_ROWS-2;
 					PrintBlanks(TXT_COLS-8, 2);

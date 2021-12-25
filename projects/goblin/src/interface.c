@@ -14,10 +14,9 @@ void PrintInteract(unsigned char item, unsigned char *label)
 		PrintStr("use"); txtX += 4; 
 		PrintStr(iLabel); txtX += 1+strlen(iLabel); 
 		PrintStr("on"); txtX += 3; 
+	} 
+	if (label)
 		PrintStr(label);
-	} else {
-		PrintStr(label);
-	}
 }
 
 // Print message in lower-left panel
@@ -27,7 +26,7 @@ void PrintMessage(unsigned char *msg)
 	
 	// Reset panel
 	txtX = 0; txtY = TXT_ROWS-2;
-	PrintBlanks(TXT_COLS-8, 2);
+	PrintBlanks(MSG_WIDTH, 2);
 	
 	// Print message across two lines, by taking into account line feed '\n'
 	while (msg[i] != '\0') {
@@ -39,7 +38,7 @@ void PrintMessage(unsigned char *msg)
 		}
 		++i;
 	}
-#if defined __LYNX__
+#if defined(__LYNX__) || defined(__NES__)
 	UpdateDisplay(); // Refresh Lynx screen
 #endif	
 }

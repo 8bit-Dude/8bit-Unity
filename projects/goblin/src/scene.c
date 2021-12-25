@@ -5,6 +5,9 @@
   #pragma code-name("SHADOW_RAM")
 #endif
 
+signed int polygonX[MAX_POLYGON] = {   0,  53, 120, 138,  65,   0,  0, 32, 180, 270, 282, 251, 232, 210, 229, 320, 320,   0,   0 };
+signed int polygonY[MAX_POLYGON] = { 138, 162, 169, 144, 138, 107, 99, 95, 78, 102, 120, 137, 124, 143, 168, 116, 180, 180, 138 };
+
 Interact interacts[MAX_INTERACT] = 
 	{ {  55,  81, 15,  90,  93, 	ACTIVE,		 "Notable",  "Dear sir, you look powerful.\nPlease help me with my quest?\0", "Go away, I am busy!\0", 0, 0 },
 	  { 222,  66, 15, 194,  86, 	ACTIVE,		 "Old Men",  "Hey villagers, do you know\nthe house of lord Tazaar?\0", "We are hungry!! But the\nnotable keeps all the food.", 0, 0 },
@@ -156,7 +159,7 @@ unsigned char ProcessInteract(unsigned char index, unsigned char item, unsigned 
 		} else if (!strcmp(items[item].label, "Bottle") && (index < 2)) {
 			if (index == 1) {
 				inkColor = INK_INTERACT;
-				PrintMessage("We are not thirsty...\nWe are hungry!!");
+				PrintMessage("We are not thirsty...\n...We are hungry!!");
 				Wait(60);
 			} else {
 				PopItem(item);
@@ -231,6 +234,9 @@ unsigned char ProcessInteract(unsigned char index, unsigned char item, unsigned 
 	
 	// Clean-up
 	PrintMessage("\0");
+#if defined(__NES__)
+	PrintInventory();
+#endif	
 	inkColor = INK_DEFAULT;
 	return 0;
 }

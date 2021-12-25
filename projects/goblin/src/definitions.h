@@ -2,16 +2,25 @@
 #include "unity.h"
 
 // Text colors
-#if defined __SHR__	// Apple single hires (Orange paper can only be combined with Black, Blue or White ink)
+#if defined __NES__		// All B/W
+	#define MSG_WIDTH	   TXT_COLS
+	#define INK_DEFAULT		WHITE
+	#define INK_GOBLIN		WHITE
+	#define INK_INTERACT	WHITE
+	#define INK_INVENTORY	WHITE
+#else
+	#define MSG_WIDTH	  TXT_COLS-8
+  #if defined __SHR__	// Apple single hires (Orange paper can only be combined with Black, Blue or White ink)
 	#define INK_DEFAULT		WHITE
 	#define INK_GOBLIN		WHITE
 	#define INK_INTERACT	BLACK
 	#define INK_INVENTORY	BLACK
-#else
+  #else
 	#define INK_DEFAULT		WHITE
 	#define INK_GOBLIN		YELLOW
 	#define INK_INTERACT	RED
 	#define INK_INVENTORY	BLACK
+  #endif
 #endif
 
 // Motion parameters
@@ -40,7 +49,10 @@
 #define PICKABLE 2
 
 // Interacts and Inventory
-#define MAX_INTERACT  7
+#define MAX_POLYGON  19
+#define MAX_INTERACT  8
+#define MAX_TRIGGER   2
+#define MAX_PATH      4
 #define MAX_ITEM 	  2
 #define INVENTORY_Y 180
 
