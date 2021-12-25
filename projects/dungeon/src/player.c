@@ -1,6 +1,11 @@
 
 #include "definitions.h"
 
+#ifdef __NES__
+  #pragma rodata-name("BANK0")
+  #pragma code-name("BANK0")
+#endif
+
 // Player stats
 unsigned char health = 100;
 unsigned char armor  = 0;

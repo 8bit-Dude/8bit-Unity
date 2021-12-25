@@ -1,6 +1,11 @@
 
 #include "unity.h"
 
+#ifdef __NES__
+  #pragma rodata-name("BANK0")
+  #pragma code-name("BANK0")
+#endif
+
 char healthHeader[] = { CHR_HEART,  ' ', ' ', ' ', 0 };
 char armorHeader[]  = { CHR_SHIELD, ' ', ' ', ' ', 0 };
 char goldHeader[]   = {    '$',     ' ', ' ', ' ', 0 };
@@ -30,7 +35,7 @@ void SplashScreen(void)
 	PrintStr(" 2021/04/18 ");
 	
 	// Start music
-#ifndef __ORIC__	
+#if defined(__APPLE2__) ||	defined(__APPLE2__) || defined(__CBM__) || defined(__LYNX__)
 	LoadMusic("dungeon.mus");
 	PlayMusic();
 #endif
@@ -47,7 +52,7 @@ void SplashScreen(void)
 	// Exit banner screen
 	ClearBitmap();
 	HideBitmap();
-#ifndef __ORIC__	
+#if defined(__APPLE2__) ||	defined(__APPLE2__) || defined(__CBM__) || defined(__LYNX__)
 	StopMusic();		
 #endif
 }

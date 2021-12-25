@@ -18,32 +18,16 @@ extern unsigned char health, armor, gold, kills;
 
 void LoadActors(const char* filename)
 {	
-	// Read nav file
-	unsigned char offset, i=0;
-#if (defined __APPLE2__)
+
 	unsigned char navBuffer[128];
+	unsigned char offset, i=0;
+	
+	// Read nav file
 	if (FileOpen(filename)) {
 		FileRead(navBuffer, 128);
 		FileClose();
 	}
-#elif (defined __ATARI__)
-	unsigned char navBuffer[128];
-	if (FileOpen(filename))
-		FileRead(navBuffer, 128);
-#elif (defined __CBM__)
-	unsigned char navBuffer[128];
-	FILE* fp = fopen(filename, "rb");
-	fread(navBuffer, 1, 128, fp);
-	fclose(fp);
-#elif (defined __LYNX__)
-	unsigned char* navBuffer = (char*)SHAREDRAM;
-	bzero(SHAREDRAM, 128);
-	FileRead(filename);
-#elif (defined __NES__) || (defined __ORIC__)
-	unsigned char navBuffer[128];
-	FileRead(filename, navBuffer);
-#endif	
-
+	
 	// Reset actor memory
 	memset(actors, 255, ACTOR_MAX*16);
 
