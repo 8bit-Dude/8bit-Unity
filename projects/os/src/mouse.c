@@ -1,6 +1,11 @@
 
 #include "definitions.h"
 
+#if defined(__NES__)
+ #pragma rodata-name("BANK0")
+ #pragma code-name("BANK0")
+#endif
+
 // Mouse sprite definitions
 #define spriteFrames 2
 #if defined __APPLE2__	
@@ -26,8 +31,10 @@
 #elif defined __NES__
 	#define spriteCols   16
 	#define spriteRows   16
-    const unsigned char spriteColors[] = { SPR_BLACK, SPR_WHITE, SPR_BLACK, SPR_BLACK, SPR_BLACK, SPR_BLACK, SPR_BLACK, SPR_BLACK, 
-										   SPR_BLACK, SPR_BLACK, SPR_BLACK, SPR_BLACK, SPR_BLACK, SPR_BLACK, SPR_BLACK, SPR_BLACK }; // 4 palettes of 4 colors
+    const unsigned char spriteColors[] = { SPR_VOID, SPR_WHITE, SPR_BLACK, SPR_VOID, 
+										   SPR_VOID, SPR_VOID, SPR_VOID, SPR_VOID, 
+										   SPR_VOID, SPR_VOID, SPR_VOID, SPR_VOID, 
+										   SPR_VOID, SPR_VOID, SPR_VOID, SPR_VOID }; // 4 palettes of 3 colors (1st color is unused)
 #endif
 
 // Mouse state

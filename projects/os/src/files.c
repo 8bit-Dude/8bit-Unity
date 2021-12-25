@@ -1,6 +1,11 @@
 
 #include "definitions.h"
 
+#if defined(__NES__)
+ #pragma rodata-name("BANK0")
+ #pragma code-name("BANK0")
+#endif
+
 // See Unity
 extern unsigned char  fileNum;     
 extern unsigned int   fileSizes[];  
@@ -127,7 +132,7 @@ void SelectFile(char dir, unsigned char* extension, char* fileSel)
 #endif
 
 #if (defined __LYNX__)
-	unsigned char* textBuffer;
+	unsigned char* textBuffer = SHAREDRAM;
 #else
 	unsigned char textBuffer[256];
 #endif
@@ -148,31 +153,15 @@ void PreviewImage(void)
 void PreviewText(void)
 {
 	unsigned char *addr, *end;
-#if (defined __APPLE2__) || (defined __CBM__)	
-	FILE* fp;
-#endif
+	unsigned char size;
 	
 	// Read text file
-	PauseTrack();	
-#if (defined __APPLE2__)
-	// Try to open file
-	fp = fopen(currFile, "rb");
-	fread(textBuffer, 1, 256, fp);
-	fclose(fp);
-#elif (defined __ATARI__)
-	if (FileOpen(currFile))
-		FileRead(textBuffer, 256);
-#elif (defined __CBM__)
-	fp = fopen(currFile, "rb");
-	fread(textBuffer, 1, 256, fp);
-	fclose(fp);
-#elif (defined __LYNX__)
-	textBuffer = (char*)SHAREDRAM;
-	bzero(SHAREDRAM, 256);
-	FileRead(currFile);
-#elif (defined __ORIC__) || (defined __NES__)
-	FileRead(currFile, textBuffer);
-#endif
+	PauseTrack();
+	if (FileOpen(currFile)) {
+		size = FileRead(textBuffer, 256);
+		textBuffer[size] = 0;
+		FileClose();
+	}
 	UnpauseTrack();
 
 	// Display in preview box

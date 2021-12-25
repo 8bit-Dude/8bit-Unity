@@ -148,7 +148,8 @@
                 "projects/os/sprites/sprites-nes.png"
             ], 
             "music": [
-                "projects/os/music/goblin-nes.txt"
+                "projects/os/music/goblin-nes.txt", 
+                "projects/os/music/speednik-nes.txt"
             ], 
             "chunks": [
                 "projects/os/chunks/chunks-nes.txt"

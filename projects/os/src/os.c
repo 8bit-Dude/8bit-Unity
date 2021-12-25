@@ -1,8 +1,9 @@
 
 #include "definitions.h"
 
-#ifdef __NES__
-  #pragma code-name("BANK0")
+#if defined(__NES__)
+ #pragma rodata-name("BANK0")
+ #pragma code-name("BANK0")
 #endif
 
 // See mouse.c
