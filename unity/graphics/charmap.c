@@ -302,16 +302,17 @@ void LoadCharset(char* filename)
 	}
 	
 #elif defined __CBM__	
-	FILE* fp = fopen(filename, "rb");	
-	fread((char*)0xd021, 1, 0x0003, fp);		// Shared Colors
-	fread((char*)CHARSETRAM, 1, 0x0400, fp);	// Pixel Data
-	if (!charattData) charattData = malloc(0x0100);			
-	fread((char*)charattData, 1, 0x0100, fp);	// Color Attributes
-	charflagData = (char*)(charattData+0x80);	// Flag Attributes
-	fclose(fp);		
-
+	if (FileOpen(filename)) {	
+		FileRead((char*)0xd021, 0x0003);			// Shared Colors
+		FileRead((char*)CHARSETRAM, 0x0400);		// Pixel Data
+		if (!charattData) charattData = malloc(0x0100);			
+		FileRead((char*)charattData, 0x0100);		// Color Attributes
+		charflagData = (char*)(charattData+0x80);	// Flag Attributes
+		FileClose();		
+	}
+	
 #elif defined __LYNX__
-	if (FileRead(filename)) {
+	if (FileOpen(filename)) {	// Data is loaded into BITMAP memory on open
 		if (!charsetData) charsetData = malloc(0x0480);
 		memcpy(charsetData, BITMAPRAM, 0x0480);
 		charflagData = (char*)(charsetData+0x0400);
@@ -319,8 +320,9 @@ void LoadCharset(char* filename)
 	}
 
 #elif defined __NES__
-	if (FileRead(filename, charflagData)) {
+	if (FileOpen(filename)) {
 		// Copy palette data
+		FileRead(charflagData, -1);
 		memcpy(palBG, &charflagData[0x80], 4);
 		
 		// Switch to new palette/charset
@@ -331,19 +333,18 @@ void LoadCharset(char* filename)
 	}
 	
 #elif defined __ORIC__
-	if (!charsetData)
-		charsetData = malloc(0x0480);
-	FileRead(filename, charsetData);
-	charflagData = (char*)(charsetData+0x0400);
+	if (FileOpen(filename)) {
+		if (!charsetData) charsetData = malloc(0x0480);
+		FileRead(charsetData, 0x0480);
+		charflagData = (char*)(charsetData+0x0400);
+	}
 #endif			
 }
 
 // Load charmap from file
 void LoadCharmap(char *filename, unsigned int w, unsigned int h) 
 {
-#if defined(__CBM__)
-	FILE* fp;
-#elif defined(__NES__)
+#if defined(__NES__)
 	unsigned char* data;
 #endif
 	unsigned int size = w*h;
@@ -369,39 +370,21 @@ void LoadCharmap(char *filename, unsigned int w, unsigned int h)
 #endif	
 	
 	// Load data from file
-#if defined __APPLE2__
+#if defined(__APPLE2__) || defined(__ATARI__) || defined(__CBM__) || defined(__NES__) || defined(__ORIC__)
 	if (FileOpen(filename)) {
 		FileRead(charmapData, size);
 		FileClose();
 	}
-
-#elif defined __ATARI__
-	if (FileOpen(filename))
-		FileRead(charmapData, size);
-
-#elif defined __CBM__
-	fp = fopen(filename, "rb");	
-	fread(charmapData, 1, size, fp);
-	fclose(fp);
-	
 #elif defined __LYNX__
-	if (FileRead(filename))
+	if (FileOpen(filename))	// Data is immediately loaded into BITMAP memory on open
 		memcpy(charmapData, (char*)BITMAPRAM, size);
 	ClearBitmap();
-	
-#elif defined(__NES__) || defined(__ORIC__)
-	FileRead(filename, charmapData);	
 #endif
 }
 
 // Load tileset from file
 void LoadTileset(char *filename, unsigned int n) 
 {
-	// Platform specific variables
-#if (defined __CBM__)
-	FILE* fp;
-#endif	
-
 	// Assign memory and ZP pointer
 	unsigned int size = n*TILE_WIDTH*TILE_HEIGHT;	
 #ifndef __NES__
@@ -409,28 +392,15 @@ void LoadTileset(char *filename, unsigned int n)
 	tilesetData = malloc(size);
 #endif
 	
-#if (defined __APPLE2__)
+#if defined(__APPLE2__) || defined(__ATARI__) || defined(__CBM__) || defined(__NES__) || defined(__ORIC__)
 	if (FileOpen(filename)) {
 		FileRead(tilesetData, size);
 		FileClose();
-	}
-	
-#elif defined __ATARI__
-	if (FileOpen(filename))
-		FileRead(tilesetData, size);
-
-#elif (defined __CBM__)
-	fp = fopen(filename, "rb");	
-	fread(tilesetData, 1, size, fp);
-	fclose(fp);
-	
+	}	
 #elif defined __LYNX__
-	if (FileRead(filename))
+	if (FileOpen(filename))	// Data is immediately loaded into BITMAP memory on open
 		memcpy(tilesetData, (char*)BITMAPRAM, size);
 	ClearBitmap();
-	
-#elif defined(__NES__) || defined(__ORIC__)
-	FileRead(filename, tilesetData);	
 #endif
 	
 	// Allocate buffer for tile to char conversion

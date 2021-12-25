@@ -135,6 +135,12 @@ extern unsigned char worldWidth, worldHeight, worldMaxX, worldMaxY;
   unsigned char KeyboardOverlayHit(void);
 #endif
 
+// File system functions (see /targets/xxx/files.c)
+void DirList(void);
+unsigned int FileOpen(const char* fname);
+unsigned int FileRead(char* buffer, signed int len);
+void FileClose(void);
+
 // Printing functions (see print.c)
 extern unsigned char txtX, txtY;
 extern unsigned char inkColor, paperColor;

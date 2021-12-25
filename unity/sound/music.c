@@ -37,7 +37,6 @@
 #ifdef __NES__
   #pragma rodata-name("BANK0")
   #pragma code-name("BANK0")
-  unsigned char FileIndex(const char* filename);
   extern unsigned char* fileDatas[];
   extern unsigned char fileIndex;  
 #endif
@@ -55,15 +54,14 @@
 void LoadMusic(const char* filename)
 {
 #if defined __ORIC__
-	// Load from File
 	unsigned char weird;
-	FileRead(filename, (char*)MUSICRAM);
+	if (FileOpen(filename))
+		FileRead((char*)MUSICRAM, -1);
 	weird = 0;	// without this code, Oric gets jammed!
 #elif defined __LYNX__
-	// Load from CART file system
-	FileRead(filename);
+	FileOpen(filename);		// Music data is immediately loaded on open
 #elif defined __NES__	
-	if (FileIndex(filename))
+	if (FileOpen(filename))
 		music_load(fileDatas[fileIndex]);
 #elif defined __ATARIXL__
 	unsigned int end, pos = MUSICRAM;
@@ -82,19 +80,18 @@ void LoadMusic(const char* filename)
 #elif defined __CBM__
 	// Try to open file
 	unsigned int loadaddr;
-	FILE* fp = fopen(filename, "rb");	
-	if (fp) {
+	if (FileOpen(filename)) {
 		// Consume 124 bytes of header, copy load/init/play addresses, and load SID program
-		fread((char*)MUSICRAM, 1, 124, fp);
+		FileRead((char*)MUSICRAM, 124);
 		POKE((char*)(&loadaddr)+0, PEEK((char*)(MUSICRAM+9)));
 		POKE((char*)(&loadaddr)+1, PEEK((char*)(MUSICRAM+8)));
 		POKE((char*)(&sidInitAddr)+0, PEEK((char*)(MUSICRAM+11)));
 		POKE((char*)(&sidInitAddr)+1, PEEK((char*)(MUSICRAM+10)));
 		POKE((char*)(&sidPlayAddr)+0, PEEK((char*)(MUSICRAM+13)));
 		POKE((char*)(&sidPlayAddr)+1, PEEK((char*)(MUSICRAM+12)));
-		if (!loadaddr) { fread((char*)(&loadaddr), 1, 2, fp); }	// Load address provided just before SID
-		fread((char*)(loadaddr), 1, -1, fp);
-		fclose(fp);
+		if (!loadaddr) FileRead((char*)(&loadaddr), 2);	// Load address provided just before SID
+		FileRead((char*)(loadaddr), -1);
+		FileClose();
 	}
 #elif defined __APPLE2__
 	if (FileOpen(filename)) {

@@ -82,57 +82,39 @@ unsigned int ChunkSize(unsigned char w, unsigned char h)
 void LoadChunk(unsigned char** chunk, char *filename) 
 {
 #if defined __NES__
-	// NES: load chunk into XRAM
-	unsigned int size = FileRead(filename, chunkPtr);
+	// Read whole block to memory
+	unsigned int size = FileOpen(filename);
+	FileRead(chunkPtr, size);
 	*chunk = chunkPtr;
 	chunkPtr += size;
 	
 #elif defined __LYNX__
-	// Lynx: load chunk into Shared RAM
-	unsigned char *chunkBuf = (unsigned char*)SHAREDRAM;
-	unsigned int size;
-	FileRead(filename);	
-	
-	// Compute chunk size and allocate memory
-	size = ChunkSize(chunkBuf[2], chunkBuf[3]);
+	// Read whole block to memory
+	unsigned int size = FileOpen(filename);
 	*chunk = (unsigned char*)malloc(size);
-	memcpy(*chunk, chunkBuf, size);	
+	FileRead((char*)*chunk, size);
 	
 #elif defined __ORIC__
 	// Block read chunk file (TODO: implement header reading, to get rid of chunkBuf)
-	unsigned int size = FileRead(filename, chunkBuf);
-	*chunk = (unsigned char*)malloc(size);
-	memcpy(*chunk, chunkBuf, size);
-	
-#elif defined(__ATARI__) /* || defined(__APPLE2__) */
 	unsigned int size;
 	if (FileOpen(filename)) {
-		// Read header into chunkBuf
+		size = FileRead(filename, chunkBuf);
+		*chunk = (unsigned char*)malloc(size);
+		memcpy(*chunk, chunkBuf, size);
+	}
+	
+#elif defined(__ATARI__) || defined(__APPLE2__) || defined(__CBM__)
+	unsigned int size;
+	if (FileOpen(filename)) {
+		// Read header and compute size
 		FileRead((char*)chunkBuf, 4);
-
-		// Compute chunk size, allocate memory and read data
 		size = ChunkSize(chunkBuf[2], chunkBuf[3]);
+
+		// Allocate memory and read data
 		*chunk = (unsigned char*)malloc(size);
 		memcpy(*chunk, chunkBuf, 4);	
 		FileRead((char*)*chunk+4, size-4);		
 	}
-#elif defined(__APPLE2__) || defined(__CBM__)
-	// Read header into chunkBuf
-	unsigned int size;
-	FILE* fp = fopen(filename, "rb");
-	fread(chunkBuf, 1, 4, fp);
-	
-	// Compute chunk size and allocate memory
-	size = ChunkSize(chunkBuf[2], chunkBuf[3]);
-	*chunk = (unsigned char*)malloc(size);
-	memcpy(*chunk, chunkBuf, 4);
-  #if defined __DHR__
-	// Load AUX data first
-	fread(*chunk+4, 1, size-4, fp);
-	MainToAux(*chunk+4, size-4);
-  #endif	
-	fread(*chunk+4, 1, size-4, fp);
-	fclose(fp);
 #endif
 }
 

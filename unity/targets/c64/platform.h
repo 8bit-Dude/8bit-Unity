@@ -100,9 +100,6 @@ void StopDLI(void);
 extern void __fastcall__ rom_enable(void);
 extern void __fastcall__ rom_disable(void);
 
-// File Management
-void DirList(void);
-
 // Gfx functions (see blitCharmap.s)
 void __fastcall__ BlitCharmap(void);
 

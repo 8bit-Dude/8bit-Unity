@@ -1,4 +1,9 @@
 /*
+ *	API of the "8bit-Unity" SDK for CC65
+ *	All functions are cross-platform for the Apple IIe, Atari XL/XE, and C64/C128
+ *	
+ *	Last modified: 2021/12/25
+ *
  * Copyright (c) 2020 Anthony Beaucamp.
  *
  * This software is provided 'as-is', without any express or implied warranty.
@@ -54,12 +59,12 @@ typedef struct {
 	unsigned char ref_num;
 } open_param_t;
 
-unsigned char FileOpen( const char* p_filename )
+unsigned int FileOpen(const char* fname)
 {
 	open_param_t param;
 	char Filename[16];
-	Filename[0] = strlen(p_filename);	// Encode filename for MLI
-	strcpy(&Filename[1], p_filename );	
+	Filename[0] = strlen(fname);	// Encode filename for MLI
+	strcpy(&Filename[1], fname );	
 	param.param_count = 3u;
 	param.pathname = Filename;
 	param.io_buffer = (unsigned char*)FILERAM;
@@ -78,7 +83,7 @@ typedef struct {
 	unsigned int trans_count;
 } read_param_t;
 
-void FileRead( char* buffer, unsigned int len )
+unsigned int FileRead(char* buffer, signed int len)
 {
 	read_param_t param;
 	param.param_count = 4u;
@@ -86,8 +91,8 @@ void FileRead( char* buffer, unsigned int len )
 	param.data_buffer = buffer;
 	param.request_count = len;
 	mli( READ, &param );
+	return param.trans_count;
 	//Error = mli( READ, &param );
-	//return param.trans_count;
 }
 
 typedef struct {

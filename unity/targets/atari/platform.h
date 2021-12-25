@@ -107,11 +107,6 @@ void enable_rom(void);
 void disable_rom(void);
 void restore_rom(void);
 
-// Using xBios for File Management
-void DirList(void);
-unsigned char FileOpen(const char* fname);
-void FileRead(void* buf, unsigned int len);
-
 // Frame/Sprite Flicker Routine (see DLI.s)
 void BitmapDLIST(void);
 void CharmapDLIST(void);

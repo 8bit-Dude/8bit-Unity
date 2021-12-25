@@ -81,7 +81,3 @@ void __fastcall__ BlitCharmap(void);
 
 // Default Sprite Colors;
 extern unsigned char defaultColors[];
-
-// Reading files from ROM (see files.c)
-void DirList(void);
-unsigned int FileRead(const char* filename);

@@ -2,6 +2,11 @@
  *	API of the "8bit-Unity" SDK for CC65
  *	All functions are cross-platform for the Apple IIe, Atari XL/XE, and C64/C128
  *	
+ *	Last modified: 2021/12/25
+ *
+ *	API of the "8bit-Unity" SDK for CC65
+ *	All functions are cross-platform for the Apple IIe, Atari XL/XE, and C64/C128
+ *	
  *	Last modified: 2020/10/12
  *	
  * Copyright (c) 2020 Anthony Beaucamp.
@@ -64,15 +69,20 @@ void FileSet(const char* fname) {
 }
 	
 // Using XBIOS for File Management
-unsigned char FileOpen(const char* fname)
+unsigned int FileOpen(const char* fname)
 {
 	FileSet(fname);
 	return xbios_open_file();
 }
 
-void FileRead(void* buf, unsigned int len)
+unsigned int FileRead(char* buffer, signed int len)
 {
-	xbios_dest = buf;
+	xbios_dest = buffer;
     xbios_len  = len;
     xbios_load_data();	
+	return len;
+}
+
+void FileClose( void )
+{
 }

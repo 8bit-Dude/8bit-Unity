@@ -2,7 +2,7 @@
  *	API of the "8bit-Unity" SDK for CC65
  *	All functions are cross-platform for the Apple IIe, Atari XL/XE, and C64/C128
  *	
- *	Last modified: 2019/05/05
+ *	Last modified: 2021/12/25
  *	
  * Copyright (c) 2019 Anthony Beaucamp.
  *
@@ -40,19 +40,27 @@ extern void* sed_dest;
 extern void* sed_end;
 extern int sed_err;
 
-int FileWrite(const char* fname, void* buf, int len) 
+unsigned int FileOpen(const char* fname)
 {
-    sed_fname = fname;
-    sed_dest = buf;
-    sed_end = (char*)sed_dest+len;
-    sed_savefile();  	
-    return sed_err;
+	sed_fname = fname;
+	return 1;
 }
 
-int FileRead(const char* fname, void* buf)
+unsigned int FileRead(char* buffer, signed int len)
 {
-    sed_fname = fname;
-    sed_dest = buf;
+    sed_dest = (void*)buffer;
     sed_loadfile();
     return sed_size;
+}
+
+void FileWrite(char* buffer, signed int len) 
+{
+    sed_dest = (void*)buffer;
+    sed_end = (void*)((unsigned int)sed_dest+len);
+    sed_savefile();  	
+    //return sed_err;
+}
+
+void FileClose( void )
+{
 }

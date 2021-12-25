@@ -48,6 +48,7 @@
   unsigned char rleData[BITMAPRAM];  
  #pragma bss-name(pop)
   extern unsigned char vram_attr[64];
+  extern unsigned char fileIndex;
 #endif
 
 // Initialize Bitmap Screen
@@ -194,14 +195,17 @@ void ClearBitmap(void)
 void LoadBitmap(char *filename) 
 {
 #if defined __ORIC__
-	FileRead(filename, (void*)(BITMAPRAM));
+	if (FileOpen(filename))
+		FileRead((char*)BITMAPRAM, -1);
 	
 #elif defined __LYNX__
-	if (FileRead(filename) && autoRefresh) 
-		UpdateDisplay();	
-
+	if (FileOpen(filename))		// Bitmap data is immmediately loaded on open
+		if (autoRefresh) 
+			UpdateDisplay();	
+		
 #elif defined __NES__
-    if (FileRead(filename, rleData)) {
+	if (FileOpen(filename)) {
+		FileRead(rleData, -1);
 		ppu_off();	
 		set_chr_bank_0(2+fileIndex);	// Switch char set
 		vram_adr(NAMETABLE_A);			// Go to top of VRAM
@@ -266,26 +270,26 @@ void LoadBitmap(char *filename)
 #elif defined __CBM__
 	unsigned char i;
 	unsigned int size;
-	FILE* fp = fopen(filename, "rb");  
-  #if defined __DECRUNCH__	
-	for (i=0; i<2; i++) {
-		// Process 2 crunched blocks (screen, bitmap)
-		fread((char*)&size, 1, 2, fp);				// Get crunch data size
-		fread((char*)(0xff40), 1, 8, fp);			// Read first 8 bytes to temporary location
-		fread((char*)(BITMAPRAM), 1, size-8, fp);	// Read crunched data
-		rom_disable();								// Disable ROM to access $dff8-$dfff
-		memcpy((char*)(BITMAPRAM-8), (char*)(0xff40), 8);  // Copy back first 8 bytes
-		Decrunch(BITMAPRAM-8+size);					// Decrunch data		
-		if (i==0) {	// Copy first block to screen address locations
-			memcpy((char*)(SCREENRAM), (char*)(BITMAPRAM), 1000);
+	if (FileOpen(filename)) { 
+	  #if defined __DECRUNCH__	
+		for (i=0; i<2; i++) {
+			// Process 2 crunched blocks (screen, bitmap)
+			FileRead((char*)&size, 2);				// Get crunch data size
+			FileRead((char*)(0xff40), 8);			// Read first 8 bytes to temporary location
+			FileRead((char*)(BITMAPRAM), size-8);	// Read crunched data
+			rom_disable();							// Disable ROM to access $dff8-$dfff
+			memcpy((char*)(BITMAPRAM-8), (char*)(0xff40), 8);  // Copy back first 8 bytes (Trick!)
+			Decrunch(BITMAPRAM-8+size);				// Decrunch data		
+			if (i==0) 	// Copy first block to screen address locations
+				memcpy((char*)(SCREENRAM), (char*)(BITMAPRAM), 1000);
+			rom_enable();
 		}
-		rom_enable();
+	  #else
+		FileRead((char*)(BITMAPRAM), 8000);	// 8000 bytes bitmap ram
+		FileRead((char*)(SCREENRAM), 1000); // 1000 bytes char ram
+	  #endif
+		FileRead((char*)(COLORRAM),  1000);	// 1000 bytes color ram
+		FileClose();	
 	}
-  #else
-	fread((char*)(BITMAPRAM), 1, 8000, fp);	// 8000 bytes bitmap ram
-	fread((char*)(SCREENRAM), 1, 1000, fp); // 1000 bytes char ram
-  #endif
-	fread((char*)(COLORRAM),  1, 1000, fp);	// 1000 bytes color ram
-	fclose(fp);	
-#endif
+#endif	
 }

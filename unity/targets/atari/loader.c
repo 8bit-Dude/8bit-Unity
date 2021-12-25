@@ -75,7 +75,7 @@ int main (void)
 #if defined __FUJINET__				
 		case '3':
 			gotoxy(5, 17); cprintf("  Loading Fujinet version...");
-			FileSet("hub.xex");
+			FileSet("fujinet.xex");
 			xbios_run_file();
 			break;
 #endif

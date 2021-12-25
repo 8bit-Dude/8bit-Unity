@@ -138,10 +138,9 @@ void LoadSprites(unsigned char* filename)
 {
 #if defined __APPLE2__
 	unsigned int size;
-	if (sprData) 
-		free(sprData);
 	if (FileOpen(filename)) {
 		FileRead((char*)&size, 2); 
+		if (sprData) free(sprData);
 		sprData = malloc(size);
 	  #if defined __DHR__
 		FileRead(sprData, size);	// Load AUX data
@@ -153,10 +152,10 @@ void LoadSprites(unsigned char* filename)
 #elif defined __ATARI__	
 	unsigned int size;
 	if (FileOpen(filename)) {
-		FileRead(&size, 2);
+		FileRead((char*)&size, 2);
 		if (sprData) free(sprData);
 		sprData = malloc(size);
-		FileRead(sprData, -1);
+		FileRead(sprData, size);
 	}
 #elif defined(__CBM__)
 	// TODO: sprite sheets larger than $700
@@ -164,8 +163,11 @@ void LoadSprites(unsigned char* filename)
 	// (file loading under ROM not possible)	
 #elif defined __LYNX__
 	// TODO
+#elif defined __NES__
+	// TODO
 #elif defined __ORIC__	
-	FileRead(filename, (void*)SPRITERAM);
+	if (FileOpen(filename))
+		FileRead((void*)SPRITERAM, -1);
 #endif
 }
 

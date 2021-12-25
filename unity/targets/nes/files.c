@@ -1,4 +1,9 @@
 /*
+ *	API of the "8bit-Unity" SDK for CC65
+ *	All functions are cross-platform for the Apple IIe, Atari XL/XE, and C64/C128
+ *	
+ *	Last modified: 2021/12/25
+ *
  * Copyright (c) 2021 Anthony Beaucamp.
  *
  * This software is provided 'as-is', without any express or implied warranty.
@@ -36,29 +41,36 @@ extern unsigned char* fileNames[];  //					"
 extern unsigned char* fileDatas[];  //					"
 
 unsigned char fileIndex;
+unsigned int consummed = 0;
 
 void DirList(void)
 {
 	// Do nothing, file list is assembled at build time!
 }
 
-unsigned char FileIndex(const char* filename)
+unsigned int FileOpen(const char* filename)
 {
-	for (fileIndex=0; fileIndex<fileNum; fileIndex++)
-		if (!strcmp(filename, fileNames[fileIndex]))
-			return 1;
+	for (fileIndex=0; fileIndex<fileNum; fileIndex++) {
+		if (!strcmp(filename, fileNames[fileIndex])) {
+			consummed = 0;
+			return fileSizes[fileIndex];
+		}
+	}
 	return 0;
 }
 
-unsigned int FileRead(const char* filename, unsigned char* dst)
+unsigned int FileRead(char* buffer, signed int len)
 {
-	// Search for file
-	unsigned int size;
-	if (FileIndex(filename)) {
-		// Bank ROM and copy data
-		size = fileSizes[fileIndex];
-		memcpyBanked(dst, fileDatas[fileIndex], size, fileBanks[fileIndex]);
-		return size;
-	}	
-	return 0;
+	// Check remaining size
+	if (len == -1)
+		len = fileSizes[fileIndex] - consummed;
+	
+	// Copy chunk of data while bank switching
+	memcpyBanked(buffer, fileDatas[fileIndex]+consummed, len, fileBanks[fileIndex]);
+	consummed += len;
+	return len;	
+}
+
+void FileClose(void)
+{
 }

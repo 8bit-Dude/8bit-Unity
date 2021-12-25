@@ -128,12 +128,6 @@ clock_t clock(void);
 unsigned sleep(unsigned seconds);
 extern clock_t clk;	
 
-// Using ProDos for File Management (see files.c)
-void DirList(void);
-unsigned char FileOpen(const char* fname);
-void FileRead(char* buffer, unsigned int len);
-void FileClose(void);
-
 // Auxilliary memory management (see memory.c)
 void MainToAux(unsigned char* data, unsigned int size);
 void AuxToAux(unsigned char* dst, unsigned char* src, unsigned char size);

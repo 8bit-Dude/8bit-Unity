@@ -127,9 +127,3 @@ void memcpyBanked(unsigned char* dst, unsigned char* src, unsigned int len, unsi
 
 // Hires gfx functions (see blitXXX.s)
 void __fastcall__ BlitCharmap(void);
-
-// Reading files from ROM (see files.c)
-extern unsigned char fileNum, fileIndex, *fileNames[];    
-extern unsigned int  fileSizes[];
-unsigned int FileRead(const char* filename, unsigned char* dst);
-void DirList(void);
