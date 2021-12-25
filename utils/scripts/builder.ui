@@ -74,34 +74,6 @@
                         </layout>
                       </object>
                     </child>
-                    <child>
-                      <object class="tk.Label" id="Label_CustomVBI">
-                        <property name="text" translatable="yes">Custom VBI:</property>
-                        <layout>
-                          <property name="column">0</property>
-                          <property name="padx">200</property>
-                          <property name="pady">5</property>
-                          <property name="propagate">False</property>
-                          <property name="row">1</property>
-                          <property name="sticky">nw</property>
-                        </layout>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="ttk.Combobox" id="Combobox_CustomVBI">
-                        <property name="state">readonly</property>
-                        <property name="values">No Yes</property>
-                        <property name="width">8</property>
-                        <layout>
-                          <property name="column">0</property>
-                          <property name="padx">275</property>
-                          <property name="pady">5</property>
-                          <property name="propagate">False</property>
-                          <property name="row">1</property>
-                          <property name="sticky">nw</property>
-                        </layout>
-                      </object>
-                    </child>
                   </object>
                 </child>
                 <child>

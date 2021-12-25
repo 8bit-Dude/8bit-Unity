@@ -50,8 +50,6 @@ def FileBase(filepath, suffix):
     
 def BuildUnityLibrary(self, fp, target, symbols, cList, sList, buildFolder):
     # Add shared symbols
-    if self.combobox_CustomVBI.get() == 'Yes':
-        symbols += ' -D __CUSTOM_VBI__'                        
     if self.combobox_TileSize.get() == 'None':
         symbols += ' -D __TILE_NONE__'                        
     elif self.combobox_TileSize.get() == '2x2':
@@ -203,7 +201,6 @@ class Application:
         # Get list boxes and fields
         self.listbox_Code = self.builder.get_object('Listbox_Code')
         self.listbox_Charmap = self.builder.get_object('Listbox_Charmap')
-        self.combobox_CustomVBI = self.builder.get_object('Combobox_CustomVBI')
         self.combobox_TileSize = self.builder.get_object('Combobox_TileSize')
         self.listbox_Shared = self.builder.get_object('Listbox_Shared')
         self.entry_Disk = self.builder.get_object('Entry_Disk')
@@ -320,7 +317,7 @@ class Application:
         self.comboboxes = [ self.combobox_AtariDiskSize, self.combobox_AppleDiskSize,
                             self.combobox_AppleNetworkProtocols, self.combobox_AtariNetworkProtocols, self.combobox_C64NetworkProtocols,
                             self.combobox_AppleCrunchAssets, self.combobox_AtariCrunchAssets, self.combobox_C64CrunchAssets,
-                            self.combobox_TileSize, self.combobox_CustomVBI ]
+                            self.combobox_TileSize ]
         self.checkbuttons = [self.checkbutton_AppleNetwork8bitHub, self.checkbutton_AppleNetworkUthernet, 
                              self.checkbutton_AtariNetwork8bitHub, self.checkbutton_AtariNetworkDragonCart, self.checkbutton_AtariNetworkFujinet,
                              self.checkbutton_C64Network8bitHub, self.checkbutton_C64NetworkRRNet ]
@@ -336,7 +333,6 @@ class Application:
         self.entry_Disk.insert(0, 'diskname')
         
         # Set some defaults
-        self.combobox_CustomVBI.current(0)
         self.combobox_TileSize.current(0)
         self.combobox_AppleDiskSize.current(0)
         self.combobox_AppleCrunchAssets.current(0)
@@ -510,7 +506,6 @@ class Application:
                 ('shared', ('listbox', self.listbox_Shared)),
                 ('charmap', ('listbox', self.listbox_Charmap)),
                 ('tilesize', ('combobox', self.combobox_TileSize)),
-                ('customVBI', ('combobox', self.combobox_CustomVBI)),
             ]),
             ('platform', [
                 ('Apple', [
@@ -1019,11 +1014,6 @@ class Application:
                     fp.write('utils\\scripts\\exomizer-3.1.0.exe sfx bin ' + buildFolder + '/apple/' + executable + '.bin -o ' + buildFolder + '/apple/' + executable + '\n\n')    
                 fp.write('utils\\scripts\\exomizer-3.1.0.exe sfx bin ' + buildFolder + '/apple/LOADER.bin -o ' + buildFolder + '/apple/LOADER\n\n')
                 
-                # Clean-up build folder
-                fp.write('del ' + buildFolder + '\\apple\\*.bin\n')
-                fp.write('del ' + buildFolder + '\\apple\\*.lib\n')
-                fp.write('del ' + buildFolder + '\\apple\\*.lst\n')                
-
                 # Disk builder
                 if self.combobox_AppleDiskSize.get() == '140KB':                
                     podisk = 'ProDOS190-140K.po'
@@ -1060,6 +1050,11 @@ class Application:
                     fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p ' + buildFolder + '/' + diskname + '-apple' + target + ext + ' ' + fb.upper() + ' bin < ' + item + '\n')
                 if len(chunks) > 0:
                     fp.write('for /f "tokens=*" %%A in (' + buildFolder + '\\apple\\chunks.lst) do utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p ' + buildFolder + '/' + diskname + '-apple' + target + ext + ' %%~nxA bin < %%A \n')
+
+                # Clean-up build folder
+                fp.write('del ' + buildFolder + '\\apple\\*.bin\n')
+                fp.write('del ' + buildFolder + '\\apple\\*.lib\n')
+                fp.write('del ' + buildFolder + '\\apple\\*.lst\n')                
 
                 fp.write('echo --------------- APPLE DISK READY --------------- \n\n')
                 
@@ -1277,7 +1272,7 @@ class Application:
 
             # Build Unity Library for eah network target
             for network in networkOptions:
-                cTarget = [ 'graphics\\pixel.c', 'targets\\c64\\directory.c', 'targets\\c64\\VIC2.c' ]
+                cTarget = [ 'graphics\\pixel.c', 'targets\\c64\\directory.c', 'targets\\c64\\files.c', 'targets\\c64\\VIC2.c' ]
                 sTarget = [ 'graphics\\scroll.s', 'strings\\chars.s', 'targets\\c64\\decrunch.s', 'targets\\c64\\DLI.s', 'targets\\c64\\joystick.s', 'targets\\c64\\blitCharmap.s', 'targets\\c64\\ROM.s', 'targets\\c64\\SID.s']
                 symbols = ''
                 
@@ -1362,11 +1357,6 @@ class Application:
                     fp.write('utils\\scripts\\exomizer-3.0.2.exe sfx $180d ' + buildFolder + '/c64/' + executable + '.bin -o ' + buildFolder + '/c64/' + executable + '.prg\n\n')
             fp.write('utils\\scripts\\exomizer-3.0.2.exe sfx $180d ' + buildFolder + '/c64/loader.bin -o ' + buildFolder + '/c64/loader.prg\n\n')
 
-            # Clean-up build folder
-            fp.write('del ' + buildFolder + '\\c64\\*.bin\n')
-            fp.write('del ' + buildFolder + '\\c64\\*.lib\n')
-            fp.write('del ' + buildFolder + '\\c64\\*.lst\n')
-
             # Disk builder
             fp.write('set C1541=utils\\scripts\\c64\\c1541 -format loader,666 d64 ' + buildFolder + '/' + diskname + '-c64.d64 -attach ' + buildFolder + '/' + diskname + '-c64.d64 ')
             fp.write('-write ' + buildFolder + '/c64/loader.prg loader.prg ')
@@ -1392,6 +1382,11 @@ class Application:
                 fp.write('-write ' + item + ' ' + FileBase(item, '') + ' ')                
             fp.write('\nfor /f "tokens=*" %%A in (' + buildFolder + '\c64\chunks.lst) do set C1541=!C1541!-write %%A %%~nxA \n')
             fp.write('%C1541%\n')
+
+            # Clean-up build folder
+            fp.write('del ' + buildFolder + '\\c64\\*.bin\n')
+            fp.write('del ' + buildFolder + '\\c64\\*.lib\n')
+            fp.write('del ' + buildFolder + '\\c64\\*.lst\n')
 
             fp.write('echo --------------- C64 DISK READY --------------- \n\n')
             
