@@ -36,7 +36,7 @@ int main (void)
 	
     // Write the greeting in the mid of the screen
     gotoxy(11, 8);  cprintf("Network Interface:");
-    gotoxy(13, 10); cprintf("1 - None");	
+    gotoxy(13, 10); cprintf("0 - None");	
 #if defined __HUB__	
     gotoxy(13, 11); cprintf("1 - 8bit-Hub");	
 #endif

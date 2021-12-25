@@ -113,6 +113,10 @@ void LoadChunk(unsigned char** chunk, char *filename)
 		// Allocate memory and read data
 		*chunk = (unsigned char*)malloc(size);
 		memcpy(*chunk, chunkBuf, 4);	
+	  #if defined __DHR__ // Load AUX data first
+		FileRead((char*)*chunk+4, size-4);
+		MainToAux((char*)*chunk+4, size-4);
+	  #endif			
 		FileRead((char*)*chunk+4, size-4);		
 	}
 #endif
