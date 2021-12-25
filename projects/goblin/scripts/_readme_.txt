@@ -1,0 +1,1 @@
+This folder contains text files from which scene files (boundary, interacts) are computed using the batch file

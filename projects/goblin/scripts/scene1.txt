@@ -1,0 +1,56 @@
+# Definitions (WANRING: use same values for ALL scene files and inside definitions.h)
+#define MAX_POLYGON  19
+#define MAX_CHUNK     5
+#define MAX_INTERACT  7
+#define MAX_TRIGGER   5
+#define MAX_MODIFIER  2
+#define MAX_PATH      4
+
+# Boundary Polygon (see MAX_POLYGON)
+# Player can only move inside the area defined by this polygon
+X:   0;  53; 120; 138;  65;   0;  0; 32; 180; 270; 282; 251; 232; 210; 229; 320; 320;   0;   0
+Y: 138; 162; 169; 144; 138; 107; 99; 95;  78; 102; 120; 137; 124; 143; 168; 116; 180; 180; 138
+
+# Chunks (see MAX_CHUNK)
+#    Filename
+C: "notable.chk"
+C: "oldmen.chk"
+C: "bottle.chk"
+C: "sausage.chk"
+C: "switch.chk"
+
+# Interacts (see MAX_INTERACT) 
+# Interactive elements can have the following flags: DISABLED, ACTIVE, PICKABLE.
+# When the mouse is clicked within the element area, the player moves to the specified coordinates and the chunks/path/question/answer are shown. 
+#     Click Area    Move To    Flags   	 Chunks    Path   Label   					    Question     									    Answer					         
+#     X    Y    R   TX   TY			   CHK   BGG
+I:   55;  81;  15;  90;  93;  ACTIVE;  255;  255;  255; "Notable";  "Dear sir, you look powerful.\nPlease help me with my quest?";  "Go away, I am busy!"
+I:  222;  66;  15; 194;  86;  ACTIVE;	 1;    1;  255; "Old Men";  "Hey villagers, do you know\nthe house of lord Tazaar?"; 	  	"We are hungry!! But the\nnotable keeps all the food."
+I:  260;  70;   7; 240;  94; PICKABLE;   2;  255;  255; "Bottle";   ""; 														  	""
+I:  230; 134;  10; 208; 141; PICKABLE; 255;  255;  255; "Flower";   ""; 														  	""
+I:   69;  60;   7;  94;  93;  ACTIVE;    0;    0;    0; "Sausage";  ""; 														  	"Hey, don't touch that!"
+I:   32;  77;   5;  18; 101;  ACTIVE;    4;    4;    2; "Switch";   ""; 														  	""							    
+I:  300; 170;  30; 300; 170; DISABLED; 255;  255;  255; "Fountain"; ""; 														  	""
+
+# Triggers (see MAX_TRIGGER)
+# When the specified item is given to the target, the modifier and answer are triggered
+#    Item	    Target   Modifier   					Answer
+T: "Bottle";  "Notable";     0;	  "Just what I need in this heat!\nWould you like some sausage?"	
+T: "Bottle";  "Old Men";   255;	  "We are not thirsty...\n...We are hungry!!"
+T: "Flower";  "Notable";   255;	  "No, thank you..."	
+T: "Flower";  "Old Men";   255;	  "No, thank you..."
+T: "Sausage"; "Old Men"; 	 1;	  "Thank you kind sir!\nGo right, to the fountain."
+
+# Modifiers (see MAX_MODIFIER) 
+# This interact gets updated with new parameters
+#   Interact      Flags    CHK   BCG   Path   		     Question   			 		           Answer
+M: "Sausage";   PICKABLE;    3;  255;	255;  "These old men look hungry...";  ""
+M: "Fountain";   ACTIVE;   255;  255;	255;  "";		   					   "Well done little goblin!\nThe tech-demo ends here!" 
+
+# Paths (see MAX_PATH)
+# Series of player animation paths (255 terminates a series)
+#	 X1   Y1   X2   Y2  Speed Frame Next Path	
+P: 	 94;  93; 161;  97;  96;   17;		 1 
+P: 	161;  97; 243; 116;  96;   17;     255 
+P: 	 18; 101;  18;  64;  32;   16;		 3 
+P: 	 18;  64;  18; 101;  32;   16;     255 

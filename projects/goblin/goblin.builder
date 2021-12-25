@@ -8,7 +8,9 @@
             "projects/goblin/src/interface.c", 
             "projects/goblin/src/scene.c"
         ], 
-        "shared": [], 
+        "shared": [
+            "projects/goblin/scripts/scene1.nav"
+        ], 
         "charmap": [], 
         "tilesize": "None", 
         "customVBI": "No"
@@ -37,7 +39,10 @@
             ], 
             "diskSize": "140KB", 
             "crunchAssets": "No", 
-            "networkDriver": "IP65(TCP/UDP)"
+            "assetFilter": "*", 
+            "network8bitHub": false, 
+            "networkUthernet": true, 
+            "networkProtocols": "TCP/UDP"
         }, 
         "Atari": {
             "spriteFrames": "14", 
@@ -59,7 +64,11 @@
             ], 
             "diskSize": "180KB", 
             "crunchAssets": "No", 
-            "networkDriver": "IP65(TCP/UDP)"
+            "assetFilter": "*", 
+            "network8bitHub": false, 
+            "networkDragonCart": true, 
+            "networkFujinet": false, 
+            "networkProtocols": "TCP/UDP"
         }, 
         "C64": {
             "spriteFrames": "14", 
@@ -81,14 +90,15 @@
                 "projects/goblin/chunks/chunks-c64.txt"
             ], 
             "crunchAssets": "No", 
-            "networkDriver": "IP65(TCP/UDP)"
+            "assetFilter": "*", 
+            "network8bitHub": false, 
+            "networkRRNet": true, 
+            "networkProtocols": "TCP/UDP"
         }, 
         "Lynx": {
             "spriteFrames": "14", 
             "spriteWidth": "9", 
             "spriteHeight": "13", 
-            "musicMemory": "$0C00", 
-            "sharedMemory": "$0400", 
             "bitmap": [
                 "projects/goblin/bitmaps/banner-lynx.png", 
                 "projects/goblin/bitmaps/scene1-lynx.png"
@@ -102,7 +112,10 @@
             ], 
             "chunks": [
                 "projects/goblin/chunks/chunks-lynx.txt"
-            ]
+            ], 
+            "musicMemory": "$0C00", 
+            "sharedMemory": "$0400", 
+            "assetFilter": "*"
         }, 
         "NES": {
             "bitmapTiles": "192", 
@@ -123,14 +136,13 @@
             "chunks": [
                 "projects/goblin/chunks/chunks-nes.txt"
             ], 
-            "raw": []
+            "assetFilter": "*"
         }, 
         "Oric": {
             "spriteFrames": "14", 
             "spriteWidth": "12", 
             "spriteHeight": "24", 
             "dithering": "0.2", 
-            "enforcedColors": " ", 
             "bitmap": [
                 "projects/goblin/bitmaps/banner-oric.png", 
                 "projects/goblin/bitmaps/scene1-oric.png"
@@ -144,7 +156,8 @@
             ], 
             "chunks": [
                 "projects/goblin/chunks/chunks-oric.txt"
-            ]
+            ], 
+            "assetFilter": "*"
         }
     }
 }

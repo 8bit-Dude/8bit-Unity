@@ -5,56 +5,54 @@
   #pragma code-name("SHADOW_RAM")
 #endif
 
-signed int polygonX[MAX_POLYGON] = {   0,  53, 120, 138,  65,   0,  0, 32, 180, 270, 282, 251, 232, 210, 229, 320, 320,   0,   0 };
-signed int polygonY[MAX_POLYGON] = { 138, 162, 169, 144, 138, 107, 99, 95, 78, 102, 120, 137, 124, 143, 168, 116, 180, 180, 138 };
+// DO NOT CHANGE ORDER: This data is loaded sequentially from file
+unsigned char num_polygon, num_chunks, num_interacts, num_triggers, num_paths;
+signed int polygonX[MAX_POLYGON];
+signed int polygonY[MAX_POLYGON];
+unsigned int chunkNames[MAX_CHUNK];
+Interact interacts[MAX_INTERACT]; 
+Trigger triggers[MAX_TRIGGER];
+Modifier modifiers[MAX_MODIFIER];
+Path paths[MAX_PATH];
+unsigned char strings[0x400];
 
-Interact interacts[MAX_INTERACT] = 
-	{ {  55,  81, 15,  90,  93, 	ACTIVE,		 "Notable",  "Dear sir, you look powerful.\nPlease help me with my quest?\0", "Go away, I am busy!\0", 0, 0 },
-	  { 222,  66, 15, 194,  86, 	ACTIVE,		 "Old Men",  "Hey villagers, do you know\nthe house of lord Tazaar?\0", "We are hungry!! But the\nnotable keeps all the food.", 0, 0 },
-	  { 260,  70,  7, 240,  94, ACTIVE|PICKABLE, "Bottle",   0, 0, 0, 0 },
-	  { 230, 134, 10, 208, 141, ACTIVE|PICKABLE, "Flower",   0, 0, 0, 0 },
-	  {  69,  60,  7,  94,  93, 	ACTIVE, 	 "Sausage",  0, "Hey, don't touch that!", 0, 0 },
-	  {  32,  77,  5,  18, 101, 	ACTIVE,		 "Switch",   0, 0, 0, 0 },
-	  { 300, 170, 30, 300, 170,    INACTIVE,	 "Fountain", 0, "Well done little goblin!\nThe tech-demo ends here!", 0, 0 } };
-
-Item items[MAX_ITEM] = 
-	{ { TXT_COLS-7,  TXT_ROWS-2, INACTIVE, 0 },
-	  { TXT_COLS-7,  TXT_ROWS-1, INACTIVE, 0 } };
+// Current inventory
+Item items[MAX_ITEM] = { { TXT_COLS-7,  TXT_ROWS-2, 0 },
+						 { TXT_COLS-7,  TXT_ROWS-1, 0 } };
 
 // Chunks for scene animation
-unsigned char* chunkAnim[6];
-unsigned char* chunkBcgr[3];
+unsigned char* chunkData[MAX_CHUNK];
+unsigned char* chunkBckg[MAX_CHUNK];
+	  
+// See goblin.c	  
+extern unsigned int unitX, unitY;
+extern unsigned int goalX, goalY;
 	  
 // Initialize scene animations
 void InitScene()
 {	
-	unsigned char *coords;
+	unsigned char i, *coords;
 	
 	// Load bitmap
 	HideBitmap();
 	LoadBitmap("scene1.img");
 	ShowBitmap();
+	
+	// Load navigation
+	if (FileOpen("scene1.nav")) {
+		FileRead(&num_polygon, -1);
+		FileClose();
+	}
 
 	// Prepare graphic animations
-	LoadChunk(&chunkAnim[0], "notable.chk"); // Load Notable animation
-	LoadChunk(&chunkAnim[1], "oldmen.chk");	 // Load Old men animation
-	LoadChunk(&chunkAnim[2], "bottle.chk");	 // Load Bottle removed
-	LoadChunk(&chunkAnim[3], "sausage.chk"); // Load Sausage removed
-	LoadChunk(&chunkAnim[4], "switch.chk");	 // Switch animation
+	for (i=0; i<num_chunks; i++) {
+		LoadChunk(&chunkData[i], &strings[chunkNames[i]]);
+	}
 
 	// Grab background of some animations
-	coords = chunkAnim[0]; GetChunk(&chunkBcgr[0], coords[0], coords[1], coords[2], coords[3]);  // Grab Notable bakground
-	coords = chunkAnim[1]; GetChunk(&chunkBcgr[1], coords[0], coords[1], coords[2], coords[3]);  // Grab Old men bakground
-	coords = chunkAnim[4]; GetChunk(&chunkBcgr[2], coords[0], coords[1], coords[2], coords[3]);  // Grab Switch bakground
-
-	// Assign animations to interactables
-	interacts[1].chunk1 = chunkAnim[1];	 // Old men speaking
-	interacts[1].chunk2 = chunkBcgr[1];
-	interacts[2].chunk2 = chunkAnim[2];  // Bottle removed
-	interacts[4].chunk1 = chunkAnim[0];  // Sausage attack
-	interacts[4].chunk2 = chunkBcgr[0];
-	interacts[5].chunk1 = chunkAnim[4];  // Swith animation
-	interacts[5].chunk2 = chunkBcgr[2];
+	coords = chunkData[0]; GetChunk(&chunkBckg[0], coords[0], coords[1], coords[2], coords[3]);  // Grab Notable bakground
+	coords = chunkData[1]; GetChunk(&chunkBckg[1], coords[0], coords[1], coords[2], coords[3]);  // Grab Old men bakground
+	coords = chunkData[4]; GetChunk(&chunkBckg[4], coords[0], coords[1], coords[2], coords[3]);  // Grab Switch bakground
 	
 	// Assign ink/paper colors
 #if (defined __ORIC__)
@@ -69,9 +67,17 @@ void InitScene()
 #endif	
 }
 
-// Draw graphic chunk to screen
-void DrawChunk(unsigned char* chunk)
+// Draw chunk to screen
+void DrawChunk(unsigned char id)
 {
+	unsigned char* chunk = chunkData[id];
+	SetChunk(chunk, chunk[0], chunk[1]);	
+}
+
+// Restore background to screen
+void DrawBackg(unsigned char id)
+{
+	unsigned char* chunk = chunkBckg[id];
 	SetChunk(chunk, chunk[0], chunk[1]);	
 }
 
@@ -83,14 +89,14 @@ void Wait(unsigned char ticks)
 	ticks *= 2;	// Clock runs faster on the Oric
 #endif
 	while (clock()<animClock+ticks) { 
-	#ifdef __APPLE2__
+	#if defined(__APPLE2__)
 		wait(1); clk += 10;  // Manually update clock on Apple 2
 	#endif
 	}
 }
 
 // Manage inventory
-void PushItem(char* label)
+void PushItem(unsigned int label)
 {
 	unsigned char i=0;
 	while (i<MAX_ITEM) {
@@ -141,48 +147,59 @@ unsigned char SearchScene(unsigned int searchX, unsigned int searchY)
 }
 
 // Process interactable object
-unsigned char ProcessInteract(unsigned char index, unsigned char item, unsigned int unitX, unsigned int unitY)
+unsigned char ProcessInteract(unsigned char target, unsigned char item)
 {
+	clock_t timer;
+	Path *path;
+	Trigger *trigger;
+	Modifier *modifier;
+	Interact *modified;
+	unsigned char i;
 	signed int deltaX, deltaY;
-	Interact* interact = &interacts[index];
+	unsigned int targetLabel, itemLabel;
+	Interact* interact = &interacts[target];
 	
 	// Check if we are close enough?
 	deltaX = interact->x; deltaX = ABS(deltaX-unitX); 
 	deltaY = interact->y; deltaY = ABS(deltaY-unitY);
 	if (deltaX > 30 || deltaY > 25) return 0;
-	
+
+	// Are we using an item?
 	if (item != 255) {
-		// Use item on interact
-		if (!strcmp(items[item].label, "Flower") && (index < 2)) {
-			inkColor = INK_INTERACT;
-			PrintMessage("No, thank you...");
-		} else if (!strcmp(items[item].label, "Bottle") && (index < 2)) {
-			if (index == 1) {
-				inkColor = INK_INTERACT;
-				PrintMessage("We are not thirsty...\n...We are hungry!!");
-				Wait(60);
-			} else {
-				PopItem(item);
-				interacts[4].flags |= PICKABLE;
-				interacts[4].chunk1 = 0;
-				interacts[4].chunk2 = chunkAnim[3];	 // Sausage removed
-				interacts[4].answer = 0;
-				inkColor = INK_INTERACT;
-				PrintMessage("Just what I need in this heat!\nWould you like some sausage?");
-				Wait(60);
+		// Find associated trigger (if any)
+		targetLabel = interact->label;
+		itemLabel   = items[item].label;
+		for (i=0; i<num_triggers; i++) {
+			trigger = &triggers[i];
+			if (itemLabel == trigger->item && targetLabel == trigger->label) {
+				// Check if modifier is triggered?
+				if (trigger->modifier != 255) {
+					modifier = &modifiers[trigger->modifier];
+					for (i=0; i<num_interacts; i++) {
+						modified = &interacts[i];
+						if (modifier->label == modified->label) {
+							modified->flags    = modifier->flags;
+							modified->chk      = modifier->chk;
+							modified->bcg      = modifier->bcg;
+							modified->path     = modifier->path;
+							modified->question = modifier->question;
+							modified->answer   = modifier->answer;
+							break;
+						}
+					}
+					PopItem(item);					
+				}
+				
+				// Process answer (if any)
+				if (trigger->answer) {
+					inkColor = INK_INTERACT;
+					PrintMessage(trigger->answer);
+					Wait(120);
+				}					
+				break;
 			}
-		} else if (!strcmp(items[item].label, "Sausage") && (index == 1)) {
-			PopItem(item);
-			interacts[6].flags |= ACTIVE;  // Fountain interactable
-			inkColor = INK_INTERACT;
-			interacts[1].answer = "Thank you kind sir!\nGo right, to the fountain.\0";
-			PrintMessage(interacts[1].answer);
-			Wait(60);
-		} else {
-			inkColor = INK_GOBLIN;
-			PrintMessage("I can't do that...");
 		}
-		Wait(120);
+		
 	} else {
 		// Process question (if any)
 		if (interact->question) {
@@ -191,49 +208,47 @@ unsigned char ProcessInteract(unsigned char index, unsigned char item, unsigned 
 			Wait(120);
 		}
 		
-		// Process answer/chunk#1 (if any)
-		if (interact->answer || interact->chunk1) {
-			inkColor = INK_INTERACT;
-			if (index == 5) {
-				// Jump animation
-				PlaySFX(SFX_BLEEP, 64, 60, 2);
-				DrawUnit(unitX, unitY-10, frameWalkLeftBeg);
-				DrawChunk(interact->chunk1);
-				Wait(10);
-				DrawUnit(unitX, unitY-20, frameWalkLeftBeg);
-				Wait(10);
-				DrawUnit(unitX, unitY-25, frameWalkLeftBeg);
-				Wait(10);
-				DrawUnit(unitX, unitY-20, frameWalkLeftBeg);
-				Wait(10);
-				DrawChunk(interact->chunk2);
-				DrawUnit(unitX, unitY-10, frameWalkLeftBeg);
-				Wait(10);
-				DrawUnit(unitX, unitY, frameWalkLeftBeg);
-			} else {
-				if (interact->chunk1) DrawChunk(interact->chunk1);
-				if (interact->answer) PrintMessage(interact->answer);
-				Wait(120);
+		// Display chunk (if any)
+		if (interact->chk != 255)
+			DrawChunk(interact->chk);
+
+		// Process path (if any)
+		if (interact->path != 255) {
+			timer = clock();
+			path = &paths[interact->path];
+			while (path->next != 255) {
+				DrawUnit(path->x2, path->y2, frameWalkLeftBeg);
+				Wait(30);
+				path = &paths[path->next];
 			}
+			unitX = path->x2; unitY = path->y2;
+			goalX = path->x2; goalY = path->y2;
+			DrawUnit(unitX, unitY, frameWalkLeftBeg);
+		}
+
+		// Process answer (if any)
+		if (interact->answer) {
+			inkColor = INK_INTERACT;
+			PrintMessage(interact->answer);
+			Wait(120);			
 		}
 		
-		// Process graphic chunk #2 (if any)
-		if (interact->chunk2) {
-			if (interact->chunk2) DrawChunk(interact->chunk2);
-		}	
+		// Restore background (if any)
+		if (interact->bcg != 255)
+			DrawBackg(interact->bcg);
 		
 		// Process pickable item
 		if (interact->flags & PICKABLE) {
 			PushItem(interact->label);
 			interact->flags = INACTIVE;
-		}
+		}	
 	}
 	
 	// Check is quest is completed
-	if (index == 6) return 1;
+	if (target == 6) return 1;
 	
 	// Clean-up
-	PrintMessage("\0");
+	PrintMessage(0);
 #if defined(__NES__)
 	PrintInventory();
 #endif	

@@ -48,42 +48,64 @@
 #define ACTIVE   1
 #define PICKABLE 2
 
-// Interacts and Inventory
+// Scene navigation data (loaded from file)
 #define MAX_POLYGON  19
-#define MAX_INTERACT  8
-#define MAX_TRIGGER   2
+#define MAX_CHUNK     5
+#define MAX_INTERACT  7
+#define MAX_TRIGGER   5
+#define MAX_MODIFIER  2
 #define MAX_PATH      4
+
+// Inventory management
 #define MAX_ITEM 	  2
 #define INVENTORY_Y 180
 
-// Scene interactable objects 
+// Interact Objects 
 typedef struct {
-	unsigned int x, y, r;	// Mouse detection circle
-	unsigned int cx, cy;  // Mouse click coordinates
-	unsigned char flags;
-	unsigned char *label, *question, *answer;	
-	unsigned char *chunk1, *chunk2;
+	unsigned int x, y, r, cx, cy;			// Mouse detection circle and move to target
+	unsigned char flags, chk, bcg, path;	// Flags and chunk IDs
+	unsigned int label, question, answer;	// Strings
 } Interact;
+
+// Action Triggers 
+typedef struct {
+	unsigned int  item, label;				// Source and target of trigger (Strings)
+	unsigned char modifier;					// Modifier IDs
+	unsigned int  answer;					// Strings
+} Trigger;
+
+// Interact Modifiers 
+typedef struct {
+	unsigned int  label;					// Source and target of trigger (Strings)
+	unsigned char flags, chk, bcg, path;	// Flags and chunk IDs
+	unsigned int  question, answer;			// Strings
+} Modifier;
+  
+// Animation Paths
+typedef struct {
+	unsigned int x1, y1, x2, y2;			// Coordinates of trajectory
+	unsigned char speed, frame, next;		// Path speed, frame, and ID of next path
+} Path;
   
 // Player inventory
 typedef struct {
-	char col, row;
-	char  flags;
-	char* label;
+	unsigned char col, row;
+	unsigned int  label;
 } Item;
 
 // See interface.c
-void PrintInteract(unsigned char item, unsigned char *label);
-void PrintMessage(unsigned char *msg);
+void PrintInteract(unsigned char item, unsigned int label);
+void PrintMessage(unsigned int message);
 void PrintInventory(void);
 void DrawPointer(unsigned int x, unsigned int y, unsigned char pressed);
 void DrawUnit(unsigned int x, unsigned int y, unsigned char frame);
+void SplashScreen(void);
 
 // See scene.c
 void InitScene(void);
 void Wait(unsigned char ticks);
-void PushItem(char* label);
+void PushItem(unsigned int label);
 void PopItem(unsigned char index);
 unsigned char SelectItem(unsigned int x, unsigned int y);
 unsigned char SearchScene(unsigned int searchX, unsigned int searchY);
-unsigned char ProcessInteract(unsigned char index, unsigned char item, unsigned int unitX, unsigned int unitY);
+unsigned char ProcessInteract(unsigned char index, unsigned char item);

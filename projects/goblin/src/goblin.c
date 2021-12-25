@@ -42,16 +42,18 @@
 extern signed int polygonX[];
 extern signed int polygonY[];
 
-// See scene.cabs
+// See scene.c
 extern Interact interacts[MAX_INTERACT];
+
+// Game state variables
+unsigned char *mouse, mouseL = 0, mouseAction = 0, intersect;
+unsigned int mouseX = 160, mouseY = 100, clickX = 160, clickY = 100;
+unsigned int goalX = 180, goalY = 130, unitX = 180, unitY = 130;	
+unsigned char sceneSearch, sceneIndex = 255, sceneInteract = 255, sceneItem = 255;
+unsigned char unitFrame = frameWaitLeft, waitFrame = frameWaitLeft;
 
 void GameLoop(void)
 {
-	unsigned char *mouse, mouseL = 0, mouseAction = 0, intersect;
-	unsigned int mouseX = 160, mouseY = 100, clickX = 160, clickY = 100;
-	unsigned int goalX = 180, goalY = 130, unitX = 180, unitY = 130;	
-	unsigned char sceneSearch, sceneIndex = 255, sceneInteract = 255, sceneItem = 255;
-	unsigned char unitFrame = frameWaitLeft, waitFrame = frameWaitLeft;
 	signed int interX, interY, deltaX, deltaY;
 	clock_t gameClock = clock();
 	
@@ -154,7 +156,7 @@ void GameLoop(void)
 			} else {
 				// Process trigger (if any) and set wait frame
 				if (sceneInteract != 255) {
-					if (ProcessInteract(sceneInteract, sceneItem, unitX, unitY)) return;
+					if (ProcessInteract(sceneInteract, sceneItem)) return;
 					sceneInteract = 255;
 					sceneItem = 255;
 				}
@@ -163,42 +165,6 @@ void GameLoop(void)
 			DrawUnit(unitX, unitY, unitFrame);
 		}
 	}	
-}
-
-void SplashScreen(void)
-{
-	// Load and show banner
-	LoadBitmap("banner.img");
-	ShowBitmap();
-	
-	// Show credit/build
-	txtX = TXT_COLS-12; txtY = TXT_ROWS-4;
-#if defined(__ORIC__)
-	inkColor = AIC;
-	PrintBlanks(12, 3);
-#elif defined(__NES__)
-	inkColor = INK_DEFAULT; 
-#else		
-	pixelX = 0; pixelY = 0;
-	paperColor = GetPixel(); 
-	inkColor = INK_DEFAULT; 
-#endif
-	PrintStr(" TECH DEMO"); txtY++;
-	PrintStr("BY 8BIT-DUDE"); txtY++;
-	PrintStr(" 2021/04/18");
-	PlayMusic();
-
-	// Wait until key is pressed
-	while (!kbhit()) {	
-	#if defined __APPLE2__
-		UpdateMusic();
-	#elif defined __LYNX__
-		UpdateDisplay(); // Refresh Lynx screen
-	#endif
-	}	
-	
-	// Stop splash music
-	StopMusic();	
 }
 
 int main(void) 
