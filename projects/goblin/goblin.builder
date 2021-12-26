@@ -12,8 +12,7 @@
             "projects/goblin/scripts/scene1.nav"
         ], 
         "charmap": [], 
-        "tilesize": "None", 
-        "customVBI": "No"
+        "tilesize": "None"
     }, 
     "platform": {
         "Apple": {
@@ -41,7 +40,7 @@
             "crunchAssets": "No", 
             "assetFilter": "*", 
             "network8bitHub": false, 
-            "networkUthernet": true, 
+            "networkUthernet": false, 
             "networkProtocols": "TCP/UDP"
         }, 
         "Atari": {
@@ -66,7 +65,7 @@
             "crunchAssets": "No", 
             "assetFilter": "*", 
             "network8bitHub": false, 
-            "networkDragonCart": true, 
+            "networkDragonCart": false, 
             "networkFujinet": false, 
             "networkProtocols": "TCP/UDP"
         }, 
@@ -92,7 +91,7 @@
             "crunchAssets": "No", 
             "assetFilter": "*", 
             "network8bitHub": false, 
-            "networkRRNet": true, 
+            "networkRRNet": false, 
             "networkProtocols": "TCP/UDP"
         }, 
         "Lynx": {

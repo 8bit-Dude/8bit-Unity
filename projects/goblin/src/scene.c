@@ -5,6 +5,12 @@
   #pragma code-name("SHADOW_RAM")
 #endif
 
+#ifdef __NES__
+  #pragma rodata-name("BANK0")
+  #pragma code-name("BANK0")
+  #pragma bss-name(push, "XRAM")  
+#endif
+
 // DO NOT CHANGE ORDER: This data is loaded sequentially from file
 unsigned char num_polygon, num_chunks, num_interacts, num_triggers, num_paths;
 signed int polygonX[MAX_POLYGON];
@@ -15,6 +21,10 @@ Trigger triggers[MAX_TRIGGER];
 Modifier modifiers[MAX_MODIFIER];
 Path paths[MAX_PATH];
 unsigned char strings[0x400];
+
+#ifdef __NES__
+  #pragma bss-name(pop)
+#endif
 
 // Current inventory
 Item items[MAX_ITEM] = { { TXT_COLS-7,  TXT_ROWS-2, 0 },
