@@ -16,8 +16,7 @@
             "projects/dungeon/charmaps/level1.map", 
             "projects/dungeon/charmaps/level1.tls"
         ], 
-        "tilesize": "2x2", 
-        "customVBI": "No"
+        "tilesize": "2x2"
     }, 
     "platform": {
         "Apple": {
@@ -42,7 +41,10 @@
             "chunks": [], 
             "diskSize": "140KB", 
             "crunchAssets": "No", 
-            "networkDriver": "IP65(TCP/UDP)"
+            "assetFilter": "*", 
+            "network8bitHub": false, 
+            "networkUthernet": false, 
+            "networkProtocols": "TCP/UDP"
         }, 
         "Atari": {
             "spriteFrames": "32", 
@@ -63,7 +65,11 @@
             "chunks": [], 
             "diskSize": "180KB", 
             "crunchAssets": "No", 
-            "networkDriver": "IP65(TCP/UDP)"
+            "assetFilter": "*", 
+            "network8bitHub": false, 
+            "networkDragonCart": false, 
+            "networkFujinet": false, 
+            "networkProtocols": "TCP/UDP"
         }, 
         "C64": {
             "spriteFrames": "32", 
@@ -84,14 +90,15 @@
             ], 
             "chunks": [], 
             "crunchAssets": "No", 
-            "networkDriver": "IP65(TCP/UDP)"
+            "assetFilter": "*", 
+            "network8bitHub": false, 
+            "networkRRNet": false, 
+            "networkProtocols": "TCP/UDP"
         }, 
         "Lynx": {
             "spriteFrames": "32", 
             "spriteWidth": "8", 
             "spriteHeight": "12", 
-            "musicMemory": "$0C00", 
-            "sharedMemory": "$0400", 
             "bitmap": [
                 "projects/dungeon/bitmaps/menu-lynx.png"
             ], 
@@ -104,9 +111,13 @@
             "music": [
                 "projects/dungeon/music/dungeon-lynx.asm"
             ], 
-            "chunks": []
+            "chunks": [], 
+            "musicMemory": "$0C00", 
+            "sharedMemory": "$0400", 
+            "assetFilter": "*"
         }, 
         "NES": {
+            "bitmapTiles": "192", 
             "spriteFrames": "32", 
             "spriteWidth": "16", 
             "spriteHeight": "16", 
@@ -120,14 +131,14 @@
                 "projects/dungeon/sprites/sprites-nes.png"
             ], 
             "music": [], 
-            "chunks": []
+            "chunks": [], 
+            "assetFilter": "*"
         }, 
         "Oric": {
             "spriteFrames": "32", 
             "spriteWidth": "12", 
             "spriteHeight": "17", 
             "dithering": "0.4", 
-            "enforcedColors": " ", 
             "bitmap": [
                 "projects/dungeon/bitmaps/menu-oric.png"
             ], 
@@ -140,7 +151,8 @@
             "music": [
                 "projects/dungeon/music/dungeon-oric.ym"
             ], 
-            "chunks": []
+            "chunks": [], 
+            "assetFilter": "*"
         }
     }
 }
