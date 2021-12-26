@@ -61,10 +61,7 @@ def BuildUnityLibrary(self, fp, target, symbols, cList, sList, buildFolder):
 
     # Compile .c files
     for file in cList:
-        if 'PIA.c' in file:
-            fp.write('utils\\cc65\\bin\\cc65 ' + target + ' ' + symbols + ' -I unity unity\\' + file + '\n')
-        else:
-            fp.write('utils\\cc65\\bin\\cc65 -Cl -O ' + target + ' ' + symbols + ' -I unity unity\\' + file + '\n')
+        fp.write('utils\\cc65\\bin\\cc65 -Cl -O ' + target + ' ' + symbols + ' -I unity unity\\' + file + '\n')
         fp.write('utils\\cc65\\bin\\ca65 ' + target + ' ' + symbols + ' unity\\' + file[0:-2] + '.s\n')
 
     # Compile .s files
@@ -1130,7 +1127,7 @@ class Application:
                     # Network settings
                     if network == '8bit-Hub': 
                         cTarget.append('adaptors\\hub.c')
-                        cTarget.append('targets\\atari\\PIA.c')
+                        sTarget.append('targets\\atari\\PIA.s')
                         symbols += '-D __HUB__ '                        
                         executable = 'hub.xex'
                     elif network == 'DragonCart':    
