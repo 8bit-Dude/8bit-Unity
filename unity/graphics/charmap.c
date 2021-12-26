@@ -205,20 +205,6 @@ unsigned char scrollCols, scrollRows, scrollDirX, scrollDirY;
  #pragma bss-name(pop)
 #endif
 
-// Helper function for soft sprites
-#if (defined __APPLE2__) || (defined __ORIC__)
-  extern unsigned char sprDrawn[];
-  void RestoreSprBG(unsigned char index);
-  void HideSprites(void) {
-	unsigned char i;
-	for (i=0; i<SPRITE_NUM; i++)
-		if (sprDrawn[i]) {			
-			RestoreSprBG(i);
-			sprDrawn[i] = 0;
-		}
-  }
-#endif
-
 // Initialize Charmap Mode
 void InitCharmap(unsigned char col1, unsigned char col2, unsigned char row1, unsigned char row2) 
 {
@@ -338,7 +324,6 @@ void LoadCharset(char* filename)
 #elif defined __LYNX__
 	if (FileOpen(filename)) {	// Data is loaded into BITMAP memory on open
 		memcpy(charsetData, BITMAPRAM, 0x0480);
-		ClearBitmap();
 	}
 #elif defined __NES__
 	if (FileOpen(filename)) {
@@ -387,9 +372,9 @@ void LoadCharmap(char *filename, unsigned int w, unsigned int h)
 		FileClose();
 	}
 #elif defined(__LYNX__)
-	if (FileOpen(filename))	// Data is immediately loaded into BITMAP memory on open
+	if (FileOpen(filename)) {	// Data is immediately loaded into BITMAP memory on open
 		memcpy(charmapData, (char*)BITMAPRAM, size);
-	ClearBitmap();
+	}
 #endif
 }
 
@@ -408,9 +393,9 @@ void LoadTileset(char *filename, unsigned int n)
 		FileClose();
 	}	
 #elif defined __LYNX__
-	if (FileOpen(filename))	// Data is immediately loaded into BITMAP memory on open
+	if (FileOpen(filename))	{ // Data is immediately loaded into BITMAP memory on open
 		memcpy(tilesetData, (char*)BITMAPRAM, size);
-	ClearBitmap();
+	}
 #endif
 	
 	// Allocate buffer for tile to char conversion
@@ -520,6 +505,20 @@ unsigned int DecodeTiles()
 	return (unsigned int)&decodeData[decodeWidth*(worldY&1)+(worldX&1)];	
 #endif
 }
+
+// Helper function for soft sprites
+#if (defined __APPLE2__) || (defined __ORIC__)
+  extern unsigned char sprDrawn[];
+  void RestoreSprBG(unsigned char index);
+  void HideSprites(void) {
+	unsigned char i;
+	for (i=0; i<SPRITE_NUM; i++)
+		if (sprDrawn[i]) {			
+			RestoreSprBG(i);
+			sprDrawn[i] = 0;
+		}
+  }
+#endif
 
 void ScrollCharmap(unsigned char x, unsigned char y)
 {
