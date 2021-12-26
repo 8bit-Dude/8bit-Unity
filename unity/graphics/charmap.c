@@ -51,7 +51,7 @@
   #define scrRow2ZP 0xfd
   #define scrCol2ZP 0xfe  
 #elif defined(__ATARI__)
-  #define charattDataZP 0xe0
+  #define charatrDataZP 0xe0
   #define charPtrZP 0xe2
   #define decPtr1ZP 0xe4
   #define decPtr2ZP 0xe6
@@ -59,7 +59,7 @@
   #define scrPtr1ZP 0xe4
   #define scrPtr2ZP 0xe6
 #elif defined(__CBM__)
-  #define charattDataZP 0x61
+  #define charatrDataZP 0x61
   #define charPtrZP 0x63
   #define scrPtrZP  0xfb
   #define colPtrZP  0xfd
@@ -136,6 +136,10 @@
 void __fastcall__ DecodeTiles2x2(void);
 void __fastcall__ Scroll(void);
 
+#if defined __NES__
+ #pragma bss-name(push, "XRAM")
+#endif
+
 // Map size and location properties
 unsigned char charmapWidth, charmapHeight;
 unsigned char worldWidth, worldHeight, worldX, worldY, worldMaxX, worldMaxY;
@@ -149,25 +153,56 @@ unsigned char tileX, tileY, tileCols, tileRows;
 unsigned char scrollCols, scrollRows, scrollDirX, scrollDirY;
   
 // Pointers to various data sets
-#if defined __NES__
- #pragma bss-name(push, "XRAM")
-  unsigned char charmapData[CHARMAPRAM];
-  unsigned char charflagData[CHARFLAGRAM];  
-  unsigned char decodeData[DECODERAM];  
-  unsigned char tileset[128*TILE_WIDTH*TILE_HEIGHT];  
-  unsigned char *tilesetData = tileset;
- #pragma bss-name(pop)
-#else
+#if defined(__APPLE2__)
   unsigned char *charmapData;
-  unsigned char *charsetData;
-  unsigned char *charflagData;
+ #if defined __DHR__	
+  unsigned char  charset[0x1080];
+  unsigned char *charsetData = (char*)(charset+0x0000);
+  unsigned char *charflagData = (char*)(charset+0x1000);
+ #else
+  unsigned char  charset[0x0880];
+  unsigned char *charsetData = (char*)(charset+0x0000);
+  unsigned char *charflagData = (char*)(charset+0x0800);
+ #endif
+#elif defined(__ATARI__) 
+  unsigned char *charmapData = (char*)(CHARMAPRAM);
+  unsigned char *charatrData = (char*)(CHARATRRAM);
+  unsigned char *charflagData = (char*)(CHARATRRAM+0x80);
+  unsigned char *charsetData = (char*)(CHARSETRAM);
+#elif defined(__CBM__)   
+  unsigned char *charmapData;
+  unsigned char  charatr[0x0100];			
+  unsigned char *charatrData = (char*)(charatr+0x0000);
+  unsigned char *charflagData = (char*)(charatr+0x0080);
+  unsigned char *charsetData = (char*)(CHARSETRAM);
+  unsigned char *colorData;
+#elif defined(__LYNX__)
+  unsigned char *charmapData;
+  unsigned char  charset[0x0480];
+  unsigned char *charsetData = (char*)(charset+0x0000);
+  unsigned char *charflagData = (char*)(charset+0x0400);
+#elif defined(__NES__)
+  unsigned char  charmapData[CHARMAPRAM];
+  unsigned char  charflagData[CHARFLAGRAM];  
+#elif defined(__ORIC__)
+  unsigned char *charmapData;
+  unsigned char  charset[0x0480];
+  unsigned char *charsetData = (char*)(charset+0x0000);
+  unsigned char *charflagData = (char*)(charset+0x0400);
+#endif
+
+#if defined(__NES__)
+  unsigned char  decodeData[DECODERAM];  
+  unsigned char  tileset[128*TILE_WIDTH*TILE_HEIGHT];  
+  unsigned char *tilesetData = tileset;  
+#else
   unsigned char *decodeData;
   unsigned char *screenData;
   unsigned char *tilesetData;
 #endif
-#if defined __CBM__	
-  unsigned char *charattData;
-  unsigned char *colorData;
+
+#if defined __NES__
+ #pragma bss-name(pop)
 #endif
 
 // Helper function for soft sprites
@@ -281,45 +316,30 @@ void LoadCharset(char* filename)
 #if defined __APPLE2__
 	if (FileOpen(filename)) {
 	  #if defined __DHR__	
-		if (!charsetData)
-			charsetData = malloc(0x1080);
 		FileRead((char*)charsetData, 0x1080);
-		charflagData = (char*)(charsetData+0x1000);
 	  #else	
-		if (!charsetData)
-			charsetData = malloc(0x0880);
 		FileRead((char*)charsetData, 0x0880);
-		charflagData = (char*)(charsetData+0x0800);
 	  #endif		
 		FileClose();
 	}
-	
 #elif defined __ATARI__
 	if (FileOpen(filename)) {
-		FileRead((char*)chrPalette, 0x0005);	// Shared Colors
-		FileRead((char*)CHARSETRAM, 0x0400);	// Pixel Data
-		FileRead((char*)CHARATRRAM, 0x0100);	// 5th Color Attribute (0 or 128)
-		charflagData = (char*)(CHARATRRAM+0x80);// Flag Attributes
+		FileRead((char*)chrPalette,  0x0005);	// Shared Colors
+		FileRead((char*)charsetData, 0x0400);	// Pixel Data
+		FileRead((char*)charatrData, 0x0100);	// 5th Color Attribute (0 or 128)
 	}
-	
 #elif defined __CBM__	
 	if (FileOpen(filename)) {	
-		FileRead((char*)0xd021, 0x0003);			// Shared Colors
-		FileRead((char*)CHARSETRAM, 0x0400);		// Pixel Data
-		if (!charattData) charattData = malloc(0x0100);			
-		FileRead((char*)charattData, 0x0100);		// Color Attributes
-		charflagData = (char*)(charattData+0x80);	// Flag Attributes
+		FileRead((char*)0xd021, 0x0003);		// Shared Colors
+		FileRead((char*)charsetData, 0x0400);	// Pixel Data
+		FileRead((char*)charatrData, 0x0100);	// Color Attributes
 		FileClose();		
 	}
-	
 #elif defined __LYNX__
 	if (FileOpen(filename)) {	// Data is loaded into BITMAP memory on open
-		if (!charsetData) charsetData = malloc(0x0480);
 		memcpy(charsetData, BITMAPRAM, 0x0480);
-		charflagData = (char*)(charsetData+0x0400);
 		ClearBitmap();
 	}
-
 #elif defined __NES__
 	if (FileOpen(filename)) {
 		// Copy palette data
@@ -332,12 +352,9 @@ void LoadCharset(char* filename)
 		set_chr_bank_0(2+fileIndex);
 		ppu_on_all();
 	}
-	
 #elif defined __ORIC__
 	if (FileOpen(filename)) {
-		if (!charsetData) charsetData = malloc(0x0480);
 		FileRead(charsetData, 0x0480);
-		charflagData = (char*)(charsetData+0x0400);
 	}
 #endif			
 }
@@ -345,9 +362,7 @@ void LoadCharset(char* filename)
 // Load charmap from file
 void LoadCharmap(char *filename, unsigned int w, unsigned int h) 
 {
-#if defined(__NES__)
-	unsigned char* data;
-#endif
+	// Compute byte size of charmap
 	unsigned int size = w*h;
 	
 	// Update Dimensions of World Map
@@ -360,14 +375,9 @@ void LoadCharmap(char *filename, unsigned int w, unsigned int h)
 	worldMaxX = worldWidth-screenWidth;
 	worldMaxY = worldHeight-screenHeight;	
 	
-	// Assign memory
-#if defined  __ATARI__
-	charmapData = (char*)CHARMAPRAM;
-#else
-  #ifndef __NES__
-	if (charmapData) free(charmapData);	
+	// Allocate memory
+#if defined(__APPLE2__) || defined(__CBM__) || defined(__LYNX__) || defined(__ORIC__)
 	charmapData = malloc(size);
-  #endif	
 #endif	
 	
 	// Load data from file
@@ -376,7 +386,7 @@ void LoadCharmap(char *filename, unsigned int w, unsigned int h)
 		FileRead(charmapData, size);
 		FileClose();
 	}
-#elif defined __LYNX__
+#elif defined(__LYNX__)
 	if (FileOpen(filename))	// Data is immediately loaded into BITMAP memory on open
 		memcpy(charmapData, (char*)BITMAPRAM, size);
 	ClearBitmap();
@@ -389,7 +399,6 @@ void LoadTileset(char *filename, unsigned int n)
 	// Assign memory and ZP pointer
 	unsigned int size = n*TILE_WIDTH*TILE_HEIGHT;	
 #ifndef __NES__
-	if (tilesetData) free(tilesetData);	
 	tilesetData = malloc(size);
 #endif
 	
@@ -410,19 +419,18 @@ void LoadTileset(char *filename, unsigned int n)
 	tileRows = decodeHeight/TILE_HEIGHT;
 	tileCols = decodeWidth/TILE_WIDTH;
 #ifndef __NES__	
-	if (decodeData) free(decodeData);	
 	decodeData = malloc(decodeWidth*decodeHeight);
 #endif
 }
 
 void FreeCharmap()
 {
-#ifndef __NES__
-  #ifndef __ATARI__
+#if defined(__APPLE2__) || defined(__CBM__) || defined(__LYNX__) || defined(__ORIC__)
 	if (charmapData) free(charmapData);	
-	if (charsetData) free(charsetData);
-  #endif	
+#endif		
+#ifndef __NES__
 	if (tilesetData) free(tilesetData);	
+	if (decodeData) free(decodeData);	
 #endif	
 }
 
@@ -473,18 +481,18 @@ void SetTile(unsigned char x, unsigned char y, unsigned char tile)
 void PrintCharmap(unsigned char x, unsigned char y, unsigned char chr)
 {
 #if defined(__ATARI__)
-	POKE((char*)SCREENRAM+y*40+x, chr+PEEK(CHARATRRAM+chr));
+	POKE((char*)SCREENRAM+y*40+x, chr+charatrData[chr]);
 #elif defined(__CBM__)
 	unsigned int addr = y*40+x;
 	POKE((char*)SCREENRAM+addr, chr);
-	POKE((char*)COLORRAM+addr, PEEK(charattData+chr));
+	POKE((char*)COLORRAM+addr, charatrData[chr]);
 #elif defined(__LYNX__)
+	unsigned char *src, *dst;
 	unsigned char i;
-	unsigned int src, dst;
-	src = (unsigned int)charsetData + 2*chr;
-	dst = BITMAPRAM+1 + y*ROW_SIZE + x*CHAR_WIDTH;
+	src = &charsetData[2*chr];
+	dst = (char*)(BITMAPRAM+1 + y*ROW_SIZE + x*CHAR_WIDTH);
 	for (i = 0; i<4; i++) {
-		memcpy((char*)dst, (char*)src, 2);
+		memcpy(dst, src, 2);
 		src += 256; dst += 82;
 	}
 #endif
@@ -610,10 +618,10 @@ void ScrollCharmap(unsigned char x, unsigned char y)
 		tmp1 = screenHeight;
 		screenHeight = ABS(stepY);
 		POKEW(scrPtrZP, (unsigned int)screenData+dstOff);
-	  #if defined __ATARI__
-		POKEW(charattDataZP, CHARATRRAM);
+	  #if defined(__ATARI__)
+		POKEW(charatrDataZP, charatrData);
 	  #elif defined __CBM__	
-		POKEW(charattDataZP, charattData);
+		POKEW(charatrDataZP, charatrData);
 		POKEW(colPtrZP, (unsigned int)colorData+dstOff);
 	  #endif
 	#endif
@@ -649,9 +657,9 @@ void ScrollCharmap(unsigned char x, unsigned char y)
 	#else
 		POKEW(scrPtrZP, (unsigned int)screenData+dstOff);
 	  #if defined __ATARI__
-		POKEW(charattDataZP, CHARATRRAM);
+		POKEW(charatrDataZP, charatrData);
 	  #elif defined __CBM__	
-		POKEW(charattDataZP, charattData);
+		POKEW(charatrDataZP, charatrData);
 		POKEW(colPtrZP, (unsigned int)colorData+dstOff);
 	  #endif
 	#endif
@@ -712,9 +720,9 @@ void DrawCharmap(unsigned char x, unsigned char y)
  #ifndef __APPLE2__
 	POKEW(scrPtrZP, (unsigned int)screenData);
   #if defined __ATARI__
-	POKEW(charattDataZP, CHARATRRAM);
+	POKEW(charatrDataZP, charatrData);
   #elif defined __CBM__	
-	POKEW(charattDataZP, charattData);
+	POKEW(charatrDataZP, charatrData);
 	POKEW(colPtrZP, colorData);
   #endif
  #endif
