@@ -1,11 +1,6 @@
 
 #include "definitions.h"
 
-#ifdef __NES__
-  #pragma rodata-name("BANK0")
-  #pragma code-name("BANK0")
-#endif
-
 #if defined __APPLE2__
 	#define spriteCols    7
 	#define spriteRows   16
@@ -38,7 +33,7 @@
 	#define spriteCols   12
 	#define spriteRows   17
 	unsigned char spriteColors[] = { SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC };	// AIC used as default
-	unsigned char multiColorDef[] = { SPR_WHITE, 7, SPR_MAGENTA, 12 , SPR_YELLOW, 17 };	// Multicolor definition of player { color, row, ...  }
+	unsigned char multiColorDef[] = { SPR_YELLOW, 7, SPR_WHITE, 11 , SPR_MAGENTA, 17 };	// Multicolor definition of player { color, row, ...  }
 #endif
 
 // See player.c
