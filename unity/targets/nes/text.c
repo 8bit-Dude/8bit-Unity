@@ -58,4 +58,6 @@ int cprintf(const char* format, ...)
 		txtX -= 40;
 		txtY++;
 	}
+	
+	return 1;
 }

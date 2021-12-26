@@ -35,16 +35,17 @@
 #endif  
 
 // Serial functions
-#if defined(__APPLE2__) || defined(__LYNX__)
+#if defined(__APPLE2__)
+  unsigned char byte;	
+  unsigned char RecvByte() { return 0; }
+  unsigned char SendByte() { return 0; }
+//  struct ser_params comParm = { SER_BAUD_19200, SER_BITS_8, SER_STOP_1, SER_PAR_NONE, SER_HS_HW };
+#elif defined(__LYNX__)
   #include <serial.h>
   unsigned char __fastcall__ SerialOpen(void* data); // See serial.s
   unsigned char __fastcall__ SerialGet(unsigned char* data);
   unsigned char __fastcall__ SerialPut(unsigned char data);
- #if defined(__APPLE2__) 
-  struct ser_params comParm = { SER_BAUD_19200, SER_BITS_8, SER_STOP_1, SER_PAR_NONE, SER_HS_HW };
- #elif defined(__LYNX__)
   unsigned char comParm = 0;  //struct ser_params comParm = { SER_BAUD_62500, SER_BITS_8, SER_STOP_1, SER_PAR_SPACE, SER_HS_NONE };							  
- #endif
   unsigned char byte;	
   unsigned char RecvByte() 
   {
@@ -176,7 +177,8 @@ void SendHub()
 {
 	unsigned char i, checksum, packetLen;
 	
-  #if defined(__APPLE2__) || defined(__LYNX__)
+  //#if defined(__APPLE2__) || 
+  #if defined(__LYNX__)
 	while (SerialGet(&i) == SER_ERR_OK) ; // Clear UART Buffer
   #elif defined(__ATARI__) || defined(__CBM__) || defined(__NES__) || defined(__ORIC__)
 	OutputMode();
@@ -239,7 +241,8 @@ void UpdateHub()
 			recvID = 0; recvLen = 0;
 			sendID = 0; sendLen = 0;
 			QueueHub(HUB_SYS_RESET, 0, 0);
-		  #if defined(__APPLE2__) || defined(__LYNX__)
+		  //#if defined(__APPLE2__) || 
+		  #if defined(__LYNX__)
 		   // Setup serial interface
 			SerialOpen(&comParm); 
 		  #endif		
