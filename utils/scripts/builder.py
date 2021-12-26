@@ -909,6 +909,8 @@ class Application:
             networkOptions.append('8bit-Hub')
         if self.checkbutton_AppleNetworkUthernet.get():
             networkOptions.append('Uthernet')
+        if len(networkOptions) == 0:
+            networkOptions.append('None')        
         
         # Build Single and Double Hires Scripts
         for target in ['64k', '128k']:
@@ -951,6 +953,8 @@ class Application:
                     elif network == 'Uthernet': 
                         executable = 'UTHERNET'                    
                         symbols += '-D __IP65__ '
+                    elif network == 'None': 
+                        executable = 'NONE'                    
                         
                     # Graphic settings
                     if graphics == 'double':
@@ -959,26 +963,29 @@ class Application:
                         symbols += '-D __SHR__'
                     if self.combobox_AppleCrunchAssets.get() == 'Yes':
                         symbols += ' -D __DECRUNCH__'   
-                        
-                    BuildUnityLibrary(self, fp, '-t apple2', symbols, cCore+cTarget, sCore+sTarget, buildFolder+'/apple')
-            
+                                    
                     # Compile Program
+                    BuildUnityLibrary(self, fp, '-t apple2', symbols, cCore+cTarget, sCore+sTarget, buildFolder+'/apple')
                     symbols += ' -Wl -D,__STACKSIZE__=$0400,-D,__HIMEM__=$B800,-D,__LCADDR__=$D000,-D,__LCSIZE__=$1000'
                     comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/apple/' + executable + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-apple' + target + '-' + network + '.map -Cl -O -t apple2 ' + symbols + ' -C apple2-hgr.cfg -I unity '
                     for item in code:
                         comp += item + ' '
-                    if self.combobox_AppleNetworkProtocols.get() == 'TCP/UDP':
-                        fp.write(comp + buildFolder + '/apple/unity.lib unity/adaptors/ip65_tcp.lib unity/adaptors/ip65_apple2.lib\n\n')
-                    else:
-                        fp.write(comp + buildFolder + '/apple/unity.lib unity/adaptors/ip65.lib unity/adaptors/ip65_apple2.lib\n\n')                        
-                
-                # Loader program
-                symbols = '-Cl -O -t apple2 -C apple2-hgr.cfg '
-                if '8bit-Hub' in networkOptions:
-                    symbols += '-D __HUB__ '
-                if 'Uthernet' in networkOptions:
-                    symbols += '-D __IP65__ '
-                fp.write('utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/apple/LOADER.bin ' + symbols + ' -I unity unity/targets/apple2/loader.c ' + buildFolder + '/apple/unity.lib\n\n')
+                    comp += buildFolder + '/apple/unity.lib '
+                    if network == 'Uthernet': 
+                        if self.combobox_AppleNetworkProtocols.get() == 'TCP/UDP':
+                            comp += 'unity/adaptors/ip65_tcp.lib unity/adaptors/ip65_apple2.lib'
+                        else:
+                            comp += 'unity/adaptors/ip65.lib unity/adaptors/ip65_apple2.lib'                       
+                    fp.write(comp + '\n\n')
+                    
+                # Create loader program?
+                if len(networkOptions) > 1:
+                    symbols = '-Cl -O -t apple2 -C apple2-hgr.cfg '
+                    if '8bit-Hub' in networkOptions:
+                        symbols += '-D __HUB__ '
+                    if 'Uthernet' in networkOptions:
+                        symbols += '-D __IP65__ '
+                    fp.write('utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/apple/LOADER.bin ' + symbols + ' -I unity unity/targets/apple2/loader.c ' + buildFolder + '/apple/unity.lib\n\n')
 
                 fp.write('echo --------------- CONVERT ASSETS ---------------  \n\n')
 
@@ -1011,8 +1018,11 @@ class Application:
                         executable = 'HUB'
                     elif network == 'Uthernet': 
                         executable = 'UTHERNET'                    
+                    elif network == 'None': 
+                        executable = 'NONE'                    
                     fp.write('utils\\scripts\\exomizer-3.1.0.exe sfx bin ' + buildFolder + '/apple/' + executable + '.bin -o ' + buildFolder + '/apple/' + executable + '\n\n')    
-                fp.write('utils\\scripts\\exomizer-3.1.0.exe sfx bin ' + buildFolder + '/apple/LOADER.bin -o ' + buildFolder + '/apple/LOADER\n\n')
+                if len(networkOptions) > 1:                    
+                    fp.write('utils\\scripts\\exomizer-3.1.0.exe sfx bin ' + buildFolder + '/apple/LOADER.bin -o ' + buildFolder + '/apple/LOADER\n\n')
                 
                 # Disk builder
                 if self.combobox_AppleDiskSize.get() == '140KB':                
@@ -1024,13 +1034,24 @@ class Application:
                     par = '-h1'
                     ext = '.po'
                 fp.write('copy utils\\scripts\\apple\\' + podisk + ' ' + buildFolder + '\\' + diskname + '-apple' + target + ext + '\n')
-                fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -as ' + buildFolder + '/' + diskname + '-apple' + target + ext + ' LOADER bin 0x0803 < ' + buildFolder + '/apple/LOADER\n')
-                for network in networkOptions:
-                    if network == '8bit-Hub': 
-                        executable = 'HUB'
-                    if network == 'Uthernet': 
-                        executable = 'UTHERNET'            
-                    fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -as ' + buildFolder + '/' + diskname + '-apple' + target + ext + ' ' + executable + ' bin 0x0803 < ' + buildFolder + '/apple/' + executable + '\n')
+                
+                # Add executables
+                if len(networkOptions) > 1: 
+                    # Package multiple executables + loader program
+                    fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -as ' + buildFolder + '/' + diskname + '-apple' + target + ext + ' LOADER bin 0x0803 < ' + buildFolder + '/apple/LOADER\n')
+                    for network in networkOptions:
+                        if network == '8bit-Hub': 
+                            executable = 'HUB'
+                        if network == 'Uthernet': 
+                            executable = 'UTHERNET'  
+                        if network == 'None': 
+                            executable = 'NONE'                            
+                        fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -as ' + buildFolder + '/' + diskname + '-apple' + target + ext + ' ' + executable + ' bin 0x0803 < ' + buildFolder + '/apple/' + executable + '\n')
+                else:
+                    # Only package single executable
+                    fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -as ' + buildFolder + '/' + diskname + '-apple' + target + ext + ' LOADER bin 0x0803 < ' + buildFolder + '/apple/' + executable + '\n')
+                    
+                # Add assets    
                 if len(sprites) > 0:
                     fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p ' + buildFolder + '/' + diskname + '-apple' + target + ext + ' SPRITES.DAT bin < ' + buildFolder + '/apple/sprites.dat\n')
                 for item in bitmaps:
@@ -1049,14 +1070,14 @@ class Application:
                     fb = FileBase(item, '')
                     fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p ' + buildFolder + '/' + diskname + '-apple' + target + ext + ' ' + fb.upper() + ' bin < ' + item + '\n')
                 if len(chunks) > 0:
-                    fp.write('for /f "tokens=*" %%A in (' + buildFolder + '\\apple\\chunks.lst) do utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p ' + buildFolder + '/' + diskname + '-apple' + target + ext + ' %%~nxA bin < %%A \n')
+                    fp.write('for /f "tokens=*" %%A in (' + buildFolder + '\\apple\\chunks.lst) do utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p ' + buildFolder + '/' + diskname + '-apple' + target + ext + ' %%~nxA bin < %%A \n\n')
 
                 # Clean-up build folder
                 fp.write('del ' + buildFolder + '\\apple\\*.bin\n')
                 fp.write('del ' + buildFolder + '\\apple\\*.lib\n')
                 fp.write('del ' + buildFolder + '\\apple\\*.lst\n')                
 
-                fp.write('echo --------------- APPLE DISK READY --------------- \n\n')
+                fp.write('\necho --------------- APPLE DISK READY --------------- \n\n')
                 
                 # Start emulator?
                 if callEmu:
@@ -1079,6 +1100,8 @@ class Application:
             networkOptions.append('DragonCart')
         if self.checkbutton_AtariNetworkFujinet.get():
             networkOptions.append('Fujinet')
+        if len(networkOptions) == 0:
+            networkOptions.append('None')                    
         
         # Build 48 and 64k Versions
         for target in ['48k', '64k']:
@@ -1109,37 +1132,30 @@ class Application:
                         cTarget.append('adaptors\\hub.c')
                         cTarget.append('targets\\atari\\PIA.c')
                         symbols += '-D __HUB__ '                        
+                        executable = 'hub.xex'
                     elif network == 'DragonCart':    
                         symbols += '-D __IP65__ '                        
+                        executable = 'dragon.xex'
                     elif network == 'Fujinet':    
                         cTarget.append('targets\\atari\\fujinet.c')
                         sTarget.append('targets\\atari\\fujiIRQ.s')
                         symbols += '-D __FUJINET__ '
-                
+                        executable = 'fujinet.xex'
+                    elif network == 'None': 
+                        executable = 'none.xex'  
+                        
                     # Graphic settings                
                     if self.combobox_AtariCrunchAssets.get() == 'Yes':
                         symbols += '-D __DECRUNCH__ '  
 
-                    if target == '48k':
-                        BuildUnityLibrary(self, fp, '-t atari', symbols, cCore+cTarget, sCore+sTarget, buildFolder+'/atari')
-                    else:
-                        BuildUnityLibrary(self, fp, '-t atarixl', symbols, cCore+cTarget, sCore+sTarget, buildFolder+'/atari')
-                            
                     # Compile Program
                     if target == '48k':    
-                        symbols = '-Cl -O -t atari ' 
+                        BuildUnityLibrary(self, fp, '-t atari', symbols, cCore+cTarget, sCore+sTarget, buildFolder+'/atari')
+                        symbols += '-Cl -O -t atari ' 
                     else:
-                        symbols = '-Cl -O -t atarixl -C atarixl-largehimem.cfg '                     
+                        BuildUnityLibrary(self, fp, '-t atarixl', symbols, cCore+cTarget, sCore+sTarget, buildFolder+'/atari')
+                        symbols += '-Cl -O -t atarixl -C atarixl-largehimem.cfg '                     
                     symbols += '-Wl -D,__STACKSIZE__=$0400 '
-                    if network == '8bit-Hub':
-                        executable = 'hub.xex'
-                        symbols += '-D __HUB__ '
-                    elif network == 'DragonCart':    
-                        executable = 'dragon.xex'
-                        symbols += '-D __IP65__ '
-                    elif network == 'Fujinet':    
-                        executable = 'fujinet.xex'
-                        symbols += '-D __FUJINET__ '                       
                     comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/atari/' + executable + ' -m ' + buildFolder + '/' + diskname.lower() + '-atari' + target + '-' + network + '.map ' + symbols + ' -I unity '
                     for item in code:
                         comp += (item + ' ')
@@ -1157,28 +1173,33 @@ class Application:
                                 comp += 'unity/adaptors/ip65.lib unity/adaptors/ip65_atarixl.lib'
                     fp.write(comp + '\n\n')
                 
+                # Include loader program?
+                if len(networkOptions) > 1:                                    
+                    if target == '48k':
+                        symbols = '-Cl -O -t atari '
+                    else:
+                        symbols = '-Cl -O -t atarixl -C atarixl-largehimem.cfg '
+                    if '8bit-Hub' in networkOptions:
+                        symbols += '-D __HUB__ '
+                    if 'DragonCart' in networkOptions:
+                        symbols += '-D __IP65__ '
+                    if 'Fujinet' in networkOptions:
+                        symbols += '-D __FUJINET__ '                
+                    fp.write('utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/atari/loader.bin ' + symbols + ' -I unity unity/targets/atari/loader.c ' + buildFolder + '/atari/unity.lib\n\n')
+
                 # BASIC disabler
                 fp.write('utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/atari/basicoff.bin -t atari -C atari-asm.cfg unity/targets/atari/BASICOFF.s\n\n')
-
-                # Loader program
-                if target == '48k':
-                    symbols = '-Cl -O -t atari '
-                else:
-                    symbols = '-Cl -O -t atarixl -C atarixl-largehimem.cfg '
-                if '8bit-Hub' in networkOptions:
-                    symbols += '-D __HUB__ '
-                if 'DragonCart' in networkOptions:
-                    symbols += '-D __IP65__ '
-                if 'Fujinet' in networkOptions:
-                    symbols += '-D __FUJINET__ '                
-                fp.write('utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/atari/loader.bin ' + symbols + ' -I unity unity/targets/atari/loader.c ' + buildFolder + '/atari/unity.lib\n\n')
 
                 # RMT player
                 fp.write('utils\\scripts\\atari\\mads.exe -o:' + buildFolder + '/atari/rmt.bin unity/targets/atari/RMT.a65\n\n')
 
                 # Merging
-                fp.write('utils\\py27\\python utils\\scripts\\atari\\AtariMerge.py ' + buildFolder + '/atari/xautorun ' + buildFolder + '/atari/basicoff.bin ' + buildFolder + '/atari/loader.bin ' + buildFolder + '/atari/rmt.bin\n\n')
-
+                if len(networkOptions) > 1:                                    
+                    fp.write('utils\\py27\\python utils\\scripts\\atari\\AtariMerge.py ' + buildFolder + '/atari/xautorun ' + buildFolder + '/atari/basicoff.bin ' + buildFolder + '/atari/loader.bin ' + buildFolder + '/atari/rmt.bin\n\n')
+                else:
+                    fp.write('utils\\py27\\python utils\\scripts\\atari\\AtariMerge.py ' + buildFolder + '/atari/xautorun ' + buildFolder + '/atari/basicoff.bin ' + buildFolder + '/atari/' + executable + ' ' + buildFolder + '/atari/rmt.bin\n\n')
+                    fp.write('del ' + buildFolder + '\\atari\\*.xex\n')
+                
                 fp.write('echo --------------- CONVERT ASSETS ---------------  \n\n')
                 
                 # Bitmaps
@@ -1259,6 +1280,8 @@ class Application:
             networkOptions.append('8bit-Hub')
         if self.checkbutton_C64NetworkRRNet.get():
             networkOptions.append('RR-Net')
+        if len(networkOptions) == 0:
+            networkOptions.append('None')                    
             
         with open('../../' + buildFolder+'/'+diskname+"-c64.bat", "wb") as fp:
             # Info
@@ -1270,7 +1293,7 @@ class Application:
             
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
-            # Build Unity Library for eah network target
+            # Build Unity Library for each network target
             for network in networkOptions:
                 cTarget = [ 'graphics\\pixel.c', 'targets\\c64\\directory.c', 'targets\\c64\\files.c', 'targets\\c64\\VIC2.c' ]
                 sTarget = [ 'graphics\\scroll.s', 'strings\\chars.s', 'targets\\c64\\decrunch.s', 'targets\\c64\\DLI.s', 'targets\\c64\\joystick.s', 'targets\\c64\\blitCharmap.s', 'targets\\c64\\ROM.s', 'targets\\c64\\SID.s']
@@ -1280,37 +1303,39 @@ class Application:
                 if network == '8bit-Hub': 
                     cTarget.append('adaptors\\hub.c')
                     cTarget.append('targets\\c64\\CIA.c')
-                    executable = 'hub'
                     symbols += '-D __HUB__ '            
+                    executable = 'hub'
                 if network == 'RR-Net': 
                     symbols += '-D __IP65__ '
                     executable = 'rrnet'
+                if network == 'None': 
+                    executable = 'none'
                     
                 # Graphic settings
                 if self.combobox_C64CrunchAssets.get() == 'Yes':
                     symbols += '-D __DECRUNCH__ '
-                    
-                BuildUnityLibrary(self, fp, '-t c64', symbols, cCore+cTarget, sCore+sTarget, buildFolder+'/c64')
-                
+                                    
                 # Compile Program                        
+                BuildUnityLibrary(self, fp, '-t c64', symbols, cCore+cTarget, sCore+sTarget, buildFolder+'/c64')
                 comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/c64/' + executable + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-c64-' + network + '.map -Cl -O -t c64 -C unity/targets/c64/c64.cfg -I unity '
                 for item in code:
                     comp += (item + ' ')
-                if network == '8bit-Hub':
-                    fp.write(comp + buildFolder + '/c64/unity.lib\n\n')
+                comp += buildFolder + '/c64/unity.lib '
                 if network == 'RR-Net': 
                     if self.combobox_C64NetworkProtocols.get() == 'TCP/UDP':
-                        fp.write(comp + buildFolder + '/c64/unity.lib unity/adaptors/ip65_tcp.lib unity/adaptors/ip65_c64.lib\n\n')
+                        comp += 'unity/adaptors/ip65_tcp.lib unity/adaptors/ip65_c64.lib'
                     else:
-                        fp.write(comp + buildFolder + '/c64/unity.lib unity/adaptors/ip65.lib unity/adaptors/ip65_c64.lib\n\n')
+                        comp += 'unity/adaptors/ip65.lib unity/adaptors/ip65_c64.lib'
+                fp.write(comp + '\n\n')
 
-            # Loader program
-            symbols = '-Cl -O -t c64 '
-            if '8bit-Hub' in networkOptions:
-                symbols += '-D __HUB__ '
-            if 'RR-Net' in networkOptions:
-                symbols += '-D __IP65__ '
-            fp.write('utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/c64/loader.bin ' + symbols + ' -C unity/targets/c64/c64.cfg -I unity unity/targets/c64/loader.c ' + buildFolder + '/c64/unity.lib\n\n')
+            # Include loader program?
+            if len(networkOptions) > 1:                                    
+                symbols = '-Cl -O -t c64 '
+                if '8bit-Hub' in networkOptions:
+                    symbols += '-D __HUB__ '
+                if 'RR-Net' in networkOptions:
+                    symbols += '-D __IP65__ '
+                fp.write('utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/c64/loader.bin ' + symbols + ' -C unity/targets/c64/c64.cfg -I unity unity/targets/c64/loader.c ' + buildFolder + '/c64/unity.lib\n\n')
             
             fp.write('echo --------------- CONVERT ASSETS ---------------  \n\n')
             
@@ -1351,21 +1376,33 @@ class Application:
                     executable = 'hub'
                 if network == 'RR-Net': 
                     executable = 'rrnet'            
+                if network == 'None': 
+                    executable = 'none'            
                 if len(sprites) > 0:
                     fp.write('utils\\scripts\\exomizer-3.0.2.exe sfx $180d ' + buildFolder + '/c64/' + executable + '.bin ' + buildFolder + '/c64/sprites.dat -o ' + buildFolder + '/c64/' + executable + '.prg\n\n')          
                 else:
                     fp.write('utils\\scripts\\exomizer-3.0.2.exe sfx $180d ' + buildFolder + '/c64/' + executable + '.bin -o ' + buildFolder + '/c64/' + executable + '.prg\n\n')
-            fp.write('utils\\scripts\\exomizer-3.0.2.exe sfx $180d ' + buildFolder + '/c64/loader.bin -o ' + buildFolder + '/c64/loader.prg\n\n')
+            if len(networkOptions) > 1:                                    
+                fp.write('utils\\scripts\\exomizer-3.0.2.exe sfx $180d ' + buildFolder + '/c64/loader.bin -o ' + buildFolder + '/c64/loader.prg\n\n')
 
             # Disk builder
             fp.write('set C1541=utils\\scripts\\c64\\c1541 -format loader,666 d64 ' + buildFolder + '/' + diskname + '-c64.d64 -attach ' + buildFolder + '/' + diskname + '-c64.d64 ')
-            fp.write('-write ' + buildFolder + '/c64/loader.prg loader.prg ')
-            for network in networkOptions:
-                if network == '8bit-Hub': 
-                    executable = 'hub.prg'
-                if network == 'RR-Net': 
-                    executable = 'rrnet.prg'            
-                fp.write('-write ' + buildFolder + '/c64/' + executable + ' ' + executable + ' ')
+            
+            # Add executables
+            if len(networkOptions) > 1:                                    
+                fp.write('-write ' + buildFolder + '/c64/loader.prg loader.prg ')
+                for network in networkOptions:
+                    if network == '8bit-Hub': 
+                        executable = 'hub'
+                    if network == 'RR-Net': 
+                        executable = 'rrnet'     
+                    if network == 'None': 
+                        executable = 'none'                        
+                    fp.write('-write ' + buildFolder + '/c64/' + executable + '.prg ' + executable + '.prg ')
+            else:
+                fp.write('-write ' + buildFolder + '/c64/' + executable + '.prg loader.prg ')
+
+            # Add assets
             for item in bitmaps:
                 fb = FileBase(item, '.png')
                 fp.write('-write ' + buildFolder + '/c64/' + fb + '.img ' + fb + '.img ')
