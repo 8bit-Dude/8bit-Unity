@@ -69,9 +69,8 @@ extern unsigned char gameMap, gameMode, gameStep;
 int main (void) 
 {
 	unsigned char carryon;
-#if defined __LYNX__
 	clock_t bannerClock;
-#endif   
+
 	// Reset screen
 	clrscr();
 	bordercolor(COLOR_BLACK);
@@ -82,14 +81,23 @@ int main (void)
 	InitBitmap();
 	
 	// Show banner
-#if defined __LYNX__
     LoadBitmap("promo.img");
+  #if defined(__NES__) || defined(__ORIC__)	
+   #if defined(__NES__)
+	txtX = 0; inkColor = WHITE;
+   #else
+	txtX = 0; inkColor = AIC;
+   #endif
+	txtY = 0; PrintStr("Full version at 8bit-slicks.com");
+	txtY = 1; PrintStr(" + Access 4 player servers");
+	txtY = 2; PrintStr(" + Improved sprites");
+	txtY = 3; PrintStr(" + 12 new maps");	
+  #endif
 	ShowBitmap();	
-	bannerClock = clock()+8*TCK_PER_SEC;
+	bannerClock = clock()+10*TCK_PER_SEC;
     while (clock()<bannerClock)
 		if (kbhit()) { cgetc(); break; }
 	HideBitmap();	
-#endif
 	
 	// Setup sprites
 	LoadSprites("sprites.dat");

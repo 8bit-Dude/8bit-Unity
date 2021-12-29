@@ -4,24 +4,6 @@
 #ifdef __NES__
   #pragma rodata-name("BANK0")
   #pragma code-name("BANK0")
-  #pragma bss-name(push, "XRAM")
-#endif
-
-// Navigation mask
-#if defined(__ATARIXL__) || defined(__CBM__) || defined(__LYNX__)
-	// pass
-#elif defined(__APPLE2__) || defined(__NES__) || defined(__ATARI__) || defined(__ORIC__)
-    unsigned char bgMask[736];	//  0=road/marking, 1=border/grass, 2=wall.
-    unsigned char GetMask(unsigned int x, unsigned int y) {
-		unsigned char pixelX, pixelY;
-		pixelX = x/40u;		
-		pixelY = y/32u-2;
-		return (bgMask[pixelY*16+pixelX/4u] >> ((pixelX%4)*2)) & 3;
-	}
-#endif
-
-#if defined __NES__
-  #pragma bss-name(pop)  
 #endif
 
 #if defined __ATARIXL__
@@ -212,6 +194,25 @@ void GameReset()
 	}
 }
 
+// Navigation mask
+#if defined(__ATARIXL__) || defined(__CBM__) || defined(__LYNX__)
+	// pass
+#else
+#if defined __NES__
+  #pragma bss-name(push, "XRAM")
+#endif	
+  unsigned char bgMask[736];	//  0=road/marking, 1=border/grass, 2=wall.
+#if defined __NES__
+  #pragma bss-name(pop)  
+#endif
+  unsigned char GetMask(unsigned int x, unsigned int y) {
+	unsigned char pixelX, pixelY;
+	pixelX = x/40u;		
+	pixelY = y/32u-2;
+	return (bgMask[pixelY*16+pixelX/4u] >> ((pixelX%4)*2)) & 3;
+  }
+#endif
+
 // Initialize Game
 void GameInit(const char* map)
 {
@@ -260,7 +261,7 @@ void GameInit(const char* map)
 	// Load Navigation
 	memcpy(&buffer[len], ".nav", 4);
 	LoadNavigation(&buffer[0]);
-
+	
 	// Load Background Mask (used as alternative to GetPixel())
 #if defined(__ATARIXL__) || defined(__CBM__) || defined(__LYNX__)
 	// pass
@@ -270,7 +271,7 @@ void GameInit(const char* map)
 		FileRead(bgMask, 736);
 		FileClose();
 	}	
-#endif
+#endif	
 	
     // Some extra logics depending on the game mode
 	if (gameMode == MODE_LOCAL) {
@@ -588,7 +589,7 @@ char GameLoop()
 		  #if defined(__ATARIXL__) || defined(__CBM__) || defined(__LYNX__)
 			LocatePixel(iX/8u, iY/8u);
 			iColor = GetPixel();
-		  #elif defined(__APPLE2__) || defined(__NES__) || defined(__ATARI__) || defined(__ORIC__)
+		  #else
 			iColor = GetMask(iX, iY);		  
 		  #endif
 		  
@@ -757,7 +758,7 @@ char GameLoop()
 		  #if defined(__ATARIXL__) || defined(__CBM__) || defined(__LYNX__)
 			LocatePixel(iX/8u, iY/8u);
 			iColor = GetPixel();
-		  #elif defined(__APPLE2__) || defined(__NES__) || defined(__ATARI__) || defined(__ORIC__)
+		  #else
 			iColor = GetMask(iX, iY);		  
 		  #endif
 		  
