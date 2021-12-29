@@ -1299,7 +1299,7 @@ class Application:
                 # Network settings
                 if network == '8bit-Hub': 
                     cTarget.append('adaptors\\hub.c')
-                    cTarget.append('targets\\c64\\CIA.c')
+                    sTarget.append('targets\\c64\\CIA.s')
                     symbols += '-D __HUB__ '            
                     executable = 'hub'
                 if network == 'RR-Net': 
@@ -2135,4 +2135,4 @@ if __name__ == '__main__':
         root.withdraw()
         app = Application(root)
         app.FileLoad('../../'+projectFile)
-        app.GenerateBuilder()
+        app.GenerateScripts()
