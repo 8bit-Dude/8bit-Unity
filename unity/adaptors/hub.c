@@ -47,8 +47,7 @@
   unsigned char __fastcall__ SerialPut(unsigned char data);
   unsigned char comParm = 0;  //struct ser_params comParm = { SER_BAUD_62500, SER_BITS_8, SER_STOP_1, SER_PAR_SPACE, SER_HS_NONE };							  
   unsigned char byte;	
-  unsigned char RecvByte() 
-  {
+  unsigned char RecvByte() {
 	unsigned char i = 255;
 	while (i) {  // Countdown i to 0
 		if (SerialGet(&byte) == SER_ERR_OK)		// Wait for byte to arrive on serial port
@@ -57,8 +56,7 @@
 	}
 	return 0;
   }
-  unsigned char SendByte() 
-  {
+  unsigned char SendByte() {
 	while (SerialPut(byte) != SER_ERR_OK);  // Send byte
 	while (SerialGet(&byte) != SER_ERR_OK); // Read byte (sent to oneself)	
 	return 1;
@@ -77,8 +75,8 @@
 
 // Hub State
 unsigned char hubState[7] = { COM_ERR_OFFLINE, 255, 255, 255, 255, 255, 255 };
-unsigned char sendID = 0, sendLen = 0, sendHub[HUB_TX_LEN];
-unsigned char recvID = 0, recvLen = 0, recvHub[HUB_RX_LEN];
+unsigned char recvHub[HUB_RX_LEN], recvID = 0, recvLen = 0;
+unsigned char sendHub[HUB_TX_LEN], sendID = 0, sendLen = 0;
 unsigned char queueID = 0;
 
 #if defined __NES__
@@ -103,39 +101,30 @@ void RecvHub()
 		hubState[0] = COM_ERR_HEADER; 
 		return;
 	}
+	hubState[0] = COM_ERR_TRUNCAT; 
 					
 	// Get packet ID
-	if (!RecvByte()) { 
-		hubState[0] = COM_ERR_TRUNCAT; return; 
-	}
+	if (!RecvByte()) return; 
 	ID = byte;
 	
 	// Read joystick/mouse data
 	for (i=1; i<7; i++) {
-		if (!RecvByte()) { 
-			hubState[0] = COM_ERR_TRUNCAT; return; 
-		}
+		if (!RecvByte()) return; 
 		hubState[i] = byte;
 	}
 
 	// Get buffer length
-	if (!RecvByte()) { 
-			hubState[0] = COM_ERR_TRUNCAT; return; 
-	}
+	if (!RecvByte()) return; 
 	len = byte;
 
 	// Read buffer data
 	for (i=0; i<len; i++) {
-		if (!RecvByte()) { 
-			hubState[0] = COM_ERR_TRUNCAT; return; 
-		}
+		if (!RecvByte()) return; 
 		recvHub[i] = byte;
 	}	
 
 	// Get footer
-	if (!RecvByte()) { 
-		hubState[0] = COM_ERR_TRUNCAT; return; 
-	}
+	if (!RecvByte()) return; 
 
 	// Verify checkum
 	checksum = ID;
@@ -211,7 +200,7 @@ void SendHub()
 unsigned char QueueHub(unsigned char packetCmd, unsigned char* packetBuffer, unsigned char packetLen)
 {
 	// Check if there is enough space in buffer
-	if (packetLen > 255-sendLen)
+	if (packetLen > HUB_TX_LEN-sendLen)
 		return 0;
 	
 	// Add to send buffer
@@ -243,7 +232,6 @@ void UpdateHub()
 			QueueHub(HUB_SYS_RESET, 0, 0);
 		  //#if defined(__APPLE2__) || 
 		  #if defined(__LYNX__)
-		   // Setup serial interface
 			SerialOpen(&comParm); 
 		  #endif		
 		}

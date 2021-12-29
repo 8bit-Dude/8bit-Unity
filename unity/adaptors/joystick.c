@@ -77,6 +77,17 @@ unsigned char GetJoy(unsigned char joy)
   #endif
 		// Get state from registry
 		return (PEEK(0x0284+joy)<<4)+PEEK(0x0278+joy)+JOY_BTN2;
+
+#elif defined(__CBM__)
+  #if defined(__HUB__)
+	if (joy>1) {
+		// Get state from HUB
+		UpdateHub();			
+		return hubState[joy-1];
+	} else		
+  #endif
+		// Get state from registry
+		return (PEEK(0xDC01+joy));
 	
 #elif defined __LYNX__
 	// 2 input types: D-Pad (#0) or 8bit-Hub (#1,#2,#3)
