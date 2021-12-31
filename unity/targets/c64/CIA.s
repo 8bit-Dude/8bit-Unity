@@ -118,10 +118,6 @@ sendWait3:
 	; Strobe ON
     lda #%00000001	
 	sta $DD01
-	ldx #3
-sendWait4:	
-	dex
-	bne sendWait4
 
 sendDone:	
 	; Return 1
@@ -197,10 +193,6 @@ recvWait3:
 	; Strobe ON
     lda #%00000011	
 	sta $DD01
-	ldx #3
-recvWait4:	
-	dex
-	bne recvWait4	
 		
 recvDone:	
 	; Return 1

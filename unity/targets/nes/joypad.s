@@ -3,7 +3,7 @@
 ;with improvements by VEG
 ;Feel free to do anything you want with this code, consider it Public Domain
 
-	.export _InitJoy, _GetJoy
+	.export _EncodePad
 	
 	.import _pad_poll
 	
@@ -14,17 +14,10 @@ encoded: .res 1
 	.segment "BANK0"
 
 ; ---------------------------------------------------------------
-; void __fastcall__ InitJoy (void)
+; unsigned char __fastcall__ EncodePad (unsigned char)
 ; ---------------------------------------------------------------	
 
-_InitJoy:
-	rts
-
-; ---------------------------------------------------------------
-; unsigned char __fastcall__ GetJoy (unsigned char)
-; ---------------------------------------------------------------	
-
-_GetJoy:
+_EncodePad:
 
 	jsr _pad_poll
 	
