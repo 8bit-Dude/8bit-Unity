@@ -1293,19 +1293,22 @@ class Application:
             # Build Unity Library for each network target
             for network in networkOptions:
                 cTarget = [ 'graphics\\pixel.c', 'targets\\c64\\directory.c', 'targets\\c64\\files.c', 'targets\\c64\\VIC2.c' ]
-                sTarget = [ 'graphics\\scroll.s', 'strings\\chars.s', 'targets\\c64\\decrunch.s', 'targets\\c64\\DLI.s', 'targets\\c64\\joystick.s', 'targets\\c64\\blitCharmap.s', 'targets\\c64\\ROM.s', 'targets\\c64\\SID.s']
+                sTarget = [ 'graphics\\scroll.s', 'strings\\chars.s', 'targets\\c64\\decrunch.s', 'targets\\c64\\DLI.s', 'targets\\c64\\blitCharmap.s', 'targets\\c64\\ROM.s', 'targets\\c64\\SID.s']
                 symbols = ''
                 
                 # Network settings
                 if network == '8bit-Hub': 
                     cTarget.append('adaptors\\hub.c')
+                    cTarget.append('adaptors\\joystick.c')
                     sTarget.append('targets\\c64\\CIA.s')
                     symbols += '-D __HUB__ '            
                     executable = 'hub'
                 if network == 'RR-Net': 
+                    sTarget.append('targets\\c64\\joystick.s')
                     symbols += '-D __IP65__ '
                     executable = 'rrnet'
                 if network == 'None': 
+                    sTarget.append('targets\\c64\\joystick.s')
                     executable = 'none'
                     
                 # Graphic settings
@@ -1314,7 +1317,7 @@ class Application:
                                     
                 # Compile Program                        
                 BuildUnityLibrary(self, fp, '-t c64', symbols, cCore+cTarget, sCore+sTarget, buildFolder+'/c64')
-                comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/c64/' + executable + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-c64-' + network + '.map -Cl -O -t c64 -C unity/targets/c64/c64.cfg -I unity '
+                comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/c64/' + executable + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-c64-' + network + '.map -Cl -O -t c64 -C unity/targets/c64/c64.cfg ' + symbols + '-I unity '
                 for item in code:
                     comp += (item + ' ')
                 comp += buildFolder + '/c64/unity.lib '
@@ -1995,8 +1998,8 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Build Unity Library
-            cTarget = [ 'adaptors\\hub.c', 'targets\\nes\\conio.c', 'targets\\nes\\display.c', 'targets\\nes\\expansion.c', 'targets\\nes\\files.c', 'targets\\nes\\keyboard.c', 'targets\\nes\\memory.c', 'targets\\nes\\text.c' ]
-            sTarget = [ 'targets\\nes\\blitCharmap.s', 'targets\\nes\\crt0.s', 'targets\\nes\\joystick.s' ]
+            cTarget = [ 'adaptors\\hub.c', 'adaptors\\joystick.c', 'targets\\nes\\conio.c', 'targets\\nes\\display.c', 'targets\\nes\\files.c', 'targets\\nes\\keyboard.c', 'targets\\nes\\memory.c', 'targets\\nes\\text.c' ]
+            sTarget = [ 'targets\\nes\\blitCharmap.s', 'targets\\nes\\crt0.s', 'targets\\nes\\expansion.s', 'targets\\nes\\joypad.s' ]
             BuildUnityLibrary(self, fp, '-t nes', ' -D __HUB__', cCore+cTarget, sCore+sTarget, buildFolder+'/nes')
 
             # Compile Program
@@ -2033,8 +2036,8 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
     
             # Build Unity Library
-            cTarget = [ 'adaptors\\hub.c', 'graphics\\pixel.c', 'targets\\oric\\directory.c', 'targets\\oric\\files.c', 'targets\\oric\\VIA.c' ]
-            sTarget = [ 'graphics\\scroll.s', 'strings\\chars.s', 'targets\\oric\\blitCharmap.s', 'targets\\oric\\blitSprite.s', 'targets\\oric\\paseIJK.s', 'targets\\oric\\keyboard.s', 'targets\\oric\\sedoric.s', 'targets\\oric\\MYM.s' ]
+            cTarget = [ 'adaptors\\hub.c', 'graphics\\pixel.c', 'targets\\oric\\directory.c', 'targets\\oric\\files.c' ]
+            sTarget = [ 'graphics\\scroll.s', 'strings\\chars.s', 'targets\\oric\\blitCharmap.s', 'targets\\oric\\blitSprite.s', 'targets\\oric\\paseIJK.s', 'targets\\oric\\keyboard.s', 'targets\\oric\\sedoric.s', 'targets\\oric\\MYM.s', 'targets\\oric\\VIA.s' ]
             symbols = ' -D __HUB__'
             BuildUnityLibrary(self, fp, '-t atmos', symbols, cCore+cTarget, sCore+sTarget, buildFolder+'/oric')
                         
