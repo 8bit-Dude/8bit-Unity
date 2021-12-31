@@ -9,7 +9,7 @@
   #if defined __DHR__	
 	const unsigned char inkColors[] = { BLUE, RED, GREEN, YELLOW, WHITE };		// P1, P2, P3, P4, SERVER INFO
   #else
-	const unsigned char inkColors[] = { BLUE, PURPLE, GREEN, ORANGE, WHITE };		// P1, P2, P3, P4, SERVER INFO
+	const unsigned char inkColors[] = { BLUE, PURPLE, GREEN, ORANGE, WHITE };	// P1, P2, P3, P4, SERVER INFO
   #endif
 #elif defined __ATARI__
   #define spriteCols    8
@@ -19,11 +19,11 @@
 										 SPR_DGREEN,SPR_GREY, SPR_DYELLOW,SPR_GREY, 	// Bank 2
 										 SPR_GREY,  SPR_GREY, SPR_GREY,   SPR_GREY };  	// Bank 3
  #else
-  const unsigned char spriteColors[] = { SPR_BLUE, SPR_RED, SPR_GREEN, SPR_YELLOW,	// Bank 1
-										 SPR_GREY, SPR_GREY, SPR_GREY, SPR_GREY, 	// Bank 2
-										 SPR_GREY, SPR_GREY, SPR_GREY, SPR_GREY };  // Bank 3
+  const unsigned char spriteColors[] = { SPR_BLUE, SPR_RED, SPR_GREEN, SPR_YELLOW,		// Bank 1
+										 SPR_GREY, SPR_GREY, SPR_GREY, SPR_GREY, 		// Bank 2
+										 SPR_GREY, SPR_GREY, SPR_GREY, SPR_GREY };  	// Bank 3
  #endif
-  const unsigned char inkColors[] = { BLUE, RED, GREEN, YELLOW, WHITE };		// P1, P2, P3, P4, SERVER INFO
+  const unsigned char inkColors[] = { BLUE, RED, GREEN, YELLOW, WHITE };				// P1, P2, P3, P4, SERVER INFO
 #elif defined __ORIC__
   #define spriteCols   12
   #define spriteRows    6
@@ -46,11 +46,11 @@
 										 SPR_VOID, SPR_RED,    SPR_CYAN, SPR_GREY, 
 										 SPR_VOID, SPR_GREEN,  SPR_CYAN, SPR_GREY, 
 										 SPR_VOID, SPR_YELLOW, SPR_CYAN, SPR_GREY }; // 4 palettes of 3 colors (1st color is unused)
-  const unsigned char inkColors[] = { BLUE, RED, GREEN, YELLOW, WHITE };		// P1, P2, P3, P4	
+  const unsigned char inkColors[] = { BLUE, RED, GREEN, YELLOW, WHITE };			 // P1, P2, P3, P4	
 #endif
 
 // Build Information
-const char* buildInfo = "BUILD: 2021/12/15";
+const char* buildInfo = "BUILD: 2021/12/31";
 
 // List of available maps
 unsigned char mapNum  = 10;

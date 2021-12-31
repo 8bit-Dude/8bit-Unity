@@ -44,6 +44,7 @@
             "spriteWidth": "7", 
             "spriteHeight": "6", 
             "bitmapDHR": [
+                "projects/slicks/bitmaps/promo-apple-dhr.png", 
                 "projects/slicks/bitmaps/menu-apple-dhr.png", 
                 "projects/slicks/bitmaps/arizona-apple-dhr.png", 
                 "projects/slicks/bitmaps/arto-apple-dhr.png", 
@@ -57,6 +58,7 @@
                 "projects/slicks/bitmaps/stadium-apple-dhr.png"
             ], 
             "bitmapSHR": [
+                "projects/slicks/bitmaps/promo-apple-shr.png", 
                 "projects/slicks/bitmaps/menu-apple-shr.png", 
                 "projects/slicks/bitmaps/arizona-apple-shr.png", 
                 "projects/slicks/bitmaps/arto-apple-shr.png", 
@@ -93,6 +95,7 @@
             "spriteWidth": "8", 
             "spriteHeight": "10", 
             "bitmap": [
+                "projects/slicks/bitmaps/promo-atari.png", 
                 "projects/slicks/bitmaps/menu-atari.png", 
                 "projects/slicks/bitmaps/arizona-atari.png", 
                 "projects/slicks/bitmaps/arto-atari.png", 
@@ -113,12 +116,12 @@
                 "projects/slicks/music/speednik-atari.rmt"
             ], 
             "chunks": [], 
-            "diskSize": "180KB", 
+            "diskSize": "360KB", 
             "crunchAssets": "Yes", 
             "assetFilter": "*", 
             "network8bitHub": true, 
             "networkDragonCart": true, 
-            "networkFujinet": false, 
+            "networkFujinet": true, 
             "networkProtocols": "(UDP-only)"
         }, 
         "C64": {
@@ -126,6 +129,7 @@
             "spriteWidth": "12", 
             "spriteHeight": "21", 
             "bitmap": [
+                "projects/slicks/bitmaps/promo-c64.png", 
                 "projects/slicks/bitmaps/menu-c64.png", 
                 "projects/slicks/bitmaps/arizona-c64.png", 
                 "projects/slicks/bitmaps/arto-c64.png", 
@@ -189,6 +193,7 @@
             "spriteWidth": "16", 
             "spriteHeight": "16", 
             "bitmap": [
+                "projects/slicks/bitmaps/promo-nes.png", 
                 "projects/slicks/bitmaps/menu-nes.png", 
                 "projects/slicks/bitmaps/arizona-nes.png", 
                 "projects/slicks/bitmaps/arto-nes.png", 
@@ -217,6 +222,7 @@
             "spriteHeight": "6", 
             "dithering": "0.2", 
             "bitmap": [
+                "projects/slicks/bitmaps/promo-oric.png", 
                 "projects/slicks/bitmaps/menu-oric.png", 
                 "projects/slicks/bitmaps/arizona-oric.png", 
                 "projects/slicks/bitmaps/arto-oric.png", 

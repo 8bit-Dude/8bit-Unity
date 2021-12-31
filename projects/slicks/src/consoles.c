@@ -44,7 +44,7 @@ extern unsigned char clIndex, clUser[];
 extern char chatBuffer[20];
 
 ///////// EEPROM Functions //////////////
-char eepromID[] = "SS";
+const char eepromID[] = "SS";
 
 unsigned char CheckEEPROM(void)
 {
@@ -128,6 +128,10 @@ void WriteEEPROM(void)
 #endif
 }
 
+#if defined __NES__
+ #pragma bss-name(push, "XRAM")
+#endif
+
 unsigned char gamePaused = 0;
 const unsigned char *pauseLabel[] = { "resume", "race!", "next!", "quit", "bye!", "congrats", "hang on", "hello!", "ready", "so close", "thanks!", "yes" };
 const unsigned char pauseAction[] = { KB_PAUSE, KB_START, KB_NEXT, KB_QUIT, 4, 5, 6, 7, 8, 9, 10, 11 };
@@ -135,6 +139,10 @@ unsigned char cursorJoy, cursorKey, cursorBut2, cursorPressed;
 unsigned char cursorFlick, cursorCol = MENU_COL, cursorRow = MENU_ROW+2;
 unsigned char cursorTop = MENU_ROW+2, cursorHeight = MENU_HEI-2;
 clock_t cursorClock;
+
+#if defined __NES__
+ #pragma bss-name(pop) 
+#endif
 
 void CursorFlicker(void)
 {

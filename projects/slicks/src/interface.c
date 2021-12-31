@@ -5,11 +5,6 @@
   #pragma code-name("SHADOW_RAM")
 #endif
 
-#ifdef __NES__
-  #pragma rodata-name("BANK0")
-  #pragma code-name("BANK0")
-#endif
-
 // See slicks.c
 extern const char* buildInfo, *mapList[]; 
 extern unsigned char mapNum, lapNumber[], inkColors[];
@@ -49,25 +44,27 @@ unsigned int bestLapTime[] = { LAPMAX, LAPMAX, LAPMAX, LAPMAX, LAPMAX, LAPMAX,
 
 // List of controller strings
 #if defined __APPLE2__
-   const char* controlList[LEN_CONTROL-1] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "PADDLE 1", "PADDLE 2", "PADDLE 3", "PADDLE 4" };
+  const char* controlList[] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "PADDLE 1", "PADDLE 2", "PADDLE 3", "PADDLE 4" };
 #elif defined __ATARI__
  #if defined __HUB__
-   const char* controlList[LEN_CONTROL-1] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "JOY 1", "HUB 1", "HUB 2", "HUB 3" };
+  const char* controlList[] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "JOY 1", "HUB 1", "HUB 2", "HUB 3" };
+ #elif defined __ATARIXL__	 
+  const char* controlList[] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "JOY 1", "JOY 2" };
  #else
-  #if defined __ATARIXL__	 
-   const char* controlList[LEN_CONTROL-1] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "JOY 1", "JOY 2" };
-  #else
-   const char* controlList[LEN_CONTROL-1] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "JOY 1", "JOY 2", "JOY 3", "JOY 4" };
-  #endif	  
+  const char* controlList[] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "JOY 1", "JOY 2", "JOY 3", "JOY 4" };
  #endif	 
 #elif defined __ORIC__
-   const char* controlList[LEN_CONTROL-1] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "A,D,CTRL", "J,L,RET", "HUB/IJK 1", "HUB/IJK 2" };
+  const char* controlList[] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "A,D,CTRL", "J,L,RET", "HUB/IJK 1", "HUB/IJK 2" };
 #elif defined __CBM__
-   const char* controlList[LEN_CONTROL-1] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "JOY 1", "JOY 2", "JOY 3", "JOY 4" };
+ #if defined __HUB__
+  const char* controlList[] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "JOY 1", "JOY 2", "HUB 1", "HUB 2", "HUB 3" };
+ #else
+  const char* controlList[] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "JOY 1", "JOY 2", "JOY 3", "JOY 4" };
+ #endif	 
 #elif defined __LYNX__
-   const char* controlList[LEN_CONTROL-1] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "JOY 1", "HUB 1", "HUB 2", "HUB 3" };
+  const char* controlList[] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "JOY 1", "HUB 1", "HUB 2", "HUB 3" };
 #elif defined __NES__
-   const char* controlList[LEN_CONTROL-1] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "JOY 1", "JOY 2" };
+  const char* controlList[] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "JOY 1", "JOY 2", "HUB 1", "HUB 2", "HUB 3" };
 #endif
 
 // Performance Drawing
@@ -98,8 +95,10 @@ unsigned char serversLoaded;
  #else
   char chatBG[160];
  #endif
-#elif defined __ATARI__
+#elif defined __ATARIXL__
   char chatBG[320];
+#elif defined __ATARI__
+  char chatBG[160];
 #elif defined __ORIC__
   char chatBG[160];
 #elif defined __CBM__
@@ -135,15 +134,25 @@ void BackupRestoreChatRow(unsigned char mode)
 		}
 		line++; buf += 20;
 	}	
-#elif defined __ATARI__
+#elif defined __ATARIXL__
 	unsigned char *bmp = BITMAPRAM1+320*ROW_CHAT;
 	for (i=0; i<8; ++i) {
 		if (!mode) {
 			memcpy((char*)(buf),     (char*)(bmp), 		  20);
-			memcpy((char*)(buf+160), (char*)(bmp+0x3000), 20);
+			memcpy((char*)(buf+160), (char*)(bmp-0x3000), 20);
 		} else {
 			memcpy((char*)(bmp), 		(char*)(buf),     20);
-			memcpy((char*)(bmp+0x3000), (char*)(buf+160), 20);
+			memcpy((char*)(bmp-0x3000), (char*)(buf+160), 20);
+		}
+		bmp += 40; buf += 20;
+	}	
+#elif defined __ATARI__
+	unsigned char *bmp = BITMAPRAM1+320*ROW_CHAT;
+	for (i=0; i<8; ++i) {
+		if (!mode) {
+			memcpy((char*)(buf), (char*)(bmp), 20);
+		} else {
+			memcpy((char*)(bmp), (char*)(buf), 20);
 		}
 		bmp += 40; buf += 20;
 	}	
@@ -309,6 +318,10 @@ void MenuMap()
 	txtX = MENU_COL+7; PrintStr(mapList[gameMap]);	
 }
 
+#ifdef __NES__
+  #pragma rodata-name("BANK0")
+  #pragma code-name("BANK0")
+#endif
 
 // Sub-function of GameMenu()
 void MenuLaps()
