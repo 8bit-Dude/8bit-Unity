@@ -40,6 +40,7 @@
 #ifdef __NES__
   #pragma rodata-name("BANK0")
   #pragma code-name("BANK0")
+  unsigned char EncodePad(unsigned char);	// see NES/joypad.s
 #endif
 
 #if (defined __ORIC__)
@@ -107,6 +108,16 @@ unsigned char GetJoy(unsigned char joy)
 		if (reg & 2)   { state &= ~JOY_BTN2; }
 		if (reg & 1)   { state &= ~JOY_BTN1; }		
 		return state;
+	}
+
+#elif defined(__NES__)
+	if (joy>1) {
+		// Get state from HUB
+		UpdateHub();			
+		return hubState[joy-1];
+	} else {
+		// Get state from registry
+		return EncodePad(joy);
 	}
 	
 #elif defined __ORIC__

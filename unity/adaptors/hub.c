@@ -62,8 +62,13 @@
 	return 1;
   } 
 #elif defined(__ATARI__) || defined(__CBM__) || defined(__NES__) || defined(__ORIC__)
+ #ifndef __NES__
   void InputMode();
-  void OutputMode();
+  void OutputMode(); 
+ #endif
+ #ifdef __ORIC__
+  void ClosePort();
+ #endif  
   unsigned char SendByte();
   unsigned char RecvByte();
   extern unsigned char byte;
@@ -86,11 +91,9 @@ unsigned char queueID = 0;
 void RecvHub() 
 {
 	unsigned char i, ID, len, checksum, packetLen;
-
-  #if defined(__ATARI__) || defined(__CBM__) || defined(__NES__) || defined(__ORIC__)
-	// Ask Hub to send Data  
-	byte = 85; if (!SendByte()) return;
-	InputMode();
+  
+  #if defined(__ATARI__) || defined(__CBM__) || defined(__ORIC__)  
+	InputMode();	// Switch PORT to input
   #endif	
 	
 	// Check header
@@ -105,12 +108,13 @@ void RecvHub()
 					
 	// Get packet ID
 	if (!RecvByte()) return; 
-	ID = byte;
+	checksum = ID = byte;
 	
 	// Read joystick/mouse data
 	for (i=1; i<7; i++) {
 		if (!RecvByte()) return; 
 		hubState[i] = byte;
+		checksum += byte;
 	}
 
 	// Get buffer length
@@ -121,15 +125,11 @@ void RecvHub()
 	for (i=0; i<len; i++) {
 		if (!RecvByte()) return; 
 		recvHub[i] = byte;
-	}	
-
-	// Get footer
-	if (!RecvByte()) return; 
+		checksum += byte;
+	}
 
 	// Verify checkum
-	checksum = ID;
-	for (i=1; i<7; i++) { checksum += hubState[i]; }
-	for (i=0; i<len; i++) { checksum += recvHub[i]; }
+	if (!RecvByte()) return; 
 #if defined DEBUG_HUB
 	dbgID = ID; dbgLen = len; chk1 = byte; chk2 = checksum;
 #endif	
@@ -169,7 +169,7 @@ void SendHub()
   //#if defined(__APPLE2__) || 
   #if defined(__LYNX__)
 	while (SerialGet(&i) == SER_ERR_OK) ; // Clear UART Buffer
-  #elif defined(__ATARI__) || defined(__CBM__) || defined(__NES__) || defined(__ORIC__)
+  #elif defined(__ATARI__) || defined(__CBM__) || defined(__ORIC__)
 	OutputMode();
   #endif	
 	
@@ -177,7 +177,7 @@ void SendHub()
 	byte = 170; if (!SendByte()) return;
 	
 	// Send Packet ID
-	if (sendLen) { sendID = sendHub[0]; }
+	if (sendLen) sendID = sendHub[0];
 	checksum = (recvID & 0xf0) + sendID;
 	byte = checksum; if (!SendByte()) return;
 	
@@ -250,7 +250,7 @@ void UpdateHub()
 	RecvHub();	
 	
   #if defined __ORIC__
-	OutputMode();
+	ClosePort();
 	__asm__("cli");		// Resume interrupts	
   #endif	
 
