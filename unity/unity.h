@@ -147,6 +147,8 @@ extern unsigned char inkColor, paperColor;
 #if defined __ORIC__
   void SetAttributes(unsigned char color);
 #endif
+void BackupCursor(void);
+void RestoreCursor(void);
 void PrintBlanks(unsigned char width, unsigned char height);
 void PrintChr(unsigned char chr);
 void PrintNum(unsigned int num);

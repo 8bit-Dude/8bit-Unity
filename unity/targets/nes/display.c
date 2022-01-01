@@ -48,8 +48,13 @@
 #pragma rodata-name("BANK0")
 #pragma code-name("BANK0")
 
+void UpdateKeyboardOverlay(void);
+
 void __fastcall__ UpdateDisplay(void)
 {
+	// Update virtual keyboard (if needed)
+	UpdateKeyboardOverlay();
+	
 	// Flush VRAM queue
 	if (vram_list_index) {
 		vram_list[vram_list_index] = NT_UPD_EOF;

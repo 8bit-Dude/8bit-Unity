@@ -91,7 +91,7 @@ unsigned char InputStr(unsigned char width, char *buffer, unsigned char len, uns
 					PrintChr(' ');
 					txtX--;					
 				}
-		#if (defined __LYNX__)
+		#if defined(__LYNX__) || defined(__NES__) 
 			} else {
 				txtX += offset;
 				PrintChr(' ');
