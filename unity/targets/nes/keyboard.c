@@ -31,12 +31,12 @@
 
 // Soft keyboard functions
 #pragma bss-name(push, "XRAM")
-clock_t keybrdClock = 0;
-unsigned char keybrdShow = 0, keybrdVal = 0; 
-unsigned char keybrdJoy = 0, keybrdPressed = 0;
-unsigned char keybrdX = 0, keybrdY = 0;
-signed char keybrdRow = 0, keybrdCol = 0;
-char* keybrdBG;
+  clock_t keybrdClock = 0;
+  unsigned char keybrdShow = 0, keybrdVal = 0, keybrdPressed = 0;
+  unsigned char keybrdX = 0, keybrdY = 0;
+  signed char keybrdRow = 2, keybrdCol = 12;
+  unsigned char keybrdJoy;
+  char* keybrdBG;
 #pragma bss-name(pop)
 
 const signed char keyCodes[4][13] = { { 49, 50, 51, 52, 53, 54, 55, 56, 57, 48, 45, 95, 43 },
@@ -46,6 +46,15 @@ const signed char keyCodes[4][13] = { { 49, 50, 51, 52, 53, 54, 55, 56, 57, 48, 
 									  
 extern unsigned char *chunkPtr;
 extern unsigned char chunkBuf[];
+
+unsigned char SwapSpecialChar(unsigned char in)
+{
+	if (in == 20) 
+		return 66;
+	if (in == 13)
+		return 82;
+	return in;
+}
 									  
 void ShowKeyboardOverlay() 
 {
@@ -60,7 +69,7 @@ void ShowKeyboardOverlay()
 	for (j=0; j<4; j++) {
 		txtX = keybrdX; PrintChr(' ');
 		for (i=0; i<13; i++) {
-			txtX++; PrintChr(keyCodes[j][i]);
+			txtX++; PrintChr(SwapSpecialChar(keyCodes[j][i]));
 		}
 		txtX++; PrintChr(' ');
 		txtY++;
@@ -102,7 +111,7 @@ void DisplayChar(unsigned char chr)
 	BackupCursor();
 	txtX = keybrdX+keybrdCol+1;
 	txtY = keybrdY+keybrdRow;
-	PrintChr(chr);
+	PrintChr(SwapSpecialChar(chr));
 	RestoreCursor();
 }
 
@@ -142,7 +151,7 @@ void UpdateKeyboardOverlay()
 		if (clock()-keybrdClock > 20) {
 			DisplayChar(keyCur);
 		} else {
-			DisplayChar(' ');
+			DisplayChar(32);
 		}
 	}
 }

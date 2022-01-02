@@ -281,13 +281,13 @@
 		}
 	}
 
-#elif defined __NES__			  //  Pulse        Ramp       Length  
-	unsigned char sfxData[][] = { { 0b10011111,	0b00000000, 0b11111000 },	// SFX_BLEEP
-								  { 0b10011111,	0b00000000, 0b11111000 },	// SFX_BUMP
-								  { 0b10011111,	0b00000000, 0b11111000 },	// SFX_ENGINE
-								  { 0b10011111,	0b00000000, 0b11111000 },	// SFX_INJURY
-								  { 0b10011111,	0b00000000, 0b11111000 },	// SFX_GUN
-								  { 0b10011111,	0b00000000, 0b11111000 } };	// SFX_SCREECH	
+#elif defined __NES__			  		 //  Pulse         Ramp       Length  
+	const unsigned char sfxData[][] = { { 0b10011111,	0b00000000, 0b11111000 },	// SFX_BLEEP
+									    { 0b10011111,	0b00000000, 0b11111000 },	// SFX_BUMP
+										{ 0b10011111,	0b00000000, 0b11111000 },	// SFX_ENGINE
+										{ 0b10011111,	0b00000000, 0b11111000 },	// SFX_INJURY
+										{ 0b10011111,	0b00000000, 0b11111000 },	// SFX_GUN
+										{ 0b10011111,	0b00000000, 0b11111000 } };	// SFX_SCREECH	
 	
 	// Pulse Ctrl:  DDLLC VVVV
 	// D: Duty cycle of the pulse wave 00 = 12.5% 01 = 25% 10 = 50% 11 = 75%
@@ -311,7 +311,7 @@
 	// Centralized SFX function
 	void PlaySFX(unsigned char index, unsigned char pitch, unsigned char volume, unsigned char channel)
 	{
-		unsigned char ch, *data = sfxData[index];
+		unsigned char *data = sfxData[index];
 		unsigned int addr = 0x4000 + (index%2)*4;
 		POKE(addr++, data[0]);		// Pulse   
 		addr++; //POKE(0x4001,  data[1])	// Ramp

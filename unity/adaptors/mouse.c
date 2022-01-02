@@ -41,13 +41,18 @@
 #ifdef __NES__
   #pragma rodata-name("BANK0")
   #pragma code-name("BANK0")
+  #pragma bss-name(push, "XRAM")
+#endif
+
+unsigned char mouseState[3] = {80, 100, 255};
+clock_t mouseClock;
+
+#ifdef __NES__
+  #pragma bss-name(pop)
 #endif
 
 #define MOU_XMAX 159
 #define MOU_YMAX 199
-
-unsigned char mouseState[3] = {80, 100, 255};
-clock_t mouseClock;
 
 unsigned char* GetMouse(void) 
 {

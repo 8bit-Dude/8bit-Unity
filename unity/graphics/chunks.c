@@ -60,24 +60,26 @@
   unsigned char chunkBuf[4];
 #endif
 
-unsigned int ChunkSize(unsigned char w, unsigned char h)
-{
-#if defined __APPLE2__
+#ifndef __NES__
+  unsigned int ChunkSize(unsigned char w, unsigned char h)
+  {
+  #if defined __APPLE2__
 	return 4+(w*h*2)/7u;	// For each group of 7 pixels: 2 bytes in SHR, 4 bytes in DHR (2 in AUX + 2 in MAIN)
-#elif defined __ATARI__
-  #if defined __ATARIXL__
+  #elif defined __ATARI__
+   #if defined __ATARIXL__
 	return 4+(w*h)/2u;
-  #else
+   #else
 	return 4+(w*h)/4u;
-  #endif	  
-#elif defined __C64__
+   #endif	  
+  #elif defined __C64__
 	return 4+(w*h*10)/32u;
-#elif defined __LYNX__
+  #elif defined __LYNX__
 	return 4+(w*h)/2u;
-#elif defined __ORIC__
-	return 4+(w*h)/6u;
+  #elif defined __ORIC__
+  	return 4+(w*h)/6u;
+  #endif	
+  }
 #endif	
-}
 
 void LoadChunk(unsigned char** chunk, char *filename) 
 {
