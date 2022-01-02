@@ -8,9 +8,9 @@
   #define PAUSE_LOCAL_ROW   6
   #define PAUSE_ONLINE_ROW  2
 #elif defined(__NES__)
-  #define PAUSE_COL 		11
-  #define PAUSE_LOCAL_ROW   10
-  #define PAUSE_ONLINE_ROW  6	
+  #define PAUSE_COL 		10
+  #define PAUSE_LOCAL_ROW   9
+  #define PAUSE_ONLINE_ROW  5	
 #endif
 
 #ifdef __NES__
@@ -320,9 +320,9 @@ void BackupRestorePauseBg(unsigned char mode)
 #elif defined(__NES__)	
 	// Use chunks
 	if (!mode) {
-		GetChunk(&chatBG, PAUSE_COL*8, PAUSE_ONLINE_ROW*8, 10*8, 12*8);
+		GetChunk(&chatBG, PAUSE_COL, PAUSE_ONLINE_ROW, 10, 12);
 	} else {
-		SetChunk(chatBG, PAUSE_COL*8, PAUSE_ONLINE_ROW*8);
+		SetChunk(chatBG, PAUSE_COL, PAUSE_ONLINE_ROW);
 		chunkPtr = chunkBuf;  // Reset Chunk Buffer
 	}
 #endif	

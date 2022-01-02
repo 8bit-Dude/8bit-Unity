@@ -51,14 +51,18 @@
 #define STEP_RACE   2
 
 // Interface definitions
-#define ROW_CHAT (TXT_ROWS-2)
 #define SLOT_COL1 8
+#define BUFFER_ROW 0
 #if defined __NES__
   #define SLOT_WIDTH 6
   #define SLOT_OFFST 4
+  #define CHAT_ROW  (TXT_ROWS-1)
+  #define LAPS_ROW  (TXT_ROWS)
 #else
   #define SLOT_WIDTH 8
   #define SLOT_OFFST 5
+  #define CHAT_ROW  (TXT_ROWS-2)
+  #define LAPS_ROW  (TXT_ROWS-1)
 #endif	
 
 // Platform specific colors
@@ -108,23 +112,23 @@
 
 // Menu location/size
 #if defined __LYNX__
-	#define MENU_COL 22
-	#define MENU_ROW  2
-	#define MENU_WID 17
-	#define MENU_HEI 13
-	#define MENU_BLD TXT_ROWS-1
+	#define MENU_COL  22
+	#define MENU_ROW   2
+	#define MENU_WID  17
+	#define MENU_HEI  13
+	#define BUILD_ROW TXT_ROWS-1
 #elif defined __NES__
-	#define MENU_COL 14
-	#define MENU_ROW  4
-	#define MENU_WID 18
-	#define MENU_HEI 16
-	#define MENU_BLD TXT_ROWS-2
+	#define MENU_COL  14
+	#define MENU_ROW   5
+	#define MENU_WID  18
+	#define MENU_HEI  16
+	#define BUILD_ROW TXT_ROWS-2
 #else
-	#define MENU_COL 22
-	#define MENU_ROW  4
-	#define MENU_WID 17
-	#define MENU_HEI 16
-	#define MENU_BLD TXT_ROWS-2
+	#define MENU_COL  22
+	#define MENU_ROW   4
+	#define MENU_WID  17
+	#define MENU_HEI  16
+	#define BUILD_ROW TXT_ROWS-2
 #endif
 
 // Sprite definitions

@@ -31,7 +31,16 @@
 	#define SFX_OFFSET 0
 #endif	
 
+// SFX Variables
+#if defined(__NES__)
+	#pragma bss-name(push, "XRAM")
+#endif	
+
 unsigned char sfx[4], frq[4], vol[4];
+
+#if defined(__NES__)
+	#pragma bss-name(pop)
+#endif	
 
 void BleepSFX(unsigned char pitch)
 {

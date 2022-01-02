@@ -1,11 +1,6 @@
 
 #include "definitions.h"
 
-#ifdef __NES__
-  #pragma rodata-name("BANK0")
-  #pragma code-name("BANK0")
-#endif
-
 #if defined __ATARIXL__
   // Use background colors
   #define RACE_ROAD BLACK
@@ -28,6 +23,12 @@
   #define RACE_WALL 2
 #endif
 
+// Map boundaries
+#define XMIN   3*8
+#define YMIN  11*8
+#define XMAX 317*8
+#define YMAX 189*8
+
 // See slicks.c
 extern unsigned char inkColors[];
 
@@ -44,12 +45,6 @@ extern unsigned char clIndex;
 extern unsigned char clName[MAX_PLAYERS][5];
 extern unsigned char svMap, svStep; 
 extern char chatBuffer[20];
-
-// Map boundaries
-int xMin = 3*8;
-int yMin = 11*8;
-int xMax = 317*8;
-int yMax = 189*8;
 
 // Game data
 unsigned char gameMap = 0;
@@ -74,11 +69,11 @@ int tck4, accRate, decRate, jmpTCK;
   #define LIGHT_SP  24
   char rotRate = 3;
 #endif
-const char rotMax[4] = { 4, 5, 6, 2 };
-const int velMin = 200;
+#define VELMIN   200
+#define VELDRIFT 450
+#define VELRAMP  800
 const int velMax[4] = { 390, 460, 530, 600 };
-const int velDrift = 450;
-const int velRamp = 800;
+const char rotMax[4] = { 4, 5, 6, 2 };
 
 // Fast tables for cos/sin
 const signed char cos[16] = {16,14,11,6,0,-6,-11,-14,-16,-14,-11,-6,0,6,11,14};
@@ -120,7 +115,7 @@ void GameReset()
 	ResetLineUp();
 	
     // Reset Players
-	txtY = TXT_ROWS-1;
+	txtY = LAPS_ROW;
     for (i=0; i<MAX_PLAYERS; ++i) {        
         // Reset SFX
         EngineSFX(i, 0);
@@ -149,8 +144,8 @@ void GameReset()
 			spriteX = cars[i].x2/16u; 
 			spriteY = cars[i].y2/16u;
 		#elif defined __NES__
-			spriteX = cars[i].x2/10u; 
-			spriteY = cars[i].y2/8u+14;
+			spriteX =  cars[i].x2/10u; 
+			spriteY = (cars[i].y2*3u)/25u+24;
 		#endif
 		#if defined MULTICOLOR
 			SetMultiColorSprite(2*i, f);  // Car body and tires
@@ -168,13 +163,14 @@ void GameReset()
 	// Display warmup message
 	inkColor = WHITE; 
 	if (gameStep == STEP_WARMUP) {
+	#if defined __NES__
+		PrintBuffer(" WARMUP: SELEC=MENU, START=RACE ");   
+	#else	
         if (gameMode == MODE_ONLINE) {
 		#if defined __CBM__
             PrintBuffer("  WARMUP: F1=RACE, F3=NEXT MAP, C=CHAT  ");   
 		#elif defined __LYNX__
             PrintBuffer("   WARMUP: OP1=RACE, PAU=MENU, B=CHAT   ");   
-		#elif defined __NES__
-            PrintBuffer("WARMUP: STA=RACE,SEL=MENU,B=CHAT");   
 		#else
             PrintBuffer("   WARMUP: 1=RACE, 2=NEXT MAP, C=CHAT   ");   
 		#endif
@@ -183,12 +179,11 @@ void GameReset()
             PrintBuffer("  WARMUP: F1=RACE, F3=NEXT MAP, Q=Quit  ");   
 		#elif defined __LYNX__
             PrintBuffer("  WARMUP: OP1=RACE, PAU=MENU, RS=Quit   ");   
-		#elif defined __NES__
-            PrintBuffer("   WARMUP: STA=RACE, SEL=MENU   ");   
 		#else
             PrintBuffer("   WARMUP: 1=RACE, 2=NEXT MAP, Q=Quit   ");   
 		#endif
         }
+	#endif
 	} else {
 		PrintRace();
 	}
@@ -211,6 +206,11 @@ void GameReset()
 	pixelY = y/32u-2;
 	return (bgMask[pixelY*16+pixelX/4u] >> ((pixelX%4)*2)) & 3;
   }
+#endif
+
+#ifdef __NES__
+  #pragma rodata-name("BANK0")
+  #pragma code-name("BANK0")
 #endif
 
 // Initialize Game
@@ -255,7 +255,7 @@ void GameInit(const char* map)
 	
 	// Print map name in lower left corner
 	inkColor = WHITE;
-	txtX = 0; txtY = TXT_ROWS-1;
+	txtX = 0; txtY = LAPS_ROW;
 	PrintStr(mapList[gameMap]);
 
 	// Load Navigation
@@ -276,7 +276,7 @@ void GameInit(const char* map)
     // Some extra logics depending on the game mode
 	if (gameMode == MODE_LOCAL) {
         // Setup players
-		txtY = TXT_ROWS-1;
+		txtY = LAPS_ROW;
         for (i=0; i<MAX_PLAYERS; ++i) {
             // Print player numbers in score board
             if (controlIndex[i]) {
@@ -600,7 +600,7 @@ char GameLoop()
 			if (CheckRamps()) {
 				// On ramp: check if jumping and increase max velocity
 				if (iVel >= 450) { iCar->jmp = clock(); }
-				iVelMax = velRamp;
+				iVelMax = VELRAMP;
 			} else {
 				// Jumping: maintain speed                        
 				if ((clock()-iCar->jmp) < jmpTCK) {
@@ -609,7 +609,7 @@ char GameLoop()
 				} else {
 					// Not on track: reduce speed
 					if (iColor != RACE_ROAD && iColor != RACE_MARK) {
-						iVelMax = velMin;                    
+						iVelMax = VELMIN;                    
 					}
 				}
 			}             
@@ -729,8 +729,8 @@ char GameLoop()
 			iCar->impy = 0;
 			
 			// Check map boundaries				
-			if (iX < xMin) { iX = xMin; } else if (iX > xMax) { iX = xMax; }
-			if (iY < yMin) { iY = yMin; } else if (iY > yMax) { iY = yMax; }
+			if (iX < XMIN) { iX = XMIN; } else if (iX > XMAX) { iX = XMAX; }
+			if (iY < YMIN) { iY = YMIN; } else if (iY > YMAX) { iY = YMAX; }
 					
 			// Compute sprite location
 		#if defined __APPLE2__
@@ -750,8 +750,8 @@ char GameLoop()
 			spriteX = iX/16u; 
 			spriteY = iY/16u;	
 		#elif defined __NES__
-			spriteX = iX/10u; 
-			spriteY = iY/8u+14;
+			spriteX =  iX/10u; 
+			spriteY = (iY*3)/25u+24;
 		#endif				
 		
 			// Get again background 
@@ -765,7 +765,7 @@ char GameLoop()
 			// Check background type
 			if (iColor == RACE_WALL) {
 				// Hit a wall: return to previous position
-				if (iVel > velMin) { iVel = velMin; }
+				if (iVel > VELMIN) { iVel = VELMIN; }
 				if (iCtrl > 3) {
 					if (iJmp) { iJmp = 0; }
 					iX = iCar->x2;
@@ -816,7 +816,7 @@ char GameLoop()
 							if (iJmp || (clock()-cars[j].jmp) < jmpTCK) { continue; }
 							// Apply impulse to other car, and reduce own velocity
 							if ( (iCos*(cars[j].x2 - iX) - iSin*(cars[j].y2 - iY)) > 0) {
-								if (iVel > velMin) { iVel = velMin; }
+								if (iVel > VELMIN) { iVel = VELMIN; }
 								cars[j].impx = iCos/2;
 								cars[j].impy = -iSin/2;		
 								BumpSFX();
@@ -831,7 +831,7 @@ char GameLoop()
 			if (iJmp)	
 				JumpSFX(i);
 			else
-			if (iVel < velDrift || deltaAngle < 25)
+			if (iVel < VELDRIFT || deltaAngle < 25)
 		#endif
 				EngineSFX(i, iVel);
 		#if defined(__LYNX__) || defined(__CBM__)
@@ -934,8 +934,9 @@ char GameLoop()
 	#endif
 			// Process Chat?
 			if (chatting) {
+			#ifndef __NES__	
 				inkColor = inkColors[clIndex];
-				txtX = 0; txtY = ROW_CHAT;
+				txtX = 0; txtY = CHAT_ROW;
 				if (InputStr(19, chatBuffer, 19, lastKey)) {
 					// Return was pressed
 					if (chatBuffer[0] != 0) { ClientEvent(EVENT_CHAT); }
@@ -946,6 +947,7 @@ char GameLoop()
 					LockBackButton = 1;
 				#endif						
 				}
+			#endif
 			} else {
 				// Start Race
 				if (lastKey == KB_START) {
@@ -967,14 +969,16 @@ char GameLoop()
 				}					
 				// Enable chat
 				if (gameMode == MODE_ONLINE && lastKey == KB_CHAT) {
-				#if defined __LYNX__
+				#ifndef __NES__	
+				  #if defined __LYNX__
 					BackupRestoreChatRow(0);
 					ShowKeyboardOverlay();
-				#endif
+				  #endif
 					chatting = 1;
 					chatBuffer[0] = 0;
-					txtX = 0; txtY = ROW_CHAT;
+					txtX = 0; txtY = CHAT_ROW;
 					InputStr(19, chatBuffer, 19, 0);
+				#endif
 				}
 				// Quit game
 				if (lastKey == KB_QUIT) {

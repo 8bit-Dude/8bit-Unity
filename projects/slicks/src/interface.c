@@ -114,7 +114,7 @@ void BackupRestoreChatRow(unsigned char mode)
 	unsigned char i;
 	unsigned char *buf = chatBG;
 #if defined __APPLE2__
-	unsigned char *line = 8*ROW_CHAT;
+	unsigned char *line = 8*CHAT_ROW;
 	for (i=0; i<8; ++i) {
 		SetHiresPointer(0, line);		
 		if (!mode) {
@@ -135,7 +135,7 @@ void BackupRestoreChatRow(unsigned char mode)
 		line++; buf += 20;
 	}	
 #elif defined __ATARIXL__
-	unsigned char *bmp = BITMAPRAM1+320*ROW_CHAT;
+	unsigned char *bmp = BITMAPRAM1+320*CHAT_ROW;
 	for (i=0; i<8; ++i) {
 		if (!mode) {
 			memcpy((char*)(buf),     (char*)(bmp), 		  20);
@@ -147,7 +147,7 @@ void BackupRestoreChatRow(unsigned char mode)
 		bmp += 40; buf += 20;
 	}	
 #elif defined __ATARI__
-	unsigned char *bmp = BITMAPRAM1+320*ROW_CHAT;
+	unsigned char *bmp = BITMAPRAM1+320*CHAT_ROW;
 	for (i=0; i<8; ++i) {
 		if (!mode) {
 			memcpy((char*)(buf), (char*)(bmp), 20);
@@ -157,8 +157,8 @@ void BackupRestoreChatRow(unsigned char mode)
 		bmp += 40; buf += 20;
 	}	
 #elif defined __CBM__
-	unsigned char *bmp = BITMAPRAM+320*ROW_CHAT;
-	unsigned char *scr = SCREENRAM+40*ROW_CHAT;
+	unsigned char *bmp = BITMAPRAM+320*CHAT_ROW;
+	unsigned char *scr = SCREENRAM+40*CHAT_ROW;
 	if (!mode) {
 		rom_disable();
 		memcpy((char*)(buf),     (char*)(bmp), 160);
@@ -169,7 +169,7 @@ void BackupRestoreChatRow(unsigned char mode)
 		memcpy((char*)(scr), (char*)(buf+160),  20);
 	}
 #elif defined __LYNX__
-	unsigned char *bmp = BITMAPRAM+1+492*ROW_CHAT;
+	unsigned char *bmp = BITMAPRAM+1+492*CHAT_ROW;
 	for (i=0; i<6; ++i) {
 		if (!mode) {
 			memcpy((char*)(buf), (char*)(bmp), 40);
@@ -179,7 +179,7 @@ void BackupRestoreChatRow(unsigned char mode)
 		bmp += 82; buf += 40;
 	}
 #elif defined __ORIC__
-	unsigned char *bmp = BITMAPRAM+1+320*ROW_CHAT;
+	unsigned char *bmp = BITMAPRAM+1+320*CHAT_ROW;
 	for (i=0; i<8; ++i) {
 		if (!mode) {
 			memcpy((char*)(buf), (char*)(bmp), 20);
@@ -197,33 +197,46 @@ void PrintBuffer(char *buffer)
 	// Get length of new message
 	unsigned char len;
 	len = strlen(buffer);
-	txtX = TXT_COLS-len;
-	txtY = 0;
+	txtY = BUFFER_ROW;	
 	
-#if defined __ORIC__	
-	// Need to insert ink changes...
-	txtX--; len++;
-	if (len<TXT_COLS) {
-		CopyStr(0, 0, len, 0, TXT_COLS-len);
-		SetAttributes(inkColor);
-	}
-	txtX++; len--;
-	PrintStr(buffer);		
-	
-#elif defined __APPLE2__	
+#if defined __APPLE2__	
 	// Make sure message has even length
 	if (len&1) {
 		buffer[len++] = ' ';
 		buffer[len] = 0;
 	}
+	txtX = TXT_COLS-len;
 	if (len<TXT_COLS)
-		CopyStr(0, 0, len, 0, TXT_COLS-len);
+		CopyStr(0, BUFFER_ROW, len, BUFFER_ROW, TXT_COLS-len);
 	PrintStr(buffer);		
-	
+
+#elif defined __NES__	
+	// Make sure message length is multiple of 4 (for color attributes)
+	while (len&3) {
+		buffer[len++] = ' ';
+		buffer[len] = 0;		
+	}
+	txtX = TXT_COLS-len;
+	if (len<TXT_COLS)
+		CopyStr(0, BUFFER_ROW, len, BUFFER_ROW, TXT_COLS-len);
+	PrintStr(buffer);		
+
+#elif defined __ORIC__	
+	// Need to insert ink changes...
+	txtX--; len++;
+	if (len<TXT_COLS) {
+		CopyStr(0, BUFFER_ROW, len, BUFFER_ROW, TXT_COLS-len);
+		SetAttributes(inkColor);
+	}
+	txtX++; len--;
+	txtX = TXT_COLS-len;
+	PrintStr(buffer);		
+		
 #else
 	// Just shift buffer and print new message
+	txtX = TXT_COLS-len;
 	if (len<TXT_COLS)
-		CopyStr(0, 0, len, 0, TXT_COLS-len);
+		CopyStr(0, BUFFER_ROW, len, BUFFER_ROW, TXT_COLS-len);
 	PrintStr(buffer);		
 #endif
 }
@@ -237,7 +250,7 @@ void InputField(char *buffer, unsigned char len)
 #if defined(__LYNX__) || defined(__NES__)
 	ShowKeyboardOverlay();
 	while (1) {
-		while (!KeyboardOverlayHit()) { UpdateDisplay(); } // Refresh Lynx screen
+		while (!KeyboardOverlayHit()) { UpdateDisplay(); } // Refresh screen
 		if (InputStr(len, buffer, len, GetKeyboardOverlay())) {
 			HideKeyboardOverlay();
 			return; 
@@ -276,7 +289,7 @@ void PrintLap(unsigned char i)
 {
 	// Set cursor	
 	if (cars[i].lap > 0) { 
-		txtY = TXT_ROWS-1;
+		txtY = LAPS_ROW;
 		txtX = (SLOT_COL1+SLOT_OFFST) + SLOT_WIDTH*i; 
 		inkColor = inkColors[i]; 
 		PrintNum(cars[i].lap);
@@ -294,11 +307,11 @@ void PrintRace()
 #endif	
 	
 	// Print laps
-#if defined(__NES__)
-	txtX = 22; txtY = 0; 
-#else
 	inkColor = INK_LAPS; 
-	txtX = 26; txtY = 0; 
+#if defined(__NES__)
+	txtX = 22; txtY = BUFFER_ROW; 
+#else
+	txtX = 26; txtY = BUFFER_ROW; 
 #endif	
 	PrintNum(lapGoal);
 }
@@ -317,11 +330,6 @@ void MenuMap()
 	txtX = MENU_COL+3; PrintStr("AP:");
 	txtX = MENU_COL+7; PrintStr(mapList[gameMap]);	
 }
-
-#ifdef __NES__
-  #pragma rodata-name("BANK0")
-  #pragma code-name("BANK0")
-#endif
 
 // Sub-function of GameMenu()
 void MenuLaps()
@@ -347,6 +355,11 @@ void PrintTimedOut()
     sleep(3);
 }
 
+#ifdef __NES__
+  #pragma rodata-name("BANK0")
+  #pragma code-name("BANK0")
+#endif
+
 // Sub-function for Animating Sprites in Main Menu
 void SpriteAnimation(unsigned char index, unsigned char frame)
 {
@@ -368,7 +381,7 @@ void SpriteAnimation(unsigned char index, unsigned char frame)
 	spriteY = 6;
 #elif defined __NES__
 	spriteX = 160+index*21; 
-	spriteY = 29;
+	spriteY = 38;
 #endif		
 #if defined MULTICOLOR
 	SetMultiColorSprite(2*index, frame); // Car body and tires
@@ -483,7 +496,7 @@ void PrintScores()
 				DisableSprite(SPR2_SLOT+i);		// Jump sprite			
 			} else {
 				spriteX = iX/10u; 
-				spriteY = iY/8u+14;				
+				spriteY = (iY*3)/25u+24;				
 				j = (iCar->ang2+12)/23u;
 				if (j>15) { j=0; }
 				SetSprite(i, j);
@@ -650,7 +663,10 @@ void MenuServers()
 			// Separate at return carriage (char 10)
 			k = 0;
 			txtY = (MENU_ROW+2)+j;
-		#ifndef __LYNX__	
+		#if defined(__LYNX__) || defined(__NES__)
+			// Do nothing
+		#else
+			// Show server selection digit keys
 			inkColor = INK_HIGHLT; paperColor = PAPER_HIGHLT;			
 			txtX = MENU_COL+0; PrintChr(CHR_DIGIT+1+j);
 		#endif
@@ -680,7 +696,7 @@ unsigned char MenuLogin(unsigned char serverIndex)
 	txtX = MENU_COL; txtY = MENU_ROW+2;
 	PrintBlanks(MENU_WID, MENU_HEI-2);
 	
-#if defined __LYNX__
+#if defined(__LYNX__) || defined(__NES__)
 	ReadEEPROM();
 	SetKeyboardOverlay(11,60);
 #endif	
@@ -865,7 +881,7 @@ void GameMenu()
 		
 	// Show version, credits, and start music
 	inkColor = WHITE; paperColor = BLACK;
-	txtX = MENU_COL; txtY = MENU_BLD;
+	txtX = MENU_COL; txtY = BUILD_ROW;
 	PrintStr(buildInfo);
 
 #if defined(__LYNX__) || defined(__NES__)
