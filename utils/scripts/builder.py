@@ -33,7 +33,7 @@ import os, pickle, pygubu, sys, collections, json, codecs
 cCore = [ 'adaptors\\joystick.c','adaptors\\mouse.c',    'geom\\geom2d.c',     'math\\dot.c', 
           'graphics\\bitmap.c',  'graphics\\charmap.c',  'graphics\\chunks.c', 'graphics\\logos.c',  'graphics\\menu.c',   'graphics\\parallax.c', 'graphics\\scaling.c', 'graphics\\sprites.c', 'graphics\\widgets.c', 
           'network\\net-base.c', 'network\\net-easy.c',  'network\\net-ip.c',  'network\\net-tcp.c', 'network\\net-udp.c', 'network\\net-url.c',   'network\\net-web.c', 
-          'strings\\blanks.c',   'strings\\copy.c',      'strings\\input.c',   'strings\\number.c',  'strings\\print.c', 
+          'strings\\blanks.c',   'strings\\copy.c',      'strings\\cursor.c',  'strings\\input.c',   'strings\\number.c',  'strings\\print.c', 
           'sound\\music.c',      'sound\\sfx.c' ]
 
 sCore = [ 'math\\atan2.s', 'graphics\\tiles.s' ]
@@ -2013,7 +2013,7 @@ class Application:
             # Start emulator?
             if callEmu:
                 fp.write('pause\n\n')
-                fp.write('cd "utils\emulators\FCEUX-2.3.0"\n')
+                fp.write('cd "utils\emulators\FCEUX-2.5.0-Hub"\n')
                 fp.write('fceux.exe "..\\..\\..\\' + buildFolder + '\\' + diskname + '-nes.nes"\n')            
 
         ####################################################

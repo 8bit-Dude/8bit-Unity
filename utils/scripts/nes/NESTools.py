@@ -254,7 +254,7 @@ def CrunchTiles(names, chars, maxTiles):
 
     #######################################
     # Drop identical chars
-    if len(names) == 800:
+    if len(names) == 768:
         ch = 1; nm = 0
         while ch<len(chars) and len(chars) > maxTiles:
             matched = False
@@ -264,7 +264,7 @@ def CrunchTiles(names, chars, maxTiles):
                     break
             if matched:
                 names[nm] = i
-                for j in range(nm+1, 800):
+                for j in range(nm+1, 768):
                     names[j] -= 1
                 chars.pop(ch)
             else:
@@ -362,7 +362,7 @@ def ExportNametable(filename, names, palette):
 
     #######################################
     # Encode and write Nametable
-    head = [0] * 64
+    head = [0] * 96
     foot = [0] * 160
     names = head+names+foot
     rle = RLECompression(names)
