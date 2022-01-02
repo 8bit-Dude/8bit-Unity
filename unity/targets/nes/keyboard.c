@@ -30,31 +30,40 @@
 #pragma code-name("BANK0")
 
 // Soft keyboard functions
+#pragma bss-name(push, "XRAM")
 clock_t keybrdClock = 0;
 unsigned char keybrdShow = 0, keybrdVal = 0; 
 unsigned char keybrdJoy = 0, keybrdPressed = 0;
 unsigned char keybrdX = 0, keybrdY = 0;
 signed char keybrdRow = 0, keybrdCol = 0;
+char* keybrdBG;
+#pragma bss-name(pop)
 
 const signed char keyCodes[4][13] = { { 49, 50, 51, 52, 53, 54, 55, 56, 57, 48, 45, 95, 43 },
 									  { 81, 87, 69, 82, 84, 89, 85, 73, 79, 80, 40, 41, 20 },
 									  { 65, 83, 68, 70, 71, 72, 74, 75, 76, 58, 39, 33, 13 },
 									  { 90, 88, 67, 86, 66, 78, 77, 44, 46, 63, 47, 92, 32 } };
 									  
+extern unsigned char *chunkPtr;
+extern unsigned char chunkBuf[];
+									  
 void ShowKeyboardOverlay() 
 {
 	unsigned char i,j;
 	
+	// Use chunks to save background
+	GetChunk(&keybrdBG, keybrdX*8, keybrdY*8, 15*8, 4*8);
+	
 	// Display Keyboard
 	BackupCursor();
-	txtX = keybrdX; txtY = keybrdY;
-	PrintBlanks(15,6);
+	txtY = keybrdY;
 	for (j=0; j<4; j++) {
-		txtX = keybrdX+1; txtY++;
+		txtX = keybrdX; PrintChr(' ');
 		for (i=0; i<13; i++) {
-			PrintChr(keyCodes[j][i]);
-			txtX++;
+			txtX++; PrintChr(keyCodes[j][i]);
 		}
+		txtX++; PrintChr(' ');
+		txtY++;
 	}
 	RestoreCursor();
 	
@@ -64,6 +73,9 @@ void ShowKeyboardOverlay()
 }
 void HideKeyboardOverlay() 
 {
+	// Restore background
+	SetChunk(keybrdBG, keybrdX*8, keybrdY*8);
+	chunkPtr = chunkBuf;  // Reset Chunk Buffer
 	keybrdShow = 0;
 }
 void SetKeyboardOverlay(unsigned char x, unsigned char y) 
@@ -89,7 +101,7 @@ void DisplayChar(unsigned char chr)
 {
 	BackupCursor();
 	txtX = keybrdX+keybrdCol+1;
-	txtY = keybrdY+keybrdRow+1;
+	txtY = keybrdY+keybrdRow;
 	PrintChr(chr);
 	RestoreCursor();
 }

@@ -150,7 +150,6 @@ unsigned char __fastcall__ oam_get(void);
 void __fastcall__ oam_hide(unsigned char num);
 
 
-
 //play a music in FamiTone format
 void __fastcall__ music_load(unsigned char *addr);
 void __fastcall__ music_play(unsigned char song);

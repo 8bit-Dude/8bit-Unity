@@ -133,3 +133,16 @@ void __fastcall__ SetVramColor(unsigned char forcePush)
 		vram_attr_horz++;
 	}
 }
+
+void __fastcall__ FillVram(unsigned char* data)
+{
+	ppu_off();
+	bzero(vram_attr, 64);	// Reset color attributes (shadow)
+	vram_adr(NAMETABLE_A);	// Go to top of nametable
+	if (!data) {
+		vram_fill(0, 0x400); // Fill with 0s
+	} else {
+		vram_unrle(data);	 // Decompress name-table
+	}
+	ppu_on_all();	
+}

@@ -123,10 +123,13 @@
 
 // Display functions
 extern unsigned char autoRefresh, palBG[16];
+extern unsigned char vram_attr[64];
+extern unsigned char vram_attr_index;
 void __fastcall__ SetVramAttr(void);
 void __fastcall__ SetVramName(void);
 void __fastcall__ SetVramChar(unsigned char chr);
 void __fastcall__ SetVramColor(unsigned char forcePush);
+void __fastcall__ FillVram(unsigned char* data);
 
 // ROM/RAM transfer functions
 void memcpyBanked(unsigned char* dst, unsigned char* src, unsigned int len, unsigned char bank);

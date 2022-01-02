@@ -133,6 +133,8 @@ void GetChunk(unsigned char** chunk, unsigned char x, unsigned char y, unsigned 
 	POKE(chunkPtr++, y);
 	POKE(chunkPtr++, w);
 	POKE(chunkPtr++, h);
+	
+	// Get names
 	x /= 8u; y /= 8u; y += 2;
 	h /= 8u; w /= 8u;	
 	ppu_off();	
@@ -143,7 +145,17 @@ void GetChunk(unsigned char** chunk, unsigned char x, unsigned char y, unsigned 
 		chunkPtr += w; y++;
 	}	
 	ppu_on_all();	
-	
+
+	// Get attributes
+	y -= h; // return to top
+	x /= 4u; y /= 4u;
+	h /= 4u; w /= 4u;	
+	h += 1;  w += 1;
+	for (i=0; i<h; ++i) {
+		memcpy(chunkPtr, &vram_attr[8*y+x], w);
+		chunkPtr += w; y += 1;
+	}
+		
 #else	
 	// Allocate memory for bitmap chunk
   #ifndef __APPLE2__
@@ -296,16 +308,31 @@ void SetChunk(unsigned char* chunk, unsigned char x, unsigned char y)
 	UpdateDisplay();
 	
 #elif defined __NES__
-	unsigned char i, j, *chunkPtr = chunk+2;
-	unsigned char w = (*chunkPtr++/8u);
-	unsigned char h = (*chunkPtr++/8u);
-	txtX = x/8u; txtY = (y/8u);
+	unsigned char i, j, *ptr = chunk+2;
+	unsigned char w = (*ptr++/8u);
+	unsigned char h = (*ptr++/8u);
+
+	// Set names
+	txtX = x/8u; txtY = y/8u;
 	for (i=0; i<h; ++i) {
 		SetVramName();
 		for (j=0; j<w; j++)
-			SetVramChar(*chunkPtr++);
+			SetVramChar(*ptr++);	
 		txtY++;
 	}	
+	
+	// Set attributes
+ 	txtY = y/8u;
+	h /= 4u; w /= 4u;	
+	h += 1;  w += 1;
+	for (i=0; i<h; ++i) {
+		SetVramAttr();
+		for (j=0; j<w; j++) {
+			vram_attr[vram_attr_index++] = *ptr;
+			SetVramChar(*ptr++); 
+		}
+		txtY += 4;		
+	}
 	UpdateDisplay();
 #endif
 }

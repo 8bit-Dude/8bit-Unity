@@ -47,7 +47,6 @@
  #pragma bss-name(push, "XRAM")
   unsigned char rleData[BITMAPRAM];  
  #pragma bss-name(pop)
-  extern unsigned char vram_attr[64];
   extern unsigned char fileIndex;
 #endif
 
@@ -87,6 +86,9 @@ void InitBitmap()
 	
 #elif defined __LYNX__
 	InitDisplay();
+	
+#elif defined __NES__
+	pal_bg(palBG);	// Assign default palette
 #endif	
 }
 
@@ -182,12 +184,7 @@ void ClearBitmap(void)
 	UpdateDisplay();
 
 #elif defined __NES__
-	ppu_off();
-	pal_bg(palBG);			// Re-assign default palette
-	bzero(vram_attr, 64);	// Reset color attributes (shadow)
-	vram_adr(NAMETABLE_A);	// Go to top of nametable
-	vram_fill(0, 0x400);	// Fill with 0s
-	ppu_on_all();
+    FillVram(0);
 #endif
 }
 
@@ -206,13 +203,10 @@ void LoadBitmap(char *filename)
 #elif defined __NES__
 	if (FileOpen(filename)) {
 		FileRead(rleData, -1);
-		ppu_off();	
-		set_chr_bank_0(2+fileIndex);	// Switch char set
-		vram_adr(NAMETABLE_A);			// Go to top of VRAM
-		vram_unrle(&rleData[4]);		// Decompress name-table
+		FillVram(&rleData[4]);
+		set_chr_bank_0(2+fileIndex);	// Switch char set		
 		memcpy(palBG, &rleData[0], 4);	// Copy palette data
-		pal_bg(palBG);					// Assign palette
-		ppu_on_all();
+		pal_bg(palBG);					// Re-assign palette
 	}
 	
 #elif defined __APPLE2__
