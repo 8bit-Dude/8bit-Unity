@@ -284,8 +284,8 @@ void LocateSprite(unsigned int x, unsigned int y)
 	spriteX = x/2u;			// 160x102
 	spriteY = (y*51)/100u;
 #elif defined __NES__
-	spriteX = (x*4)/5u;		// 256x200
-	spriteY = y+14;
+	spriteX = (x*4)/5u;		// 256x192
+	spriteY = (y*24)/25u+24;
 #endif
 }
 

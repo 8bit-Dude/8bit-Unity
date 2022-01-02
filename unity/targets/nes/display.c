@@ -80,20 +80,22 @@ void __fastcall__ SetVramAddr(void)
 void __fastcall__ SetVramName(void) 
 {	
 	// Set VRAM address in Name Table
-	vram_addr = NTADR_A(txtX,(txtY+2));
+	vram_addr = NTADR_A(txtX,(txtY+3));
 	SetVramAddr();
 }
 
 void __fastcall__ SetVramAttr(void) 
 {
+	unsigned char y = txtY+3;
+	
 	// Set VRAM address in Attribute Table
-	vram_addr = get_at_addr(0,txtX*8,(txtY+2)*8);
+	vram_addr = get_at_addr(0,txtX*8,y*8);
 	SetVramAddr();
 	
 	// Prepare attribute variables
 	vram_attr_color = (inkColor << 6) | (inkColor << 4) | (inkColor << 2) | inkColor;
-	vram_attr_index = 8*((txtY+2)/4u) + txtX/4u;
-	vram_attr_vert = ((txtY+2)%4);
+	vram_attr_index = 8*(y/4u) + txtX/4u;
+	vram_attr_vert = (y%4);
 	vram_attr_horz = (txtX%4); 
 }
 

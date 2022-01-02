@@ -137,8 +137,7 @@ void GetChunk(unsigned char** chunk, unsigned char x, unsigned char y, unsigned 
 	POKE(chunkPtr++, h);
 	
 	// Get names
-	x /= 8u; y /= 8u; y += 2;
-	h /= 8u; w /= 8u;	
+	y += 3;
 	ppu_off();	
 	for (i=0; i<h; ++i) {
 		vaddr = NTADR_A(x,y);
@@ -311,11 +310,12 @@ void SetChunk(unsigned char* chunk, unsigned char x, unsigned char y)
 	
 #elif defined __NES__
 	unsigned char i, j, *ptr = chunk+2;
-	unsigned char w = (*ptr++/8u);
-	unsigned char h = (*ptr++/8u);
+	unsigned char w = (*ptr++);
+	unsigned char h = (*ptr++);
 
 	// Set names
-	txtX = x/8u; txtY = y/8u;
+	BackupCursor();
+	txtX = x; txtY = y;
 	for (i=0; i<h; ++i) {
 		SetVramName();
 		for (j=0; j<w; j++)
@@ -324,7 +324,7 @@ void SetChunk(unsigned char* chunk, unsigned char x, unsigned char y)
 	}	
 	
 	// Set attributes
- 	txtY = y/8u;
+ 	txtY = y;
 	h /= 4u; w /= 4u;	
 	h += 1;  w += 1;
 	for (i=0; i<h; ++i) {
@@ -335,6 +335,7 @@ void SetChunk(unsigned char* chunk, unsigned char x, unsigned char y)
 		}
 		txtY += 4;		
 	}
+	RestoreCursor();
 	UpdateDisplay();
 #endif
 }

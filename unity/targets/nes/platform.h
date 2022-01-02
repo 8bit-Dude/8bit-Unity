@@ -47,20 +47,15 @@
 
 // Character Mode
 #define TXT_COLS 32
-#define TXT_ROWS 25
-
-// Charmap Mode
-#define TXT_COLS    32
-#define TXT_ROWS    25
-#define FONT_HEIGHT  8	
+#define TXT_ROWS 24
 
 // Charmap Mode
 #define CMP_COLS   32
-#define CMP_ROWS   25	
+#define CMP_ROWS   24	
 
 // Bitmap Mode
 #define BMP_COLS    256
-#define BMP_ROWS    200
+#define BMP_ROWS    192
 #define BMP_PALETTE   4
 
 // Colors available for Sprite Palette

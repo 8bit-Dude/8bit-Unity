@@ -61,7 +61,7 @@ void ShowKeyboardOverlay()
 	unsigned char i,j;
 	
 	// Use chunks to save background
-	GetChunk(&keybrdBG, keybrdX*8, keybrdY*8, 15*8, 4*8);
+	GetChunk(&keybrdBG, keybrdX, keybrdY, 15, 4);
 	
 	// Display Keyboard
 	BackupCursor();
@@ -83,7 +83,7 @@ void ShowKeyboardOverlay()
 void HideKeyboardOverlay() 
 {
 	// Restore background
-	SetChunk(keybrdBG, keybrdX*8, keybrdY*8);
+	SetChunk(keybrdBG, keybrdX, keybrdY);
 	chunkPtr = chunkBuf;  // Reset Chunk Buffer
 	keybrdShow = 0;
 }

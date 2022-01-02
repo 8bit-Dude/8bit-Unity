@@ -37,6 +37,8 @@
 #ifdef __NES__
   #pragma rodata-name("BANK0")
   #pragma code-name("BANK0")
+  extern unsigned char *chunkPtr;
+  extern unsigned char chunkBuf[];  
 #endif
 
 // Copy string from one area of screen to another
@@ -99,5 +101,11 @@ void CopyStr(unsigned char col1, unsigned char row1, unsigned char col2, unsigne
 		memcpy((char*)dst, (char*)src, len);
 		src += 82; dst += 82; i++;
 	}
+#elif defined __NES__
+	// Copy data using chunks
+	char *chunk;
+	GetChunk(&chunk, col2, row2, len, 1);
+	SetChunk(chunk, col1, row1);
+	chunkPtr = chunkBuf;
 #endif	
 }
