@@ -312,7 +312,7 @@
 	void PlaySFX(unsigned char index, unsigned char pitch, unsigned char volume, unsigned char channel)
 	{
 		unsigned char *data = sfxData[index];
-		unsigned int addr = 0x4000 + (index%2)*4;
+		unsigned int addr = 0x4000 + (channel%2)*4;
 		POKE(addr++, data[0]);		// Pulse   
 		addr++; //POKE(0x4001,  data[1])	// Ramp
 		POKE(addr++, 255-2*pitch/3u);	// Freq1

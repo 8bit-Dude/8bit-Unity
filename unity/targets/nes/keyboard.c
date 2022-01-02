@@ -61,17 +61,17 @@ void ShowKeyboardOverlay()
 	unsigned char i,j;
 	
 	// Use chunks to save background
-	GetChunk(&keybrdBG, keybrdX, keybrdY, 15, 4);
+	GetChunk(&keybrdBG, keybrdX, keybrdY, 13, 4);
 	
 	// Display Keyboard
 	BackupCursor();
 	txtY = keybrdY;
 	for (j=0; j<4; j++) {
-		txtX = keybrdX; PrintChr(' ');
+		txtX = keybrdX;
 		for (i=0; i<13; i++) {
-			txtX++; PrintChr(SwapSpecialChar(keyCodes[j][i]));
+			PrintChr(SwapSpecialChar(keyCodes[j][i]));
+			txtX++; 
 		}
-		txtX++; PrintChr(' ');
 		txtY++;
 	}
 	RestoreCursor();
@@ -89,8 +89,8 @@ void HideKeyboardOverlay()
 }
 void SetKeyboardOverlay(unsigned char x, unsigned char y) 
 {
-	keybrdX = x/5u;
-	keybrdY = y/4u;
+	keybrdX = x;
+	keybrdY = y;
 }
 
 unsigned char keyCur;
@@ -109,7 +109,7 @@ unsigned char KeyboardOverlayHit()
 void DisplayChar(unsigned char chr)
 {
 	BackupCursor();
-	txtX = keybrdX+keybrdCol+1;
+	txtX = keybrdX+keybrdCol;
 	txtY = keybrdY+keybrdRow;
 	PrintChr(SwapSpecialChar(chr));
 	RestoreCursor();
