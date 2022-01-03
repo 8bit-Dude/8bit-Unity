@@ -1799,7 +1799,7 @@ class Application:
             # Assign Bank Numbers (fill-up each $4000 block)
             fp.write('set FILEBANKS=\n')
             fp.write('set /a INDEX=0\n')
-            fp.write('set /a CURBANK=1\n')
+            fp.write('set /a CURBANK=2\n')
             fp.write('set /a CUMSIZE=0\n')
             fp.write('(for %%a in (%FILESIZES%) do ( \n')
             fp.write('   set /a CUMSIZE = !CUMSIZE!+%%a\n')
@@ -1904,6 +1904,7 @@ class Application:
                 fp.write('@echo ; >> data.asm\n')
                 
                 # Write list of Bitmap names
+                fp.write('@echo .segment "BANK1" >> data.asm\n')
                 for i in range(len(bitmaps)):
                     fb = FileBase(bitmaps[i], '.png')
                     fp.write('@echo _bmpName' + str(i).zfill(2) + ': .byte "' + fb + '.img",0 >> data.asm\n')
