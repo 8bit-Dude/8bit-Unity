@@ -192,9 +192,16 @@ void BackupRestoreChatRow(unsigned char mode)
 }
 
 // Rolling buffer at the top of the screen, that moves text leftward when printing
+#if defined __NES__
+  unsigned char bufferName[32];
+  unsigned char bufferAttr[16];
+#endif
 void PrintBuffer(char *buffer)
 {
 	// Get length of new message
+#if defined __NES__
+	unsigned char i, chr, hlen;
+#endif	
 	unsigned char len;
 	len = strlen(buffer);
 	txtY = BUFFER_ROW;	
@@ -212,14 +219,40 @@ void PrintBuffer(char *buffer)
 
 #elif defined __NES__	
 	// Make sure message length is multiple of 4 (for color attributes)
-	while (len&3) {
+	while (len&1) {
 		buffer[len++] = ' ';
 		buffer[len] = 0;		
 	}
-	txtX = TXT_COLS-len;
-	if (len<TXT_COLS)
-		CopyStr(0, BUFFER_ROW, len, BUFFER_ROW, TXT_COLS-len);
-	PrintStr(buffer);		
+	// Shift current data
+	hlen = len/2u;
+	if (len<32) {
+		memcpy(bufferName, &bufferName[len], 32-len); 
+		memcpy(bufferAttr, &bufferAttr[hlen], 16-hlen); 
+	}
+	// Add new data
+	memcpy(&bufferName[32-len], buffer, len);
+	memfill(&bufferAttr[16-hlen], inkColor, hlen);
+	// Reprint entire buffer
+	txtX = 0; SetVramName();
+	for (i=0; i<32; i++) {
+		// Handle Lower/Upper Case
+		chr = bufferName[i];
+		if (chr > 96)
+			chr += 128;
+		else
+			chr += 160;
+		SetVramChar(chr);
+	}
+	// Reset color attributes
+	for (i=0; i<16; i++) {
+		// Copy ink 2 times
+		inkColor = bufferAttr[i];
+		SetVramAttr();
+		for (chr=0; chr<2; chr++)
+			SetVramColor(chr==1);
+		txtX += 2;
+	}
+	UpdateDisplay();
 
 #elif defined __ORIC__	
 	// Need to insert ink changes...
@@ -381,7 +414,7 @@ void SpriteAnimation(unsigned char index, unsigned char frame)
 	spriteY = 6;
 #elif defined __NES__
 	spriteX = 160+index*21; 
-	spriteY = 38;
+	spriteY = 39;
 #endif		
 #if defined MULTICOLOR
 	SetMultiColorSprite(2*index, frame); // Car body and tires
@@ -696,9 +729,11 @@ unsigned char MenuLogin(unsigned char serverIndex)
 	txtX = MENU_COL; txtY = MENU_ROW+2;
 	PrintBlanks(MENU_WID, MENU_HEI-2);
 	
-#if defined(__LYNX__) || defined(__NES__)
+#if defined(__LYNX__) 
 	ReadEEPROM();
 	SetKeyboardOverlay(11,60);
+#elif defined(__NES__)
+	SetKeyboardOverlay(1,1);
 #endif	
 
 	// Prompt for authentication

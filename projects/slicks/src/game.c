@@ -1,6 +1,11 @@
 
 #include "definitions.h"
 
+#ifdef __NES__
+  #pragma rodata-name("BANK0")
+  #pragma code-name("BANK0")
+#endif
+
 #if defined __ATARIXL__
   // Use background colors
   #define RACE_ROAD BLACK
@@ -206,11 +211,6 @@ void GameReset()
 	pixelY = y/32u-2;
 	return (bgMask[pixelY*16+pixelX/4u] >> ((pixelX%4)*2)) & 3;
   }
-#endif
-
-#ifdef __NES__
-  #pragma rodata-name("BANK0")
-  #pragma code-name("BANK0")
 #endif
 
 // Initialize Game
