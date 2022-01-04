@@ -10,6 +10,8 @@
 ;SOUND_BANK is defined at the top of crt0.s
 ;and needs to match the bank where the music is
 
+	;Needs to match the bank where the music is
+	.define SOUND_BANK 6
 
 	.export _music_load,_music_play,_music_stop,_music_pause
 	.export _sfx_play,_sample_play
@@ -37,6 +39,7 @@
 	; Zero page
 	.importzp sreg	
 	
+	.segment "CODE"	
 
 ;------------------------
 nmi:	;NMI handler
@@ -99,14 +102,17 @@ nmi:	;NMI handler
 	
 @doneClock:	
 
-	;switch the music into the prg bank first
-	lda BP_BANK ;save current prg bank
+	;save current prg bank
+	lda BP_BANK 
 	pha
+
+	;switch to music bank
 	lda #SOUND_BANK
 	jsr _set_prg_bank
 	jsr FamiToneUpdate
+
+	;restore prg bank
 	pla
-	sta BP_BANK ;restore prg bank
 	jsr _set_prg_bank
 
 	pla
@@ -751,71 +757,85 @@ _music_load:
 	sta <PTR
 	stx <PTR+1
 	
-	lda #SOUND_BANK ;PRG bank where all the music stuff is there
-					;SOUND_BANK is defined above
-	jsr _set_prg_bank
-	
+	;save current prg bank
+	lda BP_BANK 
+	pha
+
+	;switch to music bank
+	lda #SOUND_BANK
+	jsr _set_prg_bank	
 	ldx <PTR
 	ldy <PTR+1
 	lda <NTSC_MODE
 	jsr FamiToneInit
 	
-	lda #$00 ;PRG bank #0 at $8000, back to basic
+	;restore prg bank
+	pla
 	jsr _set_prg_bank	
+	rts
 
 
 ;void __fastcall__ music_play(unsigned char song);
 ;a = song #
 
 _music_play:
-	tax
-	lda BP_BANK ;save current prg bank
+	tax ;song number
+
+	;save current prg bank
+	lda BP_BANK 
 	pha
+
+	;switch to music bank
 	lda #SOUND_BANK
 	jsr _set_prg_bank
 	txa ;song number
 	jsr FamiToneMusicPlay
 	
+	;restore prg bank
 	pla
-	sta BP_BANK ;restore prg bank
 	jmp _set_prg_bank
-	;rts
+	rts
 
 
 ;void __fastcall__ music_stop(void);
 
 _music_stop:
-	lda BP_BANK ;save current prg bank
+	;save current prg bank
+	lda BP_BANK 
 	pha
+
+	;switch to music bank
 	lda #SOUND_BANK
 	jsr _set_prg_bank
 	jsr FamiToneMusicStop
 	
+	;restore prg bank
 	pla
-	sta BP_BANK ;restore prg bank
 	jmp _set_prg_bank
-	;rts
-
+	rts
 
 
 ;void __fastcall__ music_pause(unsigned char pause);
 ;a = pause or not
 
 _music_pause:
-	tax
-	lda BP_BANK ;save current prg bank
+	tax ;pause state
+	
+	;save current prg bank
+	lda BP_BANK 
 	pha
+
+	;switch to music bank
 	lda #SOUND_BANK
 	jsr _set_prg_bank
-	txa ;song number
+	txa ;pause state
 	jsr FamiToneMusicPause
 	
+	;restore prg bank
 	pla
-	sta BP_BANK ;restore prg bank
 	jmp _set_prg_bank
-	;rts
+	rts
 
-	
 
 ;void __fastcall__ sfx_play(unsigned char sound,unsigned char channel);
 
@@ -828,19 +848,21 @@ _sfx_play:
 	lda @sfxPriority,x
 	tax
 	
-	lda BP_BANK ;save current prg bank
+	;save current prg bank
+	lda BP_BANK 
 	pha
+
+	;switch to music bank
 	lda #SOUND_BANK
 	jsr _set_prg_bank
-	
 	jsr popa ;a = sound
 	;x = channel offset
 	jsr FamiToneSfxPlay
 	
+	;restore prg bank
 	pla
-	sta BP_BANK ;restore prg bank
 	jmp _set_prg_bank
-	;rts
+	rts
 
 @sfxPriority:
 
@@ -856,18 +878,22 @@ _sfx_play:
 
 _sample_play:
 .if(FT_DPCM_ENABLE)
-	tax
-	lda BP_BANK ;save current prg bank
+	tax ;sample number
+	
+	;save current prg bank
+	lda BP_BANK 
 	pha
+
+	;switch to music bank
 	lda #SOUND_BANK
 	jsr _set_prg_bank
 	txa ;sample number
 	jsr FamiToneSamplePlay
 	
+	;restore prg bank
 	pla
-	sta BP_BANK ;restore prg bank
 	jmp _set_prg_bank
-	;rts
+	rts
 .else
 	rts
 .endif

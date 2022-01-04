@@ -50,19 +50,15 @@ void DirList(void)
 
 unsigned int FileOpen(const char* filename)
 {
-	unsigned char res = 0;
-	
-	set_prg_bank(1);	
+	unsigned int res = 0;
 	for (fileIndex=0; fileIndex<fileNum; fileIndex++) {
-		memcpy(fileName, fileNames[fileIndex], 13);
+		memcpyBanked(fileName, fileNames[fileIndex], 13, 1);
 		if (!strcmp(filename, fileName)) {
 			res = fileSizes[fileIndex];
 			consummed = 0;
 			break;
 		}
 	}
-	set_prg_bank(0);
-	
 	return res;
 }
 
@@ -73,9 +69,7 @@ unsigned int FileRead(char* buffer, signed int len)
 		len = fileSizes[fileIndex] - consummed;
 	
 	// Copy chunk of data while bank switching
-	set_prg_bank(fileBanks[fileIndex]);	
-	memcpy(buffer, fileDatas[fileIndex]+consummed, len);
-	set_prg_bank(0);
+	memcpyBanked(buffer, fileDatas[fileIndex]+consummed, len, fileBanks[fileIndex]);
 	
 	// Update consummed data
 	consummed += len;

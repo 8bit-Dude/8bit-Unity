@@ -87,8 +87,6 @@ void InitBitmap()
 #elif defined __LYNX__
 	InitDisplay();
 	
-#elif defined __NES__
-	pal_bg(palBG);	// Assign default palette
 #endif	
 }
 
@@ -184,6 +182,8 @@ void ClearBitmap(void)
 	UpdateDisplay();
 
 #elif defined __NES__
+	// Assign default palette and reset VRAM
+	pal_bg(palBG);	
     FillVram(0);
 #endif
 }
