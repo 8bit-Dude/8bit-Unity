@@ -18,8 +18,8 @@
 #
 
 #  Charset        Input file      Output file
-'scene1.chr', 'chunks1-nes.png', 'notable.chk', [ 32, 40, 32, 56]		# Notable animation
-'scene1.chr', 'chunks1-nes.png', 'oldmen.chk',  [168, 48, 24, 24]		# Old men animation
-'scene1.chr', 'chunks1-nes.png', 'bottle.chk',  [200, 64, 16, 24]		# Bottle removed
-'scene1.chr', 'chunks1-nes.png', 'sausage.chk', [ 48, 48, 16, 24]		# Sausage removed
-'scene1.chr', 'chunks1-nes.png', 'switch.chk',  [  0, 96, 32,  8]		# Switch animation
+'scene1.chr', 'chunks1-nes.png', 'notable.chk', [  4,  7,  5,  4]		# Notable animation
+'scene1.chr', 'chunks1-nes.png', 'oldmen.chk',  [ 21,  6,  3,  2]		# Old men animation
+'scene1.chr', 'chunks1-nes.png', 'bottle.chk',  [ 26,  8,  1,  2]		# Bottle removed
+'scene1.chr', 'chunks1-nes.png', 'sausage.chk', [  6,  6,  2,  3]		# Sausage removed
+'scene1.chr', 'chunks1-nes.png', 'switch.chk',  [  0, 12,  4,  1]		# Switch animation

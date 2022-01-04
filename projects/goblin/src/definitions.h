@@ -5,8 +5,8 @@
 #if defined __NES__		// All B/W
 	#define MSG_WIDTH	   TXT_COLS
 	#define INK_DEFAULT		WHITE
-	#define INK_GOBLIN		WHITE
-	#define INK_INTERACT	WHITE
+	#define INK_GOBLIN		GREEN
+	#define INK_INTERACT	RED
 	#define INK_INVENTORY	WHITE
 #else
 	#define MSG_WIDTH	  TXT_COLS-8

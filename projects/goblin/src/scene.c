@@ -55,9 +55,8 @@ void InitScene()
 	}
 
 	// Prepare graphic animations
-	for (i=0; i<num_chunks; i++) {
+	for (i=0; i<num_chunks; i++) 
 		LoadChunk(&chunkData[i], &strings[chunkNames[i]]);
-	}
 
 	// Grab background of some animations
 	coords = chunkData[0]; GetChunk(&chunkBckg[0], coords[0], coords[1], coords[2], coords[3]);  // Grab Notable bakground
