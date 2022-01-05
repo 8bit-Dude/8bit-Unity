@@ -41,6 +41,8 @@
             "chunks": [], 
             "diskSize": "140KB", 
             "crunchAssets": "No", 
+            "musicMemory": "auto", 
+            "chunkMemory": "$0000", 
             "assetFilter": "*", 
             "network8bitHub": false, 
             "networkUthernet": false, 
@@ -65,6 +67,8 @@
             "chunks": [], 
             "diskSize": "180KB", 
             "crunchAssets": "No", 
+            "musicMemory": "$0800", 
+            "chunkMemory": "$0000", 
             "assetFilter": "*", 
             "network8bitHub": false, 
             "networkDragonCart": false, 
@@ -90,6 +94,8 @@
             ], 
             "chunks": [], 
             "crunchAssets": "No", 
+            "musicMemory": "$4000", 
+            "chunkMemory": "$0000", 
             "assetFilter": "*", 
             "network8bitHub": false, 
             "networkRRNet": false, 
@@ -113,6 +119,7 @@
             ], 
             "chunks": [], 
             "musicMemory": "$0C00", 
+            "chunkMemory": "$0000", 
             "sharedMemory": "$0400", 
             "assetFilter": "*"
         }, 
@@ -132,6 +139,8 @@
             ], 
             "music": [], 
             "chunks": [], 
+            "musicMemory": "$4000", 
+            "chunkMemory": "$0000", 
             "assetFilter": "*"
         }, 
         "Oric": {
@@ -152,6 +161,8 @@
                 "projects/dungeon/music/dungeon-oric.ym"
             ], 
             "chunks": [], 
+            "musicMemory": "auto", 
+            "chunkMemory": "$0000", 
             "assetFilter": "*"
         }
     }

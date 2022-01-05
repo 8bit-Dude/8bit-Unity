@@ -35,7 +35,7 @@ void SplashScreen(void)
 	PrintStr(" 2021/04/18 ");
 	
 	// Start music
-#if defined(__APPLE2__) ||	defined(__APPLE2__) || defined(__CBM__) || defined(__LYNX__)
+#if defined(__APPLE2__) ||	defined(__ATARI__) || defined(__CBM__) || defined(__LYNX__)
 	LoadMusic("dungeon.mus");
 	PlayMusic();
 #endif
@@ -52,7 +52,7 @@ void SplashScreen(void)
 	// Exit banner screen
 	ClearBitmap();
 	HideBitmap();
-#if defined(__APPLE2__) ||	defined(__APPLE2__) || defined(__CBM__) || defined(__LYNX__)
+#if defined(__APPLE2__) ||	defined(__ATARI__) || defined(__CBM__) || defined(__LYNX__)
 	StopMusic();		
 #endif
 }

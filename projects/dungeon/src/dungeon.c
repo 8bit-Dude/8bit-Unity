@@ -2,36 +2,19 @@
 #include "definitions.h"
 
 #if defined __APPLE2__
-	#define spriteCols    7
-	#define spriteRows   16
 	unsigned char spriteColors[] = {};  //  All colors are pre-assigned in the sprite sheet	
 #elif defined __ATARI__
-	#define spriteFrames 32
-	#define spriteCols   8
-	#define spriteRows   18
 	unsigned char spriteColors[] = { 0x24, 0xc8, 0x0c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };  // Brown, Green (player), White (sword)
 #elif defined __CBM__
-	#define spriteFrames 32
-	#define spriteCols   12
-	#define spriteRows   21
 	unsigned char spriteColors[] = { WHITE, YELLOW, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, RED, GREEN };  // 0-8: Sprite colors, 9-10: Shared colors
 #elif defined __LYNX__
-	#define spriteFrames 32
-	#define spriteCols    8
-	#define spriteRows   12
 	unsigned char* spriteColors = 0;	//  All sprites use the default palette
 #elif defined __NES__
-	#define spriteFrames 32
-	#define spriteCols   16
-	#define spriteRows   16
     const unsigned char spriteColors[] = { SPR_VOID, SPR_BROWN, SPR_GREEN, SPR_YELLOW, 
 										   SPR_VOID, SPR_BROWN, SPR_GREEN, SPR_YELLOW, 
 										   SPR_VOID, SPR_BROWN, SPR_GREEN, SPR_YELLOW, 
 										   SPR_VOID, SPR_BROWN, SPR_GREEN, SPR_YELLOW }; // 4 palettes of 3 colors (1st color is unused)
 #elif defined __ORIC__
-	#define spriteFrames 32
-	#define spriteCols   12
-	#define spriteRows   17
 	unsigned char spriteColors[] = { SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC };	// AIC used as default
 	unsigned char multiColorDef[] = { SPR_YELLOW, 7, SPR_WHITE, 11 , SPR_MAGENTA, 17 };	// Multicolor definition of player { color, row, ...  }
 #endif
@@ -53,7 +36,7 @@ void GameInit(void)
 		
 	// Setup sprites
 	LoadSprites("sprites.dat");
-	SetupSprites(spriteFrames, spriteCols, spriteRows, spriteColors);
+	SetupSprites(spriteColors);
 #if defined __ATARI__
 	EnableMultiColorSprite(SPRITE_PLAYER);
 #elif defined __ORIC__
