@@ -1,5 +1,6 @@
 
 import io, os, struct, sys, subprocess
+from PIL import Image
 
 def FileBase(filepath, suffix):
     # Return asset file base
@@ -12,15 +13,23 @@ def FileBase(filepath, suffix):
 chunkfile = sys.argv[1]
 outfolder = sys.argv[2]
 dithering = sys.argv[3]
-imgfile = chunkfile[0:-4] + ".png"
+imgFile = chunkfile[0:-4] + ".png"
 
-# Convert file to oric graphic
-datfile = outfolder + FileBase(imgfile, ".png") + ".tmp"
-datfile = datfile.replace('//','/')
-subprocess.call(["luajit.exe", "PictOric.lua", dithering, imgfile, datfile])
+# Add black band on left-side
+padFile = outfolder + FileBase(imgFile, "")
+padFile = padFile.replace('//','/')
+img1 = Image.open(imgFile)
+padding = Image.new("RGB", (240, 200), (0, 0, 0))
+padding.paste(img1, (6, 0))
+padding.save(padFile, "PNG") 
+    
+# Call PictOric
+datFile = outfolder + FileBase(imgFile, ".png") + ".tmp"
+datFile = datFile.replace('//','/')
+subprocess.call(["luajit.exe", "PictOric.lua", dithering, padFile, datFile])
 
 # Read converted image
-f1 = io.open(datfile, 'rb')
+f1 = io.open(datFile, 'rb')
 data = f1.read()
 f1.close()
 
@@ -54,11 +63,10 @@ for line in lines:
         # Compute size of chunk
         sizeLst.append(6+coords[3]*(coords[2]/6))
         print 'Adding Chunk ', coords
-print sizeLst    
+
 #######################################
 # Output chunk data
-fb = FileBase(chunkfile, '.txt')
-f2 = io.open(outfolder + fb + '.dat', 'wb')
+f2 = io.open(outfolder + FileBase(chunkfile, '.txt') + '.dat', 'wb')
 
 # Write header information
 f2.write(chr(len(sizeLst)))

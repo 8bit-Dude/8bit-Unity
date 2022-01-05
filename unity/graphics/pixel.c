@@ -142,7 +142,6 @@ unsigned char GetPixel()
 	extern unsigned char* sprBG[SPRITE_NUM];
 	extern unsigned char sprX[SPRITE_NUM];
 	extern unsigned char sprY[SPRITE_NUM];
-	extern unsigned char frameROWS;
 
 	// Scale to block coordinates (6x2)
 	pX = pixelX/3u+1; pY = pixelY*2;
@@ -152,7 +151,7 @@ unsigned char GetPixel()
 		if (sprDrawn[i]) {
 			xO = pX - (sprX[i]);
 			yO = pY - (sprY[i]);
-			if (xO<3 && yO<frameROWS) {
+			if (xO<3 && yO<SPRITEHEIGHT) {
 				addr = sprBG[i]+yO*4u+xO;
 				byte1 = PEEK(addr);
 				byte2 = PEEK(addr+4);	

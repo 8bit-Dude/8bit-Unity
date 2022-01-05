@@ -2091,10 +2091,16 @@ class Application:
             
             # Process Bitmaps / Chunks / Sprites / Shared
             fp.write('cd utils\\scripts\\oric\n')
-            for item in bitmaps+charset:
+            for item in bitmaps:
                 fb = FileBase(item, '.png')
                 fp.write('..\\..\\py27\\python OricBitmap.py ../../../' + item + ' ../../../' + buildFolder + '/oric/' + fb + '.dat ' + self.entry_OricDithering.get() + '\n')
                 fp.write('header -a0 ../../../' + buildFolder + '/oric/' + fb + '.dat ../../../' + buildFolder + '/oric/' + fb + '.img $A000\n')
+                
+            for item in charset:
+                fb = FileBase(item, '.png')
+                fp.write('..\\..\\py27\python OricCharset.py ../../../' + item + ' ../../../' + buildFolder + '/oric/' + fb + '.dat ' + self.entry_OricDithering.get() +  '\n') 
+                fp.write('header -a0 ../../../' + buildFolder + '/oric/' + fb + '.dat ../../../' + buildFolder + '/oric/' + fb + '.chr $A000\n')
+                
                 
             for item in chunks:
                 fb = FileBase(item, '.txt')

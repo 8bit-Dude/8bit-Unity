@@ -30,17 +30,22 @@ from collections import Counter
 from math import sqrt
 
 imgFile = sys.argv[1]
-rawFile = sys.argv[2]
+datFile = sys.argv[2]
 dither  = sys.argv[3]
 try:
     enforce = [int(n) for n in sys.argv[4].split(',')]
 except:
     enforce = []
-    
-###################
-# Call PictOric
-subprocess.call(["luajit.exe", "PictOric.lua", dither, imgFile, rawFile])
 
+# Add black band on left-side
+padFile = datFile[0:-4] + ".png"
+img1 = Image.open(imgFile)
+padding = Image.new("RGB", (240, 200), (0, 0, 0))
+padding.paste(img1, (6, 0))
+padding.save(padFile, "PNG") 
+    
+# Call PictOric
+subprocess.call(["luajit.exe", "PictOric.lua", dither, padFile, datFile])
 
 # Process RAW data again to enforce colors
 if len(enforce) > 0:
@@ -49,7 +54,7 @@ if len(enforce) > 0:
     pixdata = list(img1.getdata())
     
     # Read binary files
-    f1 = io.open(rawFile, 'rb')
+    f1 = io.open(datFile, 'rb')
     data = [c for c in f1.read()]
     f1.close()   
     
@@ -140,6 +145,6 @@ if len(enforce) > 0:
                 
     #################
     # Write DAT file
-    f2 = io.open(rawFile, 'wb')	
+    f2 = io.open(datFile, 'wb')	
     f2.write(''.join(data))
     f2.close()
