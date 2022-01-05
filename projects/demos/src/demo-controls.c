@@ -17,7 +17,7 @@ extern unsigned char nextCol;
 #elif defined __LYNX__
 	const char* joyList[] = { "JOY 1", "HUB 1", "HUB 2", "HUB 3" };
 #elif defined __NES__
-	const char* joyList[] = { "JOY 1", "JOY 2" };
+	const char* joyList[] = { "JOY 1", "JOY 2", "HUB 1", "HUB 2", "HUB 3" };
 #elif defined __ORIC__
 	const char* joyList[] = { "WASD+CTR", "IJKL+RET", "IJK/HUB 1", "IJK/HUB 2", "HUB 3" };
 #else

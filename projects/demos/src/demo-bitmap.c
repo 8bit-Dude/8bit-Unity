@@ -10,7 +10,7 @@
 #elif defined __LYNX__
   const unsigned char coords[3][4] = { { 12, 3, 30, 20 }, { 64, 3, 30, 20 }, {116, 3, 30, 20} };
 #elif defined __NES__
-  const unsigned char coords[3][4] = { { 16, 0, 48, 48 }, {104, 0, 48, 48 }, {192, 0, 48, 48} };
+  const unsigned char coords[3][4] = { {  2, 0,  6,  6 }, { 13, 0,  6,  6 }, { 24, 0,  6,  6} };
 #elif defined __ORIC__
   const unsigned char coords[3][4] = { { 18, 4, 48, 42 }, { 96, 4, 48, 42 }, {174, 4, 48, 42} };
 #endif
@@ -30,7 +30,7 @@ int DemoBitmap(void)
 
 	// Grab graphic chunks
 	for (i=0; i<3; i++) 
-		GetChunk(&chunks[i], coords[i][0], coords[i][1], coords[i][2], coords[i][3]);
+		chunks[i] = GetChunk(coords[i][0], coords[i][1], coords[i][2], coords[i][3]);
 
 	// Wait until 'SPACE' is pressed
 	while (!kbhit () || cgetc () != nextKey) {	
@@ -52,10 +52,7 @@ int DemoBitmap(void)
 	HideBitmap();
 	
 	// Clean-up memory
-#ifndef __NES__	
-	for (i=0; i<3; i++) 
-		free(chunks[i]);
-#endif
+	FreeChunk(0);
 
     // Done
     return EXIT_SUCCESS;	

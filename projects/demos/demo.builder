@@ -18,8 +18,7 @@
             "projects/demos/charmaps/level1.map", 
             "projects/demos/charmaps/level1.tls"
         ], 
-        "tilesize": "2x2", 
-        "customVBI": "No"
+        "tilesize": "2x2"
     }, 
     "platform": {
         "Apple": {
@@ -50,6 +49,8 @@
             "chunks": [], 
             "diskSize": "140KB", 
             "crunchAssets": "No", 
+            "musicMemory": "auto", 
+            "chunkMemory": "$0400", 
             "assetFilter": "*", 
             "network8bitHub": true, 
             "networkUthernet": true, 
@@ -75,6 +76,8 @@
             "chunks": [], 
             "diskSize": "180KB", 
             "crunchAssets": "No", 
+            "musicMemory": "$0800", 
+            "chunkMemory": "$0900", 
             "assetFilter": "*", 
             "network8bitHub": true, 
             "networkDragonCart": true, 
@@ -101,6 +104,8 @@
             ], 
             "chunks": [], 
             "crunchAssets": "No", 
+            "musicMemory": "$4000", 
+            "chunkMemory": "$0800", 
             "assetFilter": "*", 
             "network8bitHub": true, 
             "networkRRNet": true, 
@@ -124,8 +129,9 @@
                 "projects/demos/music/demo-lynx.asm"
             ], 
             "chunks": [], 
-            "musicMemory": "$0C00", 
-            "sharedMemory": "$0400", 
+            "musicMemory": "$0800", 
+            "chunkMemory": "$0400", 
+            "sharedMemory": "$0000", 
             "assetFilter": "*"
         }, 
         "NES": {
@@ -147,6 +153,8 @@
                 "projects/demos/music/demo-nes.txt"
             ], 
             "chunks": [], 
+            "musicMemory": "$4000", 
+            "chunkMemory": "$0200", 
             "assetFilter": "*"
         }, 
         "Oric": {
@@ -168,6 +176,8 @@
                 "projects/demos/music/demo-oric.ym"
             ], 
             "chunks": [], 
+            "musicMemory": "auto", 
+            "chunkMemory": "$0500", 
             "assetFilter": "*"
         }
     }
