@@ -1,6 +1,11 @@
 
 #include "definitions.h"
 
+#if defined(__NES__)
+ #pragma rodata-name("BANK0")
+ #pragma code-name("BANK0")
+#endif
+
 #define CHAT_CODE
 
 #define REQ_LOGIN 	1

@@ -1,37 +1,18 @@
 
 #include "definitions.h"
 
-#ifdef __NES__
-  #pragma code-name("BANK0")
+#if defined(__NES__)
+ #pragma rodata-name("BANK0")
+ #pragma code-name("BANK0")
 #endif
 
 extern char appSel;
 extern callback *homeCall;
 extern callback *appCall[4];
-
-// App/Icons Data Pointers
-unsigned char* appChunk[NUM_APPS];
-unsigned char* icoChunk[NUM_ICOS];
+extern unsigned char* chunkData[];
 
 // Version definitions
 char version[] = "8BIT-OS 2021/12/15";
-
-void LoadChunks()
-{
-	// Load app chunks
-	LoadChunk(&appChunk[APP_FILES], "files.chk");	
-	LoadChunk(&appChunk[APP_IMAGE], "image.chk");	
-	LoadChunk(&appChunk[APP_MUSIC], "music.chk");	
-	LoadChunk(&appChunk[APP_CHAT],  "chat.chk");	
-	
-	// Load icon chunks	
-	LoadChunk(&icoChunk[ICO_PLAY],  "play.chk");	
-#ifndef __APPLE2__
-	LoadChunk(&icoChunk[ICO_STOP],  "stop.chk");	
-	LoadChunk(&icoChunk[ICO_PREV],  "prev.chk");	
-#endif
-	LoadChunk(&icoChunk[ICO_NEXT],  "next.chk");		
-}
 
 void ClearScreen()
 {
@@ -88,7 +69,7 @@ void HomeScreen(void)
 	
 	// Register App icons
 	for (i=0; i<NUM_APPS; i++)
-		appCall[i] = Icon(APP_COL1+i*APP_HSPAN, APP_ROW1, appChunk[i]);
+		appCall[i] = Icon(APP_COL1+i*APP_HSPAN, APP_ROW1, chunkData[i]);
 
 	// Add Taskbar Message
 	paperColor = WHITE; inkColor = BLACK; 

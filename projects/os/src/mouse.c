@@ -7,34 +7,21 @@
 #endif
 
 // Mouse sprite definitions
-#define spriteFrames 2
 #if defined __APPLE2__	
-	#define spriteCols   7
-	#define spriteRows   7
-	unsigned char spriteColors[] = { };  // Colors are pre-assigned in the sprite sheet
+	const unsigned char spriteColors[] = { };  // Colors are pre-assigned in the sprite sheet
 #elif defined __ATARI__
-	#define spriteCols   8
-	#define spriteRows   6
-	unsigned char spriteColors[] = { 0x0e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };  // Refer to atari palette in docs
+	const unsigned char spriteColors[] = { 0x0e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };  // Refer to atari palette in docs
 #elif defined __CBM__
-	#define spriteCols   12
-	#define spriteRows   21
-	unsigned char spriteColors[] = { WHITE, BLUE, BROWN, PINK, GREEN, WHITE, WHITE, WHITE, BLACK, WHITE };	// 0-8: Sprite colors, 9-10: Shared colors
+	const unsigned char spriteColors[] = { WHITE, BLUE, BROWN, PINK, GREEN, WHITE, WHITE, WHITE, BLACK, WHITE };	// 0-8: Sprite colors, 9-10: Shared colors
 #elif defined __LYNX__
-	#define spriteCols   9
-	#define spriteRows   13
-	unsigned char *spriteColors = 0; //  All sprites use the default palette
-#elif defined __ORIC__
-	#define spriteCols   12
-	#define spriteRows   8
-	unsigned char spriteColors[] = { SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC };  // AIC color allows faster drawing!
+	const unsigned char *spriteColors = 0; //  All sprites use the default palette
 #elif defined __NES__
-	#define spriteCols   16
-	#define spriteRows   16
     const unsigned char spriteColors[] = { SPR_VOID, SPR_WHITE, SPR_BLACK, SPR_VOID, 
 										   SPR_VOID, SPR_VOID, SPR_VOID, SPR_VOID, 
 										   SPR_VOID, SPR_VOID, SPR_VOID, SPR_VOID, 
 										   SPR_VOID, SPR_VOID, SPR_VOID, SPR_VOID }; // 4 palettes of 3 colors (1st color is unused)
+#elif defined __ORIC__
+	const unsigned char spriteColors[] = { SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC };  // AIC color allows faster drawing!
 #endif
 
 // Mouse state
@@ -44,7 +31,7 @@ void InitMouse()
 {
 	// Setup mouse sprites
 	LoadSprites("sprites.dat");
-	SetupSprites(spriteFrames, spriteCols, spriteRows, spriteColors);
+	SetupSprites(spriteColors);
 	EnableSprite(0);	
 }
 

@@ -13,8 +13,11 @@ extern unsigned char* mouse;
 extern unsigned char netConnected;
 
 // See home.c
-char appSel = APP_HOME;
+char appSel = -1;
 callback *homeCall, *appCall[4];
+
+// App/Icon Chunk Pointers
+unsigned char* chunkData[NUM_CHUNKS];
 
 void ProcessCallback(callback* call)
 {
@@ -29,16 +32,16 @@ void ProcessCallback(callback* call)
 	switch (appSel) {
 	case APP_FILES:
 		FileCallback(call);
-		break;
+		return;
 	case APP_IMAGE:
 		ImageCallback(call);
-		break;
+		return;
 	case APP_MUSIC:
 		MusicCallback(call);
-		break;
+		return;
 	case APP_CHAT:
 		ChatCallback(call);
-		break;								
+		return;								
 	}
 }
 
@@ -66,7 +69,7 @@ int main(void)
 	
 	// Get files and chunks
 	GetFileList();
-	LoadChunks();
+	LoadChunks(chunkData, "icons.chk");	
 	
 	// Init systems
 	InitMouse();	

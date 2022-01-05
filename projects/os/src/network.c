@@ -1,6 +1,11 @@
 
 #include "definitions.h"
 
+#if defined(__NES__)
+ #pragma rodata-name("BANK0")
+ #pragma code-name("BANK0")
+#endif
+
 unsigned char svIP[] = {199, 47, 196, 106};
 char netConnected = 0;
 

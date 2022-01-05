@@ -1,6 +1,11 @@
 
 #include "definitions.h"
 
+#if defined(__NES__)
+ #pragma rodata-name("BANK0")
+ #pragma code-name("BANK0")
+#endif
+
 #if (defined __NES__)
   #define LOGO_X     104	
   #define LOGO_Y     8
@@ -35,8 +40,7 @@
 extern unsigned char* fileNames[];
 
 // See home.c
-extern unsigned char* appChunk[NUM_APPS];
-extern unsigned char* icoChunk[NUM_ICOS];
+extern unsigned char* chunkData[NUM_CHUNKS];
 
 char musicSel = 127, musicState = 0;
 callback* musicCall[4];
@@ -105,12 +109,12 @@ void MusicScreen(void)
 	DrawTaskBar();		
 	
 	// Show music icon and name
-	SetChunk(appChunk[APP_MUSIC], LOGO_X, LOGO_Y);
+	SetChunk(chunkData[APP_MUSIC], LOGO_X, LOGO_Y);
 	MusicTitle();
 	
 	// Display and register player buttons
 	for (i=0; i<4; i++)
-		musicCall[i] = Icon(BUTT_COL1+i*BUTT_HSPAN, BUTT_ROW1, icoChunk[i]);
+		musicCall[i] = Icon(BUTT_COL1+i*BUTT_HSPAN, BUTT_ROW1, chunkData[ICO_STOP+i]);
 }
 
 void MusicCallback(callback* call)

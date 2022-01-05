@@ -12,8 +12,7 @@ extern unsigned int   fileSizes[];
 extern unsigned char* fileNames[];
 
 // See home.c
-extern unsigned char* appChunk[NUM_APPS];
-extern unsigned char* icoChunk[NUM_ICOS];
+extern unsigned char* chunkData[NUM_CHUNKS];
 
 // See image.c
 extern char imageShowing;
@@ -221,15 +220,15 @@ void FileCallback(callback* call)
 		
 		// Controls for Image File
 		if (!strncmp(currExt, imageExt, 3)) {
-			SetChunk(appChunk[APP_IMAGE], PREVIEW_X, PREVIEW_Y);
-			callImg = Icon(BUTT_COL, BUTT_ROW, icoChunk[ICO_PLAY]);
+			SetChunk(chunkData[APP_IMAGE], PREVIEW_X, PREVIEW_Y);
+			callImg = Icon(BUTT_COL, BUTT_ROW, chunkData[ICO_PLAY]);
 			return;
 		}
 		
 		// Controls for Music File
 		if (!strncmp(currExt, musicExt, 3)) {
-			SetChunk(appChunk[APP_MUSIC], PREVIEW_X, PREVIEW_Y);	
-			callMus = Icon(BUTT_COL, BUTT_ROW, icoChunk[ICO_PLAY]);
+			SetChunk(chunkData[APP_MUSIC], PREVIEW_X, PREVIEW_Y);	
+			callMus = Icon(BUTT_COL, BUTT_ROW, chunkData[ICO_PLAY]);
 			return;		
 		}
 		

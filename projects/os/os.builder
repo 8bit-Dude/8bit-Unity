@@ -17,8 +17,7 @@
             "projects/os/shared/readme.txt"
         ], 
         "charmap": [], 
-        "tilesize": "None", 
-        "customVBI": "No"
+        "tilesize": "None"
     }, 
     "platform": {
         "Apple": {
@@ -44,12 +43,16 @@
                 "projects/os/music/speednik-apple.m"
             ], 
             "chunks": [
-                "projects/os/chunks/chunks-apple.txt"
+                "projects/os/chunks/icons-apple.txt"
             ], 
             "diskSize": "140KB", 
             "crunchAssets": "No", 
-            "networkDriver": "IP65(TCP/UDP)", 
-            "assetFilter": "*"
+            "musicMemory": "auto", 
+            "chunkMemory": "$0500", 
+            "assetFilter": "*", 
+            "network8bitHub": true, 
+            "networkUthernet": true, 
+            "networkProtocols": "TCP/UDP"
         }, 
         "Atari": {
             "spriteFrames": "2", 
@@ -70,12 +73,17 @@
                 "projects/os/music/nirvana-atari.rmt"
             ], 
             "chunks": [
-                "projects/os/chunks/chunks-atari.txt"
+                "projects/os/chunks/icons-atari.txt"
             ], 
             "diskSize": "180KB", 
             "crunchAssets": "No", 
-            "networkDriver": "IP65(TCP/UDP)", 
-            "assetFilter": "*"
+            "musicMemory": "$0800", 
+            "chunkMemory": "$0C00", 
+            "assetFilter": "*", 
+            "network8bitHub": true, 
+            "networkDragonCart": true, 
+            "networkFujinet": true, 
+            "networkProtocols": "TCP/UDP"
         }, 
         "C64": {
             "spriteFrames": "2", 
@@ -97,11 +105,15 @@
                 "projects/os/music/ryu-c64.sid"
             ], 
             "chunks": [
-                "projects/os/chunks/chunks-c64.txt"
+                "projects/os/chunks/icons-c64.txt"
             ], 
             "crunchAssets": "No", 
-            "networkDriver": "IP65(TCP/UDP)", 
-            "assetFilter": "*"
+            "musicMemory": "$4000", 
+            "chunkMemory": "$0A00", 
+            "assetFilter": "*", 
+            "network8bitHub": true, 
+            "networkRRNet": true, 
+            "networkProtocols": "TCP/UDP"
         }, 
         "Lynx": {
             "spriteFrames": "2", 
@@ -125,10 +137,11 @@
                 "projects/os/music/whirlwnd-lynx.asm"
             ], 
             "chunks": [
-                "projects/os/chunks/chunks-lynx.txt"
+                "projects/os/chunks/icons-lynx.txt"
             ], 
             "musicMemory": "$0C00", 
-            "sharedMemory": "$0400", 
+            "chunkMemory": "$0800", 
+            "sharedMemory": "$0800", 
             "assetFilter": "*"
         }, 
         "NES": {
@@ -152,8 +165,10 @@
                 "projects/os/music/speednik-nes.txt"
             ], 
             "chunks": [
-                "projects/os/chunks/chunks-nes.txt"
+                "projects/os/chunks/icons-nes.txt"
             ], 
+            "musicMemory": "$4000", 
+            "chunkMemory": "$0200", 
             "assetFilter": "*"
         }, 
         "Oric": {
@@ -177,8 +192,10 @@
                 "projects/os/music/speednik-oric.ym"
             ], 
             "chunks": [
-                "projects/os/chunks/chunks-oric.txt"
+                "projects/os/chunks/icons-oric.txt"
             ], 
+            "musicMemory": "auto", 
+            "chunkMemory": "$0700", 
             "assetFilter": "*"
         }
     }
