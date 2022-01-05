@@ -141,7 +141,7 @@ loopSlots:
 	lda _sprOff,y	 
 	sta _lead	
 	
-	; Get amount of body-rows
+	; Get amount of sprite-rows
 	clc
 	adc _sprRows	 
 	sta _body

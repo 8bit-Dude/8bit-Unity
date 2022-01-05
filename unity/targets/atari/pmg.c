@@ -27,8 +27,6 @@
 // ATARI Specific Sprite Functions
 
 #include <unity.h>
-
-extern unsigned char sprFrames;
  
 void EnableMultiColorSprite(unsigned char index) {
 	EnableSprite(index++);
@@ -42,7 +40,7 @@ void DisableMultiColorSprite(unsigned char index) {
 
 void SetMultiColorSprite(unsigned char index, unsigned int frame) {
 	SetSprite(index++, frame);
-	SetSprite(index, frame+sprFrames);
+	SetSprite(index, SPRITEFRAMES+frame);
 }
 
 void DoubleWidthSprite(unsigned char index, unsigned char onoff) {

@@ -263,7 +263,7 @@ void PlaySFX(unsigned char index, unsigned char pitch, unsigned char volume, uns
   #define SPRITE_NUM 8
 #endif
 void LoadSprites(unsigned char* filename);
-void SetupSprites(unsigned int frames, unsigned char cols, unsigned char rows, const unsigned char *spriteColors);
+void SetupSprites(const unsigned char *spriteColors);
 void EnableSprite(signed char index);
 void DisableSprite(signed char index);
 void LocateSprite(unsigned int x, unsigned int y);

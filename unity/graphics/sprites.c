@@ -42,13 +42,12 @@
 // Platform specific function
 #if defined __APPLE2__
     #define byteWIDTH 2		// 2 bytes per 7 pixels (4 bytes between AUX/MAIN in DHR)
-	unsigned char  frameROWS;
     unsigned int   frameBLOCK;				// Size of sprite offset block (4 blocks)
-	unsigned char* sprData;					// Pointer to sprite data (allocated dynamically)
+	unsigned char *sprData;					// Pointer to sprite data (allocated dynamically)
 	unsigned char  sprX[SPRITE_NUM], sprY[SPRITE_NUM];	 // Screen coordinates
 	unsigned char  sprDrawn[SPRITE_NUM], sprCollision[SPRITE_NUM]; // Draw/Collision status
 	unsigned char  sprHiresX[SPRITE_NUM];  	// Byte offset within Hires line
-	unsigned char* sprBG[SPRITE_NUM];  		// Sprite background
+	unsigned char *sprBG[SPRITE_NUM];  		// Sprite background
 	unsigned char  sprRows[SPRITE_NUM];  	// Sprite dimensions used in algorithms
 	void CropSprite(unsigned char index, unsigned char rows) {
 		// Only partially draw this sprite
@@ -57,12 +56,11 @@
 	
 #elif defined __ATARI__	
 	#define BANK_NUM   3
-	#define sprCols    8
 	extern unsigned char sprRows, sprPads, sprDLIs, sprBank[BANK_NUM];
 	extern unsigned char sprDrawn[SPRITE_NUM], sprX[SPRITE_NUM], sprY[SPRITE_NUM];
 	extern unsigned char sprLine[SPRITE_NUM], sprOff[SPRITE_NUM], sprColor[SPRITE_NUM];
 	extern unsigned int  sprSrc[SPRITE_NUM], sprDst[SPRITE_NUM];
-	unsigned char *sprData, sprFrames, sprYOffset, sprCollision[SPRITE_NUM], sprCushion = 2;
+	unsigned char *sprData, sprYOffset, sprCollision[SPRITE_NUM], sprCushion = 2;
 	unsigned char sprMask[] = { 1, 2, 4, 8, 1, 2, 4, 8, 1, 2, 4, 8 };	
 
 #elif defined __NES__
@@ -76,13 +74,11 @@
 									   0,0,0,0, 8,0,0,0, 0,8,0,0, 8,8,0,0, 128,
 									   0,0,0,0, 8,0,0,0, 0,8,0,0, 8,8,0,0, 128 };
 	unsigned char sprX[SPRITE_NUM], sprY[SPRITE_NUM];	// Screen coordinates
-	unsigned char sprDrawn[SPRITE_NUM], sprCollision[SPRITE_NUM], sprCushion = 2; // Enable and Collision status
-	unsigned char sprCols, sprRows;		// Sprite dimensions	
+	unsigned char sprDrawn[SPRITE_NUM], sprCollision[SPRITE_NUM], sprCushion = 2; // Enable and Collision status	
  #pragma bss-name(pop)
 	
 #elif defined __ORIC__	
 	#define byteWIDTH 2		// Byte width of sprite (12 pixels)
-	unsigned char frameROWS;
 	unsigned int  frameBLOCK;	// Size of sprite offset block (4 blocks), 
 	unsigned char sprX[SPRITE_NUM], sprY[SPRITE_NUM], sprOverlap[SPRITE_NUM]; // Screen coordinates, Overlap flag
 	unsigned char sprDrawn[SPRITE_NUM], sprCollision[SPRITE_NUM]; // Enable Flag, Collision status
@@ -115,9 +111,8 @@
 
 #elif defined __LYNX__
 	extern unsigned char spriteData; 
-	unsigned char sprX[SPRITE_NUM], sprY[SPRITE_NUM];	// Screen coordinates
+	unsigned char sprX[SPRITE_NUM], sprY[SPRITE_NUM], frameSize;	// Screen coordinates
 	unsigned char sprDrawn[SPRITE_NUM], sprCollision[SPRITE_NUM], sprCushion = 2; // Enable and Collision status
-	unsigned char sprCols, sprRows, frameSize;		// Sprite dimensions
 	SCB_REHV_PAL sprSCB[SPRITE_NUM] = { { BPP_4 | TYPE_NONCOLL, REHV | LITERAL, 0, 0, 0, 0, 0, 0x0100, 0x0100, { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef } },
 									    { BPP_4 | TYPE_NONCOLL, REHV | LITERAL, 0, 0, 0, 0, 0, 0x0100, 0x0100, { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef } },
 										{ BPP_4 | TYPE_NONCOLL, REHV | LITERAL, 0, 0, 0, 0, 0, 0x0100, 0x0100, { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef } },
@@ -158,9 +153,8 @@ void LoadSprites(unsigned char* filename)
 		FileRead(sprData, size);
 	}
 #elif defined(__CBM__)
-	// TODO: sprite sheets larger than $700
-	// can be loaded by exomizer, but not cc65!
-	// (file loading under ROM not possible)	
+	// TODO: sprite sheets larger than $700 can be loaded by exomizer, 
+	// but not cc65! (file loading under ROM not possible)	
 #elif defined __LYNX__
 	// TODO
 #elif defined __NES__
@@ -171,26 +165,24 @@ void LoadSprites(unsigned char* filename)
 #endif
 }
 
-void SetupSprites(unsigned int frames, unsigned char cols, unsigned char rows, const unsigned char *spriteColors)
+void SetupSprites(const unsigned char *spriteColors)
 {
 #if defined __APPLE2__	
 	// Set sprite rows, frames and resulting block size (there are 4 offset blocks for each sprite)
 	unsigned char i;
-	frameROWS = rows;
-	frameBLOCK = frames*frameROWS*byteWIDTH;
+	frameBLOCK = SPRITEFRAMES*SPRITEHEIGHT*byteWIDTH;
 	for (i=0; i<SPRITE_NUM; i++) 
-		sprRows[i] = frameROWS;
+		sprRows[i] = SPRITEHEIGHT;
 	
 #elif defined __ATARI__	
 	// Reset Sprite Mask, Frames, Colors and Rows
 	unsigned char i;
 	for (i=0; i<SPRITE_NUM; i++)
 		sprColor[i] = spriteColors[i];
-	sprRows = rows;
-	sprDLIs = (rows+15)>>3;
+	sprRows = SPRITEHEIGHT;
+	sprDLIs = (SPRITEHEIGHT+15)>>3;
 	sprPads = sprDLIs*8;
-	sprYOffset = (rows/2u)+2;
-	sprFrames = frames;
+	sprYOffset = (SPRITEHEIGHT/2u)+2;
 
 	// Clear all PMG memory
 	bzero(PMGRAM,0x400);
@@ -222,18 +214,15 @@ void SetupSprites(unsigned int frames, unsigned char cols, unsigned char rows, c
 #elif defined __ORIC__	
 	// Assign frame info and sprite colors
 	unsigned char i;
-	frameROWS = rows;
-	frameBLOCK = frames*frameROWS*byteWIDTH;
+	frameBLOCK = SPRITEFRAMES*SPRITEHEIGHT*byteWIDTH;
 	for (i=0; i<SPRITE_NUM; i++) 
-		sprRows[i] = rows;
+		sprRows[i] = SPRITEHEIGHT;
 	sprCOLOR = spriteColors;
 
-#elif defined __LYNX__	
-	sprCols = cols; sprRows = rows;		
-	frameSize = rows*((cols+(cols&1))/2+1)+1;
+#elif defined __LYNX__			
+	frameSize = SPRITEHEIGHT*((SPRITEWIDTH+(SPRITEWIDTH&1))/2u+1)+1;
 	
-#elif defined __NES__
-	sprCols = cols; sprRows = rows;		
+#elif defined __NES__		
 	pal_spr(spriteColors);
 #endif
 }
@@ -333,7 +322,7 @@ void LocateSprite(unsigned int x, unsigned int y)
   void __fastcall__ BlitSprite(void);
   void BackupSprBG(unsigned char index) {
 	// Backup new background
-	POKE(0xb0, frameROWS); 			// Number of lines
+	POKE(0xb0, SPRITEHEIGHT); 		// Number of lines
 	POKE(0xb1, 4);					// Bytes per line
 	POKEW(0xb2, scrAddr[index]-1);	// Address of source (-1)
 	POKEW(0xb4, sprBG[index]-1);	// Address of target (-1)
@@ -478,11 +467,11 @@ void LocateSprite(unsigned int x, unsigned int y)
 		}
 	#elif (defined __ATARI__) || (defined __LYNX__) || (defined __NES__)
 		sc_dY = sprY[i] - spriteY;
-		sc_cushion = sprRows-sprCushion;
+		sc_cushion = SPRITEHEIGHT-sprCushion;
 		if (sc_dY < sc_cushion || sc_dY>(256-sc_cushion)) {
 			
 			sc_dX = sprX[i] - spriteX;
-			sc_cushion = sprCols-sprCushion;
+			sc_cushion = SPRITEWIDTH-sprCushion;
 			if (sc_dX < sc_cushion || sc_dX>(256-sc_cushion)) {
 				
 				// Apply collision
@@ -514,7 +503,7 @@ void SetSprite(unsigned char index, unsigned int frame)
 	xHires = (spriteX*2)/7u;
 
 	// Select correct offset block (4 shifted blocks for 7 pixels)
-	frameAddr = (char*)(sprData) + frame*frameROWS*byteWIDTH;
+	frameAddr = sprData + frame*SPRITEHEIGHT*byteWIDTH;
 	if (xHires&1) {
 		if (spriteX%7 > 5) { 
 			frameAddr += 3*frameBLOCK; 
@@ -544,7 +533,7 @@ void SetSprite(unsigned char index, unsigned int frame)
 	
 	// (Optionally) backup new background, then draw sprite
 	POKE(0xE3, 2);				// Bytes per line (x2 for MAIN/AUX)
-	POKE(0xCE, frameROWS);		// Number of lines Hires > Output
+	POKE(0xCE, SPRITEHEIGHT);	// Number of lines Hires > Output
 	POKE(0xEB, rows);			// Number of lines Input > Hires
 	POKE(0xEC, xHires);			// Hires Offset X
 	POKE(0xED, spriteY);		// Hires Offset Y
@@ -572,7 +561,7 @@ void SetSprite(unsigned char index, unsigned int frame)
 	ss_slot = index&3;
 
 	// Prepare new data for VBI handler
-	ss_src  = &sprData[frame*sprRows]-ss_off;
+	ss_src  = &sprData[frame*SPRITEHEIGHT]-ss_off;
 	ss_dst  = (PMGRAM+34)+(ss_slot*0x100)+ss_DLI;  // 32 = 4 black rows at top of screen + 1 line	
 	ss_line = ss_slot*25+ss_dli;
 	
@@ -595,7 +584,7 @@ void SetSprite(unsigned char index, unsigned int frame)
 	unsigned char rows = sprRows[index];
 	
 	// Check frame block (left or right)
-	frameAddr = SPRITERAM + frame*frameROWS*2;
+	frameAddr = SPRITERAM + frame*SPRITEHEIGHT*2;
 	if (spriteX&1) { frameAddr += frameBLOCK; }
 	spriteX /= 2u;
 
@@ -687,8 +676,8 @@ void SetSprite(unsigned char index, unsigned int frame)
 	// Set sprite data for Suzy
 	scb = &sprSCB[index];
 	scb->data = &spriteData+frame*frameSize;
-	scb->hpos = spriteX-sprRows/2u;
-	scb->vpos = spriteY-sprCols/2u;
+	scb->hpos = spriteX-SPRITEHEIGHT/2u;
+	scb->vpos = spriteY-SPRITEWIDTH/2u;
 	
 	// Check collisions with other sprites
 	SpriteCollisions(index);
@@ -733,9 +722,9 @@ void EnableSprite(signed char index)
 	// Allocate memory for background
 	if (!sprBG[index]) {
 	  #if defined __APPLE2__
-		sprBG[index] = (unsigned char*)malloc(2*frameROWS);	// 2 bytes per line (4 bytes between AUX/MAIN for Apple DHR)
+		sprBG[index] = (unsigned char*)malloc(2*SPRITEHEIGHT);	// 2 bytes per line (4 bytes between AUX/MAIN for Apple DHR)
 	  #else
-		sprBG[index] = (unsigned char*)malloc(4*frameROWS);	// 4 bytes per line (2 atrributes + 12 pixels)
+		sprBG[index] = (unsigned char*)malloc(4*SPRITEHEIGHT);	// 4 bytes per line (2 atrributes + 12 pixels)
 	  #endif
 		sprDrawn[index] = 0;
 	}
