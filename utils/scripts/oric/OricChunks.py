@@ -52,9 +52,9 @@ for line in lines:
         coorLst.append(coords)
         
         # Compute size of chunk
-        sizeLst.append(4+coords[2]*coords[3]/6)
+        sizeLst.append(6+coords[3]*(coords[2]/6))
         print 'Adding Chunk ', coords
-    
+print sizeLst    
 #######################################
 # Output chunk data
 fb = FileBase(chunkfile, '.txt')
@@ -62,15 +62,13 @@ f2 = io.open(outfolder + fb + '.dat', 'wb')
 
 # Write header information
 f2.write(chr(len(sizeLst)))
-for i in range(len(sizeLst)):
-    f2.write(struct.pack('H', sizeLst[i]))
  
-# Write coords/names/attributes
+# Write coords/sizes/data
 for i in range(len(sizeLst)):
 
     # Write binary data
-    cor = ''.join([chr(b) for b in coorLst[i]])
-    f2.write(cor)
+    f2.write(''.join([chr(b) for b in coorLst[i]]))
+    f2.write(struct.pack('H', sizeLst[i]))
     coords = coorLst[i]
     for y in range(coords[1], coords[1]+coords[3], 1):
         for x in range(coords[0], coords[0]+coords[2], 6):

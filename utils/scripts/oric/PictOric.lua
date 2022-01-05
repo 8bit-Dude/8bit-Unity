@@ -13,7 +13,7 @@
 -- be modified in the program. See below:
 --
 -------------------------------------------------------------------------------
-local save_bmp     = 0      -- 1 to save a bmp next to TAP file
+local save_bmp     = 1      -- 1 to save a bmp next to TAP file
 local normalize    = 0.0001 -- % of pixel having max component (0.1-1% typical)
 local blank_margin = -1     -- blank 1st octet of each line? 0=off 1=on -1=auto
 local basic_loader = 0      -- 1 to add basic loader to TAP file

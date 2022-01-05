@@ -120,7 +120,7 @@ for i in range(len(cropLst)):
     attrLst.append( h*w )
     
     # Compute size of chunk
-    sizeLst.append(4+(range2-range1)+h*w)
+    sizeLst.append(6+(range2-range1)+h*w)
     print 'Adding Chunk ', coords
 
 #######################################
@@ -139,19 +139,13 @@ f2 = io.open(outfolder + fb + '.chk', 'wb')
 
 # Write header information
 f2.write(chr(len(sizeLst)))
+
+# Write coords/size/names/attributes
 for i in range(len(sizeLst)):
+    f2.write(''.join([chr(b) for b in coorLst[i]]))
     f2.write(struct.pack('H', sizeLst[i]))
-
-# Write coords/names/attributes
-for i in range(len(sizeLst)):
-
-    # Write binary table
-    cor = ''.join([chr(b) for b in coorLst[i]])
-    nam = ''.join([chr(b) for b in names[rangeLst[i][0]:rangeLst[i][1]]])
-    att = ''.join([chr(0) for b in range(attrLst[i])])
-    f2.write(cor)
-    f2.write(nam)
-    f2.write(att)
+    f2.write(''.join([chr(b) for b in names[rangeLst[i][0]:rangeLst[i][1]]]))
+    f2.write(''.join([chr(0) for b in range(attrLst[i])]))
 
 f2.close()
     
