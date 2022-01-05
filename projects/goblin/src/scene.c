@@ -12,15 +12,19 @@
 #endif
 
 // DO NOT CHANGE ORDER: This data is loaded sequentially from file
-unsigned char num_polygon, num_chunks, num_interacts, num_triggers, num_paths;
+unsigned char num_polygon, num_interacts, num_triggers, num_paths;
 signed int polygonX[MAX_POLYGON];
 signed int polygonY[MAX_POLYGON];
-unsigned int chunkNames[MAX_CHUNK];
 Interact interacts[MAX_INTERACT]; 
 Trigger triggers[MAX_TRIGGER];
 Modifier modifiers[MAX_MODIFIER];
 Path paths[MAX_PATH];
 unsigned char strings[0x400];
+
+// Chunks for scene animation
+unsigned char  num_chunks;
+unsigned char *chunkData[MAX_CHUNK];
+unsigned char *chunkBckg[MAX_CHUNK];
 
 #ifdef __NES__
   #pragma bss-name(pop)
@@ -30,38 +34,41 @@ unsigned char strings[0x400];
 Item items[MAX_ITEM] = { { TXT_COLS-7,  TXT_ROWS-2, 0 },
 						 { TXT_COLS-7,  TXT_ROWS-1, 0 } };
 
-// Chunks for scene animation
-unsigned char* chunkData[MAX_CHUNK];
-unsigned char* chunkBckg[MAX_CHUNK];
 	  
 // See goblin.c	  
 extern unsigned int unitX, unitY;
 extern unsigned int goalX, goalY;
 	  
 // Initialize scene animations
-void InitScene()
+void LoadScene(unsigned char* scene)
 {	
-	unsigned char i, *coords;
+	unsigned char fname[13];
+	unsigned char i, l, *coords;
+	
+	// Prepare filename
+	l = strlen(scene);
+	memcpy(fname, scene, l);
 	
 	// Load bitmap
 	HideBitmap();
-	LoadBitmap("scene1.img");
+	memcpy(&fname[l], ".img\0", 4);
+	LoadBitmap(fname);
 	ShowBitmap();
 	
+	// Load chunks/backgrounds
+	memcpy(&fname[l], ".chk\0", 4);
+	num_chunks = LoadChunks(chunkData, fname);
+	for (i=0; i<num_chunks; i++) {
+		coords = chunkData[i]; 
+		chunkBckg[i] = GetChunk(coords[0], coords[1], coords[2], coords[3]);
+	}
+	
 	// Load navigation
-	if (FileOpen("scene1.nav")) {
+	memcpy(&fname[l], ".nav\0", 4);
+	if (FileOpen(fname)) {
 		FileRead(&num_polygon, -1);
 		FileClose();
 	}
-
-	// Prepare graphic animations
-	for (i=0; i<num_chunks; i++) 
-		LoadChunk(&chunkData[i], &strings[chunkNames[i]]);
-
-	// Grab background of some animations
-	coords = chunkData[0]; GetChunk(&chunkBckg[0], coords[0], coords[1], coords[2], coords[3]);  // Grab Notable bakground
-	coords = chunkData[1]; GetChunk(&chunkBckg[1], coords[0], coords[1], coords[2], coords[3]);  // Grab Old men bakground
-	coords = chunkData[4]; GetChunk(&chunkBckg[4], coords[0], coords[1], coords[2], coords[3]);  // Grab Switch bakground
 	
 	// Assign ink/paper colors
 #if (defined __ORIC__)

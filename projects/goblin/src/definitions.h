@@ -102,10 +102,10 @@ void DrawUnit(unsigned int x, unsigned int y, unsigned char frame);
 void SplashScreen(void);
 
 // See scene.c
-void InitScene(void);
-void Wait(unsigned char ticks);
+void LoadScene(unsigned char* scene);
 void PushItem(unsigned int label);
 void PopItem(unsigned char index);
 unsigned char SelectItem(unsigned int x, unsigned int y);
 unsigned char SearchScene(unsigned int searchX, unsigned int searchY);
 unsigned char ProcessInteract(unsigned char index, unsigned char item);
+void Wait(unsigned char ticks);

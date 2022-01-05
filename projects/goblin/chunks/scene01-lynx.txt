@@ -1,0 +1,19 @@
+#
+# Chunks definition file
+#
+# 	[X, Y, W, H] on PNG file
+#
+# 	Coordinates restrictions:
+#   	Apple:  X/W must be multiples of 7 (e.g. 0,7,14,21...) |              No restrictions
+#   	Atari:  X/W must be multiples of 4 (e.g. 0,4,8,12... ) |              No restrictions
+#   	C64:    X/W must be multiples of 4 (e.g. 0,4,8,12... ) |  Y/H must be multiples of 8 (e.g. 0,8,16,24...)
+#   	Lynx:   X/W must be multiples of 2 (e.g. 0,2,4,6... )  |              No restrictions
+#   	NES:    X/W must be multiples of 8 (e.g. 0,8,16,24... )|  Y/H must be multiples of 8 (e.g. 0,8,16,24...)
+#   	Oric:   X/W must be multiples of 6 (e.g. 0,6,12,18...) |  Y/H must be multiples of 2 (e.g. 0,2,4,6...)
+#
+
+[ 16, 26, 28, 23]		# Notable animation
+[104, 27, 16,  8]		# Old men animation
+[126, 30,  8, 10]		# Bottle removed
+[ 32, 27,  4, 10]		# Sausage removed
+[  2, 46, 18, 10]		# Switch animation

@@ -210,7 +210,7 @@ int main(void)
 	SplashScreen();
 
 	// Prepare scene
-	InitScene();
+	LoadScene("scene01");
 	
 	// Run game loop
 	PlayMusic();

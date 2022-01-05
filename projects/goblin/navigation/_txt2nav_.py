@@ -53,7 +53,7 @@ for scene in scenes:
     # Initialize lists
     definitions = {}
     polygon = []
-    chunks = []
+    #chunks = []
     interacts = []
     triggers = []
     modifiers = []
@@ -75,10 +75,10 @@ for scene in scenes:
                 coords[i] = int(coords[i])
             polygon.append(coords)
 
-        if 'C:' in line:
-            # Clean filename
-            filename = re.findall(r'"([^"]*)"', line[2:-1])
-            chunks.append(append(filename[0] + '\0'))
+        #if 'C:' in line:
+        #    # Clean filename
+        #    filename = re.findall(r'"([^"]*)"', line[2:-1])
+        #    chunks.append(append(filename[0] + '\0'))
             
         if 'I:' in line:
             # Fetch interact
@@ -155,7 +155,6 @@ for scene in scenes:
 
     # Number of available items
     f2.write(struct.pack('B', len(polygon[0])))
-    f2.write(struct.pack('B', len(chunks)))
     f2.write(struct.pack('B', len(interacts)))
     f2.write(struct.pack('B', len(triggers)))
     f2.write(struct.pack('B', len(paths)))
@@ -171,14 +170,7 @@ for scene in scenes:
             f2.write(struct.pack('h', polygon[1][i])) # Y
         else:
             f2.write('  ')
-            
-    # Chunks
-    for i in range(definitions['MAX_CHUNK']):
-        if i<len(chunks):
-            f2.write(struct.pack('H', chunks[i]))    # Filename
-        else:
-            f2.write('  ')
-            
+                        
     # Interacts
     for i in range(definitions['MAX_INTERACT']):
         if i<len(interacts):
