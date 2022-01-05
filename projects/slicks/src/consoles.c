@@ -298,11 +298,6 @@ void CursorControl(void)
 	}
 }
 
-#if defined(__NES__)
-  extern unsigned char *chunkPtr;
-  extern unsigned char chunkBuf[];
-#endif 
-
 void BackupRestorePauseBg(unsigned char mode)
 {
 #if defined(__LYNX__)
@@ -320,10 +315,10 @@ void BackupRestorePauseBg(unsigned char mode)
 #elif defined(__NES__)	
 	// Use chunks
 	if (!mode) {
-		GetChunk(&chatBG, PAUSE_COL, PAUSE_ONLINE_ROW, 10, 12);
+		chatBG = GetChunk(PAUSE_COL, PAUSE_ONLINE_ROW, 10, 12);
 	} else {
 		SetChunk(chatBG, PAUSE_COL, PAUSE_ONLINE_ROW);
-		chunkPtr = chunkBuf;  // Reset Chunk Buffer
+		FreeChunk(chatBG);
 	}
 #endif	
 }

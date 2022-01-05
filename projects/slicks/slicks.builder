@@ -35,8 +35,7 @@
             "projects/slicks/masks/stadium.msk"
         ], 
         "charmap": [], 
-        "tilesize": "None", 
-        "customVBI": "No"
+        "tilesize": "None"
     }, 
     "platform": {
         "Apple": {
@@ -85,6 +84,8 @@
             "chunks": [], 
             "diskSize": "140KB", 
             "crunchAssets": "Yes", 
+            "musicMemory": "auto", 
+            "chunkMemory": "$0000", 
             "assetFilter": "*", 
             "network8bitHub": true, 
             "networkUthernet": true, 
@@ -118,6 +119,8 @@
             "chunks": [], 
             "diskSize": "360KB", 
             "crunchAssets": "Yes", 
+            "musicMemory": "$0800", 
+            "chunkMemory": "$0000", 
             "assetFilter": "*", 
             "network8bitHub": true, 
             "networkDragonCart": true, 
@@ -152,6 +155,8 @@
             ], 
             "chunks": [], 
             "crunchAssets": "Yes", 
+            "musicMemory": "$4000", 
+            "chunkMemory": "$0000", 
             "assetFilter": ".msk", 
             "network8bitHub": true, 
             "networkRRNet": true, 
@@ -184,6 +189,7 @@
             ], 
             "chunks": [], 
             "musicMemory": "$0800", 
+            "chunkMemory": "$0000", 
             "sharedMemory": "$0100", 
             "assetFilter": ".msk"
         }, 
@@ -214,6 +220,8 @@
                 "projects/slicks/music/speednik-nes.txt"
             ], 
             "chunks": [], 
+            "musicMemory": "$4000", 
+            "chunkMemory": "$0100", 
             "assetFilter": "*"
         }, 
         "Oric": {
@@ -243,6 +251,8 @@
                 "projects/slicks/music/speednik-oric.ym"
             ], 
             "chunks": [], 
+            "musicMemory": "auto", 
+            "chunkMemory": "$0000", 
             "assetFilter": "*"
         }
     }

@@ -1,47 +1,29 @@
 
 #include "definitions.h"
 
-// Sprite definitions
+// Color definitions
 #if defined __APPLE2__
-  #define spriteCols    7
-  #define spriteRows    6
   const unsigned char spriteColors[] = { };	//  Colors are pre-assigned in the sprite sheet
-  #if defined __DHR__	
-	const unsigned char inkColors[] = { BLUE, RED, GREEN, YELLOW, WHITE };		// P1, P2, P3, P4, SERVER INFO
-  #else
-	const unsigned char inkColors[] = { BLUE, PURPLE, GREEN, ORANGE, WHITE };	// P1, P2, P3, P4, SERVER INFO
-  #endif
+ #if defined __DHR__	
+  const unsigned char inkColors[] = { BLUE, RED, GREEN, YELLOW, WHITE };		// P1, P2, P3, P4, SERVER INFO
+ #else
+  const unsigned char inkColors[] = { BLUE, PURPLE, GREEN, ORANGE, WHITE };	// P1, P2, P3, P4, SERVER INFO
+ #endif
 #elif defined __ATARI__
-  #define spriteCols    8
-  #define spriteRows   10
- #if defined MULTICOLOR
   const unsigned char spriteColors[] = { SPR_BLUE,  SPR_GREY, SPR_RED,    SPR_GREY, 	// Bank 1
 										 SPR_DGREEN,SPR_GREY, SPR_DYELLOW,SPR_GREY, 	// Bank 2
 										 SPR_GREY,  SPR_GREY, SPR_GREY,   SPR_GREY };  	// Bank 3
- #else
-  const unsigned char spriteColors[] = { SPR_BLUE, SPR_RED, SPR_GREEN, SPR_YELLOW,		// Bank 1
-										 SPR_GREY, SPR_GREY, SPR_GREY, SPR_GREY, 		// Bank 2
-										 SPR_GREY, SPR_GREY, SPR_GREY, SPR_GREY };  	// Bank 3
- #endif
   const unsigned char inkColors[] = { BLUE, RED, GREEN, YELLOW, WHITE };				// P1, P2, P3, P4, SERVER INFO
 #elif defined __ORIC__
-  #define spriteCols   12
-  #define spriteRows    6
   const unsigned char spriteColors[] = { SPR_CYAN, SPR_MAGENTA, SPR_GREEN, SPR_WHITE, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC };	
   const unsigned char inkColors[] = { CYAN, LPURPLE, LGREEN, GREY, WHITE };		// P1, P2, P3, P4, SERVER INFO
 #elif defined __CBM__
-  #define spriteCols   12
-  #define spriteRows   21
   const unsigned char spriteColors[] = { BLUE, RED, GREEN, YELLOW, LGREY, LGREY, LGREY, 0, CYAN, BLACK };	// P1, P2, P3, P4, Light1, Light2, Light3, n/a, Shared Color 1, Shared Color 2
   const unsigned char inkColors[] = { BLUE, RED, LGREEN, YELLOW, WHITE };		// P1, P2, P3, P4, SERVER INFO
 #elif defined __LYNX__
-  #define spriteCols    8
-  #define spriteRows    9
   unsigned char *spriteColors =  0;  //  All sprites use the default palette
   const unsigned char inkColors[] = { BLUE, ORANGE, LGREEN, YELLOW, WHITE };	// P1, P2, P3, P4, SERVER INFO
 #elif defined __NES__
-  #define spriteCols    8
-  #define spriteRows    8
   const unsigned char spriteColors[] = { SPR_VOID, SPR_BLUE,   SPR_CYAN, SPR_GREY,  
 										 SPR_VOID, SPR_RED,    SPR_CYAN, SPR_GREY, 
 										 SPR_VOID, SPR_GREEN,  SPR_CYAN, SPR_GREY, 
@@ -101,7 +83,7 @@ int main (void)
 	
 	// Setup sprites
 	LoadSprites("sprites.dat");
-	SetupSprites(spriteFrames, spriteCols, spriteRows, spriteColors);	// see definitions.h
+	SetupSprites(spriteColors);
 #if defined __LYNX__
 	RecolorSprite(1, 0, 0x08); // BLUE -> ORANGE
 	RecolorSprite(2, 0, 0x05); // BLUE -> GREEN

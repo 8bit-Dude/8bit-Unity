@@ -388,11 +388,6 @@ void PrintTimedOut()
     sleep(3);
 }
 
-#ifdef __NES__
-  #pragma rodata-name("BANK0")
-  #pragma code-name("BANK0")
-#endif
-
 // Sub-function for Animating Sprites in Main Menu
 void SpriteAnimation(unsigned char index, unsigned char frame)
 {
@@ -451,6 +446,11 @@ void PrintBestLap(unsigned int ticks, unsigned char tckPerSec)
 	}
 	PrintNum(d);
 }
+
+#ifdef __NES__
+  #pragma rodata-name("BANK0")
+  #pragma code-name("BANK0")
+#endif
 
 // See game.c
 extern Vehicle *iCar;
