@@ -42,7 +42,6 @@
 #define CHARMAPRAM  0x1000	// Stores charmap data
 #define CHARFLAGRAM 0x0084	// Stores charflag+palette data
 #define DECODERAM   0x0400	// Decoded char data
-#define CHUNKRAM    0x0300	// Stores chunk data
 #define WIDGETRAM   0x0300	// Stores callback data
 
 // Character Mode

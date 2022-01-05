@@ -1,6 +1,5 @@
-
 /*
- * Copyright (c) 2021 Anthony Beaucamp.
+ * Copyright (c) 2022 Anthony Beaucamp.
  *
  * This software is provided 'as-is', without any express or implied warranty.
  * In no event will the authors be held liable for any damages arising from
@@ -24,15 +23,53 @@
  *   used to endorse or promote products derived from this software without
  *   specific prior written permission.
  */
-
-// Workaround for missing screen functions
-
+  
 #include "unity.h"
 
-#pragma rodata-name("BANK0")
-#pragma code-name("BANK0")
+#ifdef __APPLE2__
+  #pragma code-name("LC")
+#endif
 
-void textcolor(unsigned char color) 
+#ifdef __ATARIXL__
+  #pragma code-name("SHADOW_RAM")
+#endif
+
+#ifdef __NES__
+  #pragma rodata-name("BANK0")
+  #pragma code-name("BANK0")
+#endif
+
+extern unsigned char chunkBuf[CHUNKSIZE];
+extern unsigned char *chunkPtr;
+void CheckMemory(void);
+
+unsigned char LoadChunks(unsigned char *chunks[], char *filename) 
 {
-	inkColor = color
+	unsigned char i, n;
+	unsigned int offset;
+
+	// Read data from file
+	if (FileOpen(filename)) {
+	#if defined __DHR__	
+		FileRead(&offset, 2);
+		FileRead(chunkPtr, offset);	// Load AUX data 
+		MainToAux(chunkPtr, offset);	
+		FileRead(chunkPtr, offset);	// Load MAIN data 
+	#else
+		FileRead(chunkPtr, -1);		
+	#endif
+		FileClose();
+	}
+
+	// Create pointers to individual chunks
+	n = chunkPtr[0]; 
+	chunkPtr += 1;
+	for (i=0; i<n; i++) {
+		chunks[i] = chunkPtr;
+		chunkPtr += *(unsigned int*)&chunkPtr[4];
+	}
+	
+	// Detect buffer overflow
+	CheckMemory();
+	return n;
 }

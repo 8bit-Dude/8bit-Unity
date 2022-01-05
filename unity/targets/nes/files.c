@@ -40,8 +40,12 @@ extern unsigned char  fileBanks[];  //					"
 extern unsigned char* fileNames[];  //					"
 extern unsigned char* fileDatas[];  //					"
 
-unsigned char fileIndex, fileName[13];
-unsigned int consummed = 0;
+#pragma bss-name(push, "XRAM")
+
+unsigned char fileIndex, fileBank, *fileData, fileName[13];
+unsigned int fileSize, consummed = 0;
+
+#pragma bss-name(pop)
 
 void DirList(void)
 {
@@ -50,26 +54,29 @@ void DirList(void)
 
 unsigned int FileOpen(const char* filename)
 {
-	unsigned int res = 0;
 	for (fileIndex=0; fileIndex<fileNum; fileIndex++) {
 		memcpyBanked(fileName, fileNames[fileIndex], 13, 1);
 		if (!strcmp(filename, fileName)) {
-			res = fileSizes[fileIndex];
+			set_prg_bank(1);
+			fileBank = fileBanks[fileIndex];
+			fileData = fileDatas[fileIndex];
+			fileSize = fileSizes[fileIndex];
+			set_prg_bank(0);
 			consummed = 0;
-			break;
+			return fileSize;
 		}
 	}
-	return res;
+	return 0;
 }
 
 unsigned int FileRead(char* buffer, signed int len)
 {
 	// Check remaining size
-	if (len == -1 || len > fileSizes[fileIndex] - consummed)
-		len = fileSizes[fileIndex] - consummed;
+	if (len == -1 || len > fileSize - consummed)
+		len = fileSize - consummed;
 	
 	// Copy chunk of data while bank switching
-	memcpyBanked(buffer, fileDatas[fileIndex]+consummed, len, fileBanks[fileIndex]);
+	memcpyBanked(buffer, fileData+consummed, len, fileBank);
 	
 	// Update consummed data
 	consummed += len;

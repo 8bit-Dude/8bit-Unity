@@ -31,7 +31,7 @@ output = sys.argv[2]
 bmpNum = int(sys.argv[3])
 musNum = int(sys.argv[4])
 shrNum = int(sys.argv[5])
-shkNum = int(sys.argv[6])
+chkNum = int(sys.argv[6])
 
 try:
     # Add bitmap assets to Directory file
@@ -57,11 +57,11 @@ try:
                         fout.write('	.export _SHR' + str(i) + '_FILENR : absolute\n')
                         fout.write('	.import __SHR' + str(i) + '_START__\n')
                         fout.write('	.import __SHR' + str(i) + 'DATA_SIZE__\n')
-                    for i in range(shkNum):
+                    for i in range(chkNum):
                         fout.write('\n')
-                        fout.write('	.export _SHK' + str(i) + '_FILENR : absolute\n')
-                        fout.write('	.import __SHK' + str(i) + '_START__\n')
-                        fout.write('	.import __SHK' + str(i) + 'DATA_SIZE__\n')
+                        fout.write('	.export _CHK' + str(i) + '_FILENR : absolute\n')
+                        fout.write('	.import __CHK' + str(i) + '_START__\n')
+                        fout.write('	.import __CHK' + str(i) + 'DATA_SIZE__\n')
                         
                 if 'entry __STARTOFDIRECTORY__' in line:
                     lastFilenr = 'MAIN'
@@ -87,12 +87,12 @@ try:
                                    'block, shr' + str(i) + 'len, __SHR' + str(i) + 'DATA_SIZE__, __SHR' + str(i) + '_START__\n')
                         lastFilenr = 'SHR' + str(i)
                         lastEntry  = 'shr' + str(i)
-                    for i in range(shkNum):
+                    for i in range(chkNum):
                         fout.write('\n')
-                        fout.write('_SHK' + str(i) + '_FILENR=_' + lastFilenr + '_FILENR+1\n')
-                        fout.write('entry ' + lastEntry + 'off, ' + lastEntry + 'len, shk' + str(i) + 'off, shk' + str(i) + 
-                                   'block, shk' + str(i) + 'len, __SHK' + str(i) + 'DATA_SIZE__, __SHK' + str(i) + '_START__\n')
-                        lastFilenr = 'SHK' + str(i)
-                        lastEntry  = 'shk' + str(i)
+                        fout.write('_CHK' + str(i) + '_FILENR=_' + lastFilenr + '_FILENR+1\n')
+                        fout.write('entry ' + lastEntry + 'off, ' + lastEntry + 'len, chk' + str(i) + 'off, chk' + str(i) + 
+                                   'block, chk' + str(i) + 'len, __CHK' + str(i) + 'DATA_SIZE__, __CHK' + str(i) + '_START__\n')
+                        lastFilenr = 'CHK' + str(i)
+                        lastEntry  = 'chk' + str(i)
 except:
     print 'Error: cannot generate Lynx directory file'

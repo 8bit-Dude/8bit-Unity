@@ -28,8 +28,8 @@
 
 // Memory Map
 #define BITMAPRAM  (0x9F8B)
-#define MUSICRAM   (BITMAPRAM - __MUSSIZE__)
-#define SHAREDRAM  (MUSICRAM  - __SHRSIZE__)
+#define MUSICRAM   (BITMAPRAM - MUSICSIZE)
+#define SHAREDRAM  (MUSICRAM - SHAREDSIZE)
 
 // Text Mode
 #define TXT_COLS   40

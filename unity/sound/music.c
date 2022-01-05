@@ -37,8 +37,7 @@
 #ifdef __NES__
   #pragma rodata-name("BANK0")
   #pragma code-name("BANK0")
-  extern unsigned char* fileDatas[];
-  extern unsigned char fileIndex;  
+  extern unsigned char* fileData;
 #endif
 
 #ifdef __CBM__
@@ -62,7 +61,7 @@ void LoadMusic(const char* filename)
 	FileOpen(filename);		// Music data is immediately loaded on open
 #elif defined __NES__	
 	if (FileOpen(filename))
-		music_load(fileDatas[fileIndex]);
+		music_load(fileData);
 #elif defined __ATARIXL__
 	unsigned int end, pos = MUSICRAM;
 	if (FileOpen(filename)) {

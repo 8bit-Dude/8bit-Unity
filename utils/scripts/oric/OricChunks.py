@@ -1,83 +1,79 @@
 
 import io, os, struct, sys, subprocess
 
+def FileBase(filepath, suffix):
+    # Return asset file base
+    name = os.path.basename(filepath).lower().replace(suffix, '')
+    name = name.split("-")
+    return name[0]
+
 ############################################    
 # Process chunks definition file
-chunkDefs = sys.argv[1]
+chunkfile = sys.argv[1]
 outfolder = sys.argv[2]
 dithering = sys.argv[3]
+imgfile = chunkfile[0:-4] + ".png"
 
-script = open(chunkDefs, "r")
+# Convert file to oric graphic
+datfile = outfolder + FileBase(imgfile, ".png") + ".tmp"
+datfile = datfile.replace('//','/')
+subprocess.call(["luajit.exe", "PictOric.lua", dithering, imgfile, datfile])
+
+# Read converted image
+f1 = io.open(datfile, 'rb')
+data = f1.read()
+f1.close()
+
+# Process Script
+script = open(chunkfile, "r")
 lines = script.readlines() 
 script.close()
 
-listing = open(outfolder+'chunks.lst', "w")
-sourceindex = 0;
-sources = dict()
+coorLst = []
+sizeLst = []
 
 for line in lines:
-    # Skip comments
-    if line[0] != '\'':
-        continue
+    if line[0] == '\'':
+        # Parse charset name
+        offset1 = 1
+        offset2 = 1    
+        while line[offset2] != '\'':
+            offset2 += 1
+        chrfile = outfolder + '/' + line[offset1:offset2]
+        chrfile = chrfile.replace('//','/')
+    
+    if line[0] == '[':
+        # Parse coordinates
+        offset1 = 1
+        offset2 = 1
+        while line[offset2] != ']':
+            offset2 += 1
+        coords = [int(s) for s in line[offset1:offset2].split(',')]
+        coorLst.append(coords)
         
-    # Parse chunk filename
-    offset1 = 1
-    offset2 = 1
-    while line[offset2] != '\'':
-        offset2 += 1
-    infile = os.path.dirname(chunkDefs) + '/' + line[offset1:offset2]
+        # Compute size of chunk
+        sizeLst.append(4+coords[2]*coords[3]/6)
+        print 'Adding Chunk ', coords
     
-    # Skip to next '
-    offset2 += 1
-    while line[offset2] != '\'':
-        offset2 += 1
-    offset2 += 1
+#######################################
+# Output chunk data
+fb = FileBase(chunkfile, '.txt')
+f2 = io.open(outfolder + fb + '.dat', 'wb')
 
-    # Parse output filename
-    offset1 = offset2
-    while line[offset2] != '\'':
-        offset2 += 1
-    outfile = outfolder + '/' + line[offset1:offset2]
-    outfile = outfile.replace('//','/')
+# Write header information
+f2.write(chr(len(sizeLst)))
+for i in range(len(sizeLst)):
+    f2.write(struct.pack('H', sizeLst[i]))
+ 
+# Write coords/names/attributes
+for i in range(len(sizeLst)):
 
-    # Skip to next [
-    while line[offset2] != '[':
-        offset2 += 1
-    offset2 += 1    
-    
-    # Parse coordinates
-    offset1 = offset2
-    while line[offset2] != ']':
-        offset2 += 1
-    coords = [int(s) for s in line[offset1:offset2].split(',')]
-
-    # Convert file to oric graphic
-    if infile in sources:    
-        sourcefile = sources[infile]
-    else:
-        sourcefile = outfolder + "/source" + str(sourceindex) + ".dat"
-        sourcefile = sourcefile.replace('//','/')
-        sourceindex += 1
-        subprocess.call(["luajit.exe", "PictOric.lua", dithering, infile, sourcefile])
-        sources[infile] = sourcefile
-
-    # Read the entire image
-    f1 = io.open(sourcefile, 'rb')
-    data = f1.read()
-    f1.close()
-    
-    # Only keep the relevant block of converted file
-    f2 = io.open(outfile, 'wb')
-    f2.write(chr(coords[0]))
-    f2.write(chr(coords[1]))
-    f2.write(chr(coords[2]))
-    f2.write(chr(coords[3]))   
+    # Write binary data
+    cor = ''.join([chr(b) for b in coorLst[i]])
+    f2.write(cor)
+    coords = coorLst[i]
     for y in range(coords[1], coords[1]+coords[3], 1):
         for x in range(coords[0], coords[0]+coords[2], 6):
             f2.write(data[y*40+x/6])
-    f2.close()
 
-    # Add file to list
-    listing.write(outfile.replace("../../../","")+'\n')
-    
-listing.close()
+f2.close()

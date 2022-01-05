@@ -44,9 +44,6 @@ const signed char keyCodes[4][13] = { { 49, 50, 51, 52, 53, 54, 55, 56, 57, 48, 
 									  { 65, 83, 68, 70, 71, 72, 74, 75, 76, 58, 39, 33, 13 },
 									  { 90, 88, 67, 86, 66, 78, 77, 44, 46, 63, 47, 92, 32 } };
 									  
-extern unsigned char *chunkPtr;
-extern unsigned char chunkBuf[];
-
 unsigned char SwapSpecialChar(unsigned char in)
 {
 	if (in == 20) 
@@ -61,7 +58,7 @@ void ShowKeyboardOverlay()
 	unsigned char i,j;
 	
 	// Use chunks to save background
-	GetChunk(&keybrdBG, keybrdX, keybrdY, 13, 4);
+	keybrdBG = GetChunk(keybrdX, keybrdY, 13, 4);
 	
 	// Display Keyboard
 	BackupCursor();
@@ -84,7 +81,7 @@ void HideKeyboardOverlay()
 {
 	// Restore background
 	SetChunk(keybrdBG, keybrdX, keybrdY);
-	chunkPtr = chunkBuf;  // Reset Chunk Buffer
+	FreeChunk(keybrdBG);
 	keybrdShow = 0;
 }
 void SetKeyboardOverlay(unsigned char x, unsigned char y) 

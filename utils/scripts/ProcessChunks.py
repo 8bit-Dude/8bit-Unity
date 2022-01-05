@@ -24,6 +24,12 @@ from PIL import Image
 from collections import Counter
 from math import sqrt
 
+def FileBase(filepath, suffix):
+    # Return asset file base
+    name = os.path.basename(filepath).lower().replace(suffix, '')
+    name = name.split("-")
+    return name[0]
+    
 #############################################
 # Set color of specific pixel (Single Hires)
 # 0=BLACK, 1=VIOLET/BLUE, 2=GREEN/ORANGE, 3=WHITE
@@ -105,11 +111,11 @@ def AssignColorGroup(pixels):
     return pixels, block
 
 ############################################
-def ExportApple(filename, coords, pixdata, mode):
+def PackApple(coords, pixdata, mode):
 
     # Process in blocks of 7 pixels > 4 bytes
-    imgWidth  = (coords[2]-coords[0])
-    imgHeight = (coords[3]-coords[1])
+    imgWidth  = coords[2]
+    imgHeight = coords[3]
     colors = max(pixdata)    
     blocks = []
     for i in range(len(pixdata)/7):
@@ -133,45 +139,35 @@ def ExportApple(filename, coords, pixdata, mode):
             blocks.append(block)
 
     # Write to file line-by-line
-    blocksPerLine = (coords[2]-coords[0])/7
-    output = io.open(filename, 'wb')
-    output.write(chr(coords[0]))
-    output.write(chr(coords[1]))
-    output.write(chr(imgWidth))
-    output.write(chr(imgHeight))
+    blocksPerLine = coords[2]/7
     if mode == 'single':
-        i = 0
+        i = 0; bufferMAIN = []
         while i < len(blocks):
             for j in range(blocksPerLine):
-                output.write(chr(blocks[i+j][0]))           
-                output.write(chr(blocks[i+j][1]))           
+                bufferMAIN.append(blocks[i+j][0])
+                bufferMAIN.append(blocks[i+j][1])
             i += blocksPerLine
+        return bufferMAIN
     else:
-        # Write AUX data
-        i = 0
+        i = 0; bufferMAIN = []; bufferAUX = []
         while i < len(blocks):
             for j in range(blocksPerLine):
-                output.write(chr(blocks[i+j][0]))           
-                output.write(chr(blocks[i+j][2]))           
+                bufferAUX.append(blocks[i+j][0])      
+                bufferAUX.append(blocks[i+j][2])           
+                bufferMAIN.append(blocks[i+j][1])        
+                bufferMAIN.append(blocks[i+j][3])           
             i += blocksPerLine
-        # Write MAIN data
-        i = 0
-        while i < len(blocks):
-            for j in range(blocksPerLine):
-                output.write(chr(blocks[i+j][1]))           
-                output.write(chr(blocks[i+j][3]))           
-            i += blocksPerLine
-    output.close() 
+        return bufferAUX, bufferMAIN
 
 
 ############################################
-def ExportAtari(filename, coords, pixdata):
+def PackAtari(coords, pixdata):
 
     # Process to double frame buffer
-    imgWidth  = (coords[2]-coords[0])
-    imgHeight = (coords[3]-coords[1]) 
+    imgWidth  = coords[2]
+    imgHeight = coords[3]
     imgSize   = (imgHeight*imgWidth/4)
-    buoutput = [0] * imgSize
+    buf1 = [0] * imgSize
     buf2 = [0] * imgSize
     for y in range(imgHeight):
         for x in range(imgWidth):
@@ -188,29 +184,14 @@ def ExportAtari(filename, coords, pixdata):
             # Assign bits in both buffers
             offset = y*(imgWidth/4)+x/4
             mask = 255 - (3<<shift)            
-            buoutput[offset] = (buoutput[offset] & mask) | col1
+            buf1[offset] = (buf1[offset] & mask) | col1
             buf2[offset] = (buf2[offset] & mask) | col2  
             
-    #################
-    # Convert to CHR
-    for i in range(imgSize):
-        buoutput[i] = chr(buoutput[i])
-        buf2[i] = chr(buf2[i])
-            
-    ########################
-    # Write output INP file
-    output = io.open(filename, 'wb')
-    output.write(chr(coords[0]))
-    output.write(chr(coords[1]))
-    output.write(chr(imgWidth))
-    output.write(chr(imgHeight))
-    output.write(''.join(buoutput))
-    output.write(''.join(buf2))
-    output.close()
+    return buf1+buf2
         
         
 ############################################
-def ExportC64(filename, coords, pixdata, paldata):
+def PackC64(coords, pixdata, paldata):
 
     # Extract RGB data
     rgb = []
@@ -218,8 +199,8 @@ def ExportC64(filename, coords, pixdata, paldata):
         rgb.append(paldata[i*3:i*3+3])
         
     # Process in blocks of 4 x 8 pixels
-    imgWidth  = (coords[2]-coords[0])
-    imgHeight = (coords[3]-coords[1])
+    imgWidth  = coords[2]
+    imgHeight = coords[3]
     bmp = [0] * (imgWidth*imgHeight/4)
     scr = [0] * (imgWidth*imgHeight/32)
     col = [0] * (imgWidth*imgHeight/32)
@@ -274,34 +255,15 @@ def ExportC64(filename, coords, pixdata, paldata):
                     offset = (imgWidth/4)*((y+i)&248)+((y+i)&7)+((2*(x+j))&504);
                     bmp[offset] |= index << shift
 
-    #################
-    # Convert to CHR
-    for i in range(len(bmp)):
-        bmp[i] = chr(bmp[i])
-    for i in range(len(scr)):    
-        scr[i] = chr(scr[i])
-    for i in range(len(col)):    
-        col[i] = chr(col[i])
-            
-    ########################
-    # Write output INP file
-    output = io.open(filename, 'wb')
-    output.write(chr(coords[0]))
-    output.write(chr(coords[1]))
-    output.write(chr(imgWidth))
-    output.write(chr(imgHeight))
-    output.write(''.join(bmp))
-    output.write(''.join(scr))
-    output.write(''.join(col))
-    output.close()    
+    return bmp+scr+col
     
     
 ############################################
-def ExportLynx(filename, coords, pixdata):
+def PackLynx(coords, pixdata):
 
     # Process to double frame buffer
-    imgWidth  = (coords[2]-coords[0])
-    imgHeight = (coords[3]-coords[1]) 
+    imgWidth  = coords[2]
+    imgHeight = coords[3]
     imgSize   = (imgHeight*imgWidth/2)
     buffer = [0] * imgSize
     offset = 0
@@ -309,98 +271,95 @@ def ExportLynx(filename, coords, pixdata):
         for x in range(0, imgWidth, 2):
             buffer[offset] = pixdata[y*imgWidth+x]*16 + (pixdata[y*imgWidth+x+1])
             offset += 1
-            
-    # Convert to CHR
-    for i in range(imgSize):
-        buffer[i] = chr(buffer[i])
-            
-    # Write output file
-    output = io.open(filename, 'wb')
-    output.write(chr(coords[0]))
-    output.write(chr(coords[1]))
-    output.write(chr(imgWidth))
-    output.write(chr(imgHeight))
-    output.write(''.join(buffer))
-    output.close()    
+    
+    return buffer
     
     
 ############################################    
+def WriteChunks(fid, sizeLst, coorLst, dataLst):
+
+    # Write header information
+    fid.write(chr(len(sizeLst)))
+
+    # Write coords/size/data
+    for i in range(len(sizeLst)):
+        fid.write(''.join([chr(b) for b in coorLst[i]]))
+        fid.write(struct.pack('H', sizeLst[i]))
+        fid.write(''.join([chr(b) for b in dataLst[i]]))   
+    
+    
+############################################    
+#               MAIN CODE                  #
+############################################    
+
+
 # Process chunks definition file
 platform = sys.argv[1]
-chunkDefs = sys.argv[2]
+chunkfile = sys.argv[2]
 outfolder = sys.argv[3]
+imgfile = chunkfile[0:-4] + ".png"
 
-script = open(chunkDefs, "r")
+script = open(chunkfile, "r")
 lines = script.readlines() 
 script.close()
 
-listing = open(outfolder+'chunks.lst', "w")
+############################
+# Create list of chunks
+sizeLst  = []
+coorLst = []
+if platform == 'apple-double':
+    dataLst = [[],[]]
+else:
+    dataLst = []
 
 for line in lines:
     # Skip comments
-    if line[0] != '\'':
+    if line[0] != '[':
         continue
         
-    # Parse chunk filename
+    # Parse coordinates
     offset1 = 1
     offset2 = 1
-    while line[offset2] != '\'':
-        offset2 += 1
-    infile = os.path.dirname(chunkDefs) + '/' + line[offset1:offset2]
-
-    # Skip to next '
-    offset2 += 1
-    while line[offset2] != '\'':
-        offset2 += 1
-    offset2 += 1
-
-    # Parse output filename
-    offset1 = offset2
-    while line[offset2] != '\'':
-        offset2 += 1
-    outfile = outfolder + '/' + line[offset1:offset2]
-    outfile = outfile.replace('//','/')
-
-    # Skip to next [
-    while line[offset2] != '[':
-        offset2 += 1
-    offset2 += 1    
-    
-    # Parse coordinates
-    offset1 = offset2
     while line[offset2] != ']':
-        offset2 += 1
+        offset2 += 1 
     coords = [int(s) for s in line[offset1:offset2].split(',')]
-    coords[2] = coords[0]+coords[2]
-    coords[3] = coords[1]+coords[3]
+    coorLst.append(coords)
     
-    # Process chunk    
-    image = Image.open(infile)
-    chunkdata = image.crop(coords)
-    pixdata = list(chunkdata.getdata())
-    paldata = chunkdata.getpalette()
-    
-    # Export to required format    
+    # Crop required section of image
+    img = Image.open(imgfile)
+    crop = img.crop((coords[0], coords[1], coords[0]+coords[2], coords[1]+coords[3]))
+    pixdata = list(crop.getdata())
+    paldata = crop.getpalette()
+
+    # Pack data to required format    
     if platform == 'apple-double':
-        ExportApple(outfile, coords, pixdata, 'double')
-    if platform == 'apple-single':
-        ExportApple(outfile, coords, pixdata, 'single')
-    if platform == 'atari':
-        ExportAtari(outfile, coords, pixdata)
-    if platform == 'c64':
-        ExportC64(outfile, coords, pixdata, paldata)
-    if platform == 'lynx':
-        ExportLynx(outfile, coords, pixdata)
-
-    # Print some info
-    coords[2] -= coords[0]
-    coords[3] -= coords[1]
-    print 'Generated ', outfile, coords
-
-    # Add file to list
-    if platform == 'c64' or 'apple' in platform:
-        listing.write(outfile.replace("../../../","")+'\n')    
+        dataAUX, dataMAIN = PackApple(coords, pixdata, 'double')
+        sizeLst.append(6+len(dataAUX)) 
+        dataLst[0].append(dataAUX)
+        dataLst[1].append(dataMAIN)
     else:
-        listing.write(os.path.basename(outfile)+'\n')
+        if platform == 'apple-single':
+            data = PackApple(coords, pixdata, 'single')
+        if platform == 'atari':
+            data = PackAtari(coords, pixdata)
+        if platform == 'c64':
+            data = PackC64(coords, pixdata, paldata)
+        if platform == 'lynx':
+            data = PackLynx(coords, pixdata)
+        sizeLst.append(6+len(data)) 
+        dataLst.append(data)
     
-listing.close()
+    print 'Packing Chunk ', coords
+   
+#######################################
+# Write chunk data   
+fb = FileBase(chunkfile, '.txt')
+f2 = io.open(outfolder + fb + '.chk', 'wb')
+if platform == 'apple-double':
+    f2.write(struct.pack('H', sum(sizeLst) + 1))
+    WriteChunks(f2, sizeLst, coorLst, dataLst[0])
+    WriteChunks(f2, sizeLst, coorLst, dataLst[1])
+else:
+    WriteChunks(f2, sizeLst, coorLst, dataLst)
+f2.close() 
+

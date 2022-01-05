@@ -102,9 +102,10 @@ void LoadBitmap(char *filename);
 //	Lynx:   X/W must be multiples of 2 (e.g. 0,2,4,6... )  |              No restrictions
 //	NES:    X/W must be multiples of 8 (e.g. 0,8,16,24... )|  Y/H must be multiples of 8  (e.g. 0,8,16,24...)
 // 	Oric:   X/W must be multiples of 6 (e.g. 0,6,12,18...) |  			  No restrictions
-void GetChunk(unsigned char** chunk, unsigned char x, unsigned char y, unsigned char w, unsigned char h);
+unsigned char LoadChunks(unsigned char *chunks[], char *filename);
+unsigned char *GetChunk(unsigned char x, unsigned char y, unsigned char w, unsigned char h);
 void SetChunk(unsigned char* chunk, unsigned char x, unsigned char y);
-void LoadChunk(unsigned char** chunk, char *filename);
+void FreeChunk(unsigned char* chunk);
 
 // Charmap functions (see charmap.c)
 void InitCharmap(unsigned char col1, unsigned char col2, unsigned char row1, unsigned char row2);

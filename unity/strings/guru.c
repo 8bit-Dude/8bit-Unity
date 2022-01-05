@@ -1,6 +1,5 @@
-
 /*
- * Copyright (c) 2021 Anthony Beaucamp.
+ * Copyright (c) 2022 Anthony Beaucamp.
  *
  * This software is provided 'as-is', without any express or implied warranty.
  * In no event will the authors be held liable for any damages arising from
@@ -25,14 +24,26 @@
  *   specific prior written permission.
  */
 
-// Workaround for missing screen functions
-
 #include "unity.h"
 
-#pragma rodata-name("BANK0")
-#pragma code-name("BANK0")
+#ifdef __APPLE2__
+  #pragma code-name("LOWCODE")
+#endif
 
-void textcolor(unsigned char color) 
+#ifdef __ATARIXL__
+  #pragma code-name("SHADOW_RAM")
+#endif
+
+#ifdef __NES__
+  #pragma rodata-name("BANK0")
+  #pragma code-name("BANK0")
+#endif
+
+void GuruMeditation(unsigned char* souce)
 {
-	inkColor = color
+	ClearBitmap();
+	paperColor = BLACK; inkColor = RED; txtY = TXT_ROWS/2;
+	txtX = TXT_COLS/2-13;  PrintStr("Buffer Overflow in");
+	txtX = TXT_COLS/2+6; PrintStr(souce);
+	while (1);
 }

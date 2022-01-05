@@ -4,8 +4,8 @@
     <property name="height">800</property>
     <child>
       <object class="ttk.Notebook" id="Notebook_Assets">
-        <property name="height">485</property>
-        <property name="width">450</property>
+        <property name="height">520</property>
+        <property name="width">500</property>
         <layout>
           <property name="column">0</property>
           <property name="propagate">True</property>
@@ -19,7 +19,7 @@
               <object class="tk.Frame" id="Frame_General">
                 <property name="height">500</property>
                 <property name="padx">10</property>
-                <property name="width">450</property>
+                <property name="width">500</property>
                 <layout>
                   <property name="column">0</property>
                   <property name="propagate">True</property>
@@ -37,7 +37,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_Code">
                         <property name="height">5</property>
-                        <property name="width">70</property>
+                        <property name="width">78</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -88,7 +88,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_Charmap">
                         <property name="height">5</property>
-                        <property name="width">70</property>
+                        <property name="width">78</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -167,7 +167,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_Shared">
                         <property name="height">5</property>
-                        <property name="width">70</property>
+                        <property name="width">78</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -217,7 +217,7 @@
               <object class="tk.Frame" id="Frame_Apple">
                 <property name="height">500</property>
                 <property name="padx">10</property>
-                <property name="width">450</property>
+                <property name="width">500</property>
                 <layout>
                   <property name="column">0</property>
                   <property name="propagate">True</property>
@@ -236,7 +236,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_AppleBitmapDHR">
                         <property name="height">6</property>
-                        <property name="width">34</property>
+                        <property name="width">38</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -281,7 +281,7 @@
                     <property name="width">100</property>
                     <layout>
                       <property name="column">0</property>
-                      <property name="padx">215</property>
+                      <property name="padx">245</property>
                       <property name="propagate">True</property>
                       <property name="row">0</property>
                       <property name="sticky">nw</property>
@@ -289,7 +289,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_AppleBitmapSHR">
                         <property name="height">6</property>
-                        <property name="width">34</property>
+                        <property name="width">38</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -342,7 +342,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_AppleCharsetDHR">
                         <property name="height">1</property>
-                        <property name="width">34</property>
+                        <property name="width">38</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -373,7 +373,7 @@
                     <property name="width">100</property>
                     <layout>
                       <property name="column">0</property>
-                      <property name="padx">215</property>
+                      <property name="padx">245</property>
                       <property name="pady">0</property>
                       <property name="propagate">True</property>
                       <property name="row">1</property>
@@ -382,7 +382,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_AppleCharsetSHR">
                         <property name="height">1</property>
-                        <property name="width">34</property>
+                        <property name="width">38</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -421,7 +421,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_AppleSpritesDHR">
                         <property name="height">1</property>
-                        <property name="width">34</property>
+                        <property name="width">38</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -452,7 +452,7 @@
                     <property name="width">100</property>
                     <layout>
                       <property name="column">0</property>
-                      <property name="padx">215</property>
+                      <property name="padx">245</property>
                       <property name="pady">0</property>
                       <property name="propagate">True</property>
                       <property name="row">2</property>
@@ -461,7 +461,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_AppleSpritesSHR">
                         <property name="height">1</property>
-                        <property name="width">34</property>
+                        <property name="width">38</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -594,7 +594,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_AppleChunks">
                         <property name="height">1</property>
-                        <property name="width">34</property>
+                        <property name="width">38</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -626,7 +626,7 @@
                     <property name="width">100</property>
                     <layout>
                       <property name="column">0</property>
-                      <property name="padx">215</property>
+                      <property name="padx">245</property>
                       <property name="pady">0</property>
                       <property name="propagate">True</property>
                       <property name="row">4</property>
@@ -635,7 +635,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_AppleMusic">
                         <property name="height">1</property>
-                        <property name="width">34</property>
+                        <property name="width">38</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -687,12 +687,12 @@
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
-                      <object class="tk.Label" id="Label_AppleDiskSize">
-                        <property name="text" translatable="yes">Disk</property>
+                      <object class="tk.Label" id="Label_AppleMusicMemory">
+                        <property name="text" translatable="yes">Music Mem</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="padx">5</property>
-                          <property name="pady">2</property>
+                          <property name="pady">5</property>
                           <property name="propagate">True</property>
                           <property name="row">1</property>
                           <property name="sticky">nw</property>
@@ -700,16 +700,70 @@
                       </object>
                     </child>
                     <child>
-                      <object class="ttk.Combobox" id="Combobox_AppleDiskSize">
-                        <property name="state">readonly</property>
-                        <property name="values">140KB 800KB</property>
+                      <object class="ttk.Entry" id="Entry_AppleMusicMemory">
+                        <property name="state">disabled</property>
+                        <property name="text" translatable="yes">auto</property>
+                        <property name="width">8</property>
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="padx">5</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="tk.Label" id="Label_AppleChunkMemory">
+                        <property name="text" translatable="yes">Chunk Mem</property>
+                        <layout>
+                          <property name="column">2</property>
+                          <property name="padx">5</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Entry" id="Entry_AppleChunkMemory">
+                        <property name="text" translatable="yes">$0400</property>
+                        <property name="width">8</property>
+                        <layout>
+                          <property name="column">3</property>
+                          <property name="padx">5</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>					
+                    <child>
+                      <object class="tk.Label" id="Label_AppleAssetFilter">
+                        <property name="text" translatable="yes">Excl. Asset</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">5</property>
+                          <property name="pady">2</property>
+                          <property name="propagate">True</property>
+                          <property name="row">2</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Entry" id="Entry_AppleAssetFilter">
+                        <property name="text" translatable="yes">*</property>
                         <property name="width">8</property>
                         <layout>
                           <property name="column">1</property>
                           <property name="padx">5</property>
                           <property name="pady">2</property>
                           <property name="propagate">True</property>
-                          <property name="row">1</property>
+                          <property name="row">2</property>
                           <property name="sticky">nw</property>
                         </layout>
                       </object>
@@ -722,7 +776,7 @@
                           <property name="padx">5</property>
                           <property name="pady">2</property>
                           <property name="propagate">True</property>
-                          <property name="row">1</property>
+                          <property name="row">2</property>
                           <property name="sticky">nw</property>
                         </layout>
                       </object>
@@ -737,34 +791,35 @@
                           <property name="padx">5</property>
                           <property name="pady">2</property>
                           <property name="propagate">True</property>
-                          <property name="row">1</property>
+                          <property name="row">2</property>
                           <property name="sticky">nw</property>
                         </layout>
                       </object>
                     </child>
                     <child>
-                      <object class="tk.Label" id="Label_AppleAssetFilter">
-                        <property name="text" translatable="yes">Ignore Assets</property>
+                      <object class="tk.Label" id="Label_AppleDiskSize">
+                        <property name="text" translatable="yes">Disk</property>
                         <layout>
                           <property name="column">4</property>
                           <property name="padx">5</property>
-                          <property name="pady">5</property>
+                          <property name="pady">2</property>
                           <property name="propagate">True</property>
-                          <property name="row">1</property>
+                          <property name="row">2</property>
                           <property name="sticky">nw</property>
                         </layout>
                       </object>
                     </child>
                     <child>
-                      <object class="ttk.Entry" id="Entry_AppleAssetFilter">
-                        <property name="text" translatable="yes">*</property>
+                      <object class="ttk.Combobox" id="Combobox_AppleDiskSize">
+                        <property name="state">readonly</property>
+                        <property name="values">140KB 800KB</property>
                         <property name="width">8</property>
                         <layout>
                           <property name="column">5</property>
                           <property name="padx">5</property>
-                          <property name="pady">5</property>
+                          <property name="pady">2</property>
                           <property name="propagate">True</property>
-                          <property name="row">1</property>
+                          <property name="row">2</property>
                           <property name="sticky">nw</property>
                         </layout>
                       </object>
@@ -777,7 +832,7 @@
                           <property name="padx">5</property>
                           <property name="pady">2</property>
                           <property name="propagate">True</property>
-                          <property name="row">2</property>
+                          <property name="row">3</property>
                           <property name="sticky">nw</property>
                         </layout>
                       </object>
@@ -791,7 +846,7 @@
                           <property name="padx">5</property>
                           <property name="pady">2</property>
                           <property name="propagate">True</property>
-                          <property name="row">2</property>
+                          <property name="row">3</property>
                         </layout>
                       </object>
                     </child>
@@ -804,7 +859,7 @@
                           <property name="padx">5</property>
                           <property name="pady">2</property>
                           <property name="propagate">True</property>
-                          <property name="row">2</property>
+                          <property name="row">3</property>
                         </layout>
                       </object>
                     </child>
@@ -814,11 +869,11 @@
                         <property name="values">UDP-only TCP/UDP</property>
                         <property name="width">8</property>
                         <layout>
-                          <property name="column">4</property>
+                          <property name="column">5</property>
                           <property name="padx">5</property>
                           <property name="pady">2</property>
                           <property name="propagate">True</property>
-                          <property name="row">2</property>
+                          <property name="row">3</property>
                           <property name="sticky">nw</property>
                         </layout>
                       </object>
@@ -836,7 +891,7 @@
               <object class="tk.Frame" id="Frame_Atari">
                 <property name="height">500</property>
                 <property name="padx">10</property>
-                <property name="width">450</property>
+                <property name="width">500</property>
                 <layout>
                   <property name="column">0</property>
                   <property name="propagate">True</property>
@@ -854,7 +909,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_AtariBitmap">
                         <property name="height">6</property>
-                        <property name="width">70</property>
+                        <property name="width">78</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -907,7 +962,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_AtariCharset">
                         <property name="height">1</property>
-                        <property name="width">70</property>
+                        <property name="width">78</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -946,7 +1001,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_AtariSprites">
                         <property name="height">1</property>
-                        <property name="width">70</property>
+                        <property name="width">78</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -1068,7 +1123,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_AtariChunks">
                         <property name="height">1</property>
-                        <property name="width">34</property>
+                        <property name="width">38</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -1100,7 +1155,7 @@
                     <property name="width">100</property>
                     <layout>
                       <property name="column">0</property>
-                      <property name="padx">215</property>
+                      <property name="padx">245</property>
                       <property name="pady">0</property>
                       <property name="propagate">True</property>
                       <property name="row">3</property>
@@ -1109,7 +1164,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_AtariMusic">
                         <property name="height">1</property>
-                        <property name="width">34</property>
+                        <property name="width">38</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -1150,7 +1205,6 @@
                 </child>
                 <child>
                   <object class="tk.LabelFrame" id="LabelFrame_AtariOptions">
-                    <property name="height">200</property>
                     <property name="text" translatable="yes">Options</property>
                     <property name="width">200</property>
                     <layout>
@@ -1161,12 +1215,12 @@
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
-                      <object class="tk.Label" id="Label_AtariDiskSize">
-                        <property name="text" translatable="yes">Disk</property>
+                      <object class="tk.Label" id="Label_AtariMusicMemory">
+                        <property name="text" translatable="yes">Music Mem</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="padx">5</property>
-                          <property name="pady">2</property>
+                          <property name="pady">5</property>
                           <property name="propagate">True</property>
                           <property name="row">1</property>
                           <property name="sticky">nw</property>
@@ -1174,16 +1228,70 @@
                       </object>
                     </child>
                     <child>
-                      <object class="ttk.Combobox" id="Combobox_AtariDiskSize">
-                        <property name="state">readonly</property>
-                        <property name="values">90KB 130KB 180KB 360KB</property>
+                      <object class="ttk.Entry" id="Entry_AtariMusicMemory">
+                        <property name="state">disabled</property>
+                        <property name="text" translatable="yes">$0800</property>
+                        <property name="width">8</property>
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="padx">5</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="tk.Label" id="Label_AtariChunkMemory">
+                        <property name="text" translatable="yes">Chunk Mem</property>
+                        <layout>
+                          <property name="column">2</property>
+                          <property name="padx">5</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Entry" id="Entry_AtariChunkMemory">
+                        <property name="text" translatable="yes">$0400</property>
+                        <property name="width">8</property>
+                        <layout>
+                          <property name="column">3</property>
+                          <property name="padx">5</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="tk.Label" id="Label_AtariAssetFilter">
+                        <property name="text" translatable="yes">Excl. Asset</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">5</property>
+                          <property name="pady">2</property>
+                          <property name="propagate">True</property>
+                          <property name="row">2</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Entry" id="Entry_AtariAssetFilter">
+                        <property name="text" translatable="yes">*</property>
                         <property name="width">8</property>
                         <layout>
                           <property name="column">1</property>
                           <property name="padx">5</property>
                           <property name="pady">2</property>
                           <property name="propagate">True</property>
-                          <property name="row">1</property>
+                          <property name="row">2</property>
                           <property name="sticky">nw</property>
                         </layout>
                       </object>
@@ -1196,7 +1304,7 @@
                           <property name="padx">5</property>
                           <property name="pady">2</property>
                           <property name="propagate">True</property>
-                          <property name="row">1</property>
+                          <property name="row">2</property>
                           <property name="sticky">nw</property>
                         </layout>
                       </object>
@@ -1211,34 +1319,35 @@
                           <property name="padx">5</property>
                           <property name="pady">2</property>
                           <property name="propagate">True</property>
-                          <property name="row">1</property>
+                          <property name="row">2</property>
                           <property name="sticky">nw</property>
                         </layout>
                       </object>
-                    </child>
+                    </child>					
                     <child>
-                      <object class="tk.Label" id="Label_AtariAssetFilter">
-                        <property name="text" translatable="yes">Ignore Assets</property>
+                      <object class="tk.Label" id="Label_AtariDiskSize">
+                        <property name="text" translatable="yes">Disk</property>
                         <layout>
                           <property name="column">4</property>
                           <property name="padx">5</property>
-                          <property name="pady">5</property>
+                          <property name="pady">2</property>
                           <property name="propagate">True</property>
-                          <property name="row">1</property>
+                          <property name="row">2</property>
                           <property name="sticky">nw</property>
                         </layout>
                       </object>
                     </child>
                     <child>
-                      <object class="ttk.Entry" id="Entry_AtariAssetFilter">
-                        <property name="text" translatable="yes">*</property>
+                      <object class="ttk.Combobox" id="Combobox_AtariDiskSize">
+                        <property name="state">readonly</property>
+                        <property name="values">90KB 130KB 180KB 360KB</property>
                         <property name="width">8</property>
                         <layout>
                           <property name="column">5</property>
                           <property name="padx">5</property>
-                          <property name="pady">5</property>
+                          <property name="pady">2</property>
                           <property name="propagate">True</property>
-                          <property name="row">1</property>
+                          <property name="row">2</property>
                           <property name="sticky">nw</property>
                         </layout>
                       </object>
@@ -1251,7 +1360,7 @@
                           <property name="padx">5</property>
                           <property name="pady">2</property>
                           <property name="propagate">True</property>
-                          <property name="row">2</property>
+                          <property name="row">3</property>
                           <property name="sticky">nw</property>
                         </layout>
                       </object>
@@ -1265,7 +1374,7 @@
                           <property name="padx">5</property>
                           <property name="pady">2</property>
                           <property name="propagate">True</property>
-                          <property name="row">2</property>
+                          <property name="row">3</property>
                         </layout>
                       </object>
                     </child>
@@ -1278,7 +1387,7 @@
                           <property name="padx">5</property>
                           <property name="pady">2</property>
                           <property name="propagate">True</property>
-                          <property name="row">2</property>
+                          <property name="row">3</property>
                         </layout>
                       </object>
                     </child>
@@ -1291,7 +1400,7 @@
                           <property name="padx">5</property>
                           <property name="pady">2</property>
                           <property name="propagate">True</property>
-                          <property name="row">2</property>
+                          <property name="row">3</property>
                         </layout>
                       </object>
                     </child>
@@ -1301,17 +1410,17 @@
                         <property name="values">UDP-only TCP/UDP</property>
                         <property name="width">8</property>
                         <layout>
-                          <property name="column">4</property>
+                          <property name="column">5</property>
                           <property name="padx">5</property>
                           <property name="pady">2</property>
                           <property name="propagate">True</property>
-                          <property name="row">2</property>
+                          <property name="row">3</property>
                           <property name="sticky">nw</property>
                         </layout>
                       </object>
                     </child>
-                  </object>
-                </child>
+				  </object>	
+                </child> 				
               </object>
             </child>
           </object>
@@ -1323,7 +1432,7 @@
               <object class="tk.Frame" id="Frame_C64">
                 <property name="height">500</property>
                 <property name="padx">10</property>
-                <property name="width">450</property>
+                <property name="width">500</property>
                 <layout>
                   <property name="column">0</property>
                   <property name="propagate">True</property>
@@ -1341,7 +1450,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_C64Bitmap">
                         <property name="height">6</property>
-                        <property name="width">70</property>
+                        <property name="width">78</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -1394,7 +1503,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_C64Charset">
                         <property name="height">1</property>
-                        <property name="width">70</property>
+                        <property name="width">78</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -1460,7 +1569,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_C64Sprites">
                         <property name="height">1</property>
-                        <property name="width">70</property>
+                        <property name="width">78</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -1583,7 +1692,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_C64Chunks">
                         <property name="height">1</property>
-                        <property name="width">34</property>
+                        <property name="width">38</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -1615,7 +1724,7 @@
                     <property name="width">100</property>
                     <layout>
                       <property name="column">0</property>
-                      <property name="padx">215</property>
+                      <property name="padx">245</property>
                       <property name="pady">0</property>
                       <property name="propagate">True</property>
                       <property name="row">3</property>
@@ -1624,7 +1733,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_C64Music">
                         <property name="height">1</property>
-                        <property name="width">34</property>
+                        <property name="width">38</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -1676,6 +1785,88 @@
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
+                      <object class="tk.Label" id="Label_C64MusicMemory">
+                        <property name="text" translatable="yes">Music Mem</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">5</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Entry" id="Entry_C64MusicMemory">
+                        <property name="state">disabled</property>
+                        <property name="text" translatable="yes">$4000</property>
+                        <property name="width">8</property>
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="padx">5</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="tk.Label" id="Label_C64ChunkMemory">
+                        <property name="text" translatable="yes">Chunk Mem</property>
+                        <layout>
+                          <property name="column">2</property>
+                          <property name="padx">5</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Entry" id="Entry_C64ChunkMemory">
+                        <property name="text" translatable="yes">$0200</property>
+                        <property name="width">8</property>
+                        <layout>
+                          <property name="column">3</property>
+                          <property name="padx">5</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+					<child>
+                      <object class="tk.Label" id="Label_C64AssetFilter">
+                        <property name="text" translatable="yes">Excl. Asset</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">5</property>
+                          <property name="pady">2</property>
+                          <property name="propagate">True</property>
+                          <property name="row">2</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Entry" id="Entry_C64AssetFilter">
+                        <property name="text" translatable="yes">*</property>
+                        <property name="width">8</property>
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="padx">5</property>
+                          <property name="pady">2</property>
+                          <property name="propagate">True</property>
+                          <property name="row">2</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
                       <object class="tk.Label" id="Label_C64CrunchAssets">
                         <property name="text" translatable="yes">Crunch</property>
                         <layout>
@@ -1683,7 +1874,7 @@
                           <property name="padx">5</property>
                           <property name="pady">2</property>
                           <property name="propagate">True</property>
-                          <property name="row">1</property>
+                          <property name="row">2</property>
                           <property name="sticky">nw</property>
                         </layout>
                       </object>
@@ -1698,34 +1889,7 @@
                           <property name="padx">5</property>
                           <property name="pady">2</property>
                           <property name="propagate">True</property>
-                          <property name="row">1</property>
-                          <property name="sticky">nw</property>
-                        </layout>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="tk.Label" id="Label_C64AssetFilter">
-                        <property name="text" translatable="yes">Ignore Assets</property>
-                        <layout>
-                          <property name="column">4</property>
-                          <property name="padx">5</property>
-                          <property name="pady">5</property>
-                          <property name="propagate">True</property>
-                          <property name="row">1</property>
-                          <property name="sticky">nw</property>
-                        </layout>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="ttk.Entry" id="Entry_C64AssetFilter">
-                        <property name="text" translatable="yes">*</property>
-                        <property name="width">8</property>
-                        <layout>
-                          <property name="column">5</property>
-                          <property name="padx">5</property>
-                          <property name="pady">5</property>
-                          <property name="propagate">True</property>
-                          <property name="row">1</property>
+                          <property name="row">2</property>
                           <property name="sticky">nw</property>
                         </layout>
                       </object>
@@ -1738,7 +1902,7 @@
                           <property name="padx">5</property>
                           <property name="pady">2</property>
                           <property name="propagate">True</property>
-                          <property name="row">2</property>
+                          <property name="row">3</property>
                           <property name="sticky">nw</property>
                         </layout>
                       </object>
@@ -1752,7 +1916,7 @@
                           <property name="padx">5</property>
                           <property name="pady">2</property>
                           <property name="propagate">True</property>
-                          <property name="row">2</property>
+                          <property name="row">3</property>
                         </layout>
                       </object>
                     </child>
@@ -1765,7 +1929,7 @@
                           <property name="padx">5</property>
                           <property name="pady">2</property>
                           <property name="propagate">True</property>
-                          <property name="row">2</property>
+                          <property name="row">3</property>
                         </layout>
                       </object>
                     </child>
@@ -1775,11 +1939,11 @@
                         <property name="values">UDP-only TCP/UDP</property>
                         <property name="width">8</property>
                         <layout>
-                          <property name="column">4</property>
+                          <property name="column">5</property>
                           <property name="padx">5</property>
                           <property name="pady">2</property>
                           <property name="propagate">True</property>
-                          <property name="row">2</property>
+                          <property name="row">3</property>
                           <property name="sticky">nw</property>
                         </layout>
                       </object>
@@ -1797,7 +1961,7 @@
               <object class="tk.Frame" id="Frame_Lynx">
                 <property name="height">500</property>
                 <property name="padx">10</property>
-                <property name="width">450</property>
+                <property name="width">500</property>
                 <layout>
                   <property name="column">0</property>
                   <property name="propagate">True</property>
@@ -1815,7 +1979,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_LynxBitmap">
                         <property name="height">6</property>
-                        <property name="width">70</property>
+                        <property name="width">78</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -1868,7 +2032,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_LynxCharset">
                         <property name="height">1</property>
-                        <property name="width">70</property>
+                        <property name="width">78</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -1907,7 +2071,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_LynxSprites">
                         <property name="height">1</property>
-                        <property name="width">70</property>
+                        <property name="width">78</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -2028,7 +2192,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_LynxChunks">
                         <property name="height">1</property>
-                        <property name="width">34</property>
+                        <property name="width">38</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -2060,7 +2224,7 @@
                     <property name="width">100</property>
                     <layout>
                       <property name="column">0</property>
-                      <property name="padx">215</property>
+                      <property name="padx">245</property>
                       <property name="pady">0</property>
                       <property name="propagate">True</property>
                       <property name="row">3</property>
@@ -2069,7 +2233,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_LynxMusic">
                         <property name="height">1</property>
-                        <property name="width">34</property>
+                        <property name="width">38</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -2120,8 +2284,8 @@
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
-                      <object class="tk.Label" id="Label_LynxMusicFiles">
-                        <property name="text" translatable="yes">Memory Allocation:     Music Files</property>
+                      <object class="tk.Label" id="Label_LynxMusicMemory">
+                        <property name="text" translatable="yes">Music Mem</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="padx">5</property>
@@ -2147,8 +2311,8 @@
                       </object>
                     </child>
                     <child>
-                      <object class="tk.Label" id="Label_LynxSharedMemory">
-                        <property name="text" translatable="yes">     Shared Files</property>
+                      <object class="tk.Label" id="Label_LynxChunkMemory">
+                        <property name="text" translatable="yes">Chunk Mem</property>
                         <layout>
                           <property name="column">2</property>
                           <property name="padx">5</property>
@@ -2160,7 +2324,7 @@
                       </object>
                     </child>
                     <child>
-                      <object class="ttk.Entry" id="Entry_LynxSharedMemory">
+                      <object class="ttk.Entry" id="Entry_LynxChunkMemory">
                         <property name="text" translatable="yes">$0400</property>
                         <property name="width">8</property>
                         <layout>
@@ -2174,12 +2338,39 @@
                       </object>
                     </child>
                     <child>
+                      <object class="tk.Label" id="Label_LynxSharedMemory">
+                        <property name="text" translatable="yes">Asset Mem</property>
+                        <layout>
+                          <property name="column">4</property>
+                          <property name="padx">5</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Entry" id="Entry_LynxSharedMemory">
+                        <property name="text" translatable="yes">$0400</property>
+                        <property name="width">8</property>
+                        <layout>
+                          <property name="column">5</property>
+                          <property name="padx">5</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
                       <object class="tk.Label" id="Label_LynxAssetFilter">
-                        <property name="text" translatable="yes">              Excluded Assets</property>
+                        <property name="text" translatable="yes">Excl. Asset</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="padx">5</property>
-                          <property name="pady">5</property>
+                          <property name="pady">2</property>
                           <property name="propagate">True</property>
                           <property name="row">2</property>
                           <property name="sticky">nw</property>
@@ -2193,7 +2384,7 @@
                         <layout>
                           <property name="column">1</property>
                           <property name="padx">5</property>
-                          <property name="pady">5</property>
+                          <property name="pady">2</property>
                           <property name="propagate">True</property>
                           <property name="row">2</property>
                           <property name="sticky">nw</property>
@@ -2213,7 +2404,7 @@
               <object class="tk.Frame" id="Frame_NES">
                 <property name="height">500</property>
                 <property name="padx">10</property>
-                <property name="width">450</property>
+                <property name="width">500</property>
                 <layout>
                   <property name="column">0</property>
                   <property name="propagate">True</property>
@@ -2231,7 +2422,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_NESBitmap">
                         <property name="height">6</property>
-                        <property name="width">70</property>
+                        <property name="width">78</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -2311,7 +2502,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_NESCharset">
                         <property name="height">1</property>
-                        <property name="width">70</property>
+                        <property name="width">78</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -2350,7 +2541,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_NESSprites">
                         <property name="height">1</property>
-                        <property name="width">70</property>
+                        <property name="width">78</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -2471,7 +2662,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_NESChunks">
                         <property name="height">1</property>
-                        <property name="width">34</property>
+                        <property name="width">38</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -2503,7 +2694,7 @@
                     <property name="width">100</property>
                     <layout>
                       <property name="column">0</property>
-                      <property name="padx">215</property>
+                      <property name="padx">245</property>
                       <property name="pady">0</property>
                       <property name="propagate">True</property>
                       <property name="row">3</property>
@@ -2512,7 +2703,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_NESMusic">
                         <property name="height">1</property>
-                        <property name="width">34</property>
+                        <property name="width">38</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -2563,12 +2754,67 @@
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
-                      <object class="tk.Label" id="Label_NESAssetFilter">
-                        <property name="text" translatable="yes">Excluded Assets</property>
+                      <object class="tk.Label" id="Label_NESMusicMemory">
+                        <property name="text" translatable="yes">Music Mem</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="padx">5</property>
                           <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Entry" id="Entry_NESMusicMemory">
+                        <property name="state">disabled</property>
+                        <property name="text" translatable="yes">$4000</property>
+                        <property name="width">8</property>
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="padx">5</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="tk.Label" id="Label_NESChunkMemory">
+                        <property name="text" translatable="yes">Chunk Mem</property>
+                        <layout>
+                          <property name="column">2</property>
+                          <property name="padx">5</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Entry" id="Entry_NESChunkMemory">
+                        <property name="text" translatable="yes">$0200</property>
+                        <property name="width">8</property>
+                        <layout>
+                          <property name="column">3</property>
+                          <property name="padx">5</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="tk.Label" id="Label_NESAssetFilter">
+                        <property name="text" translatable="yes">Excl. Asset</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">5</property>
+                          <property name="pady">2</property>
                           <property name="propagate">True</property>
                           <property name="row">2</property>
                           <property name="sticky">nw</property>
@@ -2582,7 +2828,7 @@
                         <layout>
                           <property name="column">1</property>
                           <property name="padx">5</property>
-                          <property name="pady">5</property>
+                          <property name="pady">2</property>
                           <property name="propagate">True</property>
                           <property name="row">2</property>
                           <property name="sticky">nw</property>
@@ -2590,7 +2836,7 @@
                       </object>
                     </child>
                   </object>
-                </child>
+                </child>                
               </object>
             </child>
           </object>
@@ -2602,7 +2848,7 @@
               <object class="tk.Frame" id="Frame_Oric">
                 <property name="height">500</property>
                 <property name="padx">10</property>
-                <property name="width">450</property>
+                <property name="width">500</property>
                 <layout>
                   <property name="column">0</property>
                   <property name="propagate">True</property>
@@ -2620,7 +2866,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_OricBitmap">
                         <property name="height">6</property>
-                        <property name="width">70</property>
+                        <property name="width">78</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -2700,7 +2946,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_OricCharset">
                         <property name="height">1</property>
-                        <property name="width">70</property>
+                        <property name="width">78</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -2739,7 +2985,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_OricSprites">
                         <property name="height">1</property>
-                        <property name="width">70</property>
+                        <property name="width">78</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -2861,7 +3107,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_OricChunks">
                         <property name="height">1</property>
-                        <property name="width">34</property>
+                        <property name="width">38</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -2893,7 +3139,7 @@
                     <property name="width">100</property>
                     <layout>
                       <property name="column">0</property>
-                      <property name="padx">215</property>
+                      <property name="padx">245</property>
                       <property name="pady">0</property>
                       <property name="propagate">True</property>
                       <property name="row">3</property>
@@ -2902,7 +3148,7 @@
                     <child>
                       <object class="tk.Listbox" id="Listbox_OricMusic">
                         <property name="height">1</property>
-                        <property name="width">34</property>
+                        <property name="width">38</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="propagate">True</property>
@@ -2953,12 +3199,67 @@
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
-                      <object class="tk.Label" id="Label_OricAssetFilter">
-                        <property name="text" translatable="yes">Excluded Assets</property>
+                      <object class="tk.Label" id="Label_OricMusicMemory">
+                        <property name="text" translatable="yes">Music Mem</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="padx">5</property>
                           <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Entry" id="Entry_OricMusicMemory">
+                        <property name="state">disabled</property>
+                        <property name="text" translatable="yes">auto</property>
+                        <property name="width">8</property>
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="padx">5</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="tk.Label" id="Label_OricChunkMemory">
+                        <property name="text" translatable="yes">Chunk Mem</property>
+                        <layout>
+                          <property name="column">2</property>
+                          <property name="padx">5</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Entry" id="Entry_OricChunkMemory">
+                        <property name="text" translatable="yes">$0400</property>
+                        <property name="width">8</property>
+                        <layout>
+                          <property name="column">3</property>
+                          <property name="padx">5</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="tk.Label" id="Label_OricAssetFilter">
+                        <property name="text" translatable="yes">Excl. Asset</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">5</property>
+                          <property name="pady">2</property>
                           <property name="propagate">True</property>
                           <property name="row">2</property>
                           <property name="sticky">nw</property>
@@ -2972,7 +3273,7 @@
                         <layout>
                           <property name="column">1</property>
                           <property name="padx">5</property>
-                          <property name="pady">5</property>
+                          <property name="pady">2</property>
                           <property name="propagate">True</property>
                           <property name="row">2</property>
                           <property name="sticky">nw</property>
@@ -2980,8 +3281,8 @@
                       </object>
                     </child>
                   </object>
-                </child>
-              </object>
+                </child> 
+			  </object>
             </child>
           </object>
         </child>
