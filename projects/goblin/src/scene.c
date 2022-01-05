@@ -29,15 +29,13 @@ unsigned char *chunkBckg[MAX_CHUNK];
 #ifdef __NES__
   #pragma bss-name(pop)
 #endif
-
-// Current inventory
-Item items[MAX_ITEM] = { { TXT_COLS-7,  TXT_ROWS-2, 0 },
-						 { TXT_COLS-7,  TXT_ROWS-1, 0 } };
-
 	  
 // See goblin.c	  
 extern unsigned int unitX, unitY;
 extern unsigned int goalX, goalY;
+
+// See inventory.c
+extern Item items[MAX_ITEM];
 	  
 // Initialize scene animations
 void LoadScene(unsigned char* scene)
@@ -111,39 +109,6 @@ void Wait(unsigned char ticks)
 	}
 }
 
-// Manage inventory
-void PushItem(unsigned int label)
-{
-	unsigned char i=0;
-	while (i<MAX_ITEM) {
-		if (!items[i].label) {
-			// Copy reference to label
-			items[i].label = label;
-			break;
-		}
-		i++;
-	}
-	PrintInventory();
-}
-
-void PopItem(unsigned char index)
-{
-	items[index].label = 0;
-	PrintInventory();
-}
-
-unsigned char SelectItem(unsigned int x, unsigned int y)
-{
-	unsigned char i=0;
-	x = (x*TXT_COLS)/320;
-	y = (y*TXT_ROWS)/200;
-	while (i<MAX_ITEM) {
-		if (items[i].label && x >= items[i].col && y == items[i].row) return i;
-		i++;
-	}
-	return 255;
-}
-
 // Search for interactable object under the mouse cursor
 unsigned char SearchScene(unsigned int searchX, unsigned int searchY) 
 {
@@ -165,12 +130,11 @@ unsigned char SearchScene(unsigned int searchX, unsigned int searchY)
 // Process interactable object
 unsigned char ProcessInteract(unsigned char target, unsigned char item)
 {
-	clock_t timer;
 	Path *path;
 	Trigger *trigger;
 	Modifier *modifier;
 	Interact *modified;
-	unsigned char i;
+	unsigned char i, d;
 	signed int deltaX, deltaY;
 	unsigned int targetLabel, itemLabel;
 	Interact* interact = &interacts[target];
@@ -227,26 +191,33 @@ unsigned char ProcessInteract(unsigned char target, unsigned char item)
 		// Display chunk (if any)
 		if (interact->chk != 255)
 			DrawChunk(interact->chk);
-
-		// Process path (if any)
-		if (interact->path != 255) {
-			timer = clock();
-			path = &paths[interact->path];
-			while (path->next != 255) {
-				DrawUnit(path->x2, path->y2, frameWalkLeftBeg);
-				Wait(30);
-				path = &paths[path->next];
-			}
-			unitX = path->x2; unitY = path->y2;
-			goalX = path->x2; goalY = path->y2;
-			DrawUnit(unitX, unitY, frameWalkLeftBeg);
-		}
-
+		
 		// Process answer (if any)
 		if (interact->answer) {
 			inkColor = INK_INTERACT;
 			PrintMessage(interact->answer);
-			Wait(120);			
+			if (interact->path == 255)
+				Wait(120);			
+		}		
+
+		// Process path (if any)
+		if (interact->path != 255) {
+			path = &paths[interact->path];
+			while (1) {
+				deltaX = path->x - unitX;
+				deltaY = path->y - unitY;
+				d = ABS(deltaX) + ABS(deltaY);
+				i = path->speed;
+				while (i < d) {
+					DrawUnit(unitX+(deltaX*i)/d, unitY+(deltaY*i)/d, path->frame);
+					i += path->speed;
+					Wait(10);
+				}
+				unitX = path->x; unitY = path->y;
+				if (path->next == 255) break;
+				path = &paths[path->next];
+			}
+			goalX = path->x; goalY = path->y;
 		}
 		
 		// Restore background (if any)

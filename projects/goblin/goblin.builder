@@ -6,6 +6,7 @@
         "code": [
             "projects/goblin/src/goblin.c", 
             "projects/goblin/src/interface.c", 
+            "projects/goblin/src/inventory.c", 
             "projects/goblin/src/scene.c"
         ], 
         "shared": [
@@ -16,7 +17,7 @@
     }, 
     "platform": {
         "Apple": {
-            "spriteFrames": "14", 
+            "spriteFrames": "15", 
             "spriteWidth": "7", 
             "spriteHeight": "24", 
             "bitmapDHR": [
@@ -46,7 +47,7 @@
             "networkProtocols": "TCP/UDP"
         }, 
         "Atari": {
-            "spriteFrames": "14", 
+            "spriteFrames": "15", 
             "spriteWidth": "8", 
             "spriteHeight": "26", 
             "bitmap": [
@@ -74,7 +75,7 @@
             "networkProtocols": "TCP/UDP"
         }, 
         "C64": {
-            "spriteFrames": "14", 
+            "spriteFrames": "15", 
             "spriteWidth": "12", 
             "spriteHeight": "21", 
             "bitmap": [
@@ -101,7 +102,7 @@
             "networkProtocols": "TCP/UDP"
         }, 
         "Lynx": {
-            "spriteFrames": "14", 
+            "spriteFrames": "15", 
             "spriteWidth": "9", 
             "spriteHeight": "13", 
             "bitmap": [
@@ -125,7 +126,7 @@
         }, 
         "NES": {
             "bitmapTiles": "192", 
-            "spriteFrames": "14", 
+            "spriteFrames": "15", 
             "spriteWidth": "16", 
             "spriteHeight": "16", 
             "bitmap": [
@@ -143,11 +144,11 @@
                 "projects/goblin/chunks/scene01-nes.txt"
             ], 
             "musicMemory": "$4000", 
-            "chunkMemory": "$0100", 
+            "chunkMemory": "$0200", 
             "assetFilter": "*"
         }, 
         "Oric": {
-            "spriteFrames": "14", 
+            "spriteFrames": "15", 
             "spriteWidth": "12", 
             "spriteHeight": "24", 
             "dithering": "0.2", 

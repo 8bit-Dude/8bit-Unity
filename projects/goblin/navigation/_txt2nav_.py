@@ -143,7 +143,7 @@ for scene in scenes:
             path = line[2:-1].split(';')
             
             # Decode coordinates/speed/frame/next
-            for i in [0,1,2,3,4,5,6]:
+            for i in [0,1,2,3,4]:
                 path[i] = int(path[i])                                
             paths.append(path)
                             
@@ -219,15 +219,13 @@ for scene in scenes:
     for i in range(definitions['MAX_PATH']):
         if i<len(paths):
             path = paths[i]
-            f2.write(struct.pack('H', path[0]))   # From X
-            f2.write(struct.pack('H', path[1]))   # From Y
-            f2.write(struct.pack('H', path[2]))   # To X            
-            f2.write(struct.pack('H', path[3]))   # To Y   
-            f2.write(struct.pack('B', path[4]))   # Speed   
-            f2.write(struct.pack('B', path[5]))   # Frame   
-            f2.write(struct.pack('B', path[6]))   # Next Path  
+            f2.write(struct.pack('H', path[0]))   # To X            
+            f2.write(struct.pack('H', path[1]))   # To Y   
+            f2.write(struct.pack('B', path[2]))   # Speed   
+            f2.write(struct.pack('B', path[3]))   # Frame   
+            f2.write(struct.pack('B', path[4]))   # Next Path  
         else:
-            f2.write('           ')
+            f2.write('       ')
         
     # Text
     for string in strings:
@@ -245,6 +243,9 @@ for scene in scenes:
     print "<< MODIFIERS >>"
     for modifier in modifiers:
         print modifier
+    print "<< PATHS >>"
+    for path in paths:
+        print path
     print "<< STRINGS >>"
     for string in strings:
         print string
@@ -272,7 +273,7 @@ for scene in scenes:
 
     # Draw paths
     for path in paths:
-        draw.line([(path[0],path[1]),(path[2],path[3])], (255,0,0))
+        draw.arc([path[0]-5, path[1]-5, path[0]+5, path[1]+5], 0, 360, (255,0,0))
         
     im.save(scene + ".png", "PNG")   
     

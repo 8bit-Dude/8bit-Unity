@@ -1,14 +1,15 @@
 #
 # Chunks definition file
 #
-# 	Coords:   [X, Y, W, H] on PNG file
+# 	Use [X, Y, W, H] coordinates with following restrictions:
 #
-# 	Coordinates restrictions:
-#   	Apple:  X/W must be multiples of 7 (e.g. 0,7,14,21...) |              No restrictions
-#   	Atari:  X/W must be multiples of 4 (e.g. 0,4,8,12... ) |              No restrictions
-#   	C64:    X/W must be multiples of 4 (e.g. 0,4,8,12... ) |  Y/H must be multiples of 8 (e.g. 0,8,16,24...)
-#   	Lynx:   X/W must be multiples of 2 (e.g. 0,2,4,6... )  |              No restrictions
-#   	Oric:   X/W must be multiples of 6 (e.g. 0,6,12,18...) |  Y/H must be multiples of 2 (e.g. 0,2,4,6...)
+#							X/W						Y/H
+#	Apple//e		0 to 140 in steps of 7	| 0 to 192 in steps of 1
+#	Atari XL/XE		0 to 160 in steps of 4	| 0 to 200 in steps of 1
+#	C64				0 to 160 in steps of 4	| 0 to 200 in steps of 8
+#	Atari Lynx		0 to 160 in steps of 2	| 0 to 102 in steps of 1
+#	NES/Famicom		0 to  32 in steps of 1	| 0 to  24 in steps of 1
+#	Oric 1/Atmos	0 to 234 in steps of 6	| 0 to 200 in steps of 2
 #
 
 [ 16, 48, 28, 48]		# Notable animation

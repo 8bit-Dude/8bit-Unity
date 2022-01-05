@@ -90,9 +90,9 @@ void DrawUnit(unsigned int x, unsigned int y, unsigned char frame)
 #endif
 #if (defined __ATARI__) || (defined __CBM__)
 	SetSprite(1, frame);	// Unit color #1
-	SetSprite(2, frame+14);	// Unit color #2
-	SetSprite(3, frame+28);	// Unit color #3
-	SetSprite(4, frame+42);	// Unit color #4
+	SetSprite(2, frame+SPRITEFRAMES*1);	// Unit color #2
+	SetSprite(3, frame+SPRITEFRAMES*2);	// Unit color #3
+	SetSprite(4, frame+SPRITEFRAMES*3);	// Unit color #4
 #else
 	SetSprite(1, frame);
 #endif
@@ -101,6 +101,7 @@ void DrawUnit(unsigned int x, unsigned int y, unsigned char frame)
 #endif
 }
 
+// Introduction Screen
 void SplashScreen(void)
 {
 	// Load and show banner

@@ -4,7 +4,7 @@
 #define MAX_INTERACT  7
 #define MAX_TRIGGER   5
 #define MAX_MODIFIER  2
-#define MAX_PATH      4
+#define MAX_PATH      6
 
 # Boundary Polygon (see MAX_POLYGON)
 # Player can only move inside the area defined by this polygon
@@ -49,8 +49,10 @@ M: "Fountain";   ACTIVE;   255;  255;	255;  "";		   					   "Well done little go
 
 # Paths (see MAX_PATH)
 # Series of player animation paths (255 terminates a series)
-#	 X1   Y1   X2   Y2  Speed Frame Next Path	
-P: 	 94;  93; 161;  97;  96;   17;		 1 
-P: 	161;  97; 243; 116;  96;   17;     255 
-P: 	 18; 101;  18;  64;  32;   16;		 3 
-P: 	 18;  64;  18; 101;  32;   16;     255 
+#	 X1   Y1  Speed Frame Next Path	
+P: 	161;  97;  24;   14;	   1 
+P: 	243; 116;  16;   14;     255 
+P: 	 18;  72;  16;   14;	   3 
+P: 	 18;  64;   4;   14;	   4 
+P: 	 18;  72;   4;   14;	   5 
+P: 	 18; 101;  12;   14;     255 

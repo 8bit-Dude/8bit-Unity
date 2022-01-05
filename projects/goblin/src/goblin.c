@@ -7,31 +7,18 @@
 #endif
 
 // Sprite definitions
-#define spriteFrames 14
 #if defined __APPLE2__	
-	#define spriteCols   7
-	#define spriteRows   24
 	unsigned char spriteColors[] = { };  // Colors are pre-assigned in the sprite sheet
 #elif defined __ATARI__
-	#define spriteCols   8
-	#define spriteRows   26
 	unsigned char spriteColors[] = { 0x0e, 0x80, 0x10, 0x2a, 0xba, 0x00, 0x00, 0x00, 0x00, 0x00 };  // Refer to atari palette in docs
 #elif defined __ORIC__
-	#define spriteCols   12
-	#define spriteRows   24
 	unsigned char spriteColors[] = { SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC };  // AIC color allows faster drawing!
 	unsigned char multiColorDef[] = { SPR_WHITE, 8, SPR_GREEN, 14, SPR_MAGENTA, 24 };	// Multicolor definition { color, row, ... }
 #elif defined __CBM__
-	#define spriteCols   12
-	#define spriteRows   21
 	unsigned char spriteColors[] = { WHITE, BLUE, BROWN, PINK, GREEN, WHITE, WHITE, WHITE, BLACK, WHITE };	// 0-8: Sprite colors, 9-10: Shared colors
 #elif defined __LYNX__
-	#define spriteCols   9
-	#define spriteRows   13
 	unsigned char *spriteColors = 0; //  All sprites use the default palette
 #elif defined __NES__
-	#define spriteCols   16
-	#define spriteRows   16
     const unsigned char spriteColors[] = { SPR_VOID, SPR_BLACK, SPR_GREEN, SPR_YELLOW, 
 										   SPR_VOID, SPR_BLACK, SPR_GREEN, SPR_YELLOW, 
 										   SPR_VOID, SPR_VOID, SPR_VOID, SPR_VOID, 
@@ -179,7 +166,7 @@ int main(void)
 	
 	// Setup sprites
 	LoadSprites("sprites.dat");
-	SetupSprites(spriteFrames, spriteCols, spriteRows, spriteColors);
+	SetupSprites(spriteColors);
 	
 	// Enable sprites
 	EnableSprite(0);  // Mouse cursor

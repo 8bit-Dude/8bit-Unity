@@ -54,7 +54,7 @@
 #define MAX_INTERACT  7
 #define MAX_TRIGGER   5
 #define MAX_MODIFIER  2
-#define MAX_PATH      4
+#define MAX_PATH      6
 
 // Inventory management
 #define MAX_ITEM 	  2
@@ -83,7 +83,7 @@ typedef struct {
   
 // Animation Paths
 typedef struct {
-	unsigned int x1, y1, x2, y2;			// Coordinates of trajectory
+	unsigned int  x, y;						// Coordinates of trajectory
 	unsigned char speed, frame, next;		// Path speed, frame, and ID of next path
 } Path;
   
@@ -100,6 +100,11 @@ void PrintInventory(void);
 void DrawPointer(unsigned int x, unsigned int y, unsigned char pressed);
 void DrawUnit(unsigned int x, unsigned int y, unsigned char frame);
 void SplashScreen(void);
+
+// See inventory.c
+void PushItem(unsigned int label);
+void PopItem(unsigned char index);
+unsigned char SelectItem(unsigned int x, unsigned int y);
 
 // See scene.c
 void LoadScene(unsigned char* scene);
