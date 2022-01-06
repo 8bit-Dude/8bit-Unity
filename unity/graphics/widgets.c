@@ -262,6 +262,9 @@ callback* Icon(unsigned char col, unsigned char row, unsigned char* chunk)
 #if defined __ORIC__
 	SetChunk(chunk, 2*ColToX(col), 2*RowToY(row));
 	width = XToCol(chunk[2])/2; height = YToRow(chunk[3])/2;
+#elif defined __NES__
+	SetChunk(chunk, col, row);
+	width = chunk[2]; height = chunk[3];
 #else
 	SetChunk(chunk, ColToX(col), RowToY(row));
 	width = XToCol(chunk[2]); height = YToRow(chunk[3]);
