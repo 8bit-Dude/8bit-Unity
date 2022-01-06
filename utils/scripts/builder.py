@@ -1209,15 +1209,19 @@ class Application:
                 fp.write('utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/atari/basicoff.bin -t atari -C atari-asm.cfg unity/targets/atari/BASICOFF.s\n\n')
 
                 # RMT player
-                fp.write('utils\\scripts\\atari\\mads.exe -o:' + buildFolder + '/atari/rmt.bin unity/targets/atari/RMT.a65\n\n')
+                if target == '64k':
+                    fp.write('utils\\scripts\\atari\\mads.exe -o:' + buildFolder + '/atari/rmt.bin unity/targets/atari/RMT.a65\n\n')
 
                 # Merging
-                if len(networkOptions) > 1:                                    
-                    fp.write('utils\\py27\\python utils\\scripts\\atari\\AtariMerge.py ' + buildFolder + '/atari/xautorun ' + buildFolder + '/atari/basicoff.bin ' + buildFolder + '/atari/loader.bin ' + buildFolder + '/atari/rmt.bin\n\n')
+                cmd = 'utils\\py27\\python utils\\scripts\\atari\\AtariMerge.py ' + buildFolder + '/atari/xautorun ' + buildFolder + '/atari/basicoff.bin '
+                if len(networkOptions) > 1:  
+                    cmd += buildFolder + '/atari/loader.bin '
                 else:
-                    fp.write('utils\\py27\\python utils\\scripts\\atari\\AtariMerge.py ' + buildFolder + '/atari/xautorun ' + buildFolder + '/atari/basicoff.bin ' + buildFolder + '/atari/' + executable + ' ' + buildFolder + '/atari/rmt.bin\n\n')
-                    fp.write('del ' + buildFolder + '\\atari\\*.xex\n')
-                
+                    cmd += buildFolder + '/atari/' + executable + ' '
+                if target == '64k':
+                    cmd += buildFolder + '/atari/rmt.bin'
+                fp.write(cmd + '\n\n')
+                                                
                 fp.write('echo --------------- CONVERT ASSETS ---------------  \n\n')
                 
                 # Bitmaps
@@ -1261,6 +1265,8 @@ class Application:
                 # Clean-up build folder
                 fp.write('del ' + buildFolder + '\\atari\\*.bin\n')
                 fp.write('del ' + buildFolder + '\\atari\\*.lib\n')
+                if len(networkOptions) == 1:  
+                    fp.write('del ' + buildFolder + '\\atari\\*.xex\n')
                 
                 # Copy xBios files
                 fp.write('copy utils\\scripts\\atari\\xbios.com ' + buildFolder + '\\atari\\autorun\n')
