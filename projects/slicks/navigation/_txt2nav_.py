@@ -25,7 +25,8 @@
 """
 
 import io, os, struct
-maps = [f.replace('.txt','') for f in os.listdir('.') if f.endswith('.txt')]
+from PIL import Image
+maps = [f.replace('.txt','') for f in os.listdir('.') if f.endswith('.txt') and not 'readme' in f]
 
 for map in maps:
 	#######################
@@ -58,7 +59,17 @@ for map in maps:
 		ramps.append(data)
         
 	f1.close()
-	
+    
+    ########################
+    # Read png terrain
+	img1 = Image.open(map + ".png")
+	pixdata = list(img1.getdata())
+
+    # Convert to binary data (4 pixels per byte)
+	terrain = []
+	for i in range(0, len(pixdata), 4):
+		terrain.append( chr( (pixdata[i+3]<<6) + (pixdata[i+2]<<4) + (pixdata[i+1]<<2) + (pixdata[i]) ) )
+           
 	#######################
 	# Write binary nav file
 	f2 = io.open(map+'.nav', 'wb')
@@ -93,5 +104,7 @@ for map in maps:
 		for j in range(0,4):
 			f2.write(struct.pack('h', 0))
             
+    # Terrain Data
+	f2.write(''.join(terrain))        
 	f2.close()
 

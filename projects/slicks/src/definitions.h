@@ -132,20 +132,6 @@
 #endif
 
 // Sprite definitions
-#if defined __APPLE2__
-  #define spriteFrames 64
-#elif defined __ATARI__
-  #define spriteFrames 18
-#elif defined __ORIC__
-  #define spriteFrames 17
-#elif defined __CBM__
-  #define spriteFrames 18
-#elif defined __LYNX__
-  #define spriteFrames 18
-#elif defined __NES__
-  #define spriteFrames 18
-#endif
-
 #if defined __ATARI__
   #define MULTICOLOR
   #define SPR2_SLOT 8
@@ -284,6 +270,7 @@ void GameMenu(void);
 
 // See navigation.c
 void LoadNavigation(char *filename);
+unsigned char GetTerrain(unsigned int x, unsigned int y) ;
 void ResetLineUp(void);
 void GetWaypoint(void);
 int GetWaypointAngle(unsigned char i);

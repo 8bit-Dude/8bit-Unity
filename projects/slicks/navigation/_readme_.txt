@@ -1,1 +1,4 @@
-This folder contains text files from which navigation files (line-up, waypoints) are computed with the batch file
+This folder contains navigation definitions: 
+	*.txt = line-up, waypoints, ramps
+	*.png = terrain (road, dirt, wall)
+Use the batch file to automatically convert them to binary files (*.nav).

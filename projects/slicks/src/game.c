@@ -6,26 +6,23 @@
   #pragma code-name("BANK0")
 #endif
 
-#if defined __ATARIXL__
-  // Use background colors
-  #define RACE_ROAD BLACK
-  #define RACE_MARK GREY
-  #define RACE_WALL BROWN
-#elif defined __CBM__
-  // Use background colors
-  #define RACE_ROAD LGREY
-  #define RACE_MARK YELLOW
-  #define RACE_WALL PURPLE
-#elif defined __LYNX__
-  // Use background colors
-  #define RACE_ROAD GREY
-  #define RACE_MARK YELLOW
-  #define RACE_WALL PURPLE
+// Navigation mask
+#define TERRAIN_ROAD 0	
+#define TERRAIN_DIRT 1
+#define TERRAIN_WALL 2
+
+#if defined __APPLE2__
+  #define LIGHT_X  128
+  #define LIGHT_Y   20
+  #define LIGHT_SP  32
+#elif defined __ORIC__
+  #define LIGHT_X  118
+  #define LIGHT_Y   24
+  #define LIGHT_SP  36
 #else
-  // Use navigation mask
-  #define RACE_ROAD 0	
-  #define RACE_MARK 0
-  #define RACE_WALL 2
+  #define LIGHT_X  132
+  #define LIGHT_Y   24
+  #define LIGHT_SP  28
 #endif
 
 // Map boundaries
@@ -64,14 +61,8 @@ unsigned char lapGoal;
 // Physics parameters
 int tck4, accRate, decRate, jmpTCK;
 #if defined __ORIC__
-  #define LIGHT_X  118
-  #define LIGHT_Y   24
-  #define LIGHT_SP  36
   char rotRate = 2;
 #else
-  #define LIGHT_X  132
-  #define LIGHT_Y   24
-  #define LIGHT_SP  24
   char rotRate = 3;
 #endif
 #define VELMIN   200
@@ -194,25 +185,6 @@ void GameReset()
 	}
 }
 
-// Navigation mask
-#if defined(__ATARIXL__) || defined(__CBM__) || defined(__LYNX__)
-	// pass
-#else
-#if defined __NES__
-  #pragma bss-name(push, "XRAM")
-#endif	
-  unsigned char bgMask[736];	//  0=road/marking, 1=border/grass, 2=wall.
-#if defined __NES__
-  #pragma bss-name(pop)  
-#endif
-  unsigned char GetMask(unsigned int x, unsigned int y) {
-	unsigned char pixelX, pixelY;
-	pixelX = x/40u;		
-	pixelY = y/32u-2;
-	return (bgMask[pixelY*16+pixelX/4u] >> ((pixelX%4)*2)) & 3;
-  }
-#endif
-
 // Initialize Game
 void GameInit(const char* map)
 {
@@ -244,9 +216,9 @@ void GameInit(const char* map)
 		inkColor = WHITE; paperColor = BLACK;
 		ShowBitmap(); cgetc(); HideBitmap();
 	}
-#endif
-#if defined(__APPLE2__)
+  #if defined(__APPLE2__)
 	FileClose();	
+  #endif
 #endif
 
 	// Load Bitmap and backup chat row
@@ -261,18 +233,7 @@ void GameInit(const char* map)
 	// Load Navigation
 	memcpy(&buffer[len], ".nav", 4);
 	LoadNavigation(&buffer[0]);
-	
-	// Load Background Mask (used as alternative to GetPixel())
-#if defined(__ATARIXL__) || defined(__CBM__) || defined(__LYNX__)
-	// pass
-#else
-	memcpy(&buffer[len], ".msk", 4);
-	if (FileOpen(&buffer[0])) {
-		FileRead(bgMask, 736);
-		FileClose();
-	}	
-#endif	
-	
+		
     // Some extra logics depending on the game mode
 	if (gameMode == MODE_LOCAL) {
         // Setup players
@@ -314,7 +275,6 @@ unsigned char GameRace()
     GameReset();
 
     // Show light sprites
-#ifndef __APPLE2__
     for (i=SPR2_SLOT; i<SPR2_SLOT+3; ++i) {
 		LocateSprite(LIGHT_X+(i-SPR2_SLOT)*LIGHT_SP, LIGHT_Y);
 	#if defined __ATARI__ 
@@ -328,13 +288,16 @@ unsigned char GameRace()
 	#elif defined __NES__
 		RecolorSprite(i, 0, 3); // Use Palette 3 (Yellow)
 	#endif		
+	#if defined __APPLE2__
+		SetSprite(i, 64);
+	#else
 		SetSprite(i, 16);
+	#endif		
         EnableSprite(i);
     }
   #if defined(__LYNX__)
 	UpdateDisplay();
   #endif			
-#endif	
 
 	// Platform dependent delay
 #ifndef __APPLE2__
@@ -366,6 +329,9 @@ unsigned char GameRace()
 	LocateSprite(LIGHT_X, LIGHT_Y);	
 	RecolorSprite(SPR2_SLOT, 0, 1); // Use Palette 1 (Red)
 	SetSprite(SPR2_SLOT, 16);
+#elif defined __APPLE2__
+	LocateSprite(LIGHT_X, LIGHT_Y);	
+	SetSprite(SPR2_SLOT, 65);
 #endif	
 	BleepSFX(64); 
 #ifndef __APPLE2__
@@ -390,6 +356,9 @@ unsigned char GameRace()
 	LocateSprite(LIGHT_X+LIGHT_SP, LIGHT_Y);	
 	RecolorSprite(SPR2_SLOT+1, 0, 1); // Use Palette 1 (Red)
 	SetSprite(SPR2_SLOT+1, 16);
+#elif defined __APPLE2__
+	LocateSprite(LIGHT_X+LIGHT_SP, LIGHT_Y);	
+	SetSprite(SPR2_SLOT+1, 66);
 #endif	
 	BleepSFX(64); 
 #ifndef __APPLE2__
@@ -414,6 +383,9 @@ unsigned char GameRace()
 	LocateSprite(LIGHT_X+2*LIGHT_SP, LIGHT_Y);	
 	RecolorSprite(SPR2_SLOT+2, 0, 2); // Use Palette 2 (Green)	
 	SetSprite(SPR2_SLOT+2, 16);	
+#elif defined __APPLE2__
+	LocateSprite(LIGHT_X+2*LIGHT_SP, LIGHT_Y);	
+	SetSprite(SPR2_SLOT+2, 67);
 #endif
 	BleepSFX(128); 
 
@@ -435,7 +407,6 @@ unsigned char GameRace()
 	}
 	
     // Hide light sprites
-#ifndef __APPLE2__
     for (i=SPR2_SLOT; i<SPR2_SLOT+3; ++i) {
 	#if defined __ATARI__  
 		RecolorSprite(i, 0, SPR_BLACK);  
@@ -447,7 +418,6 @@ unsigned char GameRace()
 	#endif			
 		DisableSprite(i);
 	}
-#endif	
 
 	// Reset game clock
 	gameClock = clock();
@@ -497,8 +467,8 @@ int LerpAngle(int iAng1, int iAng2, int dAng)
 }
 
 // Game loop (for 1 round)
-Vehicle *iCar;	// Also used in navigation
-int iX, iY;		// Also used in navigation
+Vehicle *iCar, *jCar;	// Also used in navigation
+int iX, iY;				// Also used in navigation
 char GameLoop()
 {		
 	// Game Management
@@ -506,7 +476,7 @@ char GameLoop()
 	unsigned char sprShadow;
 #endif
 	int iVel, iVelMax, iAng1, iAng2, iCos, iSin, iTmp, ticks;
-	unsigned char iCtrl, iRotMax, iJoy, iColor, collisions; 
+	unsigned char iCtrl, iRotMax, iJoy, collisions; 
 	unsigned char res, lastKey, iJmp, iDir, iSpr, i, j;
 	unsigned int lapTime;
 	char chatting = 0;
@@ -585,14 +555,6 @@ char GameLoop()
 				}
 			}
 
-			// Get background color
-		  #if defined(__ATARIXL__) || defined(__CBM__) || defined(__LYNX__)
-			LocatePixel(iX/8u, iY/8u);
-			iColor = GetPixel();
-		  #else
-			iColor = GetMask(iX, iY);		  
-		  #endif
-		  
 			// Fetch target waypoint
 			GetWaypoint();
 
@@ -606,11 +568,11 @@ char GameLoop()
 				if ((clock()-iCar->jmp) < jmpTCK) {
 					iVelMax = iVel;
 					iJmp = 1;
-				} else {
-					// Not on track: reduce speed
-					if (iColor != RACE_ROAD && iColor != RACE_MARK) {
+				// Not jumping: check terrain
+				} else {		  
+					if (GetTerrain(iX, iY) != TERRAIN_ROAD)
+						// Offroading: reduce speed
 						iVelMax = VELMIN;                    
-					}
 				}
 			}             
 			
@@ -754,17 +716,9 @@ char GameLoop()
 			spriteY = (iY*3)/25u+24;
 		#endif				
 		
-			// Get again background 
-		  #if defined(__ATARIXL__) || defined(__CBM__) || defined(__LYNX__)
-			LocatePixel(iX/8u, iY/8u);
-			iColor = GetPixel();
-		  #else
-			iColor = GetMask(iX, iY);		  
-		  #endif
-		  
-			// Check background type
-			if (iColor == RACE_WALL) {
-				// Hit a wall: return to previous position
+			// Check if we hit a wall...
+			if (GetTerrain(iX, iY) == TERRAIN_WALL) {
+				// Return to previous position
 				if (iVel > VELMIN) { iVel = VELMIN; }
 				if (iCtrl > 3) {
 					if (iJmp) { iJmp = 0; }
@@ -813,12 +767,13 @@ char GameLoop()
 						if (COLLIDING(collisions,j)) {
 					#endif			
 							// Check neither are flying
-							if (iJmp || (clock()-cars[j].jmp) < jmpTCK) { continue; }
+							jCar = &cars[j];
+							if (iJmp || (clock()-jCar->jmp) < jmpTCK) { continue; }
 							// Apply impulse to other car, and reduce own velocity
-							if ( (iCos*(cars[j].x2 - iX) - iSin*(cars[j].y2 - iY)) > 0) {
+							if ( (iCos*(jCar->x2 - iX) - iSin*(jCar->y2 - iY)) > 0) {
 								if (iVel > VELMIN) { iVel = VELMIN; }
-								cars[j].impx = iCos/2;
-								cars[j].impy = -iSin/2;		
+								jCar->impx = iCos/2;
+								jCar->impy = -iSin/2;		
 								BumpSFX();
 							} 
 						}

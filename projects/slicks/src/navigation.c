@@ -8,6 +8,9 @@ extern unsigned char gameLineUp[4];
  #pragma bss-name(push, "XRAM")
 #endif
 
+/////////////////////////////////////////////////////////
+/////   Data below is read sequentially from file  //////
+
 // Lineup positions
 unsigned int lineupX[MAX_PLAYERS];
 unsigned int lineupY[MAX_PLAYERS];
@@ -19,7 +22,16 @@ Waypoint ways[MAX_WAYPOINTS];
 unsigned char numRamps;
 Ramp ramps[MAX_RAMPS];
 
-// Navigation variables
+// Navigation Mask:  0=road, 1=dirt, 2=wall
+#if defined __LYNX__
+  unsigned char *terrain = SHAREDRAM+114;
+#else
+  unsigned char terrain[736];
+#endif
+
+/////////////////////////////////////////////////////////
+
+// Vehicle variables
 Vehicle cars[MAX_PLAYERS];
 signed char *vWay;
 Waypoint *way;
@@ -41,7 +53,11 @@ void LoadNavigation(char *filename)
 
 	// Read nav file contents
 	if (FileOpen(filename)) {
+	#if defined __LYNX__	// Trick: terrain points to SHAREDRAM location  where file is stored
 		FileRead(lineupX, 114);
+	#else
+		FileRead(lineupX, 850);
+	#endif
 		FileClose();
 	}
 
@@ -55,7 +71,16 @@ void LoadNavigation(char *filename)
 #endif
 }
 
-// Reset cars to Line-up positions 
+// Get terrain type
+unsigned char GetTerrain(unsigned int x, unsigned int y) 
+{
+	unsigned char tX, tY;
+	tX = x/40u;		
+	tY = y/32u-2;
+	return (terrain[tY*16+tX/4u] >> ((tX%4)*2)) & 3;
+}
+
+// Reset cars to line-up positions 
 void ResetLineUp()
 {
 	unsigned char i,j;
@@ -120,6 +145,10 @@ char CheckWaypoint(void)
 	}
 	return 0;
 }
+
+#ifdef __ATARIXL__
+  #pragma code-name("SHADOW_RAM")
+#endif
 
 const signed char tan[19] = {91,30,17,11,8,6,4,2,1,-1,-2,-4,-6,-8,-11,-17,-30,-91,-128};
 

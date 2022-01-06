@@ -32,20 +32,20 @@
 #endif	
 
 // SFX Variables
-#if defined(__NES__)
-	#pragma bss-name(push, "XRAM")
-#endif	
-
 unsigned char sfx[4], frq[4], vol[4];
 
-#if defined(__NES__)
-	#pragma bss-name(pop)
-#endif	
+#ifdef __ATARIXL__
+  #pragma code-name("SHADOW_RAM")
+#endif
 
 void BleepSFX(unsigned char pitch)
 {
 	PlaySFX(SFX_BLEEP, pitch, VOLUME_BLEEP, CHAN_BLEEP);
 }
+
+#ifdef __ATARIXL__
+  #pragma code-name("CODE")
+#endif
 
 void BumpSFX(void)
 {
@@ -66,10 +66,6 @@ void JumpSFX(unsigned char index)
 	frq[index] = 192;
 	vol[index] = VOLUME_HIGH;
 }
-
-#ifdef __ATARIXL__
-  #pragma code-name("SHADOW_RAM")
-#endif
 
 void ScreechSFX(unsigned char index)
 {
