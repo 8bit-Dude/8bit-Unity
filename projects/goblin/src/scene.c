@@ -31,6 +31,7 @@ unsigned char *chunkBckg[MAX_CHUNK];
 #endif
 	  
 // See goblin.c	  
+extern unsigned char waitFrame;
 extern unsigned int unitX, unitY;
 extern unsigned int goalX, goalY;
 
@@ -69,15 +70,13 @@ void LoadScene(unsigned char* scene)
 	}
 	
 	// Assign ink/paper colors
-#if (defined __ORIC__)
-	paperColor = ORANGE;
-	txtX = -1; txtY = TXT_ROWS-2;
+	paperColor = PAPER_DEFAULT;
+	inkColor = INK_DEFAULT;
+#if defined(__ORIC__)
+	txtY = TXT_ROWS-2; txtX = -1;
 	SetAttributes(paperColor); txtY++;
 	SetAttributes(paperColor); txtY--;
 	txtX = 0; PrintBlanks(TXT_COLS, 2);	
-#else	
-	paperColor = ORANGE;
-	inkColor = WHITE;
 #endif	
 }
 
@@ -104,7 +103,7 @@ void Wait(unsigned char ticks)
 #endif
 	while (clock()<animClock+ticks) { 
 	#if defined(__APPLE2__)
-		wait(1); clk += 10;  // Manually update clock on Apple 2
+		wait(1); clk += 1;  // Manually update clock on Apple 2
 	#endif
 	}
 }
@@ -134,7 +133,7 @@ unsigned char ProcessInteract(unsigned char target, unsigned char item)
 	Trigger *trigger;
 	Modifier *modifier;
 	Interact *modified;
-	unsigned char i, d;
+	unsigned char i, j, d;
 	signed int deltaX, deltaY;
 	unsigned int targetLabel, itemLabel;
 	Interact* interact = &interacts[target];
@@ -144,19 +143,25 @@ unsigned char ProcessInteract(unsigned char target, unsigned char item)
 	deltaY = interact->y; deltaY = ABS(deltaY-unitY);
 	if (deltaX > 30 || deltaY > 25) return 0;
 
+	// Update frame (if any)
+	if (interact->frame != 255) {
+		waitFrame = interact->frame;
+		DrawUnit(unitX, unitY, waitFrame);				
+	}
+
 	// Are we using an item?
 	if (item != 255) {
+		
 		// Find associated trigger (if any)
-		targetLabel = interact->label;
-		itemLabel   = items[item].label;
 		for (i=0; i<num_triggers; i++) {
 			trigger = &triggers[i];
-			if (itemLabel == trigger->item && targetLabel == trigger->label) {
+			if (items[item].label == trigger->item && interact->label == trigger->label) {
+				
 				// Check if modifier is triggered?
 				if (trigger->modifier != 255) {
 					modifier = &modifiers[trigger->modifier];
-					for (i=0; i<num_interacts; i++) {
-						modified = &interacts[i];
+					for (j=0; j<num_interacts; j++) {
+						modified = &interacts[j];
 						if (modifier->label == modified->label) {
 							modified->flags    = modifier->flags;
 							modified->chk      = modifier->chk;
@@ -169,18 +174,34 @@ unsigned char ProcessInteract(unsigned char target, unsigned char item)
 					}
 					PopItem(item);					
 				}
-				
+		
+				// Display chunk (if any)
+				if (trigger->chk != 255)
+					DrawChunk(trigger->chk);
+
 				// Process answer (if any)
 				if (trigger->answer) {
 					inkColor = INK_INTERACT;
 					PrintMessage(trigger->answer);
 					Wait(120);
 				}					
+				
+				// Restore background (if any)
+				if (trigger->bcg != 255)
+					DrawBackg(trigger->bcg);
+				
 				break;
 			}
 		}
 		
-	} else {
+		// Did we find a match?
+		if (i == num_triggers) {
+			inkColor = INK_GOBLIN;
+			PrintMessage(255);
+			Wait(120);
+		}
+		
+	} else {		
 		// Process question (if any)
 		if (interact->question) {
 			inkColor = INK_GOBLIN;

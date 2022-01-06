@@ -74,30 +74,25 @@ for scene in scenes:
             for i in range (0,len(coords)):
                 coords[i] = int(coords[i])
             polygon.append(coords)
-
-        #if 'C:' in line:
-        #    # Clean filename
-        #    filename = re.findall(r'"([^"]*)"', line[2:-1])
-        #    chunks.append(append(filename[0] + '\0'))
             
         if 'I:' in line:
             # Fetch interact
             interact = line[2:-1].split(';')
             
             # Decode coordinates/chunks/paths
-            for i in [0,1,2,3,4,6,7,8]:
+            for i in [1,2,3,4,5,7,8,9,10]:
                 interact[i] = int(interact[i])
                 
             # Decode flags
             flags = DISABLED
-            if "ACTIVE" in interact[5]:
+            if "ACTIVE" in interact[6]:
                 flags |= ACTIVE
-            if "PICKABLE" in interact[5]:
+            if "PICKABLE" in interact[6]:
                 flags |= PICKABLE
-            interact[5] = flags
+            interact[6] = flags
             
             # Clean strings
-            for i in range(9,12):
+            for i in [0, 11, 12]:
                 string = re.findall(r'"([^"]*)"', interact[i])
                 interact[i] = append(string[0] + '\0')
             interacts.append(interact)                
@@ -106,12 +101,12 @@ for scene in scenes:
             # Fetch trigger
             trigger = line[2:-1].split(';')
             
-            # Decode modifier
-            for i in [2]:
+            # Decode modifier/chunks
+            for i in [2,3,4]:
                 trigger[i] = int(trigger[i])
 
             # Clean strings
-            for i in [0,1,3]:
+            for i in [0,1,5]:
                 string = re.findall(r'"([^"]*)"', trigger[i])
                 trigger[i] = append(string[0] + '\0')
             triggers.append(trigger)
@@ -175,20 +170,21 @@ for scene in scenes:
     for i in range(definitions['MAX_INTERACT']):
         if i<len(interacts):
             interact = interacts[i]
-            f2.write(struct.pack('H', interact[0]))  # Area X
-            f2.write(struct.pack('H', interact[1]))  # Area Y
-            f2.write(struct.pack('H', interact[2]))  # Area R
-            f2.write(struct.pack('H', interact[3]))  # Move X
-            f2.write(struct.pack('H', interact[4]))  # Move Y
-            f2.write(struct.pack('B', interact[5]))  # Flags
-            f2.write(struct.pack('B', interact[6]))  # CHK
-            f2.write(struct.pack('B', interact[7]))  # BCG
-            f2.write(struct.pack('B', interact[8]))  # Path
-            f2.write(struct.pack('H', interact[9]))  # Label
-            f2.write(struct.pack('H', interact[10])) # Question
-            f2.write(struct.pack('H', interact[11])) # Answer
+            f2.write(struct.pack('H', interact[0]))  # Label
+            f2.write(struct.pack('H', interact[1]))  # Area X
+            f2.write(struct.pack('H', interact[2]))  # Area Y
+            f2.write(struct.pack('H', interact[3]))  # Area R
+            f2.write(struct.pack('H', interact[4]))  # Move X
+            f2.write(struct.pack('H', interact[5]))  # Move Y
+            f2.write(struct.pack('B', interact[6]))  # Flags
+            f2.write(struct.pack('B', interact[7]))  # CHK
+            f2.write(struct.pack('B', interact[8]))  # BCG
+            f2.write(struct.pack('B', interact[9]))  # Frame
+            f2.write(struct.pack('B', interact[10])) # Path
+            f2.write(struct.pack('H', interact[11])) # Question
+            f2.write(struct.pack('H', interact[12])) # Answer
         else:
-            f2.write('                    ')
+            f2.write('                     ')
     
     # Triggers
     for i in range(definitions['MAX_TRIGGER']):
@@ -197,9 +193,11 @@ for scene in scenes:
             f2.write(struct.pack('H', trigger[0]))   # Item
             f2.write(struct.pack('H', trigger[1]))   # Target
             f2.write(struct.pack('B', trigger[2]))   # Modifier
-            f2.write(struct.pack('H', trigger[3]))   # Answer
+            f2.write(struct.pack('B', trigger[3]))   # CHK
+            f2.write(struct.pack('B', trigger[4]))   # BCG
+            f2.write(struct.pack('H', trigger[5]))   # Answer
         else:
-            f2.write('       ')
+            f2.write('         ')
 
     # Modifiers
     for i in range(definitions['MAX_MODIFIER']):

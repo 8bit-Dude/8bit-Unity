@@ -2,12 +2,27 @@
 #include "unity.h"
 
 // Text colors
-#if defined __NES__		// All B/W
+#if defined __NES__	
 	#define MSG_WIDTH	   TXT_COLS
 	#define INK_DEFAULT		WHITE
 	#define INK_GOBLIN		GREEN
 	#define INK_INTERACT	RED
 	#define INK_INVENTORY	WHITE
+	#define PAPER_DEFAULT   BLACK
+#elif defined __ATARI__		
+	#define MSG_WIDTH	  TXT_COLS-8
+	#define INK_DEFAULT		BLACK
+	#define INK_GOBLIN		GREEN
+	#define INK_INTERACT	BLUE
+	#define INK_INVENTORY	BLACK	
+	#define PAPER_DEFAULT   RED
+#elif defined __LYNX__
+	#define MSG_WIDTH	  TXT_COLS-8
+	#define INK_DEFAULT		WHITE
+	#define INK_GOBLIN		YELLOW
+	#define INK_INTERACT	BROWN
+	#define INK_INVENTORY	BLACK
+	#define PAPER_DEFAULT   ORANGE	
 #else
 	#define MSG_WIDTH	  TXT_COLS-8
   #if defined __SHR__	// Apple single hires (Orange paper can only be combined with Black, Blue or White ink)
@@ -15,11 +30,13 @@
 	#define INK_GOBLIN		WHITE
 	#define INK_INTERACT	BLACK
 	#define INK_INVENTORY	BLACK
+	#define PAPER_DEFAULT   ORANGE
   #else
 	#define INK_DEFAULT		WHITE
 	#define INK_GOBLIN		YELLOW
 	#define INK_INTERACT	RED
 	#define INK_INVENTORY	BLACK
+	#define PAPER_DEFAULT   ORANGE
   #endif
 #endif
 
@@ -27,6 +44,9 @@
 #if defined __APPLE2__
   #define unitStep  3
   #define unitTicks 3
+#elif defined __C64__
+  #define unitStep  3
+  #define unitTicks 4
 #elif defined __ORIC__
   #define unitStep  3
   #define unitTicks 6
@@ -62,15 +82,16 @@
 
 // Interact Objects 
 typedef struct {
-	unsigned int x, y, r, cx, cy;			// Mouse detection circle and move to target
-	unsigned char flags, chk, bcg, path;	// Flags and chunk IDs
-	unsigned int label, question, answer;	// Strings
+	unsigned int label;							// Identifier
+	unsigned int x, y, r, cx, cy;				// Mouse detection circle and move to target
+	unsigned char flags, chk, bcg, frame, path;	// Flags and chunk IDs
+	unsigned int question, answer;				// Strings
 } Interact;
 
 // Action Triggers 
 typedef struct {
 	unsigned int  item, label;				// Source and target of trigger (Strings)
-	unsigned char modifier;					// Modifier IDs
+	unsigned char modifier, chk, bcg;		// Modifier IDs
 	unsigned int  answer;					// Strings
 } Trigger;
 

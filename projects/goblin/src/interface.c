@@ -9,6 +9,7 @@ extern unsigned char strings[];
 void PrintInteract(unsigned char item, unsigned int label)
 {
 	unsigned char *iLabel;
+	inkColor = INK_DEFAULT;
 	txtX = 0; txtY = TXT_ROWS-2;
 	if (item != 255) {
 		iLabel = &strings[items[item].label];
@@ -24,15 +25,21 @@ void PrintInteract(unsigned char item, unsigned int label)
 // Print message in lower-left panel
 void PrintMessage(unsigned int message)
 {
-	unsigned char *msg = &strings[message];
+	unsigned char *msg;
+	
+	// Find the string
+	if (message == 255)
+		msg = "I can't do that...";
+	else
+		msg = &strings[message];
 	
 	// Reset panel
 	txtX = 0; txtY = TXT_ROWS-2;
 	PrintBlanks(MSG_WIDTH, 2);
 	
 	// Print message across two lines, by taking into account line feed '\n'
-	while (*msg != '\0') {
-		if (*msg == '\n') {
+	while (*msg != 0) {
+		if (*msg == 10) {
 			txtX = 0; txtY++;
 		} else {
 			PrintChr(*msg);
@@ -112,7 +119,6 @@ void SplashScreen(void)
 	txtX = TXT_COLS-12; txtY = TXT_ROWS-4;
 #if defined(__ORIC__)
 	inkColor = AIC;
-	PrintBlanks(12, 3);
 #elif defined(__NES__)
 	inkColor = INK_DEFAULT; 
 #else		
@@ -120,9 +126,9 @@ void SplashScreen(void)
 	paperColor = GetPixel(); 
 	inkColor = INK_DEFAULT; 
 #endif
-	PrintStr(" TECH DEMO"); txtY++;
+	PrintStr(" TECH DEMO  "); txtY++;
 	PrintStr("BY 8BIT-DUDE"); txtY++;
-	PrintStr(" 2021/04/18");
+	PrintStr(" 2022/01/08 ");
 	PlayMusic();
 
 	// Wait until key is pressed

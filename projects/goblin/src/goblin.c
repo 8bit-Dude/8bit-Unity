@@ -63,7 +63,7 @@ void GameLoop(void)
 		
 		// Search scene
 		if (!(mouse[2] & MOU_MOTION)) {
-			sceneSearch = SearchScene(mouseX, mouseY);			
+			sceneSearch = SearchScene(mouseX-4, mouseY-4);			
 			if (sceneSearch != sceneIndex) {
 				sceneIndex = sceneSearch;
 				if (sceneIndex == 255) {
@@ -159,6 +159,7 @@ int main(void)
 	// Set text mode colors
     bordercolor(COLOR_BLACK);
     bgcolor(COLOR_BLACK);
+	clrscr();
 	
 	// Initialize sfx/bitmap
 	InitSFX();
