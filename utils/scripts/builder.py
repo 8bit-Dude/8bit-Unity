@@ -1226,13 +1226,6 @@ class Application:
                 if target == '64k':
                     cmd += buildFolder + '/atari/rmt.bin'
                 fp.write(cmd + '\n\n')
-
-                # Clean-up build folder
-                fp.write('del ' + buildFolder + '\\atari\\*.bin\n')
-                fp.write('del ' + buildFolder + '\\atari\\*.lib\n')
-                if len(networkOptions) == 1:  
-                    fp.write('del ' + buildFolder + '\\atari\\*.xex\n')
-                fp.write(cmd + '\n\n')
                                                 
                 fp.write('echo --------------- CONVERT ASSETS ---------------  \n\n')
                 
@@ -1270,6 +1263,13 @@ class Application:
                     fp.write('copy ' + item.replace('/','\\') + ' ' + buildFolder + '\\atari\\' + FileBase(item, '.rmt') + '.mus\n')
 
                 fp.write('\necho --------------- ATARI DISK BUILDER --------------- \n\n')
+
+                # Clean-up build folder
+                fp.write('del ' + buildFolder + '\\atari\\*.bin\n')
+                fp.write('del ' + buildFolder + '\\atari\\*.lib\n')
+                if len(networkOptions) == 1:  
+                    fp.write('del ' + buildFolder + '\\atari\\*.xex\n')
+                fp.write(cmd + '\n\n')
                 
                 # Copy xBios files
                 fp.write('copy utils\\scripts\\atari\\xbios.com ' + buildFolder + '\\atari\\autorun\n')
