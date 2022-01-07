@@ -59,7 +59,7 @@
   {
 	unsigned char i, line1, line2;
 	unsigned int addr;
-	addr = BITMAPRAM+1 + txtY*320 + txtX;
+	addr = BITMAPRAM+1 + txtY*320 + txtX - 1;
 	line1 = ink1[color];
 	line2 = ink2[color];
 	for (i=0; i<4; ++i) {
