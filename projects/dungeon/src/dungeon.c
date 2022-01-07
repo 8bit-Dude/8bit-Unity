@@ -49,10 +49,10 @@ void GameInit(void)
 	// Show stats
 #if (defined __ORIC__)
 	txtY = TXT_ROWS-1;
-	txtX = -1; SetAttributes(RED);
-	txtX =  4; SetAttributes(CYAN);
-	txtX = TXT_COLS-10; SetAttributes(YELLOW);
-	txtX = TXT_COLS-5;  SetAttributes(WHITE);
+	txtX = 0; SetAttributes(RED);
+	txtX = 5; SetAttributes(CYAN);
+	txtX = TXT_COLS-9; SetAttributes(YELLOW);
+	txtX = TXT_COLS-4;  SetAttributes(WHITE);
 #endif	
 	PrintHealth(); PrintArmor();
 	PrintGold(); PrintKills();
