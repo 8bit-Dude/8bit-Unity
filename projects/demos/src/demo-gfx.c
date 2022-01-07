@@ -75,10 +75,13 @@ int DemoGfx(void)
 	txtX = TEXT_COL; txtY = TEXT_ROW;
 	for (i=0; i<NUM_ROWS; i++) {
 		inkColor = i;
+	#if defined __ORIC__
+		SetAttributes(inkColor);
+	#endif		
 		PrintStr("8BIT-UNITY"); 
 	#if defined __ORIC__
-		txtX--; SetAttributes(inkColor); txtX++;
-	#endif
+		txtX += 12; SetAttributes(AIC); txtX -= 12;	//	 Reset attribute after string
+	#endif		
 		txtY += LINE_SPACING;
 	}
 	

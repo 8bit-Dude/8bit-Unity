@@ -64,23 +64,20 @@ int DemoSprites(void)
 	ShowBitmap();
 	
 	// Print some extra info
-	paperColor = GREY; 
-	inkColor = BLACK; 
-	txtY = TXT_ROWS-1;
+	paperColor = GREY; inkColor = BLACK; 
+	txtY = TXT_ROWS-1; txtX = 0; 
 #if defined __ORIC__
-	txtX = -1; SetAttributes(paperColor);
-	txtX = 7; SetAttributes(AIC); // Always reset attributes after a string!
+	SetAttributes(AIC);
 #endif
-	txtX = 0; PrintStr("STADIUM");	
+	PrintStr("STADIUM");	
 	paperColor = BLACK; 
 	for (i=0; i<4; i++) {
 		slot = SLOT_COL1 + SLOT_WIDTH*i;
 		inkColor = inkColors[i];
+		txtX = slot; PrintStr("CAR");
 	#if defined __ORIC__
-		txtX = slot-1; SetAttributes(inkColor);
-		txtX = slot+5; SetAttributes(AIC);	// Always reset attributes after a string!
+		SetAttributes(inkColor);
 	#endif		
-		txtX = slot+0; PrintStr("CAR");
 		txtX = slot+3; PrintNum(i+1);
 		txtX = slot+4; PrintLogo(i);
 	}
