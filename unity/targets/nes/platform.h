@@ -108,7 +108,7 @@
 #define CH_ENTER 0x0D
 
 // Clock
-#define TCK_PER_SEC	CLK_TCK
+#define TCK_PER_SEC	tck_per_sec
 
 // Dummy functions
 #define bordercolor   textcolor
@@ -116,6 +116,7 @@
 #define clrscr        ClearBitmap
 
 // Display functions
+extern unsigned char tck_per_sec;
 extern unsigned char autoRefresh, palBG[16];
 extern unsigned char vram_attr[64];
 extern unsigned char vram_attr_index;

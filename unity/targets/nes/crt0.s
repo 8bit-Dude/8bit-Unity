@@ -17,6 +17,7 @@ FT_SFX_ENABLE   = 0		;undefine to exclude all sound effects code
 ;REMOVED initlib
 ;this called the CONDES function
 
+	.export _tck_per_sec
     .export _exit,__STARTUP__:absolute=1
 	.import push0,popa,popax,_main,zerobss,copydata
 
@@ -97,7 +98,8 @@ VRAM_INDEX:			.res 1
 META_PTR:			.res 2
 DATA_PTR:			.res 2
 
-
+.segment "DATA"
+_tck_per_sec:       .res 1
 
 .segment "HEADER"
 
@@ -250,7 +252,15 @@ detectNTSC:
 	lda PPU_STATUS
 	and #$80
 	sta <NTSC_MODE
-
+	bne NTSC
+PAL:
+	lda #50
+	sta _tck_per_sec
+	jmp DONE
+NTSC:	
+	lda #60
+	sta _tck_per_sec
+DONE:
 	jsr _ppu_off
 
 	lda #0

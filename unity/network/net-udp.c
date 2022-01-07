@@ -159,7 +159,11 @@ unsigned char* RecvUDP(unsigned int timeOut)
 		if (clock() > timer) return 0;
 		ip65_process();
 	#if defined __APPLE2__
-		if (timeOut) { wait(1); } else { clk += 1; }
+		if (timeOut) { 
+			wait(1); 
+		} else { 
+			if (!udp_len) return 0;
+		}
 	#endif
 	}
 	udp_len = 0;
