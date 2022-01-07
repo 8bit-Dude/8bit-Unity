@@ -31,7 +31,9 @@
 
 void memcpyBanked(unsigned char* dst, unsigned char* src, unsigned int len, unsigned char bank)
 {
+	__asm__("sei");
 	set_prg_bank(bank);
 	memcpy(dst, src, len);	
 	set_prg_bank(0);
+	__asm__("cli");
 }

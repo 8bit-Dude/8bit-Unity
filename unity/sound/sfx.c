@@ -281,17 +281,17 @@
 		}
 	}
 
-#elif defined __NES__			  		 //  Pulse         Ramp       Length  
-	const unsigned char sfxData[][] = { { 0b10011111,	0b00000000, 0b11111000 },	// SFX_BLEEP
-									    { 0b10011111,	0b00000000, 0b11111000 },	// SFX_BUMP
-										{ 0b10011111,	0b00000000, 0b11111000 },	// SFX_ENGINE
-										{ 0b10011111,	0b00000000, 0b11111000 },	// SFX_INJURY
-										{ 0b10011111,	0b00000000, 0b11111000 },	// SFX_GUN
-										{ 0b10011111,	0b00000000, 0b11111000 } };	// SFX_SCREECH	
+#elif defined __NES__			  		 //  Pulse       Ramp       Length  
+	const unsigned char sfxData[][] = { { 0b10011111, 0b00000000, 0b11111000 },	// SFX_BLEEP
+									    { 0b10011111, 0b00000000, 0b11111000 },	// SFX_BUMP
+										{ 0b11001111, 0b00000000, 0b11111000 },	// SFX_ENGINE
+										{ 0b10011111, 0b00000000, 0b11111000 },	// SFX_INJURY
+										{ 0b10011111, 0b00000000, 0b11111000 },	// SFX_GUN
+										{ 0b10011111, 0b00000000, 0b11111000 } };	// SFX_SCREECH	
 	
 	// Pulse Ctrl:  DDLLC VVVV
 	// D: Duty cycle of the pulse wave 00 = 12.5% 01 = 25% 10 = 50% 11 = 75%
-	// L: Length Counter Halt 	
+	// L: Length Counter Halt: simply silences the channel when it counts down to 0. The envelope starts at a volume of 15 and decrements every time the unit is clocked, stopping at 0 if not looped.
 	// C: Constant Volume
 	// V: 4bit Volume
 	
@@ -312,7 +312,7 @@
 	void PlaySFX(unsigned char index, unsigned char pitch, unsigned char volume, unsigned char channel)
 	{
 		unsigned char *data = sfxData[index];
-		unsigned int addr = 0x4000 + (channel%2)*4;
+		unsigned int addr = 0x4000 + (channel&1)*4;
 		POKE(addr++, data[0]);		// Pulse   
 		addr++; //POKE(0x4001,  data[1])	// Ramp
 		POKE(addr++, 255-2*pitch/3u);	// Freq1

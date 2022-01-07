@@ -466,12 +466,19 @@ void LocateSprite(unsigned int x, unsigned int y)
 			}
 		}
 	#elif (defined __ATARI__) || (defined __LYNX__) || (defined __NES__)
-		sc_dY = sprY[i] - spriteY;
+	  #if defined(__NES__)
+		sc_cushion = SPRITEHEIGHT/2-sprCushion;
+	  #else
 		sc_cushion = SPRITEHEIGHT-sprCushion;
+	  #endif
+		sc_dY = sprY[i] - spriteY;
 		if (sc_dY < sc_cushion || sc_dY>(256-sc_cushion)) {
-			
-			sc_dX = sprX[i] - spriteX;
+		  #if defined(__NES__)
+			sc_cushion = SPRITEWIDTH/2-sprCushion;
+		  #else
 			sc_cushion = SPRITEWIDTH-sprCushion;
+		  #endif
+			sc_dX = sprX[i] - spriteX;
 			if (sc_dX < sc_cushion || sc_dX>(256-sc_cushion)) {
 				
 				// Apply collision
