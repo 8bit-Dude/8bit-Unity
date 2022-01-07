@@ -1226,6 +1226,13 @@ class Application:
                 if target == '64k':
                     cmd += buildFolder + '/atari/rmt.bin'
                 fp.write(cmd + '\n\n')
+                
+                # Clean-up build folder
+                fp.write('del ' + buildFolder + '\\atari\\*.bin\n')
+                fp.write('del ' + buildFolder + '\\atari\\*.lib\n')
+                if len(networkOptions) == 1:  
+                    fp.write('del ' + buildFolder + '\\atari\\*.xex\n')
+                fp.write('\n\n')                
                                                 
                 fp.write('echo --------------- CONVERT ASSETS ---------------  \n\n')
                 
@@ -1263,13 +1270,6 @@ class Application:
                     fp.write('copy ' + item.replace('/','\\') + ' ' + buildFolder + '\\atari\\' + FileBase(item, '.rmt') + '.mus\n')
 
                 fp.write('\necho --------------- ATARI DISK BUILDER --------------- \n\n')
-
-                # Clean-up build folder
-                fp.write('del ' + buildFolder + '\\atari\\*.bin\n')
-                fp.write('del ' + buildFolder + '\\atari\\*.lib\n')
-                if len(networkOptions) == 1:  
-                    fp.write('del ' + buildFolder + '\\atari\\*.xex\n')
-                fp.write(cmd + '\n\n')
                 
                 # Copy xBios files
                 fp.write('copy utils\\scripts\\atari\\xbios.com ' + buildFolder + '\\atari\\autorun\n')
@@ -1319,6 +1319,10 @@ class Application:
             fp.write('del ' + buildFolder + '\\c64\\*.* /F /Q\n\n')
             
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
+            
+            # Convert Sprites (need to merge with program)
+            if len(sprites) > 0:
+                fp.write('utils\\py27\\python utils\\scripts\\c64\\C64Sprites.py ' + sprites[0] + ' ' + buildFolder + '/c64/sprites.dat\n')            
 
             # Build Unity Library for each network target
             for network in networkOptions:
@@ -1397,11 +1401,7 @@ class Application:
             if len(charset) > 0:
                 fb = FileBase(charset[0], '.png')
                 fp.write('utils\\py27\python utils\\scripts\\c64\\C64Charset.py ' + charset[0] + ' ' + buildFolder + '/c64/' + fb + '.chr' + ' ' + self.entry_C64CharsetColors.get() + '\n')
-                
-            # Sprites
-            if len(sprites) > 0:
-                fp.write('utils\\py27\\python utils\\scripts\\c64\\C64Sprites.py ' + sprites[0] + ' ' + buildFolder + '/c64/sprites.dat\n')
-                
+                                
             # Chunks
             if len(chunks) > 0:
                 fp.write('utils\\py27\\python utils\\scripts\\ProcessChunks.py c64 ' + chunks[0] + ' ' + buildFolder + '/c64/\n\n')
