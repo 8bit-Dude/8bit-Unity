@@ -107,7 +107,7 @@
                 "projects/slicks/music/speednik-atari.rmt"
             ], 
             "chunks": [], 
-            "diskSize": "360KB", 
+            "diskSize": "180KB", 
             "crunchAssets": "Yes", 
             "musicMemory": "$0800", 
             "chunkMemory": "$0000", 

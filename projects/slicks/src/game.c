@@ -71,6 +71,10 @@ int tck4, accRate, decRate, jmpTCK;
 const int velMax[4] = { 390, 460, 530, 600 };
 const char rotMax[4] = { 4, 5, 6, 2 };
 
+// Car properties and position (shared with navigation.c)
+Vehicle *iCar, *jCar;	
+int iX, iY;				
+
 // Fast tables for cos/sin
 const signed char cos[16] = {16,14,11,6,0,-6,-11,-14,-16,-14,-11,-6,0,6,11,14};
 const signed char sin[16] = {0,6,11,14,16,14,11,6,0,-6,-11,-14,-16,-14,-11,-6};
@@ -122,26 +126,27 @@ void GameReset()
 	
 		// Reset sprite
 		if (PlayerAvailable(i)) {
-			f = ((cars[i].ang1+12)%(360))/23u;
+			iCar = &cars[i];
+			f = ((iCar->ang1+12)%(360))/23u;
 		#if defined __APPLE2__
 			f += i*16u;
-			spriteX = (cars[i].x2*7u)/128u;
-			spriteY = (cars[i].y2*3u)/25u;
+			spriteX = (iCar->x2*7u)/128u;
+			spriteY = (iCar->y2*3u)/25u;
 		#elif defined __ATARI__
-			spriteX = cars[i].x2/16u + 45; 
-			spriteY = cars[i].y2/8u;		
+			spriteX = iCar->x2/16u + 45; 
+			spriteY = iCar->y2/8u;		
 		#elif defined __ORIC__
-			spriteX = cars[i].x2/32u;	
-			spriteY = cars[i].y2/8u;			
+			spriteX = iCar->x2/32u;	
+			spriteY = iCar->y2/8u;			
 		#elif defined __CBM__
-			spriteX = cars[i].x2/8u; 
-			spriteY = cars[i].y2/8u;
+			spriteX = iCar->x2/8u; 
+			spriteY = iCar->y2/8u;
 		#elif defined __LYNX__
-			spriteX = cars[i].x2/16u; 
-			spriteY = cars[i].y2/16u;
+			spriteX = iCar->x2/16u; 
+			spriteY = iCar->y2/16u;
 		#elif defined __NES__
-			spriteX =  cars[i].x2/10u; 
-			spriteY = (cars[i].y2*3u)/25u+24;
+			spriteX =  iCar->x2/10u; 
+			spriteY = (iCar->y2*3u)/25u+24;
 		#endif
 		#if defined MULTICOLOR
 			SetMultiColorSprite(2*i, f);  // Car body and tires
@@ -466,9 +471,6 @@ int LerpAngle(int iAng1, int iAng2, int dAng)
 	}
 }
 
-// Game loop (for 1 round)
-Vehicle *iCar, *jCar;	// Also used in navigation
-int iX, iY;				// Also used in navigation
 char GameLoop()
 {		
 	// Game Management

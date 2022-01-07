@@ -81,21 +81,22 @@ void ScreechSFX(unsigned char index)
 
 void UpdateSFX()
 {		
-	unsigned char i=0, f1=0, f2=0, s1=0, s2=0, v1=0, v2=0;
+	unsigned char i=0, fi, f1=0, f2=0, s1=0, s2=0, v1=0, v2=0;
 	
 	// Scan players looking for frequency priority
 	while (i<4) {
 		if (sfx[i]) {
-			if (frq[i] > f1) {
+			fi = frq[i]; 
+			if (fi > f1) {
 				// Downgrade previous #1
 				f2 = f1; s2 = s1; v2 = v1;
 				
 				// Assign new #1 priority
-				f1 = frq[i]; s1 = sfx[i]; v1 = vol[i];
+				f1 = fi; s1 = sfx[i]; v1 = vol[i];
 			} else
-			if (frq[i] > f2) {
+			if (fi > f2) {
 				// Assign new #2 priority
-				f2 = frq[i]; s2 = sfx[i]; v2 = vol[i];
+				f2 = fi; s2 = sfx[i]; v2 = vol[i];
 			}
 			sfx[i] = 0;
 		}
