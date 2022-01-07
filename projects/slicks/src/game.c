@@ -523,12 +523,11 @@ char GameLoop()
 		for (i=0; i<MAX_PLAYERS; ++i) {
 			// Player available?
 			if (!PlayerAvailable(i)) { continue; }
-			iCtrl = controlIndex[i];
-		#if defined __APPLE2__
-			// Regulate clock approximately...
-			if (gameFrame&3) { clk += 2; } else { clk += 1; }
+		#if defined __APPLE2__	// Regulate clock approximately...
+			if (!(gameFrame%3)) { clk += 2; } else { clk += 1; }
 		#endif
 			// Get player parameters
+			iCtrl = controlIndex[i];
 			iCar = &cars[i];
 			iX = iCar->x2;
 			iY = iCar->y2;
