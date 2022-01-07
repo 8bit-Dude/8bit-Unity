@@ -13,7 +13,7 @@
   const unsigned char spriteColors[] = { SPR_BLUE,  SPR_GREY, SPR_RED,    SPR_GREY, 	// Bank 1
 										 SPR_DGREEN,SPR_GREY, SPR_DYELLOW,SPR_GREY, 	// Bank 2
 										 SPR_GREY,  SPR_GREY, SPR_GREY,   SPR_GREY };  	// Bank 3
-  const unsigned char inkColors[] = { BLUE, RED, GREEN, YELLOW, WHITE };				// P1, P2, P3, P4, SERVER INFO
+  const unsigned char inkColors[] = { BLUE, RED, YELLOW, GREEN, WHITE };				// P1, P2, P3, P4, SERVER INFO
 #elif defined __ORIC__
   const unsigned char spriteColors[] = { SPR_CYAN, SPR_MAGENTA, SPR_GREEN, SPR_WHITE, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC };	
   const unsigned char inkColors[] = { CYAN, LPURPLE, LGREEN, GREY, WHITE };		// P1, P2, P3, P4, SERVER INFO
@@ -32,7 +32,7 @@
 #endif
 
 // Build Information
-const char* buildInfo = "BUILD: 2022/01/03";
+const char* buildInfo = "BUILD: 2022/01/07";
 
 // List of available maps
 unsigned char mapNum  = 10;

@@ -233,6 +233,9 @@ void GameInit(const char* map)
 	// Print map name in lower left corner
 	inkColor = WHITE;
 	txtX = 0; txtY = LAPS_ROW;
+#if defined __ORIC__
+	SetAttributes(inkColor);
+#endif	
 	PrintStr(mapList[gameMap]);
 
 	// Load Navigation
@@ -249,7 +252,7 @@ void GameInit(const char* map)
                 inkColor = inkColors[i]; 
 				txtX = SLOT_COL1 + SLOT_WIDTH*i;
 			#if defined __ORIC__
-				txtX--; SetAttributes(inkColor); txtX++; 
+				SetAttributes(inkColor);
 			#endif					
 				PrintChr('p'); txtX++;
 				PrintChr(CHR_DIGIT+1+i);

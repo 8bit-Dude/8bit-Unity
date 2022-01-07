@@ -212,9 +212,9 @@ void PrintBuffer(char *buffer)
 		buffer[len++] = ' ';
 		buffer[len] = 0;
 	}
-	txtX = TXT_COLS-len;
 	if (len<TXT_COLS)
 		CopyStr(0, BUFFER_ROW, len, BUFFER_ROW, TXT_COLS-len);
+	txtX = TXT_COLS-len;
 	PrintStr(buffer);		
 
 #elif defined __NES__	
@@ -255,14 +255,16 @@ void PrintBuffer(char *buffer)
 	UpdateDisplay();
 
 #elif defined __ORIC__	
-	// Need to insert ink changes...
-	txtX--; len++;
-	if (len<TXT_COLS) {
-		CopyStr(0, BUFFER_ROW, len, BUFFER_ROW, TXT_COLS-len);
-		SetAttributes(inkColor);
+	// Check length...
+	if (len > TXT_COLS) {
+		buffer[TXT_COLS-1] = 0;
+		len = TXT_COLS;
 	}
-	txtX++; len--;
+	if (len<TXT_COLS) {
+		len++; CopyStr(0, BUFFER_ROW, len, BUFFER_ROW, TXT_COLS-len); len--;
+	}
 	txtX = TXT_COLS-len;
+	SetAttributes(inkColor);
 	PrintStr(buffer);		
 		
 #else
@@ -359,9 +361,13 @@ void MenuMap()
 	// Print Characters
 	inkColor = INK_HIGHLT; paperColor = PAPER_HIGHLT;
 	txtX = MENU_COL+2; PrintChr('m');
-	inkColor = WHITE; paperColor = BLACK;
+	inkColor = WHITE; paperColor = BLACK;	
 	txtX = MENU_COL+3; PrintStr("AP:");
-	txtX = MENU_COL+7; PrintStr(mapList[gameMap]);	
+	txtX = MENU_COL+7; 
+#if defined __ORIC__
+	SetAttributes(inkColor);
+#endif	
+	PrintStr(mapList[gameMap]);	
 }
 
 // Sub-function of GameMenu()
@@ -376,7 +382,11 @@ void MenuLaps()
 	txtX = MENU_COL+2; PrintChr('l');
 	inkColor = WHITE; paperColor = BLACK;
 	txtX = MENU_COL+3; PrintStr("AP:");
-	txtX = MENU_COL+7; PrintNum(lapNumber[lapIndex]);
+	txtX = MENU_COL+7; 
+#if defined __ORIC__
+	SetAttributes(inkColor);
+#endif		
+	PrintNum(lapNumber[lapIndex]);
 }
 
 // In-case connection drops out...
@@ -566,22 +576,25 @@ void PrintScores()
 	for (i=0; i<MAX_PLAYERS; ++i) {
 		j = rank[i];
 		if (controlIndex[j] > 0) {
-			inkColor = inkColors[j];
-			txtY += 2;
-		#if defined __ORIC__
-			txtX = SCORES_COL+2; SetAttributes(inkColor);
-		#endif
 			if (gameMode == MODE_ONLINE) {
 				string = clName[j];
 			} else {
 				if (i == 0) { string = "WIN"; } else { string = "LOSE"; } 
 			}
-			txtX = SCORES_COL+3; PrintStr(string);
-			inkColor = WHITE;
+			
+			txtY += 2; txtX = SCORES_COL+3; 
+			inkColor = inkColors[j];
 		#if defined __ORIC__
-			txtX = SCORES_COL+7; SetAttributes(inkColor);
+			SetAttributes(inkColor);
+		#endif
+			PrintStr(string);
+			
+			inkColor = WHITE;
+			txtX = SCORES_COL+8; 
+		#if defined __ORIC__
+			SetAttributes(inkColor);
 		#endif		
-			txtX = SCORES_COL+8; PrintChr('-');
+			PrintChr('-');
 		
 			// Display best lap time
 			d = lapBest[j];
@@ -593,7 +606,7 @@ void PrintScores()
 			}
 			txtX = SCORES_COL+10; PrintBestLap(d, tckPerSec);				
 		#if defined __ORIC__
-			txtX = SCORES_COL+21; SetAttributes(AIC);
+			txtX = SCORES_COL+20; SetAttributes(AIC);
 		#endif
 		}
 	}
@@ -799,19 +812,27 @@ void MenuPlayer(unsigned char i)
 	PrintBlanks(MENU_WID-6, 1);
 	
 	// Print Characters
+	txtX = MENU_COL+2; 
 #if defined(__NES__) || defined __SHR__
 	inkColor = WHITE;
 #else
 	inkColor = inkColors[i];
 #endif
-	txtX = MENU_COL+2; PrintChr('p');
-#if !defined(__LYNX__) && !defined(__NES__)
+#if defined __ORIC__
+	SetAttributes(inkColor);
+#endif
+	PrintChr('p');
+#if !defined(__LYNX__) && !defined(__NES__) && !defined(__ORIC__)
 	inkColor = INK_HIGHLT; paperColor = PAPER_HIGHLT;
 #endif
-	txtX = MENU_COL+3; PrintNum(i+1);
+	txtX = MENU_COL+3;  PrintNum(i+1);
 	inkColor = WHITE; paperColor = BLACK;
-	txtX = MENU_COL+4; PrintChr(':');
-	txtX = MENU_COL+6; PrintStr(controlList[controlIndex[i]]);	
+	txtX = MENU_COL+4;  PrintChr(':');
+	txtX = MENU_COL+6; 
+#if defined __ORIC__
+	SetAttributes(inkColor);
+#endif
+	PrintStr(controlList[controlIndex[i]]);	
 }
 
 // Sub-function of GameMenu()
@@ -959,8 +980,17 @@ void GameMenu()
 			inkColor = INK_HIGHLT; paperColor = PAPER_HIGHLT;
 			txtY = MENU_ROW+13;
 			txtX = MENU_COL+2; PrintStr("SPACE");
+ 		  #if defined __ORIC__
+			inkColor = AIC; paperColor = BLACK;
+			txtX = MENU_COL+7; PrintChr(':');
+			txtX = MENU_COL+9; inkColor = WHITE; paperColor = BLACK;
+			SetAttributes(inkColor);
+			PrintStr("RACE!");				
+		  #else
 			inkColor = WHITE; paperColor = BLACK;
-			txtX = MENU_COL+7; PrintStr(": RACE!");				
+			txtX = MENU_COL+7; 
+			PrintStr(": RACE!");				
+		  #endif					
 		#endif		
 
 			// Process user input
