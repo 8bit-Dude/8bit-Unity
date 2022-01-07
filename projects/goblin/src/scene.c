@@ -73,7 +73,7 @@ void LoadScene(unsigned char* scene)
 	paperColor = PAPER_DEFAULT;
 	inkColor = INK_DEFAULT;
 #if defined(__ORIC__)
-	txtY = TXT_ROWS-2; txtX = -1;
+	txtY = TXT_ROWS-2;
 	SetAttributes(paperColor); txtY++;
 	SetAttributes(paperColor); txtY--;
 	txtX = 0; PrintBlanks(TXT_COLS, 2);	
