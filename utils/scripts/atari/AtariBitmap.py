@@ -84,9 +84,9 @@ try:
             f.close()    
         
         # Crunch data and read back
-        subprocess.call(["utils/scripts/exomizer-3.1.0.exe", "mem", "-lnone", output.replace('.img','.raw1'), "-o", output.replace('.img','.sfx1')])
+        subprocess.call(["utils/scripts/exomizer-3.1.0.exe", "mem", "-lnone", output.replace('.img','.raw1'), "-B", "-o", output.replace('.img','.sfx1')])
         if resolution == 'double':
-            subprocess.call(["utils/scripts/exomizer-3.1.0.exe", "mem", "-lnone", output.replace('.img','.raw2'), "-o", output.replace('.img','.sfx2')])
+            subprocess.call(["utils/scripts/exomizer-3.1.0.exe", "mem", "-lnone", output.replace('.img','.raw2'), "-B", "-o", output.replace('.img','.sfx2')])
         
         # Read back compressed data
         f = io.open(output.replace('.img','.sfx1'), 'rb')

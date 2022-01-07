@@ -88,8 +88,8 @@ try:
         
         # Compress data
         if resolution == 'double':
-            subprocess.call(["utils/scripts/exomizer-3.1.0.exe", "mem", "-lnone", output.replace('.img','.aux'), "-o", output.replace('.img','.aux.sfx')])
-        subprocess.call(["utils/scripts/exomizer-3.1.0.exe", "mem", "-lnone", output.replace('.img','.main'), "-o", output.replace('.img','.main.sfx')])
+            subprocess.call(["utils/scripts/exomizer-3.1.0.exe", "mem", "-lnone", output.replace('.img','.aux'), "-B", "-o", output.replace('.img','.aux.sfx')])
+        subprocess.call(["utils/scripts/exomizer-3.1.0.exe", "mem", "-lnone", output.replace('.img','.main'), "-B", "-o", output.replace('.img','.main.sfx')])
         
         # Read back compressed data
         if resolution == 'double':
