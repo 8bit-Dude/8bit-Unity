@@ -34,18 +34,10 @@
 // SFX Variables
 unsigned char sfx[4], frq[4], vol[4];
 
-#ifdef __ATARIXL__
-  #pragma code-name("SHADOW_RAM")
-#endif
-
 void BleepSFX(unsigned char pitch)
 {
 	PlaySFX(SFX_BLEEP, pitch, VOLUME_BLEEP, CHAN_BLEEP);
 }
-
-#ifdef __ATARIXL__
-  #pragma code-name("CODE")
-#endif
 
 void BumpSFX(void)
 {

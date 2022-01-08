@@ -97,12 +97,8 @@ unsigned long gameFrame;
 unsigned char PlayerAvailable(unsigned char i)
 {
 	// CPU players not available during warmup phase
-	if (controlIndex[i]) {
-		if ((gameStep == STEP_WARMUP) && (controlIndex[i] < 4))
-			return 0;
-		else
-			return 1;
-	}
+	if (controlIndex[i] > 3 || (gameStep != STEP_WARMUP))
+		return 1;
 	return 0;
 }
 
@@ -115,14 +111,14 @@ void GameReset()
 	ResetLineUp();
 	
     // Reset Players
-	txtY = LAPS_ROW;
+	txtY = LAPS_ROW; txtX = SLOT_COL1 + SLOT_OFFST;
     for (i=0; i<MAX_PLAYERS; ++i) {        
         // Reset SFX
         EngineSFX(i, 0);
 		
 		// Reset Lap count
-		txtX = (SLOT_COL1+SLOT_OFFST) + SLOT_WIDTH*i;
 		PrintStr("  ");
+		txtX += SLOT_WIDTH;
 	
 		// Reset sprite
 		if (PlayerAvailable(i)) {
