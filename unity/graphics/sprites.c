@@ -181,7 +181,7 @@ void SetupSprites(const unsigned char *spriteColors)
 		sprColor[i] = spriteColors[i];
 	sprRows = SPRITEHEIGHT;
 	sprDLIs = (SPRITEHEIGHT+15)>>3;
-	sprPads = sprDLIs*8;
+	sprPads = sprDLIs*8+1;
 	sprYOffset = (SPRITEHEIGHT/2u)+2;
 
 	// Clear all PMG memory
@@ -564,12 +564,12 @@ void SetSprite(unsigned char index, unsigned int frame)
 		ss_pos = 0;
 	ss_dli = ss_pos>>3;
 	ss_DLI = ss_dli*8;
-	ss_off = ss_pos-ss_DLI;
+	ss_off = ss_pos-ss_DLI+1;
 	ss_slot = index&3;
 
 	// Prepare new data for VBI handler
 	ss_src  = &sprData[frame*SPRITEHEIGHT]-ss_off;
-	ss_dst  = (PMGRAM+34)+(ss_slot*0x100)+ss_DLI;  // 32 = 4 black rows at top of screen + 1 line	
+	ss_dst  = (PMGRAM+33)+(ss_slot*0x100)+ss_DLI;  // 32 = 4 black rows at top of screen + 1 line	
 	ss_line = ss_slot*25+ss_dli;
 	
 	// Send data to VBI handler	
