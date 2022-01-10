@@ -32,7 +32,7 @@
 #endif
 
 // Build Information
-const char* buildInfo = "BUILD: 2022/01/07";
+const char* buildInfo = "BUILD: 2022/01/10";
 
 // List of available maps
 unsigned char mapNum  = 10;
@@ -105,6 +105,8 @@ int main (void)
 		PlayMusic();
 		ShowBitmap();
 		GameMenu(); 
+		
+		// Exit menu
 		DisableSprite(-1);
 		HideBitmap();
         StopMusic();

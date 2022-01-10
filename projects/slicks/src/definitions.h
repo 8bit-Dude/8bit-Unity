@@ -156,27 +156,35 @@
 
 // Controller definitions
 #if defined __APPLE2__
-  #define LEN_CONTROL 9
+  #if defined __HUB__
+    #define LEN_CONTROL 12
+  #else	
+    #define LEN_CONTROL 9
+  #endif	 
+#elif defined __ATARIXL__		 
+  #if defined __HUB__
+    #define LEN_CONTROL 10
+  #else	
+    #define LEN_CONTROL 7
+  #endif	 
 #elif defined __ATARI__
- #if defined __HUB__
-  #define LEN_CONTROL 9
- #elif defined __ATARIXL__		 
-  #define LEN_CONTROL 7
- #else	
-  #define LEN_CONTROL 9	 
- #endif	 
+  #if defined __HUB__
+    #define LEN_CONTROL 12
+  #else	
+    #define LEN_CONTROL 9	 
+  #endif	 
 #elif defined __CBM__
- #if defined __HUB__
-  #define LEN_CONTROL 10
- #else
-  #define LEN_CONTROL 9
- #endif
+  #if defined __HUB__
+    #define LEN_CONTROL 10
+  #else
+    #define LEN_CONTROL 9
+  #endif
 #elif defined __LYNX__
-  #define LEN_CONTROL 9
+    #define LEN_CONTROL 9
 #elif defined __NES__
-  #define LEN_CONTROL 10
+    #define LEN_CONTROL 10
 #elif defined __ORIC__
-  #define LEN_CONTROL 9
+    #define LEN_CONTROL 10
 #endif
 #define NET_CONTROL (LEN_CONTROL-1)
 

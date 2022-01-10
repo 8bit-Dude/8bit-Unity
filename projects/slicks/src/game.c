@@ -97,7 +97,7 @@ unsigned long gameFrame;
 unsigned char PlayerAvailable(unsigned char i)
 {
 	// CPU players not available during warmup phase
-	if (controlIndex[i] > 3 || (gameStep != STEP_WARMUP))
+	if (controlIndex[i] > 3 || (controlIndex[i] && (gameStep != STEP_WARMUP)))
 		return 1;
 	return 0;
 }
@@ -280,7 +280,7 @@ unsigned char GameRace()
 
     // Show light sprites
     for (i=SPR2_SLOT; i<SPR2_SLOT+3; ++i) {
-		LocateSprite(LIGHT_X+(i-SPR2_SLOT)*LIGHT_SP, LIGHT_Y);
+		LocateSprite(LIGHT_X+LIGHT_SP*(i-SPR2_SLOT), LIGHT_Y);
 	#if defined __ATARI__ 
 		RecolorSprite(i, 0, SPR_LGREY);
 	#elif defined __CBM__
@@ -624,9 +624,8 @@ char GameLoop()
 					iVel += accRate*ticks;
 
 					// Check navigation? (not every frames)
-					if (gameFrame % MAX_PLAYERS == i) {	
+					if (gameFrame % MAX_PLAYERS == i)
 						iCar->ang3 = GetWaypointAngle(i);
-					}
 					
 					// Lerp to navigation target
 					iAng2 = LerpAngle(iAng2, iCar->ang3, 3*iTmp);
@@ -647,7 +646,7 @@ char GameLoop()
 			// Round sprite angle to nearest 22.5* sector
 			iSpr = (iAng2+12)/23u;
 			if (iSpr>15) { iSpr=0; }			
-			iDir = iSpr;				
+			iDir = iSpr;
 		#else							
 			// Lerp trajectory angle to create "drift effect"
 			iAng1 = LerpAngle(iAng1, iAng2, iRotMax*ticks);	
@@ -943,9 +942,10 @@ char GameLoop()
 					}
 					return 0; 
 				}
-			#ifdef  __ATARIXL__
-				// Toggle Graphic Mode
-				if (lastKey == KB_G) bmpToggle ^= 2;
+			#if defined __ATARIXL__
+				if (lastKey == KB_G) bmpToggle ^= 2; // Toggle Graphic Mode
+			#elif defined __ORIC__				
+				if (lastKey == KB_V) volumeReduced = 1-volumeReduced; // Toggle Graphic Mode
 			#endif
 			}
 		}

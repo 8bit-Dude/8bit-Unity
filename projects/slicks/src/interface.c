@@ -44,27 +44,35 @@ unsigned int bestLapTime[] = { LAPMAX, LAPMAX, LAPMAX, LAPMAX, LAPMAX, LAPMAX,
 
 // List of controller strings
 #if defined __APPLE2__
-  const char* controlList[] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "PADDLE 1", "PADDLE 2", "PADDLE 3", "PADDLE 4" };
+  #if defined __HUB__
+    const char* controlList[] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "PADDLE 1", "PADDLE 2", "PADDLE 3", "PADDLE 4", "HUB 1", "HUB 2", "HUB 3" };
+  #else
+    const char* controlList[] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "PADDLE 1", "PADDLE 2", "PADDLE 3", "PADDLE 4" };
+  #endif	 
+#elif defined __ATARIXL__	 
+  #if defined __HUB__
+    const char* controlList[] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "JOY 1", "JOY 2", "HUB 1", "HUB 2", "HUB 3" };
+  #else
+    const char* controlList[] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "JOY 1", "JOY 2" };
+  #endif	 
 #elif defined __ATARI__
- #if defined __HUB__
-  const char* controlList[] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "JOY 1", "HUB 1", "HUB 2", "HUB 3" };
- #elif defined __ATARIXL__	 
-  const char* controlList[] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "JOY 1", "JOY 2" };
- #else
-  const char* controlList[] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "JOY 1", "JOY 2", "JOY 3", "JOY 4" };
- #endif	 
-#elif defined __ORIC__
-  const char* controlList[] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "A,D,CTRL", "J,L,RET", "HUB/IJK 1", "HUB/IJK 2" };
+  #if defined __HUB__
+    const char* controlList[] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "JOY 1", "JOY 2", "JOY 3", "JOY 4", "HUB 1", "HUB 2", "HUB 3" };
+  #else
+    const char* controlList[] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "JOY 1", "JOY 2", "JOY 3", "JOY 4" };
+  #endif	 
 #elif defined __CBM__
- #if defined __HUB__
-  const char* controlList[] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "JOY 1", "JOY 2", "HUB 1", "HUB 2", "HUB 3" };
- #else
-  const char* controlList[] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "JOY 1", "JOY 2", "JOY 3", "JOY 4" };
- #endif	 
+  #if defined __HUB__
+    const char* controlList[] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "JOY 1", "JOY 2", "HUB 1", "HUB 2", "HUB 3" };
+  #else
+    const char* controlList[] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "JOY 1", "JOY 2", "JOY 3", "JOY 4" };
+  #endif	 
 #elif defined __LYNX__
-  const char* controlList[] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "JOY 1", "HUB 1", "HUB 2", "HUB 3" };
+    const char* controlList[] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "JOY 1", "HUB 1", "HUB 2", "HUB 3" };
 #elif defined __NES__
-  const char* controlList[] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "JOY 1", "JOY 2", "HUB 1", "HUB 2", "HUB 3" };
+    const char* controlList[] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "JOY 1", "JOY 2", "HUB 1", "HUB 2", "HUB 3" };
+#elif defined __ORIC__
+    const char* controlList[] = { "NONE", "CPU EASY", "CPU MEDIUM", "CPU HARD", "A,D,CTRL", "J,L,RET", "HUB/IJK 1", "HUB/IJK 2", "HUB 3" };
 #endif
 
 // Performance Drawing
@@ -212,9 +220,9 @@ void PrintBuffer(char *buffer)
 		buffer[len++] = ' ';
 		buffer[len] = 0;
 	}
-	if (len<TXT_COLS)
-		CopyStr(0, BUFFER_ROW, len, BUFFER_ROW, TXT_COLS-len);
 	txtX = TXT_COLS-len;
+	if (len<TXT_COLS)
+		CopyStr(0, BUFFER_ROW, len, BUFFER_ROW, txtX);
 	PrintStr(buffer);		
 
 #elif defined __NES__	
@@ -271,7 +279,7 @@ void PrintBuffer(char *buffer)
 	// Just shift buffer and print new message
 	txtX = TXT_COLS-len;
 	if (len<TXT_COLS)
-		CopyStr(0, BUFFER_ROW, len, BUFFER_ROW, TXT_COLS-len);
+		CopyStr(0, BUFFER_ROW, len, BUFFER_ROW, txtX);
 	PrintStr(buffer);		
 #endif
 }
@@ -310,12 +318,32 @@ void MenuGFX()
 	txtX = MENU_COL+2; txtY = MENU_ROW+11;
 	PrintStr("G");
 	inkColor = WHITE; paperColor = BLACK;
-	txtX = MENU_COL+3; 
+	txtX++; 
 	if (bmpToggle & 2) {
 		PrintStr("FX: SINGLE");				
 	} else {
 		PrintStr("FX: DOUBLE");				
 	}	
+}
+#endif
+
+#if defined __ORIC__
+// Sub-function of GameMenu()
+void MenuSFX()
+{
+	// GFX mode selection
+	inkColor = INK_HIGHLT; paperColor = PAPER_HIGHLT;
+	txtX = MENU_COL+2; txtY = MENU_ROW+11; 
+	PrintChr('V');
+	inkColor = WHITE; paperColor = BLACK;	
+	txtX++; PrintStr("OL:");
+	txtX = MENU_COL+7; 
+	SetAttributes(inkColor);
+	if (volumeReduced) {
+		PrintStr("LOW ");				
+	} else {
+		PrintStr("HIGH");				
+	}
 }
 #endif
 
@@ -362,7 +390,7 @@ void MenuMap()
 	inkColor = INK_HIGHLT; paperColor = PAPER_HIGHLT;
 	txtX = MENU_COL+2; PrintChr('m');
 	inkColor = WHITE; paperColor = BLACK;	
-	txtX = MENU_COL+3; PrintStr("AP:");
+	txtX++; PrintStr("AP:");
 	txtX = MENU_COL+7; 
 #if defined __ORIC__
 	SetAttributes(inkColor);
@@ -381,7 +409,7 @@ void MenuLaps()
 	inkColor = INK_HIGHLT; paperColor = PAPER_HIGHLT;
 	txtX = MENU_COL+2; PrintChr('l');
 	inkColor = WHITE; paperColor = BLACK;
-	txtX = MENU_COL+3; PrintStr("AP:");
+	txtX++; PrintStr("AP:");
 	txtX = MENU_COL+7; 
 #if defined __ORIC__
 	SetAttributes(inkColor);
@@ -486,8 +514,8 @@ void PrintScores()
 #if defined(__LYNX__)
 	StopMusic();
 	LoadMusic("speednik.mus");
-#endif	
-#ifndef __ORIC__
+	PlayMusic();
+#elif defined(__APPLE2__) || defined(__ATARIXL__) || defined(__C64__) || defined(__NES__)
 	PlayMusic();
 #endif	
 				
@@ -620,8 +648,8 @@ void PrintScores()
 #else
     sleep(9);
 #endif
-	// Stop music if needed
-#ifndef __ORIC__
+	// Stop music
+#if defined(__APPLE2__) || defined(__ATARIXL__) || defined(__C64__) || defined(__LYNX__) || defined(__NES__)
 	StopMusic();
 #endif	
 }
@@ -970,8 +998,10 @@ void GameMenu()
 			// Platform specific menus
 		#if defined __ATARIXL__			
 			MenuGFX();
-		#endif		
-
+		#elif defined __ORIC__			
+			MenuSFX();
+		#endif	
+		
 			// Race launcher
 		#if defined(__LYNX__) || defined(__NES__)
 			txtX = MENU_COL+2; txtY = MENU_ROW+11;
@@ -1043,6 +1073,12 @@ void GameMenu()
 				if (lastchar == KB_G) { 
 					bmpToggle ^= 2;
 					MenuGFX();
+				}
+			#elif defined __ORIC__
+				// Switch GFX Mode
+				if (lastchar == KB_V) { 
+					volumeReduced = 1-volumeReduced;
+					MenuSFX();
 				}
 			#endif				
 			
