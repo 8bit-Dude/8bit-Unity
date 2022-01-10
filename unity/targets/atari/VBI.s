@@ -88,6 +88,10 @@ _chrPalette: .byte $00, $24, $86, $d8, $00
 	ldx #(>VBI)	 ; install VBI routine
 	ldy #(<VBI)	
     jsr SETVBV
+	
+	; Reset NMIEN (needed for 400/800 OS-A)
+	lda #$C0
+	sta NMIEN
 	rts
 .endproc
 

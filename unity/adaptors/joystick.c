@@ -68,12 +68,23 @@ void InitJoy(void)
 
 unsigned char GetJoy(unsigned char joy)
 {
-#if defined(__ATARI__)
+#if defined(__ATARIXL__)
   #if defined(__HUB__)
-	if (joy) {
+	if (joy>1) {
 		// Get state from HUB
 		UpdateHub();			
-		return hubState[joy];
+		return hubState[joy-1];
+	} else		
+  #endif
+		// Get state from registry
+		return (PEEK(0x0284+joy)<<4)+PEEK(0x0278+joy)+JOY_BTN2;
+		
+#elif defined(__ATARI__)
+  #if defined(__HUB__)
+	if (joy>3) {
+		// Get state from HUB
+		UpdateHub();			
+		return hubState[joy-3];
 	} else		
   #endif
 		// Get state from registry
