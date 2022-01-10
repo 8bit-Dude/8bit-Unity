@@ -631,7 +631,7 @@ char GameLoop()
 					iAng2 = LerpAngle(iAng2, iCar->ang3, 3*iTmp);
 				}
 			}
-		#if (defined __APPLE2__) || (defined __ORIC__)		// Simplified physics on slower systems...
+		#if (defined __APPLE2__) 		// Simplified physics on slower systems...
 			// Constrain angle range
 			if (iAng2 > 360) { iAng2 -= 360; } else if (iAng2 < 0) { iAng2 += 360; }
 			
@@ -649,7 +649,11 @@ char GameLoop()
 			iDir = iSpr;
 		#else							
 			// Lerp trajectory angle to create "drift effect"
+		  #if defined __ORIC__
+			iAng1 = LerpAngle(iAng1, iAng2, iRotMax*ticks*2/3u);	
+		  #else
 			iAng1 = LerpAngle(iAng1, iAng2, iRotMax*ticks);	
+		  #endif
 			
 			// Constrain velocity (and slow down when drifting)
 			if (iCtrl > 3) {	
@@ -945,7 +949,9 @@ char GameLoop()
 			#if defined __ATARIXL__
 				if (lastKey == KB_G) bmpToggle ^= 2; // Toggle Graphic Mode
 			#elif defined __ORIC__				
-				if (lastKey == KB_V) volumeReduced = 1-volumeReduced; // Toggle Graphic Mode
+				if (lastKey == KB_V) {
+					if (volumeLevel) volumeLevel--; else volumeLevel = 2; // Volume Level Control
+				}
 			#endif
 			}
 		}

@@ -339,10 +339,16 @@ void MenuSFX()
 	txtX++; PrintStr("OL:");
 	txtX = MENU_COL+7; 
 	SetAttributes(inkColor);
-	if (volumeReduced) {
-		PrintStr("LOW ");				
-	} else {
+	switch (volumeLevel) {
+	case 2:
 		PrintStr("HIGH");				
+		return;
+	case 1:
+		PrintStr("LOW ");				
+		return;
+	case 0:
+		PrintStr("OFF ");				
+		return;
 	}
 }
 #endif
@@ -1075,9 +1081,9 @@ void GameMenu()
 					MenuGFX();
 				}
 			#elif defined __ORIC__
-				// Switch GFX Mode
+				// Volume Level Control
 				if (lastchar == KB_V) { 
-					volumeReduced = 1-volumeReduced;
+					if (volumeLevel) volumeLevel--; else volumeLevel = 2; 
 					MenuSFX();
 				}
 			#endif				
