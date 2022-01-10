@@ -104,3 +104,6 @@
 // Hires gfx functions (see blitXXX.s)
 void __fastcall__ BlitCharmap(void);
 void __fastcall__ BlitSprite(void);
+
+// Volume toggle for sound effects
+extern unsigned char volumeReduced;

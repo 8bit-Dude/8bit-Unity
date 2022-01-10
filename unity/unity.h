@@ -172,28 +172,30 @@ extern unsigned char maskInput;
 #define MOU_UP      8
 #define MOU_DOWN   16
 #define MOU_MOTION 32
-#if (defined __APPLE2__)
+#if defined(__APPLE2__) || (__ATARIXL__)
+  #if defined __HUB__
+    #define JOY_MAX 5
+  #else	
     #define JOY_MAX 2
-#elif (defined __ATARI__)
-  #if (defined __HUB__)
-	#define JOY_MAX 4
+  #endif	 
+#elif defined(__ATARI__)
+  #if defined __HUB__
+    #define JOY_MAX 7
+  #else	
+    #define JOY_MAX 4	 
+  #endif	 
+#elif defined(__CBM__)
+  #if defined __HUB__
+    #define JOY_MAX 5
   #else
-	#if (defined __ATARIXL__)
-		#define JOY_MAX 2
-	#else
-		#define JOY_MAX 4
-	#endif
-  #endif
-#elif (defined __CBM__)
-  #if (defined __HUB__)
-	#define JOY_MAX 5
-  #else
-	#define JOY_MAX 4
-  #endif
-#elif (defined __LYNX__)
     #define JOY_MAX 4
-#elif (defined __NES__) || (defined __ORIC__)
-    #define JOY_MAX 5	
+  #endif
+#elif defined(__LYNX__)
+    #define JOY_MAX 4
+#elif defined __NES__
+    #define JOY_MAX 5
+#elif defined(__ORIC__)
+    #define JOY_MAX 5
 #endif
 
 // Joystick functions

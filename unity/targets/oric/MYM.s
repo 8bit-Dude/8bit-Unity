@@ -30,6 +30,7 @@
 	.export _StopMusic
 	
 	.export _musicPaused
+	.export _volumeReduced
 
 VIA_1 = $30f
 VIA_2 = $30c
@@ -41,6 +42,7 @@ _PlayerBufferEnd =	$9fff
 	.segment	"DATA"	
 	
 _musicPaused:		.byte 0
+_volumeReduced:		.byte 1
 	
 _DecodedByte:		.res 1		; Byte being currently decoded from the MYM stream
 _DecodeBitCounter:	.res 1		; Number of bits we can read in the current byte
@@ -425,6 +427,26 @@ register_loop:
 
 _auto_psg_play_read:
 	ldx	_PlayerBuffer
+	
+	; Apply volume reduction?
+	pha
+	lda _volumeReduced
+	cmp #1
+	bne skipVol
+	cpy #8
+	beq doVol
+	cpy #9
+	beq doVol
+	cpy #10
+	beq doVol
+	jmp skipVol
+doVol:
+	txa
+	lsr
+	lsr
+	tax
+skipVol:	
+	pla
 
 	; W8912
 	; jsr $f590

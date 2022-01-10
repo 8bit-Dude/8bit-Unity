@@ -177,6 +177,8 @@
 								  {  1,     10 },	// SFX_INJURY
 								  {  1,     20 },	// SFX_GUN
 								  {  0,      0 } };	// SFX_SCREECH
+								  
+	extern unsigned char volumeReduced;
 
 	void EnableChannels(void) {
 		// Play 7,0,0: enable channels 1/2/3
@@ -206,9 +208,10 @@
 		// Prepare SFX data
 		unsigned char *data = sfxData[index];
 		if (data[0]) {
-			pitch = pitch/4u;
+			pitch /= 4u;
 		} else {
-			pitch = pitch/8u; volume /= 2;
+			pitch /= 8u; 
+			if (volumeReduced) volume /= 4u;
 		}
 		
 		// Set channel pitch (MUSIC Channel, Octave, Note, Volume)
@@ -351,6 +354,7 @@ void StopSFX()
 	for (i=0; i<4; i++) {
 		sampleTimer[i] = 0;
 		POKE((char*)(0xD200+2*i), 0);
+		POKE((char*)(0xD201+2*i), 0);
 	}
 #elif defined __ORIC__
 	DisableChannels();
