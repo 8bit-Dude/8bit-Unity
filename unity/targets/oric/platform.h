@@ -106,4 +106,4 @@ void __fastcall__ BlitCharmap(void);
 void __fastcall__ BlitSprite(void);
 
 // Volume toggle for sound effects
-extern unsigned char volumeReduced;
+extern unsigned char volumeLevel;

@@ -171,14 +171,14 @@
 	}
 	
 #elif defined __ORIC__			 // Env.  Period  
-	unsigned char sfxData[][] = { {  1,   1000 },	// SFX_BLEEP
+	unsigned char sfxData[][] = { {  6,   1000 },	// SFX_BLEEP
 								  {  1,    100 },	// SFX_BUMP
 								  {  0,      0 },	// SFX_ENGINE
-								  {  1,     10 },	// SFX_INJURY
-								  {  1,     20 },	// SFX_GUN
+								  {  6,     10 },	// SFX_INJURY
+								  {  2,     20 },	// SFX_GUN
 								  {  0,      0 } };	// SFX_SCREECH
 								  
-	extern unsigned char volumeReduced;
+	extern unsigned char volumeLevel;
 
 	void EnableChannels(void) {
 		// Play 7,0,0: enable channels 1/2/3
@@ -207,11 +207,19 @@
 	void PlaySFX(unsigned char index, unsigned char pitch, unsigned char volume, unsigned char channel) {
 		// Prepare SFX data
 		unsigned char *data = sfxData[index];
+		switch (volumeLevel) {
+		case 0:
+			volume = 0;
+			if (data[0]) return;
+			break;
+		case 1:
+			volume /= 2u;
+			break;
+		}
 		if (data[0]) {
 			pitch /= 4u;
 		} else {
 			pitch /= 8u; 
-			if (volumeReduced) volume /= 4u;
 		}
 		
 		// Set channel pitch (MUSIC Channel, Octave, Note, Volume)
