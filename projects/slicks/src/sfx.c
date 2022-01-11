@@ -22,11 +22,11 @@
 	#define VOLUME_BUMP   15
 	#define VOLUME_ENGINE 15
 #else
-	#define PITCH_BUMP 	  32
-	#define VOLUME_BLEEP  60
-	#define VOLUME_BUMP   120
-	#define VOLUME_ENGINE 22
-	#define VOLUME_JUMP   30
+	#define PITCH_BUMP 	    32
+	#define VOLUME_BLEEP    60
+	#define VOLUME_BUMP    120
+	#define VOLUME_ENGINE   22
+	#define VOLUME_SCREECH  30
 #endif
 
 #if defined(__NES__)
@@ -60,7 +60,7 @@ void JumpSFX(unsigned char index)
 {
 	sfx[index] = SFX_ENGINE;
 	frq[index] = 192;
-	vol[index] = VOLUME_JUMP;
+	vol[index] = VOLUME_SCREECH;
 }
 
 void ScreechSFX(unsigned char index)
@@ -71,7 +71,7 @@ void ScreechSFX(unsigned char index)
 #else
 	frq[index] = 192;
 #endif
-	vol[index] = VOLUME_JUMP;
+	vol[index] = VOLUME_SCREECH;
 }
 #endif
 

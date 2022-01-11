@@ -219,6 +219,7 @@
             "spriteWidth": "12", 
             "spriteHeight": "6", 
             "dithering": "0.2", 
+            "leadColors": "19", 
             "bitmap": [
                 "projects/slicks/bitmaps/promo-oric.png", 
                 "projects/slicks/bitmaps/menu-oric.png", 

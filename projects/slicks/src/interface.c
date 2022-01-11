@@ -444,7 +444,7 @@ void SpriteAnimation(unsigned char index, unsigned char frame)
 	spriteY = 14;
 #elif defined __ORIC__
 	spriteX = 48+index*8;
-	spriteY = 16;	
+	spriteY = 15;	
 #elif defined __CBM__
 	spriteX = 200+index*26; 
 	spriteY = 15;
