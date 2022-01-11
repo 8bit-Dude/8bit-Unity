@@ -2905,10 +2905,10 @@
                     </child>
                     <child>
                       <object class="ttk.Label" id="Label_OricDithering">
-                        <property name="text" translatable="yes">Image dithering (0~1)</property>
+                        <property name="text" translatable="yes">Dithering (0~1)</property>
                         <layout>
                           <property name="column">0</property>
-                          <property name="padx">210</property>
+                          <property name="padx">190</property>
                           <property name="pady">5</property>
                           <property name="propagate">True</property>
                           <property name="row">1</property>
@@ -2919,10 +2919,10 @@
                     <child>
                       <object class="ttk.Entry" id="Entry_OricDithering">
                         <property name="text" translatable="yes">0.2</property>
-                        <property name="width">6</property>
+                        <property name="width">4</property>
                         <layout>
                           <property name="column">0</property>
-                          <property name="padx">340</property>
+                          <property name="padx">280</property>
                           <property name="pady">5</property>
                           <property name="propagate">True</property>
                           <property name="row">1</property>
@@ -2930,6 +2930,33 @@
                         </layout>
                       </object>
                     </child>
+					<child>
+					  <object class="ttk.Label" id="Label_OricLeadColors">
+						<property name="text" translatable="yes">Lead colors [0:19]</property>
+						<layout>
+						  <property name="column">0</property>
+                          <property name="padx">320</property>						  
+                          <property name="pady">5</property>
+						  <property name="propagate">True</property>
+						  <property name="row">1</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>
+					</child>
+					<child>
+					  <object class="ttk.Entry" id="Entry_OricLeadColors">
+						<property name="text" translatable="yes"> </property>
+						<property name="width">6</property>
+						<layout>
+						  <property name="column">0</property>
+                          <property name="padx">430</property>
+                          <property name="pady">5</property>
+						  <property name="propagate">True</property>
+						  <property name="row">1</property>
+						  <property name="sticky">nw</property>
+						</layout>
+					  </object>
+					</child>					
                   </object>
                 </child>
                 <child>

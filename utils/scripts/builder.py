@@ -293,6 +293,7 @@ class Application:
         self.entry_OricSpriteWidth = self.builder.get_object('Entry_OricSpriteWidth')
         self.entry_OricSpriteHeight = self.builder.get_object('Entry_OricSpriteHeight')
         self.entry_OricDithering = self.builder.get_object('Entry_OricDithering')
+        self.entry_OricLeadColors = self.builder.get_object('Entry_OricLeadColors')
         self.entry_OricMusicMemory = self.builder.get_object('Entry_OricMusicMemory')
         self.entry_OricChunkMemory = self.builder.get_object('Entry_OricChunkMemory')
         self.entry_OricAssetFilter = self.builder.get_object('Entry_OricAssetFilter')
@@ -604,6 +605,7 @@ class Application:
                     ('spriteWidth', ('entry', self.entry_OricSpriteWidth)),
                     ('spriteHeight', ('entry', self.entry_OricSpriteHeight)),
                     ('dithering', ('entry', self.entry_OricDithering)),
+                    ('leadColors', ('entry', self.entry_OricLeadColors)),
                     ('bitmap', ('listbox', self.listbox_OricBitmap)),
                     ('charset', ('listbox', self.listbox_OricCharset)),
                     ('sprites', ('listbox', self.listbox_OricSprites)),
@@ -1290,7 +1292,7 @@ class Application:
                 # Start emulator?
                 if callEmu:
                     fp.write('pause\n\n')
-                    fp.write('cd "utils\emulators\Altirra-3.20"\n')
+                    fp.write('cd "utils\emulators\Altirra-4.00"\n')
                     fp.write('Altirra.exe "..\\..\\..\\' + buildFolder + '\\' + diskname + '-atari' + target + '.atr"\n')             
 
         ####################################################
@@ -2120,7 +2122,7 @@ class Application:
             fp.write('cd utils\\scripts\\oric\n')
             for item in bitmaps:
                 fb = FileBase(item, '.png')
-                fp.write('..\\..\\py27\\python OricBitmap.py ../../../' + item + ' ../../../' + buildFolder + '/oric/' + fb + '.dat ' + self.entry_OricDithering.get() + '\n')
+                fp.write('..\\..\\py27\\python OricBitmap.py ../../../' + item + ' ../../../' + buildFolder + '/oric/' + fb + '.dat ' + self.entry_OricDithering.get() + ' ' + self.entry_OricLeadColors.get() + '\n')
                 fp.write('header -a0 ../../../' + buildFolder + '/oric/' + fb + '.dat ../../../' + buildFolder + '/oric/' + fb + '.img $A000\n')
                 fp.write('del ..\\..\\..\\' + buildFolder + '\\oric\\' + fb + '.png\n')
                 fp.write('del ..\\..\\..\\' + buildFolder + '\\oric\\' + fb + '.dat\n\n')

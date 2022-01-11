@@ -75,7 +75,7 @@ if len(enforce) > 0:
         # Process in blocks of 3x1 pixels (encoded as 6x2)
         for x in range(0,39):
             # Extract block
-            location = y*2*240+x*6+6
+            location = y*2*234+x*6
             block = [pixdata[location], pixdata[location+2], pixdata[location+4]]            
 
             # Does block contain enforced color?
