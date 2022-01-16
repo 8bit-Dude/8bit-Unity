@@ -141,7 +141,16 @@ skipPaletteVBI:
 	; Apply sprite flicker?
 	lda _spriteVBI
 	sta _spriteDLI
-	beq skipSpriteVBI
+	bne doSpriteVBI
+resetSprites:
+	; Relocate sprites off-screen
+	lda #0
+	sta $d000
+	sta $d001
+	sta $d002
+	sta $d003
+	jmp skipSpriteVBI
+doSpriteVBI:
 	jsr _BlitSprites
 skipSpriteVBI:
 
