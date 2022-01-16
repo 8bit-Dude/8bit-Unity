@@ -31,24 +31,20 @@
  */
  
 // Lazy implementation through CC65 API
-// TODO: Talk directly to the OS!
- 
-#include "unity.h" 
 
-FILE* fp;
+#include "unity.h" 
  
 unsigned int FileOpen(const char* fname)
 {
-	fp = fopen(fname, "rb");
-	return fp;
+	return !cbm_open(1, 8, 8, fname);
 }
 
 unsigned int FileRead(char* buffer, signed int len)
 {
-	return fread(buffer, 1, len, fp);
+	return cbm_read(1, buffer, len);
 }
 
 void FileClose()
 {
-	fclose(fp);
+	cbm_close(1);
 }
