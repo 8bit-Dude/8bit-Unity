@@ -39,12 +39,14 @@
   // Nothing
 #elif defined __FUJINET__
   // Nothing
+#elif defined __ULTIMATE__
+  unsigned char tcpSocket;
 #elif defined __IP65__
   #define EncodeIP(a,b,c,d) (a+b*256+c*65536+d*16777216)
-  unsigned char* tcp_buffer, tcp_len;
-  void __fastcall__ PacketTCP(const unsigned char* buf, int len) { 
-	tcp_buffer = (unsigned char*)buf;
-	tcp_len = len;	
+  unsigned char* tcpBuffer, tcpLen;
+  void __fastcall__ PacketTCP(const unsigned char* buffer, int len) { 
+	tcpBuffer = (unsigned char*)buffer;
+	tcpLen = len;	
   }
 #endif
 
@@ -52,34 +54,37 @@ void SlotTCP(unsigned char slot)
 {
 #if defined __HUB__
 	QueueHub(HUB_TCP_SLOT, &slot, 1);
-	UpdateHub();
-	
+	UpdateHub();	
 #elif defined __FUJINET__	
 	// TODO	
-	
+#elif defined __ULTIMATE__
+	// TODO	
 #elif defined __IP65__
 	// TODO
 #endif
 }
 
-void OpenTCP(unsigned char* ip, unsigned int svPort)
+void OpenTCP(unsigned char* svIP, unsigned int svPort)
 {
 #if defined __HUB__
-	// Ask HUB to set up connection
 	unsigned char buffer[6];
-	memcpy(buffer, ip, 4);
+	memcpy(buffer, svIP, 4);
 	POKEW(&buffer[4], svPort);	
 	QueueHub(HUB_TCP_OPEN, buffer, 6);	
 	UpdateHub();
 	
 #elif defined __FUJINET__
-	// Open TCP address
-	sprintf(fujiHost, "N:TCP://%i.%i.%i.%i:%i/", ip[0], ip[1], ip[2], ip[3], svPort);
+	sprintf(fujiHost, "N:TCP://%i.%i.%i.%i:%i/", svIP[0], svIP[1], svIP[2], svIP[3], svPort);
 	FujiOpen(0x71, 0);
+
+#elif defined __ULTIMATE__
+	unsigned char host[17];
+	sprintf(host, "%i.%i.%i.%i", svIP[0], svIP[1], svIP[2], svIP[3]);
+	tcpSocket = uii_socketopen(host, svPort, NET_CMD_TCP_SOCKET_CONNECT);
 	
 #elif defined __IP65__
-	unsigned long svIp = EncodeIP(ip[0], ip[1], ip[2], ip[3]);
-	tcp_connect(svIp, svPort, PacketTCP);
+	unsigned long host = EncodeIP(svIP[0], svIP[1], svIP[2], svIP[3]);
+	tcp_connect(host, svPort, PacketTCP);
 #endif
 }
 
@@ -91,6 +96,9 @@ void CloseTCP()
 	
 #elif defined __FUJINET__
 	FujiClose(0x71);
+	
+#elif defined __ULTIMATE__
+	uii_socketclose(tcpSocket);
 	
 #elif defined __IP65__
 	tcp_close();
@@ -106,6 +114,9 @@ void SendTCP(unsigned char* buffer, unsigned char length)
 	memcpy(fujiBuffer, buffer, length);
 	FujiWrite(0x71, length);
 	
+#elif defined __ULTIMATE__
+	uii_socketwrite(tcpSocket, buffer, length);
+	
 #elif defined __IP65__
 	tcp_send(buffer, length);
 #endif
@@ -113,9 +124,9 @@ void SendTCP(unsigned char* buffer, unsigned char length)
 
 unsigned char* RecvTCP(unsigned int timeOut)
 {	
+	// Wait until timeout expires...
 	clock_t timer = clock()+timeOut;
 #if defined __HUB__
-	// Wait until data is received from Hub
 	while (!recvLen || recvHub[0] != HUB_TCP_RECV) {
 		if (clock() > timer) return 0;
 		UpdateHub();	
@@ -124,30 +135,35 @@ unsigned char* RecvTCP(unsigned int timeOut)
 	return &recvHub[2]; 
 
 #elif defined __FUJINET__
-	// Wait until timeout expires...
 	while (!fujiReady) {
 		if (clock() > timer) return 0;
 	}
-	if (FujiRead(0x71)) {
+	if (FujiRead(0x71))
 		return fujiBuffer;
-	} else {
+	else
 		return 0;
+	
+#elif defined __ULTIMATE__
+	int tcpLen = -1;
+	while (tcpLen == -1) {
+		if (clock() > timer) return 0;
+		tcpLen = uii_socketread(tcpSocket, 255);
 	}
+	return &uii_data[2];
 	
 #elif defined __IP65__
-	// Process IP65 until receiving packet
-	while (!tcp_len) {
+	while (!tcpLen) {
 		if (clock() > timer) return 0;
 		ip65_process();
 	#if defined __APPLE2__
 		if (timeOut) { 
 			wait(1); 
 		} else { 
-			if (!tcp_len) return 0;
+			if (!tcpLen) return 0;
 		}
 	#endif
 	}
-	tcp_len = 0;
-	return tcp_buffer;	
+	tcpLen = 0;
+	return tcpBuffer;	
 #endif
 }

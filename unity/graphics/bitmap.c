@@ -266,23 +266,23 @@ void LoadBitmap(char *filename)
 	unsigned int size;
 	if (FileOpen(filename)) { 
 	  #if defined __DECRUNCH__	
-		for (i=0; i<2; i++) {
-			// Process 2 crunched blocks (screen, bitmap)
-			FileRead((char*)&size, 2);				// Get crunch data size
-			FileRead((char*)(0xff40), 8);			// Read first 8 bytes to temporary location
-			FileRead((char*)(BITMAPRAM), size-8);	// Read crunched data
-			rom_disable();							// Disable ROM to access $dff8-$dfff
-			memcpy((char*)(BITMAPRAM-8), (char*)(0xff40), 8);  // Copy back first 8 bytes (Trick!)
-			Decrunch(BITMAPRAM-8+size);				// Decrunch data		
-			if (i==0) 	// Copy first block to screen address locations
-				memcpy((char*)(SCREENRAM), (char*)(BITMAPRAM), 1000);
-			rom_enable();
+		size = FileRead((char*)(BITMAPRAM), -1);
+		rom_disable();											 // Disable ROM to access $dff8-$dfff
+		memcpy((char*)(BITMAPRAM-8), (char*)(BITMAPRAM), size);  // Shift before decrunching
+		for (i=0; i<3; i++) {
+			Decrunch(BITMAPRAM-8+PEEKW(BITMAPRAM-4-2*i));		 // Decrunch 1 block 		
+			if (i==0) { 										 // COLOR RAM			
+				rom_restore();
+				memcpy((char*)(COLORRAM), (char*)(SCREENRAM), 1000);  // Copy SCREENRAM to COLORRAM (reason: cannot write to COLORAM when KERNAL disabled)
+				rom_disable();
+			}
 		}
+		rom_restore();
 	  #else
 		FileRead((char*)(BITMAPRAM), 8000);	// 8000 bytes bitmap ram
 		FileRead((char*)(SCREENRAM), 1000); // 1000 bytes char ram
-	  #endif
 		FileRead((char*)(COLORRAM),  1000);	// 1000 bytes color ram
+	  #endif
 		FileClose();	
 	}
 #endif	

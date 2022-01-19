@@ -91,7 +91,7 @@ unsigned char *GetChunk(unsigned char x, unsigned char y, unsigned char w, unsig
 		memcpy((char*)chunkPtr, (char*)(BITMAPRAM+40*((y+i)&248)+((y+i)&7)+((x*2)&504)), bytes);
 		chunkPtr += bytes;
 	}
-	rom_enable();
+	rom_restore();
 	bytes = w/4u;
 	for (i=0; i<h; i+=8) {
 		memcpy((char*)chunkPtr, (char*)(SCREENRAM+40*(y+i)/8u+x/4u), bytes);

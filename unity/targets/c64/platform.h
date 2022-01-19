@@ -97,11 +97,16 @@ void StartDLI(void);
 void StopDLI(void);
 
 // Rom function: use before/after accessing BITMAPRAM (see ROM.s)
-extern void __fastcall__ rom_enable(void);
 extern void __fastcall__ rom_disable(void);
+extern void __fastcall__ rom_restore(void);
 
 // Gfx functions (see blitCharmap.s)
 void __fastcall__ BlitCharmap(void);
 
 // Decrunch data compressed with Exomizer (see decrunch.s)
 void Decrunch(unsigned int address);
+
+// Optional Ultimate functions (see ultimate.c)
+#ifdef __ULTIMATE__
+  #include "ultimate.h"
+#endif

@@ -46,7 +46,7 @@ void CopyStr(unsigned char col1, unsigned char row1, unsigned char col2, unsigne
 	// Copy bitmap and screen ram
 	rom_disable();
 	memcpy((char*)BITMAPRAM+row1*320+col1*8, (char*)BITMAPRAM+row2*320+col2*8, len*8);
-	rom_enable();
+	rom_restore();
 	memcpy((char*)SCREENRAM+row1*40+col1, (char*)SCREENRAM+row2*40+col2, len);
 #elif defined __ATARI__
 	// Copy bitmap 1 and 2

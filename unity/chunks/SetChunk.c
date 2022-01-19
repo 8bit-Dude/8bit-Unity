@@ -94,7 +94,7 @@ void SetChunk(unsigned char* chunk, unsigned char x, unsigned char y)
 		memcpy((char*)(BITMAPRAM+40*((y+i)&248)+((y+i)&7)+((x*2)&504)), (char*)src, bytes);
 		src += bytes;
 	}
-	rom_enable();
+	rom_restore();
 	bytes = w/4u;
 	for (i=0; i<h; i+=8) {
 		memcpy((char*)(SCREENRAM+40*(y+i)/8u+x/4u), (char*)src, bytes);

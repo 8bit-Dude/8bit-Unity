@@ -25,27 +25,26 @@
 ;
 
 	.export _rom_disable
-	.export _rom_enable
+	.export _rom_restore
 
 	.bss
 
-_rom_port1:	.res	1
-
+_port1:	 .res	1
 
 	.code
 
 _rom_disable:
-	lda	1
-	sta	_rom_port1
-	and	#%11111100
 	sei
+	lda	1
+	sta	_port1
+	and	#%11111100
 	sta	1
 	rts
 
 ;----------------------------------
 
-_rom_enable:
-	lda	_rom_port1
+_rom_restore:
+	lda	_port1
 	sta	1
 	cli
 	rts

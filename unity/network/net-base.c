@@ -42,7 +42,6 @@
 unsigned char InitNetwork(void)
 {
 #if defined __HUB__
-	// Detect if HUB is connected
 	clock_t timer = clock();
 	while ((clock()-timer) < TCK_PER_SEC) { 
 		if (hubState[0] == COM_ERR_OK) return NETWORK_OK;
@@ -54,12 +53,16 @@ unsigned char InitNetwork(void)
 	return ADAPTOR_ERR;
 
 #elif defined __FUJINET__
-	// Initialize Fujinet
 	FujiInit();
 	return NETWORK_OK;
+
+#elif defined __ULTIMATE__
+	uii_identify();
+	if (uii_data[2])
+		return NETWORK_OK;
+	return ADAPTOR_ERR;
 	
 #elif defined __IP65__
-	// Init IP65 and DHCP
 	if (ip65_init(ETH_INIT_DEFAULT)) return ADAPTOR_ERR;
 	if (dhcp_init()) return DHCP_ERR;
 	return NETWORK_OK;

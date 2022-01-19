@@ -97,6 +97,9 @@ unsigned char* ReadURL(unsigned char size, unsigned int timeOut)
 	} else {
 		return 0;
 	}
+
+#elif defined __ULTIMATE__	
+	return 0;	
 	
 #elif defined __IP65__
 	unsigned char *ptr;
