@@ -51,6 +51,13 @@ void ServerDisconnect()
 #endif
 }
 
+void ServerList()
+{
+#ifdef NETCODE
+	// Code removed to prevent Cheating...
+#endif
+}
+
 void ServerInfo()
 {
 #ifdef NETCODE

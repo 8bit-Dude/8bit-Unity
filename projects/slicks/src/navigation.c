@@ -71,15 +71,6 @@ void LoadNavigation(char *filename)
 #endif
 }
 
-// Get terrain type
-unsigned char GetTerrain(unsigned int x, unsigned int y) 
-{
-	unsigned char tX, tY;
-	tX = x/40u;		
-	tY = y/32u-2;
-	return (terrain[tY*16+tX/4u] >> ((tX%4)*2)) & 3;
-}
-
 // Reset cars to line-up positions 
 void ResetLineUp()
 {
@@ -215,4 +206,13 @@ char CheckRamps(void)
         return 1;
     }
     return 0;
+}
+
+// Get terrain type
+unsigned char GetTerrain(unsigned int x, unsigned int y) 
+{
+	unsigned char tX, tY;
+	tX = x/40u;		
+	tY = y/32u-2;
+	return (terrain[tY*16+tX/4u] >> ((tX%4)*2)) & 3;
 }

@@ -650,7 +650,7 @@ char GameLoop()
 		#else							
 			// Lerp trajectory angle to create "drift effect"
 		  #if defined __ORIC__
-			iAng1 = LerpAngle(iAng1, iAng2, iRotMax*ticks*2/3u);	
+			iAng1 = LerpAngle(iAng1, iAng2, (iRotMax*ticks*3)/4u);	
 		  #else
 			iAng1 = LerpAngle(iAng1, iAng2, iRotMax*ticks);	
 		  #endif

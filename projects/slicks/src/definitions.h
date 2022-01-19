@@ -7,7 +7,7 @@
 //#define DEBUG_NAV
 
 // NetCode Toggle
-//#define NETCODE
+#define NETCODE
 
 // Keyboard definitions
 #if defined(__LYNX__)
@@ -288,6 +288,7 @@ char CheckRamps(void);
 // See network.c
 void ServerConnect(void);
 void ServerDisconnect(void);
+void ServerList(void);
 void ServerInfo(void);
 unsigned char ClientJoin(char game);
 unsigned char ClientReady(void);

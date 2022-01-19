@@ -150,6 +150,7 @@
             "assetFilter": ".msk", 
             "network8bitHub": true, 
             "networkRRNet": true, 
+            "networkUltimate": true, 
             "networkProtocols": "(UDP-only)"
         }, 
         "Lynx": {

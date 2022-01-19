@@ -170,7 +170,7 @@ void BackupRestoreChatRow(unsigned char mode)
 	if (!mode) {
 		rom_disable();
 		memcpy((char*)(buf),     (char*)(bmp), 160);
-		rom_enable();
+		rom_restore();
 		memcpy((char*)(buf+160), (char*)(scr),  20);
 	} else {
 		memcpy((char*)(bmp), (char*)(buf),     160);
@@ -701,33 +701,17 @@ unsigned char MenuWait()
 // Sub-function of GameMenu()
 void MenuServers()
 {
-	clock_t timeout;
 	unsigned char j,k,n;
 	char buffer[16];
 	
 	// Show action message
 	txtX = MENU_COL+2; txtY = MENU_ROW+6;
 	PrintStr("FETCH LIST...");				
-	serversLoaded = 0;
-
-#ifdef NETCODE
-	// Flush Net Queue
-	while (RecvUDP(5));
-			
-	// Fetch server list
-	udpBuffer[0] = CL_LIST;
-	ServerConnect();
-	SendUDP(udpBuffer, 1);
-	timeout = clock()+2*TCK_PER_SEC;
-	while (!packet || PEEK(packet) != 1) {
-		packet = RecvUDP(0); // Allow some time-out
-		if (clock() > timeout) break;
-	}
-	ServerDisconnect();
-#endif
+	ServerList();
 
 	// Check server response
 	txtY = MENU_ROW+7;
+	serversLoaded = 0;
 	if (!packet) {
 		// Timeout error
 		txtX = MENU_COL+2; PrintStr("ERROR: TIMEOUT");
