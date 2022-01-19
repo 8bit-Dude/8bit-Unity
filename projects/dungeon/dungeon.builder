@@ -99,6 +99,7 @@
             "assetFilter": "*", 
             "network8bitHub": false, 
             "networkRRNet": false, 
+            "networkUltimate": false, 
             "networkProtocols": "TCP/UDP"
         }, 
         "Lynx": {
@@ -148,6 +149,7 @@
             "spriteWidth": "12", 
             "spriteHeight": "17", 
             "dithering": "0.4", 
+            "leadColors": " ", 
             "bitmap": [
                 "projects/dungeon/bitmaps/menu-oric.png"
             ], 
