@@ -4,15 +4,23 @@
 extern const char nextKey, nextMsg[];
 extern unsigned char nextCol;
 
-#if defined __ATARI__
+#if defined(__APPLE2__) || defined(__ATARIXL__)
   #if defined __HUB__
-	const char* joyList[] = { "JOY 1", "HUB 1", "HUB 2", "HUB 3" };
+	const char* joyList[] = { "JOY 1", "JOY 2", "HUB 1", "HUB 2", "HUB 3" };
   #else
-   #if defined __ATARIXL__
 	const char* joyList[] = { "JOY 1", "JOY 2" };
-   #else	
+  #endif	  
+#elif defined(__ATARI__)
+  #if defined __HUB__
+	const char* joyList[] = { "JOY 1", "JOY 2", "JOY 3", "JOY 4", "HUB 1", "HUB 2", "HUB 3" };
+  #else
 	const char* joyList[] = { "JOY 1", "JOY 2", "JOY 3", "JOY 4" };
-   #endif	  
+  #endif	  
+#elif defined(__CBM__)
+  #if defined __HUB__
+	const char* joyList[] = { "JOY 1", "JOY 2", "HUB 1", "HUB 2", "HUB 3" };
+  #else
+	const char* joyList[] = { "JOY 1", "JOY 2", "JOY 3", "JOY 4" };
   #endif	  
 #elif defined __LYNX__
 	const char* joyList[] = { "JOY 1", "HUB 1", "HUB 2", "HUB 3" };
@@ -20,8 +28,6 @@ extern unsigned char nextCol;
 	const char* joyList[] = { "JOY 1", "JOY 2", "HUB 1", "HUB 2", "HUB 3" };
 #elif defined __ORIC__
 	const char* joyList[] = { "WASD+CTR", "IJKL+RET", "IJK/HUB 1", "IJK/HUB 2", "HUB 3" };
-#else
-	const char* joyList[] = { "JOY 1", "JOY 2", "JOY 3", "JOY 4" };
 #endif
 
 int DemoControls(void) 
