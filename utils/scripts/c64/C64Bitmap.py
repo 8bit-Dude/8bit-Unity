@@ -34,6 +34,10 @@ compress = sys.argv[1]
 input = sys.argv[2]
 output = sys.argv[3]
 
+def packInt(value):
+    return ''.join([chr(value%256), chr(value/256)])
+
+
 try:
     #################################
     # Read source bitmap and palette
@@ -102,50 +106,46 @@ try:
 
     #################
     # Convert to CHR
-    for i in range(8000):
-        bmp[i] = chr(bmp[i])
-    for i in range(1000):    
-        scr[i] = chr(scr[i])
     for i in range(1000):    
         col[i] = chr(col[i])
+    for i in range(1000):    
+        scr[i] = chr(scr[i])
+    for i in range(8000):
+        bmp[i] = chr(bmp[i])
             
     ########################
     # Write output IMG file
     if compress == 'crunch':
         # Write raw data files
-        f = io.open(output.replace('.img','.raw1'), 'wb')
-        f.write(''.join([chr(0x00), chr(0xE0)]))     # Load Address: $E000  
-        f.write(''.join(scr))
-        f.close()
-        f = io.open(output.replace('.img','.raw2'), 'wb')
-        f.write(''.join([chr(0x00), chr(0xE0)]))     # Load Address: $E000  
-        f.write(''.join(bmp))
-        f.close() 
+        f = io.open(output.replace('.img','.raw1'), 'wb'); f.write(packInt(0xE000)); f.write(''.join(bmp)); f.close()      
+        f = io.open(output.replace('.img','.raw2'), 'wb'); f.write(packInt(0xC000)); f.write(''.join(scr)); f.close()
+        f = io.open(output.replace('.img','.raw3'), 'wb'); f.write(packInt(0xC000)); f.write(''.join(col)); f.close()          
         
         # Crunch data and read back
         subprocess.call(["utils/scripts/exomizer-3.1.0.exe", "mem", "-lnone", output.replace('.img','.raw1'), "-B", "-o", output.replace('.img','.sfx1')])
         subprocess.call(["utils/scripts/exomizer-3.1.0.exe", "mem", "-lnone", output.replace('.img','.raw2'), "-B", "-o", output.replace('.img','.sfx2')])
+        subprocess.call(["utils/scripts/exomizer-3.1.0.exe", "mem", "-lnone", output.replace('.img','.raw3'), "-B", "-o", output.replace('.img','.sfx3')])
 
         # Read back compressed data
-        f = io.open(output.replace('.img','.sfx1'), 'rb')
-        sfx1 = f.read(); 
-        f.close()
-        f = io.open(output.replace('.img','.sfx2'), 'rb')
-        sfx2 = f.read(); 
-        f.close()
-        
+        f = io.open(output.replace('.img','.sfx1'), 'rb'); sfx1 = f.read(); f.close()
+        f = io.open(output.replace('.img','.sfx2'), 'rb'); sfx2 = f.read(); f.close()
+        f = io.open(output.replace('.img','.sfx3'), 'rb'); sfx3 = f.read(); f.close()
+                
         # Consolidate to single file
         f = io.open(output, 'wb')	
-        f.write(''.join([chr(len(sfx1)%256), chr(len(sfx1)/256)])); f.write(sfx1)
-        f.write(''.join([chr(len(sfx2)%256), chr(len(sfx2)/256)])); f.write(sfx2)
-        f.write(''.join(col))
+        f.write(packInt(6+len(sfx1)));                     
+        f.write(packInt(6+len(sfx1)+len(sfx2)));           
+        f.write(packInt(6+len(sfx1)+len(sfx2)+len(sfx3))); 
+        f.write(sfx1); f.write(sfx2); f.write(sfx3)
         f.close()
         
         # Clean-up
         os.remove(output.replace('.img','.raw1'))
         os.remove(output.replace('.img','.raw2'))
+        os.remove(output.replace('.img','.raw3'))
         os.remove(output.replace('.img','.sfx1'))
         os.remove(output.replace('.img','.sfx2'))
+        os.remove(output.replace('.img','.sfx3'))
     else:
         f = io.open(output, 'wb')	
         f.write(''.join(bmp))

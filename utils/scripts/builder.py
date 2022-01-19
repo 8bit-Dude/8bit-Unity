@@ -256,6 +256,7 @@ class Application:
         self.entry_C64AssetFilter = self.builder.get_object('Entry_C64AssetFilter')
         self.checkbutton_C64Network8bitHub = self.builder.get_variable('C64Network8bitHub');
         self.checkbutton_C64NetworkRRNet = self.builder.get_variable('C64NetworkRRNet');
+        self.checkbutton_C64NetworkUltimate = self.builder.get_variable('C64NetworkUltimate');
         self.combobox_C64NetworkProtocols = self.builder.get_object('Combobox_C64NetworkProtocols');
         
         self.listbox_LynxBitmap = self.builder.get_object('Listbox_LynxBitmap')        
@@ -342,18 +343,19 @@ class Application:
         self.combobox_TileSize.current(0)
         self.combobox_AppleDiskSize.current(0)
         self.combobox_AppleCrunchAssets.current(0)
-        self.checkbutton_AppleNetwork8bitHub.set(True)
-        self.checkbutton_AppleNetworkUthernet.set(True)
+        self.checkbutton_AppleNetwork8bitHub.set(False)
+        self.checkbutton_AppleNetworkUthernet.set(False)
         self.combobox_AppleNetworkProtocols.current(1)
         self.combobox_AtariDiskSize.current(0)
         self.combobox_AtariCrunchAssets.current(0)
-        self.checkbutton_AtariNetwork8bitHub.set(True)
-        self.checkbutton_AtariNetworkDragonCart.set(True)
-        self.checkbutton_AtariNetworkFujinet.set(True)        
+        self.checkbutton_AtariNetwork8bitHub.set(False)
+        self.checkbutton_AtariNetworkDragonCart.set(False)
+        self.checkbutton_AtariNetworkFujinet.set(False)        
         self.combobox_AtariNetworkProtocols.current(1)
         self.combobox_C64CrunchAssets.current(0)
-        self.checkbutton_C64Network8bitHub.set(True)
-        self.checkbutton_C64NetworkRRNet.set(True)
+        self.checkbutton_C64Network8bitHub.set(False)
+        self.checkbutton_C64NetworkRRNet.set(False)
+        self.checkbutton_C64NetworkUltimate.set(False)
         self.combobox_C64NetworkProtocols.current(1)        
         
     def FileLoad(self, filename=''):
@@ -570,6 +572,7 @@ class Application:
                     ('assetFilter', ('entry', self.entry_C64AssetFilter)),                    
                     ('network8bitHub', ('checkbutton', self.checkbutton_C64Network8bitHub)),
                     ('networkRRNet', ('checkbutton', self.checkbutton_C64NetworkRRNet)),
+                    ('networkUltimate', ('checkbutton', self.checkbutton_C64NetworkUltimate)),
                     ('networkProtocols', ('combobox', self.combobox_C64NetworkProtocols)),
                 ]),
                 ('Lynx', [
@@ -1309,6 +1312,8 @@ class Application:
             networkOptions.append('8bit-Hub')
         if self.checkbutton_C64NetworkRRNet.get():
             networkOptions.append('RR-Net')
+        if self.checkbutton_C64NetworkUltimate.get():
+            networkOptions.append('Ultimate')
         if len(networkOptions) == 0:
             networkOptions.append('None')                    
             
@@ -1343,6 +1348,11 @@ class Application:
                     sTarget.append('targets\\c64\\joystick.s')
                     symbols += ' -D __IP65__ '
                     executable = 'rrnet'
+                if network == 'Ultimate': 
+                    sTarget.append('targets\\c64\\joystick.s')
+                    cTarget.append('targets\\c64\\ultimate.c')
+                    symbols += ' -D __ULTIMATE__ '
+                    executable = 'ultimate'
                 if network == 'None': 
                     sTarget.append('targets\\c64\\joystick.s')
                     executable = 'none'
@@ -1381,6 +1391,8 @@ class Application:
                     symbols += '-D __HUB__ '
                 if 'RR-Net' in networkOptions:
                     symbols += '-D __IP65__ '
+                if 'Ultimate' in networkOptions:
+                    symbols += '-D __ULTIMATE__ '
                 fp.write('utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/c64/loader.bin ' + symbols + ' -C unity/targets/c64/c64.cfg -I unity unity/targets/c64/loader.c ' + buildFolder + '/c64/unity.lib\n\n')
                 
                 # Compress Loader
@@ -1434,6 +1446,8 @@ class Application:
                         executable = 'hub'
                     if network == 'RR-Net': 
                         executable = 'rrnet'     
+                    if network == 'Ultimate': 
+                        executable = 'ultimate'     
                     if network == 'None': 
                         executable = 'none'                        
                     fp.write('-write ' + buildFolder + '/c64/' + executable + '.prg ' + executable + '.prg ')

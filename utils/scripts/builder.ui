@@ -1934,6 +1934,19 @@
                       </object>
                     </child>
                     <child>
+                      <object class="ttk.Checkbutton" id="Checkbutton_C64NetworkUltimate">
+                        <property name="text" translatable="yes">Ultimate</property>
+                        <property name="variable">boolean:C64NetworkUltimate</property>
+                        <layout>
+                          <property name="column">3</property>
+                          <property name="padx">5</property>
+                          <property name="pady">2</property>
+                          <property name="propagate">True</property>
+                          <property name="row">3</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
                       <object class="ttk.Combobox" id="Combobox_C64NetworkProtocols">
                         <property name="state">readonly</property>
                         <property name="values">UDP-only TCP/UDP</property>
