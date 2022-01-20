@@ -1548,7 +1548,7 @@ class Application:
             # Copy Chipper sfx and music data
             fp.write('copy unity\\targets\\lynx\\chipper.s ' + buildFolder + '\\lynx\\soundbs.mac\n')    
             for i in range(len(music)):
-                fp.write('utils\\py27\\python utils/scripts/lynx/LynxChipper.py ' + music[i] + ' ' + buildFolder + '/lynx/music' + str(i).zfill(2) + '.asm _musData' + str(i).zfill(2) + ' MUS' + str(i) + 'DATA"\n')
+                fp.write('utils\\py27\\python utils/scripts/lynx/LynxChipper.py ' + music[i] + ' ' + buildFolder + '/lynx/music' + str(i).zfill(2) + '.asm _musData' + str(i).zfill(2) + ' MUS' + str(i) + 'DATA \n')
             fp.write('\n')
 
             # Copy Shared files
