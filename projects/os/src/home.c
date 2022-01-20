@@ -36,11 +36,11 @@ void ClearScreen()
 void DrawTaskBar()
 {
 	paperColor = WHITE; inkColor = BLACK; 
-	txtY = TXT_ROWS-1;
+	txtY = TXT_ROWS-1; txtX = 0; 
 #if (defined __ORIC__)
-	txtX = -1; SetAttributes(paperColor);
+	SetAttributes(paperColor);
 #endif
-	txtX = 0; PrintBlanks(TXT_COLS, 1);
+	PrintBlanks(TXT_COLS, 1);
 	paperColor = BLACK; inkColor = WHITE;
 	homeCall = Button(0, TXT_ROWS-1, 4, 1, "HOME");	
 }

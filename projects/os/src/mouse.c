@@ -30,8 +30,7 @@ unsigned char* mouse;
 void InitMouse()
 {
 	// Setup mouse sprites
-	LoadSprites("sprites.dat");
-	SetupSprites(spriteColors);
+	LoadSprites("sprites.dat", spriteColors);
 	EnableSprite(0);	
 }
 
