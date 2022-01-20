@@ -17,19 +17,17 @@ unsigned char *names[4] = { "SAM", "JOE", "TOM", "LUC" };
 	unsigned char spriteColors[] = { };	 // Colors are pre-assigned in the sprite sheet
 #elif defined __ATARI__
 	unsigned char spriteColors[] = { 0x2a, 0x10, 0x2a, 0x10, 0x2a, 0x10, 0x2a, 0x10, 0x0e, 0x14, 0x00, 0x00};
-#elif defined __ORIC__
-	unsigned char spriteColors[] = { SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC };  // AIC color for faster drawing!
 #elif defined __CBM__
 	unsigned char spriteColors[] = { 0, 0, 0, 0, PINK, PINK, PINK, PINK, RED, WHITE};
 #elif defined __LYNX__
-	unsigned char spriteColors[] = { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,   // Default palette
-									 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,   // Default palette
-									 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,   // Default palette
-									 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,   // Default palette
-									 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,   // Default palette
-									 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,   // Default palette
-									 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,   // Default palette
-									 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef }; // Default palette	
+	unsigned char spriteColors[] = 0;  //  All sprites use the default palette
+#elif defined __NES__
+  const unsigned char spriteColors[] = { SPR_VOID, SPR_BLUE,   SPR_CYAN, SPR_GREY,  
+										 SPR_VOID, SPR_RED,    SPR_CYAN, SPR_GREY, 
+										 SPR_VOID, SPR_GREEN,  SPR_CYAN, SPR_GREY, 
+										 SPR_VOID, SPR_YELLOW, SPR_CYAN, SPR_GREY }; // 4 palettes of 3 colors (1st color is unused)
+#elif defined __ORIC__
+	unsigned char spriteColors[] = { SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC, SPR_AIC };  // AIC color for faster drawing!
 #endif
 
 // Effect masks
@@ -520,8 +518,7 @@ int main(void)
 	InitBitmap();
 	
 	// Setup sprites
-	LoadSprites("sprites.dat");
-	SetupSprites(spriteColors);	
+	LoadSprites("sprites.dat", spriteColors);	
 	
 	// Show splash screen
 	SplashScreen();

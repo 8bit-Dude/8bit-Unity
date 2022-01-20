@@ -39,14 +39,18 @@
 	#define SKY 		CYAN
 	#define HEALTH_HIGH GREEN
 	#define GRND_OFFST	4
-#elif defined __ORIC__
-	#define SKY 		BLACK
-	#define HEALTH_HIGH MGREEN
-	#define GRND_OFFST	5
 #elif defined __LYNX__
 	#define SKY 		LBLUE
 	#define HEALTH_HIGH GREEN
 	#define GRND_OFFST	7
+#elif defined __NES__
+	#define SKY 		BLACK
+	#define HEALTH_HIGH GREEN
+	#define GRND_OFFST	5
+#elif defined __ORIC__
+	#define SKY 		BLACK
+	#define HEALTH_HIGH MGREEN
+	#define GRND_OFFST	5
 #endif
 
 // Grub structure

@@ -30,6 +30,8 @@
             "chunks": [], 
             "diskSize": "140KB", 
             "crunchAssets": "No", 
+            "musicMemory": "auto", 
+            "chunkMemory": "$0400", 
             "assetFilter": "*", 
             "network8bitHub": false, 
             "networkUthernet": false, 
@@ -51,6 +53,8 @@
             "chunks": [], 
             "diskSize": "180KB", 
             "crunchAssets": "No", 
+            "musicMemory": "$0800", 
+            "chunkMemory": "$0400", 
             "assetFilter": "*", 
             "network8bitHub": false, 
             "networkDragonCart": false, 
@@ -73,9 +77,12 @@
             "music": [], 
             "chunks": [], 
             "crunchAssets": "No", 
+            "musicMemory": "$4000", 
+            "chunkMemory": "$0200", 
             "assetFilter": "*", 
             "network8bitHub": false, 
             "networkRRNet": false, 
+            "networkUltimate": false, 
             "networkProtocols": "TCP/UDP"
         }, 
         "Lynx": {
@@ -93,6 +100,7 @@
             "music": [], 
             "chunks": [], 
             "musicMemory": "$0C00", 
+            "chunkMemory": "$0400", 
             "sharedMemory": "$0400", 
             "assetFilter": "*"
         }, 
@@ -101,11 +109,16 @@
             "spriteFrames": "0", 
             "spriteWidth": "16", 
             "spriteHeight": "16", 
-            "bitmap": [], 
+            "bitmap": [
+                "projects/grubs/bitmaps/banner-nes.png", 
+                "projects/grubs/bitmaps/pumpkins-nes.png"
+            ], 
             "charset": [], 
             "sprites": [], 
             "music": [], 
             "chunks": [], 
+            "musicMemory": "$4000", 
+            "chunkMemory": "$0200", 
             "assetFilter": "*"
         }, 
         "Oric": {
@@ -113,6 +126,7 @@
             "spriteWidth": "12", 
             "spriteHeight": "13", 
             "dithering": "0.2", 
+            "leadColors": " ", 
             "bitmap": [
                 "projects/grubs/bitmaps/banner-oric.png", 
                 "projects/grubs/bitmaps/pumpkins-oric.png"
@@ -123,6 +137,8 @@
             ], 
             "music": [], 
             "chunks": [], 
+            "musicMemory": "auto", 
+            "chunkMemory": "$0400", 
             "assetFilter": "*"
         }
     }
