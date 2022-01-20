@@ -32,7 +32,7 @@
 #endif
 
 // Build Information
-const char* buildInfo = "BUILD: 2022/01/16";
+const char* buildInfo = "BUILD: 2022/01/20";
 
 // List of available maps
 unsigned char mapNum  = 10;
@@ -82,8 +82,7 @@ int main (void)
 	HideBitmap();	
 	
 	// Setup sprites
-	LoadSprites("sprites.dat");
-	SetupSprites(spriteColors);
+	LoadSprites("sprites.dat", spriteColors);
 #if defined __LYNX__
 	RecolorSprite(1, 0, 0x08); // BLUE -> ORANGE
 	RecolorSprite(2, 0, 0x05); // BLUE -> GREEN

@@ -71,21 +71,13 @@ void LoadNavigation(char *filename)
 #endif
 }
 
-// Reset cars to line-up positions 
-void ResetLineUp()
+// Get terrain type
+unsigned char GetTerrain(unsigned int x, unsigned int y) 
 {
-	unsigned char i,j;
-	Vehicle *car;
-	for (i=0; i<MAX_PLAYERS; ++i) {
-		j = gameLineUp[i];
-		car = &cars[i];
-		car->x2 =   lineupX[j]; 
-		car->y2 =   lineupY[j];
-		car->ang1 = lineupAng[j];
-		car->ang2 = lineupAng[j];
-		bzero(&car->vel, 4);		
-        car->lap = -1;
-	}
+	unsigned char tX, tY;
+	tX = x/40u;		
+	tY = y/32u-2;
+	return (terrain[tY*16+tX/4u] >> ((tX%4)*2)) & 3;
 }
 
 // Functions to check navigation around cylinders
@@ -137,6 +129,13 @@ char CheckWaypoint(void)
 	return 0;
 }
 
+void GetWaypoint(void)
+{
+	// Prepare waypoint variables
+	way = &ways[iCar->way/2u];
+	vWay = way->v[iCar->way&1];
+}
+
 #ifdef __ATARIXL__
   #pragma code-name("SHADOW_RAM")
 #endif
@@ -184,13 +183,6 @@ int GetWaypointAngle(unsigned char i)
 	}
 }
 
-void GetWaypoint(void)
-{
-	// Prepare waypoint variables
-	way = &ways[iCar->way/2u];
-	vWay = way->v[iCar->way&1];
-}
-
 // Function to check ramp logics
 Ramp *ramp;
 char CheckRamps(void)
@@ -208,11 +200,19 @@ char CheckRamps(void)
     return 0;
 }
 
-// Get terrain type
-unsigned char GetTerrain(unsigned int x, unsigned int y) 
+// Reset cars to line-up positions 
+void ResetLineUp()
 {
-	unsigned char tX, tY;
-	tX = x/40u;		
-	tY = y/32u-2;
-	return (terrain[tY*16+tX/4u] >> ((tX%4)*2)) & 3;
+	unsigned char i,j;
+	Vehicle *car;
+	for (i=0; i<MAX_PLAYERS; ++i) {
+		j = gameLineUp[i];
+		car = &cars[i];
+		car->x2 =   lineupX[j]; 
+		car->y2 =   lineupY[j];
+		car->ang1 = lineupAng[j];
+		car->ang2 = lineupAng[j];
+		bzero(&car->vel, 4);		
+        car->lap = -1;
+	}
 }
