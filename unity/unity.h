@@ -87,13 +87,11 @@ void HideBitmap(void);
 void ClearBitmap(void);
 void LoadBitmap(char *filename);
 
-// Bitmap pixel functions (see pixel.c)
-#ifndef __NES__
-  unsigned char GetPixel(void);
-  void SetPixel(unsigned char color);
-  void LocatePixel(unsigned int x, unsigned int y);
-  extern unsigned char pixelX, pixelY; // (see LocatePixel())
-#endif
+// Pixel setting functions (see pixel.c)
+unsigned char GetPixel(void);
+void SetPixel(unsigned char color);
+void LocatePixel(unsigned int x, unsigned int y);
+extern unsigned char pixelX, pixelY; // (see LocatePixel())
 
 // Bitmap chunks functions (see chunks.c)
 // 	Apple:  X/W must be multiples of 7 (e.g. 0,7,14,21...) |              No restrictions
@@ -120,6 +118,7 @@ void DrawCharmap(unsigned char x, unsigned char y);
 void ScrollCharmap(unsigned char x, unsigned char y);
 void PrintCharmap(unsigned char x, unsigned char y, unsigned char chr);
 void SetTile(unsigned char x, unsigned char y, unsigned char tile);
+unsigned int DecodeTiles(void);
 unsigned char GetTile(unsigned char x, unsigned char y);
 unsigned char GetFlag(unsigned char x, unsigned char y);
 extern unsigned char screenCol1, screenCol2, screenWidth;
@@ -264,8 +263,7 @@ void PlaySFX(unsigned char index, unsigned char pitch, unsigned char volume, uns
 #elif defined __ORIC__
   #define SPRITE_NUM 8
 #endif
-void LoadSprites(unsigned char* filename);
-void SetupSprites(const unsigned char *spriteColors);
+void LoadSprites(unsigned char* filename, const unsigned char *spriteColors);
 void EnableSprite(signed char index);
 void DisableSprite(signed char index);
 void LocateSprite(unsigned int x, unsigned int y);
@@ -277,13 +275,11 @@ void RecolorSprite(unsigned char index, unsigned char offset, unsigned char colo
   void EnableMultiColorSprite(unsigned char index);
   void DisableMultiColorSprite(unsigned char index);
   void SetMultiColorSprite(unsigned char index, unsigned int frame);
-  extern unsigned char sprCushion;
 #elif defined __CBM__
   void DoubleHeightSprite(unsigned char index, unsigned char onoff);
   void DoubleWidthSprite(unsigned char index, unsigned char onoff);
 #elif defined __LYNX__
   void ScaleSprite(unsigned char index, unsigned int xPercent, unsigned int yPercent);
-  extern unsigned char sprCushion;
 #elif defined __ORIC__
   void CropSprite(unsigned char index, unsigned char rows);
   void MultiColorSprite(unsigned char index, unsigned char* multiColorDef);
@@ -295,6 +291,7 @@ void RecolorSprite(unsigned char index, unsigned char offset, unsigned char colo
 	extern unsigned char spriteY;	
 #else
 	extern unsigned char spriteX, spriteY;
+	extern unsigned char sprCushion;
 #endif
 
 // Sprite collisions: Hardware on C64 vs. Software on Apple/Atari/Oric/Lynx 

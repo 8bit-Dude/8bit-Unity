@@ -58,6 +58,9 @@ void LocatePixel(unsigned int x, unsigned int y)
 #elif defined __LYNX__	// STD Mode: 160 x 102
 	pixelX = x/2u;
 	pixelY = (y*102)/200u;
+#elif defined __NES__	// CHR Mode: 32 x 24
+	pixelX = x/10u;	
+	pixelY = (y*3)/25u;	
 #elif defined __ORIC__	// AIC Mode: 117 x 100 equivalent pixels
 	pixelX = (x*117)/320u;	
 	pixelY = y/2u;	
@@ -203,7 +206,12 @@ unsigned char GetPixel()
 	}	
 	
 #elif defined __NES__
-	return 0;
+	unsigned char block;
+	vram_adr(NTADR_A(pixelX,(pixelY+3)));
+	ppu_off();	
+	vram_read(&block, 1);
+	ppu_on_all();
+	return block;	
 #endif	
 }
 

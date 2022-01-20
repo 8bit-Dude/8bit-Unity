@@ -25,258 +25,7 @@
  */
 
 #include "unity.h"
-
-#ifdef __APPLE2__
-  #pragma code-name("LOWCODE")
-#endif
-
-#ifdef __ATARIXL__
-  #pragma code-name("SHADOW_RAM")
-#endif
-
-#ifdef __NES__
-  #pragma rodata-name("BANK0")
-  #pragma code-name("BANK0")
-#endif
-
-// Platform specific function
-#if defined __APPLE2__
-    #define byteWIDTH 2		// 2 bytes per 7 pixels (4 bytes between AUX/MAIN in DHR)
-    unsigned int   frameBLOCK;				// Size of sprite offset block (4 blocks)
-	unsigned char *sprData;					// Pointer to sprite data (allocated dynamically)
-	unsigned char  sprX[SPRITE_NUM], sprY[SPRITE_NUM];	 // Screen coordinates
-	unsigned char  sprDrawn[SPRITE_NUM], sprCollision[SPRITE_NUM]; // Draw/Collision status
-	unsigned char  sprHiresX[SPRITE_NUM];  	// Byte offset within Hires line
-	unsigned char *sprBG[SPRITE_NUM];  		// Sprite background
-	unsigned char  sprRows[SPRITE_NUM];  	// Sprite dimensions used in algorithms
-	void CropSprite(unsigned char index, unsigned char rows) {
-		// Only partially draw this sprite
-		sprRows[index] = rows;
-	}	
-	
-#elif defined __ATARI__	
-	#define BANK_NUM   3
-	extern unsigned char sprRows, sprPads, sprDLIs, sprBank[BANK_NUM];
-	extern unsigned char sprDrawn[SPRITE_NUM], sprX[SPRITE_NUM], sprY[SPRITE_NUM];
-	extern unsigned char sprLine[SPRITE_NUM], sprOff[SPRITE_NUM], sprColor[SPRITE_NUM];
-	extern unsigned int  sprSrc[SPRITE_NUM], sprDst[SPRITE_NUM];
-	unsigned char *sprData, sprYOffset, sprCollision[SPRITE_NUM], sprCushion = 2;
-	unsigned char sprMask[] = { 1, 2, 4, 8, 1, 2, 4, 8, 1, 2, 4, 8 };	
-
-#elif defined __NES__
- #pragma bss-name(push, "XRAM")
-	unsigned char metaSprites[136] = { 0,0,0,0, 8,0,0,0, 0,8,0,0, 8,8,0,0, 128,
-									   0,0,0,0, 8,0,0,0, 0,8,0,0, 8,8,0,0, 128,
-									   0,0,0,0, 8,0,0,0, 0,8,0,0, 8,8,0,0, 128,
-									   0,0,0,0, 8,0,0,0, 0,8,0,0, 8,8,0,0, 128,
-									   0,0,0,0, 8,0,0,0, 0,8,0,0, 8,8,0,0, 128,
-									   0,0,0,0, 8,0,0,0, 0,8,0,0, 8,8,0,0, 128,
-									   0,0,0,0, 8,0,0,0, 0,8,0,0, 8,8,0,0, 128,
-									   0,0,0,0, 8,0,0,0, 0,8,0,0, 8,8,0,0, 128 };
-	unsigned char sprX[SPRITE_NUM], sprY[SPRITE_NUM];	// Screen coordinates
-	unsigned char sprDrawn[SPRITE_NUM], sprCollision[SPRITE_NUM], sprCushion = 2; // Enable and Collision status	
- #pragma bss-name(pop)
-	
-#elif defined __ORIC__	
-	#define byteWIDTH 2		// Byte width of sprite (12 pixels)
-	unsigned int  frameBLOCK;	// Size of sprite offset block (4 blocks), 
-	unsigned char sprX[SPRITE_NUM], sprY[SPRITE_NUM], sprOverlap[SPRITE_NUM]; // Screen coordinates, Overlap flag
-	unsigned char sprDrawn[SPRITE_NUM], sprCollision[SPRITE_NUM]; // Enable Flag, Collision status
-	unsigned char sprRows[SPRITE_NUM], *sprBG[SPRITE_NUM]; // Height of Sprite (rows), Pointer to background backup
-	unsigned int  scrAddr[SPRITE_NUM], sprCOLOR;  // Screen address, Color vector
-	unsigned char* sprMULTICOLOR[SPRITE_NUM];
-	extern unsigned char ink1[20];	// see bitmap.c
-	void CropSprite(unsigned char index, unsigned char rows) {
-		// Only partially draw this sprite
-		sprRows[index] = rows;
-	}
-	void MultiColorSprite(unsigned char index, unsigned char* multiColorDef) {
-		// Assign multicolor definition to sprite { color, row, ... color, lastrow }
-		sprMULTICOLOR[index] = multiColorDef;
-	}
-
-#elif defined __CBM__
-	void DoubleHeightSprite(unsigned char index, unsigned char onoff) {
-		if (onoff)
-			POKE(0xD017, PEEK(0xD017) |  (1 << index));
-		else
-			POKE(0xD017, PEEK(0xD017) & !(1 << index));
-	}
-	void DoubleWidthSprite(unsigned char index, unsigned char onoff) {
-		if (onoff)
-			POKE(0xD01D, PEEK(0xD01D) |  (1 << index));
-		else
-			POKE(0xD01D, PEEK(0xD01D) & !(1 << index));
-	}	
-
-#elif defined __LYNX__
-	extern unsigned char spriteData; 
-	unsigned char sprX[SPRITE_NUM], sprY[SPRITE_NUM], frameSize;	// Screen coordinates
-	unsigned char sprDrawn[SPRITE_NUM], sprCollision[SPRITE_NUM], sprCushion = 2; // Enable and Collision status
-	SCB_REHV_PAL sprSCB[SPRITE_NUM] = { { BPP_4 | TYPE_NONCOLL, REHV | LITERAL, 0, 0, 0, 0, 0, 0x0100, 0x0100, { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef } },
-									    { BPP_4 | TYPE_NONCOLL, REHV | LITERAL, 0, 0, 0, 0, 0, 0x0100, 0x0100, { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef } },
-										{ BPP_4 | TYPE_NONCOLL, REHV | LITERAL, 0, 0, 0, 0, 0, 0x0100, 0x0100, { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef } },
-										{ BPP_4 | TYPE_NONCOLL, REHV | LITERAL, 0, 0, 0, 0, 0, 0x0100, 0x0100, { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef } },
-										{ BPP_4 | TYPE_NONCOLL, REHV | LITERAL, 0, 0, 0, 0, 0, 0x0100, 0x0100, { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef } },
-										{ BPP_4 | TYPE_NONCOLL, REHV | LITERAL, 0, 0, 0, 0, 0, 0x0100, 0x0100, { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef } },
-										{ BPP_4 | TYPE_NONCOLL, REHV | LITERAL, 0, 0, 0, 0, 0, 0x0100, 0x0100, { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef } },
-										{ BPP_4 | TYPE_NONCOLL, REHV | LITERAL, 0, 0, 0, 0, 0, 0x0100, 0x0100, { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef } } };
-	SCB_REHV_PAL *scb;
-	void ScaleSprite(unsigned char index, unsigned int xPercent, unsigned int yPercent) {
-		scb = &sprSCB[index];
-		scb->hsize = xPercent;
-		scb->vsize = yPercent;
-	}
-#endif
-
-void LoadSprites(unsigned char* filename)
-{
-#if defined __APPLE2__
-	unsigned int size;
-	if (FileOpen(filename)) {
-		FileRead((char*)&size, 2); 
-		if (sprData) free(sprData);
-		sprData = malloc(size);
-	  #if defined __DHR__
-		FileRead(sprData, size);	// Load AUX data
-		MainToAux(sprData, size);	// Transfer MAIN -> AUX
-	  #endif	
-		FileRead(sprData, size);	// Load MAIN data
-		FileClose();
-	}
-#elif defined __ATARI__	
-	unsigned int size;
-	if (FileOpen(filename)) {
-		FileRead((char*)&size, 2);
-		if (sprData) free(sprData);
-		sprData = malloc(size);
-		FileRead(sprData, size);
-	}
-#elif defined(__CBM__)
-	// TODO: sprite sheets larger than $700 can be loaded by exomizer, 
-	// but not cc65! (file loading under ROM not possible)	
-#elif defined __LYNX__
-	// TODO
-#elif defined __NES__
-	// TODO
-#elif defined __ORIC__	
-	if (FileOpen(filename))
-		FileRead((void*)SPRITERAM, -1);
-#endif
-}
-
-void SetupSprites(const unsigned char *spriteColors)
-{
-#if defined __APPLE2__	
-	// Set sprite rows, frames and resulting block size (there are 4 offset blocks for each sprite)
-	unsigned char i;
-	frameBLOCK = SPRITEFRAMES*SPRITEHEIGHT*byteWIDTH;
-	for (i=0; i<SPRITE_NUM; i++) 
-		sprRows[i] = SPRITEHEIGHT;
-	
-#elif defined __ATARI__	
-	// Reset Sprite Mask, Frames, Colors and Rows
-	unsigned char i;
-	for (i=0; i<SPRITE_NUM; i++)
-		sprColor[i] = spriteColors[i];
-	sprRows = SPRITEHEIGHT;
-	sprDLIs = (SPRITEHEIGHT+15)>>3;
-	sprPads = sprDLIs*8+1;
-	sprYOffset = (SPRITEHEIGHT/2u)+2;
-
-	// Clear all PMG memory
-	bzero(PMGRAM,0x400);
-	
-	// Setup ANTIC and GTIA
-	POKE(54279, (PMGRAM-0x400)>>8); // Tell ANTIC where the PM data is located
-	POKE(53277, 2+1);       // Tell GTIA to enable players + missile	
-	POKE(623, 32+16+1);		// Tricolor players + enable fifth player + priority  (shadow for 53275)	
-	
-	// ANTIC settings: Enable P/M + DMA Players + Standard Playfield (no DMA Missiles = 4)
-	POKE(559, PEEK(559) | (16+8+2));
-	
-	// Setup sprites DLI/VBI
-	StartDLI(); StartVBI(); spriteVBI = 1;
-	
-#elif defined __CBM__
-	// Set sprite colors
-	unsigned int i;	
-	for (i=0; i<8; ++i)
-		POKE(53287+i, spriteColors[i]);
-	
-	// Set common colors
-	POKE(53285, spriteColors[8]);
-	POKE(53286, spriteColors[9]);	
-	
-	// Set to multicolor code
-	POKE(53276, 255);
-
-#elif defined __ORIC__	
-	// Assign frame info and sprite colors
-	unsigned char i;
-	frameBLOCK = SPRITEFRAMES*SPRITEHEIGHT*byteWIDTH;
-	for (i=0; i<SPRITE_NUM; i++) 
-		sprRows[i] = SPRITEHEIGHT;
-	sprCOLOR = spriteColors;
-
-#elif defined __LYNX__			
-	frameSize = SPRITEHEIGHT*((SPRITEWIDTH+(SPRITEWIDTH&1))/2u+1)+1;
-	
-#elif defined __NES__		
-	pal_spr(spriteColors);
-#endif
-}
-
-void RecolorSprite(unsigned char index, unsigned char offset, unsigned char color)
-{
-#if defined __ATARI__
-	sprColor[index] = color;
-#elif defined __ORIC__
-	POKE(sprCOLOR+index, color);
-#elif defined __CBM__
-	POKE(53287+index, color);
-#elif defined __LYNX__
-	sprSCB[index].penpal[offset] = color;
-#elif defined __NES__
-	unsigned char i, base = index*17+3;
-	for (i=0; i<4; i++) {
-		metaSprites[base] = color;
-		base += 4;
-	}
-#endif
-}
-
-#if defined __CBM__
-  unsigned int spriteX;
-  unsigned char spriteY;	
-#else
-  unsigned char spriteX,spriteY;
-#endif
-
-void LocateSprite(unsigned int x, unsigned int y)
-{
-// This function maps sprite coordinates from a 320x200 screen definition
-// It can be by-passed by assigning spriteX, spriteY directly in your code
-#if defined __APPLE2__
-	spriteX = (x*35)/80u;	// 140x192
-	spriteY = (y*24)/25u;
-#elif defined __ATARI__
-	spriteX = x/2u + 42;	// 160x200
-	spriteY = y;
-#elif defined __ORIC__
-	spriteX = x/4u;			//  80x200	
-	spriteY = y;
-#elif defined __CBM__
-	spriteX = x;			// 320x200
-	spriteY = y;
-#elif defined __LYNX__
-	spriteX = x/2u;			// 160x102
-	spriteY = (y*51)/100u;
-#elif defined __NES__
-	spriteX = (x*4)/5u;		// 256x192
-	spriteY = (y*24)/25u+24;
-#endif
-}
+#include "Sprites.h"
 
 // Apple II specific background redrawing function
 #if defined __APPLE2__
@@ -303,7 +52,7 @@ void LocateSprite(unsigned int x, unsigned int y)
 			  if (xHires<7 && yHires<sprRows[i]) {
 				  xptr = sprHiresX[i];
 				  yptr = sprY[i]+yHires;
-				  bgPtr = sprBG[i]+yHires*byteWIDTH;				  
+				  bgPtr = sprBG[i]+yHires*BYTEWIDTH;				  
 				  hiresPtr = HiresLine(yptr) + xptr;
 				#if defined __DHR__  
 				  AuxToAux(hiresPtr, bgPtr, 2);
@@ -341,7 +90,6 @@ void LocateSprite(unsigned int x, unsigned int y)
 	BlitSprite();
   }
 #endif
-
 
 #if defined(__C64__)	// Other platforms don't have HW sprites, or not compatible with multiplexing (e.g. Atari)	
   unsigned long sprClock;
@@ -411,15 +159,15 @@ void LocateSprite(unsigned int x, unsigned int y)
 				}
 				
 				// Copy overlapping background
-				sc_bgPtr1 = sprBG[index] + sc_y1*byteWIDTH + sc_x1;
-				sc_bgPtr2 = sprBG[i] + (sc_rows-sc_y2)*byteWIDTH + (2 - sc_x2);
+				sc_bgPtr1 = sprBG[index] + sc_y1*BYTEWIDTH + sc_x1;
+				sc_bgPtr2 = sprBG[i] + (sc_rows-sc_y2)*BYTEWIDTH + (2 - sc_x2);
 				for (sc_dY=sc_y1; sc_dY<sc_y2; sc_dY++) {
 				  #if defined __DHR__  
 				    AuxToAux(sc_bgPtr1, sc_bgPtr2, sc_dX); // AUX data
 				  #endif				
 					memcpy(sc_bgPtr1, sc_bgPtr2, sc_dX);   // MAIN data
-					sc_bgPtr1 += byteWIDTH; 
-					sc_bgPtr2 += byteWIDTH;
+					sc_bgPtr1 += BYTEWIDTH; 
+					sc_bgPtr2 += BYTEWIDTH;
 				}				
 			}
 		}
@@ -510,16 +258,16 @@ void SetSprite(unsigned char index, unsigned int frame)
 	xHires = (spriteX*2)/7u;
 
 	// Select correct offset block (4 shifted blocks for 7 pixels)
-	frameAddr = sprData + frame*SPRITEHEIGHT*byteWIDTH;
+	frameAddr = sprData + frame*SPRITEHEIGHT*BYTEWIDTH;
 	if (xHires&1) {
 		if (spriteX%7 > 5) { 
-			frameAddr += 3*frameBLOCK; 
+			frameAddr += 3*FRAMEBLOCK; 
 		} else {
-			frameAddr += 2*frameBLOCK;
+			frameAddr += 2*FRAMEBLOCK;
 		}
 	} else {
 		if (spriteX%7 > 3) { 
-			frameAddr += frameBLOCK; 
+			frameAddr += FRAMEBLOCK; 
 		}
 	}
 	
@@ -592,7 +340,7 @@ void SetSprite(unsigned char index, unsigned int frame)
 	
 	// Check frame block (left or right)
 	frameAddr = SPRITERAM + frame*SPRITEHEIGHT*2;
-	if (spriteX&1) { frameAddr += frameBLOCK; }
+	if (spriteX&1) { frameAddr += FRAMEBLOCK; }
 	spriteX /= 2u;
 
 	// Offset from centre of sprite
@@ -682,7 +430,7 @@ void SetSprite(unsigned char index, unsigned int frame)
 #elif defined __LYNX__
 	// Set sprite data for Suzy
 	scb = &sprSCB[index];
-	scb->data = &spriteData+frame*frameSize;
+	scb->data = &spriteData+FRAMESIZE*frame;
 	scb->hpos = spriteX-SPRITEHEIGHT/2u;
 	scb->vpos = spriteY-SPRITEWIDTH/2u;
 	
@@ -713,94 +461,4 @@ void SetSprite(unsigned char index, unsigned int frame)
 	sprY[index] = spriteY;	
 	sprDrawn[index] = 1;
 #endif
-}
-
-void EnableSprite(signed char index)
-{
-#if defined __CBM__
-	// Set sprite bits
-	POKE(53269, PEEK(53269) |  (1 << index));
-	
-#elif defined __ATARI__
-	// Set sprite bank
-	sprBank[index/4u] |= sprMask[index];
-	
-#elif (defined __APPLE2__) || (defined __ORIC__)
-	// Allocate memory for background
-	if (!sprBG[index]) {
-	  #if defined __APPLE2__
-		sprBG[index] = (unsigned char*)malloc(2*SPRITEHEIGHT);	// 2 bytes per line (4 bytes between AUX/MAIN for Apple DHR)
-	  #else
-		sprBG[index] = (unsigned char*)malloc(4*SPRITEHEIGHT);	// 4 bytes per line (2 atrributes + 12 pixels)
-	  #endif
-		sprDrawn[index] = 0;
-	}
-#endif
-}
-
-#if (defined __APPLE2__) || (defined __ORIC__)
-  void ClearSprite(signed char index) {
-	if (sprBG[index]) {
-		if (sprDrawn[index]) 
-			RestoreSprBG(index); 
-		free(sprBG[index]);
-		sprBG[index] = 0;
-	}
-  }
-#endif
-
-void DisableSprite(signed char index)
-{
-#if defined __ATARI__	
-	unsigned char i, b;
-#endif
-	// Switch single sprite off
-	if (index >= 0) {	
-	#if defined __CBM__
-		// Set bit in sprite register
-		POKE(53269, PEEK(53269) & ~(1 << index));
-	#elif defined __ATARI__
-		// Was sprite drawn?
-		if (sprDrawn[index]) {
-			// Clear PMG memory and slot
-			bzero(sprDst[index], sprPads);
-			sprDrawn[index] = 0;
-		}
-		sprBank[index/4u] &= ~sprMask[index];
-	#else
-	  #if (defined __APPLE2__) || (defined __ORIC__)
-		// Soft sprites: Restore background if neccessary
-		ClearSprite(index);
-	  #elif defined __NES__
-		// Hide metasprite
-		oam_set(index<<4); oam_hide(4);
-	  #endif
-		// Clear drawn flag
-		sprDrawn[index] = 0;
-	#endif
-	// Switch all sprites off
-	} else {
-	#if defined __CBM__
-		// Reset sprite register
-		POKE(53269, 0);
-	#elif defined __ATARI__
-		// Clear sprite slots, banks and PMG memory
-		bzero(sprDrawn, SPRITE_NUM);
-		bzero(sprBank, BANK_NUM);
-		bzero(PMGRAM,0x400);
-	#elif defined __LYNX__
-		// Clear sprite slots
-		bzero(sprDrawn, SPRITE_NUM);
-	#elif defined __NES__
-		// Clear sprite slots
-		bzero(sprDrawn, SPRITE_NUM);
-		oam_clear();
-	#else
-		// Soft sprites: Restore background if necessary
-		for (index=0; index<SPRITE_NUM; index++) {
-			ClearSprite(index);
-			sprDrawn[index] = 0;
-		}
-	#endif
-	}
 }
