@@ -35,8 +35,7 @@ void GameInit(void)
 	ShowCharmap();
 		
 	// Setup sprites
-	LoadSprites("sprites.dat");
-	SetupSprites(spriteColors);
+	LoadSprites("sprites.dat", spriteColors);
 #if defined __ATARI__
 	EnableMultiColorSprite(SPRITE_PLAYER);
 #elif defined __ORIC__
