@@ -7,7 +7,8 @@
             "projects/easynet/src/easynet.c"
         ], 
         "shared": [], 
-        "charmap": []
+        "charmap": [], 
+        "tilesize": "None"
     }, 
     "platform": {
         "Apple": {
@@ -24,7 +25,12 @@
             "chunks": [], 
             "diskSize": "140KB", 
             "crunchAssets": "No", 
-            "networkDriver": "IP65(TCP/UDP)"
+            "musicMemory": "auto", 
+            "chunkMemory": "$0400", 
+            "assetFilter": "*", 
+            "network8bitHub": true, 
+            "networkUthernet": true, 
+            "networkProtocols": "TCP/UDP"
         }, 
         "Atari": {
             "spriteFrames": "0", 
@@ -35,9 +41,15 @@
             "sprites": [], 
             "music": [], 
             "chunks": [], 
-            "diskSize": "180KB", 
+            "diskSize": "90KB", 
             "crunchAssets": "No", 
-            "networkDriver": "IP65(TCP/UDP)"
+            "musicMemory": "$0800", 
+            "chunkMemory": "$0400", 
+            "assetFilter": "*", 
+            "network8bitHub": true, 
+            "networkDragonCart": true, 
+            "networkFujinet": true, 
+            "networkProtocols": "TCP/UDP"
         }, 
         "C64": {
             "spriteFrames": "0", 
@@ -45,35 +57,61 @@
             "spriteHeight": "21", 
             "bitmap": [], 
             "charset": [], 
+            "charsetColors": " ", 
             "sprites": [], 
             "music": [], 
             "chunks": [], 
             "crunchAssets": "No", 
-            "networkDriver": "IP65(TCP/UDP)"
+            "musicMemory": "$4000", 
+            "chunkMemory": "$0200", 
+            "assetFilter": "*", 
+            "network8bitHub": true, 
+            "networkRRNet": true, 
+            "networkUltimate": true, 
+            "networkProtocols": "TCP/UDP"
         }, 
         "Lynx": {
             "spriteFrames": "0", 
             "spriteWidth": "0", 
             "spriteHeight": "0", 
-            "musicMemory": "$0C00", 
-            "sharedMemory": "$0400", 
             "bitmap": [], 
             "charset": [], 
             "sprites": [], 
             "music": [], 
-            "chunks": []
+            "chunks": [], 
+            "musicMemory": "$0C00", 
+            "chunkMemory": "$0400", 
+            "sharedMemory": "$0400", 
+            "assetFilter": "*"
+        }, 
+        "NES": {
+            "bitmapTiles": "192", 
+            "spriteFrames": "0", 
+            "spriteWidth": "16", 
+            "spriteHeight": "16", 
+            "bitmap": [], 
+            "charset": [], 
+            "sprites": [], 
+            "music": [], 
+            "chunks": [], 
+            "musicMemory": "$4000", 
+            "chunkMemory": "$0200", 
+            "assetFilter": "*"
         }, 
         "Oric": {
             "spriteFrames": "0", 
             "spriteWidth": "12", 
             "spriteHeight": "0", 
             "dithering": "0.2", 
-            "enforcedColors": " ", 
+            "leadColors": " ", 
             "bitmap": [], 
             "charset": [], 
             "sprites": [], 
             "music": [], 
-            "chunks": []
+            "chunks": [], 
+            "musicMemory": "auto", 
+            "chunkMemory": "$0400", 
+            "assetFilter": "*"
         }
     }
 }
