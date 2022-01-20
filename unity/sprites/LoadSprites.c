@@ -96,7 +96,6 @@
 void LoadSprites(unsigned char* filename, const unsigned char *spriteColors)
 {
 #if defined __APPLE2__
-	unsigned char i;
 	unsigned int size;
 	
 	// Load sprite sheet
@@ -171,8 +170,6 @@ void LoadSprites(unsigned char* filename, const unsigned char *spriteColors)
 	pal_spr(spriteColors);
 		
 #elif defined __ORIC__	
-	unsigned char i;
-	
 	// Load sprite sheet
 	if (FileOpen(filename))
 		FileRead((void*)SPRITERAM, -1);
