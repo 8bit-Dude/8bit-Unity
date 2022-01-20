@@ -47,8 +47,7 @@ int DemoSprites(void)
 	InitBitmap();
 	
 	// Setup sprites
-	LoadSprites("sprites.dat");
-	SetupSprites(spriteColors);
+	LoadSprites("sprites.dat", spriteColors);
 #if defined __LYNX__
 	RecolorSprite(1, 0, 0x08); // BLUE -> ORANGE
 	RecolorSprite(2, 0, 0x05); // BLUE -> GREEN
