@@ -30,14 +30,17 @@ from tkFileDialog import askopenfilename, asksaveasfilename
 from PIL import Image, ImageTk
 import os, pickle, pygubu, sys, collections, json, codecs
 
-cCore = [ 'adaptors\\joystick.c','adaptors\\mouse.c',   'geom\\geom2d.c',     'math\\dot.c',
-          'chunks\\LoadChunks.c','chunks\\GetChunk.c',  'chunks\\SetChunk.c', 'chunks\\FreeChunk.c',
-          'graphics\\bitmap.c',  'graphics\\charmap.c', 'graphics\\logos.c',  'graphics\\menu.c',   'graphics\\parallax.c', 'graphics\\scaling.c', 'graphics\\sprites.c', 'graphics\\widgets.c', 
-          'network\\net-base.c', 'network\\net-easy.c', 'network\\net-ip.c',  'network\\net-tcp.c', 'network\\net-udp.c', 'network\\net-url.c',   'network\\net-web.c', 
-          'strings\\blanks.c',   'strings\\copy.c',     'strings\\cursor.c',  'strings\\guru.c',    'strings\\input.c',   'strings\\number.c',  'strings\\print.c', 
-          'sound\\music.c',      'sound\\sfx.c' ]
+cCore = [ 'adaptors\\joystick.c', 'adaptors\\mouse.c', 'geom\\geom2d.c', 'math\\dot.c', 'sound\\music.c', 'sound\\sfx.c',
+          'bitmap\\InitBitmap.c', 'bitmap\\ShowBitmap.c', 'bitmap\\HideBitmap.c', 'bitmap\\ClearBitmap.c',  'bitmap\\LoadBitmap.c',
+          'charmap\\InitCharmap.c','charmap\\ShowCharmap.c','charmap\\HideCharmap.c', 'charmap\\ClearCharmap.c', 'charmap\\LoadCharmap.c', 'charmap\\LoadCharset.c', 'charmap\\LoadTileset.c', 
+          'charmap\\PrintCharmap.c', 'charmap\\DrawCharmap.c', 'charmap\\ScrollCharmap.c', 'charmap\\DecodeTiles.c', 'charmap\\GetFlag.c', 'charmap\\GetTile.c', 'charmap\\SetTile.c', 'charmap\\FreeCharmap.c',
+          'chunks\\LoadChunks.c', 'chunks\\GetChunk.c', 'chunks\\SetChunk.c', 'chunks\\FreeChunk.c',
+          'graphics\\logos.c', 'graphics\\menu.c', 'graphics\\parallax.c', 'graphics\\scaling.c', 'graphics\\widgets.c', 
+          'network\\net-base.c', 'network\\net-easy.c', 'network\\net-ip.c', 'network\\net-tcp.c', 'network\\net-udp.c', 'network\\net-url.c', 'network\\net-web.c', 
+          'sprites\\LoadSprites.c', 'sprites\\EnableSprite.c', 'sprites\\DisableSprite.c', 'sprites\\LocateSprite.c','sprites\\SetSprite.c', 'sprites\\CropSprite.c', 'sprites\\RecolorSprite.c', 'sprites\\ScaleSprite.c', 
+          'strings\\blanks.c', 'strings\\copy.c', 'strings\\cursor.c', 'strings\\guru.c', 'strings\\input.c', 'strings\\number.c',  'strings\\print.c' ]
 
-sCore = [ 'math\\atan2.s', 'graphics\\tiles.s' ]
+sCore = [ 'math\\atan2.s', 'charmap\\DecodeTiles2x2.s' ]
 
 # Useful functions
 def Str2Bool(v):
@@ -1199,7 +1202,8 @@ class Application:
                                 comp += 'unity/adaptors/ip65_tcp.lib unity/adaptors/ip65_atarixl.lib'
                             else:
                                 comp += 'unity/adaptors/ip65.lib unity/adaptors/ip65_atarixl.lib'
-                    fp.write(comp + '\n\n')
+                    fp.write(comp + '\n')
+                    fp.write('utils\\py27\\python utils\\scripts\\atari\\AtariCompress.py ' + buildFolder + '/atari/' + executable + ' incDec \n\n')
                 
                 # Include loader program?
                 if len(networkOptions) > 1:                                    
@@ -1213,14 +1217,16 @@ class Application:
                         symbols += '-D __IP65__ '
                     if 'Fujinet' in networkOptions:
                         symbols += '-D __FUJINET__ '                
-                    fp.write('utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/atari/loader.bin ' + symbols + ' -I unity unity/targets/atari/loader.c ' + buildFolder + '/atari/unity.lib\n\n')
-
-                # BASIC disabler
-                fp.write('utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/atari/basicoff.bin -t atari -C atari-asm.cfg unity/targets/atari/BASICOFF.s\n\n')
+                    fp.write('utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/atari/loader.bin ' + symbols + ' -I unity unity/targets/atari/loader.c ' + buildFolder + '/atari/unity.lib \n')
+                    fp.write('utils\\py27\\python utils\\scripts\\atari\\AtariCompress.py ' + buildFolder + '/atari/loader.bin incDec \n\n')
 
                 # RMT player
                 if target == '64k':
-                    fp.write('utils\\scripts\\atari\\mads.exe -o:' + buildFolder + '/atari/rmt.bin unity/targets/atari/RMT.a65\n\n')
+                    fp.write('utils\\scripts\\atari\\mads.exe -o:' + buildFolder + '/atari/rmt.bin unity/targets/atari/RMT.a65 \n')
+                    fp.write('utils\\py27\\python utils\\scripts\\atari\\AtariCompress.py ' + buildFolder + '/atari/rmt.bin excDec\n\n')
+
+                # BASIC disabler
+                fp.write('utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/atari/basicoff.bin -t atari -C atari-asm.cfg unity/targets/atari/BASICOFF.s \n\n')
 
                 # Merging
                 cmd = 'utils\\py27\\python utils\\scripts\\atari\\AtariMerge.py ' + buildFolder + '/atari/xautorun ' + buildFolder + '/atari/basicoff.bin '
@@ -1396,7 +1402,7 @@ class Application:
                 fp.write('utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/c64/loader.bin ' + symbols + ' -C unity/targets/c64/c64.cfg -I unity unity/targets/c64/loader.c ' + buildFolder + '/c64/unity.lib\n\n')
                 
                 # Compress Loader
-                fp.write('utils\\scripts\\exomizer-3.0.2.exe sfx $180d ' + buildFolder + '/c64/loader.bin -B -o ' + buildFolder + '/c64/loader.prg\n\n')
+                fp.write('utils\\scripts\\exomizer-3.0.2.exe sfx $180d ' + buildFolder + '/c64/loader.bin unity/targets/c64/krill-install.prg unity/targets/c64/krill-load.prg  -B -o ' + buildFolder + '/c64/loader.prg\n\n')
 
             # Clean-up build folder
             fp.write('del ' + buildFolder + '\\c64\\*.bin\n')
@@ -2062,7 +2068,7 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Build Unity Library
-            cTarget = [ 'adaptors\\hub.c', 'adaptors\\joystick.c', 'targets\\nes\\conio.c', 'targets\\nes\\display.c', 'targets\\nes\\files.c', 'targets\\nes\\keyboard.c', 'targets\\nes\\memory.c', 'targets\\nes\\text.c' ]
+            cTarget = [ 'adaptors\\hub.c', 'adaptors\\joystick.c', 'graphics\\pixel.c', 'targets\\nes\\conio.c', 'targets\\nes\\display.c', 'targets\\nes\\files.c', 'targets\\nes\\keyboard.c', 'targets\\nes\\memory.c', 'targets\\nes\\text.c' ]
             sTarget = [ 'targets\\nes\\blitCharmap.s', 'targets\\nes\\crt0.s', 'targets\\nes\\expansion.s', 'targets\\nes\\joypad.s' ]
             symbols = ' -D __HUB__ -D CHUNKSIZE='  + chunkSize.replace('$','0x') + ' -D SPRITEFRAMES=' + self.entry_NESSpriteFrames.get() + ' -D SPRITEWIDTH=' + self.entry_NESSpriteWidth.get() + ' -D SPRITEHEIGHT=' + self.entry_NESSpriteHeight.get()
             BuildUnityLibrary(self, fp, '-t nes', symbols, cCore+cTarget, sCore+sTarget, buildFolder+'/nes')
