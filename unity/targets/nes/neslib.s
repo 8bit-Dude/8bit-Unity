@@ -10,12 +10,9 @@
 ;SOUND_BANK is defined at the top of crt0.s
 ;and needs to match the bank where the music is
 
-	;Needs to match the bank where the music is
-	.define SOUND_BANK 6
-
 	.export _music_load,_music_play,_music_stop,_music_pause
 	.export _sfx_play,_sample_play
-	.export _pad_poll
+	.export _pad_poll,_scroll
 
 	;; PPU control functions
 	.export _ppu_off,_ppu_on_all,_ppu_on_bg,_ppu_on_spr,_ppu_mask,_ppu_system
@@ -77,6 +74,11 @@ nmi:	;NMI handler
 	lda #0
 	sta PPU_ADDR
 	sta PPU_ADDR
+	
+	lda <SCROLL_X
+	sta PPU_SCROLL
+	lda <SCROLL_Y
+	sta PPU_SCROLL	
 
 	lda <PPU_CTRL_VAR
 	sta PPU_CTRL
@@ -749,6 +751,47 @@ _vram_write:
 	bne @1
 
 	rts
+	
+	
+;void __fastcall__ scroll(unsigned int x,unsigned int y);
+
+_scroll:
+
+	sta <TEMP
+
+	txa
+	bne @1
+	lda <TEMP
+	cmp #240
+	bcs @1
+	sta <SCROLL_Y
+	lda #0
+	sta <TEMP
+	beq @2	;bra
+
+@1:
+
+	sec
+	lda <TEMP
+	sbc #240
+	sta <SCROLL_Y
+	lda #2
+	sta <TEMP
+
+@2:
+
+	jsr popax
+	sta <SCROLL_X
+	txa
+	and #$01
+	ora <TEMP
+	sta <TEMP
+	lda <PPU_CTRL_VAR
+	and #$fc
+	ora <TEMP
+	sta <PPU_CTRL_VAR
+	rts
+	
 
 ;void __fastcall__ music_load(unsigned char *addr);
 

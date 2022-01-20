@@ -41,29 +41,6 @@
 	  POKEW(0xFA, sprBG[index]);	// Address for copying Input > Hires
 	  BlitSprite();
   }
-  void RestoreSprLine(unsigned char x, unsigned char y)
-  {
-	  // Restore 1 line from sprite background
-	  unsigned char i;
-	  for (i=0; i<SPRITE_NUM; i++) {
-		  if (sprDrawn[i]) {
-			  xHires = x-sprX[i];
-			  yHires = y-sprY[i];
-			  if (xHires<7 && yHires<sprRows[i]) {
-				  xptr = sprHiresX[i];
-				  yptr = sprY[i]+yHires;
-				  bgPtr = sprBG[i]+yHires*BYTEWIDTH;				  
-				  hiresPtr = HiresLine(yptr) + xptr;
-				#if defined __DHR__  
-				  AuxToAux(hiresPtr, bgPtr, 2);
-				#endif
-				  hiresPtr[0] = bgPtr[0];
-				  hiresPtr[1] = bgPtr[1];		
-				  return;
-			  }
-		  }
-	  }		
-  }
 #endif
 
 // Oric specific background redrawing function

@@ -41,18 +41,18 @@ void gotoxy(unsigned char col, unsigned char row)
 
 int cprintf(const char* format, ...) 
 {
-	va_list ap;
-	unsigned char value;
 	unsigned char buffer[40];
+	va_list vl;
 	
-	va_start(ap, format);
-	value = va_arg(ap, unsigned char);
-	sprintf(buffer, format, value);
-	va_end(ap);
+	va_start(vl, format);
+	sprintf(buffer, format, vl);
+	va_end(vl);
 	
+	if (txtX + strlen(buffer) > 39)
+		buffer[39-txtX] = 0;
 	PrintStr(buffer);
 	txtX += strlen(buffer);
-	while (txtX > 39) {
+	if (txtX > 39) {
 		txtX -= 40;
 		txtY++;
 	}

@@ -81,3 +81,6 @@ void __fastcall__ BlitCharmap(void);
 
 // Default Sprite Colors;
 extern unsigned char defaultColors[];
+
+// Soft Keyboard functions
+char cgetKeyboardOverlay(void);

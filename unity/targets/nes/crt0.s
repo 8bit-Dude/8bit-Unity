@@ -12,7 +12,8 @@ FT_NTSC_SUPPORT	= 1		;undefine to exclude NTSC support
 FT_DPCM_ENABLE  = 0		;undefine to exclude all DMC code
 FT_SFX_ENABLE   = 0		;undefine to exclude all sound effects code
 
-
+;Define bank where the music is
+.define SOUND_BANK 6
 
 ;REMOVED initlib
 ;this called the CONDES function
@@ -271,11 +272,22 @@ DONE:
 	sta PPU_SCROLL
 	sta PPU_SCROLL
 
+	;switch to music bank
+	lda #SOUND_BANK
+	jsr _set_prg_bank	
+	ldx 0
+	ldy 0
+	lda <NTSC_MODE
+	jsr FamiToneInit	
 .if(FT_SFX_ENABLE)
 	ldx #<sounds_data
 	ldy #>sounds_data
 	jsr FamiToneSfxInit
 .endif
+
+	;restore prg bank
+	lda #0
+	jsr _set_prg_bank	
 	
 	;for split screens with different CHR bank at top... disable it
 	jsr _unset_nmi_chr_tile_bank
