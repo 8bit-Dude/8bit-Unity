@@ -16,8 +16,8 @@
 'scene01.chr'
 
 # Coordinates
-[  4,  7,  5,  4]		# Notable animation
+[  4,  6,  5,  5]		# Notable animation
 [ 21,  6,  3,  2]		# Old men animation
 [ 26,  8,  1,  2]		# Bottle removed
-[  6,  6,  2,  3]		# Sausage removed
+[  6,  6,  1,  2]		# Sausage removed
 [  0, 12,  4,  1]		# Switch animation

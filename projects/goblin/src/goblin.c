@@ -166,8 +166,7 @@ int main(void)
 	InitBitmap();
 	
 	// Setup sprites
-	LoadSprites("sprites.dat");
-	SetupSprites(spriteColors);
+	LoadSprites("sprites.dat", spriteColors);
 	
 	// Enable sprites
 	EnableSprite(0);  // Mouse cursor
