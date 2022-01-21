@@ -174,7 +174,7 @@ class Application:
 
         # Create a builder
         self.builder = pygubu.Builder()
-        self.builder.add_resource_path(os.getcwd())
+        self.builder.add_resource_path(os.getcwd()+'/res/')
 
         # Load an ui file
         self.builder.add_from_file('builder.ui')
