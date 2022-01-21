@@ -42,9 +42,8 @@ int main (void)
 	}
 
 	// Host or Join?
-	gotoxy(3,0); cprintf("Easynet Demo (v0.5)");
-	gotoxy(0,1); cprintf("Choose name: "); gets(myName);
-	gotoxy(0,2); cprintf("(H)ost or (J)oin Session?");
+	gotoxy(0,0); cprintf("Easynet Demo (8bit-Unity 0.5)");
+	gotoxy(0,1); cprintf("(H)ost or (J)oin Session?");
 	while (1) {
 	#if defined(__LYNX__) || defined(__NES__)	
 		res = cgetKeyboardOverlay();
@@ -59,6 +58,9 @@ int main (void)
 	// Setup Connection
 	switch (res) {
 	case KB_H:
+		// Choose name first
+		gotoxy(0,2); cprintf("Choose name: "); gets(myName);
+	
 		// Host new Session (ID:PASS generated automatically)
 		res = EasyHost(EASY_UDP, NUM_SLOTS, &ID, &PASS); // You can use EASY_TCP or EASY_UDP
 		switch (res) {
@@ -70,10 +72,13 @@ int main (void)
 		
 	case KB_J:
 		// Request credential (ID:PASS must match host)
-		gotoxy(0,3); cprintf("Session ID: "); 
+		gotoxy(0,2); cprintf("Session ID: "); 
 		gets(buffer); sscanf(buffer, "%i", &ID);  
-		gotoxy(0,4); cprintf("Session PASS: "); 
+		gotoxy(0,3); cprintf("Session PASS: "); 
 		gets(buffer); sscanf(buffer, "%i", &PASS);  
+
+		// Choose name first
+		gotoxy(0,4); cprintf("Choose name: "); gets(myName);
 		
 		// Try joining session
 		res = EasyJoin(EASY_UDP, &ID, &PASS);
@@ -91,7 +96,7 @@ int main (void)
 		break;
 	default:
 		// Wrong selection
-		gotoxy(0,3); cprintf("Error: connection aborted");			
+		gotoxy(0,2); cprintf("Error: connection aborted");			
 		while (!kbhit()); return EXIT_SUCCESS;		
 	}
 	
