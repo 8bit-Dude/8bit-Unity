@@ -103,12 +103,20 @@ def BuildUnityLibrary(self, fp, target, symbols, cList, sList, buildFolder):
     fp.write('\n\n')
     
     # Clean-up
-    fp.write('del ')
-    for file in cList:
-        fp.write('unity\\' + file[0:-2].replace('/','\\') + '.s ')
-        fp.write('unity\\' + file[0:-2].replace('/','\\') + '.o ')
-    for file in sList:            
-        fp.write('unity\\' + file[0:-2].replace('/','\\') + '.o ')
+    if "nt" == os.name:
+        fp.write('del ')
+        for file in cList:
+            fp.write('unity\\' + file[0:-2].replace('/','\\') + '.s ')
+            fp.write('unity\\' + file[0:-2].replace('/','\\') + '.o ')
+        for file in sList:            
+            fp.write('unity\\' + file[0:-2].replace('/','\\') + '.o ')
+    else:
+        fp.write('rm ')
+        for file in cList:
+            fp.write('unity/' + file[0:-2] + '.s ')
+            fp.write('unity/' + file[0:-2] + '.o ')
+        for file in sList:            
+            fp.write('unity/' + file[0:-2] + '.o ')    
     fp.write('\n\n')    
 
 # Constants
