@@ -14,7 +14,7 @@ sudo apt install python-tk
 sudo python2 get-pip.py  
 pip2 install pillow  
 pip2 install pygubu  
-run _builder_.sh and load any *.builder file from the folders in /projects/. After clicking "generate scripts", batch files will be added in /build/ that you can run to produce DISKS/ROMS for the various platforms.
+run _builder_.sh and load any *.builder file from the folders in /projects/. After clicking "generate scripts", bash files will be added in /build/ that you can run to produce DISKS/ROMS for the various platforms.
 
 NOTE  
 Asset production tools like SpritePad, Gimp and Trackers are not included here. You can find those packaged in "release" downloads from wwww.8bit-unity.com.
