@@ -987,8 +987,8 @@ class Application:
 
                 # Build Unity Library for eah network target
                 for network in networkOptions:
-                    cTarget = [ 'graphics/pixel.c', 'targets/apple2/CLOCK.c', 'targets/apple2/directory.c', 'targets/apple2/files.c', 'targets/apple2/hires.c', 'targets/apple2/memory.c', 'targets/apple2/pixelDHR.c', 'targets/apple2/pixelSHR.c' ]                            
-                    sTarget = [ 'strings/chars.s', 'targets/apple2/blitCharmap.s', 'targets/apple2/blitSprite.s', 'targets/apple2/decrunch.s', 'targets/apple2/DUET.s', 'targets/apple2/hiresLines.s', 'targets/apple2/joystick.s', 'targets/apple2/MOCKING.s', 'targets/apple2/PADDLE.s', 'targets/apple2/prodos.s', 'targets/apple2/scroll.s', 'targets/apple2/serial.s' ]
+                    cTarget = [ 'graphics/pixel.c', 'targets/apple2/clock.c', 'targets/apple2/directory.c', 'targets/apple2/files.c', 'targets/apple2/hires.c', 'targets/apple2/memory.c', 'targets/apple2/pixelDHR.c', 'targets/apple2/pixelSHR.c' ]                            
+                    sTarget = [ 'strings/chars.s', 'targets/apple2/blitCharmap.s', 'targets/apple2/blitSprite.s', 'targets/apple2/decrunch.s', 'targets/apple2/DUET.s', 'targets/apple2/hiresLines.s', 'targets/apple2/joystick.s', 'targets/apple2/mocking.s', 'targets/apple2/paddle.s', 'targets/apple2/prodos.s', 'targets/apple2/scroll.s', 'targets/apple2/serial.s' ]
                     symbols = ' -D CHUNKSIZE='  + chunkSize.replace('$','0x') + ' -D SPRITEFRAMES=' + self.entry_AppleSpriteFrames.get() + ' -D SPRITEWIDTH=' + self.entry_AppleSpriteWidth.get() + ' -D SPRITEHEIGHT=' + self.entry_AppleSpriteHeight.get()
                     
                     # Network settings
