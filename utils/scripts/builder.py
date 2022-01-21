@@ -34,6 +34,7 @@ import os, pickle, pygubu, sys, collections, json, codecs
 if "nt" == os.name:
     addr = ""
     sext = ".bat"
+    ex31 = "utils\\scripts\\exomizer-3.1.0.exe"
     ar65 = "utils\\cc65\\bin\\ar65"
     ca65 = "utils\\cc65\\bin\\ca65"
     cc65 = "utils\\cc65\\bin\\cc65"
@@ -44,6 +45,7 @@ if "nt" == os.name:
 else:
     addr = "\\"
     sext = ".sh"
+    ex31 = "wine utils/scripts/exomizer-3.1.0.exe"
     ar65 = "ar65"
     ca65 = "ca65"
     cc65 = "cc65"
@@ -65,6 +67,18 @@ cCore = [ 'adaptors/joystick.c', 'adaptors/mouse.c', 'geom/geom2d.c', 'math/dot.
 sCore = [ 'math/atan2.s', 'charmap/DecodeTiles2x2.s' ]
 
 # Useful functions
+def Copy(f1, f2):
+    if "nt" == os.name:
+        return 'copy ' + f1.replace('/','\\') + ' ' + f2.replace('/','\\') + '\n'
+    else:
+        return 'cp ' + f1 + ' ' + f2 + '\n'
+    
+def Remove(filename):
+    if "nt" == os.name:
+        return 'del ' + filename.replace('/','\\') + '\n'
+    else:
+        return 'rm ' + filename + '\n'
+    
 def Str2Bool(v):
     return v.lower() in ("yes", "true", "1")
 
@@ -1037,7 +1051,7 @@ class Application:
                     fp.write(comp + '\n\n')
 
                     # Compress Program
-                    fp.write('utils\\scripts\\exomizer-3.1.0.exe sfx bin ' + buildFolder + '/apple/' + executable + '.bin -B -o ' + buildFolder + '/apple/' + executable + '\n\n')                        
+                    fp.write(ex31 + ' sfx bin ' + buildFolder + '/apple/' + executable + '.bin -B -o ' + buildFolder + '/apple/' + executable + '\n\n')                        
                     
                 # Create loader program?
                 if len(networkOptions) > 1:
@@ -1050,11 +1064,11 @@ class Application:
                     fp.write(cl65 + ' -o ' + buildFolder + '/apple/LOADER.bin ' + symbols + ' -I unity unity/targets/apple2/loader.c ' + buildFolder + '/apple/unity.lib\n\n')
                    
                     # Compress loader
-                    fp.write('utils\\scripts\\exomizer-3.1.0.exe sfx bin ' + buildFolder + '/apple/LOADER.bin -B -o ' + buildFolder + '/apple/LOADER\n\n')
+                    fp.write(ex31 + ' sfx bin ' + buildFolder + '/apple/LOADER.bin -B -o ' + buildFolder + '/apple/LOADER\n\n')
 
                 # Clean-up build folder
-                fp.write('del ' + buildFolder + '\\apple\\*.bin\n')
-                fp.write('del ' + buildFolder + '\\apple\\unity.lib\n')
+                fp.write(Remove(buildFolder + '\\apple\\*.bin'))
+                fp.write(Remove(buildFolder + '\\apple\\unity.lib'))
 
                 fp.write('echo --------------- CONVERT ASSETS ---------------  \n\n')
 
@@ -1081,7 +1095,7 @@ class Application:
 
                 # Shared Data
                 for item in sharedApple:
-                    fp.write('copy ' + item.replace('/','\\') + ' ' + buildFolder + '\\apple\n')
+                    fp.write(Copy(item, buildFolder+'/apple'))
                     
                 fp.write('\necho --------------- APPLE DISK BUILDER --------------- \n\n')
                                 
@@ -1094,7 +1108,7 @@ class Application:
                     podisk = 'ProDOS190-800K.po'
                     par = '-h1'
                     ext = '.po'
-                fp.write('copy utils\\scripts\\apple\\' + podisk + ' ' + buildFolder + '\\' + diskname + '-apple' + target + ext + '\n')
+                fp.write(Copy('utils/scripts/apple/' + podisk, buildFolder + '/' + diskname + '-apple' + target + ext))
                 
                 # Add executables
                 if len(networkOptions) > 1: 
