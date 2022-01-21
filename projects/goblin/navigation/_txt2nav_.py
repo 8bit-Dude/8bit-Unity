@@ -263,11 +263,11 @@ for scene in scenes:
     # Draw interacts
     for interact in interacts:
         # Area of interact
-        draw.arc([interact[0]-interact[2], interact[1]-interact[2], interact[0]+interact[2], interact[1]+interact[2]], 0, 360, (0,0,255)) 
+        draw.arc([interact[1]-interact[3], interact[2]-interact[3], interact[1]+interact[3], interact[2]+interact[3]], 0, 360, (0,0,255)) 
         
         # Move target
-        draw.line([(interact[3]-3,interact[4]-3),(interact[3]+3,interact[4]+3)], (0,0,255))
-        draw.line([(interact[3]+3,interact[4]-3),(interact[3]-3,interact[4]+3)], (0,0,255))
+        draw.line([(interact[4]-3,interact[5]-3),(interact[4]+3,interact[5]+3)], (0,0,255))
+        draw.line([(interact[4]+3,interact[5]-3),(interact[4]-3,interact[5]+3)], (0,0,255))
 
     # Draw paths
     for path in paths:
