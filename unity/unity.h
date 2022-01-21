@@ -164,7 +164,7 @@ extern unsigned char inkColor, paperColor;
 void BackupCursor(void);
 void RestoreCursor(void);
 void PrintBlanks(unsigned char width, unsigned char height);
-void PrintChr(unsigned char chr);
+void PrintChr(char chr);
 void PrintNum(unsigned int num);
 void PrintStr(const char *buffer);
 void PrintLogo(unsigned char index);

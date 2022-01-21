@@ -75,7 +75,7 @@ unsigned char inkColor = WHITE;
 unsigned char paperColor = BLACK;
 
 // Print character using background and foreground colors
-void PrintChr(unsigned char chr)
+void PrintChr(char chr)
 {
 #if defined __NES__
 	// Handle Lower/Upper Case
@@ -121,7 +121,7 @@ void PrintChr(unsigned char chr)
     if (chr >  96) { chr -= 32;  }	// Lower case (Apple/Atari/Oric/Lynx) and compatibility with Ascii files (C64)
 		
 	// Get character data
-	src = &charData[(chr-CHR_DATA_TOP)*3];
+	src = (char*)&charData[(chr-CHR_DATA_TOP)*3];
 	
   #if defined __APPLE2__
 	if (txtX&1) { n=4; } else { n=3; }
@@ -318,7 +318,7 @@ void PrintStr(const char *buffer)
 	if (autoRefresh) { UpdateDisplay(); }
 	
 #else	
-	unsigned char *src = buffer;
+	char *src = (char*)buffer;
 	unsigned char bckX = txtX;
 	while (*src) {
 		PrintChr(*src);
