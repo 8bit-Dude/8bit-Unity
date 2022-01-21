@@ -109,12 +109,12 @@
 	}
 	
 #elif defined __ATARI__			//  Period  Control (7,6,5,4:noise/3,2,1,0:volume)
-	unsigned char sfxData[6][2] = { {   24,	   			0b10100000		},		// SFX_BLEEP	1010		
-								    {    8,	   			0b11100000		},		// SFX_BUMP		1000	
-								    {  255,    			0b11000000		},		// SFX_ENGINE	0111	
-								    {    2,    			0b11100000		},		// SFX_GUN		1000
-								    {    4,    			0b10000000		},		// SFX_INJURY	1000
-								    {  255,	   			0b10000000   	} };	// SFX_SCREECH	0111	
+	unsigned char sfxData[6][2] = { {   24,	   	160		},		// SFX_BLEEP	0b10100000	1010		
+								    {    8,	   	224		},		// SFX_BUMP		0b11100000	1000	
+								    {  255,    	192		},		// SFX_ENGINE	0b11000000	0111	
+								    {    2,    	224		},		// SFX_GUN		0b11100000	1000
+								    {    4,    	128		},		// SFX_INJURY	0b10000000	1000
+								    {  255,	   	128	   	} };	// SFX_SCREECH	0b10000000	0111	
 	
 	void SetupSFX(); // VBI for SFX samples	(see Atari/POKEY.s)
 	extern unsigned char sampleTimer[4];
