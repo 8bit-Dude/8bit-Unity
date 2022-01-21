@@ -1099,7 +1099,7 @@ class Application:
 
                 # Shared Data
                 for item in sharedApple:
-                    fp.write(Copy(item, buildFolder+'/apple/'+item))
+                    fp.write(Copy(item, buildFolder+'/apple/'+FileBase(item, '')))
                     
                 fp.write('\necho --------------- APPLE DISK BUILDER --------------- \n\n')
                                 
@@ -1305,7 +1305,7 @@ class Application:
                     
                 # Charmaps/Tilesets
                 for item in charmaps:
-                    fp.write(Copy(item, buildFolder + '/atari/' + item))
+                    fp.write(Copy(item, buildFolder + '/atari/' + FileBase(item, '')))
                     
                 # Charsets
                 if len(charset) > 0:
@@ -1323,7 +1323,7 @@ class Application:
 
                 # Shared Data
                 for item in sharedAtari:
-                    fp.write(Copy(item, buildFolder + '/atari/' + item))
+                    fp.write(Copy(item, buildFolder + '/atari/' + FileBase(item, '')))
 
                 # Music
                 for item in music:
