@@ -90,7 +90,7 @@ unsigned char UpdateMenu(void)
 	
 	// Check if cursor is locked
 	joy = GetJoy(0);
-	if (~joy & 0b00011111) {
+	if (~joy & 31) {  //0b00011111
 		if (cursorLocked) 
 			return 0;
 		cursorLocked = 1;

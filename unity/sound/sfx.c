@@ -47,12 +47,12 @@
 #endif
 	
 #if defined __APPLE2__			  //  Period  
-	unsigned char sfxData[][] = { {	   64  	},		// SFX_BLEEP
-								  {    16 	},		// SFX_BUMP
-								  {     0 	},		// SFX_ENGINE
-								  {     0 	},		// SFX_INJURY
-								  {     0 	},		// SFX_GUN
-								  {     0 	} };	// SFX_SCREECH
+	unsigned char sfxData[6][1] = { {	   64  	},		// SFX_BLEEP
+								    {    16 	},		// SFX_BUMP
+								    {     0 	},		// SFX_ENGINE
+								    {     0 	},		// SFX_INJURY
+								    {     0 	},		// SFX_GUN
+								    {     0 	} };	// SFX_SCREECH
 
 								//  TONE A  	TONE B	    TONE C	 NOISE  MASKS   AMP A, B, C     ENV LO, HI, TYPE
 	unsigned char mockBrd[14] = { 0x00, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0xFF, 0x0F, 0x0F, 0x0F, 0x00, 0x00, 0x00 }; 	// Mockingboard state
