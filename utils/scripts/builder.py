@@ -1332,8 +1332,8 @@ class Application:
                 fp.write('\necho --------------- ATARI DISK BUILDER --------------- \n\n')
                 
                 # Copy xBios files
-                fp.write(Copy('utils/scripts/atari/xbios.com', + buildFolder + '/atari/autorun'))
-                fp.write(Copy('utils/scripts/atari/xbios.cfg', + buildFolder + '/atari/xbios.cfg'))
+                fp.write(Copy('utils/scripts/atari/xbios.com', buildFolder + '/atari/autorun'))
+                fp.write(Copy('utils/scripts/atari/xbios.cfg', buildFolder + '/atari/xbios.cfg'))
 
                 # Disk builder
                 if self.combobox_AtariDiskSize.get() == '360KB':                
