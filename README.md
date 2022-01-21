@@ -10,6 +10,7 @@ LINUX (UBUNTU)
 Install some pre-requesites:  
 sudo add-apt-repository universe  
 sudo apt install cc65  
+sudo apt install default-jre  
 sudo apt install python2  
 sudo apt install python-tk  
 sudo python2 get-pip.py  
