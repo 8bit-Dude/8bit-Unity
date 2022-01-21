@@ -30,17 +30,37 @@ from tkFileDialog import askopenfilename, asksaveasfilename
 from PIL import Image, ImageTk
 import os, pickle, pygubu, sys, collections, json, codecs
 
-cCore = [ 'adaptors\\joystick.c', 'adaptors\\mouse.c', 'geom\\geom2d.c', 'math\\dot.c', 'sound\\music.c', 'sound\\sfx.c',
-          'bitmap\\InitBitmap.c', 'bitmap\\ShowBitmap.c', 'bitmap\\HideBitmap.c', 'bitmap\\ClearBitmap.c',  'bitmap\\LoadBitmap.c',
-          'charmap\\InitCharmap.c','charmap\\ShowCharmap.c','charmap\\HideCharmap.c', 'charmap\\ClearCharmap.c', 'charmap\\LoadCharmap.c', 'charmap\\LoadCharset.c', 'charmap\\LoadTileset.c', 
-          'charmap\\PrintCharmap.c', 'charmap\\DrawCharmap.c', 'charmap\\ScrollCharmap.c', 'charmap\\DecodeTiles.c', 'charmap\\GetFlag.c', 'charmap\\GetTile.c', 'charmap\\SetTile.c', 'charmap\\FreeCharmap.c',
-          'chunks\\LoadChunks.c', 'chunks\\GetChunk.c', 'chunks\\SetChunk.c', 'chunks\\FreeChunk.c',
-          'graphics\\logos.c', 'graphics\\menu.c', 'graphics\\parallax.c', 'graphics\\scaling.c', 'graphics\\widgets.c', 
-          'network\\net-base.c', 'network\\net-easy.c', 'network\\net-ip.c', 'network\\net-tcp.c', 'network\\net-udp.c', 'network\\net-url.c', 'network\\net-web.c', 
-          'sprites\\LoadSprites.c', 'sprites\\EnableSprite.c', 'sprites\\DisableSprite.c', 'sprites\\LocateSprite.c','sprites\\SetSprite.c', 'sprites\\CropSprite.c', 'sprites\\RecolorSprite.c', 'sprites\\ScaleSprite.c', 
-          'strings\\blanks.c', 'strings\\copy.c', 'strings\\cursor.c', 'strings\\guru.c', 'strings\\input.c', 'strings\\number.c',  'strings\\print.c' ]
+# Script extension    
+if "nt" == os.name:
+    sext = ".bat"
+    ar65 = "utils\\cc65\\bin\\ar65"
+    ca65 = "utils\\cc65\\bin\\ca65"
+    cc65 = "utils\\cc65\\bin\\cc65"
+    cl65 = "utils\\cc65\\bin\\cl65"
+    java = "utils\\java\\bin\\java"
+    py27 = "utils\\py27\\python"
+    icon = "builder.ico"
+else:
+    sext = ".sh"
+    ar65 = "ar65"
+    ca65 = "ca65"
+    cc65 = "cc65"
+    cl65 = "cl65"
+    java = "java"
+    py27 = "python2"
+    icon = "@builder.xbm"
+            
+cCore = [ 'adaptors/joystick.c', 'adaptors/mouse.c', 'geom/geom2d.c', 'math/dot.c', 'sound/music.c', 'sound/sfx.c',
+          'bitmap/InitBitmap.c', 'bitmap/ShowBitmap.c', 'bitmap/HideBitmap.c', 'bitmap/ClearBitmap.c',  'bitmap/LoadBitmap.c',
+          'charmap/InitCharmap.c','charmap/ShowCharmap.c','charmap/HideCharmap.c', 'charmap/ClearCharmap.c', 'charmap/LoadCharmap.c', 'charmap/LoadCharset.c', 'charmap/LoadTileset.c', 
+          'charmap/PrintCharmap.c', 'charmap/DrawCharmap.c', 'charmap/ScrollCharmap.c', 'charmap/DecodeTiles.c', 'charmap/GetFlag.c', 'charmap/GetTile.c', 'charmap/SetTile.c', 'charmap/FreeCharmap.c',
+          'chunks/LoadChunks.c', 'chunks/GetChunk.c', 'chunks/SetChunk.c', 'chunks/FreeChunk.c',
+          'graphics/logos.c', 'graphics/menu.c', 'graphics/parallax.c', 'graphics/scaling.c', 'graphics/widgets.c', 
+          'network/net-base.c', 'network/net-easy.c', 'network/net-ip.c', 'network/net-tcp.c', 'network/net-udp.c', 'network/net-url.c', 'network/net-web.c', 
+          'sprites/LoadSprites.c', 'sprites/EnableSprite.c', 'sprites/DisableSprite.c', 'sprites/LocateSprite.c','sprites/SetSprite.c', 'sprites/CropSprite.c', 'sprites/RecolorSprite.c', 'sprites/ScaleSprite.c', 
+          'strings/blanks.c', 'strings/copy.c', 'strings/cursor.c', 'strings/guru.c', 'strings/input.c', 'strings/number.c',  'strings/print.c' ]
 
-sCore = [ 'math\\atan2.s', 'charmap\\DecodeTiles2x2.s' ]
+sCore = [ 'math/atan2.s', 'charmap/DecodeTiles2x2.s' ]
 
 # Useful functions
 def Str2Bool(v):
@@ -65,28 +85,28 @@ def BuildUnityLibrary(self, fp, target, symbols, cList, sList, buildFolder):
 
     # Compile .c files
     for file in cList:
-        fp.write('utils\\cc65\\bin\\cc65 -Cl -O ' + target + ' ' + symbols + ' -I unity unity\\' + file + '\n')
-        fp.write('utils\\cc65\\bin\\ca65 ' + target + ' ' + symbols + ' unity\\' + file[0:-2] + '.s\n')
+        fp.write(cc65 + ' -Cl -O ' + target + ' ' + symbols + ' -I unity unity/' + file + '\n')
+        fp.write(ca65 + ' ' + target + ' ' + symbols + ' unity/' + file[0:-2] + '.s\n')
 
     # Compile .s files
     for file in sList:            
-        fp.write('utils\\cc65\\bin\\ca65 ' + target + ' ' + symbols + ' unity\\' + file + '\n')
+        fp.write(ca65 + ' ' + target + ' ' + symbols + ' unity/' + file + '\n')
     
     # Package into .lib
-    fp.write('\nutils\\cc65\\bin\\ar65 r ' + buildFolder + '/unity.lib ')
+    fp.write('\n' + ar65 + ' r ' + buildFolder + '/unity.lib ')
     for file in cList:
-        fp.write('unity\\' + file[0:-2] + '.o ')
+        fp.write('unity/' + file[0:-2] + '.o ')
     for file in sList:            
-        fp.write('unity\\' + file[0:-2] + '.o ')
+        fp.write('unity/' + file[0:-2] + '.o ')
     fp.write('\n\n')
     
     # Clean-up
     fp.write('del ')
     for file in cList:
-        fp.write('unity\\' + file[0:-2] + '.s ')
-        fp.write('unity\\' + file[0:-2] + '.o ')
+        fp.write('unity\\' + file[0:-2].replace('/','\\') + '.s ')
+        fp.write('unity\\' + file[0:-2].replace('/','\\') + '.o ')
     for file in sList:            
-        fp.write('unity\\' + file[0:-2] + '.o ')
+        fp.write('unity\\' + file[0:-2].replace('/','\\') + '.o ')
     fp.write('\n\n')    
 
 # Constants
@@ -917,12 +937,6 @@ class Application:
         if len(code) < 1:
             messagebox.showinfo('Error', 'Please add C source file(s)!')
             return
-        
-        # Script extension    
-        if "nt" == os.name:
-            sext = ".bat"
-        else:
-            sext = ".sh"
 
         ####################################################
         # Apple script
@@ -973,13 +987,13 @@ class Application:
 
                 # Build Unity Library for eah network target
                 for network in networkOptions:
-                    cTarget = [ 'graphics\\pixel.c', 'targets\\apple2\\CLOCK.c', 'targets\\apple2\\directory.c', 'targets\\apple2\\files.c', 'targets\\apple2\\hires.c', 'targets\\apple2\\memory.c', 'targets\\apple2\\pixelDHR.c', 'targets\\apple2\\pixelSHR.c' ]                            
-                    sTarget = [ 'strings\\chars.s', 'targets\\apple2\\blitCharmap.s', 'targets\\apple2\\blitSprite.s', 'targets\\apple2\\decrunch.s', 'targets\\apple2\\DUET.s', 'targets\\apple2\\hiresLines.s', 'targets\\apple2\\joystick.s', 'targets\\apple2\\MOCKING.s', 'targets\\apple2\\PADDLE.s', 'targets\\apple2\\prodos.s', 'targets\\apple2\\scroll.s', 'targets\\apple2\\serial.s' ]
+                    cTarget = [ 'graphics/pixel.c', 'targets/apple2/CLOCK.c', 'targets/apple2/directory.c', 'targets/apple2/files.c', 'targets/apple2/hires.c', 'targets/apple2/memory.c', 'targets/apple2/pixelDHR.c', 'targets/apple2/pixelSHR.c' ]                            
+                    sTarget = [ 'strings/chars.s', 'targets/apple2/blitCharmap.s', 'targets/apple2/blitSprite.s', 'targets/apple2/decrunch.s', 'targets/apple2/DUET.s', 'targets/apple2/hiresLines.s', 'targets/apple2/joystick.s', 'targets/apple2/MOCKING.s', 'targets/apple2/PADDLE.s', 'targets/apple2/prodos.s', 'targets/apple2/scroll.s', 'targets/apple2/serial.s' ]
                     symbols = ' -D CHUNKSIZE='  + chunkSize.replace('$','0x') + ' -D SPRITEFRAMES=' + self.entry_AppleSpriteFrames.get() + ' -D SPRITEWIDTH=' + self.entry_AppleSpriteWidth.get() + ' -D SPRITEHEIGHT=' + self.entry_AppleSpriteHeight.get()
                     
                     # Network settings
                     if network == '8bit-Hub': 
-                        cTarget.append('adaptors\\hub.c')
+                        cTarget.append('adaptors/hub.c')
                         executable = 'HUB'
                         symbols += ' -D __HUB__ '
                     elif network == 'Uthernet': 
@@ -1001,7 +1015,7 @@ class Application:
 
                     # Compile Program
                     symbols += ' -Wl -D,__STACKSIZE__=$0400,-D,__HIMEM__=$B800,-D,__LCADDR__=$D000,-D,__LCSIZE__=$1000,-D,CHUNKSIZE='  + chunkSize
-                    comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/apple/' + executable + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-apple' + target + '-' + network + '.map -Cl -O -t apple2 ' + symbols + ' -C apple2-hgr.cfg -I unity '
+                    comp = cl65 + ' -o ' + buildFolder + '/apple/' + executable + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-apple' + target + '-' + network + '.map -Cl -O -t apple2 ' + symbols + ' -C apple2-hgr.cfg -I unity '
                     for item in code:
                         comp += item + ' '
                     comp += buildFolder + '/apple/unity.lib '
@@ -1023,7 +1037,7 @@ class Application:
                         symbols += '-D __HUB__ '
                     if 'Uthernet' in networkOptions:
                         symbols += '-D __IP65__ '
-                    fp.write('utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/apple/LOADER.bin ' + symbols + ' -I unity unity/targets/apple2/loader.c ' + buildFolder + '/apple/unity.lib\n\n')
+                    fp.write(cl65 + ' -o ' + buildFolder + '/apple/LOADER.bin ' + symbols + ' -I unity unity/targets/apple2/loader.c ' + buildFolder + '/apple/unity.lib\n\n')
                    
                     # Compress loader
                     fp.write('utils\\scripts\\exomizer-3.1.0.exe sfx bin ' + buildFolder + '/apple/LOADER.bin -B -o ' + buildFolder + '/apple/LOADER\n\n')
@@ -1037,23 +1051,23 @@ class Application:
                 # Bitmaps
                 for item in bitmaps:
                     if self.combobox_AppleCrunchAssets.get() == 'Yes':
-                        fp.write('utils\\py27\\python utils\\scripts\\apple\\AppleBitmap.py ' + graphics + ' crunch ' + item + ' ' + buildFolder + '/apple/' + FileBase(item, '.png') + '.img\n')
+                        fp.write(py27 + ' utils/scripts/apple/AppleBitmap.py ' + graphics + ' crunch ' + item + ' ' + buildFolder + '/apple/' + FileBase(item, '.png') + '.img\n')
                     else:
-                        fp.write('utils\\py27\\python utils\\scripts\\apple\\AppleBitmap.py ' + graphics + ' raw ' + item + ' ' + buildFolder + '/apple/' + FileBase(item, '.png') + '.img\n')
+                        fp.write(py27 + ' utils/scripts/apple/AppleBitmap.py ' + graphics + ' raw ' + item + ' ' + buildFolder + '/apple/' + FileBase(item, '.png') + '.img\n')
 
                 # Charset
                 if len(charset) > 0:
                     fb = FileBase(charset[0], '.png')
-                    fp.write('utils\\py27\python utils\\scripts\\apple\\AppleCharset.py ' + graphics + ' ' + charset[0] + ' ' + buildFolder + '/apple/' + fb + '.chr\n')
+                    fp.write(py27 + ' utils/scripts/apple/AppleCharset.py ' + graphics + ' ' + charset[0] + ' ' + buildFolder + '/apple/' + fb + '.chr\n')
                     
                 # Sprites
                 if len(sprites) > 0:
                     spriteHeight = int(self.entry_AppleSpriteHeight.get())
-                    fp.write('utils\\py27\\python utils\\scripts\\apple\\AppleSprites.py ' + graphics + ' ' + sprites[0] + ' ' + buildFolder + '/apple/sprites.dat ' + str(spriteHeight) + '\n')
+                    fp.write(py27 + ' utils/scripts/apple/AppleSprites.py ' + graphics + ' ' + sprites[0] + ' ' + buildFolder + '/apple/sprites.dat ' + str(spriteHeight) + '\n')
 
                 # Chunks
                 if len(chunks) > 0:
-                    fp.write('utils\\py27\\python utils\\scripts\\ProcessChunks.py apple-' + graphics + ' ' + chunks[0] + ' ' + buildFolder + '/apple/\n')
+                    fp.write(py27 + ' utils/scripts/ProcessChunks.py apple-' + graphics + ' ' + chunks[0] + ' ' + buildFolder + '/apple/\n')
 
                 # Shared Data
                 for item in sharedApple:
@@ -1075,7 +1089,7 @@ class Application:
                 # Add executables
                 if len(networkOptions) > 1: 
                     # Package multiple executables + loader program
-                    fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -as ' + buildFolder + '/' + diskname + '-apple' + target + ext + ' LOADER bin 0x0803 < ' + buildFolder + '/apple/LOADER\n')
+                    fp.write(java + ' -jar utils/scripts/apple/AppleCommander-1.6.0.jar -as ' + buildFolder + '/' + diskname + '-apple' + target + ext + ' LOADER bin 0x0803 < ' + buildFolder + '/apple/LOADER\n')
                     for network in networkOptions:
                         if network == '8bit-Hub': 
                             executable = 'HUB'
@@ -1083,32 +1097,32 @@ class Application:
                             executable = 'UTHERNET'  
                         if network == 'None': 
                             executable = 'NONE'                            
-                        fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -as ' + buildFolder + '/' + diskname + '-apple' + target + ext + ' ' + executable + ' bin 0x0803 < ' + buildFolder + '/apple/' + executable + '\n')
+                        fp.write(java + ' -jar utils/scripts/apple/AppleCommander-1.6.0.jar -as ' + buildFolder + '/' + diskname + '-apple' + target + ext + ' ' + executable + ' bin 0x0803 < ' + buildFolder + '/apple/' + executable + '\n')
                 else:
                     # Only package single executable
-                    fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -as ' + buildFolder + '/' + diskname + '-apple' + target + ext + ' LOADER bin 0x0803 < ' + buildFolder + '/apple/' + executable + '\n')
+                    fp.write(java + ' -jar utils/scripts/apple/AppleCommander-1.6.0.jar -as ' + buildFolder + '/' + diskname + '-apple' + target + ext + ' LOADER bin 0x0803 < ' + buildFolder + '/apple/' + executable + '\n')
                     
                 # Add assets    
                 if len(sprites) > 0:
-                    fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p ' + buildFolder + '/' + diskname + '-apple' + target + ext + ' SPRITES.DAT bin < ' + buildFolder + '/apple/sprites.dat\n')
+                    fp.write(java + ' -jar utils/scripts/apple/AppleCommander-1.6.0.jar -p ' + buildFolder + '/' + diskname + '-apple' + target + ext + ' SPRITES.DAT bin < ' + buildFolder + '/apple/sprites.dat\n')
                 for item in bitmaps:
                     fb = FileBase(item, '.png')
-                    fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p ' + buildFolder + '/' + diskname + '-apple' + target + ext + ' ' + fb.upper() + '.IMG bin < ' + buildFolder + '/apple/' + fb + '.img\n')
+                    fp.write(java + ' -jar utils/scripts/apple/AppleCommander-1.6.0.jar -p ' + buildFolder + '/' + diskname + '-apple' + target + ext + ' ' + fb.upper() + '.IMG bin < ' + buildFolder + '/apple/' + fb + '.img\n')
                 if len(charset) > 0:
                     fb = FileBase(charset[0], '.png')
-                    fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p ' + buildFolder + '/' + diskname + '-apple' + target + ext + ' ' + fb.upper() + '.CHR bin < ' + buildFolder + '/apple/' + fb + '.chr\n')
+                    fp.write(java + ' -jar utils/scripts/apple/AppleCommander-1.6.0.jar -p ' + buildFolder + '/' + diskname + '-apple' + target + ext + ' ' + fb.upper() + '.CHR bin < ' + buildFolder + '/apple/' + fb + '.chr\n')
                 for item in charmaps:
                     fb = FileBase(item, '')
-                    fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p ' + buildFolder + '/' + diskname + '-apple' + target + ext + ' ' + fb.upper() + ' bin < ' + item + '\n')
+                    fp.write(java + ' -jar utils/scripts/apple/AppleCommander-1.6.0.jar -p ' + buildFolder + '/' + diskname + '-apple' + target + ext + ' ' + fb.upper() + ' bin < ' + item + '\n')
                 for item in chunks:
                     fb = FileBase(item, '.txt')
-                    fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p ' + buildFolder + '/' + diskname + '-apple' + target + ext + ' ' + fb.upper() + '.CHK bin < ' + buildFolder + '/apple/' + fb + '.chk\n')
+                    fp.write(java + ' -jar utils/scripts/apple/AppleCommander-1.6.0.jar -p ' + buildFolder + '/' + diskname + '-apple' + target + ext + ' ' + fb.upper() + '.CHK bin < ' + buildFolder + '/apple/' + fb + '.chk\n')
                 for item in music:
                     fb = FileBase(item, '.m')
-                    fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p ' + buildFolder + '/' + diskname + '-apple' + target + ext + ' ' + fb.upper() + '.MUS bin < ' +item + '\n')
+                    fp.write(java + ' -jar utils/scripts/apple/AppleCommander-1.6.0.jar -p ' + buildFolder + '/' + diskname + '-apple' + target + ext + ' ' + fb.upper() + '.MUS bin < ' +item + '\n')
                 for item in sharedApple:
                     fb = FileBase(item, '')
-                    fp.write('utils\\java\\bin\\java -jar utils\\scripts\\apple\\AppleCommander-1.6.0.jar -p ' + buildFolder + '/' + diskname + '-apple' + target + ext + ' ' + fb.upper() + ' bin < ' + buildFolder + '\\apple\\' + fb + '\n')
+                    fp.write(java + ' -jar utils/scripts/apple/AppleCommander-1.6.0.jar -p ' + buildFolder + '/' + diskname + '-apple' + target + ext + ' ' + fb.upper() + ' bin < ' + buildFolder + '/apple/' + fb + '\n')
 
                 fp.write('\necho --------------- APPLE DISK READY --------------- \n\n')
                 
@@ -1157,22 +1171,22 @@ class Application:
 
                 # Build Unity Library for eah network target
                 for network in networkOptions:
-                    cTarget = [ 'graphics\\pixel.c', 'targets\\atari\\directory.c', 'targets\\atari\\display.c', 'targets\\atari\\files.c', 'targets\\atari\\pmg.c' ]
-                    sTarget = [ 'graphics\\scroll.s', 'strings\\chars.s', 'targets\\atari\\blitCharmap.s', 'targets\\atari\\blitSprites.s', 'targets\\atari\\decrunch.s', 'targets\\atari\\DLIST-bmp.s', 'targets\\atari\\DLIST-chr.s', 'targets\\atari\\DLIST-plx.s', 'targets\\atari\\DLI.s', 'targets\\atari\\ROM.s', 'targets\\atari\\VBI.s', 'targets\\atari\\xbios.s' ]
+                    cTarget = [ 'graphics/pixel.c', 'targets/atari/directory.c', 'targets/atari/display.c', 'targets/atari/files.c', 'targets/atari/pmg.c' ]
+                    sTarget = [ 'graphics/scroll.s', 'strings/chars.s', 'targets/atari/blitCharmap.s', 'targets/atari/blitSprites.s', 'targets/atari/decrunch.s', 'targets/atari/DLIST-bmp.s', 'targets/atari/DLIST-chr.s', 'targets/atari/DLIST-plx.s', 'targets/atari/DLI.s', 'targets/atari/ROM.s', 'targets/atari/VBI.s', 'targets/atari/xbios.s' ]
                     symbols = ' -D CHUNKSIZE='  + chunkSize.replace('$','0x') + ' -D SPRITEFRAMES=' + self.entry_AtariSpriteFrames.get() + ' -D SPRITEWIDTH=' + self.entry_AtariSpriteWidth.get() + ' -D SPRITEHEIGHT=' + self.entry_AtariSpriteHeight.get()
                     
                     # Network settings
                     if network == '8bit-Hub': 
-                        cTarget.append('adaptors\\hub.c')
-                        sTarget.append('targets\\atari\\PIA.s')
+                        cTarget.append('adaptors/hub.c')
+                        sTarget.append('targets/atari/PIA.s')
                         symbols += ' -D __HUB__'                        
                         executable = 'hub.xex'
                     elif network == 'DragonCart':    
                         symbols += ' -D __IP65__'                        
                         executable = 'dragon.xex'
                     elif network == 'Fujinet':    
-                        cTarget.append('targets\\atari\\fujinet.c')
-                        sTarget.append('targets\\atari\\fujiIRQ.s')
+                        cTarget.append('targets/atari/fujinet.c')
+                        sTarget.append('targets/atari/fujiIRQ.s')
                         symbols += ' -D __FUJINET__'
                         executable = 'fujinet.xex'
                     elif network == 'None': 
@@ -1194,7 +1208,7 @@ class Application:
                     if len(networkOptions) > 1:
                         symbols += ' -Wl -D__SYSTEM_CHECK__=1 ' # Loader will perform that check
                     symbols += ' -Wl -D,__STACKSIZE__=$0400 -Wl -D,CHUNKSIZE='  + chunkSize
-                    comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/atari/' + executable + ' -m ' + buildFolder + '/' + diskname.lower() + '-atari' + target + '-' + network + '.map ' + symbols + ' -I unity '
+                    comp = cl65 + ' -o ' + buildFolder + '/atari/' + executable + ' -m ' + buildFolder + '/' + diskname.lower() + '-atari' + target + '-' + network + '.map ' + symbols + ' -I unity '
                     for item in code:
                         comp += (item + ' ')
                     comp += 'unity/targets/atari/POKEY.s ' + buildFolder + '/atari/unity.lib '
@@ -1210,7 +1224,7 @@ class Application:
                             else:
                                 comp += 'unity/adaptors/ip65.lib unity/adaptors/ip65_atarixl.lib'
                     fp.write(comp + '\n')
-                    fp.write('utils\\py27\\python utils\\scripts\\atari\\AtariCompress.py ' + buildFolder + '/atari/' + executable + ' incDec \n\n')
+                    fp.write(py27 + ' utils/scripts/atari/AtariCompress.py ' + buildFolder + '/atari/' + executable + ' incDec \n\n')
                 
                 # Include loader program?
                 if len(networkOptions) > 1:                                    
@@ -1224,19 +1238,19 @@ class Application:
                         symbols += '-D __IP65__ '
                     if 'Fujinet' in networkOptions:
                         symbols += '-D __FUJINET__ '                
-                    fp.write('utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/atari/loader.bin ' + symbols + ' -I unity unity/targets/atari/loader.c ' + buildFolder + '/atari/unity.lib \n')
-                    fp.write('utils\\py27\\python utils\\scripts\\atari\\AtariCompress.py ' + buildFolder + '/atari/loader.bin incDec \n\n')
+                    fp.write(cl65 + ' -o ' + buildFolder + '/atari/loader.bin ' + symbols + ' -I unity unity/targets/atari/loader.c ' + buildFolder + '/atari/unity.lib \n')
+                    fp.write(py27 + ' utils/scripts/atari/AtariCompress.py ' + buildFolder + '/atari/loader.bin incDec \n\n')
 
                 # RMT player
                 if target == '64k':
                     fp.write('utils\\scripts\\atari\\mads.exe -o:' + buildFolder + '/atari/rmt.bin unity/targets/atari/RMT.a65 \n')
-                    fp.write('utils\\py27\\python utils\\scripts\\atari\\AtariCompress.py ' + buildFolder + '/atari/rmt.bin excDec\n\n')
+                    fp.write(py27 + ' utils/scripts/atari/AtariCompress.py ' + buildFolder + '/atari/rmt.bin excDec\n\n')
 
                 # BASIC disabler
-                fp.write('utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/atari/basicoff.bin -t atari -C atari-asm.cfg unity/targets/atari/BASICOFF.s \n\n')
+                fp.write(cl65 + ' -o ' + buildFolder + '/atari/basicoff.bin -t atari -C atari-asm.cfg unity/targets/atari/BASICOFF.s \n\n')
 
                 # Merging
-                cmd = 'utils\\py27\\python utils\\scripts\\atari\\AtariMerge.py ' + buildFolder + '/atari/xautorun ' + buildFolder + '/atari/basicoff.bin '
+                cmd = py27 + ' utils/scripts/atari/AtariMerge.py ' + buildFolder + '/atari/xautorun ' + buildFolder + '/atari/basicoff.bin '
                 if len(networkOptions) > 1:  
                     cmd += buildFolder + '/atari/loader.bin '
                 else:
@@ -1257,9 +1271,9 @@ class Application:
                 # Bitmaps
                 for item in bitmaps:
                     if self.combobox_AtariCrunchAssets.get() == 'Yes':
-                        fp.write('utils\\py27\\python utils\\scripts\\atari\\AtariBitmap.py ' + graphics + ' crunch ' + item + ' ' + buildFolder + '/atari/' + FileBase(item, '.png') + '.img\n')
+                        fp.write(py27 + ' utils/scripts/atari/AtariBitmap.py ' + graphics + ' crunch ' + item + ' ' + buildFolder + '/atari/' + FileBase(item, '.png') + '.img\n')
                     else:
-                        fp.write('utils\\py27\\python utils\\scripts\\atari\\AtariBitmap.py ' + graphics + ' raw ' + item + ' ' + buildFolder + '/atari/' + FileBase(item, '.png') + '.img\n')
+                        fp.write(py27 + ' utils/scripts/atari/AtariBitmap.py ' + graphics + ' raw ' + item + ' ' + buildFolder + '/atari/' + FileBase(item, '.png') + '.img\n')
                     
                 # Charmaps/Tilesets
                 for item in charmaps:
@@ -1268,16 +1282,16 @@ class Application:
                 # Charsets
                 if len(charset) > 0:
                     fb = FileBase(charset[0], '.png')
-                    fp.write('utils\\py27\python utils\\scripts\\atari\\AtariCharset.py ' + charset[0] + ' ' + buildFolder + '/atari/' + fb + '.chr\n')
+                    fp.write(py27 + ' utils/scripts/atari/AtariCharset.py ' + charset[0] + ' ' + buildFolder + '/atari/' + fb + '.chr\n')
                     
                 # Sprites    
                 if len(sprites) > 0:
                     spriteHeight = int(self.entry_AtariSpriteHeight.get())
-                    fp.write('utils\\py27\\python utils\\scripts\\atari\\AtariSprites.py ' + sprites[0] + ' ' + buildFolder + '/atari/sprites.dat ' + str(spriteHeight) + '\n')
+                    fp.write(py27 + ' utils/scripts/atari/AtariSprites.py ' + sprites[0] + ' ' + buildFolder + '/atari/sprites.dat ' + str(spriteHeight) + '\n')
                     
                 # Chunks
                 if len(chunks) > 0:
-                    fp.write('utils\\py27\\python utils\\scripts\\ProcessChunks.py atari ' + chunks[0] + ' ' + buildFolder + '/atari/\n')
+                    fp.write(py27 + ' utils/scripts/ProcessChunks.py atari ' + chunks[0] + ' ' + buildFolder + '/atari/\n')
 
                 # Shared Data
                 for item in sharedAtari:
@@ -1295,13 +1309,13 @@ class Application:
 
                 # Disk builder
                 if self.combobox_AtariDiskSize.get() == '360KB':                
-                    fp.write('utils\\scripts\\atari\\dir2atr.exe -md -B utils/scripts/atari/xboot.obx 1440 ' + buildFolder + '/' + diskname + '-atari' + target + '.atr ' + buildFolder + '\\atari\n')
+                    fp.write('utils\\scripts\\atari\\dir2atr.exe -md -B utils/scripts/atari/xboot.obx 1440 ' + buildFolder + '/' + diskname + '-atari' + target + '.atr ' + buildFolder + '/atari\n')
                 elif self.combobox_AtariDiskSize.get() == '180KB':                
-                    fp.write('utils\\scripts\\atari\\dir2atr.exe -mD -B utils/scripts/atari/xboot.obx ' + buildFolder + '/' + diskname + '-atari' + target + '.atr ' + buildFolder + '\\atari\n')
+                    fp.write('utils\\scripts\\atari\\dir2atr.exe -mD -B utils/scripts/atari/xboot.obx ' + buildFolder + '/' + diskname + '-atari' + target + '.atr ' + buildFolder + '/atari\n')
                 elif self.combobox_AtariDiskSize.get() == '130KB':                
-                    fp.write('utils\\scripts\\atari\\dir2atr.exe -mE -B utils/scripts/atari/xboot.obx ' + buildFolder + '/' + diskname + '-atari' + target + '.atr ' + buildFolder + '\\atari\n')
+                    fp.write('utils\\scripts\\atari\\dir2atr.exe -mE -B utils/scripts/atari/xboot.obx ' + buildFolder + '/' + diskname + '-atari' + target + '.atr ' + buildFolder + '/atari\n')
                 elif self.combobox_AtariDiskSize.get() == '90KB':                
-                    fp.write('utils\\scripts\\atari\\dir2atr.exe -mS -B utils/scripts/atari/xboot.obx ' + buildFolder + '/' + diskname + '-atari' + target + '.atr ' + buildFolder + '\\atari\n')
+                    fp.write('utils\\scripts\\atari\\dir2atr.exe -mS -B utils/scripts/atari/xboot.obx ' + buildFolder + '/' + diskname + '-atari' + target + '.atr ' + buildFolder + '/atari\n')
 
                 fp.write('echo --------------- ATARI DISK READY --------------- \n\n')
                 
@@ -1342,32 +1356,32 @@ class Application:
             
             # Convert Sprites (need to merge with program)
             if len(sprites) > 0:
-                fp.write('utils\\py27\\python utils\\scripts\\c64\\C64Sprites.py ' + sprites[0] + ' ' + buildFolder + '/c64/sprites.dat\n')            
+                fp.write(py27 + ' utils/scripts/c64/C64Sprites.py ' + sprites[0] + ' ' + buildFolder + '/c64/sprites.dat\n')            
 
             # Build Unity Library for each network target
             for network in networkOptions:
-                cTarget = [ 'graphics\\pixel.c', 'targets\\c64\\directory.c', 'targets\\c64\\files.c', 'targets\\c64\\VIC2.c' ]
-                sTarget = [ 'graphics\\scroll.s', 'strings\\chars.s', 'targets\\c64\\decrunch.s', 'targets\\c64\\DLI.s', 'targets\\c64\\blitCharmap.s', 'targets\\c64\\ROM.s', 'targets\\c64\\SID.s']
+                cTarget = [ 'graphics/pixel.c', 'targets/c64/directory.c', 'targets/c64/files.c', 'targets/c64/VIC2.c' ]
+                sTarget = [ 'graphics/scroll.s', 'strings/chars.s', 'targets/c64/decrunch.s', 'targets/c64/DLI.s', 'targets/c64/blitCharmap.s', 'targets/c64/ROM.s', 'targets/c64/SID.s']
                 symbols = ' -D CHUNKSIZE='  + chunkSize.replace('$','0x') + ' -D SPRITEFRAMES=' + self.entry_C64SpriteFrames.get() + ' -D SPRITEWIDTH=' + self.entry_C64SpriteWidth.get() + ' -D SPRITEHEIGHT=' + self.entry_C64SpriteHeight.get()
                 
                 # Network settings
                 if network == '8bit-Hub': 
-                    cTarget.append('adaptors\\hub.c')
-                    cTarget.append('adaptors\\joystick.c')
-                    sTarget.append('targets\\c64\\CIA.s')
+                    cTarget.append('adaptors/hub.c')
+                    cTarget.append('adaptors/joystick.c')
+                    sTarget.append('targets/c64/CIA.s')
                     symbols += ' -D __HUB__ '            
                     executable = 'hub'
                 if network == 'RR-Net': 
-                    sTarget.append('targets\\c64\\joystick.s')
+                    sTarget.append('targets/c64/joystick.s')
                     symbols += ' -D __IP65__ '
                     executable = 'rrnet'
                 if network == 'Ultimate': 
-                    sTarget.append('targets\\c64\\joystick.s')
-                    cTarget.append('targets\\c64\\ultimate.c')
+                    sTarget.append('targets/c64/joystick.s')
+                    cTarget.append('targets/c64/ultimate.c')
                     symbols += ' -D __ULTIMATE__ '
                     executable = 'ultimate'
                 if network == 'None': 
-                    sTarget.append('targets\\c64\\joystick.s')
+                    sTarget.append('targets/c64/joystick.s')
                     executable = 'none'
                     
                 # Graphic settings
@@ -1379,7 +1393,7 @@ class Application:
 
                 # Compile Program                        
                 symbols += ' -Wl -D,CHUNKSIZE='  + chunkSize
-                comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/c64/' + executable + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-c64-' + network + '.map -Cl -O -t c64 -C unity/targets/c64/c64.cfg ' + symbols + ' -I unity '
+                comp = cl65 + ' -o ' + buildFolder + '/c64/' + executable + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-c64-' + network + '.map -Cl -O -t c64 -C unity/targets/c64/c64.cfg ' + symbols + ' -I unity '
                 for item in code:
                     comp += (item + ' ')
                 comp += buildFolder + '/c64/unity.lib '
@@ -1406,7 +1420,7 @@ class Application:
                     symbols += '-D __IP65__ '
                 if 'Ultimate' in networkOptions:
                     symbols += '-D __ULTIMATE__ '
-                fp.write('utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/c64/loader.bin ' + symbols + ' -C unity/targets/c64/c64.cfg -I unity unity/targets/c64/loader.c ' + buildFolder + '/c64/unity.lib\n\n')
+                fp.write(cl65 + ' -o ' + buildFolder + '/c64/loader.bin ' + symbols + ' -C unity/targets/c64/c64.cfg -I unity unity/targets/c64/loader.c ' + buildFolder + '/c64/unity.lib\n\n')
                 
                 # Compress Loader
                 fp.write('utils\\scripts\\exomizer-3.0.2.exe sfx $180d ' + buildFolder + '/c64/loader.bin unity/targets/c64/krill-install.prg unity/targets/c64/krill-load.prg  -B -o ' + buildFolder + '/c64/loader.prg\n\n')
@@ -1420,18 +1434,18 @@ class Application:
             # Bitmaps
             for item in bitmaps:
                 if self.combobox_C64CrunchAssets.get() == 'Yes':
-                    fp.write('utils\\py27\\python utils\\scripts\\c64\\C64Bitmap.py crunch ' + item + ' ' + buildFolder + '/c64/' + FileBase(item, '.png') + '.img\n')
+                    fp.write(py27 + ' utils/scripts/c64/C64Bitmap.py crunch ' + item + ' ' + buildFolder + '/c64/' + FileBase(item, '.png') + '.img\n')
                 else:
-                    fp.write('utils\\py27\\python utils\\scripts\\c64\\C64Bitmap.py raw ' + item + ' ' + buildFolder + '/c64/' + FileBase(item, '.png') + '.img\n')
+                    fp.write(py27 + ' utils/scripts/c64/C64Bitmap.py raw ' + item + ' ' + buildFolder + '/c64/' + FileBase(item, '.png') + '.img\n')
 
             # Charset    
             if len(charset) > 0:
                 fb = FileBase(charset[0], '.png')
-                fp.write('utils\\py27\python utils\\scripts\\c64\\C64Charset.py ' + charset[0] + ' ' + buildFolder + '/c64/' + fb + '.chr' + ' ' + self.entry_C64CharsetColors.get() + '\n')
+                fp.write(py27 + ' utils/scripts/c64/C64Charset.py ' + charset[0] + ' ' + buildFolder + '/c64/' + fb + '.chr' + ' ' + self.entry_C64CharsetColors.get() + '\n')
                                 
             # Chunks
             if len(chunks) > 0:
-                fp.write('utils\\py27\\python utils\\scripts\\ProcessChunks.py c64 ' + chunks[0] + ' ' + buildFolder + '/c64/\n\n')
+                fp.write(py27 + ' utils/scripts/ProcessChunks.py c64 ' + chunks[0] + ' ' + buildFolder + '/c64/\n\n')
                 
             # Music
             for item in music:
@@ -1518,26 +1532,26 @@ class Application:
             
             # Bitmaps
             for item in bitmaps:
-                fp.write('utils\\py27\\python utils\\scripts\\lynx\\LynxBitmap.py ' + item + ' ' + buildFolder + '/lynx/' + FileBase(item, '.png') + '.img\n')
+                fp.write(py27 + ' utils/scripts/lynx/LynxBitmap.py ' + item + ' ' + buildFolder + '/lynx/' + FileBase(item, '.png') + '.img\n')
             if len(bitmaps) > 0:
                 fp.write('\n')
                 
             # Charset
             if len(charset) > 0:
                 fb = FileBase(charset[0], '.png')
-                fp.write('utils\\py27\python utils\\scripts\\lynx\\LynxCharset.py ' + charset[0] + ' ' + buildFolder + '/lynx/' + fb + '.chr\n')
+                fp.write(py27 + ' utils/scripts/lynx/LynxCharset.py ' + charset[0] + ' ' + buildFolder + '/lynx/' + fb + '.chr\n')
                 fp.write('\n')
                 
             # Sprites
             if len(sprites) > 0:
                 spriteWidth  = int(self.entry_LynxSpriteWidth.get())
                 spriteHeight = int(self.entry_LynxSpriteHeight.get())
-                fp.write('utils\\py27\\python utils\\scripts\\lynx\\LynxSprites.py ' + sprites[0] + ' ' + buildFolder + '/lynx/sprites.dat ' + str(spriteWidth) + ' ' + str(spriteHeight) + ' literal\n')
+                fp.write(py27 + ' utils/scripts/lynx/LynxSprites.py ' + sprites[0] + ' ' + buildFolder + '/lynx/sprites.dat ' + str(spriteWidth) + ' ' + str(spriteHeight) + ' literal\n')
                 fp.write('\n')
 
             # Chunks
             if len(chunks) > 0:
-                fp.write('utils\\py27\\python utils\\scripts\\ProcessChunks.py lynx ' + chunks[0] + ' ' + buildFolder + '/lynx/\n')
+                fp.write(py27 + ' utils/scripts/ProcessChunks.py lynx ' + chunks[0] + ' ' + buildFolder + '/lynx/\n')
                 fp.write('\n')
 
             # Charmaps/Tilesets
@@ -1555,7 +1569,7 @@ class Application:
             # Copy Chipper sfx and music data
             fp.write('copy unity\\targets\\lynx\\chipper.s ' + buildFolder + '\\lynx\\soundbs.mac\n')    
             for i in range(len(music)):
-                fp.write('utils\\py27\\python utils/scripts/lynx/LynxChipper.py ' + music[i] + ' ' + buildFolder + '/lynx/music' + str(i).zfill(2) + '.asm _musData' + str(i).zfill(2) + ' MUS' + str(i) + 'DATA \n')
+                fp.write(py27 + ' utils/scripts/lynx/LynxChipper.py ' + music[i] + ' ' + buildFolder + '/lynx/music' + str(i).zfill(2) + '.asm _musData' + str(i).zfill(2) + ' MUS' + str(i) + 'DATA \n')
             fp.write('\n')
 
             # Copy Shared files
@@ -1741,20 +1755,20 @@ class Application:
             fp.write('\n')
 
             # Generate config and directory Files
-            fp.write('utils\\py27\\python utils/scripts/lynx/LynxConfig.py unity/targets/lynx/lynx.cfg ' + buildFolder + '/lynx/lynx.cfg ' + self.entry_LynxMusicMemory.get() + ' ' + self.entry_LynxSharedMemory.get() + ' ' + chunkSize + ' ' + str(len(bitmaps)+len(charmaps)+len(charset)) + ' ' + str(len(music)) + ' ' + str(len(sharedLynx)) + ' ' + str(len(chunks)) + '\n')
-            fp.write('utils\\py27\\python utils/scripts/lynx/LynxDirectory.py unity/targets/lynx/directory.s ' + buildFolder + '/lynx/directory.asm ' + str(len(bitmaps)+len(charmaps)+len(charset)) + ' ' + str(len(music)) + ' ' + str(len(sharedLynx)) + ' ' + str(len(chunks)) + '\n')
+            fp.write(py27 + ' utils/scripts/lynx/LynxConfig.py unity/targets/lynx/lynx.cfg ' + buildFolder + '/lynx/lynx.cfg ' + self.entry_LynxMusicMemory.get() + ' ' + self.entry_LynxSharedMemory.get() + ' ' + chunkSize + ' ' + str(len(bitmaps)+len(charmaps)+len(charset)) + ' ' + str(len(music)) + ' ' + str(len(sharedLynx)) + ' ' + str(len(chunks)) + '\n')
+            fp.write(py27 + ' utils/scripts/lynx/LynxDirectory.py unity/targets/lynx/directory.s ' + buildFolder + '/lynx/directory.asm ' + str(len(bitmaps)+len(charmaps)+len(charset)) + ' ' + str(len(music)) + ' ' + str(len(sharedLynx)) + ' ' + str(len(chunks)) + '\n')
                         
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Build Unity Library
-            cTarget = [ 'adaptors\\hub.c', 'graphics\\pixel.c', 'targets\\lynx\\cgetc.c', 'targets\\lynx\\display.c', 'targets\\lynx\\files.c', 'targets\\lynx\\keyboard.c', 'targets\\lynx\\screen.c', 'targets\\lynx\\text.c' ]
-            sTarget = [ 'graphics\\scroll.s', 'strings\\chars.s', 'targets\\lynx\\header.s', 'targets\\lynx\\blitCharmap.s', 'targets\\lynx\\serial.s', 'targets\\lynx\\suzy.s' ]
+            cTarget = [ 'adaptors/hub.c', 'graphics/pixel.c', 'targets/lynx/cgetc.c', 'targets/lynx/display.c', 'targets/lynx/files.c', 'targets/lynx/keyboard.c', 'targets/lynx/screen.c', 'targets/lynx/text.c' ]
+            sTarget = [ 'graphics/scroll.s', 'strings/chars.s', 'targets/lynx/header.s', 'targets/lynx/blitCharmap.s', 'targets/lynx/serial.s', 'targets/lynx/suzy.s' ]
             symbols = ' -D __HUB__ -D MUSICSIZE='  + self.entry_LynxMusicMemory.get().replace('$','0x') + ' -D CHUNKSIZE='  + chunkSize.replace('$','0x') + ' -D SHAREDSIZE='  + self.entry_LynxSharedMemory.get().replace('$','0x') + ' -D SPRITEFRAMES=' + self.entry_LynxSpriteFrames.get() + ' -D SPRITEWIDTH=' + self.entry_LynxSpriteWidth.get() + ' -D SPRITEHEIGHT=' + self.entry_LynxSpriteHeight.get()
             BuildUnityLibrary(self, fp, '-t lynx --cpu 65SC02', symbols, cCore+cTarget, sCore+sTarget, buildFolder+'/lynx')
                                      
             # Compile Program 
             symbols += ' -Wl -D,MUSICSIZE='  + self.entry_LynxMusicMemory.get() + ' -Wl -D,CHUNKSIZE='  + chunkSize + ',-D,SHAREDSIZE='  + self.entry_LynxSharedMemory.get()
-            comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/' + diskname.lower() + '-lynx.lnx -m ' + buildFolder + '/' + diskname.lower() + '-lynx.map -Cl -O -t lynx' + symbols + ' -C ' + buildFolder + '/lynx/lynx.cfg -I unity '
+            comp = cl65 + ' -o ' + buildFolder + '/' + diskname.lower() + '-lynx.lnx -m ' + buildFolder + '/' + diskname.lower() + '-lynx.map -Cl -O -t lynx' + symbols + ' -C ' + buildFolder + '/lynx/lynx.cfg -I unity '
             for item in code:
                 comp += (item + ' ')
             for i in range(len(music)):
@@ -1798,13 +1812,13 @@ class Application:
             if len(bitmaps) > 0:
                 for item in bitmaps:
                     fb = FileBase(item, '.png')
-                    fp.write('utils\\py27\\python utils/scripts/nes/NESBitmap.py ' + item + ' ' + buildFolder + '/nes/'+ fb + '.chr ' + buildFolder + '/nes/'+ fb + '.img ' + str(maxTiles) + '\n')
+                    fp.write(py27 + ' utils/scripts/nes/NESBitmap.py ' + item + ' ' + buildFolder + '/nes/'+ fb + '.chr ' + buildFolder + '/nes/'+ fb + '.img ' + str(maxTiles) + '\n')
                 fp.write('\n')
 
             if len(charset) > 0:
                 for item in charset:
                     fb = FileBase(item, '.png')
-                    fp.write('utils\\py27\\python utils/scripts/nes/NESCharset.py ' + item + ' ' + buildFolder + '/nes/'+ fb + '.chr ' + buildFolder + '/nes/'+ fb + '.dat\n')
+                    fp.write(py27 + ' utils/scripts/nes/NESCharset.py ' + item + ' ' + buildFolder + '/nes/'+ fb + '.chr ' + buildFolder + '/nes/'+ fb + '.dat\n')
                 fp.write('\n')
             
             if len(charmaps) > 0:
@@ -1816,7 +1830,7 @@ class Application:
             if len(sprites) > 0:
                 spriteWidth  = int(self.entry_NESSpriteWidth.get())
                 spriteHeight = int(self.entry_NESSpriteHeight.get())
-                fp.write('utils\\py27\\python utils/scripts/nes/NESSprites.py ' + sprites[0] + ' ' + buildFolder + '/nes/sprites.chr ' + str(spriteWidth) + ' ' + str(spriteHeight) + '\n')
+                fp.write(py27 + ' utils/scripts/nes/NESSprites.py ' + sprites[0] + ' ' + buildFolder + '/nes/sprites.chr ' + str(spriteWidth) + ' ' + str(spriteHeight) + '\n')
             else:
                 fp.write('copy utils\\scripts\\nes\\font.chr ' + buildFolder + '\\nes\\sprites.chr\n')
             fp.write('\n')
@@ -1829,7 +1843,7 @@ class Application:
 
             if len(chunks) > 0:            
                 for i in range(len(chunks)):
-                    fp.write('utils\\py27\\python utils/scripts/nes/NESChunks.py ' + chunks[i] + ' ' + buildFolder + '/nes/ ' + str(maxTiles) + '\n')
+                    fp.write(py27 + ' utils/scripts/nes/NESChunks.py ' + chunks[i] + ' ' + buildFolder + '/nes/ ' + str(maxTiles) + '\n')
                 fp.write('\n')                
 
             if len(sharedNES) > 0:             
@@ -2075,14 +2089,14 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             # Build Unity Library
-            cTarget = [ 'adaptors\\hub.c', 'adaptors\\joystick.c', 'graphics\\pixel.c', 'targets\\nes\\cgetc.c', 'targets\\nes\\conio.c', 'targets\\nes\\display.c', 'targets\\nes\\files.c', 'targets\\nes\\keyboard.c', 'targets\\nes\\memory.c', 'targets\\nes\\text.c' ]
-            sTarget = [ 'targets\\nes\\blitCharmap.s', 'targets\\nes\\crt0.s', 'targets\\nes\\expansion.s', 'targets\\nes\\joypad.s' ]
+            cTarget = [ 'adaptors/hub.c', 'adaptors/joystick.c', 'graphics/pixel.c', 'targets/nes/cgetc.c', 'targets/nes/conio.c', 'targets/nes/display.c', 'targets/nes/files.c', 'targets/nes/keyboard.c', 'targets/nes/memory.c', 'targets/nes/text.c' ]
+            sTarget = [ 'targets/nes/blitCharmap.s', 'targets/nes/crt0.s', 'targets/nes/expansion.s', 'targets/nes/joypad.s' ]
             symbols = ' -D __HUB__ -D CHUNKSIZE='  + chunkSize.replace('$','0x') + ' -D SPRITEFRAMES=' + self.entry_NESSpriteFrames.get() + ' -D SPRITEWIDTH=' + self.entry_NESSpriteWidth.get() + ' -D SPRITEHEIGHT=' + self.entry_NESSpriteHeight.get()
             BuildUnityLibrary(self, fp, '-t nes', symbols, cCore+cTarget, sCore+sTarget, buildFolder+'/nes')
 
             # Compile Program
             symbols += ' -Wl -D,CHUNKSIZE='  + chunkSize
-            comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/' + diskname.lower() + '-nes.nes -m ' + buildFolder + '/' + diskname.lower() + '-nes.map -t nes -Cl -Oirs ' + symbols + ' -C unity/targets/nes/MMC1/MMC1_128_128.cfg -I unity '
+            comp = cl65 + ' -o ' + buildFolder + '/' + diskname.lower() + '-nes.nes -m ' + buildFolder + '/' + diskname.lower() + '-nes.map -t nes -Cl -Oirs ' + symbols + ' -C unity/targets/nes/MMC1/MMC1_128_128.cfg -I unity '
             for item in code:
                 comp += (item + ' ')
             fp.write(comp  + buildFolder + '/nes/data.asm ' + buildFolder + '/nes/unity.lib ' + 'nes.lib\n\n')
@@ -2119,14 +2133,14 @@ class Application:
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
     
             # Build Unity Library
-            cTarget = [ 'adaptors\\hub.c', 'graphics\\pixel.c', 'targets\\oric\\directory.c', 'targets\\oric\\files.c' ]
-            sTarget = [ 'graphics\\scroll.s', 'strings\\chars.s', 'targets\\oric\\blitCharmap.s', 'targets\\oric\\blitSprite.s', 'targets\\oric\\paseIJK.s', 'targets\\oric\\keyboard.s', 'targets\\oric\\sedoric.s', 'targets\\oric\\MYM.s', 'targets\\oric\\VIA.s' ]
+            cTarget = [ 'adaptors/hub.c', 'graphics/pixel.c', 'targets/oric/directory.c', 'targets/oric/files.c' ]
+            sTarget = [ 'graphics/scroll.s', 'strings/chars.s', 'targets/oric/blitCharmap.s', 'targets/oric/blitSprite.s', 'targets/oric/paseIJK.s', 'targets/oric/keyboard.s', 'targets/oric/sedoric.s', 'targets/oric/MYM.s', 'targets/oric/VIA.s' ]
             symbols = ' -D __HUB__ -D CHUNKSIZE='  + chunkSize.replace('$','0x') + ' -D SPRITEFRAMES=' + self.entry_OricSpriteFrames.get() + ' -D SPRITEWIDTH=' + self.entry_OricSpriteWidth.get() + ' -D SPRITEHEIGHT=' + self.entry_OricSpriteHeight.get()
             BuildUnityLibrary(self, fp, '-t atmos', symbols, cCore+cTarget, sCore+sTarget, buildFolder+'/oric')
 
             # Compile Program
             symbols += ' -Wl -D,CHUNKSIZE='  + chunkSize                     
-            comp = 'utils\\cc65\\bin\\cl65 -o ' + buildFolder + '/oric/' + diskname.lower() + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-oric48k.map -Cl -O -t atmos' + symbols + ' -C unity/targets/oric/oric.cfg -I unity '
+            comp = cl65 + ' -o ' + buildFolder + '/oric/' + diskname.lower() + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-oric48k.map -Cl -O -t atmos' + symbols + ' -C unity/targets/oric/oric.cfg -I unity '
             for item in code:
                 comp += (item + ' ')
             fp.write(comp + buildFolder + '/oric/unity.lib\n\n')
@@ -2172,7 +2186,7 @@ class Application:
             
             if len(sprites) > 0:
                 spriteHeight = int(self.entry_OricSpriteHeight.get())
-                fp.write('utils\\py27\\python utils\\scripts\\oric\\OricSprites.py ' + sprites[0] + ' ' + buildFolder + '/oric/sprites.dat ' + str(spriteHeight) + '\n')
+                fp.write(py27 + ' utils/scripts/oric/OricSprites.py ' + sprites[0] + ' ' + buildFolder + '/oric/sprites.dat ' + str(spriteHeight) + '\n')
                 fp.write('utils\\scripts\\oric\\header -a0 ' + buildFolder + '/oric/sprites.dat ' + buildFolder + '/oric/sprites.dat $7800\n')
                 
             for item in music:
@@ -2222,10 +2236,7 @@ if __name__ == '__main__':
     if useGUI:
         root = Tk()
         app = Application(root)
-        if "nt" == os.name:
-	    root.iconbitmap(bitmap = "builder.ico")
-        else:
-            root.iconbitmap(bitmap = "@builder.xbm")
+        root.iconbitmap(bitmap = icon)
         root.resizable(False, False)
         root.mainloop()
     else:
