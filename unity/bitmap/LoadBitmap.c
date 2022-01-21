@@ -25,9 +25,18 @@
  */
 
 #include "unity.h"
-#include "bitmap.h"
+
+#ifdef __APPLE2__
+  #pragma code-name("LC")
+#endif
+
+#ifdef __ATARIXL__
+  #pragma code-name("SHADOW_RAM")
+#endif
 
 #ifdef __NES__
+  #pragma rodata-name("BANK0")
+  #pragma code-name("BANK0")
   #pragma bss-name(push, "XRAM")
   unsigned char rleData[BITMAPRAM];  
   #pragma bss-name(pop)

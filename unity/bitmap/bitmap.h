@@ -24,16 +24,6 @@
  *   specific prior written permission.
  */
 
-#ifdef __APPLE2__
-  #pragma code-name("LC")
-#endif
-
 #ifdef __ATARIXL__
-  #pragma code-name("SHADOW_RAM")
   extern unsigned char doubleBuffer;
-#endif
-
-#ifdef __NES__
-  #pragma rodata-name("BANK0")
-  #pragma code-name("BANK0")
 #endif

@@ -45,29 +45,43 @@
 #include <time.h>
 #include <unistd.h>
 
-// Custom Characters
-#include "strings/chars.h"
-
 // Platform IDs
 #if defined __CBM__
-	#define PLATFORM 0	
+	#define PLATFORM   0	
+    #define SPRITE_NUM 8
     #include "targets/c64/platform.h"		
+
 #elif defined __ATARI__
-	#define PLATFORM 1
+	#define PLATFORM   1
+    #define SPRITE_NUM 12
     #include "targets/atari/platform.h"	
+
 #elif defined __APPLE2__
-	#define PLATFORM 2
+	#define PLATFORM   2
+    #define SPRITE_NUM 8
     #include "targets/apple2/platform.h"		
+
 #elif defined __ATMOS__
-	#define PLATFORM 3
+	#define PLATFORM   3
+    #define SPRITE_NUM 8
     #include "targets/oric/platform.h"	
+
 #elif defined __LYNX__
-	#define PLATFORM 4
+	#define PLATFORM   4
+    #define SPRITE_NUM 8  
     #include "targets/lynx/platform.h"	
+
 #elif defined __NES__
-	#define PLATFORM 5
+	#define PLATFORM   5
+    #define SPRITE_NUM 8
     #include "targets/nes/platform.h"	
 #endif
+
+// Unity Modules
+#include "bitmap/bitmap.h"
+#include "charmap/charmap.h"
+#include "sprites/sprites.h"
+#include "strings/chars.h"
 
 // Adaptors
 #if defined __HUB__
@@ -250,19 +264,6 @@ void StopSFX(void);
 void PlaySFX(unsigned char index, unsigned char pitch, unsigned char volume, unsigned char channel);
 
 // Sprite handling functions
-#if defined __APPLE2__
-  #define SPRITE_NUM 8
-#elif defined __ATARI__
-  #define SPRITE_NUM 12
-#elif defined __CBM__
-  #define SPRITE_NUM 8
-#elif defined __LYNX__
-  #define SPRITE_NUM 8  
-#elif defined __NES__
-  #define SPRITE_NUM 8
-#elif defined __ORIC__
-  #define SPRITE_NUM 8
-#endif
 void LoadSprites(unsigned char* filename, const unsigned char *spriteColors);
 void EnableSprite(signed char index);
 void DisableSprite(signed char index);

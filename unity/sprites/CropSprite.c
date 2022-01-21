@@ -25,7 +25,19 @@
  */
 
 #include "unity.h"
-#include "Sprites.h"
+
+#ifdef __APPLE2__
+  #pragma code-name("LOWCODE")
+#endif
+
+#ifdef __ATARIXL__
+  #pragma code-name("SHADOW_RAM")
+#endif
+
+#ifdef __NES__
+  #pragma rodata-name("BANK0")
+  #pragma code-name("BANK0")
+#endif
 
 void CropSprite(unsigned char index, unsigned char rows) 
 {

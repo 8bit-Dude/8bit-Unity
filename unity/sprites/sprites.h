@@ -24,19 +24,6 @@
  *   specific prior written permission.
  */
 
-#ifdef __APPLE2__
-  #pragma code-name("LOWCODE")
-#endif
-
-#ifdef __ATARIXL__
-  #pragma code-name("SHADOW_RAM")
-#endif
-
-#ifdef __NES__
-  #pragma rodata-name("BANK0")
-  #pragma code-name("BANK0")
-#endif
-
 // Platform specific definitions
 #if defined __APPLE2__
     #define BYTEWIDTH 2		// 2 bytes = 7 pixels wide (4 bytes between AUX/MAIN in DHR)

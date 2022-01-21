@@ -25,9 +25,18 @@
  */
 
 #include "unity.h"
-#include "charmap.h"
 
-#if defined __NES__
+#ifdef __APPLE2__
+  #pragma code-name("LC")
+#endif
+
+#ifdef __ATARIXL__
+  #pragma code-name("SHADOW_RAM")
+#endif
+
+#ifdef __NES__
+  #pragma rodata-name("BANK0")
+  #pragma code-name("BANK0")
  #pragma bss-name(push, "XRAM")
 #endif
 
