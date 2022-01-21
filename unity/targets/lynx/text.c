@@ -58,26 +58,22 @@ int cprintf(const char* format, ...)
 	}
 }
 
-int scanf(const char *format, ...)
+char *gets(char *s)
 {
-	unsigned char buffer[16];
-	va_list vl;
-	
 	// Reset buffer
-	buffer[0] = 0;
+	s[0] = 0;
 
 	// Run input loop
 	ShowKeyboardOverlay();
 	while (1) {
-		if (KeyboardOverlayHit() && InputStr(16, buffer, 16, GetKeyboardOverlay()))
+		if (KeyboardOverlayHit() && InputStr(16, s, 16, GetKeyboardOverlay()))
 			break;
 		UpdateDisplay();
 	}
 	HideKeyboardOverlay();
-	
-	// Decode arguments
-	va_start(vl, format);	
-	sscanf(buffer, format, vl);
-	va_end(vl);
-	return 1; 
+}
+
+int putchar (int c)
+{
+	PrintChr(c);
 }

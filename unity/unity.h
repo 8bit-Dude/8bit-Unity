@@ -357,15 +357,14 @@ unsigned char GetLocalIP(unsigned char* ip);				// Fetch local IP
 #define EASY_CRED    1
 #define EASY_FULL    2
 #define EASY_TIMEOUT 3
+#define EASY_BUFFER 256
 
 // Easynet variables and functions
-extern unsigned char easyBuffer[16];
-unsigned char EasyHost(unsigned char protocol, unsigned char slots, // protocol: EASY_TCP or EASY_UDP (ID and PASS generated automatically)
-					   unsigned int *ID, unsigned int *PASS);	 
-unsigned char EasyJoin(unsigned char protocol, 						// 				" "				  (ID and PASS must match host)
-					   unsigned int *ID, unsigned int *PASS);	 
+extern unsigned char easyProt, easyLive, easySlot;
+unsigned char EasyHost(unsigned char protocol, unsigned char slots, unsigned int *ID, unsigned int *PASS); 	// protocol: EASY_TCP or EASY_UDP (ID and PASS generated automatically)
+unsigned char EasyJoin(unsigned char protocol,  unsigned int *ID, unsigned int *PASS);						// 				   " "		      (ID and PASS must match host)		  	 
 void EasySend(unsigned char *buffer, unsigned char len);
-unsigned char EasyRecv(unsigned char timeout);
+unsigned char *EasyRecv(unsigned char timeout, unsigned char* len);
 void EasyQuit(void);
 
 // TCP functions

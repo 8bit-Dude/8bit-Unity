@@ -33,7 +33,7 @@
 
 void screensize(unsigned char *xSize, unsigned char *ySize) 
 {
-	*xSize = 32; *ySize = 25;
+	*xSize = 32; *ySize = 24;
 }
 
 void gotoxy(unsigned char col, unsigned char row) 
@@ -43,21 +43,39 @@ void gotoxy(unsigned char col, unsigned char row)
 
 int cprintf(const char* format, ...) 
 {
-	va_list ap;
-	unsigned char value;
 	unsigned char buffer[40];
+	va_list vl;
 	
-	va_start(ap, format);
-	value = va_arg(ap, unsigned char);
-	sprintf(buffer, format, value);
-	va_end(ap);
+	va_start(vl, format);
+	sprintf(buffer, format, vl);
+	va_end(vl);
 	
+	if (txtX + strlen(buffer) > 39)
+		buffer[39-txtX] = 0;
 	PrintStr(buffer);
 	txtX += strlen(buffer);
-	while (txtX > 39) {
+	if (txtX > 39) {
 		txtX -= 40;
 		txtY++;
 	}
-	
-	return 1;
+}
+
+char *gets(char *s)
+{
+	// Reset buffer
+	s[0] = 0;
+
+	// Run input loop
+	ShowKeyboardOverlay();
+	while (1) {
+		if (KeyboardOverlayHit() && InputStr(16, s, 16, GetKeyboardOverlay()))
+			break;
+		UpdateDisplay();
+	}
+	HideKeyboardOverlay();
+}
+
+int putchar (int c)
+{
+	PrintChr(c);
 }

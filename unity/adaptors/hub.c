@@ -230,8 +230,7 @@ void UpdateHub()
 			recvID = 0; recvLen = 0;
 			sendID = 0; sendLen = 0;
 			QueueHub(HUB_SYS_RESET, 0, 0);
-		  //#if defined(__APPLE2__) || 
-		  #if defined(__LYNX__)
+		  #if defined(__LYNX__) // || defined(__APPLE2__)
 			SerialOpen(&comParm); 
 		  #endif		
 		}

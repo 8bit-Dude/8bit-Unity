@@ -131,3 +131,6 @@ void memcpyBanked(unsigned char* dst, unsigned char* src, unsigned int len, unsi
 
 // Hires gfx functions (see blitXXX.s)
 void __fastcall__ BlitCharmap(void);
+
+// Soft Keyboard functions
+char cgetKeyboardOverlay(void);

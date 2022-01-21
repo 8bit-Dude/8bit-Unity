@@ -26,18 +26,21 @@
 
 #include "unity.h"
 
+// Message Identifiers
 #define EASY_HOST 11
 #define EASY_JOIN 12
 #define EASY_SEND 13
 #define EASY_RECV 14
 #define EASY_QUIT 15
 
+// Internal Variables
+clock_t easyTimer;
 unsigned char easyProt = 0;
 unsigned char easyLive = 0;
-unsigned char easyBuffer[16];
+unsigned char easySlot = 0;
+unsigned char easyBuffer[EASY_BUFFER];
 unsigned char easyIP[] = { 199, 47, 196, 106 };
 //unsigned char easyIP[] = { 127, 0, 0, 1 };
-clock_t easyTimer;
 
 unsigned char EasyHost(unsigned char protocol, unsigned char slots, unsigned int *ID, unsigned int *PASS)
 {
@@ -72,7 +75,7 @@ unsigned char EasyHost(unsigned char protocol, unsigned char slots, unsigned int
 		// Check contents
 		if ((int)packet && packet[0] == EASY_HOST) {
 			easyLive = 1;
-			easyBuffer[0] = 0;				
+			easySlot = 0;			
 			*ID = PEEKW(&packet[1]);
 			*PASS = PEEKW(&packet[3]);
 			return EASY_OK;
@@ -120,7 +123,7 @@ unsigned char EasyJoin(unsigned char protocol, unsigned int *ID, unsigned int *P
 			switch (packet[0]) {
 			case EASY_JOIN:
 				easyLive = 1;
-				easyBuffer[0] = packet[1];
+				easySlot = packet[1];
 				return EASY_OK;
 			case EASY_CRED:
 				return EASY_CRED;
@@ -153,34 +156,27 @@ void EasySend(unsigned char *buffer, unsigned char len)
 	}
 }
 
-unsigned char EasyRecv(unsigned char timeout)
+unsigned char *EasyRecv(unsigned char timeout, unsigned char* len)
 {
 	unsigned char *packet;
 	
 	if (!easyLive) 
 		return 0;
 
-	// Set timer
-	easyTimer = clock()+timeout;	
-
-	// Wait for incoming data
-	while (1) {
-		// Fetch packet
-		if (easyProt == EASY_TCP) {
-			packet = RecvTCP(0);
-		} else {
-			packet = RecvUDP(0);
-		}
+	// Fetch packet
+	if (easyProt == EASY_TCP) {
+		packet = RecvTCP(timeout);
+	} else {
+		packet = RecvUDP(timeout);
+	}
 		
-		// Check contents
-		if ((int)packet && packet[0] == EASY_RECV) {
-			memcpy(easyBuffer, &packet[1], packet[2]+2);
-			return EASY_OK;
-		}
-		
-		// Check time-out
-		if (clock() >= easyTimer)
-			return EASY_TIMEOUT;		
+	// Check contents
+	if ((int)packet && packet[0] == EASY_RECV) {
+		*len = packet[1];
+		return &packet[2];
+	} else {
+		*len = 0;
+		return 0;		
 	}
 }
 
