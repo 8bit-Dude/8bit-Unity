@@ -136,12 +136,12 @@
 	}
 	
 #elif defined __CBM__			  //  Attack/Decay  Sustain/Release  Ctrl Attack  Ctrl Release  Pitch Mult.
-	unsigned char sfxData[][] = { { 	0x22,			0x09,			0x11,		0x10, 		   64	},		// SFX_BLEEP  (Ctrl: Triangle Wave)
-								  {     0x22,			0xA8,			0x21,		0x20, 		   32  	},		// SFX_BUMP	  (Ctrl: Square Wave)
-								  {     0x00,    		0xA8,			0x61,		0x00, 		   8	},		// SFX_ENGINE
-								  {     0x10,    		0xA8,			0x21,		0x10, 		   8	},		// SFX_INJURY (Ctrl: Square Wave)
-								  {     0x22,			0xA8,			0x21,		0x20, 		   8 	},		// SFX_GUN	  (Ctrl: Square Wave)
-								  {     0x00,			0xA8,			0x61,		0x00, 		   8	} };	// SFX_SCREECH
+	unsigned char sfxData[6][5] = { { 	 0x22,			0x09,			0x11,		0x10, 		   64	},		// SFX_BLEEP  (Ctrl: Triangle Wave)
+								    {    0x22,			0xA8,			0x21,		0x20, 		   32  	},		// SFX_BUMP	  (Ctrl: Square Wave)
+								    {    0x00,    		0xA8,			0x61,		0x00, 		   8	},		// SFX_ENGINE
+								    {    0x10,    		0xA8,			0x21,		0x10, 		   8	},		// SFX_INJURY (Ctrl: Square Wave)
+								    {    0x22,			0xA8,			0x21,		0x20, 		   8 	},		// SFX_GUN	  (Ctrl: Square Wave)
+								    {    0x00,			0xA8,			0x61,		0x00, 		   8	} };	// SFX_SCREECH
 
 	void PlaySFX(unsigned char index, unsigned char pitch, unsigned char volume, unsigned char channel) {
 		// Prepare SFX data
@@ -170,13 +170,13 @@
 		if (data[3]) { ch->ctrl = data[3]; }
 	}
 	
-#elif defined __ORIC__			 // Env.  Period  
-	unsigned char sfxData[][] = { {  6,   1000 },	// SFX_BLEEP
-								  {  1,    100 },	// SFX_BUMP
-								  {  0,      0 },	// SFX_ENGINE
-								  {  6,     10 },	// SFX_INJURY
-								  {  2,     20 },	// SFX_GUN
-								  {  0,      0 } };	// SFX_SCREECH
+#elif defined __ORIC__			   // Env.  Period  
+	unsigned char sfxData[6][2] = { {  6,   1000 },		// SFX_BLEEP
+								    {  1,    100 },		// SFX_BUMP
+								    {  0,      0 },		// SFX_ENGINE
+								    {  6,     10 },		// SFX_INJURY
+								    {  2,     20 },		// SFX_GUN
+								    {  0,      0 } };	// SFX_SCREECH
 								  
 	extern unsigned char volumeLevel;
 
@@ -260,13 +260,13 @@
 		EnableChannels();
 	}
 	
-#elif defined __LYNX__			  //  Prior  Period  Taps  Octv  Int.  
-	unsigned char sfxData[][] = { {     0,	 15,    7,    2,    1 },	// SFX_BLEEP
-								  {     1,	  5,    7,    4,    1 },	// SFX_BUMP
-								  {     2,	  0,   60,    2,    0 },	// SFX_ENGINE
-								  {     1,	  2,    7,    4,    1 },	// SFX_INJURY
-								  {     1,	  4,    7,    4,    1 },	// SFX_GUN
-								  {     2,	  0,  107,    2,    1 } };	// SFX_SCREECH
+#elif defined __LYNX__			    //  Prior  Period  Taps  Octv  Int.  
+	unsigned char sfxData[6][5] = { {     0,	 15,    7,    2,    1 },	// SFX_BLEEP
+								    {     1,	  5,    7,    4,    1 },	// SFX_BUMP
+								    {     2,	  0,   60,    2,    0 },	// SFX_ENGINE
+								    {     1,	  2,    7,    4,    1 },	// SFX_INJURY
+								    {     1,	  4,    7,    4,    1 },	// SFX_GUN
+								    {     2,	  0,  107,    2,    1 } };	// SFX_SCREECH
 	
 	// ABCmusic functions (see lynx/sfx.s)
 	unsigned char abcpriority[4] = {0, 0, 0, 0};
@@ -292,13 +292,13 @@
 		}
 	}
 
-#elif defined __NES__			  		 //  Pulse       Ramp       Length  
-	const unsigned char sfxData[][] = { { 0b10011111, 0b00000000, 0b11111000 },	// SFX_BLEEP
-									    { 0b10011111, 0b00000000, 0b11111000 },	// SFX_BUMP
-										{ 0b11001111, 0b00000000, 0b11111000 },	// SFX_ENGINE
-										{ 0b10011111, 0b00000000, 0b11111000 },	// SFX_INJURY
-										{ 0b10011111, 0b00000000, 0b11111000 },	// SFX_GUN
-										{ 0b10011111, 0b00000000, 0b11111000 } };	// SFX_SCREECH	
+#elif defined __NES__			  		   //  Pulse       Ramp       Length  
+	const unsigned char sfxData[6][3] = { { 0b10011111, 0b00000000, 0b11111000 },	// SFX_BLEEP
+									      { 0b10011111, 0b00000000, 0b11111000 },	// SFX_BUMP
+										  { 0b11001111, 0b00000000, 0b11111000 },	// SFX_ENGINE
+										  { 0b10011111, 0b00000000, 0b11111000 },	// SFX_INJURY
+										  { 0b10011111, 0b00000000, 0b11111000 },	// SFX_GUN
+										  { 0b10011111, 0b00000000, 0b11111000 } };	// SFX_SCREECH	
 	
 	// Pulse Ctrl:  DDLLC VVVV
 	// D: Duty cycle of the pulse wave 00 = 12.5% 01 = 25% 10 = 50% 11 = 75%
