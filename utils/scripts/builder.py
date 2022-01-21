@@ -909,6 +909,7 @@ class Application:
         self.listbox_OricMusic.delete(0, ACTIVE) 
 
     def GenerateScripts(self):
+    	# Get shared parameters
         diskname = self.entry_Disk.get()
         code = list(self.listbox_Code.get(0, END))
         charmaps = list(self.listbox_Charmap.get(0, END))
@@ -916,6 +917,12 @@ class Application:
         if len(code) < 1:
             messagebox.showinfo('Error', 'Please add C source file(s)!')
             return
+        
+        # Script extension    
+        if "nt" == os.name:
+            sext = ".bat"
+        else:
+            sext = ".sh"
 
         ####################################################
         # Apple script
@@ -955,7 +962,7 @@ class Application:
                 if len(spritesSHR) > 0:
                     sprites = spritesSHR        
         
-            with open('../../' + buildFolder+'/'+diskname+"-apple"+target+".bat", "wb") as fp:
+            with open('../../' + buildFolder+'/'+diskname+"-apple"+target+sext, "wb") as fp:
                 # Info
                 fp.write('echo off\n\n')
                 fp.write('mkdir apple\n')            
@@ -1139,7 +1146,7 @@ class Application:
             else:
                 graphics = 'single'
         
-            with open('../../' + buildFolder+'/'+diskname+"-atari"+target+".bat", "wb") as fp:
+            with open('../../' + buildFolder+'/'+diskname+"-atari"+target+sext, "wb") as fp:
                 # Info
                 fp.write('echo off\n\n')
                 fp.write('mkdir atari\n')            
@@ -1323,7 +1330,7 @@ class Application:
         if len(networkOptions) == 0:
             networkOptions.append('None')                    
             
-        with open('../../' + buildFolder+'/'+diskname+"-c64.bat", "wb") as fp:
+        with open('../../' + buildFolder+'/'+diskname+"-c64"+sext, "wb") as fp:
             # Info
             fp.write('echo off\n\n')
             fp.write('setlocal enableextensions enabledelayedexpansion\n\n')
@@ -1499,7 +1506,7 @@ class Application:
         sharedLynx = [item for item in shared if self.entry_LynxAssetFilter.get() not in item]
         chunkSize = self.entry_LynxChunkMemory.get().replace('$0000','$0001')
         
-        with open('../../' + buildFolder+'/'+diskname+"-lynx.bat", "wb") as fp:
+        with open('../../' + buildFolder+'/'+diskname+"-lynx"+sext, "wb") as fp:
             # Info
             fp.write('echo off\n\n')
             fp.write('setlocal enableextensions enabledelayedexpansion\n\n')
@@ -1777,7 +1784,7 @@ class Application:
         sharedNES = [item for item in shared if self.entry_NESAssetFilter.get() not in item]
         chunkSize = self.entry_NESChunkMemory.get().replace('$0000','$0001')
         
-        with open('../../' + buildFolder+'/'+diskname+"-nes.bat", "wb") as fp:
+        with open('../../' + buildFolder+'/'+diskname+"-nes"+sext, "wb") as fp:
             # Info
             fp.write('echo off\n\n')
             fp.write('setlocal enableextensions enabledelayedexpansion\n\n')
@@ -2101,7 +2108,7 @@ class Application:
         sharedOric = [item for item in shared if self.entry_OricAssetFilter.get() not in item]
         chunkSize = self.entry_OricChunkMemory.get().replace('$0000','$0001')
         
-        with open('../../' + buildFolder+'/'+diskname+"-oric48k.bat", "wb") as fp:
+        with open('../../' + buildFolder+'/'+diskname+"-oric48k"+sext, "wb") as fp:
             # Info
             fp.write('echo off\n\n')
             fp.write('setlocal enableextensions enabledelayedexpansion\n\n')
