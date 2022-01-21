@@ -2215,7 +2215,10 @@ if __name__ == '__main__':
     if useGUI:
         root = Tk()
         app = Application(root)
-        root.iconbitmap('builder.ico')
+        if "nt" == os.name:
+	    root.iconbitmap(bitmap = "builder.ico")
+        else:
+            root.iconbitmap(bitmap = "@builder.xbm")
         root.resizable(False, False)
         root.mainloop()
     else:

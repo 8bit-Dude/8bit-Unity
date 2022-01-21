@@ -1,11 +1,11 @@
 <?xml version='1.0' encoding='utf-8'?>
 <interface>
   <object class="ttk.Frame" id="mainwindow">
-    <property name="height">800</property>
+    <property name="height">650</property>
     <child>
       <object class="ttk.Notebook" id="Notebook_Assets">
-        <property name="height">520</property>
-        <property name="width">500</property>
+        <property name="height">600</property>
+        <property name="width">550</property>
         <layout>
           <property name="column">0</property>
           <property name="propagate">True</property>
