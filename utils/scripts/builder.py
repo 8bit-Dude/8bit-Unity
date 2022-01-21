@@ -32,6 +32,7 @@ import os, pickle, pygubu, sys, collections, json, codecs
 
 # Script extension    
 if "nt" == os.name:
+    addr = ""
     sext = ".bat"
     ar65 = "utils\\cc65\\bin\\ar65"
     ca65 = "utils\\cc65\\bin\\ca65"
@@ -41,6 +42,7 @@ if "nt" == os.name:
     py27 = "utils\\py27\\python"
     icon = "builder.ico"
 else:
+    addr = "\\"
     sext = ".sh"
     ar65 = "ar65"
     ca65 = "ca65"
@@ -1014,7 +1016,7 @@ class Application:
                     BuildUnityLibrary(self, fp, '-t apple2', symbols, cCore+cTarget, sCore+sTarget, buildFolder+'/apple')
 
                     # Compile Program
-                    symbols += ' -Wl -D,__STACKSIZE__=$0400,-D,__HIMEM__=$B800,-D,__LCADDR__=$D000,-D,__LCSIZE__=$1000,-D,CHUNKSIZE='  + chunkSize
+                    symbols += ' -Wl -D,__STACKSIZE__=' + addr + '$0400,-D,__HIMEM__=' + addr + '$B800,-D,__LCADDR__=' + addr + '$D000,-D,__LCSIZE__=' + addr + '$1000,-D,CHUNKSIZE=' + addr + chunkSize
                     comp = cl65 + ' -o ' + buildFolder + '/apple/' + executable + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-apple' + target + '-' + network + '.map -Cl -O -t apple2 ' + symbols + ' -C apple2-hgr.cfg -I unity '
                     for item in code:
                         comp += item + ' '
