@@ -94,7 +94,7 @@ void PrintChr(unsigned char chr)
 	
 #else	
 	// Declare variables
-	unsigned char *src;
+	char *src;
   #if defined __APPLE2__
 	unsigned int x,y;
 	unsigned char i,j,n,line;
