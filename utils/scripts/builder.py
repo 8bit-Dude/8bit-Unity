@@ -34,7 +34,9 @@ import os, pickle, pygubu, sys, collections, json, codecs
 if "nt" == os.name:
     addr = ""
     sext = ".bat"
+    datr = "utils\\scripts\\atari\\dir2atr.exe"
     ex31 = "utils\\scripts\\exomizer-3.1.0.exe"
+    mads = "utils\\scripts\\atari\\mads.exe"
     ar65 = "utils\\cc65\\bin\\ar65"
     ca65 = "utils\\cc65\\bin\\ca65"
     cc65 = "utils\\cc65\\bin\\cc65"
@@ -45,7 +47,9 @@ if "nt" == os.name:
 else:
     addr = "\\"
     sext = ".sh"
+    datr = "wine utils/scripts/atari/dir2atr.exe"
     ex31 = "wine utils/scripts/exomizer-3.1.0.exe"
+    mads = "wine utils/scripts/atari/mads.exe"
     ar65 = "ar65"
     ca65 = "ca65"
     cc65 = "cc65"
@@ -75,7 +79,7 @@ def Copy(f1, f2):
     
 def Remove(filename):
     if "nt" == os.name:
-        return 'del ' + filename.replace('/','\\') + '\n'
+        return 'del ' + filename.replace('/','\\') + ' /F /Q\n'
     else:
         return 'rm ' + filename + '\n'
     
@@ -1005,9 +1009,9 @@ class Application:
                 fp.write('echo off\n\n')
                 fp.write('mkdir apple\n')            
                 fp.write('cd ..\n\n')
-                fp.write('del build\\apple\\*.* /F /Q\n\n')
+                fp.write(Remove('build/apple/*.*'))
                 
-                fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
+                fp.write('\necho --------------- COMPILE PROGRAM ---------------\n\n')
 
                 # Build Unity Library for eah network target
                 for network in networkOptions:
@@ -1067,10 +1071,10 @@ class Application:
                     fp.write(ex31 + ' sfx bin ' + buildFolder + '/apple/LOADER.bin -B -o ' + buildFolder + '/apple/LOADER\n\n')
 
                 # Clean-up build folder
-                fp.write(Remove(buildFolder + '\\apple\\*.bin'))
-                fp.write(Remove(buildFolder + '\\apple\\unity.lib'))
+                fp.write(Remove(buildFolder + '/apple/*.bin'))
+                fp.write(Remove(buildFolder + '/apple/unity.lib'))
 
-                fp.write('echo --------------- CONVERT ASSETS ---------------  \n\n')
+                fp.write('\necho --------------- CONVERT ASSETS ---------------  \n\n')
 
                 # Bitmaps
                 for item in bitmaps:
@@ -1095,7 +1099,7 @@ class Application:
 
                 # Shared Data
                 for item in sharedApple:
-                    fp.write(Copy(item, buildFolder+'/apple'))
+                    fp.write(Copy(item, buildFolder+'/apple/'+item))
                     
                 fp.write('\necho --------------- APPLE DISK BUILDER --------------- \n\n')
                                 
@@ -1189,9 +1193,9 @@ class Application:
                 fp.write('echo off\n\n')
                 fp.write('mkdir atari\n')            
                 fp.write('cd ..\n\n')
-                fp.write('del ' + buildFolder + '\\atari\\*.* /F /Q\n\n')
+                fp.write(Remove('build/atari/*.*'))
                 
-                fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
+                fp.write('\necho --------------- COMPILE PROGRAM ---------------\n\n')
 
                 # Build Unity Library for eah network target
                 for network in networkOptions:
@@ -1231,7 +1235,7 @@ class Application:
                     # Compile Program
                     if len(networkOptions) > 1:
                         symbols += ' -Wl -D__SYSTEM_CHECK__=1 ' # Loader will perform that check
-                    symbols += ' -Wl -D,__STACKSIZE__=$0400 -Wl -D,CHUNKSIZE='  + chunkSize
+                    symbols += ' -Wl -D,__STACKSIZE__=' + addr + '$0400 -Wl -D,CHUNKSIZE=' + addr + chunkSize
                     comp = cl65 + ' -o ' + buildFolder + '/atari/' + executable + ' -m ' + buildFolder + '/' + diskname.lower() + '-atari' + target + '-' + network + '.map ' + symbols + ' -I unity '
                     for item in code:
                         comp += (item + ' ')
@@ -1267,7 +1271,7 @@ class Application:
 
                 # RMT player
                 if target == '64k':
-                    fp.write('utils\\scripts\\atari\\mads.exe -o:' + buildFolder + '/atari/rmt.bin unity/targets/atari/RMT.a65 \n')
+                    fp.write(mads + ' -o:' + buildFolder + '/atari/rmt.bin unity/targets/atari/RMT.a65 \n')
                     fp.write(py27 + ' utils/scripts/atari/AtariCompress.py ' + buildFolder + '/atari/rmt.bin excDec\n\n')
 
                 # BASIC disabler
@@ -1284,10 +1288,10 @@ class Application:
                 fp.write(cmd + '\n\n')
                 
                 # Clean-up build folder
-                fp.write('del ' + buildFolder + '\\atari\\*.bin\n')
-                fp.write('del ' + buildFolder + '\\atari\\*.lib\n')
+                fp.write(Remove(buildFolder + '/atari/*.bin'))
+                fp.write(Remove(buildFolder + '/atari/*.lib'))
                 if len(networkOptions) == 1:  
-                    fp.write('del ' + buildFolder + '\\atari\\*.xex\n')
+                    fp.write(Remove(buildFolder + '/atari/*.xex'))
                 fp.write('\n\n')                
                                                 
                 fp.write('echo --------------- CONVERT ASSETS ---------------  \n\n')
@@ -1301,7 +1305,7 @@ class Application:
                     
                 # Charmaps/Tilesets
                 for item in charmaps:
-                    fp.write('copy ' + item.replace('/', '\\') + ' ' + buildFolder + '\\atari\n')
+                    fp.write(Copy(item, buildFolder + '/atari/' + item))
                     
                 # Charsets
                 if len(charset) > 0:
@@ -1319,11 +1323,11 @@ class Application:
 
                 # Shared Data
                 for item in sharedAtari:
-                    fp.write('copy ' + item.replace('/','\\') + ' ' + buildFolder + '\\atari\n')
+                    fp.write(Copy(item, buildFolder + '/atari/' + item))
 
                 # Music
                 for item in music:
-                    fp.write('copy ' + item.replace('/','\\') + ' ' + buildFolder + '\\atari\\' + FileBase(item, '.rmt') + '.mus\n')
+                    fp.write(Copy(item, buildFolder + '/atari/' + FileBase(item, '.rmt') + '.mus'))
 
                 fp.write('\necho --------------- ATARI DISK BUILDER --------------- \n\n')
                 
@@ -1333,13 +1337,13 @@ class Application:
 
                 # Disk builder
                 if self.combobox_AtariDiskSize.get() == '360KB':                
-                    fp.write('utils\\scripts\\atari\\dir2atr.exe -md -B utils/scripts/atari/xboot.obx 1440 ' + buildFolder + '/' + diskname + '-atari' + target + '.atr ' + buildFolder + '/atari\n')
+                    fp.write(datr + ' -md -B utils/scripts/atari/xboot.obx 1440 ' + buildFolder + '/' + diskname + '-atari' + target + '.atr ' + buildFolder + '/atari\n')
                 elif self.combobox_AtariDiskSize.get() == '180KB':                
-                    fp.write('utils\\scripts\\atari\\dir2atr.exe -mD -B utils/scripts/atari/xboot.obx ' + buildFolder + '/' + diskname + '-atari' + target + '.atr ' + buildFolder + '/atari\n')
+                    fp.write(datr + ' -mD -B utils/scripts/atari/xboot.obx ' + buildFolder + '/' + diskname + '-atari' + target + '.atr ' + buildFolder + '/atari\n')
                 elif self.combobox_AtariDiskSize.get() == '130KB':                
-                    fp.write('utils\\scripts\\atari\\dir2atr.exe -mE -B utils/scripts/atari/xboot.obx ' + buildFolder + '/' + diskname + '-atari' + target + '.atr ' + buildFolder + '/atari\n')
+                    fp.write(datr + ' -mE -B utils/scripts/atari/xboot.obx ' + buildFolder + '/' + diskname + '-atari' + target + '.atr ' + buildFolder + '/atari\n')
                 elif self.combobox_AtariDiskSize.get() == '90KB':                
-                    fp.write('utils\\scripts\\atari\\dir2atr.exe -mS -B utils/scripts/atari/xboot.obx ' + buildFolder + '/' + diskname + '-atari' + target + '.atr ' + buildFolder + '/atari\n')
+                    fp.write(datr + ' -mS -B utils/scripts/atari/xboot.obx ' + buildFolder + '/' + diskname + '-atari' + target + '.atr ' + buildFolder + '/atari\n')
 
                 fp.write('echo --------------- ATARI DISK READY --------------- \n\n')
                 

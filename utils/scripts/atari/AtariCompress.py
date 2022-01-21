@@ -66,7 +66,10 @@ while (i<len(data)):
         f.close()
         
         # Compress raw data
-        subprocess.call("utils\scripts\zx0.exe " + rawFile, shell=True)
+        if "nt" == os.name:
+            subprocess.call("utils\scripts\zx0.exe " + rawFile, shell=True)
+        else:
+            subprocess.call("wine utils/scripts/zx0.exe " + rawFile, shell=True)
         f = io.open(sfxFile, 'rb')
         sfx = f.read()
         f.close()        
