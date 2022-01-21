@@ -43,21 +43,13 @@ int main (void)
 
 	// Host or Join?
 	gotoxy(0,0); cprintf("Easynet Demo (8bit-Unity 0.5)");
-	gotoxy(0,1); cprintf("(H)ost or (J)oin Session?");
-	while (1) {
-	#if defined(__LYNX__) || defined(__NES__)	
-		res = cgetKeyboardOverlay();
-	#else
-		res = cgetc();
-	#endif
-		if (res == KB_H || res == KB_J)
-			break;
-	}
+	gotoxy(0,1); cprintf("(H)ost or (J)oin Session? "); gets(buffer);
 		
 	////////////////////////	
 	// Setup Connection
-	switch (res) {
-	case KB_H:
+	switch (buffer[0]) {
+	case 'h':
+	case 'H':
 		// Choose name first
 		gotoxy(0,2); cprintf("Choose name: "); gets(myName);
 	
@@ -70,7 +62,8 @@ int main (void)
 		}
 		break;
 		
-	case KB_J:
+	case 'j':
+	case 'J':
 		// Request credential (ID:PASS must match host)
 		gotoxy(0,2); cprintf("Session ID: "); 
 		gets(buffer); sscanf(buffer, "%i", &ID);  
