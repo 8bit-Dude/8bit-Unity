@@ -25,7 +25,6 @@
  */
 
 #include "unity.h"
-#include "../sprites/Sprites.h"
 
 #ifdef __APPLE2__
   #pragma code-name("LOWCODE")
