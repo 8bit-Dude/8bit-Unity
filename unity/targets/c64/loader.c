@@ -7,7 +7,7 @@ const char ultimatePRG[] = "ultimate.prg";
 
 int main (void)
 {
-    unsigned char xSize, ySize, key
+    unsigned char xSize, ySize, key;
 	char *prg;
 
 	// Set text mode colors
