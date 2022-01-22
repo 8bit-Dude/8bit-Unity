@@ -1576,7 +1576,7 @@ class Application:
             
             # Start emulator?
             if callEmu:
-                fp.write(Emulate('utils/emulators/WinVICE-2.4', 'x64.exe', diskname + '-c64.d64'))   
+                fp.write(Emulate('utils/emulators/WinVICE-3.2', 'x64.exe', diskname + '-c64.d64'))   
 
         ####################################################
         # Lynx script
