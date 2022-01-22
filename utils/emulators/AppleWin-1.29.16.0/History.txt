@@ -1,0 +1,1349 @@
+AppleWin history
+================
+
+This version of AppleWin is based directly on Oliver Schmidt's 1.10.4 source.
+
+Bug reports and feature requests should be submitted here:
+https://github.com/AppleWin/AppleWin/issues/new
+
+Tom Charlesworth
+
+1.29.16.0 - 1 Nov 2020
+----------------------
+. [Bug #851] RGB support: AppleColor card (-rgb-card-type apple) is now an alias for Video7's RGB-SL7 card (-rgb-card-type sl7).
+. [Bug #850] RGB support: removed the preconditions for AN3 setting the RGB video mode flags.
+	- IOUDIS soft-switch is for //c only, so removed support for //e.
+
+
+1.29.15.0 - 25 Oct 2020
+-----------------------
+. [Change #764] Fully support the RGB cards, and introduce a new 'Color (RGB Card/Monitor)' dedicated video mode.
+	- [PR #837] Support for 'Le Chat Mauve' Eve and Féline RGB cards.
+	- [PR #826] Support for Video7's RGB-SL7 card.
+	- New command line switch to select RGB card type: -rgb-card-type: apple (default), sl7, eve, feline
+	- New command line switches for SL7: -rgb-card-foreground <color> & -rgb-card-background <color>
+	- NB. The previous 'Color (RGB Monitor)' has now been renamed to 'Color (Composite Idealized)'.
+. [Change #817] Request for key-accelerators for UI operations.
+	- Ctrl+F3/F4 will show the Drive-1/Drive-2 pop-up menus. (Then use cursor up/down to pick a menu item.)
+. [Change #691] Improved determining path & filename when saving/loading a save-state.
+. [Bug #838] Improved support for accented ANSI chars in pathnames in save-states.
+. [Bug #612] Support IRQ cycle-accuracy in full-speed (unthrottled) mode.
+. [Bug #608] Fixed regression in Broadsides' Mockingboard detection (introduced at 1.29.6.0).
+. Extended support for command line switches -d1,-d2,-s5d1,-s5d2,-h1,-h2 such that if the param is "", then it will eject/unplug the disk/harddisk.
+. Development PRs to improve code quality: #840, #842, #843, #847
+
+
+1.29.14.0 - 17 Aug 2020
+-----------------------
+. [Change #822] Updated Uthernet card support to use Npcap for Win10.
+. [Change #806] Added support for 'Base 64A' - a Taiwanese Apple II clone.
+. [Change #763] Support for PAL(50Hz) killing color-burst during TEXT video mode.
+	- When 50Hz, then AppleWin's window title changes to "Color (PAL Monitor)" instead of "Color (NTSC Monitor)"
+. [Change #781] Loading a large save-state takes some time - added a busy indicator.
+. [Change #139] NIB disk image: added warning if any track's first D5-nibble triple isn't an address prologue.
+. [Bug #824] Fixed a regression in multi-zip support (introduced at 1.29.10.0).
+. [Bug #820] Fixed a GDI Object leak (occurring when accessing the Disk II with AppleWin minimised).
+. [Bug #813] Mockingboard playback looping after entering debugger then configuration.
+. [Bug #809] Fixed a memory leak.
+. [Bug #801] Wrong timing with LSR abs,X / ROR abs,X / ROL abs,X for the 6502 CPU.
+. [Bug #796] Fix for 'IRQ occurring on last cycle of opcode' not always true.
+. [Bug #751] No-Slot Clock running and power-cycle can causes lock-up on power-cycle.
+	- NSC state persisted to save-state.
+	- added a new switch '-no-nsc' to configure Apple II without an NSC.
+. [Bug #663, #691] Fixes for image loading switches (-d1,-d2,-h1,-h2,-s5d1,-s5d2):
+	- support relative paths (#663).
+	- updated the current directory with the path for each loaded image (#663) & when saving state (#691).
+	- added a new switch '-current-dir <path>' to guarantee the current dir after using image loading switches.
+. [Bug #52] Fixed the 6502/65C02 false-read of 6522 issue for Willy Byte!
+. [PR #800] Improved debugger's rendering speed for PrintGlyph().
+
+
+1.29.13.0 - 31 May 2020
+-----------------------
+. [Bug #790] Fixed regression for -d1,-d2 & -s7-empty-on-exit (introduced at 1.29.7.0).
+. [Change #787] Debugger: Extended 'cycles part' command to do timings relative to a user-specified base.
+. [Change #783] Debugger: Extended 'tf' command to include cycle count.
+. [Change #720] Debugger: Added more symbols to APPLE2E.SYM.
+	- NB. LC ($C08n) symbols are now correct for the LC, so 'LDA $C08C,X' will disassemble as 'LDA LCRAMIN1_,X'
+	instead of 'LDA DATASTROBE,X'. So now perhaps less helpful when stepping Disk II code.
+. [PR #785] Debugger: Improvements to Bookmarks.
+	- AppleWin.chm: Added debugger help about Bookmarks.
+. Fixed occasional speaker clicks in full-speed mode.
+
+
+1.29.12.0 - 26 Apr 2020
+-----------------------
+. [PR #757] Allow use of an INI-file for configuration instead of the Registry (fixes #709).
+	- new command line switch: -conf <INI-file>
+. [Change #773] Added Apple II J-Plus support.
+. [Bug #778] Fixed for when Joystick(s) are disabled.
+. [Bug #777] Fixed Phasor speech (SSI263) to match Mockingboard (when in Mockingboard mode).
+	- fixes: #698 (Rescue Raiders), #753 (Bejeweled).
+	- also improvements to Phasor card's native Phasor mode.
+. [PR #775] Debugger: Fixed so that hitting "=" in the debugger sets PC to the current cursor address.
+
+
+1.29.11.0 - 27 Mar 2020
+-----------------------
+. [Change #771] Added new command line switch to load custom ROM: -rom <file>.
+	- Supports 12KiB (at $D000) and 16KiB (at $C000) rom files.
+. [Bug #765] Lancaster (Total Replay) hangs when starting second game.
+. [Change #734] DiskII controller card: support 13-sector firmware.
+	- The card auto-selects the firmware based on the .woz (v2 or higher) image properties.
+	- Only change the firmware at reset/reboot to avoid changing whilst running in $C6xx space!
+	- Fixes 'The Best of MUSE' & 'MicroChess 2.0' (#732)
+
+
+1.29.10.0 - 13 Feb 2020
+-----------------------
+. [PR #756] Write support for WOZ1/WOZ2 images.
+	- Fixes titles that need write support (see: #686, #704, #705).
+	- Allow creation of a blank (WOZ2) image (see AppleWin.chm: 'Creating Disk Images').
+	- multi-file zip support extended to scan for the first valid image.
+		- useful for most woz-a-day multi-file zips which have at least 2 entries and previously needed unzipping.
+. NB. files in multi-file zips are still write-protected (same for all image types, not just woz).
+
+
+1.29.9.0 - 26 Jan 2020
+----------------------
+. [Bug #750] Fixed double-clicking a registered file-type issue (regression introduced at 1.29.8.0).
+. [Bug #752] Fixed Ctrl+Alt+Break wasn't emulating CTRL+OA+RESET (regression introduced at 1.29.8.0).
+
+
+1.29.8.0 - 19 Jan 2020
+----------------------
+. [Bug #749] Hotkeys to change emulation speed using Ctrl+n: now ignored if ALT is pressed.
+. [Bug #748] DiskII: data latch returns a rand() value when no disk is in drive.
+. [Bug #746] Debugger: correctly repaint Apple II screen when showing it from debugger.
+. [Bug #745] WOZ: Support for large tracks.
+. [Change #743] Added new command line switches:
+	-left-alt-control-buttons : left-ctrl=button0, left-alt=button1
+	-right-alt-control-buttons : right-alt=button0, right-ctrl=button1
+	-swap-buttons : for swapping buttons 0 & 1
+. [Bug #733] Alternate fix for WOZ 'Wasteland'.
+. [PR #723] Fixed way to clear a std::string.
+. Configuration->Input: Added 'Swap 0/1' toggle for swapping buttons 0 & 1.
+. WOZ support: Removed version check on INFO section.
+. Display MessageBox with all unsupported commands that were passed in (can choose to continue or exit).
+. Debugger: Added new 'cycles <abs|rel>' command to show cycles as absolute or relative.
+
+
+1.29.7.0 - 20 Dec 2019
+----------------------
+. [Change #726] Disk II card: supported in slot 5 via '-s5 diskii' command line.
+	- use in conjunction with -s5d1 <pathname>.
+	- NB. No support via Configuration GUI for insert/ejecting images.
+. [Change #737] Debugger: Changed 'cycles' to show the cycle delta since the step/breakpoint etc.
+	- NB. Since 1.29.3.0 this has been the absolute cumulative cycle count.
+. [Bug #740] Debugger: gr/hgr/dgr/dhgr commands will honour the state of the MIXED mode.
+. [Bug #733] Fixed WOZ 'Wasteland' and also NIB 'Wasteland'.
+. [Bug #451] Debugger: fix for BPM[R|W] triggering on control-flow instructions' target address.
+. [Bug #355] For first-time installs of AppleWin, soundtype now defaults to WAVE (was NONE).
+. [PR #730] Speed-up for 'Color (RGB Monitor)' video mode.
+
+
+1.29.6.0 - 18 Nov 2019
+----------------------
+. [Bug #724] Fixed so that 6502 interrupt is delayed by 1 opcode when interrupt occurs on last cycle of opcode.
+	- fixes French Touch's "Mad Effect" & "Mad Effect #2" demos.
+. [Bug #711] Fixed Mockingboard initial "stretched" music playback (regression introduced at 1.28.7.0).
+. [Bug #707] Fixed ADTPro (running under AppleWin) not working with real COM ports.
+. [Bug #701] Fixed 6522's TIMER being out-of-sync with 6502.
+. [Bug #699] Fixed French Touch's "Mad Effect". See #656, #701, #724.
+. [Bug #680] Fixed video tearing (eg. for FT's "Scroll Scroll Scroll" & "Mad Effect #2").
+. [Bug #659] Fix for Applied Engineering's Phasor song player (noisy playback) (regression introduced at 1.26.3.4).
+. [Bug #656] Changed so only TEXT ($C050/1) and MIXED ($C052/3) have a 1 cycle delay (extension to 1.28.8.0).
+	- fixes French Touch's "Mad Effect" demo.
+	- fixed Deater's "Cycle-count Megademo" (vertical GR grey line shouldn't be visible between GR & HGR video).
+. [Bug #652] Fixed 6522's TIMER to underflow at 0x0000 -> 0xFFFF
+	- and T1C=0x0000 now correctly underflows on next cycle.
+. [Bug #435] COM ports above COM9 weren't available from the UI.
+. [Change #716] Help's troubleshooting section: added an item for no Apple II speaker sound.
+. [PR #715] Memory fix for struct ImageInfo.
+. [PR #694] Debugger: Symbol loading: Fix random crash upon start up.
+. Fixed crash with debug command line switches: -m and -no-mb.
+
+(1.29.5.0 - skipped)
+
+1.29.4.0 - 24 Oct 2019
+----------------------
+. [Change #702] Debugger: In soft-switch display (row-80), show a red 'x' when AltZP (and AltLC) is enabled.
+. [Change #666] Debugger: When video-scanner position is off-screen then show v,h as yellow (was red).
+. [PR #710] Debugger: Added BPMR and BPMW to break on a read or write (respectively) to a memory address or range.
+
+
+1.29.3.0 - 13 Oct 2019
+----------------------
+. [Change #692] Added command line switch to unplug HDD controller card on exit:
+	- -s7-empty-on-exit
+. [Change #689] Added command line switches to set CPU speed and machine type:
+	- -clock-multiplier <value>, where value is a [0.5-3.9] base-clock multiplier (ie. same as the Config UI's slider)
+	- -model <apple2|apple2p|apple2e|apple2ee>
+. [Change #666] Debugger: support showing video-scanner v,h position and cycle count.
+	- added debugger command: videoinfo <dec|hex|apple|real> to configure display.
+	- added auto-run of DebuggerAutoRun.txt on AppleWin initial start-up.
+. [Bug #700] Fixed ProDOS8 2.5.0 alpha6:
+	- support INC $C08B (and similar) to set LC to write mode - 65C02 only.
+	- support INC $C08B,X (X=0) to set LC to write mode - 6502/65C02/816. (Fixes #404)
+. [Bug #695] Fixed WOZ 'Taipan' not booting.
+	- fixed reading write protect on a write access & support Sequencer Function.
+. [Bug #668] Fixed WOZ 'Seafox' not booting.
+	- set machine = Unenhanced Apple //e or lower & need slot2 empty.
+	- disable SSC in slot-2 using: '-s2 empty' command line switch.
+	- added '-s1 empty', '-s3 empty' and '-s6 empty' too.
+. [Bug #404] a2audit.dsk 1.06 now working. (See #700)
+. [Bug #319] SmartPort return address was wrong when crossing page (fix to slot-7 HDD's firmware).
+	- NB. Old save-states where the 6502's PC is in the old firmware now can't be loaded. (AppleWin will show an error)
+. [PR #687] Replace char * with std::string.
+
+
+1.29.2.0 - 6 Sep 2019
+---------------------
+. [Change #678] Hotkeys to change emulation speed:
+	- Ctrl-0 Toggles between custom speed and Full-Speed
+	- Ctrl-1 Sets 1 MHz
+	- Ctrl-3 Sets Full-Speed
+. [Change #671] Register .woz extension with AppleWin. Updated AppleWin.chm & DELREG.INF.
+. [Bug #685] Fixed support for French Touch's "CHIP" demo (Mockingboard / multi-TIMER interrupt support).
+. [Bug #677] Loading a save-state wasn't restoring the pending IRQ.
+. [Bug #672] For WOZ images: all even disk I/O read accesses will now read the data latch.
+. [Bug #650] NTSC TV (Color and B&W): image was half an Apple II scanline vertically shifted down.
+. [PR #674] Prevent uninitialized value bugs and improve string safety.
+
+
+1.29.1.0 - 27 Jul 2019
+----------------------
+. [Bug #662] Fixed WOZ 'Wizardry III' not booting.
+. [Bug #669] Fixed WOZ 'Space Quest I' not booting reliably.
+. [Bug #670] Fixed PAGE2 not displaying correctly when in full-speed mode (regression introduced at 1.28.8.0).
+
+
+1.29.0.0 - 8 Jul 2019
+---------------------
+. [Change #544] Support for .woz disk images.
+	- WOZ1 and WOZ2 formats supported.
+	- read-only: images forced to write-protected (so 'Stickybear Town Builder' doesn't work).
+	- only 5.25" (not 3.5").
+	- known issues: 'Wizardry III' not booting.
+
+
+1.28.8.0 - 28 Jun 2019
+----------------------
+. [Change #648] Support 50Hz(PAL) video refresh rate and implicitly PAL 1.016MHz.
+	- NB. TV video modes still use NTSC rendering.
+. [Bug #656] Fix for PAGE1/2 ($C054/55) not having a 1 cycle delay.
+
+
+1.28.7.0 - 15 Jun 2019
+----------------------
+. [Bug #654] Fix for Sather's "Little Text Window" not rendering correctly.
+. [Bug #652] Fix for 6522 TIMER1's period to be N+2 cycles.
+
+
+1.28.6.0 - 2 Jun 2019
+---------------------
+. [Bug #651] Cycle-accurate interrupts:
+	- Interrupts sources are checked after every opcode (full-speed after every 40 opcodes).
+	- 6522 TIMERs in free-running mode now account for the underflowed cycles when resetting the count.
+
+
+1.28.5.0 - 6 Apr 2019
+---------------------
+. [Change #631] Improvements for the RGB AppleColor card:
+	- Relax the video-mode precondition to just ignore if VF_MIXED (previously required HIRES on) for Apple II Desktop.
+	- Changing from DHGR B&W mode to HGR remains in B&W (color burst is off).
+	- For '50% scan lines', don't blend in NTSC B&W mode, as this was inconsistent with the RGB colour rendering.
+. [Change #633] Improvements for the RGB AppleColor card:
+	- Improved the video-mode precondition to ignore if 80COL ($C00C/D) occurs before DHIRESON ($C05F) for Renegade.
+	- Support new switch -rgb-card-invert-bit7 to invert bit7 for Dragon Wars.
+
+
+1.28.4.0 - 16 Mar 2019
+----------------------
+. [Change #616] Improved accuracy for 'RGB (Color Monitor)' for hires.
+. [Bug #611] Holding down F9 to cycle through the video modes results in occasional flicker with garbage.
+. [Bug #627] Rainbow demo not working correctly when vertical blend is enabled.
+. [Bug #628] Filename suffix check for .gz and .zip needs to be case-insensitive.
+
+
+1.28.3.0 - 3 Mar 2019
+---------------------
+. [Change #625] AltGr+<key> does not send the <key> value to $C000.
+	- This reverts the default behaviour introduced from 1.27.6 (#558).
+	- Use -altgr-sends-wmchar to allow AltGr+<key> to work correctly together.
+	- NB. The reason for the revert was that it was preventing international keyboards from typing certain characters.
+. [Change #616] Vertical blending now uses 560-pixel granularity for half-dot shift support (consistent with all other video modes).
+
+
+1.28.2.0 - 24 Feb 2019
+----------------------
+. [Change #616] Support vertical blending for 'RGB (Color Monitor)' for hires.
+	- Support the old AppleWin 1.25 vertical blending for hires via a 'Vertical Blend' checkbox.
+. [Change #621] Support RGB AppleColor card's 160-color pixel mode by squashing 640 pixels into 560 pixels.
+	- Squashing is done by losing every 8th pixel.
+. [PR #623] Do not reset on minor state load errors.
+. [Bug #609] Configuration dialog didn't correctly reflect lack of Mockingboard/Phasor when loading a save-state without this sound card.
+
+
+1.28.1.0 - 2 Feb 2019
+---------------------
+. [Change #523] Support Extended 80-Column Text/AppleColor Card's DHGR Mixed mode and 560x192 Mono mode.
+. [PR #620] Corrected a few symbol names in APPLE2E.SYM for the 80STORE and 80COL I/O addresses.
+. [Bug #617] Apple II,II+ keyboard: up/down arrow keys are now ignored.
+
+
+1.28.0.0 - 12 Jan 2019
+----------------------
+. [Change #357] Resurrected the AppleWin 1.25 "Color (Standard)" video mode as "Color (RGB Monitor)".
+	- This is equivalent to emulating RGB video, ie. a video mode with sharp text and pixels.
+	- NB. Unlike AppleWin 1.25, this is now cycle-accurate, so demos that synchronise with the video scanner will work correctly.
+. [Change #603] Removed support for v1 save-state files.
+	- Any v1 save-state files should be loaded into AppleWin 1.27, and then re-saved to a v2 save-state file.
+. [Change #597] Removed the functionality for CTRL+F10 to reveal the mouse cursor.
+. [Change #585] Added a 'Swap' HDD button to the Configuration->Disk property sheet.
+. [Bug #608,#236] Mockingboard's 6522 TIMER1 wasn't generating an interrupt quickly enough for detection routines for Broadside and Ultima III Jukebox.
+
+
+1.27.13.0 - 8 Dec 2018
+----------------------
+. [Bug #303, #599] Fix for Ultima V not loading in Authentic Speed mode (regression introduced at 1.27.9.0).
+. [Change #205] Added support for Apple II/II+ custom 2K video ROMs.
+	- Extended command line switch: -videorom <file>
+	- If the ROM size is 2K, then it replaces the video ROM for the Apple II/II+.
+
+
+1.27.12.0 - 17 Nov 2018
+-----------------------
+. [Change #574] Added support for PAL/European or custom 8K video ROMs:
+	- Added new command line switch: -videorom <file>
+		- Replaces the video ROM for the Enhanced //e.
+		- Support video ROM sizes of 4K, 8K and 16K (top 8K only).
+		- NB. The rocker switch is set to the European video ROM position.
+	- F10 (for //e or Enhanced //e models) emulates the PAL //e's rocker switch (under the keyboard).
+		- Use to toggle between European or US video ROM.
+. [Change #583] Added new switch: '-no-hook-alt':
+	- Used to prevent left/right ALT from emulating Open/Solid Apple keys.
+	- For European keyboards where AltGr is needed to type keys like '[',']'.
+
+
+1.27.10.0 - 4 Nov 2018
+----------------------
+. [Change #590] Apple II original: default to 48K (so no LC installed in slot-0).
+	- Added new command line switch: -s0 <languagecard|lc>
+	('lc' is an alias for 'languagecard')
+	- When LC is in slot-0, it now use the Apple II+'s F8 (auto-start) ROM
+. [Change #408] Support Saturn 64K and 128K cards in slot-0.
+	- Added new command line switch: -s0 <saturn|saturn64|saturn128>
+	('saturn' is an alias for 'saturn128')
+. [Bug #591] Save-state wasn't preserving the 'key-waiting' flag.
+. [Bug #587] Debugger: disassembly for branch targets < $1000 were missing the leading '0'.
+
+
+1.27.9.0 - 2 Oct 2018
+---------------------
+. [Bug #582] Support for partial disk II latch reads when accesses are very close.
+	- Fixes Curse of the Azure Bonds & Pool of Radiance (saving characters and creating disks).
+
+
+1.27.8.0 - 9 Sep 2018
+---------------------
+. [Bug #555] Fix for showing 559th DHGR/DGR/TEXT80 vertical column (retaining 560-pixel display width).
+
+
+1.27.7.0 - 6 Aug 2018
+---------------------
+. [Bug #564] Fixed 'Save State on Exit' not working correctly when there's a Configuration change to the hardware.
+. [Bug #556] Reverted default so that ALT+TAB is not hooked
+	- Support new command line switch: -hook-alt-tab to support hooking ALT+TAB.
+. [Bug #558] Reverted default so that ALT GR's fake LEFT CONTROL is not hooked
+	- Support new command line switch: -hook-altgr-control to suppress ALR GR's fake LEFT CONTROL.
+
+
+1.27.6.0 - 28 Jul 2018
+----------------------
+. [Bug #570] Fixed lag when repeat-stepping in debugger.
+. [Bug #558] Fixed ClosedApple + <key> not working (when using right ALT key).
+
+
+1.27.5.0 - 24 Jun 2018
+----------------------
+. [Bug #567] Fixed Mockingboard/6522: Reading the 6522's IER now returns 0x80|IER.
+. [Bug #556] Allow system key combinations to be read: Open Apple (left ALT) + ESC/SPACE/TAB.
+	- Also fixes #145, #198, #448.
+	- Support new command line switches: -no-hook-system-key, -alt-enter=<open-apple-enter|toggle-full-screen>
+	- Fix for save-state which wasn't correctly saving last key.
+. [Bug #555] Reverted 1.27.4's "Fix for showing 559th DHGR vertical column".
+	- So 559th DHGR vertical column remains hidden (this is still a bug).
+. [Bug #330] Any Key Down (AKD) wasn't working for the multi-key case.
+
+
+1.27.4.0 - 26 May 2018
+----------------------
+. [Bug #555] Fix for showing 559th DHGR vertical column.
+	- But now an HGR HCOLOR=2 vertical line at column 0 is only 1 DHGR pixel wide.
+	- Fix TEXT80 to be aligned with DHGR.
+	- Fix FLASH in TEXT80 (the inverse aux-memory char would overwrite the main-memory char).
+. [Change #554] Help: Added a new help page about AppleWin's SSC emulation.
+. [Change #522] SSC: ZLINK not starting unless DCD is set.
+	- DCD state is now a mirror of DSR unless -dcd switch is used.
+	- Removed -dsr,-dtr switches, so -modem is now an alias for -dcd.
+. [Bug #308] SSC: For TCP mode, support DSR, DCD & CTS status bits.
+. SSC: Now DTR must also be set to enable interrupts (in addition to the respective Tx/Rx interrupt bit).
+. SSC: Change DIPSW1's baud rate to 9600 (was 19200).
+
+
+1.27.2.0 - 12 Apr 2018
+----------------------
+. [Change #522] SSC: Support ACIA's TX Empty interrupt for both COM and TCP modes.
+. [Change #311] SSC: Support ACIA's CTS/RTS.
+. [Bug #308] Fixed TCP mode which was only generating an IRQ for first byte received.
+. SSC: Fixed reading DIPSW registers.
+. SSC: Support ACIA's Program Reset (write to register 9).
+. SSC: Improved logging for unsupported modes (Echo, Tx break signal).
+
+
+1.27.1.0 - 5 Apr 2018
+---------------------
+. [Change #547] Improve UI and logging when PrintScreen key fails to register.
+. [Change #546] Changing Config's 'Disk access speed' now doesn't trigger a restart.
+. [Change #540] Config's Benchmark now reports "Pure CPU MHz" for both video update (as before) & full-speed (new).
+. [Change #535] Help doc: added a description of Caps Lock behaviour.
+. [Change #398] Added new command line switches:
+    -h1 <hdd> : Start with hard disk 1 plugged-in (and auto power-on the Apple II). NB. Hard disk controller card gets enabled.
+    -h2 <hdd> : Start with hard disk 2 plugged-in. NB. Hard disk controller card gets enabled.
+    -s7 empty : Remove the hard disk controller card from slot 7.
+. [Bug #543] Swapping disks now doesn't swap drive's motor/spinning state.
+. [Bug #537] Fix for failing DOS 3.2 INIT.
+
+
+1.27.0.0 - 3 Feb 2018
+---------------------
+Full release that rolls-up all the changes and fixes from the 1.26.2 & 1.26.3 experiment builds.
+
+Changes (misc):
+. [Change #428] Added Config Input option to use PC Joystick 1 Thumbstick 2 for emulated Joystick 2
+	- play Nick Westgate's updated Robotron using gamepads with two analog thumbsticks, eg. Logitech F310, PS4 DualShock 4, Xbox controller
+. [Change #528] Improved logging to log when Apple2 type changes
+. [Change #469] New -no-printscreen-key switch to prevent the PrintScreen key from being registered.
+. Swapping disks while a drive is on now warns and prompts if you still wish to do this instead of silently failing with no feedback.
+. [PR #441] Update zlib to latest version 1.2.11
+. [PR #275] Attenuate speaker (and 8-bit DAC) output sample after 0.25s of inactivity
+Full-screen:
+. [Change #504] Full-screen: hide mouse pointer after 2 seconds of inactivity (and show again if mouse is moved)
+. [Change #488] New -fs-height=<best|nnnn> switch.
+    - best: picks the highest resolution where the height is an integer multiple of (192*2)
+    - nnnn: select a specific resolution with height=nnnn pixels
+    Use to select a better resolution for full-screen mode.
+    NB. This changes the display resolution (and restores on exit).
+. [Change #224] Added Config checkbox for 'Full-Screen: Show drive/keyboard status'
+. [Change #492] UI fixes for full-screen & 2x windowed-mode
+. [Bug #464] Fix for full-screen: bottom line missing when vertical resolution is 768
+DiskII/Hard disk:
+. [Change #323] Skip hard disk boot by holding down the Open-Apple key during an Apple II restart
+. [Bug #525] Fix to prevent stepper motor changing track when drive is off
+. [Bug #125] Support formatting of DOS3.3/ProDOS for .dsk/.nib in authentic/enhanced disk modes
+	-  includes support for Pascal formatting (#196) and Ultima I formatting (#338)
+. [Bug #499] Flush current track (if dirty) before 'Send to CiderPress'
+. [Bug #452] Fix for unmounted HD now gives "NO DEVICE CONNECTED" (before gave "I/O ERROR")
+. [Bug #389] Disk's write-protect detection mis-reporting when motor off
+. [Bug #387] Support for 40-track .nib files
+Peripheral cards:
+. [Bug #514] Emulator restart (or reset) wasn't clearing any pending Mousecard interrupt
+. [Bug #496] Support polling of Mockingboard's & Phasor's 6522 IFR.Timer1
+. [Bug #486] Peripheral card's expansion ROM ($C800-CFFF, eg. SSC) wasn't being correctly restored from a save-state
+  - Resulting in regression: Mousecard crash to monitor (#495).
+. [Bug #423] Full support for INTC8ROM soft switch (fixes transient a2audit.dsk & Bejeweled failures)
+. [Bug #418] Fix for slot-3 ROM not returning floating bus when Uthernet card is enabled
+. [Bug #413] Save-state: bug when saving >9 RAMWorks III 64K banks
+. [Bug #386] SSC: Experimental support for 6551's DTR, DCD and DSR bits via -modem switch
+  - ie. -modem is shorthand for passing -dtr -dcd -dsr
+  - Experimental support for 6551's control bit: DTR via -dtr switch
+  - Experimental support for 6551's status bits: DCD and DSR via -dcd and -dsr switches
+. [Bug #320] Mockingboard/Phasor: support 'inactive' function like real hardware
+. [Bug #308] SSC ACIA Status register's interrupt bit not set when IRQ enabled and using TCP Port 1977
+Debugger:
+. [Change #483] Debugger: Shift+Left mouse button to toggle 6502 Status flag bits
+. [Change #462] Debugger: Changed Left mouse button (LMB) to Shift+LMB to toggle display items
+. [Change #406] Debugger: Support LC and MMU status & updated Help doc
+. [Change #269] When stepping, ESC no longer exits back to debugger (use F7, Pause keys or Debugger button instead).
+. [Change #217] Debugger G(o) command should use normal speed
+. Debugger: Added new gg command:
+
+	 command | run at normal speed? | run at full speed?       | video quality | sound quality
+	-------------------------------------------------------------------------------------------
+	   g     |         yes          | only if disk active, etc | precise       | precise
+	   gg    |         no           | always                   | periodic      | muted
+
+. [Bug #484] Debugger: Some corrections to APPLE2E.SYM
+. [Bug #479, #476, #473] Debugger: Various UI and other fixes
+. [Bug #460] Debugger: F2 whilst debugger active will immediately stop the drive spinning (allowing disk swap)
+. [Bug #450] Persist debugger state across an F2 (reset machine state)
+. [Bug #445] Debugger: BPM cmd: Support trigger on stack access for BRK,JSR,PLn,PHn,RTI,RTS
+. [Bug #383] "Enhanced disk speed" is very slow when debugger is active
+. [Bug #250] Debugger: When MODE_STEPPING, fix issue with disk LEDs staying on
+Docs:
+. [Change #477] Help doc: Document behaviour full-speed mode
+. [Change #437] AppleWin.chm blocked from opening - delete the AppleWin.chm:Zone.Identifier ADS
+. [Bug #417] Typos in Uthernet documentation
+Fixes (other):
+. [Bug #519] Support floating-bus in full-speed mode. Fixes Canyon Climber (#508), Oo-Topos (#532).
+. [Bug #516] Internal video-mode was having PAGE2 permanently cleared (instead of just masked) when 80STORE was set.
+. [Bug #456] Fix strange speaker clicks when changing configuration - DirectSound wasn't being uninitialised on a restart
+. [Bug #415] Fix for not being able to select Pravets 82
+. [Bug #409] Fix for AppleWorks 5.1 flickering when booting (latent bug from 2006!)
+. [Bug #405] Screen flicker in full-speed mode
+. [Bug #403] PrintScreen from Color TV or B&W TV video modes is missing top line
+. [Bug #392] Fixes for a2audit.dsk
+  - Resulting in regressions in LC support for Gemstone Warriors (#395), Quark Catalyst V3 and BeagleWrite (#400).
+. [Bug #213] Pause not setting volume to zero
+
+
+1.26.1.1 - 17 Feb 2017
+----------------------
+Fixes:
+. [Bug #371] Flickery video when using GR from CP/M. (A regression at 1.26.0.x)
+. [Bug #363] Debugger: Screen not updating when running in single-stepping debugger mode. (A regression at 1.26.0.x)
+. Save-state: Fix for loading state when TEXT40 changes to TEXT80 or vice versa
+
+Fixes since 1.26.1.0 (11 Feb 2017):
+. [Bug #382] Reset not resetting the 40/80-col text mode for mixed-mode NTSC rendering
+
+
+1.26.0.6 - 16 Oct 2016
+----------------------
+Changes:
+. [Bug #126,#157,#194] Beta NTSC and cycle-accurate video support
+	The new supported video modes are now only: TV Color, TV B&W, Monitor Color, Monitor B&W
+	NB. The old 1.25 modes have been removed eg. "Color (TV Emulation)".
+. Full-screen native resolution (no longer 640x480 resolution)
+	NB. If your screen resolution is smaller than 1120x768, then you will get no scaling in full-screen.
+. [Bug #260] Save-state file v2: human readable (Yaml-based format)
+	All hardware configurations save/restored:
+	. Apple model, sub-systems, memory, cards (except Uthernet and SAM cards)
+	NB. Old v1 .aws file format are still loaded
+. [Bug #270] Added SAM/DAC sound card support
+. AppleWin built with VS2008 Express (supports Windows 2000 or later)
+. Unit tests added for 6502 and 65C02 opcodes
+. Added -load-state <savestate.yaml> command line option
+. New repo created with test save-state images: https://github.com/AppleWin/AppleWin-Test
+. Remove unsupported PC speaker sound types
+. [PR #235] New start-up title screen by Paulo Garcia
+. [PR #233] Configuration Dialog->Disk tab: Buttons replaced with drop-down menu for select/eject by Paulo Garcia
+. Removed CTRL+F9 functionality to cycle through AppleWin's character sets (ie. original Apple II charsets and clones' char-sets)
+
+Fixes:
+. [Bug #129] Tight loop page-flipping causing heavy CPU load (fixed by NTSC / cycle-accurate video emulation)
+. [Bug #204] Problem running Wrath Of Denethenor (fixed by NTSC / cycle-accurate video emulation)
+. [Bug #317] [Disk] Only mounts version 1 .2mg not version 0
+. [Bug #296] VS2015 unresolved external in Release
+. [Bug #255] CyclesThisFrame not saved to save-state file
+. [Bug #282] Timing test for undocumented AXA (zp),Y
+. [Bug #288] Timing issue with DEC (abs)
+. [Bug #278] 6502 emulation: bSlowerOnPagecross setup too late in CPP macros
+. [Bug #271] Timing problems with ASL, INC and DEC (abs,X)
+. [Bug #264] JMP (IND) is 5 cycles only - not 6 - on 6502
+. [Bug #287] CPU emulation timing fixes
+. [Bug #286] -d1 command line argument & declining GPL causes crash
+. [Bug #277] SSI263 speech data-race leading to crash
+. [Bug #267] Mousecard movement & button events not working in MODE_STEPPING
+. [Bug #227] (Debugger)[1.25] AppleSoft symbol: COPY.FAC.TO.ARG.ROUNDED overflows into registers
+. [Bug #246] (Debugger) Memory (Changing Memory) command in CHM help files
+. [Bug #309] Silent Service hangs during Mockingboard use
+
+Fixes since 1.26.0.5 (6 Oct 2016):
+. [Bug #356] PrintScreen from Color TV or B&W TV video modes is missing top line
+
+Fixes since 1.26.0.3 (19 Sept 2016):
+. [Bug #341] Color Monitor mode (showing graphics) is shifted one HGR pixel to the right (losing the rightmost pixel)
+. [Bug #353] Pravets 8M has a superfluous dot lit on the ']' character
+. [Bug #352] Full-speed in mixed mode results in flickery video
+. [Bug #351] In full-speed mode, listing a long BASIC program is barely faster than 1MHz mode 
+. [Bug #350] Config -> '50% Scan lines' checkbox not working
+
+
+1.26.0.0 (alpha) - Jan 2016
+---------------------------
+Changes:
+. Alpha NTSC support
+
+
+1.25.0.4 - 23 Apr 2015
+----------------------
+Fixes:
+. [Bug #276] -d1 command line argument caused AppleWin to crash.
+
+
+1.25.0.3 - 8 Sep 2014
+---------------------
+Note: This is the last planned version to support Win98/ME.
+. The next release of AppleWin will be built with VS2008 Express, so will only work under Windows 2000 and later.
+
+Changes:
+. Changed the AppleWin project host from BerliOS to GitHub.
+. [Feature #221] Restored F6 original behavior that was changed in v1.22.0.
+     F6 Toggle full-screen / windowed mode.
+     Ctrl-F6 Toggle windowed 1x/2x zoom.
+. Ctrl-PrintScreen will copy the text screen (auto detect 40/80 columns) to the clipboard.
+. [Feature #198] Alt-Enter toggles full screen.
+. [Feature #199] Added a configuration option "Confirm reboot" to skip the F2 reboot confirmation.
+. [Feature #201] Added display of current Track/Sector for the floppy drives.
+  - In 2x window mode the status is displayed below the drive LEDs.
+  - In full screen mode the status is displayed above the drive LEDS. The track/sector
+    is shown only for the last drive accessed.
+  Note: DOS3.3 Track/Sector status should be accurate.
+        ProDOS support is preliminary -- the track/sector may show zero after an operation.
+. Memory initialization defaults to a pattern of FF FF 00 00 (memclear 2).
+. Added command line switch to specify the type of memory initialization pattern.
+    -memclear #
+  Where # ranges from 0 to 7.
+  i.e.
+     -memclear 0   Initialize memory to zero
+     -memclear 1   Initialize memory to random values
+     -memclear 2   Initialize memory to 4 byte pattern: FF FF 00 00 (default, same as v1.24.0)
+     -memclear 3   Initialize memory to even pages FF, odd pages 00
+     -memclear 4   Initialize memory to first half page 00, last half page FF
+     -memclear 5   Initialize memory to first half page FF, last half page 00
+     -memclear 6   Initialize memory to byte offset of that page
+                   (current memory address low byte)
+                   i.e. 00:00 01 02 03 ... for page $20
+     -memclear 7   Initialize memory to page address
+                   (current memory address high byte)
+                   i.e. 00:20 20 20 20 ... for page $20
+  NOTE: -memclear 6 can cause a few programs to NOT function correctly
+        due to hidden bugs of programmers not correctly initializing memory or
+        using uninitialized memory.  RNDL/RHND and $620B are initialized to
+        allow Pooyan, and the Beautiful Boot game launcher to run, along with
+        $BFFD..BFFF to allow Copy ][ v5 to boot correctly.
+. Debugger (v2.8.0.0):
+  - Added: TSAVE "filename" to save the text screen to a file.
+    It will auto-detect the current video mode: 40/80 columns.
+    Default filename for 40 columns is: AppleWin_Text40.txt
+    Default filename for 80 columns is: AppleWin_Text80.txt
+ - Changed: DS to ASC because DS is used as a common "Define Space" assembler directive
+ - Added: Experimental "ASC" command to mark up data as Apple text.
+    using Castle Wolfenstien.DSK
+    BLOAD ^VOCAB
+    ASC name1 17DA:17F5
+ - Fixed: DB address now auto-defines the symbol D_#### if no symbol is given.
+ - Fixed: DW address now auto-defines the symbol W_#### if no symbol is given.
+ - Fixed: ASB address now auto-defines the symbol T_#### if no symbol is given.
+ - Added: Help for DB and DW.
+
+Fixes:
+. [Bug #206] Pooyan would freeze due to RNDL/RNDH not initialized to non-zero values on
+  a cold boot.
+. [Bug #177] Full-screen under Windows8/8.1 would show a corrupt, pastel color palette.
+. Debugger:
+  - Hang with Memory Fill when memory ends at FFFF, i.e. F D000:FFFF 0
+  - Hang with Memory Move when memory ends at FFFF, i.e. 2000<FFFE.FFFFM
+
+
+1.24.0 - 11 Jan 2014
+--------------------
+Changes:
+. Support cursor keys (in addition to numpad) when using keyboard for joystick emulation
+. Support auto-fire for all 3 joystick buttons (via Config->Input)
+. Debugger: Added "disk info" command
+. Added confirmation message box for reboot (F2)
+. [Feature #5715] Added -no-printscreen-dlg to suppress the warning if AppleWin fails to capture the PrintScreen key
+. Changed save-state file persisted to Registry from filename to pathame
+Fixes:
+. [Bug #19154] ProDOS Order 2IMG crashing
+. [Support #103098] Sometimes swapping disk could cause INIT to fail with ERROR #8
+
+
+1.23.2 - 14 Sep 2013
+--------------------
+Changes:
+. Added About dialog showing GPL (at startup, but only when AppleWin version changes).
+. [Bug #18940] Extend BSAVE and BLOAD Command To Memory Banks 0 and 1
+	Extended debugger BLOAD with bank support:
+	. BLOAD [file],[bank:]address[,length]
+	. BLOAD [file],[bank:]address[:end]
+	. If no filename specified, will use last BLOAD or BSAVE filename.
+	Extended debugger BSAVE with bank support:
+	. BSAVE [file],[bank:]address,length
+	. BSAVE [file],[bank:]address:end
+	. If no filename specified, defaults to: '####.####.[bank##].bin'
+		(where the form is <address>.<length>.bin)
+
+Fixes:
+. Fixed save-state bug for when 4K BANK1 is dirty (previously it would save the stale data instead).
+. [Bug #18723,#19070] Mouse movement for CopyII+9.1 and ProTERM3.1.
+
+
+1.23.0 - 26 Apr 2013
+--------------------
+RC for public release.
+
+Changes:
+. Extended logging support during startup and shutdown.
+. Allow debugging of save-state image from start-up "logo" screen.
+. Added Troubleshooting section to help file.
+
+Fixes:
+. Screenshot 280x192:
+  - [Bug #018928] Correction for left edge loss of scaled scanline.
+  - A screenshot in 50% scanline mode would produce an all black image.
+. Fixed inserting of disk images from save-state when drive-2 contained the disk required for drive-1.
+
+
+1.22.1 - 7 Mar 2013
+--------------------
+Changes:
+. Make 2x the default
+  - [Bug #018851] Refuse double-sizing the window unless the screen is large enough.
+
+Fixes:
+. [Bug #018886] MMU no good when no cards in slot-4 & 5
+. [Bug #018852] WinXP: Switching 2x -> 1x video mode leaves old 2x data behind
+
+
+1.22.0 - 1 Jan 2013
+--------------------
+Changes:
+. [Feature #005557] Support DOSMaster image created by Apple Oasis.
+. [Feature #003272 and #005335] Support 2x windowed mode:
+  - Toggle between 1x and 2x by using Resize button (or F6).
+  - Full screen now enabled by CTRL+Resize button (or CTRL+F6).
+
+Fixes:
+. [Feature #004346] Don't show mousetext for original Apple //e.
+. Fixed HDD firmware to allow epyx_californiagames_iicplus.2mg to boot.
+. HDD firmware: Added support for SmartPort entrypoint.
+  - "Prince of Persia (Original 3.5 floppy for IIc+).2mg" now boots
+. [Bug #018455] Improved rendering speed of debugger view.
+
+
+1.21.1 - 12 Aug 2012
+--------------------
+Changes:
+. [Feature #4399] Allow Z80 SoftCard to be inserted into slot 4 or 5. (Allows CP/M v3 to work)
+. Reworked Configuration (property sheets) to allow multiple hardware changes.
+. Updated Help .chm with info on No-Slot clock.
+
+Fixes:
+. Floating bus not returned for empty slot $Cnxx addresses. Fixes:
+  - A2VGA.DSK: Apple][VGA card detection.
+  - [Bug #018643] Mabel's Mansion.
+. [Feature #005552] Mouse wasn't working for BeagleWrite / MultiScribe.
+
+
+1.20.1 - 17 Jul 2011
+--------------------
+Fixes:
+. [Bug #018242] Preserve drive's physical attributes (track, phase) when changing disk. (Fix for Platoon)
+
+
+1.20.0 - 23 Feb 2011
+--------------------
+Changes:
+. Standard, Text Optimized and Monochrome video modes now support half-pixel rendering accuracy!
+. Colors tweaked to better match the real hardware.
+
+Fixes:
+. Fixed Mockingboard detection for Ultima III (ProDOS-8/harddisk version).
+
+Debugger:
+. See the Debugger_Changelog.txt for the various fixes and changes.
+
+Misc:
+. Updated acknowledgements. Cheers to Mike Harvey! (Nibble Magazine)
+
+
+1.19.3 - 30 Dec 2010
+--------------------
+Changes:
+. Set 50% scan lines as the default.
+
+Fixes:
+. Fix OpenFileName dialogs for Win98 (use older WinVer4 struct).
+. Edits to the 'Printer dump filename' edit control are now recognised.
+
+
+1.19.2 - 20 Dec 2010
+--------------------
+Changes:
+. Added HD activity LED.
+. Caps LED now takes up less space in full-screen mode.
+. Debugger 2.7.0.0 (see Debugger_Changelog.txt)
+
+Fixes:
+. Fix for "APPLEWIN executed an invalid instruction" on Pentium II/266 CPU.
+  - Rebuilt with Enhanced Instruction Set = Not Set (ie. no SSE/SSE2).
+
+
+1.19.1 - 10 Dec 2010
+--------------------
+Changes:
+. Rebuilt for Win98 with: VS2005 Express, Windows SDK 6.0, SAPI 5.1
+. Improved detection of No-Slot-Clock accesses (GEOS now working).
+
+
+1.19.0 - 28 Aug 2010
+--------------------
+Changes:
+. Added No-Slot-Clock (located in $C300 ROM space).
+
+
+1.18.2 - 17 Aug 2010
+--------------------
+Fixes:
+. [Bug #017055] DDial timer running very fast.
+  - TAPEIN.bit7 was being read from floating-bus. Now fixed high.
+. [Bug# 007237] VBl IO reg not updated in 'Stepping' mode
+. Loading save-state file (.aws) wasn't Win32-closing .dsk images in drives.
+
+
+1.18.1 - 14 Feb 2010 (beta)
+---------------------------
+Changes:
+. Added "-speech" cmd-line switch
+  - Captures text from COUT and outputs to Speech API
+  - Ctrl+RESET and FullSpeed mode (ie. disk access) will purge the speech buffers
+
+Fixes:
+. [Bug #16699] Debugger: G xxxx not clearing BP
+. [Bug #16688] Debugger RUN <script-file> still not 100%
+  - Honour absolute path (ie. don't prefix with CWD)
+
+
+1.18.0 - 17 Jan 2010 (beta)
+---------------------------
+Changes:
+. Added disk/harddisk image r/w support for .gz/.zip (and .2mg) files.
+  - Multi-zip archives are read-only.
+. Added disk/harddisk eject sub-menu to Disk Config tab.
+. Removed .bin registration.
+
+Fixes:
+. [Bug #16632] Fix cmd-line -d1/d2 switches with relative path
+. Fix speaker volume when booting with -d1 switch
+. Fix debugger bugs:
+  - Crash when doing: help *
+  - [Bug #16651] Crash when doing: run <script-file>
+. [Bug #16652] Fix "Harddisk images aren't persisted when in different folders"
+. [Bug #12724,14747] Fix "Registry persisted Window x,y position sometimes off screen"
+
+
+1.17.2 - 13 Dec 2009
+--------------------
+Changes:
+. Enable XP visual themes & corrected tab order in the Configuration dialog - thanks to Joshua Bell
+. Updated Help chm's Debugger breakpoint commands (BC,BD,BE,BL now replaced by BPC,BPD,BPE.BPL)
+
+Fixes:
+. Fix: Crash when COM or TCP port opened before Configuration dialog is opened for the first time
+. Fix: Reading SSC DIP SW1 for "external" CLK (115.2K mode)
+. Fix: Reinstated debugger's GO command:
+  - G        : Go (Stepping Mode)
+  - G <addr> : Go (Stepping Mode) until PC=addr
+
+
+1.17.1 - 27 Nov 2009
+--------------------
+Changes:
+. SSC: Support 115.2K Baud
+. Dynamically generated 'Serial Port' drop-down menu
+  - Save "Serial Port Name" to Registry (instead of drop-down menu index as "Serial Port")
+. Updated Help chm's "Transferring Disk Images" - thanks to David Schmidt
+. New switches: -log, -no-mb, -spkr-max, -spkr-inc
+. Debugger (v2.6.2.0):
+  - Added Applesoft BASIC symbols - thanks to Bob Sander-Cederlof
+  - Return on blank line to toggle full screen console
+  - Page Up/Down of console history while editing
+
+Fixes:
+. Fix for Speaker underflow problem (-spkr-max=200, -spkr-inc=20)
+. Fix for SSC (big transfers): use queue instead of single byte buffer
+. Don't hog CPU in PAUSED mode
+. Implemented the shift key mod for II/II+. This fixes a problem with Homeword.
+. [Bug #14879] Double-Lo-Res Graphics colors not correct
+
+
+1.16.1 - 21 Jun 2009
+--------------------
+Changes:
+. Ctrl-F2 now functions as CONTROL-RESET (same as Ctrl-Break)
+. Video Mode now shown in Window Title
+. 50% Scan Lines (can use Shift+Ctrl+F9 to toggle)
+  - Added: Checkbox for "50% Scan lines" in the configuration tab, next to video mode
+  - Supported by PrintScreen and Shift-PrintScreen
+. Added command line "-noreg" to not register file extensions
+. Added support for up to 40 track (160KB) disk images
+. Debugger:
+  - Symbols Length raised from 13 to 31
+  - Pressing the Reboot button (F2) with breakpoints active, keeps the debugger running
+  - symsrc is now relocatable, i.e. symsrc load "filename" [,offset]
+    + Changes the address where debugger symbols are bound to by the offset (if specified)
+  - Pressing Shift, Ctrl, or Alt, when viewing the current Apple output no longer kicks you back into the debugger.
+    (Allows for Ctrl-Shift-F9, and Shift-F9 previewing.)
+
+Fixes:
+. Full screen drive LED status not showing up when floppy disks being accessed were set to read-only mode
+. FLASHing 'S' in AppleII+ mode!
+. Flash rate for NTSC
+. Maximum volume bug when doubling-clicking a .dsk image to execute with AppleWin
+. [Bug #14557] Loading serial port# from Registry (caused AppleWin to crash when booting Apple Pascal & other weird crashes)
+. [Bug #15394] Audio under-run (set process priority to Above Normal when in non-Full Speed mode)
+
+
+1.16.0 - 1 Feb 2009 (beta)
+---------------------------
+Changes:
+. Support for Apple // Game Server via TCP (port 1977) : beta
+. For GPL reasons, switched the following modules:
+  - AY8910 (from MAME  to FUSE) : beta Mockingboard/Phasor
+  - MC6821 (from MAME  to VICE) : beta Mouse card
+  - Z80    (from Z80Em to VICE) : beta CP/M Softcard
+. Printer support:
+  - Printer dump filename
+  - Filter unprintable characters
+  - Append to print-file
+  - Terminate printing after n seconds of idle
+  - Encoding conversion for Pravets
+  - Dump to printer (CAUTION! Enabled via command line switch: -use-real-printer)
+. Added Pravets 8M
+
+Fixes:
+. BugID-014557: Fix for loading serial port from Registry (caused AppleWin to crash when booting Apple Pascal)
+. Some floating bus bugs (fixes the Bulgarian game: "Walking in the town" & Annunciator read)
+. FLASH rate (now 3Hz, was 6Hz)
+. Fix for Willy Byte & MB support (strange 6522 behaviour!)
+
+
+1.15.0.3 - 31 Aug 2008 (beta)
+-----------------------------
+Changes:
+. Remembers the last disk images used for Drive 1 & 2
+  - Is updated when you insert or remove a disk
+. PrintScreen key now saves screen shots!
+  - Saved in .bmp format in the last directory you opened a disk from.
+  - The filename generated depends if a floppy disk is mounted:
+      o no disk mounted: "AppleWin_ScreenShot_#.bmp"
+      o use the last disk mounted: "{DiskFilename}_#.bmp"
+  - default saves to 560x384 resolution.
+  - Shift+PrintScreen will save a 280x192 .bmp
+    Note: In case you are wondering about the non-standard resolution 560x384
+      o Width is 560 in order to save double hi-res graphics, and
+      o Height is 384 because we double the vertical scan lines to
+        preserve the original aspect ratio using a 560 width.
+  - To enable the dialog box display of the last file saved to,
+    use the command line option: -printscreen
+. Added new video mode: "Monochrome - Authentic"
+  - Every odd scanline is black to replicate that authentic look of the Apple Green monitors
+  - Similar to ApplePC's "Green monochrome" mode
+. Debugger 2.6.0.6
+  - Added new command '@' to re-display results of search, colorized.
+    Example:
+	  S F000:FFFF C050
+	  @ // re-display search results
+  - Renamed GO to G to not conflict with new commands GR, GR1, GR2
+  - Added 18 new view output commands from inside the debugger!
+      TEXT, TEXT1, TEXT2
+	  TEXT80, TEXT81, TEXT82
+	  GR, GR1, GR2
+	  DGR, DGR1, DGR2
+	  HGR, HGR1, HGR2
+	  DHGR, DHGR1, DHGR2
+    Example:
+      F7 // enter debugger
+      HELP VIEW // view help summary
+      HGR // view current Hi-Res Screen. press a key to return to the normal debugger view
+  - Added aliases:
+      TEXT40, TEXT41, TEXT42
+  - Fixed command 'G' to not send the Return of the command into the Apple Keyboard
+  - Fixed command '?' to list commands sorted and colorized
+  - Fixed command 'HELP' to not display extra blank-line
+  
+Fixes:
+. '~' displayed instead of '^' 
+
+Beta: CP/M support (Microsoft CP/M SoftCard in slot-5)
+  - No save-state support
+  - No Z80 debugging support
+
+1.14.2.0 - 23 Jun 2008
+----------------------
+Changes:
+. Support for Bulgarian clones: Pravets 82 & 8A
+. Mouse can be configured to show/hide crosshairs; and can be restricted (or not) to AppleWin's window
+. Added 'Send to CiderPress' function via the context menu of the drive buttons
+. Added support for "The Freeze's" F8 ROM (Apple][ & Apple][+ only)
+. Added -f8rom <rom-file> cmd line switch to allow loading a custom 2K Rom at $F800
+. Support Shift-F9 to cycle backwards through video modes. 
+
+Fixes:
+. Mouse support for Contiki v1.3, Blazing Paddles & GEOS
+. Mouse support now integrates much better with Windows (when in unrestricted mode)
+. Extended HDD image file filter to include *.po
+. [Bug #13425] Full Screen mode: drawing/erasing of the buttons on the RHS of the screen
+. [Bug #12723] DOSMaster .hdv/.po images work
+. [Bug #11592] Infiltrator now boots
+
+1.14.1.3
+--------
+Beta builds for specific testers
+
+1.14.1.2 PR - 20 Apr 2008
+----------------------------
+. Support for Pravets 82. Caps Lock serves as Lat/Cyr lock. The charset still needs a little fix (all characters have to be one row down).
+. Some partial support for Pravets 8A. Caps Lock serves as Lat/Cyr lock, and F10 serves as Caps Lock.
+In Pravets 8A mode the former behaviour of the F10 key is preserved as Ctrl+F10 (see Help/Keyboard for details).
+Extended Basic and Miniassembler work, but there are still problems with the 8 bit charset (Ïàðèñ [Parris] does not switch to latin characters).
+Some keys have to be remapped, because currently they are not available (i.e. Ý). There is still the problem that there is not enough space for this key on the keyboard.
+. Added Send to CiderPress function via the popup menu of the drive buttons.
+
+1.14.1.2 - 2 Dec 2007 (beta)
+----------------------------
+. Change: Removed crosshairs in mouse-mode
+. Change: Hide Windows' mouse cursor when over Apple's screen (in mouse-mode)
+. Change: Moved 'Mouse interface in slot 4' from Configuration to Input config page
+. Added -f8rom <custom.rom> cmd line switch to allow loading a custom 2K Rom at $F800
+. Added support for "The Freeze's" F8 ROM (Apple][ & Apple][+ only)
+  - It's a non-autostart ROM (was used for cracking). Use 'C600G' command to boot floppy
+  - It added extended output in the Monitor's 'L' command.
+. Fix: Use mouse position delta (fixes GEOS)
+
+1.14.1.1 - 13 Aug 2007 (beta)
+-----------------------------
+. Fix: Infiltrator (floating bus was not being returned for all unmapped I/O)
+. Fix: Mouse card is now reset on a system reset (reboot from Fantavision to Dazzle Draw : 'no mouse installed' problem)
+. Fix: CLEARMOUSE cmd was resetting the clamp value (Fantavision problem)
+
+1.14.1.0 - 09 Aug 2007 (beta)
+-----------------------------
+. Fix: Mouse support in Contiki v1.3
+
+
+1.14.0 - 08 Aug 2007 (beta)
+---------------------------
+Fixes:
+. Super Serial Card: PR#2 & IN#2 now working
+. Full support for Peripheral Expansion ROM (at $C800) & $CFFF access
+. F2 (Power-cycle) when ROM is switched *out* caused Apple to freeze
+
+Changes:
+. Attempt to use drive1's image name as the name for the .aws file
+. Added Apple//e (original 6502 version with "Venetian Blinds" self-test)
+. Turbo mode via Scroll Lock (temporary or toggle mode) - selectable via UI
+
+Beta:
+. Mouse Interface card support in slot 4 (selectable via UI)
+  - Full 6821 emulation & 2K ROM. Based on code by Kyle Kim (Apple in PC)
+  - Tested with: Dazzle Draw, Blazing Paddles, Archon II: Adept, Orge[Fix], Dragon Wars
+
+
+1.13.2 - 07 Apr 2007
+--------------------
+* Added: Apple ][ (non-autostart monitor)
+* Added: 6502 NMOS illegal opcode support (for ][ & ][+)
+* Added: 65C02 CMOS undefined opcode support (for //e)
+* Added: Simple parallel printer support in slot-1
+  . Creates (or overwrites) a file called "Printer.txt" in AppleWin.exe's folder
+  . Eg. PR#1, then LIST, then PR#0
+  . The file will auto-close 10 seconds after the last printed output
+* Fix: [Bug #7238] FLASH support in 80-column mode
+* Fix: [Bug #8300] 80-col text in Silvern Castle got corrupted
+* Fix: Speech with MB/Phasor for short phonemes - bug in DirectSound in WinXP (see KB327698)
+* Fix: Disk ][ track stepping (Mabel's Mansion now works)
+* Docs updated (although debugger docs still partially out of date)
+* Debugger:
+  + Now uses Apple font
+  + Can configure entry to debugger via specific opcode or illegal(6502)/undefined(65C02) opcode - use BRKOP cmd
+    - So you can run Apple at full-speed until it hits your breakpoint (eg. BRK)
+  + BRKOP, BRK # to enter debugger
+  + Mouse support: button & wheel
+  + BLOAD/BSAVE
+  + Search command: S/SH
+  + New DISASM command
+  + bookmarks, via bm, bma, bmc, bml, ctrl-#, alt-#
+  + HELP RANGE
+  + HELP OPERATORS
+  + PRINT, PRINTF
+  + ctrl-v (paste) support
+  & lots more (doc's to be updated soon)
+
+
+1.13.1 - 07 May 2006
+--------------------
+* Fix: [Bug #7375]  Crashes on Win98/ME
+
+
+1.13.0 - 02 May 2006
+--------------------
+* New: Uthernet card support
+  . Allows internet access when used with the Contiki OS
+  . See: http://applewin.berlios.de/Uthernet.txt
+* New: Floating bus support
+  . Fixes the hang at Drol's cut-scene
+  . Bob Bishop's Money Munchers is a little bit closer to working
+* Change: Added support for SSC receive IRQ (eg. Z-Link)
+* Fix: Checkerboard cursor back for //e mode
+* Fix: [Bug #6778] enable harddisk not working in 1.12.9.1
+* Fix: [Bug #6790] Right click menu stops working on drives
+* Fix: [Bug #7231] AppleWin installed in path with spaces
+
+
+1.12.9.1 - 10 Mar 2006
+----------------------
+* Right-Click on drive icon for disk popup menu. Options are:
+        o Eject disk
+        o Read only (write protection on.)
+        o Read / Write (write protection off.)
+        Note: If a file is read-only, the Read only option will be checked.
+* Fixed invalid F7 opcode addressing mode, so Lock N' Chase is now playable.
+* Video Blanking Timing now has preliminary support.
+    i.e. Drol now longer stalls at the cutscene.
+    Note: The VBL is not exact timing (yet), so some games like Karateka might exhibit a little choppiness.
+* Debugger 2.5.0.16
+        o New Command: #G, same as Apple "Monitor" go command, where # is an hex address.
+            i.e. C600G
+        o New Command: #L, same as Apple "Monitor" list command, where # is an hex address.
+            i.e. 300L
+        o New Command: //
+        Starts a line comment anywhere in the line.
+        o New Command: RUN "filename", to run a debugger script
+        o New Command: ECHO ...
+        Text may be quoted: ECHO "...text..."
+        Echo the current line, since scripts don't echo their commands.
+        o New Command: SH address ## [? ?? ##]
+            You can now search memory!
+            i.e.
+            SH 800,8000 AD ? C0 // search for one byte gap, AD xx C0
+            SH 800,8000 C030 // search for two bytes: 30 C0
+        o Mini-Assembler preview:
+        Note: None of the indexed/indirect modes are working (yet), expressions are not evaluated.
+            usage: A address
+            usage: A
+            The assembler prompt is the '!' -- for your mini-assembler fans ;-)
+            The format is: label mnemonic []
+            To exit the assembler, press Enter without any input.
+            The spacebar to execute the next instruction is disabled while in assembler mode. You must press space, if you don't wish to define a label.
+        o Fixed Console sometimes not drawing.
+        o Fixed UI bug: Memory View text over-writing buttons.
+        o Changed BPX to now defaults to setting breakpoint at cursor.
+        o Changed BP to now default to setting breakpoint at Program Counter (PC)
+        o Added new color scheme: BW. (This used to be an alias for MONO before.)
+
+
+1.12.9.0 - 25 Feb 2006
+----------------------
+- Moved source to BerliOS & released under GPL
+- Debugger v2.4.2.16:
+  + Breakpoint on memory address added: BPM address[,length]
+  
+
+1.12.8.0 - 22 Feb 2006
+----------------------
+- *** Major re-write of debugger by Michael Pohoreski ***
+  . Debugger v2.4.2.15: Improvements & new features abound!
+    + Syntax coloring, navigation, execution (eg. step-out), view memory as varying Ascii types
+    + Symbol maintenance (main, user, source), source-level debugging, mini-calculator
+    + Breakpoints: conditional on register, profiling + much more
+  . See: http://applewin.berlios.de/Intro_To_New_Debugger.htm
+- Fixed speaker volume not being set correctly at start-up
+- Fixed emulation speed control (was only running at 1MHz)
+- Fixed internal ADC: was flagged as write to memory
+- Fixed internal BRK: only pushed PC+1, not PC+2 to stack
+- Fixed CPU not getting properly reset (eg. SP) on Ctrl+Reset
+- Changed attenuation on AY8910 outputs before mixing: MB: none (was 2/3), Phasor: still 2/3
+
+
+1.12.7.2 - 25 Jan 2006
+----------------------
+- Fixed crash-bug in C++ 65C02 emu code for opcode $7C : JMP (ABS,X)
+- Updated help file (by Brian Broker)
+- Added ability to use Shift+Insert to paste from clipboard during emulation
+- Added buttons to Config->Sound tab to select Mockingboard (s4 & s5), Phasor (s4) or none
+- Removed keyboard buffer from Config->Input (this was redundant from 1.12.7.0)
+- Fixed speaker click (eg. when selecting disk image)
+- Added check to prevent loading old & incompatible 6502 DLLs (caused random 6502 crashes to monitor)
+- Added support for AE's RAMWorks III, which adds up to 8MB (cmd-line switch only):
+  . -r <#pages>  : where #pages = [1..127], each page is 64KB.
+. NB. The following aren't saved out to the save-state file yet:
+  . Phasor card  (only the Mockingboards are)
+  . RAMWorks card
+
+1.12.7.1 - 08 Jan 2006
+----------------------
+- Fixed cmd-line switches -d1/-d1 to work with filenames with spaces
+- Reset: Init Phasor back to Mockingboard mode
+- Benchmark button acts immediately
+- Fixes to speaker emulation introduced in 1.12.7.0
+- Adjusted speaker freq to work better with MJ Mahon's RT.SYNTH.dsk
+- Fixed Bxx; ABS,X; ABS,Y; (IND),Y opcodes: take variable cycles depending on branch taken & page crossed
+
+
+1.12.7.0 - 30 Dec 2005
+----------------------
+- Public release
+- Fixed Apple][+ ROM (IRQ vector was vectoring to $FF59/OLDRST)
+- Added cmd-line switches (-f, -d1, -d2)
+  . -f           : full-screen
+  . -dn <image>  : Load a disk image into a drive. A disk in drive-1 will force a reboot.
+- Extended 6502 debugger (M1, M2, P0,...P4)
+  . Mn <addr>    : Memory window 1/2
+  . Pn <zp-addr> : Display a zero-page pointer
+  . Extended memory-dump to output SY6522/AY8910 regs with SYn/AYn, eg: M1 AY0
+  . Added support for ACME symbol files
+- Phasor support (defaulting to Mockingboard mode, available in slots 4 & 5)
+- Display updated at ~60Hz (instead of 20Hz)
+- Emulation broken into 1ms units (instead of video-frame units)
+- Uses internal CPU emulator instead of DLLs (DLLs to be phased out)
+
+
+1.12.6.1 - 23 Apr 2005
+----------------------
+- Added support for Votrax speech: emulated using SSI263 phonemes
+- Added joystick x/y trim control to Input property sheet
+- Added support for double-lores graphics
+- Updated Applewin.chm
+- Load state: F12 nows works like Ctrl-F12
+
+
+1.12.6.0 - 19 Mar 2005
+----------------------
+- Public release
+
+
+1.12.5.5 - 11 Mar 2005
+----------------------
+- Added support for clipboard paste.
+- Fixed slow Disk][ when Mockingboard disabled problem.
+- Fixed flickering mouse pointer problem. 
+
+
+1.12.5.4 - 11 Feb 2005
+----------------------
+- Added support for 2 HDDs (HDV images) from slot7
+- Fixed Disk-swap bug.
+
+
+1.12.5.3 - 4 Feb 2005
+----------------------
+- Internal
+
+
+1.12.5.2 - 4 Feb 2005
+----------------------
+- Moved 'Monochrome Color' from main window to Config dialog
+- Changed old 'Monochrome Color' button to 'Disk Swap' button (bitmap provided by The Rink).
+
+
+1.12.5.1 - 24 Jan 2005
+----------------------
+- Rebuilt with new CHARSET4.bmp from "The Rink"
+
+
+1.12.5.0 - 11 Dec 2004
+----------------------
+- Added browse dialogs for F11 & Ctrl-F12.
+
+
+1.12.4.4 - 28 Nov 2004
+----------------------
+- Changed Configuration Dialog to Property Sheet Pages.
+- Added Volume control for Speaker & Mockingboard.
+- Added control for keyboard buffer.
+- Added Save State page.
+
+
+1.12.4.3 - 13 Nov 2004
+----------------------
+- Fixed problem with jerky graphics when in mixed HGR/TEXT (Olympic Decathlon).
+- Fixed sudden burst of 'full speed' after unpausing.
+- Fixed joystick emulation problem (Championship Lode Runner & Boulderdash).
+- Fixed FLASH problem when nothing changing on TEXT screen.
+- Fixed problem with internal 6502 emu's SBC opcode when in BCD mode (Dino Eggs).
+- Fixed Pro Mockingboard compatiblity problem (Pro-MB accesses are now ignored).
+- Added emulator save-state (Save=F11, Load=Ctrl+F12).
+
+
+1.12.4.2 - 09 Nov 2004
+----------------------
+- Internal
+
+
+1.12.4.1 - 14 Sep 2004
+----------------------
+- Fixed "CPU usage 100%" problem.
+- Switch MB output from dual-mono to stereo.
+- Relaxed TIMER1's max freq from ~62Hz (period=0x4000) to ~83Hz (period=0x3000).
+- Fixed FLASH problem when in monochrome mode.
+
+
+1.12.4.0 - 01 Aug 2004
+----------------------
+- Switched to MAME's AY8910 emulation
+- Added support for SSI263 speech chip on Mockingboard
+- Ctrl+Reset now resets MB
+- Key presses: 2 buffers. Fixes problem where key presses are missed on faster PCs.
+- Added FLASH support
+- Switched Speaker to use DirectX
+- Rebuilt using DirectX 9.0b library
+- Removed AppleWin calibration when starting a new version
+- Fixed 6502 emulation cycle-count inaccuracies, resulting in:
+  . Precise analogue joystick support (Rescue Raiders' joystick support now works)
+  . Precise Apple speaker
+- Emulation speed control now works when using Mockingboard
+- Full speed (Scroll-lock) mutes all sound (Speaker,Mockingboard)
+- Fixed DELREG.INF
+- Reset now switches Alternate char set off
+- PC's delete key maps to Apple's DEL key
+- Fixed characters: '6', '|', '_'
+
+
+1.12.3 - 04 Jan 2004
+--------------------
+Changes:
+- Added Thomas Stahl's TV emulation mode: "Color (TV emulation)".
+  Tested with Karateka, Mindshadow.
+	"As you probably know, many of the higher sophisticated Apple ][+
+	games made use of the blurr-effekt that color TV-monitors had on
+	patterns consisting of horizontal color stripes. Using this effect it
+	was possible to produce *solid* mix colors like grey, purple, pink,
+	yellow and aquamarine even in the 2+ *hi-res mode*."
+- Included Thomas Stahl's adjusted hires colors:
+	He "adjusted the hires colors for a more realistic look -
+	at least in comparison with an Apple PAL-System."
+- Changed wording in Config dialog: from "Color (optimized)" to "Color (text optimized)".
+- Fixed Config dialog (speed settings were misplaced in 1.12.2).
+- Fixed Joystick 2 for Mario Bros: Now when in dual-joystick mode, 2nd joystick
+  button controls both switches #1 & #2 as one.
+- Fixed Mockingboard IRQ frequency problem (Ultima 4 & 5 tunes now play at correct rate).
+- Added Applewin.chm to release zip. (NB. This hasn't changed from 1.10.4)
+
+
+1.12.2 - 05 Jul 2003
+--------------------
+Changes:
+- Added support for 2nd joystick.
+  If the 2nd Apple joystick is enabled, then the buttons are re-configured:
+  - Joystick 1 controls only button #0 (ie. not button #1 too)
+  - Joystick 2 controls only button #1 (ie. not button #2)
+  This is so that player 1 can't affect player 2's controls.
+  So there is no way to control button #2 via a joystick. I don't think this will be a problem.
+  Of course Left Alt, Right Alt and Shift still activate the 3 buttons.
+  NB. Disable 2nd joystick if playing a 1 player game that requires the use of buttons 0 and 1.
+  Tested with Archon I, Archon II and One-on-one.
+
+
+1.12.1 - 24 Nov 2002
+--------------------
+Changes:
+- Changed tone waveform from orthodox square-wave to a more logarithm shape,
+  based on real MB waveform analysis. This is by no means perfect, but in my
+  opinion gives the tones more musical quality.
+- Added MB enable/disable switch to Configuration dialog.
+- Added simple logging support. If AppleWin is started from the command line
+  (DOS box) with the '-l' switch, then a text log file, AppleWin.log, will be
+  generated. This can hopefully be used to diagnose problems some users are having.
+
+
+1.12.00 - 17 Nov 2002
+---------------------
+- Initial release.
+- Supports 2 Mockingboard cards in slots 4 & 5
+- 12 voices and noise supported using DirectX 8.1.
+- Tested on Win98, 2000 and XP platforms.

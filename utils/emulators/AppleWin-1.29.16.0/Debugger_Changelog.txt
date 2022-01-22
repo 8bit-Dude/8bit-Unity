@@ -1,0 +1,833 @@
+/*
+
+
+2.9.1.0 Added: Bookmarks now have their own indicator (a number with a box around it) and replace the ":" seperator. Updated Debug_Font.bmp
+
+.18 Fixed: Resetting bookmarks wasn't setting the total bookmarks back to zero.
+.17 Fixed: If all bookmarks were used then setting a new one wouldn't update an existing one to the new address.
+.16 Fixed: Replacing an existing bookmark incorrectly increased the total bookmark count.
+.15 Cleanup: HELP CALC examples and See also.
+.14 Fixed: HELP JSR wasn't color-coding syntax.
+.13 Added: PROFILE LIST now shows how many clock cycles were executed.
+.12 GH-PR#480:
+    GH#462: Default to Shift+Left Click to toggle disasm columns
+            Use 'disasm click <n>' to reconfigure this
+    GH#473: Fixed bug caused by Util_MemoryTextFile, Line 51 not zero-terminating buffer by invalidating it.
+    GH#476: Fixed off-by-one bug wrapping in debugger console
+    GH#483: Shift+Left mouse button to toggle 6502 Status flag bits
+    GH#484: Some corrections to APPLE2E.SYM
+.11 Added:"Warning" for long symbols when symbol table is loaded
+.10 Changed: "Warning" of symbols that alias to "Info."
+.9 Continuation of 2.8.0.8: Fix overflowing disassembly pane for long symbols
+.8 Fixed: Inactive Language Card bank now grayed out, main memory no longer double inverse.
+.7 Fixed: Memory softswitches are now in chronological order, and their background is a dark grey
+.6 Added: Read/Write for Main/Aux memory now shown
+.5 Added: Support for RAMWORKS in the Debugger Language Card Status
+.4 Added: Language Card Status now displayed
+.3 Cleanup drawing of soft switches
+.2 Fix crash when NTSC save/load total path length is > console width (80 chars)
+.1 Fixed: Implemented missing debugger "CD" command
+2.9.0.0 Added: ntsc save [filename], ntsc load [filename], to save/load the NTSC palette.
+  Default filename is "AppleWinNTSC4096x4@32.data"
+  To load this file in GIMP: Open, Select File Type: "Raw image data", Raw image data (*.data), RGB Alpha, Width: 4096, Height: 4
+  to save this file in GIMP: Open, Export To, Select File Type (By Extension) Raw image data, RGB Type: Standard (R,G,B)
+
+.12 Fixed: [PVS-Studio] Fixed false positive of buffer overflow with MIP_RANDOM
+.11 Fixed: [PVS-Studio] Fixed missing call to sprintf() in ConfigSave_PrepareHeader()
+.10 Fixed: [PVS-Studio] Fixed no-op in _6502_GetStackReturnAddress()
+ .9 Added: BLOAD now recognizes the extensions .hgr or .hgr2 to load to $2000, or $4000 respectfully
+ .8 Fixed: Showing/hiding the address and/or opcodes will show long symbolic targets without overflowing into the register info pane Bug #227
+ .7 Fixed: ASC #:# with string containing null byte wouldn't show rest of string
+ .6 Added: Print-Screen when in debugger will copy the debugger window as text
+ .5 Added: Print warnings about duplicate symbols when symbol tables are loaded
+ .4 Fixed: Check for buffer overflow in CmdSymbolsInfo() if _CmdSymbolsInfoHeader() returns a very long string
+ .3 Removed EXITBENCH from falsely being triggered with E.
+ .2 Cleaned up error message for syminfo on invalid symbol table.
+ .1 Fixed: Symbolic Targets > 20 chars no longer overflow into register window
+2.8.0.0 Released with AppleWin 1.25
+
+2.7.0.#
+.36 Fixed: empty command was re-triggering previous command. Example: DW 6062, // test
+.35 Added: DW address -- round the length up to even number for convenience. Example: DW 6062 is equivalent to: DW 6062:6063
+.34 Fixed: Unified auto-defined name: B_, W_, T_ for byte, word, or text respectively
+.33 Fixed: ASC range -- auto-define symbol name: T_####
+.32 Fixed: DW range -- auto-define symbol name: W_####
+.31 Fixed: DB range -- auto-define symbol name B_####
+.30 Fixed: ASC overflowing sOpCodes in FormatOpcodeBytes()
+.29 Added: Help for DB and DW
+.28 Added: ASC so it disassemblies intertwined code and data correctly.
+    Example:
+        using Castle Wolfenstien.DSK
+        BLOAD ^VOCAB
+        ASC name1 17DA:17F5
+.27 Added: DB address now auto-defines the symbol D_####
+.26 Changed: DS to ASC because DS is used as "Define Space" assembler directive
+.25 Fixed : DW address so that odd address work.
+    i.e. DW NEXT1 801   // AppleSoft Basic Line#1 Pointer to Next line
+.24 Added: TSAVE "filename" to save the text screen to file
+    Default filename for 40 columns is: AppleWin_Text40.txt
+    Default filename for 80 columns is: AppleWin_Text80.txt
+.23 Fixed: Hang with Memory Move when memory ends at FFFF, i.e. 2000<FFFE.FFFFM
+.22 Fixed: Hang with Memory Fill when memory ends at FFFF, i.e. F D000:FFFF 0
+.21 Added: Help for BRK
+.20 Moved: BRK and BRKOP now under HELP BREAKPOINTS
+.19 Added: Shift-F7 will run the emulator at normal speed but with debugger breakpoints active!
+.18 Added: Implemented BPIO -- currently is the same as BPM
+
+2.7.0.17 Released with Applewin 1.20.0.0
+
+.17 Fixed: HELP <category> wasn't displaying when category was one of: FLAGS, OUTPUT, WATCHES
+.16 Fixed: WL was displaying number of watches
+.15 Fixed: Memory Dump was over-writing watches.
+.14 Added: Debugger display flag to update soft switches. (Related to .12)
+.13 Fixed: Targets of PC instruction weren't displaying.
+.12 Fixed: Fixed scrolling to only update the diasm window.
+.11 Fixed: Breakpoints and Watches no longer disappear.
+.10 Added: Watches now show (dynamic) raw hex bytes
+    Changed: Lowered watches down from 16 to 8.
+
+ .9 Fixed: Bookmarks weren't initialized to zero.
+ .8 Added: New command PWD to display the current debugger directory.
+    This is the directory used for scripts, loading/saving memory, and trace files.
+    Currently the debugger uses the same directory that the last disk image was loaded from.
+    It will have its own directory in a future version.
+ .7 Fixed: Cleaned up display of soft-switches to show address.
+ .6 Removed: Unused aliases.
+    Reason: When a symbol table is specified with no args, the total # of symbols will be shown.
+    SYMBOLS1, SYMBOLS2, SYM0, SYM1, SYM2, SYM3, SYM4, SYM5, SYM6 
+ .5 Fixed: Increased console output height so that you can view all the SYMBASIC * output.
+ .4 Added: Two aliases for Dos 3.3 and Prodos symbol tables
+    SYMDOS
+    SYMPRO
+ .3 Added: Two new symbol tables added Dos 3.3 and Prodos.
+    SYMDOS33 
+    SYMPRODOS
+ .2 Fixed: Fixed: Debug build of debugger force display all CPU info window wasn't calling DrawTargets()
+ .1 Added: Soft Switches displayed in CPU info window
+
+
+2.7.0.0 Released with Applewin 1.19.1.0
+
+
+.33 Fixed: Define Address should be shown as Absolute mode, not Indirect Absolute mode.
+    Example:
+       U D000
+       DA BASIC.FPTR D000:D081 // was showing as "da (END-1)" now shows as "da END-1"
+.32 Fixed: n'th Search results were being displayed in dec, yet parser takes hex numbers.
+    Example:
+       SH D000:FFFF A9 00
+       U @A // used to show 10th search result as 10:DE60, now 0A:DE60
+.31 Fixed: Disasm list containing data address table was bailing on first possible match.
+    Example:
+       DA BASIC.FPTR D000:D080
+       U D000 // was showing da STOP+1, instead of END-1
+.30 Added: DA now works!  It is similar to DW except it does symbol lookups!
+    (DW = Define Word.  DA = Define Address)
+    Example:
+       U D000
+       DA BASIC.FPTR D000:D080
+.29 Fixed: Pretty print DB2 DB4 DB8 without commas
+.28 Fixed: DB2 DB4 DB8 DW DW2 DW4 now work/display properly.
+    DB (Define Byte) shows bytes in big endian order.
+    DW (Define Word) shows addresses (2 bytes) in little endian order.
+    Example:
+       U D000
+       DB2 REV.FPTR D000:D080
+       X
+       DW BASIC.FPT D000:D080
+       X
+    Or for those minimal types who hate wasting screen real estate
+        DW4 COMPACT D000:D080
+        X
+        DB8 RA8 D000:D080
+        X
+.27 Fixed: Don't do symbol look up for data bytes that don't request it. (Groundwork for Define Address)
+.26 Changed: Code portability. Slowly remove the LPCTSTR taint of Windowisms.
+.25 Fixed: DB DW custom data byte sizes weren't scrolling properly in the disasm view.
+    Changed _6502_GetOpmodeOpbyte() to be aware of data bytes.
+.24 Changed: 2.6.2.24 Changed: Tone-downed the alt. background cyan for the DATA window. C2, C3 -> C1,C2
+.23 Changed: Increased number of lines for console output buffer (from 384 to 512)
+.22 Changed: Re-enabled magenta/purple for warnings (i.e. symbol table disabled)
+.21 Fixed: Missing GPL / copyright on some debugger files, updated year.
+.20 Changed: Output of found symbol more table friendly.  Symbol table name displayed first.
+    Example: SYM HOME     // <SymbolTable>:  $<Address> <Symbol>
+.19 Changed: Unified format & colors for summary of symbol tables and symbol table names.
+    A symbol table that has been disabled will display in purple / magenta.
+    Example: SYM HOME     // 'Main' shown in yellow
+    Example: SYMBASIC OFF
+    Example: SYM
+.18 Fixed: Search Results: Total summary line unified colors.
+.17 Fixed: Search Results: The n'th result now using correct color (was command, now number decimal)
+.16 Fixed: Search Results: The hex literal prefix '$' for target address results now colorized properly.
+.15 Fixed: Search Results: Added space between results for better readability.
+.14 Fixed: Help description for Save/Load parameter help was swapped.
+    Example: HELP SYMMAIN
+.13 Added: Can now enable/disable selected symbol table(s) !
+    Example: SYMMAIN OFF
+    Example: SYMBASIC OFF
+    Note: If you need to search for symbols ON, OFF, CLEAR, use SYM. i.e. SYM ON.
+.12 Fixed: Following symbol tables were all hard-coded to act on SYMMAIN
+		SYMBASIC
+		SYMASM
+		SYMUSER
+		SYMUSER2
+		SYMSRC
+		SYMSRC2
+	Example: SYMBASIC CLEAR
+.11 Added: Command line now accepts Indirect mode via ( )
+    Example:  U (BRKV)
+.10 Added: Pretty printing 'B' of all bytes treated as data.
+.9 Fixed: Renamed ambiguous command 'DL' to 'B' to list all bytes being treated as data
+          Renamed command: 'B' to 'Z' as an alias to treat byte(s) as data
+.8 Fixed: Define Code 'X' wasn't removing entries
+.7 Fixed: DATA1 was using call win setup for code, not data.
+.6 Cleanup of command table to have the proper internal command enum.
+		D      // CMD_MEM_MINI_DUMP_HEX_1 moved to alias section
+		M1     // CMD_MEM_MINI_DUMP_HEX_1 moved to alias section
+		M2     // CMD_MEM_MINI_DUMP_HEX_2 moved to alias section
+		TEXT81 // CMD_VIEW_TEXT81         <- CMD_VIEW_TEXT8X
+		TEXT82 // CMD_VIEW_TEXT82         <- CMD_VIEW_TEXT8X
+		W      // CMD_WATCH               <- CMD_WATCH_ADD
+.5 Added: Internal consistency checking for commands and their internal command enum.
+.4 Fixed: Added custom assembler type and debugger disassembly display uses variable
+          instead of always being hard-coded to Merlin directives.
+.5 Fixed: Data disassembler help -- was using wrong command help offset due to wrong order of commands.
+.3 Fixed: Assembler now accepts lower-case mnemonics
+.2 Fixed: help for command '@'
+.1 Added: new command: 'X' to Define Code 
+    Remove address being treated as data
+    X                    // uses address cursor is on
+	X symbol             // uses address cursor is on
+	X symbol address
+.0 Added: new command "DB" to Define Byte / Pseudo Mnemonic / Assembler Directive
+    DB                  // uses address cursor is on
+    DB symbol           // uses address cursor is on
+    DB symbol address
+    DB symbol start:end
+    Example:
+       DB zp 0:ff
+2.6.2.0 Released with AppleWin 1.17.2.0
+
+2.6.1.x
+.35 Fixed: Pressing enter on blank line while in assembler wouldn't exit it.
+.34 Fixed: Scrolling past top of the console output wouldn't draw blank lines
+.33 Added: While there is console input, can use Page Up, Page Down to scroll the console output buffer.
+.32 Added: Pressing Enter on a blank line now toggles the full screen console.
+    "Blame" Nick for this great idea. :-)
+    You can still use Ctrl-` if need be.
+.31 Added: Help examples for Memory Fill
+.30 Fixed: Memory Fill
+	F start end value
+	F start,len value
+	F start:end value
+.29 Removd: Old unassembly alias MDC
+.28 Added: Can now toggle display of disassembly address on/off for a clean "source assembly" style
+    Three way state
+    1) "addr: ..."
+    2) ": ..."
+    3) " ..."
+.27 Fixed: help for memory fill no longer displays help for flags
+.26 Added: Was missing help for memory move
+.25 Changed: Cleaned up help calc text
+.24 Changed: Undid .5, .7 hack
+.23 Extended entering memory bytes to allow 16-bit values
+    0:4C FF69 
+.22 Renamed breakpoint commands
+	BC  -> BPC
+	BD  -> BPD
+	BPE -> BPEDIT
+	BE  -> BPE
+	BL  -> BPL
+.21 Fixed: Trying to set zero page and other memory locations that
+    were also commands, didn't update memory.
+    A:##
+	D:## // no longer shows mini dump starting at address 0
+	F:##
+    BC:##
+    BD:##
+    BE:##
+    E8:##
+    E16:##
+.20 Added: Implemented Memory Move commands: MM and classic Apple Monitor style
+    2001<2000.3FFFM
+    M 2001 2000:3FFF
+.19 Fixed: Added how to delete symbols to symbol help
+.18 Added: Loading duplicate symbols at start-up now listed
+.17 Added: When the debugger starts, attempts loading of additional symbol tables
+	A2_BASIC.SYM
+	A2_USER1.SYM
+	A2_USER2.SYM
+	A2_SRC1.SYM
+	A2_SRC2.SYM
+    Repsectively for basic, user1, user2, source1, and source2
+.16 Added: In addition to !, can now use ~ to remove a symbol
+     symbasic aCold.reset = F128
+     symbasic aWarm.reset = D43C
+     symbasic ! aCold.reset
+     symbasic ~ aWarm.reset
+.15 Fixed: Color coded when symbol address is updated.
+.14 Fixed updating of symbols to use correct symbol table 
+.13 Added: Wildcard suport to dump symbol table(s)
+     symbasic Acold.reset = F128
+     symbasic Awarm.reset = D43C
+     symbasic *
+.12 Added: Moved assembly symbols into own symbol table.
+    Added: New command to reference assembly symbol table.
+     symasm MyFirstAssemblyProgram = 300
+.11 Added: Applesoft/Basic symbol table.
+     symbasic Acold.reset = F128
+     symbasic Awarm.reset = D43C
+.10 Added: Split 'user' symbols into user1, and user2
+.9 Added: Split 'source' symbols into source1, and source2
+.8 Added: Applesoft symbols.  Thank-you Bob Sander-Cederlof !
+.7 Fixed: renamed assembler command A to AS (as a work-around for:  A:##)
+.6 Fixed: renamed mem fill command F to MF  (as a work-around for:  F:##)
+.5 Fixed: renamed mem dump command D to MD  (as a work-around for:  D:##)
+.4 Fixed: renamed mem enter word command EW to MEW, E16 to ME16
+.3 Fixed: renamed mem enter byte command E  to MEB
+.2 Fixed: renamed mem enter byte command EB to ME8
+.1 Fixed: removed mem enter byte command E8
+
+2.6.0.8 Released with AppleWin 1.16.1
+
+=======
+2.6.1.x
+.32 Added: Pressing Enter on a blank line now toggles the full screen console.
+    "Blame" Nick for this great idea. :-)
+    You can still use Ctrl-` if need be.
+.31 Added: Help examples for Memory Fill
+.30 Fixed: Memory Fill
+	F start end value
+	F start,len value
+	F start:end value
+.29 Removd: Old unassembly alias MDC
+.28 Added: Can now toggle display of disassembly address on/off for a clean "source assembly" style
+    Three way state
+    1) "addr: ..."
+    2) ": ..."
+    3) " ..."
+.27 Fixed: help for memory fill no longer displays help for flags
+.26 Added: Was missing help for memory move
+.25 Changed: Cleaned up help calc text
+.24 Changed: Undid .5, .7 hack
+.23 Extended entering memory bytes to allow 16-bit values
+    0:4C FF69 
+.22 Renamed breakpoint commands
+	BC  -> BPC
+	BD  -> BPD
+	BPE -> BPEDIT
+	BE  -> BPE
+	BL  -> BPL
+.21 Fixed: Trying to set zero page and other memory locations that
+    were also commands, didn't update memory.
+    A:##
+	D:## // no longer shows mini dump starting at address 0
+	F:##
+    BC:##
+    BD:##
+    BE:##
+    E8:##
+    E16:##
+.20 Added: Implemented Memory Move commands: MM and classic Apple Monitor style
+    2001<2000.3FFFM
+    M 2001 2000:3FFF
+.19 Fixed: Added how to delete symbols to symbol help
+.18 Added: Loading duplicate symbols at start-up now listed
+.17 Added: When the debugger starts, attempts loading of additional symbol tables
+	A2_BASIC.SYM
+	A2_USER1.SYM
+	A2_USER2.SYM
+	A2_SRC1.SYM
+	A2_SRC2.SYM
+    Respectively for basic, user1, user2, source1, and source2
+.16 Added: In addition to !, can now use ~ to remove a symbol
+     symbasic aCold.reset = F128
+     symbasic aWarm.reset = D43C
+     symbasic ! aCold.reset
+     symbasic ~ aWarm.reset
+.15 Fixed: Color coded when symbol address is updated.
+.14 Fixed updating of symbols to use correct symbol table 
+.13 Added: Wildcard suport to dump symbol table(s)
+     symbasic Acold.reset = F128
+     symbasic Awarm.reset = D43C
+     symbasic *
+.12 Added: Moved assembly symbols into own symbol table.
+    Added: New command to reference assembly symbol table.
+     symasm MyFirstAssemblyProgram = 300
+.11 Added: Applesoft/Basic symbol table.
+     symbasic Acold.reset = F128
+     symbasic Awarm.reset = D43C
+.10 Added: Split 'user' symbols into user1, and user2
+.9 Added: Split 'source' symbols into source1, and source2
+.8 Added: Applesoft symbols.  Thank-you Bob Sander-Cederlof !
+.7 Fixed: renamed assembler command A to AS (as a work-around for:  A:##)
+.6 Fixed: renamed mem fill command F to MF  (as a work-around for:  F:##)
+.5 Fixed: renamed mem dump command D to MD  (as a work-around for:  D:##)
+.4 Fixed: renamed mem enter word command EW to MEW, E16 to ME16
+.3 Fixed: renamed mem enter byte command E  to MEB
+.2 Fixed: renamed mem enter byte command EB to ME8
+.1 Fixed: removed mem enter byte command E8
+
+2.6.0.8 Released with AppleWin 1.16.1
+
+2.6.0.6 Released with AppleWin 1.15
+.6 Added new command '@' to display the search results
+.5 Fixed display results of Searching to be colorized
+.4 Fixed ? to sort and colorize commands
+.3 Fixed HELP to not include blank line
+.2 Fixed 'G' to not send the Return of the command into the Apple Keyboard
+.1 Renamed GO to G to not conflict with GR, GR1, GR2
+.0 Added 18 new view output commands from inside the debugger!
+   Added commands:
+      TEXT, TEXT1, TEXT2
+	  TEXT80, TEXT81, TEXT82
+	  GR, GR1, GR2
+	  DGR, DGR1, DGR2
+	  HGR, HGR1, HGR2
+	  DHGR, DHGR1, DHGR2
+   Added aliases:
+      TEXT40, TEXT41, TEXT42
+   Example:
+   F7 // enter debugger
+   HELP VIEW // view help summary
+   HGR // view current Hi-Res Screen. press a key to return to the normal debugger view
+
+TODO: 2.6.0.0 released with next version of AppleWin (1.12.9.2)
+
+.11 Added: Trace File Now displays filename tracing is saved to.
+.10 Fixed: Trace File wasn't displaying assembly mnemonics
+.9 Added: Internal change: Seperated Disassembling and Drawing a little more.
+   See: GetDisassemblyLine() and FormatDisassemblyLine()
+.8 Fixed: 100% CPU utilization polling for mouse events in debugger
+.7 Added: Colorized PROFILE LIST output
+.6 Fixed: Debugger mouse click not checking if in Debug mode
+.5 Fixed: HELP WA wasn't displaying help for Watch Add
+.4 Added: Colorized most of built in debugger help.
+.3 Added: In disassembly, regs X & Y in mnemonic line are now color coded
+.2 Changed internal representation of color console
+.1 Console now jumps to end, when return pressed
+2.5.7.0 Debugger using new Apple Font with color console support
+
+.41 Fixed: Breakpoints now properly handle ranges (both relative and absolute)
+   See HELP BPR
+.40 Changed: Cleaned up Bookmarks, Watches, ZeroPage to be more consistent.
+   Example:
+   ZPA         // list
+   ZPA CV      // add address
+   ZPA 0 CV    // update with new address
+   ZPA 0 CV CH // add/update a sequence
+.39 Changed: Cleaned up many commands and HELP categories.
+.38 Added: BMSAVE Bookmarks are now saved.
+.37 Changed: Breakpoints now recognize op '!=' or '!' for not equal.
+.36 Removed: Command Config menu (OPTION) since it is not needed
+.35 Changed: Command CONFIG renamed to OPTION to prevent same name collision with category
+.34 Fixed: The comment to end-of-line (//) is now a proper token 
+.33 Fixed: Parsing of operators <= >=
+.32 Fixed: HELP SYM displaying help category, not help command.
+.31 Added: Mini-help for Watches
+.30 Fixed: Command aliases are no longer displayed multiple times
+	i.e. HELP BEN // would show BENCHMARK BENCHMARK (BENCH)
+.29 Fixed: Removed hard-coded magic number spacing for Regs on info panel
+.28 Fixed: Commands and params can now be in lowercase
+.27 Fixed: Help now does partial matches. i.e. HELP OP
+.26 Fixed: FONT checking wrong arg count - bug introduced when op * was added.
+.25 Fixed: Console not handling string with length same as console width
+.24 Added: HELP RANGE
+.23 Added: HELP OPERATORS
+.22 Fixed: Memory searching now accepts ranges. see HELP S, HELP SH
+.21 Fixed: Updated BLOAD BSAVE Help
+.20 Fixed: BLOAD, BSAVE now accept ranges.
+.19 Fixed: Backspace toggles quote state for single quotes now too.
+.18 Changed: Results of searching now start at 1, not zero.
+	i.e.
+	S F000,1000 'Apple'
+	MA1 @1
+.17 Added: HELP S
+.16 Changed: Search Text (S) now uses consistent quoting
+	"...ASCII..."
+	'...High-Bit Apple Text...'
+	Commands: Search Ascii (SA), and Search Apple Text (ST) are now deprecated.
+.15 Fixed: Search Text wasn't allowing multiple apple text chars.
+.14 Single Quoting now allows lower case input
+.13 Fixed: Escape to clear console input, didn't reset quoted flag
+.12 Changed: BLOAD failure now prints path/file it tried.
+.11 Fixed: Memory Searching not handling comma seperating address,length
+.10 Fixed: console not wrapping long lines
+.9 Fixed: console resize not set to full width
+.8 Fixed: PRINTF help
+.7 Extended: command Bookmark List (BML)
+	Also displays maximum bookmarks if no current bookmarks are set.
+.6 Extended: command Breakpoint List (BL)
+	Also displays maximum breakpoints if no current breakpoints are set.
+.5 Extended: command Watch Add (W), and Watch List (WL)
+	Also displays maximum watchpoints if no current watchpoints are set.
+.4 Fixed: memory dump no longer overwrites icons when dumping SY6522 or AY8910
+	MA1 SY
+	MA1 AY
+.3 Fixed: Target display bug
+	_6502_GetTargets() Indirect (Zeropage) Indexed, Y not clamping pointer.
+	F7
+	DISASM POINTER 1
+	R PC FAC7
+	FE:55
+	R Y FF
+.2 Added: new command: DISASM POINTER [0 | 1]
+	Toggles the display of the instruction's target pointer values on / off in the info panel.
+	The default is now off, since the main disasm window shows target values for indirect addressing modes.
+.1 Added: Increased breakpoints to 15, Watches to 6, Zeropage pointers to 6.
+   Fixed: Display only active breakpoints.
+.0 Rearranged/Reorganized info panel to allow full width console
+	- Regs are now listed at the top of the window
+	- Breakpoint title has been removed
+	- Watch title has been removed
+	- Target now shares space with the stack display
+	- Memory Dump 2 is now only 2 lines
+2.5.6.x
+
+.4 Added: Help Categories: BOOKMARKS, HELP, OUTPUT
+.3 Re-organized output commands into seperate category.
+	ECHO, CALC, PRINT, PRINTF
+.2 Added: Bookmark commands
+	BM
+	BMA # address   // Bookmark add
+	BMC * | # [, #] // Bookmark clear
+.2 Added: new console output commands: PRINT, PRINTF
+.1 Fixed: '*' operator being treated as operator if only argument
+2.5.5.0 Added multiplication operator: '*'
+
+.15 Fixed: Help Category comma syntax parsing
+.14 Fixed: BP comma syntax parsing
+.13 Fixed: BSAVE comma syntax parsing. Comma after filename is mandatory now.
+	BSAVE ["Filename"], addr, len 
+.12 Fixed: BLOAD comma syntax parsing. Comma after filename is mandatory now.
+	BLOAD ["Filename"], addr[, len] 
+.11 Fixed: Go syntax parsing
+	G StopAddress [SkipAddress,Length]
+.10 Changed: internal parsing of comma operator.
+	It is now left in the command arguments.
+.9 Fixed: modifier keys (Shift,Ctrl,Alt) not being updated when mouse scrolling.
+.8 Changed scrolling page up & down to not scroll as far.
+.7 Fixed: scroll up bug, introduced with new scroll up code
+   R PC FBB4
+   up arrow
+.6 Fixed: scrolling page up & down, to keep better sync
+	U F700
+	pagedown
+	pageup
+.5 Fixed: scrolling page up & down bug, loosing sync of disassembly lines
+	U F500
+	pagedown
+	pageup
+	F500...F526 -> F523 (should be F526, +20 lines)
+.4 Fixed: scroll down bug, loosing sync of "top" disassembly
+    U F70F
+    down arrow
+.3 Fixed: scroll up bug, loosing sync on disassembly by skipping a mnemonic line:
+   i.e.
+    U FA44 (FA56)
+	up arrow
+.2 Added: Ctrl-# to jump to address
+.1 Added: Alt-# to set bookmark at address
+.0 Added: mouse wheel scrolling in debugger
+2.5.4.x
+
+.16 Swapped -> and Alt ->
+   -> Follow Target at Cursor
+   Alt -> Jump Cursor to PC
+.15 Added: Alt -> to follow target at cursor
+.14 Fixed: BLOAD/BSAVE to update console.
+.13 Changed: BLOAD/BSAVE to use more traditional order of arguments:
+    The comma after the filename must be left out for the time being.
+	BSAVE "Filename" address,length
+	BLOAD "Filename" address
+.12 Fixed: BPA to set breakpoints if no args
+.11 Fixed: Cleaned up HELP BP
+.10 Fixed: Cleaned up HELP BREAKPOINTS
+.9 Fixed: Cleaned up HELP DISASM
+.8 Added: DISASM to print current states
+.7 Added: DISASM TARGET [#]
+.6 Added: BLOAD addr[,len] "Filename"
+.5 Added: BSAVE addr,len "Filename"
+.4 Added: HELP DISASM
+.3 Added: DISASM [BRANCH | COLON | OPCODE | SPACES] #
+.2 Fixed: HELP CONFIG not working
+.1 Linards put undocumented mnemonics in lowercase
+2.5.3.x
+
+2.5.2.x
+
+3.0 Added: Ctrl-V (paste) now works.
+2.0 Added: BRKOP ## support
+2.5.1.0 Added: BRK ON|OFF support
+
+.23 Fixed: Moved columns of disasm for instructions, and target values over one char left, to leave whitespace past the target 'char' on the end
+.22 Added: Disasm window now shows target values for indirect, and indexed addressing modes.
+    i.e.
+0:34 12 00 00 AA 99
+D0:16 03
+1234:56 78 9A
+R X D0
+R Y 2
+300:A9 55      // LDA #$55
+302:4C 89 67   // JMP $6789
+305:AD 01 00   // LDA $0001 = 12
+308:A5 00      // LDA $00 = #34
+30A:DE 00 00   // DEC $0000,X $D0=FF
+30D:BE 02 00   // LDX $0002,Y
+310:B4 35      // LDY $30,X
+312:B6 00       // LDX $00,Y $02=0
+314:D0 02
+316:A1 00      // LDA ($00,X)
+318: 7C 00 00  // JMP ($0000,X)
+31B:B1 00      // LDA ($00),Y
+31D:B2 00      // LDA ($00)
+31F:6C 02 00 // JMP ($0002) = ($0000) -> 1234
+
+.21 Fixed: Disasm display of "Zeropage, X" and "Zeropage, Y" targets weren't wrapping on the zero-page.
+.20 Added: Single quoted chars in search are treated as opposite high-bit.
+    i.e. S D000,FFFF "NEX" 'T' searches for NEXT, with the 'T' having the high-bit set.
+    NEW: S search text or hex
+    NEW: SA search ASCII text (single quote refers to Apple Text)
+    NEW: ST search Apple text (single quote refers to ASCII text)
+.19 Added: Search Results can now be (de) referenced via @
+.18 Added: new operator '@'
+
+.17 Fixed bug in _GetStartEnd(). i.e. D000,FFFF -> D000,CFFF (nothing searched!)
+
+2.5.0.16 released with AppleWin 1.12.9.1
+
+.16 Added: addr:byte [byte]
+.15
+.14 Fixed: Parses not to cook the args, until right before eating them
+.13 Fixed: script to not append filename extension
+.12 Fixed: command // to be comment
+.11 Console sometimes wouldn't draw due to g_bDebuggerViewingAppleOutput being still incorrectly set to true
+.10 Added: double forward slash on command line now ignores rest of command (same as C++ comment)
+.9 Added: Legacy Apple "Monitor" Commands in ExecuteCommand()
+	####G  (JMP $Address)
+	####L  (Unassemble)
+.8 Fixed: console input length not updated from script line length in CmdConfigRun()
+.7 Fixed: script read hang in GetLinePointers()
+.6 Fixed: Assembler storing one too many bytes in AssemblerPokeAddress()
+.5 Fixed: Assembler not parsing target address in AssemblerGetArgs()
+	A 40C7
+	 BRA $40D7
+.4 Fixed: Assembler hang in AssemblerProcessDelayedSymols()
+	A 40C7
+	 BRA $40D7
+.3 Fixed: BPM to break ON the trigger, not after
+	Cleaned up Breakpoint code
+.2 Fixed: BP address[,Length] to re-direct to BPX
+.1 Added: Search Hex
+	SH Address,Len Byte [Byte ..]
+	Wildcard support
+	i.e.
+		SH FA00,FF 20 ? ? 20
+.0 Added: DISK # PROTECT [0 | 1]
+.0 Added: DISK # EJECT
+2.5 split Debugger files
+
+.21 Changed: Branch indicator now a little bigger +3 in DebugInitialize() (easier to read), indented ^,V to make the < stand out
+    U 300
+    E 300 D0 80 D0 FE D0 00
+.20 Added: BW is now a seperate color scheme
+.19 Added: ECHO   CmdConfigEcho(), g_pConsoleFirstArg, and ArgsGet()
+.18 Changed: BPX now defaults to setting breakpoint at cursor.
+.17 Changed: BP now defaults to setting breakpoint at PC.
+
+Patch 22
+.16 fixed BPM. i.e. BPM C400,100.  Boot: ulti4bo.dsk, breaks at: 81BC: STA ($88),Y    $0088=$C480 ... C483: A0
+
+Patch 21
+.15 Fixed: CmdRegisterSet() equal sign is now optional. i.e. R A [=] Y
+.14 Optimized: ArgsCook()
+.13 Fixed: HELP "..." on ambigious command displays potential commands
+.12 Added: Token %, calculator mod
+.11 Added: Token /, calculator div
+.10 Added: Token ^, calculator bit-xor
+.9 Added: Token |, calculator bit-or
+.8 Added: Token &, calculator bit-and
+.7 Added: Mini-Assembler
+.6 Added: MOTD (Message of the Day) : Moved from DebugBegin()
+.5 Added: HELP SOURCE
+.4 Fixed: SYMMAIN SYMUSER SYMSRC to now only search their respective symbol tables
+.3 Added: _CmdSymbolList_Address2Symbol() _CmdSymbolList_Symbol2Address() now take bit-flags of which tables to search
+.2 Added: EB alias for E
+.1 Added: EW address value16  CmdMemoryEnterWord() to set memory with 16-Bit Values
+2.4.2.0
+.14 Added: SYM ! name to remove (user) symbol. _CmdSymbolsUpdate()
+.13 Added: JSR address|symbol CmdJSR()
+.12 Fixed: SYM address|symbol now reports if address or symbol not found. CmdSymbolsList()
+.11 Fixed PageUp*, PagDn* not being recognized valid commands.
+
+Patch 20
+.10 Added: SYM2 symbolname = value
+.9 Added: Undocumented command: FONT *
+.8 Improved: FONT MODE # is now more accurate. i.e. U 301
+   FONT MODE 0  Classic line spacing  (19 lines: 301 .. 313)
+   FONT MODE 1  Improved line spacing (20 lines: 301 .. 314)
+   FONT MODE 2  Optimal line spacing  (22 lines: 301 .. 316)
+.7 Fixed: ArgsCook() wasn't parsing #value properly. i.e. CALC #A+0A
+.6 Cleanup: DrawWatches()
+
+Patch 19
+.5 Fixed: ProfileSave() doesn't strip '%' percent signs anymore. Changed: fprintf() to fputs()
+   Fixed: PROFILE RESET doesn't do dummy run of formatting profile data.
+.4 Fixed: Exporting Profile data is now Excel/OpenOffice friendly.
+          Zero counts not listed on console. (They are when saved to file.)
+
+Patch 18
+.3 Fixed: Help_Arg_1() now copies command name into arg.name
+.2 Fixed: Temporarily removed extra windows that aren't done yet from showing up: WINDOW_IO WINDOW_SYMBOLS WINDOW_ZEROPAGE WINDOW_SOURCE
+.1 Added: PROFILE LIST -- can now view the profile data from witin the debugger!
+2.4.1 Added: PROFILE SAVE -- now we can optimize (D0 BNE), and (10 BPL) sucking up the major of the emulator's time. WOOT!
+    Added: _6502GetOpmodeOpbyte() and _6502GetOpcodeOpmode()
+.37 Fixed: Misc. commands not updating the console when processed
+
+Patch 17
+.36 Data window now shows text dump based on memory view set (ASCII or APPLE)
+    MA1 D0D0; DATA;
+    MT1 D0D0; DATA;
+    D   D0D0; DATA;
+.35 Renamed: ML1 ML2 to MT1 MT2 (Mem Text)
+.34 Removed: MH1 MH2 (redundant MEM_VIEW_APPLE_TEXT)
+.33 Fixed: Tweaking of Lo,Hi,Norm Ascii colors for Disasm Immediate & Memory Dumps
+    ML1 D0D0; MH2 D0D0; U FA75
+.32 Changed: Lo now maps High Ascii to printable chars. i.e. ML1 D0D0
+.31 Ctrl-Tab, and Ctrl-Shift-Tab now cycle next/prev windows.
+.30 Added: Up,Down,PageUp,PageDown,Shift-PageUp,Shift-PageDown,Ctrl-PageUp,Ctrl-PageDown now scroll Data window
+.29 Added: DATA window now shows memory dump
+
+Patch 16
+.28 Fixed: MONO wasn't setting monochrome scheme
+.27 Changed: Registers now drawn in light blue for both DrawSubWindow_Info() [DrawRegisters()] and DrawBreakpoints()
+    Reg names in DrawSubWindow_Info no longer hard-coded: using g_areakpointSource[]
+.26 Changed: DrawTargets() now shows Temp Address, and Final Address as orange (FG_INFO_ADDRESS)
+.25 Changed: Flag Clear "FC" to "CL" (like 6502 mnemonic)
+    Changed: Flag Set   "FS" to "SE" (like 6502 mnemonic)
+    Added: Mirrored 6502 Mnemonics to clear/set flags as commands
+    Moved: Legacy Flag Clear/Set commands "R?" "S?" to aliases
+.24 Fixed OPCODE 2F: AM_INVALID1 -> AM_INVALID3
+.23 Fixed OPCODE 0F: AM_INVALID1 -> AM_INVALID3
+.22 Fixed: Shift-PageUp Shift-PageDown Ctrl-PageUp Ctrl-PageDown -> _CursorMoveUpAligned() & _CursorMoveDownAligned()
+  Bug: U F001, Ctrl-PageDown
+  Was using current disasm cursor address instead of top disasm cursor
+.21 Fixed: _CursorMoveUpAligned() & _CursorMoveDownAligned() not wrapping around past FF00 to 0, and wrapping around past 0 to FF00
+.20 Fixed: DisasmCalcTopFromCurAddress() causing bogus g_bDisasmCurBad when disasm invalid opcodes.
+.19 g_aAddressingFormat[] -> g_aOpmodes[]
+.18 Reverted .17 Changed StackPointer Input/Output. 'SP' is now back to 'S' (to be consistent with 6502 mnemonics)
+
+Patch 15
+.17 Changed StackPointer Input/Output from 'S' to 'SP'
+.16 Fixed Go StopAddress [SkipAddress,Length] Trace() not working afterwards
+.15 Added Info Regs color - Foreground and Background (orange)
+
+Patch 14
+.14 Added: Stack register now shows stack depth
+.13 Bugfix: CmdBreakpointAddPC() operators now don't add extra breakpoints. i.e. BPX P < FA00
+.12 Bugfix: DrawMemory() should draw memory byte for IO address: ML1 C000
+
+Patch 13
+NightlyBuild
+.11 Disasm now looks up symbols +1,-1. i.e. U FA85, u FAAE
+.10 Fixed '~' full console height
+.9 Fixed: FindCommand() to update command found if not exact match
+.8 Moved: Flag names from g_aFlagNames[] to "inlined" g_aBreakpointSource[]
+.7 Extended: Calc to show binary values, and char is single-quoted
+Nightly Build
+.6 Bugfix: DrawTargets() should draw target byte for IO address: R PC FB33
+.5 Extended: FONT "FontName" [Height]
+.4 Extended: Go StopAddress [SkipAddress,Len]
+.3 Added BPR F break on flag
+   Added !     new breakpoint operator: NOT_EQUAL
+
+Patch 12
+.2 Fixed: FindCommand() and FindParam() now returns 0 if name length is 0.
+.1 Fixed: CmdHelpSpecific() wasn't printing help for 1 argument set by other commands
+2.4.0.0 added: uber breakpoints: BPR [A|X|Y|PC|SP] [<,<=,=,>,>=] address
+.2 fixed: parsing console input to detect immediate values on operators '+', '-'
+  You can now do register arithmetic:  CALC A+X+Y
+.1 added: mini-calculator 'CALC'
+2.3.2 Rewrote parsing of console input
+ You can now do stuff like:
+    BPA INITAN+3
+    FONT "Lucida Console"
+
+Patch 11
+.19 fixed disasm: new color for disasm target address (orange)
+	U FF14 shouldn't colorize ',X'
+	U FF16 shouldn't colorize ',Y'
+	U FF21 shouldn't colorze  'symbol,Y'
+Addr should be purple or orange to verify is fixed
+.18 fixed disasm: all indirects to do symbol lookup, and colorized '('...')' as operators
+.17 added disasm: syntax coloring to immediate mode prefix '#$'
+.16 fixed disasm window to work with proportional fonts
+.15 fixed buffer-overun crash in TextConvertTabsToSpaces()
+
+Patch 10
+.14 fixed help CATEGORY & SPECIFIC not working properly
+.13 fixed bug of CODE not removing CODE window split
+.12 fixed split window bug of re-sizing console too large
+.11 removed hard-coded height of 16 for line height in various Draw*()
+.10 added alpha feature: SOURCE2 now shows source assembly listing in bottom half of window DrawSourceLine()
+.9 added P [#] to step number of times specified
+.8 added Up-Arrow, Down-Arrow to scroll console by one line in full screen console window
+.7 Added source level debugger to buffer complete assembly source listing file
+.6 Added help for MA#, ML#, MH#
+.5 added 3rd symbol table: SRC
+.4 Added: seperated console input color, console output color
+.3 SYM now prints which symbol table the symbol was found in.
+.2 Added "DFB" to add assembler variable to user symbol table
+.1 Fixed FindAddressFromSymbol() and FindSymbolFromAddress() to search user symbol table first
+2.3.1 Renamed all globals to conform to coding standard
+
+.10 added TAB to move the cursor back to the PC, if there is no console input
+.9 fixed bug of setting reg, always moving the cursor back the PC
+.8 added detection if font is proportional.  Still doesn't draw properly, but slowly getting there.
+.7 added colorized chars for regs, and memory ascii dump
+.6 fixed console buffering BUG: ~,~,VERSION *
+.5 added ~ to toggle full console on/off
+.4 Fixed BUG: 'G' DebugContinueStepping() disasm window cursor getting out of sync:  R PC FA62; U FB40; G FB53
+.3 Fixed spelling of CmdWindowLast()
+.2 Added undocumented "VERSION *" to show the number of bytes in the disasm "window"
+.1 Fixed BUG: CmdTrace() disasm window cursor getting out of sync:  Start, F7, PageUp, Space
+2.3.0.0 Syntax coloring for the disassembler! Plus a fancy branch indicator to 'PR#6'!  Rock on!
+38 Fixed FindParam() bug of skipping every other parameter
+37 Fixed _PARAM_*_BEGIN _PARAM_*_END _PARAM_*_NUM
+36 Added Regs A,X,Y to show character
+35 Added syntax coloring for DrawBreakpoints()
+34 Fixed DrawMemory() viewing memory ASCII to map control-chars to a printable glyph
+33 Fixed 0 addr not working in CmdMemoryCompare()
+32 Added BG_INFO_INVERSE, FG_INFO_INVERSE for flag hilighting
+31 Changed FG_INFO_OPCODE color to yellow
+30 Fixed MDC 0, bug in CmdUnassemble()with garbage address, due to var not init, and symbol lookup failed
+29 Fixed typos in help summary, A, and D
+28 Fixed Scrolling with and without g_bDisasmCurBad
+27 Found bug -- can't scroll up past $5FFF with Tom's Bug Sample .. CmdCursorLineUp() not checking for gbDisamBad;
+26 Code cleanup: still have some '#define's to convert over to 'const'
+25 Fixed disasm singularity not showing up in DrawDisassemblyLine()
+24 Fixed an disasm singularity in DisasmCalcTopFromCurAddress() i.e. F7, G FB53, then Space (to trace) once.
+23 Fixed bug Watches not being cleared: _ClearViaArgs()
+22 Code Cleanup: Moved most ExtTextOut() to DebugDrawText()
+21 Changed End to jump $8000, due to redundant funcationality of Home, and wrap-around.
+20 Added: DisasmCalc*From*()
+19 New colors Enum & Array
+18 implemented RTS. fixed RET to use common stack return address logic.
+17 fixed console PageUp PageDn not refreshing console
+.2 WINDOW_CONSOLE & 
+   Implemented commands: MemoryDumpAscii*(): MA1 MA2 ML1 ML2 MH1 MH2
+16 removed BOOL Cmd*(), replaced with UPDATE_*
+15 New Console Scrolling
+14 extended FindParam() to specify [begin,end]
+13 added split window infastructure, added Window_e
+12 fixed PARAM aliases
+11 fixed FindParam() to allow aliases
+10 fixed SYM1 CLEAR, SYM2 CLEAR not actuall clearing
+9 fixed BufferOuput() in DebugBegin() clobbering first buffered output line
+.1 since source level debugging is a minor feature
+8 added command "VERSION *" to show internal debug info
+7 fixed mem enter not refreshing screen
+6 added source level debuggig back-end
+5 fixed "SYM 0" bug
+
+*/
