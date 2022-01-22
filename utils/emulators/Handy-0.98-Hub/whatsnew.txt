@@ -1,0 +1,489 @@
+Whats Done, whats to be done, whats broken....
+----------------------------------------------
+
+The General TODO list
+  * Final optimisation to CSusie:PaintSprites(), unroll inner loop case
+    statement
+  * Add support for .BIN files.
+  * Rewrite NetLynx for Client/Server operations to solve problems.
+
+
+Known sprite engine/game issues
+  * Phobyx demo triangle drawtestA.o
+
+
+Revision History
+----------------
+
+V0.99a
+  * Fixed UART bugs
+  * Fixed DirectSound bug
+  * Emulation of 8bit-Hub which adds wifi, extra joysticks, mouse and SD card (compatible with 8bit-Slicks and 8bit-Unity v0.3)
+
+V0.95
+  * Interrupt system re-written to make it edge triggered, see Shadow
+    of the beast to see the improvement, also fixes lockups in a number
+    of other games (Loopz/Championship Rally/Fidelity Chess)
+  * Command line filename input supported: handy.exe <filename>
+  * Pressing ESC will now exit if you started with command line as above
+  * For all you folks using front-ends, you can now start directly into
+    full-screen mode, the last used mode will be remembered exactly, so
+    setup your desired mode, ALT-F4 to exit, then use your command line
+  * When in command line mode, all screen switching is disabled
+  * Bug fix to ram.cpp & cart.cpp
+
+V0.90
+  * Rendering subsystem rewritten
+  * VBL/HBL timing fixed
+  * Added RAM dump function to the debug menu
+  * Debug version now supports register & memory editing
+  * ZIP file support added to main code
+  * LSS snapshots no longer contain Cart/Rom data (LSS3 format)
+  * Backwards compatibility with LSS2 added
+  * All debugger code moved out of CLynxWindow into CDebugger object
+  * Handy no longer crashes when a 2nd cart is loaded during a debug session
+  * Fixed bug whereby Window could be restored in an offscreen position
+  * Note to self: DONT incremenet gSystemCycleCount within the timer loop
+    it always ends badly....Game stuttering.
+
+V0.82
+  * Fixed Scrapyard dog can throwing bug. Everon was getting set but was
+    never being cleared.
+  * Awsome golf buttons now working again.
+  * Added new screen backgrounds from Gareth Stewart
+
+V0.81
+  * Fixed bug where activation of eagle mode would cause crash.
+  * Fixed typo in the file open dialog (Finally eh Harry)
+  * Implemented 24BPP/32BPP modes for Eagle (Whoops)
+  * Fixed problem with passed in file names being surrounded by quotes
+    that were causing CFile::Open to fail. Surroundins quotes now removed.
+  * Drag and drop file support added, you can now drop an LNX file onto the
+    main window during runtime to play that cart.
+  * Implemented some changes to networking code, will now work down to V1.1
+    of winsock. For some reason the TCP_NODELAY call is still failing under
+    windows95.
+  * Implemented priority for loopback characters, these are now inserted at
+    the beginning of the ring buffer rather than appended at the end. Luciens
+    Championship Rally now works in multiplayer, wow!!!
+
+V0.80
+  * Fixed command line file argument crash, caused by failure to check passed
+    filename for existance.
+  * Added new screen mode for Lynx LCD emulation with the dodgy RGB stripes.
+  * Added Eagle mode.
+  * Rewrote display mode handling to make it more generic for addons, all
+    rendering types now say if they are full screen.
+  * Rewrote display menu handling code, much simplified.
+  * Display type is saved in registry.
+  * For all those who've asked Handy now has auto frame skipping. Handy will
+    calculate the right frameskip to give the desired speed.
+  * Complete overhaul of the throttling code, improved stability.
+  * Bug fix to new sleep cycle counting code added in V0.73 to compensate for
+    cycles lost to IRQ during sleep periods. Counter rollover did not recalc
+    IRQ entry value and was causing game freezing after around 3-4 minutes.
+  * Major change to timer updating to stop problems with System Lock warning
+    messages. See mikie.h
+  * Full screen mode now preserves modal type LCD/Eagle/Normal.
+  * Fixed a number of bugs in CNetObj relating to initialisation and sync.
+  * CNetObj now gives a friendly closedown msg when disabled.
+  * Minor bugfix to errorhandler to stop calls to an invalid lynx object.
+
+
+V0.73
+  * Added code changes from AmigaPPC port to support endian changes for other
+    machines, just define MSB_FIRST for MAC/AmigaPPC etc. (Thanks Mathias)
+  * Removed redundant sprite type enums.
+  * Modified the cycle counting system again to split into page mode and
+    normal mode memory cycles, CPU = Normal, SCREEN = Page, SPRITE = Page
+  * Added code within RTI to compensate for lost sleep cycles when the CPU
+    is woken to service an interrupt.
+  * Most bizarre, I've written some test code on the Lynx to show when the
+    rest period is for the display, this gives the result that it is from
+    count=102,101,100 therefore the display address is latched at count=99
+    which matches well with the experimentation to remove flicker when the
+    correct cycle timings are used. Old code left in Mikie::Update() and has
+    been commented out.
+  * Fixed inverted REST flag (IODAT)
+  * Fix to new display rendering code to stop race condition(mpDisplayCurrent)
+  * Fix to stop OnTimer race condition with joystick access to a null Lynx
+
+
+V0.72
+  * Modified the OnPaint() and removed BeginPaint/EndPaint and replaced with
+    the previous code for PainDC creation to fix a problem with Handy not
+    working at ALL under Win95/98 although it was working perfectly under
+    Windows2000, that'll teach me to test under Win95/98 before a release!!
+
+
+V0.71
+  * Fixed NT 4.0 problem with sound locking, I uncommented some test code
+    for the 0.70 release and forgott to comment it out for the release.
+  * Reorganised the graphics generation to make it a bit more logical now
+    that directX is being used there is no need for the usuall mirror/flip
+    that windows GDI needed for the BMP format. Changes to CMikie in many
+    graphics related areas. Also CLynxWin.
+  * Implemented Windowed directX mode, re-wrote full screen direct X code
+    to use Blt() to copy from a backbuffer rather than accessing the
+    framebuffer directly.
+  * InfoDialog for emulation speed moved out of update loop and into
+    a separate message handler using WM_TIMER.
+  * Joystick scanning functions moved out of the upate loop and into the
+    WM_TIMER handler.
+  * Rewrote ALL graphics handling code, the screen rendering is now abstracted
+    into a base class CLynxRender, there are now a number of classes based on
+    this CLynxRender -> CWindowDirectX, CFullScreenDirectX, CWindowGDI.
+  * Rewrote save BMP code to work with new rendering sub-system.
+  * CMikie::Update() rendering portion has been rewritten, CMikie now
+    supports rendering to 8BPP/16BPP/24BPP/32BPP. Porters take note. 
+
+
+V0.70
+  * Debugging mania, added xxx_TRACE support to main objects:
+        Mikie, Susie, CPU
+  * Changed end of SCB detect to look for 00xx as opposed to 0000 as some
+    games (Notably Dirty Larry) seem to be using SCBNEXT 0x00ff as the
+    terminating word !!!
+  * Many porting changes, none of the core code is dependant on ANY windows
+    code anymore, boy what a chore. But it makes the port to BEOS much easier.
+  * Added bugfix to collision code, it was processing collisions for
+    transparent pixels. Thanks to Lucien for the example code.
+  * Fixed RAM initialisation issue with .com/.o files that was causing
+    collision detection problems. When a .o/.com file is loaded RAM is now
+    initialised to 0x00.
+  * Added new warning dialog handler, you can now reset or continue on error.
+    (Hint - Try continue a couple of times on EuroSoccer...)
+  * Collision code re-written, Marlboro Go now works almost correctly and
+    Scrapyard Dog is almost there, thanks to Harry Dodgson for the tips.
+    There is still an issue that needs to be fixed.
+  * Added sprite render single step mode.
+  * SCB loopback detection implented. Handy should now be able to detect if
+    sprite list is looped back on itself and flag a warning.
+  * Increased window width in rotated mode as some people were seeing the top
+    menu wrap around causing the image to shift offscreen.
+  * In debug mode you can now select windows to be updated on a cycle or
+    display frame basis.
+  * Added new dialog based trace window.
+  * Optimised the sprite engine in many different areas. Variable reduction
+    and removal in a number of areas. All core variables are now int's. The
+    speed increase is around 18% from these changes.
+  * LSS format changed to LSS2, old format files will not load. (Optimisation)
+  * 2x Zoom mode added to the Graphics Dump window.
+  * Fixed memory leak from System.cpp, CMemMap was not being deleted.
+  * Add support for debug window persistance, handy will now restore debug
+    windows on restart, settings are stored in the registry.
+  * Added Background bitmap support by default you now get a pretty picture
+    of a LynxII in the window background.
+  * Windows2000 has kindly highlighted some race conditions I never knew I had
+    in my code. Mostly related to going in/out of full screen mode. I've added
+    mNoPainting to disable OnPaint() during any graphics mode change.
+  * Added support for writing to Bank1 to support Saved RAM. If you wish to
+    save backup RAM then use the "Save Snapshot" option. When no Bank1 data is
+    detected then CCart will now create a 64K RAM buffer 256Banks of 256Bytes.
+    The IODAT AUDIN bit is used as write enable. Serial EEPROM not supported.
+  * Fixed a number of games with sign/collision issues in the sprite engine:
+      Todds adventures in Slimeworld
+      Malibu Beach Voliball
+      Jimmy Connors Tennis
+      Battle Zone 2000
+  * Bugfix to special case for last pixel==0 in line_abs_literal data type,
+    check was being done after conversion via the palette meaning it often
+    failed to trigger. Check is now done before the pixel is palettised.
+  * Bugfix to tilt calculations, problems with casting between signed and
+    unsigned values in offset calculations. This has fixed:
+      Blue Lightening
+      Warbirds 
+  * Info dialog box position is now persistant via the registry.
+  * Netork support has been added, you can access it via the options
+    menu or via CTRL-N. Only TCP/IP is supported. It was a lot more
+    complex to add in the support than I'd first thought, but now its done.
+  * Rewrote the serial implementation to be a lot cleaner and easier to
+    understand.
+  * Bugfix to CSusie::MathDivide(), divide hardware only works in with
+    unsigned numbers.
+  * Moved timer catchup code out of C65c02::Update() into CSystem::Update()
+  * Added emulation of REST signal to CMikie to solve a problem with SFX
+    hanging up.
+  * Minor fix to audio timer logic to stop timer0 halting with timer done
+    stuck at 1, fixes SFX channel 0 making no sound.
+  * Debug windows will now mimimize when the main window is minimized.
+  * Implemented EVERON bit, to stop Scrapyard Dog hanging during player
+    death sequence.
+  * Moved sprite rendering time catchup code into CMikie::Update(), sprite
+    paint reecursion can no longer occur. Didnt stop the sprite flickering
+    on some games as I'd hoped.
+  * Found a very obscure bug in stun runner relating to the math unit. The
+    code at $54ad does the first multiply after power up and the code writes
+    to the multiply unit in the wrong order C then D as opposed to D then C.
+    Handy defaults the ABCD regs to zero on power up which due to a fault
+    in the Lynx hardware get recognized as -ve. The zero written to C
+    causes sign conversion at the lynx thinks its -ve due to the HW bug,
+    then the lower byte is written D and the sign bit is still preserved.
+    When the multiply occurs the hardware then does a post multiply sign
+    conversion. Stun Runner uses this result to form a pointer to memory
+    that is now wrong and then trashes its own code. Its taken me a day
+    to track this down. Handy now initialises the math registers to $ffff.
+  * Further to the above bug I've had to modify the code to force the sign
+    flag to be recalculated, the docs say this doesnt happen but again stun
+    runner will corrupt memory when the sign flag gets calculated wronly.
+    This fixes the problem but implies that the Bluebook is wrong in this
+    area, either that or the bug is even more subtle....
+  * Implemented the SPRSYS status bit correctly, it will now indicate the
+    status of rendering, this couldnt have been done before the sprite
+    catchup was moved into CMikie::Update.
+  * Added a /4 fudge factor to the sprite rendering time calculations, it
+    looks as though my cycle usage calculations are off by a lot. When
+    reduced in this way it removes/reduces the flicker in many games and
+    solves the key issue with Hard Drivin and the pause in Dirty Larry.
+  * Implemented multiquadrant sprite offsets, everything now looks as it
+    should in all games, this has fixed the final collision issue with
+    Scrapyard dog which is now 100%. The Slimeworld titles are also fixed
+    as are many other little graphic gems.
+  * Modified speed calculation code to stop overflow errors causing duff
+    results at high speeds.
+  * Added user definable keys, persitant via the registry, the key definition
+    menu under the options is now available. Handy defaults to the key layout
+    in the readme file.
+  * Reworked the OnIdle code so that Handy doesnt wastefully spin cycles when
+    running too fast, it will now return control back to Windows.
+  * Cycle usage calculations in sprite rendering have been fixed correctly,
+    AVE_RDWR_CYCLE define was set too high at 5 (312ns Memory Cycle) and
+    should have been set to 2 (125ns Memory Cycle). This looks to have cured
+    all of the flickering sprite problems, yesssss.
+  * Implemented DirectX full screen code. GDI full screen code removed.
+  * Fixed another collision buffer problem, collision data should always
+    be written to collision buffer regardless or collision status. Thanks
+    to Tom Schenck for that one.
+
+
+V0.60
+  * What was lost is found, I appear to have found a backup of Handy source
+    code that is dated after the release codebase I used when I restarted
+    Handy. I had thought that this was lost in a hard disk crash !!! This has
+    support for headerless cartridges as per the Handy development system and
+    also some fixes to the sprite engine. (Needs HOWARD.O)  I've now merged
+    the two releases.
+    (Note Handy981102.zip contains last valid Handy codebase before merge)
+  * Implemented a new CGraphicsWindow class to the debugger to display raw
+    screen data from the Lynx memory.
+  * Implemented some additional sprite code to use the collision memory, I
+    dont know if it is correct as the docs are a little sketchy in this area.
+    Bastians invaders now works OK.
+  * Modified some of the debug window code structure so that LynxWin is not
+    required by any of the debug windows.
+  * Fixed a couple of bugs in the 6502 BRK & Interrupt implementation.
+  * Re-wrote the C65C02 class to use INT type as oppsed to BYTE/WORD types.
+    This has given a 5%-7% speed increase over 0.52.
+  * Fixed bug in Dev version where KEYUP messages were not being passed back
+    to the main window causing lynx buttons to get stuck when debugging.
+  * Added code to stop full screen switch during a debug session.
+  * Bugfix for string length overrun in mikie.cpp causing crash if Lynx went
+    into auto powerdown mode.
+  * Fixed a bug with TSB & TRB instructions that was stopping many games
+    from working with the new CPU core.
+  * Added multiple breakpoint support to debugger and display of breakpoints
+    into the trace window.
+  * Added LSS (LynxSnapShot) support...Handy can now load/save game snapshots.
+  * Reworked LFSR sound code to remove the big (8MB) lookup table, Handy
+    is now be much more memory frugal and easier on your cache. LFSR values
+    are now recalculated on the fly.
+  * Removed the "waiting" dialog box from initialisation as with the above
+    change the init of the lynx object is almost instant.
+  * Fixed a new bug introduced with the collision memory fix.
+  * Fixed CPU bug with indexed pointers, they now wrap correctly.
+  * Changed Mikie so that Lynx thinks its plugged onto an AC Adaptor, stops
+    the annoying timeout your used to get.
+  * Rewrote the memory handlers, speed increase only 1-2%, a little
+    dissapointing. Should also reduce memory requirements by about 4MB.
+  * Fixed bug with spurious TX Uart interrupts.
+  * Fixed timer bug, TIMER_DONE is always set regardless of timer type. Gates
+    of Zendocon no longer hangs.
+  * Fixed some more UART bugs, specifically, mUART_RX_READY was only getting
+    set as pulse due to a bug in the timer code. Finally, finally Bastians
+    T_TRIS.O now WORKS, yeeeeeha.
+
+V0.52
+  * Created the new CDirectSoundPlayer class and linked into CLynxWindow.
+  * Removed system linkage to CSoundPlayer class
+  * Small optimisation to CMikie::Update() sound catchup code was
+    calculating the sample each time thru the loop, even though the value
+    is always static.
+  * Modify Mikie code to use a single buffer for sound and fit in with the
+    new sound player class.
+  * Fixed a bug where X4 would give a blank screen under full-screen mode.
+  * Fixed a bug in CDirectSoundPlayer causing crash if another app had the
+    directSound primary buffer locked.
+  * Created new error handling dialog class so that full screeen is auto
+    cleared on error. Stops a problem with machine lockout in full screen.
+  * Removed some of the global variables back into CLynxWindow as they
+    were no longer accessed outside of this class.
+
+V0.51 24th October 1998
+  * Moved history into whatsnew.txt
+  * Tidied the documents a little.
+  * Fixed joystick initialisation problem, forgot to set dwSize
+  * Designed a new homepage
+
+V0.50 20th October 1998
+  * Implemented DirectDraw full screen support
+  * Fixed some memory leaks
+
+V0.40 20th July 1997
+  * Implemented sound code
+  * Implemented support for .com files
+  * Implemented hidden mikie register $FD97 returns 0x42 (life'n all that)
+  * Implemented snapshots for BMP & RAW format
+  * Implemented registry support for persistant parameters.
+  * Fixed a bug in the sprite engine on literal sprites with 3 bits/pixel
+  * Bug fix for multi-quadrant sprite offset error (+1,+1 problem).
+    (I'm a little unhappy with this fix, its a bodge and has caused)
+    (streaking of sprites in some games (California Games, Raiden...))
+  * 2 Bug fixes for absolute literal sprites.
+  * Implemented cartridge detail boxes into the about box
+  * Added dialog box whilst Handy object constructor is running as this
+    is a little slower than 0.31 due to the sound initialisation.
+  * Speeded up cartridge reloading.
+  * Implemented screen rotation via LNX cart header
+  * Wrote ROTATE.EXE and added to the distribution notes & readme
+  * Fixed the sound problems on the early Atari/Epyx games.
+  * Fixed the 0x80000000 rollback bug causing sound output to stop.
+  * Commented out code for +1,+1 multiquadrant sprite fix.
+
+V0.31 21st June 1997
+  * Fixed error with cycle counting & emulation speed calculations
+  * Fixed throttling code and improved accuracy
+  * Implemented spin control for setting emulation max %
+  * Fixed bug with CPU Stack pointer initialising to wrong value.
+
+V0.30 17th June 1997
+  * Reworked make_lnx.exe, all command line options now work.
+  * Added double buffering logic into core code.
+  * Added additional image modes, hooks for direct-x
+  * Re-organised screen mode selection code new CLynxWindow::VideoModeSet()
+  * Implemented screen rotate
+  * Modified line drawing code so that image reversal is done at source and
+    not with Bit/StrechBlt - Nice speed improvement.
+  * Some optimisation of CSusie::PaintSprites() to improve speed.
+  * Added fps & efficiency calculations plus display window.
+  * Re-wrote sprite painting/cpu interleave. (Some improvement in IRQ flicker)
+  * Added joystick support.
+
+V0.20 25th May 1997
+  * Fixed a few minor bugs in the cart class, no affect on Handy though!!
+  * Implemented early bailout in CSusie::PaintSprites() when offscreen
+  * Implemented he pause key on 'Q'
+  * Restructured source code so that the CPU emulation is entirely inline.
+  * Changed sprite/timer interleave back original concept - separate updates
+    with no interleaving, faster, causes IRQ (HBL) stability problems.
+  * Speed improvements to CSusie::PaintSprites() & CMikie::Update().
+  * Small speed improvements to the CPU model.
+  * Moved a number of common vars to global status.
+  * Further optimised the CMikie::Update & CSystem::Update() functions, I can
+    now get approx 50% performance on my P133 with 1x screen. (16 bit colour)
+  * Implemented screen flipping
+  * Finally fixed the superclipping algorithm, forgot to flip the quadrants
+    around when hflip & vlfip are used !!
+  * Split distribution into two separate archives - Dev & Std.
+  * Implemented 1st attempt at hardware sprite collison, documentation is a
+    little scarce.
+  * Seemed nobody except me noticed that the screen was always 4 pixels too
+    small.
+  * Fixed nasty bug in UART emulation, caused by a misunderstanding of comlynx
+    hardware implementation, Rx & Tx are looped, doh! (Homebrew:T_TRIS.O now
+    works)
+  * Fixed a bug in the timer implementation relating to timer done.
+  * Fixed the other timer bug, that was stopping serial irq's being processed,
+    even though handy doesn't support serial operations it must support UART
+    emulation due to the loopback issue above.
+  * Found and fixed another sprite engine bug relating to the screen origin
+    being negative and the end positive, error in signed/unsigned handling.
+
+V0.10 23rd April 1997
+  * Rewrote entire CPU class to increase speed!
+  * Modified CMikie::Update to stop timer slippage
+  * Numerous mods to CMikie:Update to implement my new understanding of the
+    way that Mikey IRQ's operate.
+  * Fixed IODAT so that comlynx is NOT connected.
+  * Implemented comlynx serial registers & IRQ structure (Not sure its
+    correct though!!).
+  * Corrected timer mode for non-reload, timers should stop after expiry.
+  * Finally fixed the mother of all bugs in my my system class, not so much
+    a bug but a misunderstanding of the documentation.... doh!
+
+V0.06 16th April 1997 (Beta-Tester only release)
+  * Renamed the project to Handy from LWE to make it less windows specific
+  * Fixed annoying message about fake rom after every cart load/reset,
+    it should only happen on the first occurance now.
+  * Fixed a bugette with negative tilt values, forgot to cast to a signed word.
+  * Fixed a typo bug in the superclipper h & v swapped.
+  * Rewrote CSusie::UpdateSprites() due to an implementation bug. Tilt is now
+    possible once more...
+  * Monster bug bashing session in CSusie::UpdateSprites() tilt/stretch is now
+    working correctly. Still one issue with jitter on trailing edge.
+  * Implemented PBKUP counter in Mikey to be a pseudo line hold-off before
+    starting line DMA, hope this is right, there is no documentation to say
+    exactl what this counter does.
+  * Fixed bug with CPU Zero Page references being able to to beyond the zero
+    page boundary, forgot to and with 0xff, Doh! (Many things now work!!!)
+  * Fixed bug where by the current video page address was being picked up
+    before the pseudo VBL resulting in frame being flipped in the wrong order.
+  * Unfortunatly I've had to remove one of the optimisations as it was stopping
+    some games (California Games in particular) working. Handy was doing 2 CPU
+    instructions for each mikey/suzy update, I've now had to reduce that back
+    to 1 with a resulting speed loss 8-(
+  * Rewrote CMikie::Update() to improve the speed of operation.
+  * Repartitioned & removed CSusie::Update to move functions under
+    system::poke() handlers to speed up the system.
+
+V0.05 12th April 1997
+  * Command line filename support added
+  * Homepage added to documentation, document tidyup.
+  * Fixed CSusie::UpdateSprites() unpack bugs, vague documents are
+    always such fun to interpret.
+  * Implemented superclipping algorithm in CSusie:UpdateSprites()
+  * Fixed sign bug in signed multiply function in CSusie::UpdateMath()
+    due to incorrect casting. (apfel_2a.o looks like its working
+    correctly now.)
+  * Found and fixed the bug in CMikie::Update() that was stopping some
+    cartridges loading, it took a long time to find as I was looking
+    in the wrong place...
+  * Reversed joystick axis, the documents seem to be wrong ??
+
+V0.04 10th April 1997
+  * Repartitioned CLynxWindow::CLynxWindow() so that the lynx system creation
+    is now outside in LynxInit() which returns a pointer to a lynx.
+  * Added code to allow cartridge load from the file menu using LynxInit()
+  * Added code so that LWE will remember the last cart type loaded and use
+    that for the next cart to save the default to .o each time.
+  * Added support for 16bit colour mode under windows. (Much prettier)
+  * Optimised CMikie::Update() screen accesses.
+  * Added code to pause the emulator when it loses focus to another window.
+  * Implemented sprite h/v flip in CSusie:UpdateSprites()
+  * Corrected quadrant initialisation error in CSusie:UpdateSprites()
+  * Implemented signed maths in CSusie::UpdateMath()
+  * Started implementation of sprite collision logic in CSusie::Update()
+
+V0.03 9th April 1997
+  * Repartitioned CSusie:Update() into UpdateSprites() & UpdateMath()
+  * Implemented CSusie::UpdateMath(), signed arithmetic still needs doing.
+  * Fixed 2 bugs in CSusue:UpdateSprites()
+  * Update & implement cpu, mikey & suzy cycle counters
+
+V0.02 8th April 1997
+  * Its amazing what an evening with a source code profiler can do, LoadRunner
+    is now almost playable on my P133. There's still scope for a number of
+    speedups that will take a little more time than an evening.
+  * Minor bugfix in CLynxWindow::OnKeyUp() left/right reversed.
+  * Minor bugfix in CSusie::Update() Error in pixel calc on absolute literals
+    fixed absolute literal sprites now seem to be working correctly.
+  * Some cartridges now work. The boot screen of Gauntlet is recognisable !!!
+
+V0.01 7th April 1997
+  * First functional release of the emulator. All of the lynx hardware is
+    now emulated except for the MATH & AUDIO functions. 
+
+V0.00 ?? Oct 1996
+  * Started writing the debugging kernel & windows
+
+
+--- END OF FILE ---

@@ -1,0 +1,29 @@
+Handy Archive contents
+----------------------
+
+This archive should contain the following files:
+
+HANDY.EXE       - Handy Lynx emulator for Win95/NT.
+
+README.TXT      - Readme file, usage notes.
+
+WHATSNEW.TXT    - Whats new for this release
+
+LICENSE.TXT     - Handy user license info
+
+CONTENTS.TXT    - This file.
+
+FILE_ID.DIZ     - Short description.
+
+HANDYBOOT.IMG   - Dummy Lynx boot image
+
+MAKE_LNX.EXE    - LYX to LNX file conversion utility.
+
+ROTATE.EXE      - LNX file patcher to add rotate flag
+
+If files are missing please contact the author at: 
+
+K.Wilkins (dysfunction [at] users.sourceforge.net)
+http://handy.sourceforge.net
+
+Please state where you downloaded the file from.
