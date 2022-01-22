@@ -1459,9 +1459,9 @@ class Application:
                 
                 # Compress Program
                 if len(sprites) > 0:
-                    fp.write(ex30 + ' sfx $180d ' + buildFolder + '/c64/' + executable + '.bin ' + buildFolder + '/c64/sprites.dat -B -o ' + buildFolder + '/c64/' + executable + '.prg\n\n')          
+                    fp.write(ex30 + ' sfx ' + addr + '$180d ' + buildFolder + '/c64/' + executable + '.bin ' + buildFolder + '/c64/sprites.dat -B -o ' + buildFolder + '/c64/' + executable + '.prg\n\n')          
                 else:
-                    fp.write(ex30 + ' sfx $180d ' + buildFolder + '/c64/' + executable + '.bin -B -o ' + buildFolder + '/c64/' + executable + '.prg\n\n')
+                    fp.write(ex30 + ' sfx ' + addr + '$180d ' + buildFolder + '/c64/' + executable + '.bin -B -o ' + buildFolder + '/c64/' + executable + '.prg\n\n')
                 
             # Include loader program?
             if len(networkOptions) > 1:   
@@ -1477,7 +1477,7 @@ class Application:
                 
                 # Compress Loader
                 #fp.write(ex30 + ' sfx $180d ' + buildFolder + '/c64/loader.bin unity/targets/c64/krill-install.prg unity/targets/c64/krill-load.prg  -B -o ' + buildFolder + '/c64/loader.prg\n\n')
-                fp.write(ex30 + ' sfx $180d ' + buildFolder + '/c64/loader.bin -B -o ' + buildFolder + '/c64/loader.prg\n\n')
+                fp.write(ex30 + ' sfx ' + addr + '$180d ' + buildFolder + '/c64/loader.bin -B -o ' + buildFolder + '/c64/loader.prg\n\n')
 
             # Clean-up build folder
             fp.write(Remove(buildFolder + '/c64/*.bin'))
@@ -2203,7 +2203,7 @@ class Application:
             fp.write(comp + library + '\n\n')
 
             # Fix header
-            fp.write(orih + ' ' + buildFolder + '/oric/' + diskname.lower() + '.bin ' + buildFolder + '/oric/' + diskname.lower() + '.com $0501\n\n')
+            fp.write(orih + ' ' + buildFolder + '/oric/' + diskname.lower() + '.bin ' + buildFolder + '/oric/' + diskname.lower() + '.com ' + addr + '$0501\n\n')
 
             # Compress program
             fp.write(ex30 + ' sfx bin ' + buildFolder + '/oric/' + diskname.lower() + '.com -B -o ' + buildFolder + '/oric/launch.com\n\n')            
@@ -2226,39 +2226,39 @@ class Application:
             for item in bitmaps:
                 fb = FileBase(item, '.png')
                 fp.write(pyth + ' OricBitmap.py ../../../' + item + ' ../../../' + buildFolder + '/oric/' + fb + '.dat ' + self.entry_OricDithering.get() + ' ' + self.entry_OricLeadColors.get() + '\n')
-                fp.write(head + ' -a0 ../../../' + buildFolder + '/oric/' + fb + '.dat ../../../' + buildFolder + '/oric/' + fb + '.img $A000\n')
+                fp.write(head + ' -a0 ../../../' + buildFolder + '/oric/' + fb + '.dat ../../../' + buildFolder + '/oric/' + fb + '.img ' + addr + '$A000\n')
                 fp.write(Remove('../../../' + buildFolder + '/oric/' + fb + '.png\n'))
                 fp.write(Remove('../../../' + buildFolder + '/oric/' + fb + '.dat\n'))
                 
             for item in charset:
                 fb = FileBase(item, '.png')
                 fp.write('..\\..\\py27\python OricCharset.py ../../../' + item + ' ../../../' + buildFolder + '/oric/' + fb + '.dat ' + self.entry_OricDithering.get() +  '\n') 
-                fp.write(head + ' -a0 ../../../' + buildFolder + '/oric/' + fb + '.dat ../../../' + buildFolder + '/oric/' + fb + '.chr $A000\n')
+                fp.write(head + ' -a0 ../../../' + buildFolder + '/oric/' + fb + '.dat ../../../' + buildFolder + '/oric/' + fb + '.chr ' + addr + '$A000\n')
                 
                 
             for item in chunks:
                 fb = FileBase(item, '.txt')
                 fp.write(pyth + ' OricChunks.py ../../../' + item + ' ../../../' + buildFolder + '/oric/ ' + self.entry_OricDithering.get() + '\n')
-                fp.write(head + ' -a0 ../../../' + buildFolder + '/oric/' + fb + '.dat ../../../' + buildFolder + '/oric/' + fb + '.chk $8000\n')
+                fp.write(head + ' -a0 ../../../' + buildFolder + '/oric/' + fb + '.dat ../../../' + buildFolder + '/oric/' + fb + '.chk ' + addr + '$8000\n')
             fp.write(CD('../../..'))
 
             for item in charmaps:
                 fb = FileBase(item, '')
-                fp.write(orih + ' -a0 ' + item + ' ' + buildFolder + '/oric/' + fb + ' $A000\n')
+                fp.write(orih + ' -a0 ' + item + ' ' + buildFolder + '/oric/' + fb + ' ' + addr + '$A000\n')
             
             if len(sprites) > 0:
                 spriteHeight = int(self.entry_OricSpriteHeight.get())
                 fp.write(py27 + ' utils/scripts/oric/OricSprites.py ' + sprites[0] + ' ' + buildFolder + '/oric/sprites.dat ' + str(spriteHeight) + '\n')
-                fp.write(orih + ' -a0 ' + buildFolder + '/oric/sprites.dat ' + buildFolder + '/oric/sprites.dat $7800\n')
+                fp.write(orih + ' -a0 ' + buildFolder + '/oric/sprites.dat ' + buildFolder + '/oric/sprites.dat ' + addr + '$7800\n')
                 
             for item in music:
                 fb = FileBase(item, '.ym')
                 fp.write(orim + ' ' + item + ' ' + buildFolder + '/oric/' + fb + '.mus\n')
-                fp.write(orih + ' -h1 -a0 ' + buildFolder + '/oric/' + fb + '.mus ' + buildFolder + '/oric/' + fb + '.mus $8000\n')
+                fp.write(orih + ' -h1 -a0 ' + buildFolder + '/oric/' + fb + '.mus ' + buildFolder + '/oric/' + fb + '.mus ' + addr + '$8000\n')
                 
             for item in sharedOric:
                 fb = FileBase(item, '')
-                fp.write(orih + ' -a0 ' + item + ' ' + buildFolder + '/oric/' + fb + ' $A000\n')
+                fp.write(orih + ' -a0 ' + item + ' ' + buildFolder + '/oric/' + fb + ' ' + addr + '$A000\n')
                 
             fp.write('echo --------------- ORIC DISK BUILDER --------------- \n\n')
             
