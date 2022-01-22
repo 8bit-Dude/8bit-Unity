@@ -42,6 +42,8 @@ if "nt" == os.name:
     mads = "utils\\scripts\\atari\\mads.exe"
     orih = "utils\\scripts\\oric\\header.exe"
     orim = "utils\\scripts\\oric\\ym2mym.exe"
+    orit = "utils\\scripts\\oric\\tap2dsk.exe"
+    orio = "utils\\scripts\\oric\\old2mfm.exe"
     ar65 = "utils\\cc65\\bin\\ar65"
     ca65 = "utils\\cc65\\bin\\ca65"
     cc65 = "utils\\cc65\\bin\\cc65"
@@ -60,6 +62,8 @@ else:
     mads = "wine utils/scripts/atari/mads.exe"
     orih = "wine utils/scripts/oric/header.exe"
     orim = "wine utils/scripts/oric/ym2mym.exe"
+    orit = "wine utils/scripts/oric/tap2dsk.exe"
+    orio = "wine utils/scripts/oric/old2mfm.exe"
     ar65 = "ar65"
     ca65 = "ca65"
     cc65 = "cc65"
@@ -1508,10 +1512,16 @@ class Application:
             for item in music:
                 fb = FileBase(item, '.sid')
                 fp.write(sidr + ' -v -z 30-ff -p 08 ' + item + ' ' + buildFolder + '/c64/' + fb + '.sid\n')
-                fp.write('if not exist ' + buildFolder + '/c64/' + fb + '.sid (\n')
-                fp.write('    ' + 'echo Relocation impossible, using the original file instead...\n')
-                fp.write('    ' + Copy(item, buildFolder + '/c64/' + fb + '.sid'))
-                fp.write(')\n')
+                if "nt" == os.name:
+                    fp.write('if not exist ' + buildFolder + '/c64/' + fb + '.sid (\n')
+                    fp.write('    ' + 'echo Relocation impossible, using the original file instead...\n')
+                    fp.write('    ' + Copy(item, buildFolder + '/c64/' + fb + '.sid') + ')')
+                else:
+                    fp.write('if [ ! -a ' + buildFolder + '/c64/' + fb + '.sid ]; then \n')
+                    fp.write('    ' + 'echo Relocation impossible, using the original file instead...\n')
+                    fp.write('    ' + Copy(item, buildFolder + '/c64/' + fb + '.sid'))
+                    fp.write('fi')                
+                fp.write('\n')
 
             # Shared Data
             for item in sharedC64:
@@ -2263,7 +2273,7 @@ class Application:
             fp.write('echo --------------- ORIC DISK BUILDER --------------- \n\n')
             
             # Disk builder
-            cmd = 'utils\\scripts\\oric\\tap2dsk.exe -iLAUNCH.COM ' + buildFolder + '/oric/launch.com'
+            cmd = orit + ' -iLAUNCH.COM ' + buildFolder + '/oric/launch.com'
             if len(sprites) > 0:
                 cmd += ' ' + buildFolder + '/oric/sprites.dat'
             for item in bitmaps:
@@ -2280,7 +2290,7 @@ class Application:
             for item in sharedOric:
                 cmd += ' ' + buildFolder + '/oric/' + FileBase(item, '')
             fp.write(cmd + ' ' + buildFolder + '/' + diskname + '-oric48k.dsk\n')
-            fp.write('utils\\scripts\\oric\\old2mfm.exe ' + buildFolder + '/' + diskname + '-oric48k.dsk\n')
+            fp.write(orio + ' ' + buildFolder + '/' + diskname + '-oric48k.dsk\n')
 
             fp.write('echo --------------- ORIC DISK READY --------------- \n\n')
             
