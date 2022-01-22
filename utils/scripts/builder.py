@@ -1251,7 +1251,7 @@ class Application:
                         symbols += ' -D __DECRUNCH__'  
                         
                     # Compile Unity library
-                    library = 'unity/unity-atari' + target + '-' + executable[0:-3] + '.lib'
+                    library = 'unity/unity-atari' + target + '-' + executable[0:-4] + '.lib'
                     if target == '48k':
                         BuildUnityLibrary(self, fp, ' -t atari', symbols, cCore+cTarget, sCore+sTarget, library)
                         symbols += ' -Cl -O -t atari ' 
