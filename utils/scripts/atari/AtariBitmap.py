@@ -28,10 +28,17 @@ from PIL import Image
 import io, os, sys
 import subprocess
 
+# Retrieve command params
 resolution = sys.argv[1]
 compress = sys.argv[2]
 input = sys.argv[3]
 output = sys.argv[4]
+
+# Sub-processes
+if "nt" == os.name:
+    ex31 = "utils/scripts/exomizer-3.1.0.exe"
+else:
+    ex31 = "wine utils\scripts\exomizer-3.1.0.exe"
 
 try:
     ##############################
@@ -84,9 +91,9 @@ try:
             f.close()    
         
         # Crunch data and read back
-        subprocess.call(["utils/scripts/exomizer-3.1.0.exe", "mem", "-lnone", output.replace('.img','.raw1'), "-B", "-o", output.replace('.img','.sfx1')])
+        subprocess.call([ex31, "mem", "-lnone", output.replace('.img','.raw1'), "-B", "-o", output.replace('.img','.sfx1')])
         if resolution == 'double':
-            subprocess.call(["utils/scripts/exomizer-3.1.0.exe", "mem", "-lnone", output.replace('.img','.raw2'), "-B", "-o", output.replace('.img','.sfx2')])
+            subprocess.call([ex31, "mem", "-lnone", output.replace('.img','.raw2'), "-B", "-o", output.replace('.img','.sfx2')])
         
         # Read back compressed data
         f = io.open(output.replace('.img','.sfx1'), 'rb')

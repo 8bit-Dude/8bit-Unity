@@ -26,10 +26,17 @@
 
 import io, os, struct, subprocess, sys
 
+# Retrieve command params
 xexFile = sys.argv[1]
 rawFile = xexFile[0:-4] + ".raw"
 sfxFile = rawFile+".zx0"
 options = sys.argv[2]
+
+# Sub-processes
+if "nt" == os.name:
+    zx0 = "utils\scripts\zx0.exe "
+else:
+    zx0 = "wine utils/scripts/zx0.exe "
     
 # Read input file
 fin = io.open(xexFile, 'rb')
@@ -66,10 +73,7 @@ while (i<len(data)):
         f.close()
         
         # Compress raw data
-        if "nt" == os.name:
-            subprocess.call("utils\scripts\zx0.exe " + rawFile, shell=True)
-        else:
-            subprocess.call("wine utils/scripts/zx0.exe " + rawFile, shell=True)
+        subprocess.call(zx0 + rawFile, shell=True)
         f = io.open(sfxFile, 'rb')
         sfx = f.read()
         f.close()        

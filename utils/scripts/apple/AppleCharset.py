@@ -29,6 +29,7 @@ from PIL import Image
 import io, os, sys, csv
 from copy import *
 
+# Retrieve command params
 mode = sys.argv[1]
 charFile = sys.argv[2]
 output   = sys.argv[3]

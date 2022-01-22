@@ -27,6 +27,7 @@
 import io, os, sys, csv
 from PIL import Image
 
+# Retrieve command params
 charFile = sys.argv[1]
 output   = sys.argv[2]
 try:

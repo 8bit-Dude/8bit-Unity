@@ -30,9 +30,16 @@ from math import sqrt
 import io,os, sys
 import subprocess
 
+# Retrieve command params
 compress = sys.argv[1]
 input = sys.argv[2]
 output = sys.argv[3]
+
+# Sub-processes
+if "nt" == os.name:
+    ex31 = "utils/scripts/exomizer-3.1.0.exe"
+else:
+    ex31 = "wine utils\scripts\exomizer-3.1.0.exe"
 
 def packInt(value):
     return ''.join([chr(value%256), chr(value/256)])
@@ -122,9 +129,9 @@ try:
         f = io.open(output.replace('.img','.raw3'), 'wb'); f.write(packInt(0xC000)); f.write(''.join(col)); f.close()          
         
         # Crunch data and read back
-        subprocess.call(["utils/scripts/exomizer-3.1.0.exe", "mem", "-lnone", output.replace('.img','.raw1'), "-B", "-o", output.replace('.img','.sfx1')])
-        subprocess.call(["utils/scripts/exomizer-3.1.0.exe", "mem", "-lnone", output.replace('.img','.raw2'), "-B", "-o", output.replace('.img','.sfx2')])
-        subprocess.call(["utils/scripts/exomizer-3.1.0.exe", "mem", "-lnone", output.replace('.img','.raw3'), "-B", "-o", output.replace('.img','.sfx3')])
+        subprocess.call([ex31, "mem", "-lnone", output.replace('.img','.raw1'), "-B", "-o", output.replace('.img','.sfx1')])
+        subprocess.call([ex31, "mem", "-lnone", output.replace('.img','.raw2'), "-B", "-o", output.replace('.img','.sfx2')])
+        subprocess.call([ex31, "mem", "-lnone", output.replace('.img','.raw3'), "-B", "-o", output.replace('.img','.sfx3')])
 
         # Read back compressed data
         f = io.open(output.replace('.img','.sfx1'), 'rb'); sfx1 = f.read(); f.close()
