@@ -1,13 +1,14 @@
 
 #include "unity.h"
 
-const unsigned char hubPRG[] = "hub.prg";
-const unsigned char rrnetPRG[] = "rrnet.prg";
-const unsigned char ultimatePRG[] = "ultimate.prg";
+const char hubPRG[] = "hub.prg";
+const char rrnetPRG[] = "rrnet.prg";
+const char ultimatePRG[] = "ultimate.prg";
 
 int main (void)
 {
-    unsigned char xSize, ySize, key, *prg;
+    unsigned char xSize, ySize, key
+	char *prg;
 
 	// Set text mode colors
     textcolor(COLOR_WHITE);
@@ -124,24 +125,24 @@ int main (void)
 		switch (key) {
 		case '0':
 			cprintf("  Loading None version...  ");
-			prg = hubPRG;
+			prg = (char*)hubPRG;
 			break;
 #if defined __HUB__				
 		case '1':
 			cprintf("Loading 8bit-Hub version...");
-			prg = hubPRG;
+			prg = (char*)hubPRG;
 			break;
 #endif			
 #if defined __IP65__				
 		case '2':
 			cprintf(" Loading RR-Net version... ");
-			prg = rrnetPRG;
+			prg = (char*)rrnetPRG;
 			break;
 #endif
 #if defined __ULTIMATE__				
 		case '3':
 			cprintf("Loading Ultimate version...");
-			prg = ultimatePRG;
+			prg = (char*)ultimatePRG;
 			break;
 #endif
 		default:
