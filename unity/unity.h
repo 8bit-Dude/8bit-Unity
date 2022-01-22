@@ -48,6 +48,9 @@
 // Custom Characters
 #include "strings/chars.h"
 
+// Network
+#include "network/network.h"
+
 // Platform IDs
 #if defined __CBM__
 	#define PLATFORM 0	
@@ -67,17 +70,6 @@
 #elif defined __NES__
 	#define PLATFORM 5
     #include "targets/nes/platform.h"	
-#endif
-
-// Adaptors
-#if defined __HUB__
-  #include "adaptors/hub.h"  
-  #define HUB_TX_LEN 256
-  #define HUB_RX_LEN 256
-#elif defined __FUJINET__	
-  // Nothing
-#else
-  #include "adaptors/ip65.h"
 #endif
 
 // Bitmap functions (see bitmap.c)
@@ -340,47 +332,6 @@ callback* CheckCallbacks(unsigned char col, unsigned char row);
 void PopCallback(callback* call);
 unsigned char ProcessInput(void);
 void ClearCallbacks(void);
-
-// Network functions (see net-base.c, net-ip.c, net-easy.c, net-udp.c, net-tcp.c, net-url.c, net-web.c)
-#define NETWORK_OK  0
-#define ADAPTOR_ERR 1
-#define DHCP_ERR    2
-unsigned char InitNetwork(void);							// Initialize network adapter
-unsigned char GetLocalIP(unsigned char* ip);				// Fetch local IP
-
-// Easynet protocols
-#define EASY_TCP     1
-#define EASY_UDP     2
-
-// Easynet return states
-#define EASY_OK      0
-#define EASY_CRED    1
-#define EASY_FULL    2
-#define EASY_TIMEOUT 3
-#define EASY_BUFFER 256
-
-// Easynet variables and functions
-extern unsigned char easyProt, easyLive, easySlot;
-unsigned char EasyHost(unsigned char protocol, unsigned char slots, unsigned int *ID, unsigned int *PASS); 	// protocol: EASY_TCP or EASY_UDP (ID and PASS generated automatically)
-unsigned char EasyJoin(unsigned char protocol,  unsigned int *ID, unsigned int *PASS);						// 				   " "		      (ID and PASS must match host)		  	 
-void EasySend(unsigned char *buffer, unsigned char len);
-unsigned char *EasyRecv(unsigned char timeout, unsigned char* len);
-void EasyQuit(void);
-
-// TCP functions
-void SlotTCP(unsigned char slot);							// Set TCP slot (0~15)
-void OpenTCP(unsigned char *ip, unsigned int svPort);		// Open connection on current TCP slot (local port allocated automatically)
-void CloseTCP(void);										// Close current TCP slot
-void SendTCP(unsigned char* buffer, unsigned char length);  // Send contents of buffer on current TCP slot
-unsigned char* RecvTCP(unsigned int timeOut);				// Check all slots for incoming TCP packet (within time-out period)
-
-// UDP functions
-void SlotUDP(unsigned char slot);							// Set UDP slot (0~15)
-void OpenUDP(unsigned char *ip, unsigned int svPort,     	// Open connection on current UDP slot (local port allocated on clPort)
-								unsigned int clPort);
-void CloseUDP(void);										// Close current UDP slot
-void SendUDP(unsigned char* buffer, unsigned char length);  // Send contents of buffer on current UDP slot
-unsigned char* RecvUDP(unsigned int timeOut);				// Check all slots for incoming UDP packet (within time-out period)
 
 // URL functions
 void GetURL(unsigned char* url);									// Request URL file

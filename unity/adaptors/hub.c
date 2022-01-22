@@ -25,7 +25,7 @@
  */
  
 #include "hub.h"
-#include "unity.h"
+#include "../network/network.h"
 
 // Debugging flags
 //#define DEBUG_HUB
