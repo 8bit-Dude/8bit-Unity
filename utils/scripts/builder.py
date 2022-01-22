@@ -94,6 +94,16 @@ def Remove(filename):
         return 'del ' + filename.replace('/','\\') + ' /F /Q\n'
     else:
         return 'rm ' + filename + '\n'
+        
+def Emulate(path, executable, disk):
+    cmd = 'echo Ready to start Emulation...\n\n'
+    cmd += 'pause\n\n'
+    cmd += CD(path)
+    if "nt" == os.name:
+        cmd += executable + ' "..\\..\\..\\' + buildFolder + '\\' + disk  + '\n\n'
+    else:
+        cmd += 'wine ' + executable + ' "../../../' + buildFolder + '/' + disk  + '\n\n'
+    return cmd
     
 def Str2Bool(v):
     return v.lower() in ("yes", "true", "1")
@@ -1168,9 +1178,7 @@ class Application:
                 
                 # Start emulator?
                 if callEmu:
-                    fp.write('pause\n\n')
-                    fp.write(CD('utils/emulators/AppleWin-1.29.16.0'))
-                    fp.write('Applewin.exe ' + par + ' "../../../' + buildFolder + '/' + diskname + '-apple' + target + ext + '"\n')
+                    fp.write(Emulate('utils/emulators/AppleWin-1.29.16.0', 'Applewin.exe ' + par,  diskname + '-apple' + target + ext))
             
         ####################################################
         # Atari script
@@ -1361,9 +1369,7 @@ class Application:
                 
                 # Start emulator?
                 if callEmu:
-                    fp.write('pause\n\n')
-                    fp.write(CD('utils/emulators/Altirra-4.00-Hub'))
-                    fp.write('Altirra.exe "../../../' + buildFolder + '/' + diskname + '-atari' + target + '.atr"\n')             
+                    fp.write(Emulate('utils/emulators/Altirra-4.00-Hub', 'Altirra.exe', diskname + '-atari' + target + '.atr'))             
 
         ####################################################
         # C64 script
@@ -1551,9 +1557,7 @@ class Application:
             
             # Start emulator?
             if callEmu:
-                fp.write('pause\n\n')        
-                fp.write(CD('utils/emulators/WinVICE-2.4'))
-                fp.write('x64.exe "../../../' + buildFolder + '/' + diskname + '-c64.d64"\n')
+                fp.write(Emulate('utils/emulators/WinVICE-2.4', 'x64.exe', diskname + '-c64.d64'))   
 
         ####################################################
         # Lynx script
