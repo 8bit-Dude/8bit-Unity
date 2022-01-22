@@ -1040,6 +1040,7 @@ class Application:
                 # Info
                 fp.write('echo off\n\n')
                 fp.write('mkdir apple\n')            
+                fp.write('mkdir [maps]\n')            
                 fp.write('cd ..\n\n')
                 fp.write(Remove('build/apple/*.*'))
                 
@@ -1076,7 +1077,7 @@ class Application:
 
                     # Compile Program
                     symbols += ' -Wl -D,__STACKSIZE__=' + addr + '$0400,-D,__HIMEM__=' + addr + '$B800,-D,__LCADDR__=' + addr + '$D000,-D,__LCSIZE__=' + addr + '$1000,-D,CHUNKSIZE=' + addr + chunkSize
-                    comp = cl65 + ' -o ' + buildFolder + '/apple/' + executable + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-apple' + target + '-' + network + '.map -Cl -O -t apple2 ' + symbols + ' -C apple2-hgr.cfg -I unity '
+                    comp = cl65 + ' -o ' + buildFolder + '/apple/' + executable + '.bin -m ' + buildFolder + '/[maps]/' + diskname.lower() + '-apple' + target + '-' + network + '.map -Cl -O -t apple2 ' + symbols + ' -C apple2-hgr.cfg -I unity '
                     for item in code:
                         comp += item + ' '
                     comp += library + ' '
@@ -1222,6 +1223,7 @@ class Application:
                 # Info
                 fp.write('echo off\n\n')
                 fp.write('mkdir atari\n')            
+                fp.write('mkdir [maps]\n')            
                 fp.write('cd ..\n\n')
                 fp.write(Remove('build/atari/*.*'))
                 
@@ -1267,7 +1269,7 @@ class Application:
                     if len(networkOptions) > 1:
                         symbols += ' -Wl -D__SYSTEM_CHECK__=1 ' # Loader will perform that check
                     symbols += ' -Wl -D,__STACKSIZE__=' + addr + '$0400 -Wl -D,CHUNKSIZE=' + addr + chunkSize
-                    comp = cl65 + ' -o ' + buildFolder + '/atari/' + executable + ' -m ' + buildFolder + '/' + diskname.lower() + '-atari' + target + '-' + network + '.map ' + symbols + ' -I unity '
+                    comp = cl65 + ' -o ' + buildFolder + '/atari/' + executable + ' -m ' + buildFolder + '/[maps]/' + diskname.lower() + '-atari' + target + '-' + network + '.map ' + symbols + ' -I unity '
                     for item in code:
                         comp += (item + ' ')
                     comp += 'unity/targets/atari/POKEY.s ' + library + ' '
@@ -1405,6 +1407,7 @@ class Application:
             fp.write('echo off\n\n')
             fp.write('setlocal enableextensions enabledelayedexpansion\n\n')
             fp.write('mkdir c64\n')            
+            fp.write('mkdir [maps]\n')            
             fp.write('cd ..\n\n')            
             fp.write(Remove('build/c64/*.*'))
             
@@ -1450,7 +1453,7 @@ class Application:
 
                 # Compile Program                        
                 symbols += ' -Wl -D,CHUNKSIZE=' + addr + chunkSize
-                comp = cl65 + ' -o ' + buildFolder + '/c64/' + executable + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-c64-' + network + '.map -Cl -O -t c64 -C unity/targets/c64/c64.cfg ' + symbols + ' -I unity '
+                comp = cl65 + ' -o ' + buildFolder + '/c64/' + executable + '.bin -m ' + buildFolder + '/[maps]/' + diskname.lower() + '-c64-' + network + '.map -Cl -O -t c64 -C unity/targets/c64/c64.cfg ' + symbols + ' -I unity '
                 for item in code:
                     comp += (item + ' ')
                 comp += library + ' '
@@ -1590,6 +1593,7 @@ class Application:
             fp.write('echo off\n\n')
             fp.write('setlocal enableextensions enabledelayedexpansion\n\n')
             fp.write('mkdir lynx\n')           
+            fp.write('mkdir [maps]\n')            
             fp.write('cd ..\n\n')            
             fp.write('del ' + buildFolder + '\\lynx\\*.* /F /Q\n\n')
             
@@ -1833,7 +1837,7 @@ class Application:
                                      
             # Compile Program 
             symbols += ' -Wl -D,MUSICSIZE=' + addr + self.entry_LynxMusicMemory.get() + ' -Wl -D,CHUNKSIZE=' + addr + chunkSize + ',-D,SHAREDSIZE=' + addr + self.entry_LynxSharedMemory.get()
-            comp = cl65 + ' -o ' + buildFolder + '/' + diskname.lower() + '-lynx.lnx -m ' + buildFolder + '/' + diskname.lower() + '-lynx.map -Cl -O -t lynx' + symbols + ' -C ' + buildFolder + '/lynx/lynx.cfg -I unity '
+            comp = cl65 + ' -o ' + buildFolder + '/' + diskname.lower() + '-lynx.lnx -m ' + buildFolder + '/[maps]/' + diskname.lower() + '-lynx.map -Cl -O -t lynx' + symbols + ' -C ' + buildFolder + '/lynx/lynx.cfg -I unity '
             for item in code:
                 comp += (item + ' ')
             for i in range(len(music)):
@@ -1868,6 +1872,7 @@ class Application:
             fp.write('echo off\n\n')
             fp.write('setlocal enableextensions enabledelayedexpansion\n\n')
             fp.write('mkdir nes\n')            
+            fp.write('mkdir [maps]\n')            
             fp.write('cd ..\n\n')            
             fp.write('del ' + buildFolder + '\\nes\\*.* /F /Q\n\n')
             
@@ -2161,7 +2166,7 @@ class Application:
 
             # Compile Program
             symbols += ' -Wl -D,CHUNKSIZE=' + addr + chunkSize
-            comp = cl65 + ' -o ' + buildFolder + '/' + diskname.lower() + '-nes.nes -m ' + buildFolder + '/' + diskname.lower() + '-nes.map -t nes -Cl -Oirs ' + symbols + ' -C unity/targets/nes/MMC1/MMC1_128_128.cfg -I unity '
+            comp = cl65 + ' -o ' + buildFolder + '/' + diskname.lower() + '-nes.nes -m ' + buildFolder + '/[maps]/' + diskname.lower() + '-nes.map -t nes -Cl -Oirs ' + symbols + ' -C unity/targets/nes/MMC1/MMC1_128_128.cfg -I unity '
             for item in code:
                 comp += (item + ' ')
             fp.write(comp  + buildFolder + '/nes/data.asm ' + buildFolder + '/nes/unity.lib ' + 'nes.lib\n\n')
@@ -2192,6 +2197,7 @@ class Application:
             fp.write('echo off\n\n')
             fp.write('setlocal enableextensions enabledelayedexpansion\n\n')
             fp.write('mkdir oric\n')            
+            fp.write('mkdir [maps]\n')            
             fp.write('cd ..\n\n')            
             fp.write(Remove(buildFolder + '/oric/*.*'))
 
@@ -2207,7 +2213,7 @@ class Application:
 
             # Compile Program
             symbols += ' -Wl -D,CHUNKSIZE=' + addr + chunkSize                     
-            comp = cl65 + ' -o ' + buildFolder + '/oric/' + diskname.lower() + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-oric48k.map -Cl -O -t atmos' + symbols + ' -C unity/targets/oric/oric.cfg -I unity '
+            comp = cl65 + ' -o ' + buildFolder + '/oric/' + diskname.lower() + '.bin -m ' + buildFolder + '/[maps]/' + diskname.lower() + '-oric48k.map -Cl -O -t atmos' + symbols + ' -C unity/targets/oric/oric.cfg -I unity '
             for item in code:
                 comp += (item + ' ')
             fp.write(comp + library + '\n\n')
