@@ -2236,8 +2236,8 @@ class Application:
                 fb = FileBase(item, '.png')
                 fp.write(pyth + ' OricBitmap.py ../../../' + item + ' ../../../' + buildFolder + '/oric/' + fb + '.dat ' + self.entry_OricDithering.get() + ' ' + self.entry_OricLeadColors.get() + '\n')
                 fp.write(head + ' -a0 ../../../' + buildFolder + '/oric/' + fb + '.dat ../../../' + buildFolder + '/oric/' + fb + '.img ' + addr + '$A000\n')
-                fp.write(Remove('../../../' + buildFolder + '/oric/' + fb + '.png\n'))
-                fp.write(Remove('../../../' + buildFolder + '/oric/' + fb + '.dat\n'))
+                fp.write(Remove('../../../' + buildFolder + '/oric/' + fb + '.png'))
+                fp.write(Remove('../../../' + buildFolder + '/oric/' + fb + '.dat'))
                 
             for item in charset:
                 fb = FileBase(item, '.png')
