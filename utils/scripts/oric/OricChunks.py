@@ -16,9 +16,9 @@ imgFile = chunkfile[0:-4] + ".png"
 
 # Sub-processes
 if "nt" == os.name:
-    luaj = "luajit.exe"
+    luaj = ["luajit.exe"]
 else:
-    luaj = "wine luajit.exe"
+    luaj = ["wine","luajit.exe"]
 
 # Add black band on left-side
 padFile = outfolder + FileBase(imgFile, "")
@@ -31,7 +31,7 @@ padding.save(padFile, "PNG")
 # Call PictOric
 datFile = outfolder + FileBase(imgFile, ".png") + ".tmp"
 datFile = datFile.replace('//','/')
-subprocess.call([luaj, "PictOric.lua", dithering, padFile, datFile])
+subprocess.call(luaj + ["PictOric.lua", dithering, padFile, datFile])
 
 # Read converted image
 f1 = io.open(datFile, 'rb')

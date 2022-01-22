@@ -2241,7 +2241,7 @@ class Application:
                 
             for item in charset:
                 fb = FileBase(item, '.png')
-                fp.write('..\\..\\py27\python OricCharset.py ../../../' + item + ' ../../../' + buildFolder + '/oric/' + fb + '.dat ' + self.entry_OricDithering.get() +  '\n') 
+                fp.write(pyth + ' OricCharset.py ../../../' + item + ' ../../../' + buildFolder + '/oric/' + fb + '.dat ' + self.entry_OricDithering.get() +  '\n') 
                 fp.write(head + ' -a0 ../../../' + buildFolder + '/oric/' + fb + '.dat ../../../' + buildFolder + '/oric/' + fb + '.chr ' + addr + '$A000\n')
                 
                 

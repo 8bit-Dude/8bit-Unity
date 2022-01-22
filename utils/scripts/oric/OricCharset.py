@@ -34,9 +34,9 @@ dither   = sys.argv[3]
 
 # Sub-processes
 if "nt" == os.name:
-    luaj = "luajit.exe"
+    luaj = ["luajit.exe"]
 else:
-    luaj = "wine luajit.exe"
+    luaj = ["wine","luajit.exe"]
 
 pictOricIn = output.replace('.dat', '-in.png')
 pictOricOut = output.replace('.dat', '-out.dat')
@@ -57,7 +57,7 @@ result.save(pictOricIn)
 
 ###################
 # Call PictOric
-subprocess.call([luaj, "PictOric.lua", dither, pictOricIn, pictOricOut])
+subprocess.call(luaj + ["PictOric.lua", dither, pictOricIn, pictOricOut])
 
 #####################
 # Trim PictOric File

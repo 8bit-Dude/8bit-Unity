@@ -40,9 +40,9 @@ except:
 
 # Sub-processes
 if "nt" == os.name:
-    luaj = "luajit.exe"
+    luaj = ["luajit.exe"]
 else:
-    luaj = "wine luajit.exe"
+    luaj = ["wine","luajit.exe"]
     
 # Add black band on left-side
 padFile = datFile[0:-4] + ".png"
@@ -52,7 +52,7 @@ padding.paste(img1, (6, 0))
 padding.save(padFile, "PNG") 
     
 # Call PictOric
-subprocess.call([luaj, "PictOric.lua", dither, padFile, datFile])
+subprocess.call(luaj + ["PictOric.lua", dither, padFile, datFile])
 
 # Process RAW data again to enforce colors
 if len(enforce) > 0:
