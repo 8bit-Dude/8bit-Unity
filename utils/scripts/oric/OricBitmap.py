@@ -24,7 +24,7 @@
  *   specific prior written permission.
 """
 
-import io,struct, sys, subprocess
+import io, os, struct, sys, subprocess
 from PIL import Image
 from collections import Counter
 from math import sqrt
