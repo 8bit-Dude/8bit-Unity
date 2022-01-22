@@ -97,12 +97,14 @@ def Remove(filename):
         
 def Emulate(path, executable, disk):
     cmd = 'echo Ready to start Emulation...\n\n'
-    cmd += 'pause\n\n'
-    cmd += CD(path)
     if "nt" == os.name:
-        cmd += executable + ' "..\\..\\..\\' + buildFolder + '\\' + disk  + '\n\n'
+        cmd += 'pause\n\n'
+        cmd += CD(path)
+        cmd += executable + ' "..\\..\\..\\' + buildFolder + '\\' + disk  + '"\n\n'
     else:
-        cmd += 'wine ' + executable + ' "../../../' + buildFolder + '/' + disk  + '\n\n'
+        cmd += 'read -p "Press any key to continue..."\n\n'
+        cmd += CD(path)
+        cmd += 'wine ' + executable + ' "../../../' + buildFolder + '/' + disk  + '"\n\n'
     return cmd
     
 def Str2Bool(v):
