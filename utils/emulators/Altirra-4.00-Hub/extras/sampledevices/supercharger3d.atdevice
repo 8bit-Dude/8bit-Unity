@@ -1,0 +1,50 @@
+// Emulation of the SuperCharger 3D cartridge used for math acceleration
+// by the game Assault Force.
+
+option "name": "SuperCharger 3D";
+
+int r0;
+int r1;
+int r2;
+int status;
+
+MemoryLayer cctl: {
+    name: "SuperCharger 3D registers",
+    address: $D500,
+    size: $0100,
+    control: [
+        { address: $D500, mode: "rw", variable: "r0" },
+        { address: $D501, mode: "rw", variable: "r1" },
+        { address: $D502, mode: "rw", variable: "r2" },
+        { address: $D503, mode: "r", variable: "status" },
+        { address: $D503, mode: "w",
+            script: function {
+                int acc;
+                status = 1;
+                if ($value == 1) {
+                    if (r0 != 0) {
+                        acc = r1*256+r2;
+                        r2 = acc / r0;
+                        r1 = acc % r0;
+                        if (r2 < 256)
+                            status = 0;
+                    }
+                } else if ($value == 2) {
+                    r2 = r2*r0;
+                    r1 = r2 >> 8;
+                    status = 0;
+                }
+            }
+        },
+
+        { address: $D504, size: 252, mode: "rw", copy_from: $D500 }
+    ],
+    cart_mode: "cctl"
+};
+
+event "cold_reset": function {
+    r0 = 0;
+    r1 = 0;
+    r2 = 0;
+    status = 0;
+};

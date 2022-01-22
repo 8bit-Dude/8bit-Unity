@@ -1,0 +1,70 @@
+// A PBI device that shows off PBI IRQ capability, by installing an IRQ
+// handler that triggers a 100 bpm metronome (in emulation time).
+
+option "name": "Sample PBI metronome device";
+
+Segment firmware: {
+    size: 2048,
+    source: "pbimetronome.bin"
+};
+
+PBIDevice pbi_device: {
+    device_id: $01,
+    has_irq: true
+};
+
+Thread metronome_thread;
+
+MemoryLayer firmware_layer: {
+    name: "PBI disk firmware",
+    address: $D800,
+    size: $0800,
+    segment: {
+        source: firmware,
+        mode: "ro"
+    },
+    auto_pbi: true
+};
+
+MemoryLayer control_layer : {
+    name: "PBI bank write window",
+    address: $D100,
+    size: $0100,
+    control: [
+        // $D1F0 write acknowledges IRQ
+        {
+            address: $D1F0,
+            mode: "w",
+            script: function {
+                pbi_device.negate_irq();
+            }
+        },
+
+        // $D1F1 write: D0=1 enables metronome IRQ, D0=0 disables
+        {
+            address: $D1F1,
+            mode: "w",
+            script: function {
+                if ($value & 1) {
+                    if (!metronome_thread.is_running())
+                        metronome_thread.run(metronome_task);
+                } else {
+                    metronome_thread.interrupt();
+                }
+            }
+        },
+    ],
+    auto_pbi: true
+};
+
+function void metronome_task() {
+    loop {
+        Thread.sleep(1073863);
+
+        pbi_device.assert_irq();
+    }
+}
+
+event "cold_reset": function {
+    metronome_thread.interrupt();
+};

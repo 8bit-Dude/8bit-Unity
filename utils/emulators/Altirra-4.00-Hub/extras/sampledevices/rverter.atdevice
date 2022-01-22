@@ -1,0 +1,58 @@
+// R-Verter device
+// Simple emulation of R-Verter serial device. Requires the
+// rverter-server.py script to handle TCP communications on port
+// 6507 and an R: device handler such as RVERTER.COM from BobTerm.
+// Currently hardcoded to 1200 baud in the server.
+
+option "name": "R-Verter";
+
+option "network": {
+    port: 6502
+};
+
+Thread send_thread;
+Thread motor_thread;
+
+function void send_thread_handler() {
+    loop {
+        $network.post_message($sio.recv_raw_byte(), $aux);
+    }
+}
+
+function void motor_thread_handler() {
+    $sio.enable_raw(true);
+
+    loop {
+        if ($sio.motor_asserted()) {
+            // turning on - restart send thread
+            send_thread.run(send_thread_handler);
+
+            // notify server to clear queues and send next byte
+            $network.post_message(257, 0);
+        } else {
+            // turning off - stop send thread
+            send_thread.interrupt();
+
+            // notify server to begin discarding bytes
+            $network.post_message(258, 0);
+        }
+
+        $sio.wait_motor_changed();
+    }
+}
+
+event "network_interrupt": function {
+    if ($sio.motor_asserted()) {
+        // send byte to POKEY
+        $sio.send_raw_byte($aux1, $aux2);
+
+        // notify server that we can accept another byte -- we need this so
+        // that the server can throttle recv processing on its end to the
+        // rate that we are processing bytes in emulation
+        $network.post_message(256, 0);
+    }
+};
+
+event "cold_reset": function {
+    motor_thread.run(motor_thread_handler);
+};

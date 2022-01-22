@@ -1,0 +1,48 @@
+//        "Basic 810-compatible disk drive emulation. Place additions.atr or",
+//        "another single-density disk image next to this file."
+
+//    "name": "Sample disk drive device",
+
+Segment disk : {
+    source: "additions.atr",
+    source_offset: 16,
+    size: 92160
+};
+
+Segment status : {
+    size: 4,
+    init_pattern: [ 0, 0, 224, 0 ]
+};
+
+SIODevice disk_device : {
+    device_id: $31,
+    commands: [
+        {
+            id: $50,
+            script: function {
+                if ($aux <= 0 || $aux > 720)
+                    $sio.nak();
+                else {
+                    $sio.ack();
+                    $sio.recv_frame(128);
+                    disk.copy(($aux - 1)*128, $sio_frame, 0, 128);
+                    $sio.complete();
+                }
+            }
+        },
+        {
+            id: $52,
+            script: function {
+                if ($aux <= 0 || $aux > 720)
+                    $sio.nak();
+                else {
+                    $sio.ack();
+                    $sio.complete();
+                    $sio.send_frame(disk, ($aux - 1)*128, 128);
+                }
+            }
+        },
+        { id: $53, auto_transfer: { mode: "read", segment: status, offset: 0, length: 4 } },
+        { id: $57, copy_from: $50 }
+    ]
+};

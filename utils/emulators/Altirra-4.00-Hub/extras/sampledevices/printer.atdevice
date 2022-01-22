@@ -1,0 +1,38 @@
+// 820 printer emulation, compatible with the Atari OS P: device.
+// Requires printer.py in the deviceserver directory to be running to
+// receive the printer output.
+
+option "name": "Sample 820 compatible printer";
+
+Segment print_data: { size: 40 };
+Segment status: {
+    size: 4,
+    init_pattern: [ 0, 0, 63, 0 ]
+};
+
+option "network": {
+    port: 6502
+};
+
+SIODevice printer_dev: {
+    device_id: $40,
+    commands: [
+        {
+            id: $57,
+            script: function {
+                $sio.ack();
+                if ($aux1 == $52) {
+                    $sio.recv_frame(29);
+                    print_data.copy(0, $sio_frame, 0, 29);
+                    $network.send_message(29, 0);
+                } else {
+                    $sio.recv_frame(40);
+                    print_data.copy(0, $sio_frame, 0, 40);
+                    $network.send_message(40, 0);
+                }
+                $sio.complete();
+            }
+        },
+        { id: $53, auto_transfer: { mode: "read", segment: status, offset: 0, length: 4 } }
+    ]
+};

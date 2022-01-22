@@ -1,0 +1,79 @@
+//        "R-Time 8 cartridge emulation, compatible with SpartaDOS X."
+//    "name": "R-Time 8",
+
+Segment rtcram: {
+    persistence: "nonvolatile",
+    size: 16
+};
+
+MemoryLayer cctl: {
+    name: "Cartridge control",
+    address: $D500,
+    size: $0100,
+    control: [
+        { address: $D5B8, size: 8, mode: "r",
+            script: function { return read_byte(); },
+            debug_script: function { return debug_read_byte(); },
+        },
+        { address: $D5B8, size: 8, mode: "w",
+            script: function { return write_byte(); },
+        }
+    ],
+    cart_mode: "cctl"
+};
+
+int phase;
+int address;
+int v;
+
+event "cold_reset": function {
+    phase = 0;
+    address = 0;
+};
+
+function int debug_read_byte() {
+    if (phase == 0) return 0;
+
+    if (address < 7) {
+        $clock.capture_local_time();
+        if (address == 0) v = $clock.local_second();
+        else if (address == 1) v = $clock.local_minute();
+        else if (address == 2) v = $clock.local_hour();
+        else if (address == 3) v = $clock.local_day();
+        else if (address == 4) v = $clock.local_month();
+        else if (address == 5) v = $clock.local_year() % 100;
+        else v = $clock.local_day_of_week();
+        if (phase == 1)
+            return v / 10;
+        else
+            return v % 10;
+    } else {
+        v = rtcram.read_byte(address);
+        if (phase == 1)
+            return v >> 4;
+        else
+            return v & 15;
+    }
+}
+
+function int read_byte() {
+    v = debug_read_byte();
+
+    if (phase == 1)
+        phase = 2;
+    else
+        phase = 0;
+
+    return v;
+}
+
+function void write_byte() {
+    if (phase == 0)
+        address = $value & 15;
+    else if (phase == 1)
+        rtcram.write_byte(address, (rtcram.read_byte(address) & $0F) + ($value << 4));
+    else
+        rtcram.write_byte(address, (rtcram.read_byte(address) & $F0) + ($value & 15));
+
+    phase = (phase + 1) % 3;
+}

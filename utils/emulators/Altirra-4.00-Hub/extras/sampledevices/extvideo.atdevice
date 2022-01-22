@@ -1,0 +1,125 @@
+// External video output demo
+//
+// This creates an alternate video output capturing text sent to the printer (P:)
+// device. To see it, use View > Video Outputs > Next Output.
+
+int cursor_x;
+int cursor_y;
+
+Image font_src_image : {
+    source: "font.png"
+};
+
+Image font_image: {
+    width: 8,
+    height: 2304
+};
+
+Image frame_buffer : {
+    width: 640,
+    height: 216
+};
+
+Segment tilemap_buffer : {
+    size: 2000,
+    init_pattern: 0
+};
+
+Segment init_text : {
+    size: 13,
+    init_pattern: "Hello, world!"
+};
+
+VideoOutput video_output : {
+    display_name: "Sample External Video",
+
+    composite: function {
+        frame_buffer.blt_tile_map(0, 0, font_image, 8, 9, tilemap_buffer, 0, 0, 80, 24);
+    }
+};
+
+Segment printer_status: {
+    size: 4,
+    init_pattern: [ 0, 0, $10, 0 ]
+};
+
+SIODevice printer_device : {
+    device_id: $40,
+    commands: [
+        {
+            id: $53, script: function {
+                $sio.ack();
+                $sio.complete();
+                $sio.send_frame(printer_status, 0, 4);
+            }
+        },
+        {
+            id: $50, script: function {
+                $sio.ack();
+                $sio.recv_frame(40);
+
+                int idx = 0;
+                loop {
+                    int ch = $9B;
+
+                    if (idx < 128) {
+                        ch = $sio_frame.read_byte(idx);
+                        idx = idx + 1;
+                    }
+
+                    if (ch != $9B) {
+                        tilemap_buffer.write_byte(cursor_x + cursor_y * 80, ch);
+                        cursor_x = cursor_x + 1;
+                    }
+
+                    if (ch == $9B || cursor_x >= 80) {
+                        cursor_x = 0;
+                        cursor_y = cursor_y + 1;
+
+                        if (cursor_y >= 24) {
+                            cursor_y = 23;
+
+                            tilemap_buffer.copy(0, tilemap_buffer, 80, 80*23);
+                            tilemap_buffer.fill(80*23, $20, 80);
+                        }
+                    }
+
+                    if (ch == $9B)
+                        break;
+                }
+
+                $sio.complete();
+            }
+        },
+        {
+            id: $57, copy_from: $50
+        }
+    ]
+};
+
+event "init": function {
+    video_output.set_image(frame_buffer);
+    video_output.set_par(1, 2);
+
+    int i = 0;
+    do {
+        font_image.blt(0, i*9, font_src_image, (i & 15) * 9, (i >> 4)*17, 8, 9);
+
+        i = i + 1;
+    } while(i < 256);
+};
+
+event "cold_reset" : function {
+    cursor_x = 0;
+    cursor_y = 0;
+
+    tilemap_buffer.clear($20);
+    tilemap_buffer.copy(0, init_text, 0, 13);
+
+    frame_buffer.clear(0);
+    frame_buffer.fill_rect(0, 0, 320, 1, $00FF00);
+    frame_buffer.fill_rect(0, 199, 320, 1, $00FF00);
+    frame_buffer.fill_rect(0, 0, 1, 200, $00FF00);
+    frame_buffer.fill_rect(319, 0, 1, 200, $00FF00);
+    frame_buffer.fill_rect(100, 100, 10, 10, $FF0000);
+};

@@ -1,0 +1,97 @@
+Segment diskimage: {
+    size: 92160,
+    source: "Additions.atr",
+    source_offset: 16
+};
+
+Thread cmd_monitor_thread;
+Thread cmd_thread;
+int aux1;
+int aux2;
+
+function void cmd_status() {
+    $sio.send_raw_byte($41, 93);
+    Thread.sleep(900);
+    $sio.send_raw_byte($43, 93);
+    $sio.send_raw_byte($00, 93);
+    $sio.send_raw_byte($FF, 93);
+    $sio.send_raw_byte($E0, 93);
+    $sio.send_raw_byte($00, 93);
+    $sio.send_raw_byte($E0, 93);
+}
+
+function void cmd_read() {
+    int idx = 0;
+    int vsec = aux1 + 256*aux2;
+
+    if (vsec == 0 || vsec > 720) {
+        $sio.send_raw_byte($4E, 93);
+        return;
+    }
+
+    $sio.send_raw_byte($41, 93);
+
+    Thread.sleep(900);
+
+    $sio.send_raw_byte($43, 93);
+
+    $sio.reset_send_checksum();
+
+    int pos = (vsec - 1) * 128;
+
+    loop {
+        $sio.send_raw_byte(diskimage.read_byte(pos + idx), 93);
+
+        idx = idx + 1;
+
+        if (idx >= 128) {
+            $sio.send_raw_byte($sio.get_send_checksum(), 93);
+            return;
+        }
+    }
+}
+
+function void cmd_thread_run() {
+    $sio.reset_recv_checksum();
+
+    int device = $sio.recv_raw_byte();
+    int cmd = $sio.recv_raw_byte();
+    aux1 = $sio.recv_raw_byte();
+    aux2 = $sio.recv_raw_byte();
+
+    $sio.recv_raw_byte();
+
+    if ($sio.check_recv_checksum()) {
+        if (device != $31)
+            return;
+
+        Debug.log("Wait for deassert");
+        $sio.wait_command_off();
+
+        Debug.log("Received valid command");
+        Debug.log_int("Device: ", device);
+        Debug.log_int("Command: ", cmd);
+        Debug.log_int("AUX1: ", aux1);
+        Debug.log_int("AUX2: ", aux2);
+
+        if (cmd == $53)
+            cmd_status();
+        else if (cmd == $52)
+            cmd_read();
+
+        Debug.log("Command processing completed");
+    }
+}
+
+function void cmd_monitor_thread_run() {
+    loop {
+        $sio.wait_command();
+        Debug.log("Command asserted");
+        cmd_thread.run(cmd_thread_run);
+    }
+}
+
+event "cold_reset": function {
+    $sio.enable_raw(true);
+    cmd_monitor_thread.run(cmd_monitor_thread_run);
+};

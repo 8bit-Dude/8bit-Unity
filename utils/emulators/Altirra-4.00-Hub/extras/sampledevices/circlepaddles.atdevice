@@ -1,0 +1,26 @@
+//  "name": "Auto-circling paddles",
+
+int tick;
+
+Segment sintab: {
+    size: 60,
+    init_pattern: [
+        114,  126,  138,  149,  160,  171,  181,  190,  199,  206,  213,  218,  222,  226,  227,
+        228,  227,  226,  222,  218,  213,  206,  199,  190,  181,  171,  160,  149,  138,  126,
+        114,  102,  90,  79,  68,  57,  47,  38,  29,  22,  15,  10,  6,  2,  1,  0,  1,  2,
+        6,  10,  15,  22,  29,  38,  47,  57,  68,  79,  90,  102
+    ] 
+};
+
+ControllerPort port1: 0;
+
+event "cold_reset": function {
+    tick = 0;
+};
+
+event "vblank": function {
+    port1.set_paddle_a(sintab.read_byte(tick));
+    port1.set_paddle_b(sintab.read_byte((tick+15) % 60));
+    port1.set_dirs(tick >> 2);
+    tick = (tick + 1) % 60;
+};

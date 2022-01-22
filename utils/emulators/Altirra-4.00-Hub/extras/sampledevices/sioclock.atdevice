@@ -1,0 +1,27 @@
+// A simple SIO-based real time clock device compatible with the RespeQt
+// RCL.COM tool.
+
+option "name": "Sample SIO clock";
+
+Segment status: { size: 6 };
+
+SIODevice clock_device: {
+    device_id: $46,
+    commands: [
+        {
+            id: $93,
+            script: function {
+                $sio.ack();
+                $sio.complete();
+                $clock.capture_local_time();
+                status.write_byte(0, $clock.local_day());
+                status.write_byte(1, $clock.local_month());
+                status.write_byte(2, $clock.local_year() % 100);
+                status.write_byte(3, $clock.local_hour());
+                status.write_byte(4, $clock.local_minute());
+                status.write_byte(5, $clock.local_second());
+                $sio.send_frame(status, 0, 6);
+            }
+        }
+    ]
+};

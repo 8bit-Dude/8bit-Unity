@@ -1,0 +1,243 @@
+// SIO over IP
+// Translates events on SIO to corresponding UDP messages and vice versa.
+// Requires the netsio-server.py script to handle UDP communications on port
+// 9996
+
+option "name": "NetSIO - SIO over network";
+
+option "network": {
+    port: 9986
+};
+
+Segment txbuffer: {
+    size: 512
+};
+
+Segment rxbuffer: {
+    size: 512
+};
+
+Segment textbuffer: {
+    size: 256
+};
+
+int txbuffer_len;
+int txbyte;
+
+int rxbuffer_len;
+int rxbyte;
+
+int ack_wsize;
+int in_cpb;
+int out_cpb;
+int sync_write_size;
+
+Thread command_thread;
+Thread motor_thread;
+Thread rxbyte_thread;
+
+// Thread tx_thread;
+
+// debug
+int soc; // start of command timestamp
+int eoc; // end of command timestamp
+
+
+function void motor_thread_handler() {
+    loop {
+        $sio.wait_motor_changed();
+        if ($sio.motor_asserted()) {
+            $network.post_message($21, 0);
+            // Debug.log("> Motor ON");
+        }
+        else {
+            $network.post_message($20, 0);
+            // Debug.log("> Motor OFF");
+        }
+    }
+}
+
+function void handle_sync_response()
+{
+    int ack;
+    if (ack_wsize >=0) {
+        ack = ack_wsize & $FF; // ACK/NAK byte
+        sync_write_size = ack_wsize >> 8; // next sync after this amount of bytes written
+        // Debug.log_int("ACK: ", ack);
+        // Debug.log_int("Sync write size: ", sync_write_size);
+        $sio.send_raw_byte(ack, in_cpb);
+    } else {
+        // Debug.log("EMPTY ACK");
+    }
+}
+
+function void sync_ack_on_command_frame() {
+    // int ack_wsize; // global
+    // Debug.log("CMD OFF + sync");
+    ack_wsize = $network.send_message($18, 0); // 0x18 = COMMAND OFF + SYNC REQUEST
+    //handle_sync_response(ack_wsize);
+    handle_sync_response();
+    // eoc = $timestamp;
+    // Debug.log_int("CMD OFF ", eoc - soc);
+    $network.post_message($100, 0);
+}
+
+function void sync_ack_on_data_frame() {
+    // int ack_wsize; // global
+    // Debug.log("DATA BYTE + sync");
+    ack_wsize = $network.send_message($09, rxbyte); // 0x09 = DATA BYTE + SYNC REQUEST
+    Thread.sleep(1800); // 1 ms delay (850 us - 16 ms) before sending ACK/NAK
+    // handle_sync_response(ack_wsize);
+    handle_sync_response();
+    $network.post_message($100, 0);
+}
+
+function void command_thread_handler() {
+    loop {
+        $sio.wait_command();
+        // command asserted
+        $network.post_message($11, 0);
+        // bundle command frame bytes into block
+        sync_write_size = 5;
+        // Debug.log("CMD ON");
+        // soc = $timestamp;
+        // Debug.log_int("CMD ON  ", soc - eoc);
+
+        $sio.wait_command_off();
+        // command de-asserted
+        sync_ack_on_command_frame();
+    }
+}
+
+function void send_rxbuffer() {
+    if (rxbuffer_len) {
+        $network.send_message($02, rxbuffer_len); // data block, synchronous call
+        rxbuffer_len = 0;
+    }
+}
+
+function void rxbyte_thread_handler() {
+    int baud;
+    loop {
+        rxbyte = $sio.recv_raw_byte();
+        if (out_cpb != $aux) {
+                send_rxbuffer();
+            out_cpb = $aux;
+            baud = 1789773 / $aux;
+            Debug.log_int("NetSIO from Atari @ ", baud);
+            $network.post_message($80, baud);
+        }
+        if (sync_write_size) {
+            sync_write_size = sync_write_size - 1;
+            // Debug.log_int("sync_write_size: ", sync_write_size);
+            if (sync_write_size == 0) {
+                if ($sio.command_asserted()) {
+                    // add command frame checksum byte to rxbuffer
+                    rxbuffer.write_byte(rxbuffer_len, rxbyte);
+                    rxbuffer_len = 1 + rxbuffer_len;
+                }
+                // send to device
+                send_rxbuffer();
+                if (!$sio.command_asserted()) {
+                    // send data frame checksum and wait for acknowledgment
+                    sync_ack_on_data_frame();
+                }
+            } else {
+                // append received byte to rxbuffer
+                rxbuffer.write_byte(rxbuffer_len, rxbyte);
+                rxbuffer_len = 1 + rxbuffer_len;
+                if (rxbuffer_len == 512)
+                    send_rxbuffer();
+            }
+        }
+        else
+        {
+            // Debug.log_int("> Write ", b);
+            $network.post_message($01, rxbyte);
+        }
+    }
+}
+
+event "network_interrupt": function {
+    int evt = $aux1;
+    int arg = $aux2;
+
+    if (evt == $01) {
+        // txbyte = arg;
+        // tx_thread.run(txbyte_thread_run);
+        // Debug.log_int("send ", arg);
+        $sio.send_raw_byte(arg, in_cpb);
+        // notify server that we can accept another byte
+        $network.post_message($100, 0);
+    }
+    else if (evt == $80) {
+        in_cpb = 1789773 / arg;
+        Debug.log_int("NetSIO to Atari @ ", arg);
+    }
+    else if (evt == $101) {
+        // send bytes from region to POKEY
+        int i = 0;
+        loop {
+            // Debug.log_int("block send ", txbuffer.read_byte(i));
+            $sio.send_raw_byte(txbuffer.read_byte(i), in_cpb);
+            i = i + 1;
+            if (i >= arg) {
+                // notify server that we can accept another byte
+                $network.post_message($100, 0);
+                return;
+            }
+        }
+    }
+    else if (evt == $31) {
+        // Debug.log("< Proceed ON");
+        $sio.set_proceed(1);
+    }
+    else if (evt == $30) {
+        // Debug.log("< Proceed OFF");
+        $sio.set_proceed(0);
+    }
+    else if (evt == $41){
+        // Debug.log("< Interrupt ON");
+        $sio.set_interrupt(1);
+    }
+    else if (evt == $40) {
+        // Debug.log("< Interrupt OFF");
+        $sio.set_interrupt(0);
+    }
+    else if (evt == $C1) {
+        Debug.log("NetSIO device connected");
+    }
+    else if (evt == $C0) {
+        Debug.log("NetSIO device disconnected");
+    }
+    else if (evt == $102) {
+        // Debug.log(textbuffer); // TODO possible to print text message to debugger console?
+        int i = 0;
+        loop {
+            Debug.log_int("> ", textbuffer.read_byte(i));
+            i = i + 1;
+            if (i >= arg) {
+                return;
+            }
+        }
+    }
+};
+
+event "init": function {
+    $sio.enable_raw(true);
+};
+
+event "cold_reset": function {
+    txbuffer_len = 0;
+    rxbuffer_len = 0;
+    // assume default 19200 baud
+    out_cpb = 93;
+    in_cpb = 93;
+
+    sync_write_size = 0;
+
+    $sio.enable_raw(true);
+    motor_thread.run(motor_thread_handler);
+    command_thread.run(command_thread_handler);
+    rxbyte_thread.run(rxbyte_thread_handler);
+};

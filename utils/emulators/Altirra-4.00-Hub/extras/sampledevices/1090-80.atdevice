@@ -1,0 +1,244 @@
+// Atari 1090 80 Column Video Card emulation
+//
+// Requires two ROM images:
+//  "80 col os rev9.bin" (PBI firmware ROM) [CRC32 87809326]
+//  "80 col charset.bin" (Character set ROM) [CRC32 8F07D9A0]
+
+option "name": "1090 80-column board";
+
+int reg_index;
+int vretrace_last;
+int field_count;
+
+function void composite_frame();
+function void pre_copy();
+
+PBIDevice pbi_device : {
+    device_id: $02
+};
+
+Segment crtc_reg : {
+    size: 32,
+    init_pattern: 0
+};
+
+Segment pbi_rom : {
+    source: "80 col os rev9.bin",
+    size: 2048
+};
+
+Segment charset_rom : {
+    source: "80 col charset.bin",
+    size: 2048
+};
+
+Segment vram : {
+    size: 2048,
+    init_pattern: $FF
+};
+
+Segment vram_copyout : {
+    size: 2048,
+    init_pattern: $FF
+};
+
+Segment internal_to_atascii : {
+    size: 256,
+    persistence: "nonvolatile"
+};
+
+MemoryLayer pbi_rom_layer : {
+    name: "1090 80-column firmware",
+    address: $D800,
+    size: $0800,
+    segment: {
+        source: pbi_rom,
+        offset: 0,
+        mode: "ro"
+    },
+    auto_pbi: true
+};
+
+MemoryLayer vram_layer : {
+    name: "1090 80-column VRAM window",
+    address: 0,
+    size: $0800,
+    segment: {
+        source: vram,
+        offset: 0,
+        mode: "wt"
+    }
+};
+
+MemoryLayer reg_layer : {
+    name: "1090 80-column VRAM window",
+    address: $D100,
+    size: $0100,
+    control: [
+        {
+            address: $D1FA,
+            mode: "w",
+            script: function {
+                reg_index = $value & $1F;
+            }
+        },
+        {
+            address: $D1FB,
+            mode: "r",
+            script: function {
+                return crtc_reg.read_byte(reg_index);
+            }
+        },
+        {
+            address: $D1FB,
+            mode: "w",
+            script: function {
+                video_output.mark_active();
+                crtc_reg.write_byte(reg_index, $value);
+            }
+        },
+
+        {
+            address: $D1FC,
+            size: 2, 
+            mode: "w",
+            script: function {
+                vram_layer.set_base_address(($value & $F8) << 8);
+            }
+        },
+    ],
+    auto_pbi: true
+};
+
+Image charset_image : {
+    width: 8,
+    height: 2048
+};
+
+Image frame_buffer : {
+    width: 640,
+    height: 192
+};
+
+VideoOutput video_output : {
+    display_name: "1090 80-column",
+
+    composite: function {
+        composite_frame();
+    },
+    pre_copy: function {
+        pre_copy();
+    }
+};
+
+function void composite_frame() {
+    int display_offset = crtc_reg.read_rev_word($0C) & $07FF;
+
+    frame_buffer.blt_tile_map(0, 0, charset_image, 8, 8, vram, display_offset, 0, 80, 24);
+
+    int cursor_mode = crtc_reg.read_byte($0A) & $60;
+    int cursor_on = false;
+
+    if (cursor_mode == 0)
+        cursor_on = true;
+    else if (cursor_mode == $40)
+        cursor_on = field_count & $10;
+    else if (cursor_mode == $60)
+        cursor_on = field_count & $20;
+
+    if (cursor_on) {
+        int display_addr = crtc_reg.read_rev_word($0C) & $3FFF;
+        int cursor_addr = crtc_reg.read_rev_word($0E) & $3FFF;
+        int cursor_offset = cursor_addr - display_addr;
+
+        if (cursor_offset < 1920) {
+            int cursor_x = (cursor_offset % 80) * 8;
+            int cursor_y = (cursor_offset / 80) * 8;
+            int cursor_first = crtc_reg.read_byte($0A) & $1F;
+            int cursor_last = crtc_reg.read_byte($0B) & $1F;
+
+            // cursor_first is the row at which the cursor turns on (at the start
+            // of the row), and cursor_last is the row at which the cursor turns
+            // off (at the end of the row). If the cursor start is outside of the
+            // character cell, it never turns on, and if the cursor stop is outside
+            // of the character cell, it never turns off. If both are outside then
+            // the last cursor state sticks.
+            if (cursor_first < 8) {
+                if (cursor_first <= cursor_last) {
+                    if (cursor_last > 7)
+                        frame_buffer.invert_rect(cursor_x, cursor_y, 8, 8);
+                    else
+                        frame_buffer.invert_rect(cursor_x, cursor_y + cursor_first, 8, cursor_last + 1 - cursor_first);
+                } else {
+                    if (cursor_first > cursor_last + 1) {
+                        frame_buffer.invert_rect(cursor_x, cursor_y, 8, cursor_last + 1);
+                        frame_buffer.invert_rect(cursor_x, cursor_y + cursor_first, 8, 8 - cursor_first);
+                    } else
+                        frame_buffer.invert_rect(cursor_x, cursor_y, 8, 8);
+                }
+            }
+        }
+    }
+}
+
+function void pre_copy() {
+    int display_offset = crtc_reg.read_rev_word($0C) & $07FF;
+
+    vram_copyout.translate(0, vram, display_offset, $0800 - display_offset, internal_to_atascii, 0);
+    vram_copyout.translate($0800 - display_offset, vram, 0, display_offset, internal_to_atascii, 0);
+
+    video_output.set_copy_text_source(vram_copyout, 0, 0);
+}
+
+event "init": function {
+    int x = 0;
+    do {
+        charset_image.blt_expand_1(0, 8*x, charset_rom, 8*x, 1, 8, 8, 0, $FFFFFF);
+        x = x + 1;
+    } while(x < 128);
+
+    charset_image.blt(0, 1024, charset_image, 0, 0, 8, 1024);
+    charset_image.invert_rect(0, 1024, 8, 1024);
+
+    int i = 0;
+    do {
+        int v = i;
+        int vmode = v & $60;
+
+        if (vmode == 0)
+            v = v ^ $20;
+        else if (vmode == $20)
+            v = v ^ $60;
+        else if (vmode == $40)
+            v = v ^ $40;
+
+        internal_to_atascii.write_byte(i, v);
+        i = i + 1;
+    } while(i < 256);
+};
+
+event "cold_reset": function {
+    reg_index = 0;
+    crtc_reg.clear(0);
+
+    vram_layer.set_base_address($F800);
+
+    vram.clear($FF);
+    video_output.set_image(frame_buffer);
+
+    video_output.set_text_area(80, 24);
+
+    // dot clock is 4*Fsc = 14.318MHz
+    video_output.set_par(6, 14);
+
+    vretrace_last = $timestamp;
+    field_count = 0;
+};
+
+event "vblank": function {
+    // 113 x 26 character cells of 8x10 each, plus 4 scans
+    int fields_passed = ($timestamp - vretrace_last) / 29832;
+    vretrace_last = vretrace_last + fields_passed*29832;
+
+    field_count = (field_count + fields_passed) & 63;
+};

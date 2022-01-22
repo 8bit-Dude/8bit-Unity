@@ -1,0 +1,80 @@
+// SpartaDOS X (64K) banked cartridge emulation.
+// Note: SpartaDOS X image not included.
+
+option "name": "SpartaDOS X";
+
+Segment flash0: {
+    persistence: "nonvolatile",
+    size: 65536,
+    source: "sdx.bin"
+};
+
+Segment flash: {
+    persistence: "nonvolatile",
+    size: 65536
+};
+
+MemoryLayer wina: {
+    name: "SDX cartridge window",
+    address: $A000,
+    size: $2000,
+    segment: {
+        source: flash,
+        offset: 0,
+        mode: "ro"
+    },
+    cart_mode: "auto"
+};
+
+MemoryLayer cctl: {
+    name: "Cartridge control",
+    address: $D500,
+    size: $0100,
+    control: [
+        // $D5E8-D5EF disables the cartridge window.
+        {
+            address: $D5E8,
+            size: 8,
+            mode: "rw",
+            script: function {
+                [!debug_read] wina.set_modes(0, 0);
+                return $FF;
+            }
+        },
+
+        // $D5E0-D5E7 selects an 8K bank from flash.
+        {
+            address: $D5E0,
+            size: 8,
+            mode: "rw",
+            script: function {
+                [!debug_read] {
+                    wina.set_offset(($address & 7) << 13);
+                    wina.set_modes(1, 1);
+                }
+
+                return $FF;
+            }
+        }
+    ],
+    cart_mode: "auto"
+};
+
+event "init": function {
+    // Reorder banks from on-disk format so the bank mapping is
+    // straightforward.
+
+    flash.copy($0000, flash0, $E000, $2000);
+    flash.copy($2000, flash0, $C000, $2000);
+    flash.copy($4000, flash0, $A000, $2000);
+    flash.copy($6000, flash0, $8000, $2000);
+    flash.copy($8000, flash0, $6000, $2000);
+    flash.copy($A000, flash0, $4000, $2000);
+    flash.copy($C000, flash0, $2000, $2000);
+    flash.copy($E000, flash0, $0000, $2000);
+};
+
+event "cold_reset": function {
+    wina.set_offset($E000);
+    wina.set_modes(1, 1);
+};

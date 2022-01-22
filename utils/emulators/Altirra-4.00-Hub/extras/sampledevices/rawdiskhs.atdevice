@@ -1,0 +1,242 @@
+// Raw disk device, supporting US Doubler style high speed and PERCOM
+// block commands for a single density disk image. Turn off fast boot and
+// D: SIO patch and unmount D1: in the emulator's built-in disk emulation
+// before using.
+
+Segment disk_image: {
+    size: 92160,
+    source: "Additions.atr",
+    source_offset: 16
+};
+
+Segment percom_block: {
+    size: 12
+};
+
+Segment percom_block_sd: {
+    size: 12,
+    init_pattern: [
+        $28,
+        $01,
+        $00, $12,
+        $00,
+        $00,
+        $00, $80,
+        $FF,
+        $00, $00, $00
+    ]
+};
+
+Segment sector_buffer: {
+    size: 256
+};
+
+Thread cmd_monitor_thread;
+Thread cmd_thread;
+int aux1;
+int aux2;
+int cpb;
+int cpb_fast;
+int highspeed_divisor;
+
+function void cmd_status() {
+    $sio.send_raw_byte($41, cpb);
+    Thread.sleep(900);
+    $sio.send_raw_byte($43, cpb);
+    $sio.reset_send_checksum();
+    $sio.send_raw_byte($00, cpb);
+    $sio.send_raw_byte($FF, cpb);
+    $sio.send_raw_byte($E0, cpb);
+    $sio.send_raw_byte($00, cpb);
+    $sio.send_raw_byte($sio.get_send_checksum(), cpb);
+}
+
+function void cmd_read() {
+    int idx = 0;
+    int vsec = aux1 + 256*aux2;
+
+    if (vsec == 0 || vsec > 720) {
+        $sio.send_raw_byte($4E, cpb);
+        return;
+    }
+
+    $sio.send_raw_byte($41, cpb);
+
+    Thread.sleep(900);
+
+    $sio.send_raw_byte($43, cpb);
+
+    $sio.reset_send_checksum();
+
+    int pos = (vsec - 1) * 128;
+
+    loop {
+        $sio.send_raw_byte(disk_image.read_byte(pos + idx), cpb);
+
+        idx = idx + 1;
+
+        if (idx >= 128) {
+            $sio.send_raw_byte($sio.get_send_checksum(), cpb);
+            return;
+        }
+    }
+}
+
+function void cmd_write() {
+    int vsec = aux1 + 256*aux2;
+
+    if (vsec == 0 || vsec > 720) {
+        $sio.send_raw_byte($4E, cpb);
+        return;
+    }
+
+    $sio.send_raw_byte($41, cpb);
+    $sio.reset_recv_checksum();
+
+    int idx = 0;
+    loop {
+        sector_buffer.write_byte(idx, $sio.recv_raw_byte());
+        idx = idx + 1;
+
+        if (idx == 128) {
+            $sio.recv_raw_byte();
+            if ($sio.check_recv_checksum()) {
+                Thread.sleep(900);
+                $sio.send_raw_byte($41, cpb);
+
+                disk_image.copy((vsec - 1)*128, sector_buffer, 0, 128);
+
+                $sio.send_raw_byte($43, cpb);
+            } else {
+                $sio.send_raw_byte($4E, cpb);
+            }
+            return;
+        }
+    }
+}
+
+function void cmd_get_hs_index() {
+    $sio.send_raw_byte($41, cpb);
+    Thread.sleep(900);
+    $sio.send_raw_byte($43, cpb);
+    $sio.reset_send_checksum();
+    $sio.send_raw_byte(highspeed_divisor, cpb);
+    $sio.send_raw_byte($sio.get_send_checksum(), cpb);
+}
+
+function void set_percom_block() {
+    percom_block.copy(0, percom_block_sd, 0, 12);
+}
+
+function void cmd_read_percom_block() {
+    $sio.send_raw_byte($41, cpb);
+    Thread.sleep(900);
+    $sio.send_raw_byte($43, cpb);
+    $sio.reset_send_checksum();
+
+    int idx = 0;
+    loop {
+        $sio.send_raw_byte(percom_block.read_byte(idx), cpb);
+        idx = idx + 1;
+
+        if (idx >= 12) {
+            $sio.send_raw_byte($sio.get_send_checksum(), cpb);
+            return;
+        }
+    }
+}
+
+function void cmd_write_percom_block() {
+    $sio.send_raw_byte($41, cpb);
+    Thread.sleep(900);
+
+    int idx = 0;
+
+    loop {
+        sector_buffer.write_byte(idx, $sio.recv_raw_byte());
+        idx = idx + 1;
+
+        if (idx >= 12) {
+            $sio.recv_raw_byte();
+            if ($sio.check_recv_checksum()) {
+                $sio.send_raw_byte($41, cpb);
+                $sio.send_raw_byte($43, cpb);
+
+                percom_block.copy(0, sector_buffer, 0, 12);
+            } else {
+                $sio.send_raw_byte($4E, cpb);
+            }
+
+            return;
+        }
+    }
+}
+
+function void cmd_thread_run() {
+    // alternate between 93 and 34
+    cpb = (cpb_fast + 93) - cpb;
+
+    $sio.reset_recv_checksum();
+
+    int device = $sio.recv_raw_byte();
+    Debug.log_int("Current rate: ", cpb);
+    Debug.log_int("Trace rate: ", $aux);
+    if ($aux < cpb - 2 || $aux > cpb + 2)
+        return;
+
+    int cmd = $sio.recv_raw_byte();
+    aux1 = $sio.recv_raw_byte();
+    aux2 = $sio.recv_raw_byte();
+
+    $sio.recv_raw_byte();
+
+    if ($sio.check_recv_checksum()) {
+        if (device != $31)
+            return;
+
+        Debug.log("Wait for deassert");
+        $sio.wait_command_off();
+
+        Debug.log("Received valid command");
+        Debug.log_int("Device: ", device);
+        Debug.log_int("Command: ", cmd);
+        Debug.log_int("AUX1: ", aux1);
+        Debug.log_int("AUX2: ", aux2);
+
+        if (cmd == $53)
+            cmd_status();
+        else if (cmd == $52)
+            cmd_read();
+        else if (cmd == $50 || cmd == $57)
+            cmd_write();
+        else if (cmd == $3F)
+            cmd_get_hs_index();
+        else if (cmd == $4E)
+            cmd_read_percom_block();
+        else if (cmd == $4F)
+            cmd_write_percom_block();
+        else
+            $sio.send_raw_byte($4E, cpb);
+
+        Debug.log("Command processing completed");
+    }
+}
+
+function void cmd_monitor_thread_run() {
+    loop {
+        $sio.wait_command();
+        Debug.log("Command asserted");
+        cmd_thread.run(cmd_thread_run);
+    }
+}
+
+event "cold_reset": function {
+    highspeed_divisor = 5;
+    cpb_fast = (highspeed_divisor + 7) * 2;
+    cpb = 93;
+
+    set_percom_block();
+
+    $sio.enable_raw(true);
+    cmd_monitor_thread.run(cmd_monitor_thread_run);
+};
