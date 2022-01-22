@@ -40,6 +40,7 @@ if "nt" == os.name:
     ex30 = "utils\\scripts\\exomizer-3.0.2.exe"
     ex31 = "utils\\scripts\\exomizer-3.1.0.exe"
     mads = "utils\\scripts\\atari\\mads.exe"
+    famt = "utils\\scripts\\nes\\text2data.exe"
     orih = "utils\\scripts\\oric\\header.exe"
     orim = "utils\\scripts\\oric\\ym2mym.exe"
     orit = "utils\\scripts\\oric\\tap2dsk.exe"
@@ -60,6 +61,7 @@ else:
     ex30 = "wine utils/scripts/exomizer-3.0.2.exe"
     ex31 = "wine utils/scripts/exomizer-3.1.0.exe"
     mads = "wine utils/scripts/atari/mads.exe"
+    famt = "wine utils/scripts/nes/text2data.exe"
     orih = "wine utils/scripts/oric/header.exe"
     orim = "wine utils/scripts/oric/ym2mym.exe"
     orit = "wine utils/scripts/oric/tap2dsk.exe"
@@ -1077,7 +1079,7 @@ class Application:
 
                     # Compile Program
                     symbols += ' -Wl -D,__STACKSIZE__=' + addr + '$0400,-D,__HIMEM__=' + addr + '$B800,-D,__LCADDR__=' + addr + '$D000,-D,__LCSIZE__=' + addr + '$1000,-D,CHUNKSIZE=' + addr + chunkSize
-                    comp = cl65 + ' -o ' + buildFolder + '/apple/' + executable + '.bin -m ' + buildFolder + '/[maps]/' + diskname.lower() + '-apple' + target + '-' + network + '.map -Cl -O -t apple2 ' + symbols + ' -C apple2-hgr.cfg -I unity '
+                    comp = cl65 + ' -o ' + buildFolder + '/apple/' + executable + '.bin -m ' + buildFolder + '/[maps]/' + diskname.lower() + '-apple' + target + '-' + executable.lower() + '.map -Cl -O -t apple2 ' + symbols + ' -C apple2-hgr.cfg -I unity '
                     for item in code:
                         comp += item + ' '
                     comp += library + ' '
@@ -1269,7 +1271,7 @@ class Application:
                     if len(networkOptions) > 1:
                         symbols += ' -Wl -D__SYSTEM_CHECK__=1 ' # Loader will perform that check
                     symbols += ' -Wl -D,__STACKSIZE__=' + addr + '$0400 -Wl -D,CHUNKSIZE=' + addr + chunkSize
-                    comp = cl65 + ' -o ' + buildFolder + '/atari/' + executable + ' -m ' + buildFolder + '/[maps]/' + diskname.lower() + '-atari' + target + '-' + network + '.map ' + symbols + ' -I unity '
+                    comp = cl65 + ' -o ' + buildFolder + '/atari/' + executable + ' -m ' + buildFolder + '/[maps]/' + diskname.lower() + '-atari' + target + '-' + executable[0:-4] + '.map ' + symbols + ' -I unity '
                     for item in code:
                         comp += (item + ' ')
                     comp += 'unity/targets/atari/POKEY.s ' + library + ' '
@@ -1453,7 +1455,7 @@ class Application:
 
                 # Compile Program                        
                 symbols += ' -Wl -D,CHUNKSIZE=' + addr + chunkSize
-                comp = cl65 + ' -o ' + buildFolder + '/c64/' + executable + '.bin -m ' + buildFolder + '/[maps]/' + diskname.lower() + '-c64-' + network + '.map -Cl -O -t c64 -C unity/targets/c64/c64.cfg ' + symbols + ' -I unity '
+                comp = cl65 + ' -o ' + buildFolder + '/c64/' + executable + '.bin -m ' + buildFolder + '/[maps]/' + diskname.lower() + '-c64-' + executable + '.map -Cl -O -t c64 -C unity/targets/c64/c64.cfg ' + symbols + ' -I unity '
                 for item in code:
                     comp += (item + ' ')
                 comp += library + ' '
@@ -1595,9 +1597,9 @@ class Application:
             fp.write('mkdir lynx\n')           
             fp.write('mkdir [maps]\n')            
             fp.write('cd ..\n\n')            
-            fp.write('del ' + buildFolder + '\\lynx\\*.* /F /Q\n\n')
+            fp.write(Remove(buildFolder + '/lynx/*.*'))
             
-            fp.write('echo --------------- CONVERT ASSETS ---------------  \n\n')
+            fp.write('\necho --------------- CONVERT ASSETS ---------------  \n\n')
             
             # Bitmaps
             for item in bitmaps:
@@ -1624,19 +1626,18 @@ class Application:
                 fp.write('\n')
 
             # Charmaps/Tilesets
-            for item in charmaps:
-                fb = FileBase(item, '')
-                fp.write('copy ' + item.replace('/', '\\') + ' ' + buildFolder + '\\lynx\\' + fb + '\n')
             if len(charmaps) > 0:
+                for item in charmaps:
+                    fp.write(Copy(item, buildFolder + '/lynx/' + FileBase(item, '')))
                 fp.write('\n')
 
             # Virtual Keyboard
-            fp.write('copy utils\\scripts\\lynx\\cursor.spr ' + buildFolder + '\\lynx\\cursor.dat\n')
-            fp.write('copy utils\\scripts\\lynx\\keyboard.spr ' + buildFolder + '\\lynx\\keyboard.dat\n')
+            fp.write(Copy('utils/scripts/lynx/cursor.spr', buildFolder + '/lynx/cursor.dat'))
+            fp.write(Copy('utils/scripts/lynx/keyboard.spr', buildFolder + '/lynx/keyboard.dat'))
             fp.write('\n')
                                 
             # Copy Chipper sfx and music data
-            fp.write('copy unity\\targets\\lynx\\chipper.s ' + buildFolder + '\\lynx\\soundbs.mac\n')    
+            fp.write(Copy('unity/targets/lynx/chipper.s', buildFolder + '/lynx/soundbs.mac'))    
             for i in range(len(music)):
                 fp.write(py27 + ' utils/scripts/lynx/LynxChipper.py ' + music[i] + ' ' + buildFolder + '/lynx/music' + str(i).zfill(2) + '.asm _musData' + str(i).zfill(2) + ' MUS' + str(i) + 'DATA \n')
             fp.write('\n')
@@ -1644,13 +1645,12 @@ class Application:
             # Copy Shared files
             if len(sharedLynx) > 0:             
                 for item in sharedLynx:
-                    fb = FileBase(item, '')
-                    fp.write('copy ' + item.replace('/', '\\') + ' ' + buildFolder + '\\lynx\\' + fb + '\n')
+                    fp.write(Copy(item, buildFolder + '/lynx/' + FileBase(item, '')))
                 fp.write('\n')
 
             fp.write('echo ---------------- LINK ASSETS ----------------  \n\n')
 
-            fp.write('cd ' + buildFolder + '\\lynx\n\n')
+            fp.write(CD(buildFolder + '/lynx'))
                 
             # Figure out number of files
             fp.write('set /a FILENUM=' + str(len(bitmaps)+len(charmaps)+len(charset)+len(chunks)+len(music)+len(sharedLynx)) + '\n')
@@ -1829,32 +1829,29 @@ class Application:
                         
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
-            # Build Unity Library
             cTarget = [ 'adaptors/hub.c', 'graphics/pixel.c', 'targets/lynx/cgetc.c', 'targets/lynx/display.c', 'targets/lynx/files.c', 'targets/lynx/keyboard.c', 'targets/lynx/screen.c', 'targets/lynx/text.c' ]
             sTarget = [ 'graphics/scroll.s', 'strings/chars.s', 'targets/lynx/header.s', 'targets/lynx/blitCharmap.s', 'targets/lynx/serial.s', 'targets/lynx/suzy.s' ]
             symbols = ' -D __HUB__ -D MUSICSIZE='  + self.entry_LynxMusicMemory.get().replace('$','0x') + ' -D CHUNKSIZE='  + chunkSize.replace('$','0x') + ' -D SHAREDSIZE='  + self.entry_LynxSharedMemory.get().replace('$','0x') + ' -D SPRITEFRAMES=' + self.entry_LynxSpriteFrames.get() + ' -D SPRITEWIDTH=' + self.entry_LynxSpriteWidth.get() + ' -D SPRITEHEIGHT=' + self.entry_LynxSpriteHeight.get()
-            BuildUnityLibrary(self, fp, '-t lynx --cpu 65SC02', symbols, cCore+cTarget, sCore+sTarget, buildFolder+'/lynx/unity.lib')
+
+            # Build Unity Library
+            library = 'unity/unity-lynx-hub.lib'
+            BuildUnityLibrary(self, fp, '-t lynx --cpu 65SC02', symbols, cCore+cTarget, sCore+sTarget, library)
                                      
             # Compile Program 
             symbols += ' -Wl -D,MUSICSIZE=' + addr + self.entry_LynxMusicMemory.get() + ' -Wl -D,CHUNKSIZE=' + addr + chunkSize + ',-D,SHAREDSIZE=' + addr + self.entry_LynxSharedMemory.get()
-            comp = cl65 + ' -o ' + buildFolder + '/' + diskname.lower() + '-lynx.lnx -m ' + buildFolder + '/[maps]/' + diskname.lower() + '-lynx.map -Cl -O -t lynx' + symbols + ' -C ' + buildFolder + '/lynx/lynx.cfg -I unity '
+            comp = cl65 + ' -o ' + buildFolder + '/' + diskname.lower() + '-lynx.lnx -m ' + buildFolder + '/[maps]/' + diskname.lower() + '-lynx-hub.map -Cl -O -t lynx' + symbols + ' -C ' + buildFolder + '/lynx/lynx.cfg -I unity '
             for item in code:
                 comp += (item + ' ')
             for i in range(len(music)):
                 comp += buildFolder + '/lynx/music' + str(i).zfill(2) + '.asm '
-            fp.write(comp + 'unity/targets/lynx/sfx.s ' + buildFolder + '/lynx/directory.asm ' + buildFolder + '/lynx/data.asm ' + buildFolder + '/lynx/unity.lib\n')
-            
-            # Clean-up build folder
-            fp.write('del ' + buildFolder + '\\lynx\\*.lib\n\n')
-            
+            fp.write(comp + 'unity/targets/lynx/sfx.s ' + buildFolder + '/lynx/directory.asm ' + buildFolder + '/lynx/data.asm ' + library + '\n')
+                        
             fp.write('echo --------------- LYNX ROM READY --------------- \n\n')
             
             # Start emulator?
             if callEmu:
-                fp.write('pause\n\n')
-                fp.write('cd "utils\emulators\Handy-0.98-Hub"\n')
-                fp.write('handy.exe "..\\..\\..\\' + buildFolder + '\\' + diskname + '-lynx.lnx"\n')
-
+                fp.write(Emulate('utils/emulators/Handy-0.98-Hub', 'handy.exe', diskname + '-lynx.lnx'))   
+                
 
         ####################################################
         # NES script
@@ -1873,8 +1870,8 @@ class Application:
             fp.write('setlocal enableextensions enabledelayedexpansion\n\n')
             fp.write('mkdir nes\n')            
             fp.write('mkdir [maps]\n')            
-            fp.write('cd ..\n\n')            
-            fp.write('del ' + buildFolder + '\\nes\\*.* /F /Q\n\n')
+            fp.write('cd ..\n\n') 
+            fp.write(Remove(buildFolder + '/nes/*.*'))            
             
             fp.write('echo --------------- CONVERT ASSETS ---------------  \n\n')
             
@@ -1893,8 +1890,7 @@ class Application:
             
             if len(charmaps) > 0:
                 for item in charmaps:
-                    fb = FileBase(item, '')
-                    fp.write('copy ' + item.replace('/', '\\') + ' ' + buildFolder + '\\nes\\' + fb + '\n')
+                    fp.write(Copy(item, buildFolder + '/nes/' + FileBase(item, '')))
                 fp.write('\n')
 
             if len(sprites) > 0:
@@ -1902,14 +1898,14 @@ class Application:
                 spriteHeight = int(self.entry_NESSpriteHeight.get())
                 fp.write(py27 + ' utils/scripts/nes/NESSprites.py ' + sprites[0] + ' ' + buildFolder + '/nes/sprites.chr ' + str(spriteWidth) + ' ' + str(spriteHeight) + '\n')
             else:
-                fp.write('copy utils\\scripts\\nes\\font.chr ' + buildFolder + '\\nes\\sprites.chr\n')
+                fp.write(Copy('utils/scripts/nes/font.chr', buildFolder + '/nes/sprites.chr'))
             fp.write('\n')
             
             if len(music) > 0:            
                 for i in range(len(music)):
-                    fp.write('copy ' + music[i].replace('/', '\\') + ' ' + buildFolder + '\\nes\\music' + str(i).zfill(2) + '.txt\n')
-                    fp.write('utils\\scripts\\nes\\text2data -ca65 build/nes/music' + str(i).zfill(2) + '.txt\n\n')
-                    fp.write('del ' + buildFolder + '\\nes\\music' + str(i).zfill(2) + '.txt\n\n')
+                    fp.write(Copy(music[i], buildFolder + '/nes/music' + str(i).zfill(2) + '.txt'))
+                    fp.write(famt + ' -ca65 build/nes/music' + str(i).zfill(2) + '.txt\n')
+                    fp.write(Remove(buildFolder + '/nes/music' + str(i).zfill(2) + '.txt') + '\n')
 
             if len(chunks) > 0:            
                 for i in range(len(chunks)):
@@ -1918,17 +1914,16 @@ class Application:
 
             if len(sharedNES) > 0:             
                 for item in sharedNES:
-                    fb = FileBase(item, '')
-                    fp.write('copy ' + item.replace('/', '\\') + ' ' + buildFolder + '\\nes\\' + fb + '\n')
+                    fp.write(Copy(item, buildFolder + '/nes/' + FileBase(item, '')))
                 fp.write('\n')                
 
             # Copy default charset (font only)        
-            fp.write('copy utils\\scripts\\nes\\font.chr ' + buildFolder + '\\nes\\font.chr\n\n')
+            fp.write(Copy('utils/scripts/nes/font.chr', buildFolder + '/nes/font.chr'))
             
 
-            fp.write('echo ---------------- LINK ASSETS ----------------  \n\n')
+            fp.write('\necho ---------------- LINK ASSETS ----------------  \n\n')
 
-            fp.write('cd ' + buildFolder + '\\nes\n\n')
+            fp.write(CD(buildFolder + '/nes') + '\n')
             
             # Create list of files
             filelist = ''
@@ -2158,29 +2153,27 @@ class Application:
             
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
-            # Build Unity Library
             cTarget = [ 'adaptors/hub.c', 'adaptors/joystick.c', 'graphics/pixel.c', 'targets/nes/cgetc.c', 'targets/nes/conio.c', 'targets/nes/display.c', 'targets/nes/files.c', 'targets/nes/keyboard.c', 'targets/nes/memory.c', 'targets/nes/text.c' ]
             sTarget = [ 'targets/nes/blitCharmap.s', 'targets/nes/crt0.s', 'targets/nes/expansion.s', 'targets/nes/joypad.s' ]
             symbols = ' -D __HUB__ -D CHUNKSIZE='  + chunkSize.replace('$','0x') + ' -D SPRITEFRAMES=' + self.entry_NESSpriteFrames.get() + ' -D SPRITEWIDTH=' + self.entry_NESSpriteWidth.get() + ' -D SPRITEHEIGHT=' + self.entry_NESSpriteHeight.get()
-            BuildUnityLibrary(self, fp, '-t nes', symbols, cCore+cTarget, sCore+sTarget, buildFolder+'/nes//unity.lib')
+
+            # Build Unity Library
+            library = 'unity/unity-nes-hub.lib'
+            BuildUnityLibrary(self, fp, '-t nes', symbols, cCore+cTarget, sCore+sTarget, library)
 
             # Compile Program
             symbols += ' -Wl -D,CHUNKSIZE=' + addr + chunkSize
-            comp = cl65 + ' -o ' + buildFolder + '/' + diskname.lower() + '-nes.nes -m ' + buildFolder + '/[maps]/' + diskname.lower() + '-nes.map -t nes -Cl -Oirs ' + symbols + ' -C unity/targets/nes/MMC1/MMC1_128_128.cfg -I unity '
+            comp = cl65 + ' -o ' + buildFolder + '/' + diskname.lower() + '-nes.nes -m ' + buildFolder + '/[maps]/' + diskname.lower() + '-nes-hub.map -t nes -Cl -Oirs ' + symbols + ' -C unity/targets/nes/MMC1/MMC1_128_128.cfg -I unity '
             for item in code:
                 comp += (item + ' ')
-            fp.write(comp  + buildFolder + '/nes/data.asm ' + buildFolder + '/nes/unity.lib ' + 'nes.lib\n\n')
-
-            # Clean-up build folder
-            fp.write('del ' + buildFolder + '\\nes\\*.lib\n\n')
+            fp.write(comp  + buildFolder + '/nes/data.asm ' + library + ' nes.lib\n\n')
 
             fp.write('echo --------------- NES ROM READY --------------- \n\n')
 
             # Start emulator?
             if callEmu:
-                fp.write('pause\n\n')
-                fp.write('cd "utils\emulators\FCEUX-2.5.0-Hub"\n')
-                fp.write('fceux.exe "..\\..\\..\\' + buildFolder + '\\' + diskname + '-nes.nes"\n')            
+                fp.write(Emulate('utils/emulators/FCEUX-2.5.0-Hub', 'fceux.exe', diskname + '-nes.nes'))  
+                
 
         ####################################################
         # Oric script
@@ -2208,12 +2201,12 @@ class Application:
             symbols = ' -D __HUB__ -D CHUNKSIZE='  + chunkSize.replace('$','0x') + ' -D SPRITEFRAMES=' + self.entry_OricSpriteFrames.get() + ' -D SPRITEWIDTH=' + self.entry_OricSpriteWidth.get() + ' -D SPRITEHEIGHT=' + self.entry_OricSpriteHeight.get()
     
             # Build Unity Library
-            library = 'unity/unity-oric48k.lib'
+            library = 'unity/unity-oric48k-hub.lib'
             BuildUnityLibrary(self, fp, '-t atmos', symbols, cCore+cTarget, sCore+sTarget, library)
 
             # Compile Program
             symbols += ' -Wl -D,CHUNKSIZE=' + addr + chunkSize                     
-            comp = cl65 + ' -o ' + buildFolder + '/oric/' + diskname.lower() + '.bin -m ' + buildFolder + '/[maps]/' + diskname.lower() + '-oric48k.map -Cl -O -t atmos' + symbols + ' -C unity/targets/oric/oric.cfg -I unity '
+            comp = cl65 + ' -o ' + buildFolder + '/oric/' + diskname.lower() + '.bin -m ' + buildFolder + '/[maps]/' + diskname.lower() + '-oric48k-hub.map -Cl -O -t atmos' + symbols + ' -C unity/targets/oric/oric.cfg -I unity '
             for item in code:
                 comp += (item + ' ')
             fp.write(comp + library + '\n\n')
