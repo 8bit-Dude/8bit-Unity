@@ -8,12 +8,17 @@ def FileBase(filepath, suffix):
     name = name.split("-")
     return name[0]
 
-############################################    
-# Process chunks definition file
+# Retrieve command params
 chunkfile = sys.argv[1]
 outfolder = sys.argv[2]
 dithering = sys.argv[3]
 imgFile = chunkfile[0:-4] + ".png"
+
+# Sub-processes
+if "nt" == os.name:
+    luaj = "luajit.exe"
+else:
+    luaj = "wine luajit.exe"
 
 # Add black band on left-side
 padFile = outfolder + FileBase(imgFile, "")
@@ -26,7 +31,7 @@ padding.save(padFile, "PNG")
 # Call PictOric
 datFile = outfolder + FileBase(imgFile, ".png") + ".tmp"
 datFile = datFile.replace('//','/')
-subprocess.call(["luajit.exe", "PictOric.lua", dithering, padFile, datFile])
+subprocess.call([luaj, "PictOric.lua", dithering, padFile, datFile])
 
 # Read converted image
 f1 = io.open(datFile, 'rb')

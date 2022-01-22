@@ -29,6 +29,7 @@ from PIL import Image
 from collections import Counter
 from math import sqrt
 
+# Retrieve command params
 imgFile = sys.argv[1]
 datFile = sys.argv[2]
 dither  = sys.argv[3]
@@ -37,6 +38,12 @@ try:
 except:
     enforce = []
 
+# Sub-processes
+if "nt" == os.name:
+    luaj = "luajit.exe"
+else:
+    luaj = "wine luajit.exe"
+    
 # Add black band on left-side
 padFile = datFile[0:-4] + ".png"
 img1 = Image.open(imgFile)
@@ -45,7 +52,7 @@ padding.paste(img1, (6, 0))
 padding.save(padFile, "PNG") 
     
 # Call PictOric
-subprocess.call(["luajit.exe", "PictOric.lua", dither, padFile, datFile])
+subprocess.call([luaj, "PictOric.lua", dither, padFile, datFile])
 
 # Process RAW data again to enforce colors
 if len(enforce) > 0:

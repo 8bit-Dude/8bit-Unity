@@ -27,9 +27,16 @@
 import io, os, sys, csv, subprocess
 from PIL import Image
 
+# Retrieve command params
 charFile = sys.argv[1]
 output   = sys.argv[2]
 dither   = sys.argv[3]
+
+# Sub-processes
+if "nt" == os.name:
+    luaj = "luajit.exe"
+else:
+    luaj = "wine luajit.exe"
 
 pictOricIn = output.replace('.dat', '-in.png')
 pictOricOut = output.replace('.dat', '-out.dat')
@@ -50,7 +57,7 @@ result.save(pictOricIn)
 
 ###################
 # Call PictOric
-subprocess.call(["luajit.exe", "PictOric.lua", dither, pictOricIn, pictOricOut])
+subprocess.call([luaj, "PictOric.lua", dither, pictOricIn, pictOricOut])
 
 #####################
 # Trim PictOric File

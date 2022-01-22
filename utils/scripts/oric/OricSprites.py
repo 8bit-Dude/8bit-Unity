@@ -1,6 +1,7 @@
 import io, sys
 from PIL import Image
 
+# Retrieve command params
 input = sys.argv[1]
 output = sys.argv[2]
 height = int(sys.argv[3])

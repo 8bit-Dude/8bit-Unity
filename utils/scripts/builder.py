@@ -40,6 +40,8 @@ if "nt" == os.name:
     ex30 = "utils\\scripts\\exomizer-3.0.2.exe"
     ex31 = "utils\\scripts\\exomizer-3.1.0.exe"
     mads = "utils\\scripts\\atari\\mads.exe"
+    orih = "utils\\scripts\\oric\\header.exe"
+    orim = "utils\\scripts\\oric\\ym2mym.exe"
     ar65 = "utils\\cc65\\bin\\ar65"
     ca65 = "utils\\cc65\\bin\\ca65"
     cc65 = "utils\\cc65\\bin\\cc65"
@@ -56,6 +58,8 @@ else:
     ex30 = "wine utils/scripts/exomizer-3.0.2.exe"
     ex31 = "wine utils/scripts/exomizer-3.1.0.exe"
     mads = "wine utils/scripts/atari/mads.exe"
+    orih = "wine utils/scripts/oric/header.exe"
+    orim = "wine utils/scripts/oric/ym2mym.exe"
     ar65 = "ar65"
     ca65 = "ca65"
     cc65 = "cc65"
@@ -102,9 +106,9 @@ def Emulate(path, executable, disk):
         cmd += CD(path)
         cmd += executable + ' "..\\..\\..\\' + buildFolder + '\\' + disk  + '"\n\n'
     else:
-        cmd += 'read -p "Press any key to continue..."\n\n'
+        cmd += 'read -p "Press ENTER to continue..."\n\n'
         cmd += CD(path)
-        cmd += 'wine ' + executable + ' "../../../' + buildFolder + '/' + disk  + '"\n\n'
+        cmd += 'wine ' + executable + ' "..\\..\\..\\' + buildFolder + '\\' + disk  + '"\n\n'
     return cmd
     
 def Str2Bool(v):
@@ -1441,7 +1445,7 @@ class Application:
                 BuildUnityLibrary(self, fp, '-t c64', symbols, cCore+cTarget, sCore+sTarget, library)
 
                 # Compile Program                        
-                symbols += ' -Wl -D,CHUNKSIZE='  + chunkSize
+                symbols += ' -Wl -D,CHUNKSIZE=' + addr + chunkSize
                 comp = cl65 + ' -o ' + buildFolder + '/c64/' + executable + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-c64-' + network + '.map -Cl -O -t c64 -C unity/targets/c64/c64.cfg ' + symbols + ' -I unity '
                 for item in code:
                     comp += (item + ' ')
@@ -1818,7 +1822,7 @@ class Application:
             BuildUnityLibrary(self, fp, '-t lynx --cpu 65SC02', symbols, cCore+cTarget, sCore+sTarget, buildFolder+'/lynx/unity.lib')
                                      
             # Compile Program 
-            symbols += ' -Wl -D,MUSICSIZE='  + self.entry_LynxMusicMemory.get() + ' -Wl -D,CHUNKSIZE='  + chunkSize + ',-D,SHAREDSIZE='  + self.entry_LynxSharedMemory.get()
+            symbols += ' -Wl -D,MUSICSIZE=' + addr + self.entry_LynxMusicMemory.get() + ' -Wl -D,CHUNKSIZE=' + addr + chunkSize + ',-D,SHAREDSIZE=' + addr + self.entry_LynxSharedMemory.get()
             comp = cl65 + ' -o ' + buildFolder + '/' + diskname.lower() + '-lynx.lnx -m ' + buildFolder + '/' + diskname.lower() + '-lynx.map -Cl -O -t lynx' + symbols + ' -C ' + buildFolder + '/lynx/lynx.cfg -I unity '
             for item in code:
                 comp += (item + ' ')
@@ -2146,7 +2150,7 @@ class Application:
             BuildUnityLibrary(self, fp, '-t nes', symbols, cCore+cTarget, sCore+sTarget, buildFolder+'/nes//unity.lib')
 
             # Compile Program
-            symbols += ' -Wl -D,CHUNKSIZE='  + chunkSize
+            symbols += ' -Wl -D,CHUNKSIZE=' + addr + chunkSize
             comp = cl65 + ' -o ' + buildFolder + '/' + diskname.lower() + '-nes.nes -m ' + buildFolder + '/' + diskname.lower() + '-nes.map -t nes -Cl -Oirs ' + symbols + ' -C unity/targets/nes/MMC1/MMC1_128_128.cfg -I unity '
             for item in code:
                 comp += (item + ' ')
@@ -2179,75 +2183,82 @@ class Application:
             fp.write('setlocal enableextensions enabledelayedexpansion\n\n')
             fp.write('mkdir oric\n')            
             fp.write('cd ..\n\n')            
-            fp.write('del ' + buildFolder + '\\oric\\*.* /F /Q\n\n')
+            fp.write(Remove(buildFolder + '/oric/*.*'))
 
-            fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
-    
-            # Build Unity Library
+            fp.write('\necho --------------- COMPILE PROGRAM ---------------\n\n')
+
             cTarget = [ 'adaptors/hub.c', 'graphics/pixel.c', 'targets/oric/directory.c', 'targets/oric/files.c' ]
             sTarget = [ 'graphics/scroll.s', 'strings/chars.s', 'targets/oric/blitCharmap.s', 'targets/oric/blitSprite.s', 'targets/oric/paseIJK.s', 'targets/oric/keyboard.s', 'targets/oric/sedoric.s', 'targets/oric/MYM.s', 'targets/oric/VIA.s' ]
             symbols = ' -D __HUB__ -D CHUNKSIZE='  + chunkSize.replace('$','0x') + ' -D SPRITEFRAMES=' + self.entry_OricSpriteFrames.get() + ' -D SPRITEWIDTH=' + self.entry_OricSpriteWidth.get() + ' -D SPRITEHEIGHT=' + self.entry_OricSpriteHeight.get()
-            BuildUnityLibrary(self, fp, '-t atmos', symbols, cCore+cTarget, sCore+sTarget, buildFolder+'/oric/unity.lib')
+    
+            # Build Unity Library
+            library = 'unity/unity-oric48k.lib'
+            BuildUnityLibrary(self, fp, '-t atmos', symbols, cCore+cTarget, sCore+sTarget, library)
 
             # Compile Program
-            symbols += ' -Wl -D,CHUNKSIZE='  + chunkSize                     
+            symbols += ' -Wl -D,CHUNKSIZE=' + addr + chunkSize                     
             comp = cl65 + ' -o ' + buildFolder + '/oric/' + diskname.lower() + '.bin -m ' + buildFolder + '/' + diskname.lower() + '-oric48k.map -Cl -O -t atmos' + symbols + ' -C unity/targets/oric/oric.cfg -I unity '
             for item in code:
                 comp += (item + ' ')
-            fp.write(comp + buildFolder + '/oric/unity.lib\n\n')
+            fp.write(comp + library + '\n\n')
 
             # Fix header
-            fp.write('utils\\scripts\\oric\\header.exe ' + buildFolder + '/oric/' + diskname.lower() + '.bin ' + buildFolder + '/oric/' + diskname.lower() + '.com $0501\n\n')
+            fp.write(orih + ' ' + buildFolder + '/oric/' + diskname.lower() + '.bin ' + buildFolder + '/oric/' + diskname.lower() + '.com $0501\n\n')
 
             # Compress program
             fp.write(ex30 + ' sfx bin ' + buildFolder + '/oric/' + diskname.lower() + '.com -B -o ' + buildFolder + '/oric/launch.com\n\n')            
             
             # Clean-up
-            fp.write('del ' + buildFolder + '\\oric\\' + diskname.lower() + '.com\n')
-            fp.write('del ' + buildFolder + '\\oric\\' + diskname.lower() + '.bin\n')
-            fp.write('del ' + buildFolder + '\\oric\\unity.lib\n\n')
-
+            fp.write(Remove(buildFolder + '/oric/' + diskname.lower() + '.com'))
+            fp.write(Remove(buildFolder + '/oric/' + diskname.lower() + '.bin'))
                         
             fp.write('echo --------------- CONVERT ASSETS ---------------  \n\n')
             
+            if "nt" == os.name:
+                pyth = '..\\..\\py27\\python.exe'
+                head = 'header.exe'
+            else:
+                pyth = 'python2'
+                head = 'wine header.exe'
+                
             # Process Bitmaps / Chunks / Sprites / Shared
-            fp.write('cd utils\\scripts\\oric\n')
+            fp.write(CD('utils/scripts/oric'))
             for item in bitmaps:
                 fb = FileBase(item, '.png')
-                fp.write('..\\..\\py27\\python OricBitmap.py ../../../' + item + ' ../../../' + buildFolder + '/oric/' + fb + '.dat ' + self.entry_OricDithering.get() + ' ' + self.entry_OricLeadColors.get() + '\n')
-                fp.write('header -a0 ../../../' + buildFolder + '/oric/' + fb + '.dat ../../../' + buildFolder + '/oric/' + fb + '.img $A000\n')
-                fp.write('del ..\\..\\..\\' + buildFolder + '\\oric\\' + fb + '.png\n')
-                fp.write('del ..\\..\\..\\' + buildFolder + '\\oric\\' + fb + '.dat\n\n')
+                fp.write(pyth + ' OricBitmap.py ../../../' + item + ' ../../../' + buildFolder + '/oric/' + fb + '.dat ' + self.entry_OricDithering.get() + ' ' + self.entry_OricLeadColors.get() + '\n')
+                fp.write(head + ' -a0 ../../../' + buildFolder + '/oric/' + fb + '.dat ../../../' + buildFolder + '/oric/' + fb + '.img $A000\n')
+                fp.write(Remove('../../../' + buildFolder + '/oric/' + fb + '.png\n'))
+                fp.write(Remove('../../../' + buildFolder + '/oric/' + fb + '.dat\n'))
                 
             for item in charset:
                 fb = FileBase(item, '.png')
                 fp.write('..\\..\\py27\python OricCharset.py ../../../' + item + ' ../../../' + buildFolder + '/oric/' + fb + '.dat ' + self.entry_OricDithering.get() +  '\n') 
-                fp.write('header -a0 ../../../' + buildFolder + '/oric/' + fb + '.dat ../../../' + buildFolder + '/oric/' + fb + '.chr $A000\n')
+                fp.write(head + ' -a0 ../../../' + buildFolder + '/oric/' + fb + '.dat ../../../' + buildFolder + '/oric/' + fb + '.chr $A000\n')
                 
                 
             for item in chunks:
                 fb = FileBase(item, '.txt')
-                fp.write('..\\..\\py27\\python OricChunks.py ../../../' + item + ' ../../../' + buildFolder + '/oric/ ' + self.entry_OricDithering.get() + '\n')
-                fp.write('header -a0 ../../../' + buildFolder + '/oric/' + fb + '.dat ../../../' + buildFolder + '/oric/' + fb + '.chk $8000\n')
-            fp.write('cd ..\\..\\..\n')
+                fp.write(pyth + ' OricChunks.py ../../../' + item + ' ../../../' + buildFolder + '/oric/ ' + self.entry_OricDithering.get() + '\n')
+                fp.write(head + ' -a0 ../../../' + buildFolder + '/oric/' + fb + '.dat ../../../' + buildFolder + '/oric/' + fb + '.chk $8000\n')
+            fp.write(CD('../../..'))
 
             for item in charmaps:
                 fb = FileBase(item, '')
-                fp.write('utils\\scripts\\oric\\header -a0 ' + item + ' ' + buildFolder + '/oric/' + fb + ' $A000\n')
+                fp.write(orih + ' -a0 ' + item + ' ' + buildFolder + '/oric/' + fb + ' $A000\n')
             
             if len(sprites) > 0:
                 spriteHeight = int(self.entry_OricSpriteHeight.get())
                 fp.write(py27 + ' utils/scripts/oric/OricSprites.py ' + sprites[0] + ' ' + buildFolder + '/oric/sprites.dat ' + str(spriteHeight) + '\n')
-                fp.write('utils\\scripts\\oric\\header -a0 ' + buildFolder + '/oric/sprites.dat ' + buildFolder + '/oric/sprites.dat $7800\n')
+                fp.write(orih + ' -a0 ' + buildFolder + '/oric/sprites.dat ' + buildFolder + '/oric/sprites.dat $7800\n')
                 
             for item in music:
                 fb = FileBase(item, '.ym')
-                fp.write('utils\\scripts\\oric\\ym2mym ' + item + ' ' + buildFolder + '/oric/' + fb + '.mus\n')
-                fp.write('utils\\scripts\\oric\\header -h1 -a0 ' + buildFolder + '/oric/' + fb + '.mus ' + buildFolder + '/oric/' + fb + '.mus $8000\n')
+                fp.write(orim + ' ' + item + ' ' + buildFolder + '/oric/' + fb + '.mus\n')
+                fp.write(orih + ' -h1 -a0 ' + buildFolder + '/oric/' + fb + '.mus ' + buildFolder + '/oric/' + fb + '.mus $8000\n')
                 
             for item in sharedOric:
                 fb = FileBase(item, '')
-                fp.write('utils\\scripts\\oric\\header -a0 ' + item + ' ' + buildFolder + '/oric/' + fb + ' $A000\n')
+                fp.write(orih + ' -a0 ' + item + ' ' + buildFolder + '/oric/' + fb + ' $A000\n')
                 
             fp.write('echo --------------- ORIC DISK BUILDER --------------- \n\n')
             
@@ -2275,9 +2286,7 @@ class Application:
             
             # Start emulator?
             if callEmu:
-                fp.write('pause\n\n')
-                fp.write('cd "utils\emulators\Oricutron-1.2-Hub"\n')
-                fp.write('oricutron.exe -d "..\\..\\..\\' + buildFolder + '\\' + diskname + '-oric48k.dsk"\n')            
+                fp.write(Emulate('utils/emulators/Oricutron-1.2-Hub', 'oricutron.exe -d', diskname + '-oric48k.dsk')     )  
    
         # Done!
         if useGUI:
