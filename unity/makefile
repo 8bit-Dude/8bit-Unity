@@ -10,7 +10,7 @@ ifeq ($(BUILD),)
  endif
 
 # Compiling for Atari Lynx system
-SYS=atmos
+SYS=lynx
 
 # Names of tools
 CO=co65
@@ -30,25 +30,25 @@ AFLAGS=-I $(CA65_INC) -t $(SYS) --cpu 65SC02 -D $(BUILD) -D __HUB__ $(SYMBOLS)
 CFLAGS=-I $(CC65_INC) -Cl -O -t $(SYS) --cpu 65SC02 -D $(BUILD) -D __HUB__  
 
 #lynx
-#OBJECTS = targets/lynx/serial.o adaptors/hub.o network/net-base.o network/net-easy.o network/net-tcp.o network/net-udp.o 
+OBJECTS = targets/lynx/serial.o adaptors/hub.o network/net-web.o network/net-ip.o network/net-url.o network/net-base.o network/net-easy.o network/net-tcp.o network/net-udp.o 
 
 #c64-hub			
-#OBJECTS = targets/c64/CIA.o adaptors/hub.o network/net-base.o network/net-easy.o network/net-tcp.o network/net-udp.o 
+#OBJECTS = targets/c64/CIA.o adaptors/hub.o network/net-url.o network/net-base.o network/net-easy.o network/net-tcp.o network/net-udp.o 
 
 #c64-ip65			
-#OBJECTS = targets/c64/CIA.o network/net-base.o network/net-easy.o network/net-tcp.o network/net-udp.o 
+#OBJECTS = targets/c64/CIA.o network/net-url.o network/net-base.o network/net-easy.o network/net-tcp.o network/net-udp.o 
 
 #atmos-hub			
-OBJECTS = targets/oric/VIA.o adaptors/hub.o network/net-base.o network/net-easy.o network/net-tcp.o network/net-udp.o 
+#OBJECTS = targets/oric/VIA.o adaptors/hub.o network/net-base.o network/net-easy.o network/net-tcp.o network/net-udp.o 
 
 #apple2-hub			
-#OBJECTS = targets/apple2/clock.o adaptors/hub.o network/net-base.o network/net-easy.o network/net-tcp.o network/net-udp.o 
+#OBJECTS = targets/apple2/clock.o adaptors/hub.o network/net-url.o network/net-base.o network/net-easy.o network/net-tcp.o network/net-udp.o 
 
 #atari			
-#OBJECTS = targets/atari/PIA.o adaptors/hub.o network/net-base.o network/net-easy.o network/net-tcp.o network/net-udp.o 
+#OBJECTS = targets/atari/PIA.o adaptors/hub.o network/net-url.o network/net-base.o network/net-easy.o network/net-tcp.o network/net-udp.o 
 
 #nes	
-#OBJECTS = targets/nes/crt0.o targets/nes/expansion.o adaptors/hub.o network/net-base.o network/net-easy.o network/net-tcp.o network/net-udp.o 
+#OBJECTS = targets/nes/crt0.o targets/nes/expansion.o network/net-url.o adaptors/hub.o network/net-base.o network/net-easy.o network/net-tcp.o network/net-udp.o 
 
 TARGET=unity-network-$(SYS).lib 
 

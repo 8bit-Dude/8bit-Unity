@@ -127,3 +127,15 @@ void OpenUDP(unsigned char *ip, unsigned int svPort,     	// Open connection on 
 void CloseUDP(void);										// Close current UDP slot
 void SendUDP(unsigned char* buffer, unsigned char length);  // Send contents of buffer on current UDP slot
 unsigned char* RecvUDP(unsigned int timeOut);				// Check all slots for incoming UDP packet (within time-out period)
+
+// URL functions
+void GetURL(unsigned char* url);									// Request URL file
+unsigned char* ReadURL(unsigned char size, unsigned int timeOut);	// Read chunk of URL file
+
+// WEB server functions
+void OpenWEB(unsigned int port, unsigned int timeOut);		// Start WEB server on specified port (time-out in millisecs)
+void CloseWEB(void);										// Close WEB server
+void HeaderWEB(unsigned char* buffer, unsigned char length);// Header of reply to current WEB client
+void BodyWEB(unsigned char* buffer, unsigned char length);  // Body of reply to current WEB client
+void SendWEB(void);											// Send reply to current WEB client
+unsigned char* RecvWEB(unsigned int timeOut);				// Check WEB server for incoming packet (within time-out period)
