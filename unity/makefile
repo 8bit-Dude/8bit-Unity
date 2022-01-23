@@ -10,7 +10,7 @@ ifeq ($(BUILD),)
  endif
 
 # Compiling for Atari Lynx system
-SYS=lynx
+SYS=atmos
 
 # Names of tools
 CO=co65
@@ -29,27 +29,26 @@ AFLAGS=-I $(CA65_INC) -t $(SYS) --cpu 65SC02 -D $(BUILD) -D __HUB__ $(SYMBOLS)
 # Flags for C-code compiler
 CFLAGS=-I $(CC65_INC) -Cl -O -t $(SYS) --cpu 65SC02 -D $(BUILD) -D __HUB__  
 
-OBJECTS = targets/lynx/serial.o adaptors/hub.o network/net-base.o network/net-easy.o network/net-tcp.o network/net-udp.o 
+#lynx
+#OBJECTS = targets/lynx/serial.o adaptors/hub.o network/net-base.o network/net-easy.o network/net-tcp.o network/net-udp.o 
 
-#c64			
-#OBJECTS = 	targets/c64/CIA.o hub.o net-base.o net-easy.o net-tcp.o net-udp.o \
-			main-$(SYS).o
+#c64-hub			
+#OBJECTS = targets/c64/CIA.o adaptors/hub.o network/net-base.o network/net-easy.o network/net-tcp.o network/net-udp.o 
 
-#apple2			
-#OBJECTS = 	targets/apple2/clock.o hub.o net-base.o net-easy.o net-tcp.o net-udp.o \
-			main-$(SYS).o
+#c64-ip65			
+#OBJECTS = targets/c64/CIA.o network/net-base.o network/net-easy.o network/net-tcp.o network/net-udp.o 
+
+#atmos-hub			
+OBJECTS = targets/oric/VIA.o adaptors/hub.o network/net-base.o network/net-easy.o network/net-tcp.o network/net-udp.o 
+
+#apple2-hub			
+#OBJECTS = targets/apple2/clock.o adaptors/hub.o network/net-base.o network/net-easy.o network/net-tcp.o network/net-udp.o 
 
 #atari			
-#OBJECTS =  	targets/atari/PIA.o hub.o net-base.o net-easy.o net-tcp.o net-udp.o \
-			main-$(SYS).o
+#OBJECTS = targets/atari/PIA.o adaptors/hub.o network/net-base.o network/net-easy.o network/net-tcp.o network/net-udp.o 
 
 #nes	
-#OBJECTS =  	targets/nes/crt0.o targets/nes/expansion.o hub.o net-base.o net-easy.o net-tcp.o net-udp.o \
-			main-$(SYS).o
-
-#oric
-#OBJECTS =  	targets/oric/VIA.o hub.o net-base.o net-easy.o net-tcp.o net-udp.o \
-			main-oric.o
+#OBJECTS = targets/nes/crt0.o targets/nes/expansion.o adaptors/hub.o network/net-base.o network/net-easy.o network/net-tcp.o network/net-udp.o 
 
 TARGET=unity-network-$(SYS).lib 
 

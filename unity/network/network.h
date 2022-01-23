@@ -47,6 +47,9 @@
 
 // Platform IDs
 #if defined __CBM__
+  #ifdef __ULTIMATE__
+    #include "../targets/c64/ultimate.h"
+  #endif
 	#define PLATFORM 0	
   #define TCK_PER_SEC	CLK_TCK	
 #elif defined __ATARI__
@@ -61,6 +64,7 @@
   extern clock_t clk;			
 #elif defined __ATMOS__
 	#define PLATFORM 3
+  #define __ORIC__
   #define TCK_PER_SEC	CLK_TCK	
 #elif defined __LYNX__
   #include <lynx.h>
@@ -69,7 +73,7 @@
   #define TCK_PER_SEC	60	
 #elif defined __NES__
 	#define PLATFORM 5
-    #include "targets/nes/platform.h"	
+  #include "../targets/nes/platform.h"	
 #endif
 
 // Adaptors

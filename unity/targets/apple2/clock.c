@@ -27,7 +27,8 @@
 //	Workaround for missing Apple II clock
 //	Last modified: 2018/01/29
 
-#include "unity.h"
+#include <time.h>
+#include "platform.h"
 
 #ifdef __APPLE2__
   #pragma code-name("HGR")
