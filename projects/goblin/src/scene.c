@@ -12,7 +12,7 @@
 #endif
 
 // DO NOT CHANGE ORDER: This data is loaded sequentially from file
-unsigned char num_polygon, num_interacts, num_triggers, num_paths;
+unsigned char num_polygon, num_interacts, num_triggers, num_modifiers, num_paths;
 signed int polygonX[MAX_POLYGON];
 signed int polygonY[MAX_POLYGON];
 Interact interacts[MAX_INTERACT]; 
@@ -43,19 +43,23 @@ void LoadScene(unsigned char* scene)
 {	
 	unsigned char fname[13];
 	unsigned char i, l, *coords;
+
+	// Disable sprites/bitmap/music
+	DisableSprite(-1);
+	HideBitmap();
+	StopMusic();	
 	
 	// Prepare filename
 	l = strlen(scene);
 	memcpy(fname, scene, l);
 	
 	// Load bitmap
-	HideBitmap();
-	memcpy(&fname[l], ".img\0", 4);
+	memcpy(&fname[l], ".img\0", 5);
 	LoadBitmap(fname);
-	ShowBitmap();
 	
 	// Load chunks/backgrounds
-	memcpy(&fname[l], ".chk\0", 4);
+	FreeChunk(0);
+	memcpy(&fname[l], ".chk\0", 5);
 	num_chunks = LoadChunks(chunkData, fname);
 	for (i=0; i<num_chunks; i++) {
 		coords = chunkData[i]; 
@@ -63,7 +67,7 @@ void LoadScene(unsigned char* scene)
 	}
 	
 	// Load navigation
-	memcpy(&fname[l], ".nav\0", 4);
+	memcpy(&fname[l], ".nav\0", 5);
 	if (FileOpen(fname)) {
 		FileRead(&num_polygon, -1);
 		FileClose();
@@ -78,6 +82,17 @@ void LoadScene(unsigned char* scene)
 	SetAttributes(paperColor); txtY--;
 	txtX = 0; PrintBlanks(TXT_COLS, 2);	
 #endif	
+
+	// Enable sprites/bitmap/music
+	EnableSprite(0);  // Mouse cursor
+	EnableSprite(1);  // Unit #1
+#if defined(__ATARI__) || defined(__CBM__ )
+	EnableSprite(2);  // Unit #1 (extra color)
+	EnableSprite(3);  // Unit #1 (extra color)
+	EnableSprite(4);  // Unit #1 (extra color)
+#endif	
+	ShowBitmap();
+	PlayMusic();
 }
 
 // Draw chunk to screen
@@ -127,7 +142,7 @@ unsigned char SearchScene(unsigned int searchX, unsigned int searchY)
 }
 
 // Process interactable object
-unsigned char ProcessInteract(unsigned char target, unsigned char item)
+unsigned char *ProcessInteract(unsigned char target, unsigned char item)
 {
 	Path *path;
 	Trigger *trigger;
@@ -202,6 +217,10 @@ unsigned char ProcessInteract(unsigned char target, unsigned char item)
 		}
 		
 	} else {		
+		// If this a load scene interact?
+		if (interact->flags & LOADSCENE)
+			return &strings[interact->question];
+	
 		// Process question (if any)
 		if (interact->question) {
 			inkColor = INK_GOBLIN;
@@ -210,17 +229,16 @@ unsigned char ProcessInteract(unsigned char target, unsigned char item)
 		}
 		
 		// Display chunk (if any)
-		if (interact->chk != 255)
+		if (interact->chk != 255) {
 			DrawChunk(interact->chk);
+		}
 		
 		// Process answer (if any)
 		if (interact->answer) {
 			inkColor = INK_INTERACT;
-			PrintMessage(interact->answer);
-			if (interact->path == 255)
-				Wait(120);			
+			PrintMessage(interact->answer);		
 		}		
-
+		
 		// Process path (if any)
 		if (interact->path != 255) {
 			path = &paths[interact->path];
@@ -239,6 +257,9 @@ unsigned char ProcessInteract(unsigned char target, unsigned char item)
 				path = &paths[path->next];
 			}
 			goalX = path->x; goalY = path->y;
+		} else {
+			if (interact->chk != 255 || interact->answer)
+				Wait(120);	
 		}
 		
 		// Restore background (if any)
@@ -248,13 +269,10 @@ unsigned char ProcessInteract(unsigned char target, unsigned char item)
 		// Process pickable item
 		if (interact->flags & PICKABLE) {
 			PushItem(interact->label);
-			interact->flags = INACTIVE;
+			interact->flags = DISABLED;
 		}	
 	}
-	
-	// Check is quest is completed
-	if (target == 6) return 1;
-	
+		
 	// Clean-up
 	PrintMessage(0);
 #if defined(__NES__)

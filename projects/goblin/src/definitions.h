@@ -1,6 +1,24 @@
 
 #include "unity.h"
 
+// Scene interactable flags
+#define DISABLED  0
+#define ACTIVE    1
+#define PICKABLE  2
+#define LOADSCENE 4
+
+// Scene navigation data (loaded from file)
+#define MAX_POLYGON  25
+#define MAX_CHUNK     6
+#define MAX_INTERACT  7
+#define MAX_TRIGGER   5
+#define MAX_MODIFIER  2
+#define MAX_PATH      6
+
+// Inventory management
+#define MAX_ITEM 	  2
+#define INVENTORY_Y 180
+
 // Text colors
 #if defined __NES__	
 	#define MSG_WIDTH	   TXT_COLS
@@ -63,23 +81,6 @@
 #define frameWalkRightBeg 9
 #define frameWalkRightEnd 13
 
-// Scene interactable flags
-#define INACTIVE 0
-#define ACTIVE   1
-#define PICKABLE 2
-
-// Scene navigation data (loaded from file)
-#define MAX_POLYGON  19
-#define MAX_CHUNK     5
-#define MAX_INTERACT  7
-#define MAX_TRIGGER   5
-#define MAX_MODIFIER  2
-#define MAX_PATH      6
-
-// Inventory management
-#define MAX_ITEM 	  2
-#define INVENTORY_Y 180
-
 // Interact Objects 
 typedef struct {
 	unsigned int label;							// Identifier
@@ -133,5 +134,5 @@ void PushItem(unsigned int label);
 void PopItem(unsigned char index);
 unsigned char SelectItem(unsigned int x, unsigned int y);
 unsigned char SearchScene(unsigned int searchX, unsigned int searchY);
-unsigned char ProcessInteract(unsigned char index, unsigned char item);
+unsigned char *ProcessInteract(unsigned char index, unsigned char item);
 void Wait(unsigned char ticks);

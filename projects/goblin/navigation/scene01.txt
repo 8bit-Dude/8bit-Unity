@@ -1,10 +1,16 @@
-# Definitions (WANRING: use same values for ALL scene files and inside definitions.h)
-#define MAX_POLYGON  19
-#define MAX_CHUNK     5
+# Definitions (WARNING: use same values for ALL scene files and inside definitions.h)
+#define MAX_POLYGON  25
+#define MAX_CHUNK     6
 #define MAX_INTERACT  7
 #define MAX_TRIGGER   5
 #define MAX_MODIFIER  2
 #define MAX_PATH      6
+
+// Interacts flags
+#define DISABLED  0
+#define ACTIVE    1
+#define PICKABLE  2
+#define LOADSCENE 4
 
 # Chunks (just as memo)
 0: Notable
@@ -24,17 +30,16 @@ X:   0;  53; 120; 138;  65;   0;  0; 32; 180; 270; 282; 251; 232; 210; 229; 320;
 Y: 138; 162; 169; 144; 138; 107; 99; 95;  78; 102; 120; 137; 124; 143; 168; 116; 180; 180; 138
 
 # Interacts (see MAX_INTERACT) 
-# Interactive elements can have the following flags: DISABLED, ACTIVE, PICKABLE.
 # When the mouse is clicked within the element area, the player moves to the specified coordinates and the chunks/path/question/answer are shown. 
-#    Label       Click Area    Move To    Flags   	Chunks   Frame  Path      					    Question     									    Answer					         
-#                X    Y    R   TX   TY			  CHK   BGG
-I: "Notable";   55;  81;  15;  90;  93;  ACTIVE;  255;  255;    2;  255;  "Dear sir, you look powerful.\nPlease help me with my quest?"; "Go away, I am busy!"
-I: "Old Men";  222;  66;  15; 194;  86;  ACTIVE;    1;    1;    8;  255;  "Hey villagers, do you know\nthe house of lord Tazaar?"; 	  	 "We are hungry!! But the\nnotable keeps all the food."
-I: "Bottle";   260;  70;   7; 240;  94; PICKABLE;   2;  255;    8;  255;  ""; 														  	 ""
-I: "Flower";   230; 134;  10; 208; 141; PICKABLE; 255;  255;    8;  255;  ""; 														  	 ""
-I: "Sausage";   69;  60;   7;  94;  93;  ACTIVE;    0;    0;    2;    0;  ""; 														  	 "Hey, don't touch that!"
-I: "Switch";    32;  77;   5;  18; 101;  ACTIVE;    4;    4;    8;    2;  ""; 														  	 ""							    
-I: "Fountain"; 300; 170;  30; 300; 170; DISABLED; 255;  255;    8;  255;  ""; 														  	 ""
+#    Label          Click Area    Move To    Flags   	Chunks   Frame  Path      					    Question     									    Answer					         
+#                   X    Y    R   TX   TY			   CHK   BGG
+I: "Notable";      55;  81;  15;  90;  93;  ACTIVE;   255;  255;    2;  255;  "Dear sir, you look powerful.\nPlease help me with my quest?"; "Go away, I am busy!"
+I: "Old Men";     222;  66;  15; 194;  86;  ACTIVE;     1;    1;    8;  255;  "Hey villagers, do you know\nthe house of lord Tazaar?"; 	  	 "We are hungry!! But the\nnotable keeps all the food."
+I: "Bottle";      260;  70;   7; 240;  94; PICKABLE;    2;  255;    8;  255;  ""; 														  	 ""
+I: "Flower";      230; 134;  10; 208; 141; PICKABLE;  255;  255;    8;  255;  ""; 														  	 ""
+I: "Sausage";      69;  60;   7;  94;  93;  ACTIVE;     0;    0;    2;    0;  ""; 														  	 "Hey, don't touch that!"
+I: "Switch";       32;  77;   5;  18; 101;  ACTIVE;     4;    4;    8;    2;  ""; 														  	 ""							    
+I: "To Fountain"; 310; 160;  30; 300; 170; LOADSCENE; 255;  255;    8;  255;  "scene02"; 												     ""
 
 # Triggers (see MAX_TRIGGER)
 # When the specified item is given to the target, the modifier is triggered
@@ -47,9 +52,8 @@ T: "Sausage"; "Old Men"; 	 1;	    1;    1;  "Thank you kind sir!\nGo right, to t
 
 # Modifiers (see MAX_MODIFIER) 
 # This interact gets updated with new parameters
-#   Interact      Flags    CHK   BCG   Path   		     Question   			 		           Answer
-M: "Sausage";   PICKABLE;    3;  255;	255;  "These old men look hungry...";  ""
-M: "Fountain";   ACTIVE;   255;  255;	255;  "";		   					   "Well done little goblin!\nThe tech-demo ends here!" 
+#   Interact         Flags    CHK   BCG   Path   		     Question   			 		           Answer
+M: "Sausage";      PICKABLE;    3;  255;  255;  "These old men look hungry...";  ""
 
 # Paths (see MAX_PATH)
 # Series of player animation paths (255 terminates a series)

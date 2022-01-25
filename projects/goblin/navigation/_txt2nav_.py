@@ -38,9 +38,10 @@ def append(text):
 
 global strings
 
-DISABLED = 0
-ACTIVE   = 1
-PICKABLE = 2
+DISABLED  = 0
+ACTIVE    = 1
+PICKABLE  = 2
+LOADSCENE = 4
 
 scenes = [f.replace('.txt','') for f in os.listdir('.') if (f.endswith('.txt') and 'readme' not in f)]
 
@@ -89,6 +90,8 @@ for scene in scenes:
                 flags |= ACTIVE
             if "PICKABLE" in interact[6]:
                 flags |= PICKABLE
+            if "LOADSCENE" in interact[6]:
+                flags |= LOADSCENE
             interact[6] = flags
             
             # Clean strings
@@ -152,6 +155,7 @@ for scene in scenes:
     f2.write(struct.pack('B', len(polygon[0])))
     f2.write(struct.pack('B', len(interacts)))
     f2.write(struct.pack('B', len(triggers)))
+    f2.write(struct.pack('B', len(modifiers)))
     f2.write(struct.pack('B', len(paths)))
     
     # Polygons

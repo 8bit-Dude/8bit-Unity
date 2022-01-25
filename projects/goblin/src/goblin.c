@@ -26,6 +26,7 @@
 #endif
 
 // Accessible polygon in scene
+extern unsigned char num_polygon;
 extern signed int polygonX[];
 extern signed int polygonY[];
 
@@ -43,7 +44,11 @@ void GameLoop(void)
 {
 	signed int interX, interY, deltaX, deltaY;
 	clock_t gameClock = clock();
+	unsigned char* scene;
 	
+	// Load first scene
+	LoadScene("scene01");
+
 	while (1) {
 	#if defined __APPLE2__
 		clk += 1;  // Manually update clock on Apple 2
@@ -101,13 +106,13 @@ void GameLoop(void)
 				}
 			
 				// Compute goal coordinates
-				intersect = IntersectSegmentPolygon(unitX, unitY, clickX, clickY, MAX_POLYGON, polygonX, polygonY, &interX, &interY);
+				intersect = IntersectSegmentPolygon(unitX, unitY, clickX, clickY, num_polygon, polygonX, polygonY, &interX, &interY);
 				if (intersect && (unitX != interX || unitY != interY)) { 	// Check that we are not stuck on a polygon segment
 					goalX = interX;
 					goalY = interY;
 				} else {
 					// Move directly to mouse cursor (if in allowed area, and not crossing other parts of polygon)
-					if (intersect < 2 && PointInsidePolygon(clickX, clickY, MAX_POLYGON, polygonX, polygonY)) {
+					if (intersect < 2 && PointInsidePolygon(clickX, clickY, num_polygon, polygonX, polygonY)) {
 						goalX = clickX;
 						goalY = clickY;
 					}
@@ -143,7 +148,11 @@ void GameLoop(void)
 			} else {
 				// Process trigger (if any) and set wait frame
 				if (sceneInteract != 255) {
-					if (ProcessInteract(sceneInteract, sceneItem)) return;
+					scene = ProcessInteract(sceneInteract, sceneItem);
+					if (scene) {
+						unitX = 320-unitX; goalX = unitX; goalY = unitY;						
+						LoadScene(scene);
+					}
 					sceneInteract = 255;
 					sceneItem = 255;
 				}
@@ -167,46 +176,31 @@ int main(void)
 	
 	// Setup sprites
 	LoadSprites("sprites.dat", spriteColors);
-	
-	// Enable sprites
-	EnableSprite(0);  // Mouse cursor
-	EnableSprite(1);  // Unit #1
 #if defined __APPLE2__
-	CropSprite(0,8); // Mouse cursor only occupies third of frame
-#elif defined __ATARI__
-	EnableSprite(2);  // Unit #1 (extra color)
-	EnableSprite(3);  // Unit #1 (extra color)
-	EnableSprite(4);  // Unit #1 (extra color)
+	CropSprite(0,8); // Mouse cursor only occupies third of frame	
 #elif defined __ORIC__
 	CropSprite(0,8);  // Mouse cursor only occupies half frame
 	MultiColorSprite(1, multiColorDef);	// Make sprite 1 multi-colored
 #elif defined __CBM__ 
-	EnableSprite(2);  // Unit #1 (extra color)	
-	EnableSprite(3);  // Unit #1 (extra color)
-	EnableSprite(4);  // Unit #1 (extra color)
 	DoubleHeightSprite(1, 1);
 	DoubleHeightSprite(2, 1);
 	DoubleHeightSprite(3, 1);
 	DoubleHeightSprite(4, 1);
-#endif	
+#endif
 
 	// Load music
 	LoadMusic("goblin.mus");
 	
 	// Show splash screen
 	SplashScreen();
-
-	// Prepare scene
-	LoadScene("scene01");
 	
 	// Run game loop
-	PlayMusic();
 	GameLoop();
-	StopMusic();
 	
 	// Black-out screen and clear key
 	DisableSprite(-1);	// "-1" disables all sprites
 	HideBitmap();
+	StopMusic();
 	StopSFX();
 	
     // Done
