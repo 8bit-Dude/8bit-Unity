@@ -297,8 +297,8 @@ def WriteChunks(fid, sizeLst, coorLst, dataLst):
 platform = sys.argv[1]
 chunkfile = sys.argv[2]
 outfolder = sys.argv[3]
-imgfile = chunkfile[0:-4] + ".png"
-
+    
+# Open Script File
 script = open(chunkfile, "r")
 lines = script.readlines() 
 script.close()
@@ -313,43 +313,45 @@ else:
     dataLst = []
 
 for line in lines:
-    # Skip comments
-    if line[0] != '[':
-        continue
+    # Parse source image
+    if line[0] == '"':
+        path = os.path.dirname(chunkfile)
+        imgfile = path + '/' + line.split('"')[1]
+        img = Image.open(imgfile)
         
     # Parse coordinates
-    offset1 = 1
-    offset2 = 1
-    while line[offset2] != ']':
-        offset2 += 1 
-    coords = [int(s) for s in line[offset1:offset2].split(',')]
-    coorLst.append(coords)
-    
-    # Crop required section of image
-    img = Image.open(imgfile)
-    crop = img.crop((coords[0], coords[1], coords[0]+coords[2], coords[1]+coords[3]))
-    pixdata = list(crop.getdata())
-    paldata = crop.getpalette()
+    if line[0] == '[':
+        offset1 = 1
+        offset2 = 1
+        while line[offset2] != ']':
+            offset2 += 1 
+        coords = [int(s) for s in line[offset1:offset2].split(',')]
+        coorLst.append(coords)
+        
+        # Crop required section of image
+        crop = img.crop((coords[0], coords[1], coords[0]+coords[2], coords[1]+coords[3]))
+        pixdata = list(crop.getdata())
+        paldata = crop.getpalette()
 
-    # Pack data to required format    
-    if platform == 'apple-double':
-        dataAUX, dataMAIN = PackApple(coords, pixdata, 'double')
-        sizeLst.append(6+len(dataAUX)) 
-        dataLst[0].append(dataAUX)
-        dataLst[1].append(dataMAIN)
-    else:
-        if platform == 'apple-single':
-            data = PackApple(coords, pixdata, 'single')
-        if platform == 'atari':
-            data = PackAtari(coords, pixdata)
-        if platform == 'c64':
-            data = PackC64(coords, pixdata, paldata)
-        if platform == 'lynx':
-            data = PackLynx(coords, pixdata)
-        sizeLst.append(6+len(data)) 
-        dataLst.append(data)
-    
-    print 'Packing Chunk ', coords
+        # Pack data to required format    
+        if platform == 'apple-double':
+            dataAUX, dataMAIN = PackApple(coords, pixdata, 'double')
+            sizeLst.append(6+len(dataAUX)) 
+            dataLst[0].append(dataAUX)
+            dataLst[1].append(dataMAIN)
+        else:
+            if platform == 'apple-single':
+                data = PackApple(coords, pixdata, 'single')
+            if platform == 'atari':
+                data = PackAtari(coords, pixdata)
+            if platform == 'c64':
+                data = PackC64(coords, pixdata, paldata)
+            if platform == 'lynx':
+                data = PackLynx(coords, pixdata)
+            sizeLst.append(6+len(data)) 
+            dataLst.append(data)
+        
+        print 'Packing Chunk ', coords
    
 #######################################
 # Write chunk data   

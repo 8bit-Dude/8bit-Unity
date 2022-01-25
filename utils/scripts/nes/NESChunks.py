@@ -39,8 +39,8 @@ def FileBase(filepath, suffix):
 chunkfile = sys.argv[1]
 outfolder = sys.argv[2]
 maxTiles  = int(sys.argv[3])
-imgfile = chunkfile[0:-4] + ".png"
 
+# Open Script File
 script = open(chunkfile, "r")
 lines = script.readlines() 
 script.close()
@@ -49,14 +49,16 @@ coorLst = []
 cropLst = []
 
 for line in lines:
-    if line[0] == '\'':
-        # Parse charset name
-        offset1 = 1
-        offset2 = 1    
-        while line[offset2] != '\'':
-            offset2 += 1
-        chrfile = outfolder + '/' + line[offset1:offset2]
-        chrfile = chrfile.replace('//','/')
+    if line[0] == '"':
+        if 'chr' in line:
+            # Parse charset name
+            chrfile = outfolder + '/' + line.split('"')[1]
+            chrfile = chrfile.replace('//','/')
+        else:
+            # Parse source image
+            path = os.path.dirname(chunkfile)
+            imgfile = path + '/' + line.split('"')[1]
+            img = Image.open(imgfile)        
     
     if line[0] == '[':
         # Parse coordinates
@@ -68,7 +70,6 @@ for line in lines:
         coorLst.append(coords)
 
         # Crop required section of image
-        img = Image.open(imgfile)
         cropLst.append(img.crop((8*coords[0], 8*coords[1], 8*coords[0]+8*coords[2], 8*coords[1]+8*coords[3])))
 
 ##########################    

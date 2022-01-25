@@ -20,25 +20,7 @@ if "nt" == os.name:
 else:
     luaj = ["wine","luajit.exe"]
 
-# Add black band on left-side
-padFile = outfolder + FileBase(imgFile, "")
-padFile = padFile.replace('//','/')
-img1 = Image.open(imgFile)
-padding = Image.new("RGB", (240, 200), (0, 0, 0))
-padding.paste(img1, (6, 0))
-padding.save(padFile, "PNG") 
-    
-# Call PictOric
-datFile = outfolder + FileBase(imgFile, ".png") + ".tmp"
-datFile = datFile.replace('//','/')
-subprocess.call(luaj + ["PictOric.lua", dithering, padFile, datFile])
-
-# Read converted image
-f1 = io.open(datFile, 'rb')
-data = f1.read()
-f1.close()
-
-# Process Script
+# Open Script File
 script = open(chunkfile, "r")
 lines = script.readlines() 
 script.close()
@@ -47,14 +29,28 @@ coorLst = []
 sizeLst = []
 
 for line in lines:
-    if line[0] == '\'':
-        # Parse charset name
-        offset1 = 1
-        offset2 = 1    
-        while line[offset2] != '\'':
-            offset2 += 1
-        chrfile = outfolder + '/' + line[offset1:offset2]
-        chrfile = chrfile.replace('//','/')
+    # Parse source image
+    if line[0] == '"':
+        path = os.path.dirname(chunkfile)
+        imgfile = path + '/' + line.split('"')[1]
+        
+        # Add black band on left-side
+        padFile = outfolder + FileBase(imgFile, "")
+        padFile = padFile.replace('//','/')
+        img1 = Image.open(imgFile)
+        padding = Image.new("RGB", (240, 200), (0, 0, 0))
+        padding.paste(img1, (6, 0))
+        padding.save(padFile, "PNG") 
+            
+        # Call PictOric
+        datFile = outfolder + FileBase(imgFile, ".png") + ".tmp"
+        datFile = datFile.replace('//','/')
+        subprocess.call(luaj + ["PictOric.lua", dithering, padFile, datFile])
+
+        # Read converted image
+        f1 = io.open(datFile, 'rb')
+        data = f1.read()
+        f1.close()        
     
     if line[0] == '[':
         # Parse coordinates
