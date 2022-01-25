@@ -65,7 +65,7 @@ void CheckMemory(void)
 void FreeChunk(unsigned char* chunk)
 {
 	unsigned char offset;
-	if (chunk == -1) {
+	if (chunk == 0) {
 		// Return to beginning of stack
 		chunkPtr = chunkBuf;
 	} else {
