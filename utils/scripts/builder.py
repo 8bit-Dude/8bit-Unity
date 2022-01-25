@@ -1141,8 +1141,8 @@ class Application:
                     fp.write(py27 + ' utils/scripts/apple/AppleSprites.py ' + graphics + ' ' + sprites[0] + ' ' + buildFolder + '/apple/sprites.dat ' + str(spriteHeight) + '\n')
 
                 # Chunks
-                if len(chunks) > 0:
-                    fp.write(py27 + ' utils/scripts/ProcessChunks.py apple-' + graphics + ' ' + chunks[0] + ' ' + buildFolder + '/apple/\n')
+                for item in chunks:
+                    fp.write(py27 + ' utils/scripts/ProcessChunks.py apple-' + graphics + ' ' + item + ' ' + buildFolder + '/apple/\n')
 
                 # Shared Data
                 for item in sharedApple:
@@ -1366,8 +1366,8 @@ class Application:
                     fp.write(py27 + ' utils/scripts/atari/AtariSprites.py ' + sprites[0] + ' ' + buildFolder + '/atari/sprites.dat ' + str(spriteHeight) + '\n')
                     
                 # Chunks
-                if len(chunks) > 0:
-                    fp.write(py27 + ' utils/scripts/ProcessChunks.py atari ' + chunks[0] + ' ' + buildFolder + '/atari/\n')
+                for item in chunks:
+                    fp.write(py27 + ' utils/scripts/ProcessChunks.py atari ' + item + ' ' + buildFolder + '/atari/\n')
 
                 # Shared Data
                 for item in sharedAtari:
@@ -1523,8 +1523,8 @@ class Application:
                 fp.write(py27 + ' utils/scripts/c64/C64Charset.py ' + charset[0] + ' ' + buildFolder + '/c64/' + fb + '.chr' + ' ' + self.entry_C64CharsetColors.get() + '\n')
                                 
             # Chunks
-            if len(chunks) > 0:
-                fp.write(py27 + ' utils/scripts/ProcessChunks.py c64 ' + chunks[0] + ' ' + buildFolder + '/c64/\n\n')
+            for item in chunks:
+                fp.write(py27 + ' utils/scripts/ProcessChunks.py c64 ' + item + ' ' + buildFolder + '/c64/\n\n')
                 
             # Music
             for item in music:
@@ -1634,8 +1634,8 @@ class Application:
                 fp.write('\n')
 
             # Chunks
-            if len(chunks) > 0:
-                fp.write(py27 + ' utils/scripts/ProcessChunks.py lynx ' + chunks[0] + ' ' + buildFolder + '/lynx/\n')
+            for item in chunks:
+                fp.write(py27 + ' utils/scripts/ProcessChunks.py lynx ' + item + ' ' + buildFolder + '/lynx/\n')
                 fp.write('\n')
 
             # Charmaps/Tilesets
@@ -1775,7 +1775,6 @@ class Application:
                 for i in range(len(chunks)):
                     fb = FileBase(chunks[i], '.txt')
                     fp.write('@echo _chkName' + str(i).zfill(2) + ': .byte "' + fb + '.chk",0 >> data.asm\n')
-
                     
                 # Link list of bitmaps
                 fp.write('@echo ; >> data.asm\n')
@@ -1921,8 +1920,8 @@ class Application:
                     fp.write(Remove(buildFolder + '/nes/music' + str(i).zfill(2) + '.txt') + '\n')
 
             if len(chunks) > 0:            
-                for i in range(len(chunks)):
-                    fp.write(py27 + ' utils/scripts/nes/NESChunks.py ' + chunks[i] + ' ' + buildFolder + '/nes/ ' + str(maxTiles) + '\n')
+                for item in chunks:
+                    fp.write(py27 + ' utils/scripts/nes/NESChunks.py ' + item + ' ' + buildFolder + '/nes/ ' + str(maxTiles) + '\n')
                 fp.write('\n')                
 
             if len(sharedNES) > 0:             
