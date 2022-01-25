@@ -593,7 +593,7 @@
                     </layout>
                     <child>
                       <object class="tk.Listbox" id="Listbox_AppleChunks">
-                        <property name="height">1</property>
+                        <property name="height">3</property>
                         <property name="width">38</property>
                         <layout>
                           <property name="column">0</property>
@@ -604,12 +604,26 @@
                       </object>
                     </child>
                     <child>
-                      <object class="ttk.Button" id="Button_AppleChunksSel">
-                        <property name="command">AppleChunksSel</property>
-                        <property name="text" translatable="yes">Select File</property>
+                      <object class="ttk.Button" id="Button_AppleChunksAdd">
+                        <property name="command">AppleChunksAdd</property>
+                        <property name="text" translatable="yes">Add File</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="padx">25</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Button" id="Button_AppleChunksRem">
+                        <property name="command">AppleChunksRem</property>
+                        <property name="text" translatable="yes">Rem File</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">100</property>
                           <property name="pady">5</property>
                           <property name="propagate">True</property>
                           <property name="row">1</property>
@@ -634,7 +648,7 @@
                     </layout>
                     <child>
                       <object class="tk.Listbox" id="Listbox_AppleMusic">
-                        <property name="height">1</property>
+                        <property name="height">3</property>
                         <property name="width">38</property>
                         <layout>
                           <property name="column">0</property>
@@ -1122,7 +1136,7 @@
                     </layout>
                     <child>
                       <object class="tk.Listbox" id="Listbox_AtariChunks">
-                        <property name="height">1</property>
+                        <property name="height">3</property>
                         <property name="width">38</property>
                         <layout>
                           <property name="column">0</property>
@@ -1133,12 +1147,26 @@
                       </object>
                     </child>
                     <child>
-                      <object class="ttk.Button" id="Button_AtariChunksSel">
-                        <property name="command">AtariChunksSel</property>
-                        <property name="text" translatable="yes">Select File</property>
+                      <object class="ttk.Button" id="Button_AtariChunksAdd">
+                        <property name="command">AtariChunksAdd</property>
+                        <property name="text" translatable="yes">Add File</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="padx">25</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Button" id="Button_AtariChunksRem">
+                        <property name="command">AtariChunksRem</property>
+                        <property name="text" translatable="yes">Rem File</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">100</property>
                           <property name="pady">5</property>
                           <property name="propagate">True</property>
                           <property name="row">1</property>
@@ -1163,7 +1191,7 @@
                     </layout>
                     <child>
                       <object class="tk.Listbox" id="Listbox_AtariMusic">
-                        <property name="height">1</property>
+                        <property name="height">3</property>
                         <property name="width">38</property>
                         <layout>
                           <property name="column">0</property>
@@ -1691,7 +1719,7 @@
                     </layout>
                     <child>
                       <object class="tk.Listbox" id="Listbox_C64Chunks">
-                        <property name="height">1</property>
+                        <property name="height">3</property>
                         <property name="width">38</property>
                         <layout>
                           <property name="column">0</property>
@@ -1702,12 +1730,26 @@
                       </object>
                     </child>
                     <child>
-                      <object class="ttk.Button" id="Button_C64ChunksSel">
-                        <property name="command">C64ChunksSel</property>
-                        <property name="text" translatable="yes">Select File</property>
+                      <object class="ttk.Button" id="Button_C64ChunksAdd">
+                        <property name="command">C64ChunksAdd</property>
+                        <property name="text" translatable="yes">Add File</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="padx">25</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Button" id="Button_AppleChunksRem">
+                        <property name="command">C64ChunksRem</property>
+                        <property name="text" translatable="yes">Rem File</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">100</property>
                           <property name="pady">5</property>
                           <property name="propagate">True</property>
                           <property name="row">1</property>
@@ -1732,7 +1774,7 @@
                     </layout>
                     <child>
                       <object class="tk.Listbox" id="Listbox_C64Music">
-                        <property name="height">1</property>
+                        <property name="height">3</property>
                         <property name="width">38</property>
                         <layout>
                           <property name="column">0</property>
@@ -2204,7 +2246,7 @@
                     </layout>
                     <child>
                       <object class="tk.Listbox" id="Listbox_LynxChunks">
-                        <property name="height">1</property>
+                        <property name="height">3</property>
                         <property name="width">38</property>
                         <layout>
                           <property name="column">0</property>
@@ -2215,12 +2257,26 @@
                       </object>
                     </child>
                     <child>
-                      <object class="ttk.Button" id="Button_LynxChunksSel">
-                        <property name="command">LynxChunksSel</property>
-                        <property name="text" translatable="yes">Select File</property>
+                      <object class="ttk.Button" id="Button_LynxChunksAdd">
+                        <property name="command">LynxChunksAdd</property>
+                        <property name="text" translatable="yes">Add File</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="padx">25</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Button" id="Button_LynxChunksRem">
+                        <property name="command">LynxChunksRem</property>
+                        <property name="text" translatable="yes">Rem File</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">100</property>
                           <property name="pady">5</property>
                           <property name="propagate">True</property>
                           <property name="row">1</property>
@@ -2245,7 +2301,7 @@
                     </layout>
                     <child>
                       <object class="tk.Listbox" id="Listbox_LynxMusic">
-                        <property name="height">1</property>
+                        <property name="height">3</property>
                         <property name="width">38</property>
                         <layout>
                           <property name="column">0</property>
@@ -2674,7 +2730,7 @@
                     </layout>
                     <child>
                       <object class="tk.Listbox" id="Listbox_NESChunks">
-                        <property name="height">1</property>
+                        <property name="height">3</property>
                         <property name="width">38</property>
                         <layout>
                           <property name="column">0</property>
@@ -2685,12 +2741,26 @@
                       </object>
                     </child>
                     <child>
-                      <object class="ttk.Button" id="Button_NESChunksSel">
-                        <property name="command">NESChunksSel</property>
-                        <property name="text" translatable="yes">Select File</property>
+                      <object class="ttk.Button" id="Button_NESChunksAdd">
+                        <property name="command">NESChunksAdd</property>
+                        <property name="text" translatable="yes">Add File</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="padx">25</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Button" id="Button_NESChunksRem">
+                        <property name="command">NESChunksRem</property>
+                        <property name="text" translatable="yes">Rem File</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">100</property>
                           <property name="pady">5</property>
                           <property name="propagate">True</property>
                           <property name="row">1</property>
@@ -2715,7 +2785,7 @@
                     </layout>
                     <child>
                       <object class="tk.Listbox" id="Listbox_NESMusic">
-                        <property name="height">1</property>
+                        <property name="height">3</property>
                         <property name="width">38</property>
                         <layout>
                           <property name="column">0</property>
@@ -3146,7 +3216,7 @@
                     </layout>
                     <child>
                       <object class="tk.Listbox" id="Listbox_OricChunks">
-                        <property name="height">1</property>
+                        <property name="height">3</property>
                         <property name="width">38</property>
                         <layout>
                           <property name="column">0</property>
@@ -3157,12 +3227,26 @@
                       </object>
                     </child>
                     <child>
-                      <object class="ttk.Button" id="Button_OricChunksSel">
-                        <property name="command">OricChunksSel</property>
-                        <property name="text" translatable="yes">Select File</property>
+                      <object class="ttk.Button" id="Button_OricChunksAdd">
+                        <property name="command">OricChunksAdd</property>
+                        <property name="text" translatable="yes">Add File</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="padx">25</property>
+                          <property name="pady">5</property>
+                          <property name="propagate">True</property>
+                          <property name="row">1</property>
+                          <property name="sticky">nw</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Button" id="Button_OricChunksRem">
+                        <property name="command">OricChunksRem</property>
+                        <property name="text" translatable="yes">Rem File</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="padx">100</property>
                           <property name="pady">5</property>
                           <property name="propagate">True</property>
                           <property name="row">1</property>
@@ -3187,7 +3271,7 @@
                     </layout>
                     <child>
                       <object class="tk.Listbox" id="Listbox_OricMusic">
-                        <property name="height">1</property>
+                        <property name="height">3</property>
                         <property name="width">38</property>
                         <layout>
                           <property name="column">0</property>

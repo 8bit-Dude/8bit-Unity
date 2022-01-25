@@ -779,12 +779,14 @@ class Application:
             self.listbox_AppleSpritesSHR.delete(0, END)
             self.listbox_AppleSpritesSHR.insert(END, filename)
             
-    def AppleChunksSel(self):
+    def AppleChunksAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Chunks Definition", filetypes = (("Text files","*.txt"),)) 
         if filename is not '':
             filename = filename.replace(self.cwd, '')
-            self.listbox_AppleChunks.delete(0, END)
-            self.listbox_AppleChunks.insert(END, filename)            
+            self.listbox_AppleChunks.insert(END, filename)          
+
+    def AppleChunksRem(self):
+        self.listbox_AppleChunks.delete(0, ACTIVE)
 
     def AppleMusicAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Music Track", filetypes = (("DUET M files","*.m"),)) 
@@ -818,13 +820,15 @@ class Application:
             self.listbox_AtariSprites.delete(0, END)
             self.listbox_AtariSprites.insert(END, filename)
 
-    def AtariChunksSel(self):
+    def AtariChunksAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Chunks Definition", filetypes = (("Text files","*.txt"),)) 
         if filename is not '':
             filename = filename.replace(self.cwd, '')
-            self.listbox_AtariChunks.delete(0, END)
-            self.listbox_AtariChunks.insert(END, filename)            
-        
+            self.listbox_AtariChunks.insert(END, filename)          
+
+    def AtariChunksRem(self):
+        self.listbox_AtariChunks.delete(0, ACTIVE)
+
     def AtariMusicAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Music Track", filetypes = (("RMT files","*.rmt"),)) 
         if filename is not '':
@@ -857,12 +861,14 @@ class Application:
             self.listbox_C64Sprites.delete(0, END)
             self.listbox_C64Sprites.insert(END, filename)
 
-    def C64ChunksSel(self):
+    def C64ChunksAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Chunks Definition", filetypes = (("Text files","*.txt"),)) 
         if filename is not '':
             filename = filename.replace(self.cwd, '')
-            self.listbox_C64Chunks.delete(0, END)
-            self.listbox_C64Chunks.insert(END, filename)            
+            self.listbox_C64Chunks.insert(END, filename)          
+
+    def C64ChunksRem(self):
+        self.listbox_C64Chunks.delete(0, ACTIVE)        
         
     def C64MusicAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Music Track", filetypes = (("SID files","*.sid"),)) 
@@ -896,13 +902,15 @@ class Application:
             self.listbox_LynxSprites.delete(0, END)
             self.listbox_LynxSprites.insert(END, filename)
 
-    def LynxChunksSel(self):
+    def LynxChunksAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Chunks Definition", filetypes = (("Text files","*.txt"),)) 
         if filename is not '':
             filename = filename.replace(self.cwd, '')
-            self.listbox_LynxChunks.delete(0, END)
-            self.listbox_LynxChunks.insert(END, filename)            
-        
+            self.listbox_LynxChunks.insert(END, filename)          
+
+    def LynxChunksRem(self):
+        self.listbox_LynxChunks.delete(0, ACTIVE)
+                 
     def LynxMusicAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Music Track", filetypes = (("Chipper files","*.asm"),)) 
         if filename is not '':
@@ -935,12 +943,14 @@ class Application:
             self.listbox_NESSprites.delete(0, END)
             self.listbox_NESSprites.insert(END, filename)
 
-    def NESChunksSel(self):
+    def NESChunksAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Chunks Definition", filetypes = (("Text files","*.txt"),)) 
         if filename is not '':
             filename = filename.replace(self.cwd, '')
-            self.listbox_NESChunks.delete(0, END)
-            self.listbox_NESChunks.insert(END, filename)            
+            self.listbox_NESChunks.insert(END, filename)          
+
+    def NESChunksRem(self):
+        self.listbox_NESChunks.delete(0, ACTIVE)         
         
     def NESMusicAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Music Track", filetypes = (("TXT files","*.txt"),)) 
@@ -974,12 +984,14 @@ class Application:
             self.listbox_OricSprites.delete(0, END)
             self.listbox_OricSprites.insert(END, filename)
 
-    def OricChunksSel(self):
+    def OricChunksAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Chunks Definition", filetypes = (("Text files","*.txt"),)) 
         if filename is not '':
             filename = filename.replace(self.cwd, '')
-            self.listbox_OricChunks.delete(0, END)
-            self.listbox_OricChunks.insert(END, filename)            
+            self.listbox_OricChunks.insert(END, filename)          
+
+    def OricChunksRem(self):
+        self.listbox_OricChunks.delete(0, ACTIVE)          
         
     def OricMusicAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Music Track", filetypes = (("YM files","*.ym"),)) 
@@ -1287,7 +1299,7 @@ class Application:
                             else:
                                 comp += 'unity/adaptors/ip65.lib unity/adaptors/ip65_atarixl.lib'
                     fp.write(comp + '\n')
-                    fp.write(py27 + ' utils/scripts/atari/AtariCompress.py ' + buildFolder + '/atari/' + executable + ' incDec \n\n')
+                    fp.write(py27 + ' utils/scripts/atari/AtariCompress.py ' + buildFolder + '/atari/' + executable + ' \n\n')
                 
                 # Include loader program?
                 if len(networkOptions) > 1:                                    
@@ -1302,12 +1314,12 @@ class Application:
                     if 'Fujinet' in networkOptions:
                         symbols += '-D __FUJINET__ '                
                     fp.write(cl65 + ' -o ' + buildFolder + '/atari/loader.bin ' + symbols + ' -I unity unity/targets/atari/loader.c ' + library + '\n')
-                    fp.write(py27 + ' utils/scripts/atari/AtariCompress.py ' + buildFolder + '/atari/loader.bin incDec \n\n')
+                    fp.write(py27 + ' utils/scripts/atari/AtariCompress.py ' + buildFolder + '/atari/loader.bin \n\n')
 
                 # RMT player
                 if target == '64k':
                     fp.write(mads + ' -o:' + buildFolder + '/atari/rmt.bin unity/targets/atari/RMT.a65 \n')
-                    fp.write(py27 + ' utils/scripts/atari/AtariCompress.py ' + buildFolder + '/atari/rmt.bin excDec\n\n')
+                    fp.write(py27 + ' utils/scripts/atari/AtariCompress.py ' + buildFolder + '/atari/rmt.bin \n\n')
 
                 # BASIC disabler
                 fp.write(cl65 + ' -o ' + buildFolder + '/atari/basicoff.bin -t atari -C atari-asm.cfg unity/targets/atari/BASICOFF.s \n\n')
@@ -1324,6 +1336,8 @@ class Application:
                 
                 # Clean-up build folder
                 fp.write(Remove(buildFolder + '/atari/*.bin'))
+                fp.write(Remove(buildFolder + '/atari/*.raw'))
+                fp.write(Remove(buildFolder + '/atari/*.zx0'))
                 if len(networkOptions) == 1:  
                     fp.write(Remove(buildFolder + '/atari/*.xex'))
                 fp.write('\n\n')                
@@ -1366,8 +1380,7 @@ class Application:
                 fp.write('\necho --------------- ATARI DISK BUILDER --------------- \n\n')
                 
                 # Copy xBios files
-                fp.write(Copy('utils/scripts/atari/xbios.com', buildFolder + '/atari/autorun'))
-                fp.write(Copy('utils/scripts/atari/xbios.cfg', buildFolder + '/atari/xbios.cfg'))
+                fp.write(Copy('utils/scripts/atari/xbios4.obx', buildFolder + '/atari/autorun'))
 
                 # Disk builder
                 if self.combobox_AtariDiskSize.get() == '360KB':                
@@ -1379,7 +1392,7 @@ class Application:
                 elif self.combobox_AtariDiskSize.get() == '90KB':                
                     fp.write(datr + ' -mS -B utils/scripts/atari/xboot.obx ' + buildFolder + '/' + diskname + '-atari' + target + '.atr ' + buildFolder + '/atari\n')
 
-                fp.write('echo --------------- ATARI DISK READY --------------- \n\n')
+                fp.write('\necho --------------- ATARI DISK READY --------------- \n\n')
                 
                 # Start emulator?
                 if callEmu:
