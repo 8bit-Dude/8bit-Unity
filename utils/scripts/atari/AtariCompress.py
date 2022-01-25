@@ -30,7 +30,6 @@ import io, os, struct, subprocess, sys
 xexFile = sys.argv[1]
 rawFile = xexFile[0:-4] + ".raw"
 sfxFile = rawFile+".zx0"
-options = sys.argv[2]
 
 # Sub-processes
 if "nt" == os.name:
@@ -45,13 +44,6 @@ fin.close()
 
 # Create output file and include decompressor
 fout = io.open(xexFile, 'wb')
-
-# Included decompressor program
-if 'incDec' in options:
-    f = io.open('utils/scripts/atari/cex_zx0.obx', 'rb')
-    dec = f.read()
-    f.close()   
-    fout.write(dec)
 
 # 2 bytes atari header (i.e $ff $ff)
 fout.write(''.join([chr(0xFF),chr(0xFF)])) 
