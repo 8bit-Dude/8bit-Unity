@@ -12,8 +12,10 @@
 #	Oric 1/Atmos	0 to 234 in steps of 6	| 0 to 200 in steps of 2
 #
 
-[ 16, 26, 28, 23]		# Notable animation
-[104, 27, 16,  8]		# Old men animation
-[126, 30,  8, 10]		# Bottle removed
-[ 32, 27,  4, 10]		# Sausage removed
-[  2, 46, 18, 10]		# Switch animation
+"scene01-lynx.png"	# Source image
+
+[ 16, 26, 28, 23]	# Notable animation
+[104, 27, 16,  8]	# Old men animation
+[126, 30,  8, 10]	# Bottle removed
+[ 32, 27,  4, 10]	# Sausage removed
+[  2, 46, 18, 10]	# Switch animation
