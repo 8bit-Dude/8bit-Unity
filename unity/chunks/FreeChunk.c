@@ -48,15 +48,10 @@
 #ifdef __NES__
   #pragma rodata-name("BANK0")
   #pragma code-name("BANK0")
-  #pragma bss-name(push, "XRAM")
 #endif
 
-unsigned char chunkBuf[CHUNKSIZE];
-unsigned char *chunkPtr = chunkBuf;
-
-#if (defined __NES__)
- #pragma bss-name(pop)
-#endif
+extern unsigned char chunkBuf[CHUNKSIZE];
+extern unsigned char *chunkPtr;
 
 void GuruMeditation(unsigned char* souce);
 
@@ -70,7 +65,7 @@ void CheckMemory(void)
 void FreeChunk(unsigned char* chunk)
 {
 	unsigned char offset;
-	if (chunk == 0) {
+	if (chunk == -1) {
 		// Return to beginning of stack
 		chunkPtr = chunkBuf;
 	} else {
@@ -81,3 +76,14 @@ void FreeChunk(unsigned char* chunk)
 		chunkPtr -= offset;
 	}
 }
+
+#if (defined __NES__)
+  #pragma bss-name(push, "XRAM")
+#endif
+
+unsigned char chunkBuf[CHUNKSIZE];
+unsigned char *chunkPtr = chunkBuf;
+
+#if (defined __NES__)
+ #pragma bss-name(pop)
+#endif

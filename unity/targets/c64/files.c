@@ -36,6 +36,15 @@
  
 unsigned int FileOpen(const char* fname)
 {
+	// Force lower case
+ 	unsigned char *ptr = fname;
+	while (*ptr != 0) {
+		if (*ptr > 192) 
+			*ptr -= 128;
+		if (*ptr > 96) 
+			*ptr -= 32;
+		ptr++;
+	}
 	return !cbm_open(1, 8, 8, fname);
 }
 
