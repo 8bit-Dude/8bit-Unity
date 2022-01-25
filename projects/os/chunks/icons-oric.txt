@@ -12,6 +12,8 @@
 #	Oric 1/Atmos	0 to 234 in steps of 6	| 0 to 200 in steps of 2
 #
 
+"icons-oric.png"	# Source image
+
 [12,   22, 42, 42]	# File Browser
 [72,   22, 42, 42]	# Image Viewer
 [132,  22, 42, 42]	# Music Player

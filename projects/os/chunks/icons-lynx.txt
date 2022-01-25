@@ -12,6 +12,8 @@
 #	Oric 1/Atmos	0 to 234 in steps of 6	| 0 to 200 in steps of 2
 #
 
+"icons-lynx.png"	# Source image
+
 [8,   10, 26, 24]	# File Browser
 [48,  10, 26, 24]	# Image Viewer
 [88,  10, 26, 24]	# Music Player
