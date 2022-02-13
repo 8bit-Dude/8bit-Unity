@@ -1,0 +1,86 @@
+# Include paths we may need for compilations
+ifeq ($(CC65_INC),)
+	CC65_INC=/usr/share/cc65/include
+endif
+ifeq ($(CA65_INC),)
+	CA65_INC=/usr/share/cc65/asminc
+endif
+ifeq ($(BUILD),)
+	BUILD=debug
+ endif
+
+# Compiling for Atari Lynx system
+SYS=lynx
+
+# Names of tools
+CO=co65
+CC=cc65
+AS=ca65
+AR=ar65
+CL=cl65
+CP=cp
+RM=rm -f
+ECHO=echo
+TOUCH=touch
+
+CSYMBOLS = -D __TILE_NONE__ -D SHAREDSIZE=0x0352 -D MUSICSIZE=0x0800 -D CHUNKSIZE=0x0001 -D SPRITEWIDTH=8 -D SPRITEHEIGHT=9
+
+# Flag for assembler
+AFLAGS=-I $(CA65_INC) -t $(SYS) --cpu 65SC02 -D $(BUILD) -D __HUB__
+
+# Flags for C-code compiler
+CFLAGS=-I ../unity -Cl -O -t $(SYS) --cpu 65SC02 -D $(BUILD) -D __HUB__ $(CSYMBOLS)
+
+#lynx
+OBJECTS =   adaptors/joystick.o adaptors/mouse.o adaptors/hub.o \
+			bitmap/ClearBitmap.o bitmap/HideBitmap.o bitmap/InitBitmap.o bitmap/LoadBitmap.o bitmap/ShowBitmap.o \
+			charmap/ClearCharmap.o charmap/DecodeTiles.o charmap/DecodeTiles2x2.o charmap/DrawCharmap.o charmap/FreeCharmap.o charmap/GetFlag.o charmap/GetTile.o charmap/HideCharmap.o charmap/InitCharmap.o charmap/LoadCharmap.o charmap/LoadCharset.o charmap/LoadTileset.o charmap/PrintCharmap.o charmap/ScrollCharmap.o charmap/SetTile.o charmap/ShowCharmap.o \
+          	chunks/LoadChunks.o chunks/GetChunk.o chunks/SetChunk.o chunks/FreeChunk.o \
+			geom/geom2d.o \
+          	graphics/logos.o graphics/menu.o graphics/parallax.o graphics/scaling.o graphics/widgets.o graphics/pixel.o graphics/scroll.o \
+			math/dot.o math/atan2.o \
+          	network/net-base.o network/net-easy.o network/net-ip.o network/net-tcp.o network/net-udp.o network/net-url.o network/net-web.o \
+		  	sound/music.o sound/sfx.o \
+			sprites/CropSprite.o sprites/DisableSprite.o sprites/EnableSprite.o sprites/LoadSprites.o sprites/RecolorSprite.o sprites/ScaleSprite.o sprites/SetSprite.o \
+          	strings/blanks.o strings/chars.o strings/copy.o strings/cursor.o strings/guru.o strings/input.o strings/number.o strings/print.o \
+		  	targets/lynx/blitCharmap.o targets/lynx/cgetc.o targets/lynx/chipper.o targets/lynx/directory.o targets/lynx/display.o targets/lynx/files.o targets/lynx/header.o targets/lynx/keyboard.o targets/lynx/screen.o \
+			targets/lynx/serial.o targets/lynx/sfx.o targets/lynx/suzy.o targets/lynx/text.o 
+#c64-hub			
+#OBJECTS = targets/c64/CIA.o adaptors/hub.o network/net-url.o network/net-base.o network/net-easy.o network/net-tcp.o network/net-udp.o 
+
+#c64-ip65			
+#OBJECTS = targets/c64/CIA.o network/net-url.o network/net-base.o network/net-easy.o network/net-tcp.o network/net-udp.o 
+
+#atmos-hub			
+#OBJECTS = targets/oric/VIA.o adaptors/hub.o network/net-base.o network/net-easy.o network/net-tcp.o network/net-udp.o 
+
+#apple2-hub			
+#OBJECTS = targets/apple2/clock.o adaptors/hub.o network/net-url.o network/net-base.o network/net-easy.o network/net-tcp.o network/net-udp.o 
+
+#atari			
+#OBJECTS = targets/atari/PIA.o adaptors/hub.o network/net-url.o network/net-base.o network/net-easy.o network/net-tcp.o network/net-udp.o 
+
+#nes	
+#OBJECTS = targets/nes/crt0.o targets/nes/expansion.o network/net-url.o adaptors/hub.o network/net-base.o network/net-easy.o network/net-tcp.o network/net-udp.o 
+
+TARGET=unity-$(SYS).lib 
+
+$(TARGET) : $(OBJECTS)
+	$(AR) a $@ $? 
+
+# Rule for making a *.o file out of a *.c file
+%.o: %.c
+	$(CC) $(CFLAGS) $(SEGMENTS) --create-dep $(@:.o=.d) --dep-target $@ -o $(@:.o=.s) $<
+	$(AS) -t $(SYS) -o $@ $(@:.o=.s)
+	$(RM) $*.s
+
+# Rule for making a *.o file out of a *.s or *.asm file
+%.o: %.s
+	$(AS) -o $@ $(AFLAGS) $<
+%.o: %.asm
+	$(AS) -o $@ $(AFLAGS) $<
+
+all: $(TARGET)
+
+clean :
+	$(RM) $(OBJECTS)
