@@ -32,7 +32,7 @@
 #endif
 
 // Build Information
-const char* buildInfo = "BUILD: 2022/01/20";
+const char* buildInfo = "BUILD: 2022/02/13";
 
 // List of available maps
 unsigned char mapNum  = 10;
@@ -54,15 +54,14 @@ int main (void)
 	clock_t bannerClock;
 
 	// Reset screen
+#ifndef __LYNX__	
 	clrscr();
 	bordercolor(COLOR_BLACK);
     bgcolor(COLOR_BLACK);
+#endif
 
-	// Initialize modules
-	InitJoy();
-	InitBitmap();
-	
 	// Show banner
+	InitBitmap();
     LoadBitmap("promo.img");
   #if defined(__NES__) || defined(__ORIC__)	
    #if defined(__NES__)
@@ -95,6 +94,7 @@ int main (void)
 #endif   
 
 	// Main Loop
+	InitJoy();
 	while (1) {
         // Load menu screen
         LoadBitmap("menu.img");
