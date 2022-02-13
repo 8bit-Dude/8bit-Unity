@@ -48,8 +48,7 @@
 void GetURL(unsigned char* url)
 {
 #if defined __HUB__
-	QueueHub(HUB_URL_GET, url, strlen(url));	
-	UpdateHub();
+	SendHub(HUB_URL_GET, url, strlen(url));	
 	
 #elif defined __FUJINET__
 	// Open HTTP address
@@ -75,13 +74,11 @@ unsigned char* ReadURL(unsigned char size, unsigned int timeOut)
 #if defined __HUB__
 	// Wait until data is received from Hub
 	clock_t timer = clock()+timeOut;
-	QueueHub(HUB_URL_READ, &size, 1);	
-	while (!recvLen || recvHub[0] != HUB_URL_READ) {
+	SendHub(HUB_URL_READ, &size, 1);
+	while (!RecvHub(HUB_URL_READ)) {
 		if (clock() > timer) return 0;
-		UpdateHub();	
 	}
-	recvLen = 0;  // Clear packet
-	return &recvHub[2]; 
+	return hubBuf; 
 	
 #elif defined __FUJINET__	
 	// Wait until timeout expires...

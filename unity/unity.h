@@ -86,8 +86,6 @@
 // Adaptors
 #if defined __HUB__
   #include "adaptors/hub.h"  
-  #define HUB_TX_LEN 256
-  #define HUB_RX_LEN 256
 #elif defined __FUJINET__	
   // Nothing
 #else

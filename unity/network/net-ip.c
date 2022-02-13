@@ -44,21 +44,14 @@ unsigned char GetLocalIP(unsigned char* ip)
 #if defined __HUB__
 	// Check if data was received from Hub
 	clock_t timer = clock();
-	QueueHub(HUB_SYS_IP, 0, 0);
-	while (1) {
-		// Inquire next packet
-		UpdateHub();	
-
-		// Check if we received packet
-		if (recvLen && recvHub[0] == HUB_SYS_IP) { 
-			recvLen = 0;  // Clear packet
-			memcpy(ip, &recvHub[2], recvHub[1]);
-			return 1; 
-		}		
-		
+	while (!RecvHub(HUB_SYS_IP)) {
 		// Check time-out
-		if ((clock() - timer) >= 20) { return 0; }	
+		if ((clock() - timer) >= 20) return 0;
 	}
+
+	// Save IP address
+	memcpy(ip, hubBuf, hubLen);
+	return 1; 
 	
 #elif defined __FUJINET__	
 	// TODO	

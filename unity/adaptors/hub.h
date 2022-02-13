@@ -45,6 +45,11 @@
 	#define HUB_REFRESH_RATE  3	// Default value
 #endif	
 
+// HUB Client Version
+#define HUB_CLIENT_VER	  1
+#define HUB_BUFFER_LEN	256
+#define HUB_SEND_RETRY    8
+
 // HUB Status Flags
 #define COM_ERR_OK        0
 #define COM_ERR_OFFLINE   1
@@ -56,6 +61,7 @@
 #define HUB_SYS_ERROR     0
 #define HUB_SYS_RESET     1
 #define HUB_SYS_IP        5
+#define HUB_SYS_STATE     9
 #define HUB_DIR_LS       10
 #define HUB_DIR_MK       11
 #define HUB_DIR_RM       12
@@ -85,10 +91,9 @@
 #define HUB_URL_READ     61
 
 // HUB Functions
-void UpdateHub(void);
-unsigned char QueueHub(unsigned char packetCmd, unsigned char* packetBuffer, unsigned char packetLen);
+unsigned char InitHub(void);
+unsigned char SendHub(unsigned char cmd, unsigned char* buffer, unsigned char len);
+unsigned char RecvHub(unsigned char cmd);
 
 // HUB Variables
-extern unsigned char hubState[7];
-extern unsigned char sendLen, sendHub[];
-extern unsigned char recvLen, recvHub[];
+extern unsigned char hubState[7], hubLen, hubBuf[HUB_BUFFER_LEN];

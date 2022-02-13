@@ -42,14 +42,8 @@
 unsigned char InitNetwork(void)
 {
 #if defined __HUB__
-	clock_t timer = clock();
-	while ((clock()-timer) < TCK_PER_SEC) { 
-		if (hubState[0] == COM_ERR_OK) return NETWORK_OK;
-		UpdateHub();
-	#if defined __APPLE2__
-		clk += 1;
-	#endif		
-	}
+	if (InitHub()) 
+		return NETWORK_OK;
 	return ADAPTOR_ERR;
 
 #elif defined __FUJINET__

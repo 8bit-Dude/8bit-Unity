@@ -33,6 +33,11 @@
   #include "hub.h"
 #endif
 
+#define ADAPTOR_NONE 0
+#define ADAPTOR_HUB  1
+#define ADAPTOR_PASE 2
+#define ADAPTOR_IJK  3
+
 #ifdef __ATARIXL__
   #pragma code-name("SHADOW_RAM")
 #endif
@@ -44,25 +49,19 @@
 #endif
 
 #if (defined __ORIC__)
-  #define ADAPTOR_NONE 0
-  #define ADAPTOR_PASE 1
-  #define ADAPTOR_IJK  2
-  #define ADAPTOR_HUB  3
   unsigned char joyAdaptor = ADAPTOR_IJK;	// Default to IJK
   unsigned char InitPaseIJK(unsigned char);	// see Oric/paseIJK.s
   unsigned char GetPaseIJK(unsigned char);	// see Oric/paseIJK.s
   unsigned char GetKey(unsigned char);		// see Oric/keyboard.s
+#else
+  unsigned char joyAdaptor = ADAPTOR_NONE;	// Default to NONE	
 #endif
 
 void InitJoy(void)
 {	
-#if defined(__ORIC__)
+#if defined(__HUB__)
 	// Check if 8bit-Hub is connected
-	if (hubState[0] == COM_ERR_OFFLINE) 
-		UpdateHub();
-	if (hubState[0] != COM_ERR_OFFLINE) {
-		joyAdaptor = ADAPTOR_HUB;
-	}
+	if (InitHub()) joyAdaptor = ADAPTOR_HUB;
 #endif
 }
 
@@ -71,9 +70,12 @@ unsigned char GetJoy(unsigned char joy)
 #if defined(__ATARIXL__)
   #if defined(__HUB__)
 	if (joy>1) {
-		// Get state from HUB
-		UpdateHub();			
-		return hubState[joy-1];
+		if (joyAdaptor) {
+			// Get state from HUB
+			RecvHub(HUB_SYS_STATE);
+			return hubState[joy-1];
+		} else
+			return 255;
 	} else		
   #endif
 		// Get state from registry
@@ -83,7 +85,7 @@ unsigned char GetJoy(unsigned char joy)
   #if defined(__HUB__)
 	if (joy>3) {
 		// Get state from HUB
-		UpdateHub();			
+		RecvHub(HUB_SYS_STATE);			
 		return hubState[joy-3];
 	} else		
   #endif
@@ -94,7 +96,7 @@ unsigned char GetJoy(unsigned char joy)
   #if defined(__HUB__)
 	if (joy>1) {
 		// Get state from HUB
-		UpdateHub();			
+		RecvHub(HUB_SYS_STATE);		
 		return hubState[joy-1];
 	} else		
   #endif
@@ -106,7 +108,7 @@ unsigned char GetJoy(unsigned char joy)
 	unsigned char reg, state;
 	if (joy) {
 		// Get state from HUB
-		UpdateHub();
+		RecvHub(HUB_SYS_STATE);
 		return hubState[joy];
 	} else {
 		// Get state from registry
@@ -124,7 +126,7 @@ unsigned char GetJoy(unsigned char joy)
 #elif defined(__NES__)
 	if (joy>1) {
 		// Get state from HUB
-		UpdateHub();			
+		RecvHub(HUB_SYS_STATE);			
 		return hubState[joy-1];
 	} else {
 		// Get state from registry
@@ -156,7 +158,7 @@ unsigned char GetJoy(unsigned char joy)
 	default:
 		switch (joyAdaptor) {
 		case ADAPTOR_HUB:			// Joy #2-#4: 8bit-Hub
-			UpdateHub();			
+			RecvHub(HUB_SYS_STATE);			
 			state = hubState[joy-1];
 			break;
 		default: 					// Joy #2-#3: ALTAI/PASE/IJK

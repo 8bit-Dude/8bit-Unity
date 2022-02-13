@@ -42,13 +42,13 @@ _byte: .byte 0
     lda #%00111000	
 	sta $D302			
 
-    lda #%11110000	; Set PIA State
+    lda #%11100000	; Set PIA State (Strobe, Bit Out, R/W, Ready)
 	sta $D300			
 
     lda #%00001100	
 	sta $D302			
 
-    lda #%10000000	; Strobe ON
+    lda #%10000000	; Strobe On, Write Mode
 	sta $D300			
 
 	rts
@@ -64,13 +64,13 @@ _byte: .byte 0
     lda #%00111000	
 	sta $D302			
 
-    lda #%11000000	; Set PIA State
+    lda #%10100000	; Set PIA State (Strobe, Bit In, R/W, Ready)
 	sta $D300			
 
     lda #%00001100	
 	sta $D302			
 
-    lda #%11000000	; Strobe ON
+    lda #%10100000	; Strobe On, Read Mode
 	sta $D300			
 
 	rts
@@ -83,25 +83,25 @@ _byte: .byte 0
 
 .proc _SendByte: near
 
-	; Wait for ready (Joy1 Trigger)
+	; Wait for ready (Pin 4)
 	ldx #255	
 sendWait0:	
-	lda $D011		
-	beq sendByte
+	lda $D300
+	and #%00010000	
+	bne sendByte
 	dex
 	bne sendWait0
 	jmp sendFailed
 	
+	;------------;
+	; Write Bits 
 sendByte:
-
-	;-----------------;
-	; Write Bits 1/2
 	lda _byte
-	and #%00000011	
-	asl
-	asl
-	asl
-	asl
+	lsr
+	ldy #8
+	
+sendLoop:
+	and #%01000000
 	sta $D300
 	ldx #8
 sendWait1:	
@@ -109,78 +109,28 @@ sendWait1:
 	bne sendWait1
 	
 	; Strobe ON
-    lda #%10000000	
+    ora #%10000000	
 	sta $D300
 	ldx #4
-sendWait2:	
+sendWait2:
 	dex
 	bne sendWait2
 	
-	;-----------------;
-	; Write Bits 3/4
+	; Prepare next byte
 	lda _byte
-	and #%00001100	
 	asl
-	asl
-	sta $D300
-	ldx #8
-sendWait3:	
-	dex
-	bne sendWait3
-
-	; Strobe ON
-    lda #%10000000	
-	sta $D300
-	ldx #4
-sendWait4:	
-	dex
-	bne sendWait4
-
-	;-----------------;
-	; Write Bits 5/6
-	lda _byte
-	and #%00110000	
-	sta $D300
-	ldx #8
-sendWait5:	
-	dex
-	bne sendWait5
-	
-	; Strobe ON
-    lda #%10000000	
-	sta $D300
-	ldx #4
-sendWait6:	
-	dex
-	bne sendWait6	
-	
-	;-----------------;
-	; Write Bits 7/8
-	lda _byte
-	and #%11000000	
+	sta _byte
 	lsr
-	lsr
-	sta $D300
-	ldx #8
-sendWait7:	
-	dex
-	bne sendWait7
-	
-	; Strobe ON
-    lda #%10000000	
-	sta $D300
-	ldx #4
-sendWait8:	
-	dex
-	bne sendWait8		
 
+	; Loopback
+	dey
+	bne sendLoop	
+	
 sendDone:	
-	; Return 1
 	lda #1
 	rts
 
 sendFailed:
-	; Return 0
 	lda #0
 	rts
 
@@ -192,119 +142,55 @@ sendFailed:
 
 .proc _RecvByte: near
 	
-	; Wait for ready (Joy1 Trigger)
-	ldx #255
+	; Wait for ready (Pin 4)
+	ldx #255	
 recvWait0:	
-	lda $D011		
-	beq recvByte
+	lda $D300
+	and #%00010000	
+	bne recvByte
 	dex
 	bne recvWait0
 	jmp recvFailed
 	
+	;--------------;
+	; Receive Bits
 recvByte:	
+	lda #0
+	sta _byte
+	ldy #8
 	
-	;-----------------;
+recvLoop:	
 	; Strobe OFF
-    lda #%01000000	
+    lda #%00100000	
 	sta $D300
 	ldx #6
 recvWait1:	
 	dex
 	bne recvWait1
-	
-	; Read Bits 1/2
-	lda $D300
-	and #%00110000	
-	lsr
-	lsr
-	lsr
-	lsr
-	sta _byte
-	
+
 	; Strobe ON
-    lda #%11000000	
+    lda #%10100000	
 	sta $D300
-	ldx #3
-recvWait2:	
-	dex
-	bne recvWait2	
+
+	; Shift data
+	lsr _byte
 	
-	;-----------------;
-	; Strobe OFF
-    lda #%01000000	
-	sta $D300
-	ldx #6
-recvWait3:	
-	dex
-	bne recvWait3
-	
-	; Read Bits 3/4
+	; Read Bit
 	lda $D300
-	and #%00110000	
-	lsr
-	lsr
-	ora _byte
-	sta _byte
-	
-	; Strobe ON
-    lda #%11000000	
-	sta $D300
-	ldx #3
-recvWait4:	
-	dex
-	bne recvWait4	
-	
-	;-----------------;
-	; Strobe OFF
-    lda #%01000000	
-	sta $D300
-	ldx #6
-recvWait5:	
-	dex
-	bne recvWait5
-	
-	; Read Bits 5/6
-	lda $D300
-	and #%00110000	
-	ora _byte
-	sta _byte
-	
-	; Strobe ON
-    lda #%11000000	
-	sta $D300
-	ldx #3
-recvWait6:	
-	dex
-	bne recvWait6	
-	
-	;-----------------;
-	; Strobe OFF
-    lda #%01000000	
-	sta $D300
-	ldx #6
-recvWait7:	
-	dex
-	bne recvWait7
-	
-	; Read Bits 5/6
-	lda $D300
-	and #%00110000	
-	asl
+	and #%01000000
 	asl
 	ora _byte
 	sta _byte
 	
-	; Strobe ON
-    lda #%11000000	
-	sta $D300
-	
+	; Loopback
+	dey
+	bne recvLoop		
+		
 recvDone:	
-	; Return 1
 	lda #1
 	rts
 
 recvFailed:
-	; Return 0
 	lda #0
 	rts
 

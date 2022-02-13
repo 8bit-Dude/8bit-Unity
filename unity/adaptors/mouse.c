@@ -60,7 +60,7 @@ unsigned char* GetMouse(void)
 	mouseState[2] = 255;
 #if defined __HUB__
 	// Get mouse state from Hub
-	UpdateHub();
+	RecvHub(HUB_SYS_STATE);
 	if (hubState[5] != 255) {
 		// Check that last packet was clean
 		if (hubState[0] == COM_ERR_OK) {

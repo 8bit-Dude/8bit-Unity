@@ -53,8 +53,7 @@
 void SlotTCP(unsigned char slot)
 {
 #if defined __HUB__
-	QueueHub(HUB_TCP_SLOT, &slot, 1);
-	UpdateHub();	
+	SendHub(HUB_TCP_SLOT, &slot, 1);
 #elif defined __FUJINET__	
 	// TODO	
 #elif defined __ULTIMATE__
@@ -70,8 +69,7 @@ void OpenTCP(unsigned char* svIP, unsigned int svPort)
 	unsigned char buffer[6];
 	memcpy(buffer, svIP, 4);
 	POKEW(&buffer[4], svPort);	
-	QueueHub(HUB_TCP_OPEN, buffer, 6);	
-	UpdateHub();
+	SendHub(HUB_TCP_OPEN, buffer, 6);	
 	
 #elif defined __FUJINET__
 	sprintf(fujiHost, "N:TCP://%i.%i.%i.%i:%i/", svIP[0], svIP[1], svIP[2], svIP[3], svPort);
@@ -91,8 +89,7 @@ void OpenTCP(unsigned char* svIP, unsigned int svPort)
 void CloseTCP()
 {
 #if defined __HUB__
-	QueueHub(HUB_TCP_CLOSE, 0, 0);
-	UpdateHub();
+	SendHub(HUB_TCP_CLOSE, 0, 0);
 	
 #elif defined __FUJINET__
 	FujiClose(0x71);
@@ -108,7 +105,7 @@ void CloseTCP()
 void SendTCP(unsigned char* buffer, unsigned char length) 
 {
 #if defined __HUB__
-	QueueHub(HUB_TCP_SEND, buffer, length);
+	SendHub(HUB_TCP_SEND, buffer, length);
 	
 #elif defined __FUJINET__
 	memcpy(fujiBuffer, buffer, length);
@@ -127,12 +124,10 @@ unsigned char* RecvTCP(unsigned int timeOut)
 	// Wait until timeout expires...
 	clock_t timer = clock()+timeOut;
 #if defined __HUB__
-	while (!recvLen || recvHub[0] != HUB_TCP_RECV) {
+	while (!RecvHub(HUB_TCP_RECV)) {
 		if (clock() > timer) return 0;
-		UpdateHub();	
 	}
-	recvLen = 0;  // Clear packet
-	return &recvHub[2]; 
+	return hubBuf; 
 
 #elif defined __FUJINET__
 	while (!fujiReady) {

@@ -56,8 +56,7 @@
 void SlotUDP(unsigned char slot)
 {
 #if defined __HUB__
-	QueueHub(HUB_UDP_SLOT, &slot, 1);
-	UpdateHub();	
+	SendHub(HUB_UDP_SLOT, &slot, 1);
 #elif defined __FUJINET__	
 	// TODO
 #elif defined __ULTIMATE__
@@ -75,8 +74,7 @@ void OpenUDP(unsigned char* svIP, unsigned int svPort, unsigned int clPort)
 	memcpy(buffer, svIP, 4);
 	POKEW(&buffer[4], svPort);	
 	POKEW(&buffer[6], clPort);	
-	QueueHub(HUB_UDP_OPEN, buffer, 8);
-	UpdateHub();
+	SendHub(HUB_UDP_OPEN, buffer, 8);
 	
 #elif defined __FUJINET__	
 	// Open UDP address
@@ -112,8 +110,7 @@ void OpenUDP(unsigned char* svIP, unsigned int svPort, unsigned int clPort)
 void CloseUDP()
 {
 #if defined __HUB__
-	QueueHub(HUB_UDP_CLOSE, 0, 0);
-	UpdateHub();	
+	SendHub(HUB_UDP_CLOSE, 0, 0);
 	
 #elif defined __FUJINET__	
 	FujiClose(0x71);
@@ -129,7 +126,7 @@ void CloseUDP()
 void SendUDP(unsigned char* buffer, unsigned char length) 
 {
 #if defined __HUB__
-	QueueHub(HUB_UDP_SEND, buffer, length);
+	SendHub(HUB_UDP_SEND, buffer, length);
 	
 #elif defined __FUJINET__	
 	memcpy(fujiBuffer, buffer, length);
@@ -148,12 +145,10 @@ unsigned char* RecvUDP(unsigned int timeOut)
 	clock_t timer = clock()+timeOut;
 #if defined __HUB__
 	// Wait until data is received from Hub
-	while (!recvLen || recvHub[0] != HUB_UDP_RECV) {
+	while (!RecvHub(HUB_UDP_RECV)) {
 		if (clock() > timer) return 0;
-		UpdateHub();	
 	}	
-	recvLen = 0;  // Clear packet
-	return &recvHub[2]; 
+	return hubBuf; 
 	
 #elif defined __FUJINET__	
 	// Wait until timeout expires...

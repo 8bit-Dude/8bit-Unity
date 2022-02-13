@@ -44,8 +44,7 @@ void OpenWEB(unsigned int port, unsigned int timeOut)
 	buffer[1] = port >> 8;	
 	buffer[2] = timeOut & 0xFF;
 	buffer[3] = timeOut >> 8;	
-	QueueHub(HUB_WEB_OPEN, buffer, 4);
-	UpdateHub();
+	SendHub(HUB_WEB_OPEN, buffer, 4);
 #elif defined __FUJINET__	
 	// TODO	
 #elif defined __IP65__
@@ -56,9 +55,7 @@ void OpenWEB(unsigned int port, unsigned int timeOut)
 void CloseWEB()
 {
 #if defined __HUB__
-	while (sendLen) UpdateHub();
-	QueueHub(HUB_WEB_CLOSE, 0, 0);
-	UpdateHub(); // Send immediately
+	SendHub(HUB_WEB_CLOSE, 0, 0);
 #elif defined __FUJINET__	
 	// TODO	
 #elif defined __IP65__
@@ -69,9 +66,7 @@ void CloseWEB()
 void HeaderWEB(unsigned char* buffer, unsigned char length) 
 {
 #if defined __HUB__
-	while (sendLen) UpdateHub();
-	QueueHub(HUB_WEB_HEADER, buffer, length);
-	UpdateHub(); // Send immediately
+	SendHub(HUB_WEB_HEADER, buffer, length);
 #elif defined __FUJINET__	
 	// TODO	
 #elif defined __IP65__
@@ -82,9 +77,7 @@ void HeaderWEB(unsigned char* buffer, unsigned char length)
 void BodyWEB(unsigned char* buffer, unsigned char length) 
 {
 #if defined __HUB__
-	while (sendLen) UpdateHub();
-	QueueHub(HUB_WEB_BODY, buffer, length);
-	UpdateHub(); // Send immediately
+	SendHub(HUB_WEB_BODY, buffer, length);
 #elif defined __FUJINET__	
 	// TODO	
 #elif defined __IP65__
@@ -96,9 +89,7 @@ void SendWEB()
 {
 #if defined __HUB__
 	// Flush Hub Queue
-	while (sendLen) UpdateHub();
-	QueueHub(HUB_WEB_SEND, 0, 0);
-	UpdateHub(); // Send immediately
+	SendHub(HUB_WEB_SEND, 0, 0);
 #elif defined __FUJINET__	
 	// TODO	
 #elif defined __IP65__
@@ -111,12 +102,10 @@ unsigned char* RecvWEB(unsigned int timeOut)
 #if defined __HUB__
 	// Wait until data is received from Hub
 	clock_t timer = clock()+timeOut;
-	while (!recvLen || recvHub[0] != HUB_WEB_RECV) {
+	while (!RecvHub(HUB_WEB_RECV)) {
 		if (clock() > timer) return 0;
-		UpdateHub();	
 	}
-	recvLen = 0;  // Clear packet
-	return &recvHub[2]; 
+	return hubBuf; 
 #elif defined __FUJINET__	
 	// TODO	
 	return 0;

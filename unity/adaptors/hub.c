@@ -48,7 +48,7 @@
   unsigned char comParm = 0;  //struct ser_params comParm = { SER_BAUD_62500, SER_BITS_8, SER_STOP_1, SER_PAR_SPACE, SER_HS_NONE };							  
   unsigned char byte;	
   unsigned char RecvByte() {
-	unsigned char i = 255;
+	unsigned int i = 512;
 	while (i) {  // Countdown i to 0
 		if (SerialGet(&byte) == SER_ERR_OK)		// Wait for byte to arrive on serial port
 			return 1;
@@ -57,10 +57,20 @@
 	return 0;
   }
   unsigned char SendByte() {
-	while (SerialPut(byte) != SER_ERR_OK);  // Send byte
-	while (SerialGet(&byte) != SER_ERR_OK); // Read byte (sent to oneself)	
-	return 1;
-  } 
+	unsigned char i = 255;
+	while (i) {  // Countdown i to 0
+		if (SerialPut(byte) == SER_ERR_OK) {	// Send byte
+			while (i) {
+				if (SerialGet(&byte) == SER_ERR_OK) // Read back byte (sent to oneself)	
+					return 1;
+				i--;
+			}
+			return 0;
+		}
+		i--;
+	}
+	return 0;
+  }
 #elif defined(__ATARI__) || defined(__CBM__) || defined(__NES__) || defined(__ORIC__)
  #ifndef __NES__
   void InputMode();
@@ -80,190 +90,197 @@
 
 // Hub State
 unsigned char hubState[7] = { COM_ERR_OFFLINE, 255, 255, 255, 255, 255, 255 };
-unsigned char recvHub[HUB_RX_LEN], recvID = 0, recvLen = 0;
-unsigned char sendHub[HUB_TX_LEN], sendID = 0, sendLen = 0;
-unsigned char queueID = 0;
+unsigned char hubID, hubLen, hubBuf[HUB_BUFFER_LEN];
 
 #if defined __NES__
   #pragma bss-name(pop)
 #endif 
 
-void RecvHub() 
+unsigned char InitHub(void) 
 {
-	unsigned char i, ID, len, checksum, packetLen;
+	// Was hub already initialized?
+	unsigned char hubVersion = HUB_CLIENT_VER;
+	if (hubState[0] == COM_ERR_OFFLINE) {
+		// Setup serial port
+	  #if defined(__LYNX__) // || defined(__APPLE2__)
+		SerialOpen(&comParm); 
+	  #endif	
+	  
+		// Setup initial request
+		SendHub(HUB_SYS_RESET, &hubVersion, 1);
+		
+		// Check result
+		if (hubState[0] == COM_ERR_OK) {
+			hubID = 0;
+		} else {
+			return 0;
+		}
+	}
+	return 1;
+}
+
+unsigned char SendHub(unsigned char cmd, unsigned char* buffer, unsigned char len)
+{
+	unsigned char i, j = 0, checksum, acknow = 0;
+	
+  #if defined(__ORIC__)
+	__asm__("sei");		// Disable interrupts
+  #endif	
+	
+	while (j++ < HUB_SEND_RETRY) {
+		/////////////////////
+		// Setup for sending
+	  #if defined(__LYNX__) // || defined(__APPLE2__)
+		while (SerialGet(&i) == SER_ERR_OK); // Clear UART Buffer
+	  #elif defined(__ATARI__) || defined(__CBM__) || defined(__ORIC__)
+		OutputMode();
+	  #endif	
+
+		// Send Header
+		byte = 170; if (!SendByte()) goto SendError;
+		byte = cmd; if (!SendByte()) goto SendError;
+		
+		// Send Packet Data (if any)
+		checksum = cmd;
+		byte = len; if (!SendByte()) goto SendError;
+		if (len) {
+			for (i=0; i<len; i++) {
+				byte = buffer[i]; checksum += byte;
+				if (!SendByte()) goto SendError;
+			}
+		}
+		
+		// Send footer
+		byte = checksum; if (!SendByte()) goto SendError;
+
+		///////////////////////
+		// Setup for receiving
+	  #if defined(__ATARI__) || defined(__CBM__) || defined(__ORIC__)  
+		InputMode();
+	  #endif		
+
+		// Check acknowledgment
+		if (RecvByte() && byte == 85) {
+			acknow = 1;
+			hubState[0] = COM_ERR_OK;
+			goto SendError; // actually means ok!
+		}
+	}
+	
+	SendError:
+  #if defined(__ORIC__)
+	ClosePort();
+	__asm__("cli");		// Resume interrupts	
+  #endif
   
+	return acknow;
+}
+
+unsigned char RecvHub(unsigned char cmd) 
+{
+	unsigned char i, ID, checksum, *buf, acknow = 0;
+
+  #if defined(__ORIC__)
+	__asm__("sei");		// Disable interrupts
+  #endif	
+
+	/////////////////////
+	// Setup for sending
+  #if defined(__LYNX__) // || defined(__APPLE2__)
+	while (SerialGet(&i) == SER_ERR_OK); // Clear UART Buffer
+  #elif defined(__ATARI__) || defined(__CBM__) || defined(__ORIC__)
+	OutputMode();
+  #endif	
+  
+	// Make receive request
+	byte = 85;    if (!SendByte()) goto RecvError;
+	byte = cmd;   if (!SendByte()) goto RecvError;
+	byte = hubID; if (!SendByte()) goto RecvError;
+  
+	///////////////////////
+	// Setup for receiving
   #if defined(__ATARI__) || defined(__CBM__) || defined(__ORIC__)  
-	InputMode();	// Switch PORT to input
+	InputMode();
   #endif	
 	
 	// Check header
-	if (!RecvByte()) {
-		return;
-	}
+	if (!RecvByte()) goto RecvError;
 	if (byte != 170) {
 		hubState[0] = COM_ERR_HEADER; 
-		return;
+		goto RecvError;
 	}
 	hubState[0] = COM_ERR_TRUNCAT; 
 					
 	// Get packet ID
-	if (!RecvByte()) return; 
+	if (!RecvByte()) goto RecvError; 
 	checksum = ID = byte;
 	
-	// Read joystick/mouse data
-	for (i=1; i<7; i++) {
-		if (!RecvByte()) return; 
-		hubState[i] = byte;
-		checksum += byte;
-	}
-
 	// Get buffer length
-	if (!RecvByte()) return; 
-	len = byte;
+	if (!RecvByte()) goto RecvError; 
+	hubLen = byte;
+	
+	// Assign buffer pointer
+	if (cmd == HUB_SYS_STATE)
+		buf = &hubState[1];
+	else
+		buf = hubBuf;
 
 	// Read buffer data
-	for (i=0; i<len; i++) {
-		if (!RecvByte()) return; 
-		recvHub[i] = byte;
+	for (i=0; i<hubLen; i++) {
+		if (!RecvByte()) goto RecvError; 
+		*buf++ = byte;
 		checksum += byte;
 	}
 
 	// Verify checkum
-	if (!RecvByte()) return; 
-#if defined DEBUG_HUB
-	dbgID = ID; dbgLen = len; chk1 = byte; chk2 = checksum;
-#endif	
+	if (!RecvByte()) goto RecvError; 
 	if (byte != checksum) { 
 		hubState[0] = COM_ERR_CORRUPT; 
-		return; 
+		goto RecvError; 
 	}
 	hubState[0] = COM_ERR_OK;
-
-	// Check packet reception
-	if (ID != recvID) {
-		// Check ID against last packet sent
-		if ((ID & 0x0f) == sendID) {
-			// Shift any remaining data
-			packetLen = sendHub[1]+2;
-			if (packetLen < sendLen) {
-				memcpy(&sendHub[0], &sendHub[packetLen], sendLen-packetLen);
-				sendLen -= packetLen;		
-			} else {
-				sendLen = 0;
-			}		
-		}
-		
-		// Check ID against last packet received
-		if (len && ((ID & 0xf0) != (recvID & 0xf0)))
-			recvLen = len;
-		
-		// Update ID
-		recvID = ID;
-	}
-}
-
-void SendHub()
-{
-	unsigned char i, checksum, packetLen;
 	
-  //#if defined(__APPLE2__) || 
-  #if defined(__LYNX__)
-	while (SerialGet(&i) == SER_ERR_OK) ; // Clear UART Buffer
-  #elif defined(__ATARI__) || defined(__CBM__) || defined(__ORIC__)
-	OutputMode();
-  #endif	
-	
-	// Send Header
-	byte = 170; if (!SendByte()) return;
-	
-	// Send Packet ID
-	if (sendLen) sendID = sendHub[0];
-	checksum = (recvID & 0xf0) + sendID;
-	byte = checksum; if (!SendByte()) return;
-	
-	// Send Packet Data (if any)
-	if (sendLen) {	
-		packetLen = sendHub[1];
-		byte = packetLen; if (!SendByte()) return;
-		for (i=2; i<packetLen+2; i++) {
-			byte = sendHub[i]; if (!SendByte()) return;
-			checksum += sendHub[i];
-		}
-	} else {	
-		byte = 0; if (!SendByte()) return; 
-	}
-	
-	// Send footer
-	byte = checksum; if (!SendByte()) return;
-}
-
-unsigned char QueueHub(unsigned char packetCmd, unsigned char* packetBuffer, unsigned char packetLen)
-{
-	// Check if there is enough space in buffer
-	if (packetLen > HUB_TX_LEN-sendLen)
-		return 0;
-	
-	// Add to send buffer
-	if (++queueID > 15) { queueID = 1; }
-	sendHub[sendLen++] = queueID;	
-	sendHub[sendLen++] = packetLen+1;
-	sendHub[sendLen++] = packetCmd;
-	memcpy(&sendHub[sendLen], packetBuffer, packetLen);
-	sendLen += packetLen;
-	return 1;
-}
-
-clock_t updateClock;
-
-void UpdateHub() 
-{			
-	// Throttle requests according to refresh rate
-	if (clock() < updateClock)
-		return;
-	updateClock = clock()+HUB_REFRESH_RATE;
-
-	// Was hub already initialized?
-	if (hubState[0] == COM_ERR_OFFLINE) {
-		// Queue reset command
-		if (sendHub[0] != HUB_SYS_RESET) {
-			// Setup initial request
-			recvID = 0; recvLen = 0;
-			sendID = 0; sendLen = 0;
-			QueueHub(HUB_SYS_RESET, 0, 0);
-		  #if defined(__LYNX__) // || defined(__APPLE2__)
-			SerialOpen(&comParm); 
-		  #endif		
-		}
+	// All good?
+	if (cmd == HUB_SYS_STATE) {
+		acknow = 1;
+		goto RecvError;
+	} else
+	if (hubID != ID) {
+		hubID = ID;
+		acknow = 1;
+		goto RecvError;
 	}
 
-  #if defined DEBUG_HUB
-	tic = clock();
-  #endif
-  
-  #if defined __ORIC__
-	__asm__("sei");		// Disable interrupts
-  #endif	
-
-	// Process HUB I/O
-	SendHub();
-	RecvHub();	
-	
-  #if defined __ORIC__
+	RecvError:
+  #if defined(__ORIC__)
 	ClosePort();
 	__asm__("cli");		// Resume interrupts	
-  #endif	
-
-  #if defined DEBUG_HUB
-	toc = clock();
+  #endif  	
+	
+  #if defined DEBUG_HUB 
+	// Increment error code
+	switch (hubState[0]) {
+	case COM_ERR_OK:      
+		ok+=1; break;
+	case COM_ERR_HEADER:
+		hd+=1; break;
+	case COM_ERR_TRUNCAT:
+		tr+=1; break;
+	case COM_ERR_CORRUPT:
+		co+=1; break;
+	}
+	// Display info
 	gotoxy(0,  TXT_ROWS-3); cprintf("TC:%u ", toc-tic); 
-	gotoxy(7,  TXT_ROWS-3); cprintf("LN:%u ", recvLen);
+	gotoxy(7,  TXT_ROWS-3); cprintf("LN:%u ", hubLen);
 	 if (hubState[0] == COM_ERR_OK)      { ok+=1; gotoxy(14, TXT_ROWS-3); cprintf("OK:%u", ok); }
 else if (hubState[0] == COM_ERR_HEADER)  { hd+=1; gotoxy(21, TXT_ROWS-3); cprintf("HD:%u", hd); }	
 else if (hubState[0] == COM_ERR_TRUNCAT) { tr+=1; gotoxy(28, TXT_ROWS-3); cprintf("TR:%u", tr); } 
 else if (hubState[0] == COM_ERR_CORRUPT) { co+=1; gotoxy(35, TXT_ROWS-3); cprintf("CO:%u", co); } 
 	gotoxy(0,  TXT_ROWS-2); cprintf("CTRL:"); for (i=1; i<7; i++) { cprintf("%u,", hubState[i]); } 
-	gotoxy(0,  TXT_ROWS-1); cprintf("ID:%u ", dbgID); 
-	gotoxy(7,  TXT_ROWS-1); cprintf("C1:%u ", chk1); 
-	gotoxy(14, TXT_ROWS-1); cprintf("C2:%u ", chk2);
+	gotoxy(0,  TXT_ROWS-1); cprintf("ID:%u ", ID); 
+	gotoxy(7,  TXT_ROWS-1); cprintf("C1:%u ", byte); 
+	gotoxy(14, TXT_ROWS-1); cprintf("C2:%u ", checksum);
   #endif
+  
+	return acknow;
 }
