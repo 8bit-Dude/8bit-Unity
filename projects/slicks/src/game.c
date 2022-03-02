@@ -850,6 +850,7 @@ char GameLoop()
 			LockBackButton = 0;
 		if (kbhit() || KeyboardOverlayHit() || (!(GetJoy(0) & JOY_BTN2) && !LockBackButton)) {
 			if (chatting) {
+				while (kbhit()) lastKey = cgetc();
 				lastKey = GetKeyboardOverlay();
 			} else if (!(GetJoy(0) & JOY_BTN2)) {
 				lastKey = KB_CHAT;

@@ -715,7 +715,7 @@ void MenuServers()
 	if (!packet) {
 		// Timeout error
 		txtX = MENU_COL+2; PrintStr("ERROR: TIMEOUT");
-	} else if (PEEK(packet) != 1) {
+	} else if (PEEK(packet) != SV_LIST) {
 		// Unexpected error
 		txtX = MENU_COL+0; PrintStr("ERROR: CORRUPTION");
 	} else {
@@ -864,7 +864,12 @@ void MenuConnect()
 	PrintStr("NETWORK INIT");
 	state = InitNetwork();
 	if (state == ADAPTOR_ERR) {
-		report = "ADAPTOR ERROR";		
+		report = "ADAPTOR ERROR";	
+	  #ifdef __ULTIMATE__
+		txtX = MENU_COL; txtY += 3;
+		PrintStr("> Try disabling <"); txtY += 1;
+		PrintStr(" fastloader cart "); txtY -= 4;
+	  #endif
 	} else if (state == DHCP_ERR) {
 		report = "DHCP ERROR";		
 	} else {
@@ -1087,8 +1092,8 @@ void GameMenu()
 			// Display ONLINE menu
 			MenuTab(1);
 			
-		#if defined(__ORIC__) || defined(__FUJINET__)
-			// FujiNet and VIA are not happy with music...
+		#if defined(__ORIC__) || defined(__FUJINET__) || defined(__ULTIMATE__)
+			// FujiNet, Ultimate and VIA are not happy with music...
 			StopMusic();
 		#endif
 

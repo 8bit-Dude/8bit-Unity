@@ -133,7 +133,7 @@ void WriteEEPROM(void)
 #endif
 
 unsigned char gamePaused = 0;
-const unsigned char *pauseLabel[] = { "resume", "race!", "next!", "quit", "bye!", "congrats", "hang on", "hello!", "ready", "so close", "thanks!", "yes" };
+const unsigned char *pauseLabel[] = { "resume", "race!", "next!", "quit", "bye!", "congrats", "hang on", "hello!", "nice", "so close", "thanks!", "yes" };
 const unsigned char pauseAction[] = { KB_PAUSE, KB_START, KB_NEXT, KB_QUIT, 4, 5, 6, 7, 8, 9, 10, 11 };
 unsigned char cursorJoy, cursorKey, cursorBut2, cursorPressed;
 unsigned char cursorFlick, cursorCol = MENU_COL, cursorRow = MENU_ROW+2;
