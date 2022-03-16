@@ -626,7 +626,7 @@ char GameLoop()
 					// Check navigation? (not every frames)
 					if (gameFrame % MAX_PLAYERS == i)
 						iCar->ang3 = GetWaypointAngle(i);
-					
+
 					// Lerp to navigation target
 					iAng2 = LerpAngle(iAng2, iCar->ang3, 3*iTmp);
 				}
@@ -806,7 +806,7 @@ char GameLoop()
 			iCar->joy = iJoy;
 
 			// Check navigation
-			if (iCtrl != NET_CONTROL && gameStep > STEP_WARMUP && (gameFrame&1) == (i&1)) {
+			if (iCtrl != NET_CONTROL && gameStep > STEP_WARMUP) {
 				// Check current cylinder
 				if (CheckWaypoint()) {
 					iCar->way++;

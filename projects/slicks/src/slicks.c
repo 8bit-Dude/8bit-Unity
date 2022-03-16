@@ -32,7 +32,7 @@
 #endif
 
 // Build Information
-const char* buildInfo = "BUILD: 2022/03/02";
+const char* buildInfo = "BUILD: 2022/03/15";
 
 // List of available maps
 unsigned char mapNum  = 10;
