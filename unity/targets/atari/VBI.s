@@ -30,12 +30,11 @@
 	.export _bmpAddr, _bmpPalette, _chrPalette, _SwapPalette
 .ifdef __ATARIXL__	
 	.export _bitmapVBI, _bmpToggle
-.endif	
-
-	;.export _parallaxRng, _parallaxSpd, _parallaxMax
-			
+.endif				
 	.import _BlitSprites
-	.import _countDLI, _paletteDLI, _spriteDLI, _pokeyVBI
+	.import _countDLI, _spriteDLI, _pokeyVBI, _chrRows
+	
+	;.export _parallaxRng, _parallaxSpd, _parallaxMax
 	;.import _parallaxDLI, _hScroll
 
 ; ROM addresses
@@ -133,8 +132,9 @@ skipParallax:
 skipBitmapVBI:	
 	
 	; Apply charmap/bitmap toggle?
-	lda	_paletteDLI
-	beq skipPaletteVBI
+	lda	_chrRows
+	cmp #25
+	bcc skipPaletteVBI
 	jsr _SwapPalette
 skipPaletteVBI:
 

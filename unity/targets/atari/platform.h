@@ -72,9 +72,9 @@
 #define PURPLE	9
 #define BLUE   	10
 #define CYAN   	10
-#define GREEN  	15
+#define GREEN  	11
 #define WHITE  	11
-#define YELLOW 	11
+#define YELLOW 	15
 
 // Sprite Palette (refer to Atari palette in /docs/Palettes)
 #define SPR_BLACK   0x00

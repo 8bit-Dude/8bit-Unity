@@ -2,7 +2,7 @@
  *	API of the "8bit-Unity" SDK for CC65
  *	All functions are cross-platform for the Apple IIe, Atari XL/XE, and C64/C128
  *	
- *	Last modified: 2019/07/12
+ *	Last modified: 2022/02/20
  *	
  * Copyright (c) 2019 Anthony Beaucamp.
  *
@@ -33,17 +33,6 @@
  *		* Christian Groessler for helping optimize the memory maps on Commodore and Atari
  *		* Bill Buckels for his Apple II Double Hi-Res bitmap code
  */
-
-// Talk to HUB at a "conservative" 20 FPS (gives ~5 KB/s max. rate)
-#if defined __APPLE2__
-	#define HUB_REFRESH_RATE  3	// out of ??? TCK/s
-#elif defined __ATMOS__
-	#define HUB_REFRESH_RATE  5	// out of 100 TCK/s
-#elif defined __LYNX__
-	#define HUB_REFRESH_RATE  3	// out of 60 TCK/s
-#else
-	#define HUB_REFRESH_RATE  3	// Default value
-#endif	
 
 // HUB Client Version
 #define HUB_CLIENT_VER	  1

@@ -60,6 +60,7 @@ setupChrAddr:
 	
 	ldx #0
 	lda #$84		; DLI + Text Mode
+	dec _chrRows
 loopCHR:
 	sta $0906,x
 	inx
@@ -68,6 +69,7 @@ loopCHR:
 	
 checkSplit:	
 	lda _chrRows	; Is this a split screen?
+	inc _chrRows
 	cmp #24
 	beq footer
 	

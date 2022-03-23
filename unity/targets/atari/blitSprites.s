@@ -28,7 +28,7 @@
 
 	.export _BlitSprites
 	
-	.export _sprToggle, _sprRows, _sprPads, _sprDLIs, _sprBank, _sprDrawn
+	.export _sprRows, _sprPads, _sprDLIs, _sprBank, _sprDrawn
 	.export _sprX, _sprY, _sprLine, _sprOff, _sprDst, _sprSrc, _sprColor	
 	
 	.import _posPM0, _colPM0	; See DLI.s
@@ -36,20 +36,21 @@
 	.segment	"DATA"		
 	
 ; Sprite parameters
-_sprToggle: .byte 2
 _sprRows:   .byte 0
 _sprPads:   .res  1
 _sprDLIs:   .res  1
-_sprBank:	.res  3
-_sprX:      .res 12
-_sprY:      .res 12
-_sprBck:    .res 24
-_sprDst:    .res 24
-_sprSrc:    .res 24
-_sprOff:    .res 12
-_sprLine:   .res 12
-_sprColor:  .res 12
-_sprDrawn:  .byte 0,0,0,0,0,0,0,0,0,0,0,0	
+_sprX:      .res 16
+_sprY:      .res 16
+_sprBck:    .res 32
+_sprDst:    .res 32
+_sprSrc:    .res 32
+_sprOff:    .res 16
+_sprLine:   .res 16
+_sprColor:  .res 16
+_sprBank:	.byte 0,0,0,0
+_sprFirst:	.byte 0,4,8,12
+_sprLast:	.byte 4,8,12,16
+_sprDrawn:  .byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 
 	.segment	"BSS"			
 
@@ -59,7 +60,6 @@ _ind8:  .res 1
 _ind16: .res 1
 _ldli:  .res 1
 _first: .res 1
-_last:  .res 1
 _lead:  .res 1
 _body:  .res 1
 	
@@ -71,56 +71,33 @@ _body:  .res 1
 
 _BlitSprites:
 
-	; Process only every other frame
-	lda _sprToggle
-	eor #$1
-	sta _sprToggle
-	bne processSprites
-	rts
-processSprites:
-
-	; Toggle between slot banks 0, 1, 2
+	; Toggle between slot banks 0, 1, 2, 3
 bankLoop:	
-	inc _bank
-	lda _bank
-	cmp #3
+	inc _bank			; Increase bank number
+	ldx _bank
+	cpx #4
 	bcc bankCheck
-	lda #0
-	sta _bank
-	lda _sprBank	
+	
+	ldx #0
+	stx _bank
+	lda _sprBank
 	bne bankDone
 	rts
+	
 bankCheck:
-	tax
-	lda _sprBank, x
+	lda _sprBank,x		; Check if bank is enabled
 	beq bankLoop
 bankDone:
+
+	; Assign frame range
+	lda _sprFirst,x
+	sta _first
+	lda _sprLast,x
+	tay
 	
-	; Increase index by 4 for each banks
-	lda #0		; Frame range #00-#03
-	ldx #0
-	cpx _bank
-	beq rangeDone
-	clc
-	adc #4		; Frame range #04-#07 
-	inx
-	cpx _bank
-	beq rangeDone
-	clc
-	adc #4		; Frame range #08-#11 
-rangeDone:	
-
-	; Save first index of range
-	sta _first  
-	tay			
-
-	; Save last index of range
-	clc
-	adc #4
-	sta _last
-
 loopSlots:
-	; Save 8 bit index
+	; Decrement and save 8 bit index of slot
+	dey
 	sty _ind8
 
 	; Check if slot enabled
@@ -128,14 +105,14 @@ loopSlots:
 	beq skipSlot
 	
 	; Set position/color registers (in case DLI gets disabled...)
-	tya
-	sec
-	sbc _first
-	tax
-	lda _sprX,y			; Sprite Position
-	sta $d000,x
-	lda _sprColor,y	 	; Sprite Color	
-	sta $02c0,x
+	;tya
+	;sec
+	;sbc _first
+	;tax
+	;lda _sprX,y			; Sprite Position
+	;sta $d000,x
+	;lda _sprColor,y	 	; Sprite Color	
+	;sta $02c0,x
 	
 	; Get amount of lead-zeroes
 	lda _sprOff,y	 
@@ -148,25 +125,25 @@ loopSlots:
 	
 	; Get first (X-register) and last DLI Line
 	lda _sprLine,y
-	tax
+	sta _ldli
 	clc
 	adc _sprDLIs
-	sta _ldli
+	tax
 	
-	; DLI position
+	; Set DLI lines
 loopPosition:
+	dex
 	lda _sprX,y			; Sprite Position
 	sta _posPM0,x
 	lda _sprColor,y	 	; Sprite Color
 	sta _colPM0,x
-	inx
 	cpx _ldli	
-	bcc loopPosition	
+	bne loopPosition	
 	
 	; Arithmetic shift left to multiply index by 2 (16 bit addressing)
 	tya
 	asl				
-	tay		
+	tay
 	
 	; Reset if sprite moved, then copy
 	lda _sprBck,y
@@ -179,9 +156,8 @@ skipReset:
 skipSlot:
 	; Next slot
 	ldy _ind8
-	iny
-	cpy _last
-	bcc loopSlots
+	cpy _first
+	bne loopSlots
 	
 	rts
 	
@@ -191,23 +167,22 @@ skipSlot:
 	
 resetSprite:
 
-	; Prepare ZP address for resetting
+	; Prepare addresses
 	sty _ind16
-	sta  $e8
+	sta loopReset+2
 	lda _sprDst,y
 	sta _sprBck,y	
 	iny
 	lda _sprDst,y
-	sta  $e9	 	
+	sta loopReset+3	 	
 	
 	; Reset PMG ram at old location
 	lda #0
-	ldy #0
+	ldy _sprPads
 loopReset:
-	sta ($e8),y
-	iny
-	cpy _sprPads
-	bcc loopReset
+	dey
+	sta $0000,y
+	bne loopReset
 	ldy _ind16
 
 	rts
@@ -222,12 +197,12 @@ copySprite:
 	lda _sprDst,y	; Copy low-byte of address
 	sta  $e8	 
 	lda _sprSrc,y
-	sta  $ea	
+	sta  loopBody+1	
 	iny
 	lda _sprDst,y	; Copy high-byte of address
-	sta  $e9	 
+	sta  $e9
 	lda _sprSrc,y
-	sta  $eb
+	sta  loopBody+2	 
 
 	; Set lead-zeros	
 	lda #0
@@ -243,7 +218,7 @@ skipLead:
 
 	; Copy frame data
 loopBody:
-	lda ($ea),y
+	lda $0000,y
 	sta ($e8),y
 	iny
 	cpy _body

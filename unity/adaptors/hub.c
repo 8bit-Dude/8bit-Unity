@@ -45,8 +45,7 @@
   unsigned char __fastcall__ SerialOpen(void* data); // See serial.s
   unsigned char __fastcall__ SerialGet(unsigned char* data);
   unsigned char __fastcall__ SerialPut(unsigned char data);
-  unsigned char comParm = 0;  //struct ser_params comParm = { SER_BAUD_62500, SER_BITS_8, SER_STOP_1, SER_PAR_SPACE, SER_HS_NONE };							  
-  unsigned char byte;	
+  unsigned char byte, comParm = 0;
   unsigned char RecvByte() {
 	unsigned int i = 512;
 	while (i) {  // Countdown i to 0

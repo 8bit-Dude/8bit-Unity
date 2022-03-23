@@ -50,7 +50,7 @@
 	
 #elif defined __ATARI__	
 	unsigned char *sprData, sprYOffset, sprCollision[SPRITE_NUM], sprCushion = 2;
-	unsigned char sprMask[] = { 1, 2, 4, 8, 1, 2, 4, 8, 1, 2, 4, 8 };	
+	unsigned char sprMask[] = { 1, 2, 4, 8, 1, 2, 4, 8, 1, 2, 4, 8, 1, 2, 4, 8 };	
 
 #elif defined __CBM__
 	void DoubleHeightSprite(unsigned char index, unsigned char onoff) {

@@ -53,7 +53,7 @@
 
 #elif defined __ATARI__
 	#define PLATFORM   1
-    #define SPRITE_NUM 12
+    #define SPRITE_NUM 16
     #include "targets/atari/platform.h"	
 
 #elif defined __APPLE2__
