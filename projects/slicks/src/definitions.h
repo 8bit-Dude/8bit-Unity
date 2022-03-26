@@ -217,8 +217,8 @@
 
 // Vehicle structure
 typedef struct {
-	int x1, y1;  // Old Position * 8 (integer)
-	int x2, y2;	 // New Position * 8 (integer)
+	int dx, dy;  // Network Position Delta * 8 (integer)
+	int x, y;	 // Vehicle Position * 8 (integer)
 	int ang1; 	 // Vehicle Angle
 	int ang2;	 // Trajectory Angle
 	int vel;	 // Velocity

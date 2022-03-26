@@ -88,8 +88,8 @@ char CheckWaypoint(void)
 	signed int dotCross1, dotCross2;
 	
 	// Check waypoint vector dot products against old position
-	v1[0] = (iCar->x1 - way->x)/32u;
-	v1[1] = (iCar->y1 - way->y)/32u;	
+	v1[0] = (iCar->x - way->x)/32u;
+	v1[1] = (iCar->y - way->y)/32u;	
 	if ( (dot(v1, vWay) >= 0) ) {
 		
 		// Check waypoint vector dot products against new position
@@ -208,8 +208,8 @@ void ResetLineUp()
 	for (i=0; i<MAX_PLAYERS; ++i) {
 		j = gameLineUp[i];
 		car = &cars[i];
-		car->x2 =   lineupX[j]; 
-		car->y2 =   lineupY[j];
+		car->x = lineupX[j]; 
+		car->y = lineupY[j];
 		car->ang1 = lineupAng[j];
 		car->ang2 = lineupAng[j];
 		bzero(&car->vel, 4);		

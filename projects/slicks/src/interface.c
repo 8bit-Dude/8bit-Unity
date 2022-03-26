@@ -530,8 +530,8 @@ void PrintScores()
 		if (controlIndex[i] > 0) {
 			// Compute Score
 			iCar = &cars[i];
-			iX = iCar->x2;
-			iY = iCar->y2;
+			iX = iCar->x;
+			iY = iCar->y;
 			if (iCar->lap < 0) { iCar->lap = 0; }
 			score[i] = iCar->lap*18;
 			if (iCar->way) {

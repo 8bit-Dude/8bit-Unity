@@ -126,23 +126,23 @@ void GameReset()
 			f = ((iCar->ang1+12)%(360))/23u;
 		#if defined __APPLE2__
 			f += i*16u;
-			spriteX = (iCar->x2*7u)/128u;
-			spriteY = (iCar->y2*3u)/25u;
+			spriteX = (iCar->x*7u)/128u;
+			spriteY = (iCar->y*3u)/25u;
 		#elif defined __ATARI__
-			spriteX = iCar->x2/16u + 45; 
-			spriteY = iCar->y2/8u;		
+			spriteX = iCar->x/16u + 45; 
+			spriteY = iCar->y/8u;		
 		#elif defined __ORIC__
-			spriteX = iCar->x2/32u;	
-			spriteY = iCar->y2/8u;			
+			spriteX = iCar->x/32u;	
+			spriteY = iCar->y/8u;			
 		#elif defined __CBM__
-			spriteX = iCar->x2/8u; 
-			spriteY = iCar->y2/8u;
+			spriteX = iCar->x/8u; 
+			spriteY = iCar->y/8u;
 		#elif defined __LYNX__
-			spriteX = iCar->x2/16u; 
-			spriteY = iCar->y2/16u;
+			spriteX = iCar->x/16u; 
+			spriteY = iCar->y/16u;
 		#elif defined __NES__
-			spriteX =  iCar->x2/10u; 
-			spriteY = (iCar->y2*3u)/25u+24;
+			spriteX =  iCar->x/10u; 
+			spriteY = (iCar->y*3u)/25u+24;
 		#endif
 		#if defined MULTICOLOR
 			SetMultiColorSprite(2*i, f);  // Car body and tires
@@ -525,8 +525,8 @@ char GameLoop()
 			// Get player parameters
 			iCtrl = controlIndex[i];
 			iCar = &cars[i];
-			iX = iCar->x2;
-			iY = iCar->y2;
+			iX = iCar->x;
+			iY = iCar->y;
 			iAng1 = iCar->ang1;
 			iAng2 = iCar->ang2;
 			iVel = iCar->vel;
@@ -544,14 +544,14 @@ char GameLoop()
 			
 			// Gently LERP network players
 			if (iCtrl == NET_CONTROL) {
-				if (abs(iCar->x1)+abs(iCar->y1) > LERP_THRESHOLD) {
-					iX += iCar->x1; iCar->x1 = 0;
-					iY += iCar->y1; iCar->y1 = 0;
+				if (abs(iCar->dx)+abs(iCar->dy) > LERP_THRESHOLD) {
+					iX += iCar->dx; iCar->dx = 0;
+					iY += iCar->dy; iCar->dy = 0;
 				} else {
-					if      (iCar->x1 > 0) { if (iCar->x1 >= ticks) { iX += ticks; iCar->x1 -= ticks; } else { iX++; iCar->x1--; } }
-					else if (iCar->x1 < 0) { if (iCar->x1 <= ticks) { iX -= ticks; iCar->x1 += ticks; } else { iX--; iCar->x1++; } }
-					if      (iCar->y1 > 0) { if (iCar->y1 >= ticks) { iY += ticks; iCar->y1 -= ticks; } else { iY++; iCar->y1--; } }
-					else if (iCar->y1 < 0) { if (iCar->y1 <= ticks) { iY -= ticks; iCar->y1 += ticks; } else { iY--; iCar->y1++; } }
+					if      (iCar->dx > 0) { if (iCar->dx >= ticks) { iX += ticks; iCar->dx -= ticks; } else { iX++; iCar->dx--; } }
+					else if (iCar->dx < 0) { if (iCar->dx <= ticks) { iX -= ticks; iCar->dx += ticks; } else { iX--; iCar->dx++; } }
+					if      (iCar->dy > 0) { if (iCar->dy >= ticks) { iY += ticks; iCar->dy -= ticks; } else { iY++; iCar->dy--; } }
+					else if (iCar->dy < 0) { if (iCar->dy <= ticks) { iY -= ticks; iCar->dy += ticks; } else { iY--; iCar->dy++; } }
 				}
 			}
 
@@ -725,8 +725,8 @@ char GameLoop()
 				if (iVel > VELMIN) { iVel = VELMIN; }
 				if (iCtrl > 3) {
 					if (iJmp) { iJmp = 0; }
-					iX = iCar->x2;
-					iY = iCar->y2;
+					iX = iCar->x;
+					iY = iCar->y;
 					BumpSFX();
 				}
 			}
@@ -773,7 +773,7 @@ char GameLoop()
 							jCar = &cars[j];
 							if (iJmp || (clock()-jCar->jmp) < jmpTCK) { continue; }
 							// Apply impulse to other car, and reduce own velocity
-							if ( (iCos*(jCar->x2 - iX) - iSin*(jCar->y2 - iY)) > 0) {
+							if ( (iCos*(jCar->x - iX) - iSin*(jCar->y - iY)) > 0) {
 								if (iVel > VELMIN) { iVel = VELMIN; }
 								jCar->impx = iCos/2;
 								jCar->impy = -iSin/2;		
@@ -797,14 +797,6 @@ char GameLoop()
 				ScreechSFX(i);					
 		#endif
 			
-			// Update car position
-			iCar->x2 = iX;
-			iCar->y2 = iY;
-			iCar->ang1 = iAng1;
-			iCar->ang2 = iAng2;
-			iCar->vel = iVel;
-			iCar->joy = iJoy;
-
 			// Check navigation
 			if (iCtrl != NET_CONTROL && gameStep > STEP_WARMUP) {
 				// Check current cylinder
@@ -834,11 +826,16 @@ char GameLoop()
 							}	
 						}
 					}
-				}
-				// Update old car position
-				iCar->x1 = iCar->x2;
-				iCar->y1 = iCar->y2;						
-			}			
+				}				
+			}	
+
+			// Update car position
+			iCar->x = iX;
+			iCar->y = iY;
+			iCar->ang1 = iAng1;
+			iCar->ang2 = iAng2;
+			iCar->vel = iVel;
+			iCar->joy = iJoy;			
 		}
 
 		// Process sound effects
