@@ -2460,6 +2460,19 @@
                         </layout>
                       </object>
                     </child>
+                    <child>
+                      <object class="ttk.Checkbutton" id="Checkbutton_LynxVirtualKeyboard">
+                        <property name="text" translatable="yes">Virtual Keyboard</property>
+                        <property name="variable">boolean:LynxVirtualKeyboard</property>
+                        <layout>
+                          <property name="column">5</property>
+                          <property name="padx">5</property>
+                          <property name="pady">2</property>
+                          <property name="propagate">True</property>
+                          <property name="row">2</property>
+                        </layout>
+                      </object>
+                    </child>					
                   </object>
                 </child>
               </object>

@@ -99,7 +99,7 @@ for row in range(0,charImg.size[1],8):
                     attrData[row*4+col/4] = chr(128)              
 
 ############################################
-# Convert char and font data to C64 format
+# Convert char and font data to Atari format
 charData = [chr(0)] * (128*8)
 for i in range(0,len(charBlocks),4):
     charData[i/4] = chr((charBlocks[i+0]<<6) + (charBlocks[i+1]<<4) + (charBlocks[i+2]<<2) + (charBlocks[i+3]<<0))

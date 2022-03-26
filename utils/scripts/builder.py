@@ -356,6 +356,7 @@ class Application:
         self.entry_LynxChunkMemory = self.builder.get_object('Entry_LynxChunkMemory')
         self.entry_LynxSharedMemory = self.builder.get_object('Entry_LynxSharedMemory')
         self.entry_LynxAssetFilter = self.builder.get_object('Entry_LynxAssetFilter')
+        self.checkbutton_LynxVirtualKeyboard = self.builder.get_variable('LynxVirtualKeyboard');
 
         self.listbox_NESBitmap = self.builder.get_object('Listbox_NESBitmap')        
         self.listbox_NESCharset = self.builder.get_object('Listbox_NESCharset')        
@@ -442,6 +443,7 @@ class Application:
         self.checkbutton_C64NetworkRRNet.set(False)
         self.checkbutton_C64NetworkUltimate.set(False)
         self.combobox_C64NetworkProtocols.current(1)        
+        self.checkbutton_LynxVirtualKeyboard.set(True)        
         
     def FileLoad(self, filename=''):
         if filename == '':
@@ -673,6 +675,7 @@ class Application:
                     ('chunkMemory', ('entry', self.entry_LynxChunkMemory)),
                     ('sharedMemory', ('entry', self.entry_LynxSharedMemory)),
                     ('assetFilter', ('entry', self.entry_LynxAssetFilter)),
+                    ('virtualKeyboard', ('checkbutton', self.checkbutton_LynxVirtualKeyboard)),
                 ]),
                 ('NES', [
                     ('bitmapTiles', ('entry', self.entry_NESBitmapTiles)),
@@ -1131,9 +1134,9 @@ class Application:
                         fp.write(py27 + ' utils/scripts/apple/AppleBitmap.py ' + graphics + ' raw ' + item + ' ' + buildFolder + '/apple/' + FileBase(item, '.png') + '.img\n')
 
                 # Charset
-                if len(charset) > 0:
-                    fb = FileBase(charset[0], '.png')
-                    fp.write(py27 + ' utils/scripts/apple/AppleCharset.py ' + graphics + ' ' + charset[0] + ' ' + buildFolder + '/apple/' + fb + '.chr\n')
+                for item in charset:
+                    fb = FileBase(item, '.png')
+                    fp.write(py27 + ' utils/scripts/apple/AppleCharset.py ' + graphics + ' ' + item + ' ' + buildFolder + '/apple/' + fb + '.chr\n')
                     
                 # Sprites
                 if len(sprites) > 0:
@@ -1183,8 +1186,8 @@ class Application:
                 for item in bitmaps:
                     fb = FileBase(item, '.png')
                     fp.write(java + ' -jar utils/scripts/apple/AppleCommander-1.6.0.jar -p ' + buildFolder + '/' + diskname + '-apple' + target + ext + ' ' + fb.upper() + '.IMG bin < ' + buildFolder + '/apple/' + fb + '.img\n')
-                if len(charset) > 0:
-                    fb = FileBase(charset[0], '.png')
+                for item in charset:
+                    fb = FileBase(item, '.png')
                     fp.write(java + ' -jar utils/scripts/apple/AppleCommander-1.6.0.jar -p ' + buildFolder + '/' + diskname + '-apple' + target + ext + ' ' + fb.upper() + '.CHR bin < ' + buildFolder + '/apple/' + fb + '.chr\n')
                 for item in charmaps:
                     fb = FileBase(item, '')
@@ -1356,9 +1359,9 @@ class Application:
                     fp.write(Copy(item, buildFolder + '/atari/' + FileBase(item, '')))
                     
                 # Charsets
-                if len(charset) > 0:
-                    fb = FileBase(charset[0], '.png')
-                    fp.write(py27 + ' utils/scripts/atari/AtariCharset.py ' + charset[0] + ' ' + buildFolder + '/atari/' + fb + '.chr\n')
+                for item in charset:
+                    fb = FileBase(item, '.png')
+                    fp.write(py27 + ' utils/scripts/atari/AtariCharset.py ' + item + ' ' + buildFolder + '/atari/' + fb + '.chr\n')
                     
                 # Sprites    
                 if len(sprites) > 0:
@@ -1481,8 +1484,10 @@ class Application:
                 
                 # Compress Program
                 if len(sprites) > 0:
+                    #fp.write(ex30 + ' sfx ' + addr + '$180d ' + buildFolder + '/c64/' + executable + '.bin unity/targets/c64/krill-loader.prg ' + buildFolder + '/c64/sprites.dat -B -o ' + buildFolder + '/c64/' + executable + '.prg\n\n')          
                     fp.write(ex30 + ' sfx ' + addr + '$180d ' + buildFolder + '/c64/' + executable + '.bin ' + buildFolder + '/c64/sprites.dat -B -o ' + buildFolder + '/c64/' + executable + '.prg\n\n')          
                 else:
+                    #fp.write(ex30 + ' sfx ' + addr + '$180d ' + buildFolder + '/c64/' + executable + '.bin unity/targets/c64/krill-loader.prg -B -o ' + buildFolder + '/c64/' + executable + '.prg\n\n')
                     fp.write(ex30 + ' sfx ' + addr + '$180d ' + buildFolder + '/c64/' + executable + '.bin -B -o ' + buildFolder + '/c64/' + executable + '.prg\n\n')
                 
             # Include loader program?
@@ -1498,7 +1503,7 @@ class Application:
                 fp.write(cl65 + ' -o ' + buildFolder + '/c64/loader.bin ' + symbols + ' -C unity/targets/c64/c64.cfg -I unity unity/targets/c64/loader.c ' + library + '\n\n')
                 
                 # Compress Loader
-                #fp.write(ex30 + ' sfx $180d ' + buildFolder + '/c64/loader.bin unity/targets/c64/krill-install.prg unity/targets/c64/krill-load.prg  -B -o ' + buildFolder + '/c64/loader.prg\n\n')
+                #fp.write(ex30 + ' sfx ' + addr + '$180d ' + buildFolder + '/c64/loader.bin unity/targets/c64/krill-install.prg unity/targets/c64/krill-loader.prg  -B -o ' + buildFolder + '/c64/loader.prg\n\n')
                 fp.write(ex30 + ' sfx ' + addr + '$180d ' + buildFolder + '/c64/loader.bin -B -o ' + buildFolder + '/c64/loader.prg\n\n')
 
             # Clean-up build folder
@@ -1517,10 +1522,10 @@ class Application:
             for item in charmaps:
                 fp.write(Copy(item, buildFolder + '/c64/' + FileBase(item, '')))
                     
-            # Charset    
-            if len(charset) > 0:
-                fb = FileBase(charset[0], '.png')
-                fp.write(py27 + ' utils/scripts/c64/C64Charset.py ' + charset[0] + ' ' + buildFolder + '/c64/' + fb + '.chr' + ' ' + self.entry_C64CharsetColors.get() + '\n')
+            # Charsets 
+            for item in charset:
+                fb = FileBase(item, '.png')
+                fp.write(py27 + ' utils/scripts/c64/C64Charset.py ' + item + ' ' + buildFolder + '/c64/' + fb + '.chr' + ' ' + self.entry_C64CharsetColors.get() + '\n')
                                 
             # Chunks
             for item in chunks:
@@ -1570,8 +1575,8 @@ class Application:
             for item in bitmaps:
                 fb = FileBase(item, '.png')
                 fp.write('-write ' + buildFolder + '/c64/' + fb + '.img ' + fb + '.img ')
-            if len(charset) > 0:
-                fb = FileBase(charset[0], '.png')            
+            for item in charset:
+                fb = FileBase(item, '.png')            
                 fp.write('-write ' + buildFolder + '/c64/' + fb + '.chr ' + fb + '.chr ')                           
             for item in charmaps:
                 fb = FileBase(item, '')
@@ -1620,10 +1625,10 @@ class Application:
             if len(bitmaps) > 0:
                 fp.write('\n')
                 
-            # Charset
-            if len(charset) > 0:
-                fb = FileBase(charset[0], '.png')
-                fp.write(py27 + ' utils/scripts/lynx/LynxCharset.py ' + charset[0] + ' ' + buildFolder + '/lynx/' + fb + '.chr\n')
+            # Charsets
+            for item in charset:
+                fb = FileBase(item, '.png')
+                fp.write(py27 + ' utils/scripts/lynx/LynxCharset.py ' + item + ' ' + buildFolder + '/lynx/' + fb + '.chr\n')
                 fp.write('\n')
                 
             # Sprites
@@ -1645,8 +1650,9 @@ class Application:
                 fp.write('\n')
 
             # Virtual Keyboard
-            fp.write(Copy('utils/scripts/lynx/cursor.spr', buildFolder + '/lynx/cursor.dat'))
-            fp.write(Copy('utils/scripts/lynx/keyboard.spr', buildFolder + '/lynx/keyboard.dat'))
+            if self.checkbutton_LynxVirtualKeyboard.get():
+                fp.write(Copy('utils/scripts/lynx/cursor.spr', buildFolder + '/lynx/cursor.dat'))
+                fp.write(Copy('utils/scripts/lynx/keyboard.spr', buildFolder + '/lynx/keyboard.dat'))
             fp.write('\n')
                                 
             # Copy Chipper sfx and music data
@@ -1699,8 +1705,9 @@ class Application:
             fp.write('@echo .global _fileSizes >> data.asm\n')
             fp.write('@echo .global _fileNames >> data.asm\n')
             fp.write('@echo .global _spriteData >> data.asm\n')
-            fp.write('@echo .global _cursorData >> data.asm\n')
-            fp.write('@echo .global _keybrdData >> data.asm\n')
+            if self.checkbutton_LynxVirtualKeyboard.get():
+                fp.write('@echo .global _cursorData >> data.asm\n')
+                fp.write('@echo .global _keybrdData >> data.asm\n')
             fp.write('@echo ; >> data.asm\n')
             
             # Num and sizes of files
@@ -1826,8 +1833,9 @@ class Application:
                 fp.write('@echo _spriteData: .byte 0 >> data.asm\n')
 
             # Keyboard Data
-            fp.write('@echo _cursorData: .incbin "cursor.dat" >> data.asm\n')             
-            fp.write('@echo _keybrdData: .incbin "keyboard.dat" >> data.asm\n')                                                 
+            if self.checkbutton_LynxVirtualKeyboard.get():
+                fp.write('@echo _cursorData: .incbin "cursor.dat" >> data.asm\n')             
+                fp.write('@echo _keybrdData: .incbin "keyboard.dat" >> data.asm\n')                                                 
             
             # Done, return to base folder
             fp.write('\n')
@@ -1844,6 +1852,8 @@ class Application:
             cTarget = [ 'adaptors/hub.c', 'graphics/pixel.c', 'targets/lynx/cgetc.c', 'targets/lynx/display.c', 'targets/lynx/files.c', 'targets/lynx/keyboard.c', 'targets/lynx/screen.c', 'targets/lynx/text.c' ]
             sTarget = [ 'graphics/scroll.s', 'strings/chars.s', 'targets/lynx/header.s', 'targets/lynx/blitCharmap.s', 'targets/lynx/serial.s', 'targets/lynx/suzy.s' ]
             symbols = ' -D __HUB__ -D MUSICSIZE='  + self.entry_LynxMusicMemory.get().replace('$','0x') + ' -D CHUNKSIZE='  + chunkSize.replace('$','0x') + ' -D SHAREDSIZE='  + self.entry_LynxSharedMemory.get().replace('$','0x') + ' -D SPRITEFRAMES=' + self.entry_LynxSpriteFrames.get() + ' -D SPRITEWIDTH=' + self.entry_LynxSpriteWidth.get() + ' -D SPRITEHEIGHT=' + self.entry_LynxSpriteHeight.get()
+            if self.checkbutton_LynxVirtualKeyboard.get():
+                symbols += ' -D __KEYBOARD__'
 
             # Build Unity Library
             library = 'unity/unity-lynx-hub.lib'
