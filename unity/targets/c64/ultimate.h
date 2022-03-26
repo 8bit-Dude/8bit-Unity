@@ -90,7 +90,6 @@ extern char uii_status[STATUS_QUEUE_SZ];
 extern char uii_data[DATA_QUEUE_SZ];
 
 // prototypes
-void uii_settarget(unsigned char id);
 void uii_freeze(void);
 void uii_identify(void);
 void uii_echo(void);

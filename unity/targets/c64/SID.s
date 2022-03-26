@@ -127,7 +127,7 @@ rst1:
         sta     $d404
         sta     $d40b
         sta     $d412 
-        ldx    #$03
+        ldx     #$03
 rst2:       
         bit     $d011
         bpl     *-3
