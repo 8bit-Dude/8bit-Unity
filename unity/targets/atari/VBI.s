@@ -134,7 +134,7 @@ skipBitmapVBI:
 	; Apply charmap/bitmap toggle?
 	lda	_chrRows
 	cmp #25
-	bcc skipPaletteVBI
+	bpl skipPaletteVBI
 	jsr _SwapPalette
 skipPaletteVBI:
 

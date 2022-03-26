@@ -132,8 +132,8 @@ void InitCharmap(unsigned char col1, unsigned char col2, unsigned char row1, uns
   #endif
   
 	// Charmap/Bitmap transition params	
-	chrRows = row2-1;
-	bmpRows = chrRows + 8*(CMP_ROWS-row2) + 2;
+	chrRows = row2;
+	bmpRows = (8*CMP_ROWS+1) + row2 - 8*row2;
 	bmpAddr = BITMAPRAM1 + row2*(8*40);
 #elif defined __CBM__
 	// Charmap/Bitmap transition params

@@ -98,9 +98,7 @@ void DrawCharmap(unsigned char x, unsigned char y)
 	// Blit decoded map to screen
  #ifndef __APPLE2__
 	POKEW(scrPtrZP, (unsigned int)screenData);
-  #if defined __ATARI__
-	POKEW(charatrDataZP, charatrData);
-  #elif defined __CBM__	
+  #if defined __CBM__	
 	POKEW(charatrDataZP, charatrData);
 	POKEW(colPtrZP, colorData);
   #endif

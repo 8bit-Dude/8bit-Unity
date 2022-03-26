@@ -44,6 +44,10 @@ void LoadTileset(char *filename, unsigned int n)
 {
 	// Assign memory and ZP pointer
 	unsigned int size = n*TILE_WIDTH*TILE_HEIGHT;	
+#if defined(__ATARI__)	
+	unsigned int i = 0;
+	unsigned char c;
+#endif
 #ifndef __NES__
 	tilesetData = malloc(size);
 #endif
@@ -56,6 +60,14 @@ void LoadTileset(char *filename, unsigned int n)
 #elif defined __LYNX__
 	if (FileOpen(filename))	{ // Data is immediately loaded into BITMAP memory on open
 		memcpy(tilesetData, (char*)BITMAPRAM, size);
+	}
+#endif
+
+	// Assign Attributes
+#if defined(__ATARI__)	
+	while (i < size) {
+		c = tilesetData[i];
+		tilesetData[i++] += charatrData[c];
 	}
 #endif
 	

@@ -47,10 +47,9 @@ void ShowCharmap()
 	
 #elif defined __ATARI__	
 	// Set palette, DLIST and screen DMA
-	SetPalette(chrPalette);
 	CharmapDLIST(); 
-	paletteDLI = 1;
-	POKE(559, PEEK(559)|32);	
+	POKE(559, PEEK(559)|32);
+	SetPalette(chrPalette);
 	
 #elif defined __CBM__	
 	SetupVIC2(); // Switch memory bank and multicolor mode	

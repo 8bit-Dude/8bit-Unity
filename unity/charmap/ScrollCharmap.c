@@ -45,7 +45,7 @@
 
 void ScrollCharmap(unsigned char x, unsigned char y)
 {
-#ifdef __NES__
+#if defined(__NES__) || defined(__ATARI__)
 	DrawCharmap(x, y);
 #else
 	signed char stepX, stepY;
@@ -140,9 +140,7 @@ void ScrollCharmap(unsigned char x, unsigned char y)
 		tmp1 = screenHeight;
 		screenHeight = ABS(stepY);
 		POKEW(scrPtrZP, (unsigned int)screenData+dstOff);
-	  #if defined(__ATARI__)
-		POKEW(charatrDataZP, charatrData);
-	  #elif defined __CBM__	
+	  #if defined __CBM__	
 		POKEW(charatrDataZP, charatrData);
 		POKEW(colPtrZP, (unsigned int)colorData+dstOff);
 	  #endif
@@ -178,9 +176,7 @@ void ScrollCharmap(unsigned char x, unsigned char y)
 		screenCol1 += dstOff%LINE_SIZE;
 	#else
 		POKEW(scrPtrZP, (unsigned int)screenData+dstOff);
-	  #if defined __ATARI__
-		POKEW(charatrDataZP, charatrData);
-	  #elif defined __CBM__	
+	  #if defined __CBM__	
 		POKEW(charatrDataZP, charatrData);
 		POKEW(colPtrZP, (unsigned int)colorData+dstOff);
 	  #endif

@@ -46,9 +46,8 @@ void HideCharmap()
 	HideBitmap();
 	
 #elif defined __ATARI__	
-	// Disable Screen DMA and Palette DLI
+	// Disable Screen DMA
 	POKE(559, PEEK(559)&~32);
-	paletteDLI = 0;
 	
 #elif defined __CBM__	
 	StopDLI();	  // Stop raster line interrupt

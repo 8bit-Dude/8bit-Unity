@@ -52,12 +52,13 @@ void ShowBitmap()
   
 #elif defined __ATARI__
 	// Set palette, DLIST and screen DMA
-	SetPalette(bmpPalette);	
+	chrRows = 128;		// Prevents palette switching
 	BitmapDLIST(); 
   #ifdef __ATARIXL__
 	bitmapVBI = 1;
   #endif
 	POKE(559, PEEK(559)|32);
+	SetPalette(bmpPalette);
 	
 #elif defined __CBM__
 	SetupVIC2();	// Switch memory bank and multicolor mode

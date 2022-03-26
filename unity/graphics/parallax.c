@@ -76,9 +76,10 @@ void ShowParallax()
 	
 #elif defined __ATARI__		
 	// Set palette, DLIST and screen DMA
-	SetPalette(chrPalette);	
-	ParallaxDLIST(); parallaxDLI = 1;
+	ParallaxDLIST(); 
+	parallaxDLI = 1;
 	POKE(559, PEEK(559)|32);	
+	SetPalette(chrPalette);
 	
 #elif defined __CBM__	
 	SetupVIC2(); // Switch memory bank and multicolor mode	

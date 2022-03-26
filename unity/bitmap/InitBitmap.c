@@ -60,7 +60,6 @@ void InitBitmap()
 	POKE(559, (16+8+2));
 
 	// Setup DLI/VBI
-	chrRows = 128;		// Prevents palette switching
 	StartDLI(); StartVBI();	
   #ifdef __ATARIXL__
 	doubleBuffer = 1;

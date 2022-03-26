@@ -29,7 +29,6 @@
 	.import _screenWidth, _screenHeight
 	.import _blockWidth, _lineWidth
 	
-charattDataZP = $e0
 charPointerZP = $e2
 scrPointerZP  = $e4
 	
@@ -45,47 +44,29 @@ _curRow: .res 1
 ; void __near__ BlitCharmap (void)
 ;	Blit page from Charmap to Screen
 ;	Zero Page Data:
-;		charattDataZP: 16 bit address of char attribute data (auto-updated)
 ;		charPointerZP: 16 bit address of location on charmap (auto-updated)
 ;		scrPointerZP:  16 bit address of location on screen (auto-updated)
 ; ---------------------------------------------------------------	
 
 .proc _BlitCharmap: near
 
-	lda #0
+	lda _screenHeight
 	sta _curRow
-	
 loopRows: 
-	lda _curRow
-	cmp _screenHeight
-	bpl doneRows
-	inc _curRow
 							
 		ldy #0
 	loopCols:
-		cpy _screenWidth
-		bpl doneCols			
-		sty _curCol
 	
-			; Get Char Value
+			; Transfer Char value to screen
 			lda (charPointerZP),y
-			sta _tmpChr
-			tay
-			
-			; Add Attribute Value (0 or 128)
-			lda (charattDataZP),y
-			adc _tmpChr
-						
-			; Save to Screen
-			ldy _curCol
-			sta (scrPointerZP),y		
+			sta (scrPointerZP),y
 
 		; Move to next col
 		iny
-		jmp loopCols	
+		cpy _screenWidth
+		bcc loopCols
 
 	doneCols:
-
 		; Update address of location in screen RAM
 		clc	
 		lda scrPointerZP
@@ -105,7 +86,8 @@ loopRows:
 	nocarryChrPtr:
 	
 	; Move to next row
-	jmp loopRows
+	dec _curRow
+	bne loopRows
 
 doneRows:
 	rts
