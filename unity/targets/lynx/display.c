@@ -34,7 +34,9 @@ void __fastcall__ SuzyUpdate(void);
 unsigned char __fastcall__ SuzyBusy(void);
 
 // See keyboard.c
-void UpdateKeyboardOverlay(void);
+#if defined(__KEYBOARD__)
+  void UpdateKeyboardOverlay(void);
+#endif
 
 // Toggle for automatic screen refresh in LoadBitmap(), PrintStr(), PrintNum() or PrintBlanks()
 unsigned char autoRefresh = 1;
@@ -83,7 +85,9 @@ void UpdateDisplay(void)
 	}
 	
 	// Draw soft keyboard?
+  #if defined(__KEYBOARD__)
 	UpdateKeyboardOverlay();
+  #endif
 	
 	// Switch buffer frame
 	SuzyUpdate();

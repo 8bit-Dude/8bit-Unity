@@ -37,7 +37,7 @@ SCB_REHV_PAL keybrdSCB =  { BPP_4 | TYPE_NONCOLL, REHV | PACKED, 0, 0, (char*)&k
 						    0x0100, 0x0100, { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef } };							
 
 // Soft keyboard functions
-clock_t keybrdClock = 0;
+clock_t keybrdClk = 0;
 unsigned char keybrdShow = 0, keybrdVal = 0; 
 unsigned char keybrdJoy = 0, keybrdPressed = 0;
 signed char keybrdRow = 2, keybrdCol = 12;
@@ -82,7 +82,7 @@ void UpdateKeyboardOverlay()
 		// Process next event
 		if (!keybrdPressed) {  
 			keybrdPressed = 1;
-			keybrdClock = clock()-20;
+			keybrdClk = clock()-20;
 			if (!(keybrdJoy & JOY_LEFT)) { keybrdCol -= 1; if (keybrdCol<0)  keybrdCol = 12; }
 			if (!(keybrdJoy & JOY_RIGHT)){ keybrdCol += 1; if (keybrdCol>12) keybrdCol = 0; }
 			if (!(keybrdJoy & JOY_UP))   { keybrdRow -= 1; if (keybrdRow<0)  keybrdRow = 3; }
@@ -97,9 +97,9 @@ void UpdateKeyboardOverlay()
 	
 	// Draw keyboard and cursor
 	SuzyDraw(&keybrdSCB);
-	if (clock()-keybrdClock > 40) { 
-		keybrdClock = clock();	 
-	} else if (clock()-keybrdClock > 20) {
+	if (clock()-keybrdClk > 40) { 
+		keybrdClk = clock();	 
+	} else if (clock()-keybrdClk > 20) {
 		cursorSCB.hpos = (keybrdSCB.hpos+1) + keybrdCol*4;
 		cursorSCB.vpos = (keybrdSCB.vpos+1) + keybrdRow*6;
 		SuzyDraw(&cursorSCB);
