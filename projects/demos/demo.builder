@@ -109,6 +109,7 @@
             "assetFilter": "*", 
             "network8bitHub": true, 
             "networkRRNet": true, 
+            "networkUltimate": true, 
             "networkProtocols": "TCP/UDP"
         }, 
         "Lynx": {
@@ -162,6 +163,7 @@
             "spriteWidth": "12", 
             "spriteHeight": "6", 
             "dithering": "0.2", 
+            "leadColors": " ", 
             "bitmap": [
                 "projects/demos/bitmaps/banner-oric.png", 
                 "projects/demos/bitmaps/stadium-oric.png"

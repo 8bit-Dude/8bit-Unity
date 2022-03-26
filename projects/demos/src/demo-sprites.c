@@ -36,6 +36,23 @@ extern const char nextKey;
   #define SLOT_WIDTH 8
 #endif	
 
+clock_t fpsClock;
+unsigned int fpsFrames;
+void DrawFPS()
+{
+    unsigned int fps;
+	
+	// Calculate stats
+	fps = fpsFrames / 2u;
+
+	// Output stats
+	PrintNum(fps);
+	
+	// Reset counters
+	fpsClock = clock();	
+	fpsFrames = 0;
+}
+
 int DemoSprites(void) 
 {
 	unsigned char i, slot, frame;
@@ -64,12 +81,9 @@ int DemoSprites(void)
 	
 	// Print some extra info
 	paperColor = GREY; inkColor = BLACK; 
-	txtY = TXT_ROWS-1; txtX = 0; 
-#if defined __ORIC__
-	SetAttributes(AIC);
-#endif
+	txtX = 0; txtY = TXT_ROWS-1; 
 	PrintStr("STADIUM");	
-	paperColor = BLACK; 
+	paperColor = BLACK;
 	for (i=0; i<4; i++) {
 		slot = SLOT_COL1 + SLOT_WIDTH*i;
 		inkColor = inkColors[i];
@@ -80,6 +94,12 @@ int DemoSprites(void)
 		txtX = slot+3; PrintNum(i+1);
 		txtX = slot+4; PrintLogo(i);
 	}
+	
+	// Set cursor for FPS output
+	inkColor = WHITE; 
+	txtX = 0; txtY = 0; 
+	PrintStr("FPS:");	
+	txtX = 4;
 	
 	// Enable sprites
 	for (i=0; i<4; i++) {
@@ -113,11 +133,17 @@ int DemoSprites(void)
 			#else
 				SetSprite(i, frame);
 			#endif
-				PlaySFX(SFX_ENGINE, 64, 22, 0);
             }       
+			PlaySFX(SFX_ENGINE, 64, 22, 0);
         }
+		
+		// Show frame-rate
+		if (clock()-fpsClock > 2*TCK_PER_SEC)
+			DrawFPS(); 
+		else
+			fpsFrames++;
 	}
-	
+		
 	// Black-out screen and stop SFX
 	DisableSprite(-1);	// "-1" disables all sprites
 	HideBitmap();
