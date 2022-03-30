@@ -83,7 +83,7 @@ typedef struct {
 	unsigned int trans_count;
 } read_param_t;
 
-unsigned int FileRead(char* buffer, signed int len)
+signed int FileRead(char* buffer, signed int len)
 {
 	read_param_t param;
 	param.param_count = 4u;
@@ -99,6 +99,12 @@ typedef struct {
 	unsigned char param_count;
 	unsigned char ref_num;
 } close_param_t;
+
+/*
+signed int FileWrite(char* buffer, signed int len)
+{
+}
+*/
 
 void FileClose( void )
 {

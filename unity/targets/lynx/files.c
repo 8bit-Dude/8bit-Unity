@@ -69,6 +69,6 @@ unsigned int FileRead(char* buffer, signed int len)
 	return len;
 }
 
-void FileClose( void )
+void FileClose(void)
 {
 }

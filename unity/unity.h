@@ -150,7 +150,7 @@ extern unsigned char worldWidth, worldHeight, worldMaxX, worldMaxY;
 // File system functions (see /targets/xxx/files.c)
 void DirList(void);
 unsigned int FileOpen(const char* fname);
-unsigned int FileRead(char* buffer, signed int len);
+signed int FileRead(char* buffer, signed int len);
 void FileClose(void);
 
 // Printing functions (see print.c)

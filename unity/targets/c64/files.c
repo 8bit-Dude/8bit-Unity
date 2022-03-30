@@ -33,27 +33,75 @@
 // Lazy implementation through CC65 API
 
 #include "unity.h" 
+
+#define KRILL 0
+ 
+char *ptr1, *ptr2;
  
 unsigned int FileOpen(const char* fname)
 {
 	// Force lower case
- 	unsigned char *ptr = fname;
-	while (*ptr != 0) {
-		if (*ptr > 192) 
-			*ptr -= 128;
-		if (*ptr > 96) 
-			*ptr -= 32;
-		ptr++;
+ 	ptr1 = (char*)fname;
+	while (*ptr1 != 0) {
+		if (*ptr1 > 192) 
+			*ptr1 -= 128;
+		if (*ptr1 > 96) 
+			*ptr1 -= 32;
+		ptr1++;
 	}
-	return !cbm_open(1, 8, 8, fname);
+	
+	// Use either Kernal or Krill
+	if (!KRILL) {
+		return !cbm_open(1, 8, 8, fname);
+		//if (!cbm_open(1, 8, 8, fname))
+		//	return cbm_read(1, 0xbefe, 2); 
+		//else
+		//	return 0;
+	} else {
+		ptr1 = (char*)fname;
+		return 1;
+	}
 }
 
-unsigned int FileRead(char* buffer, signed int len)
+signed int FileRead(char* buffer, signed int len)
 {
-	return cbm_read(1, buffer, len);
+	// Use either Kernal or Krill
+	if (!KRILL) {
+		return cbm_read(1, buffer, len); 
+	} else {
+		memcpy(0x17e8, 0x00e8, 24);
+		
+		ptr2 = (char*)buffer;
+		__asm__("lda _ptr2");
+		__asm__("sta $e8");			
+		__asm__("lda _ptr2+1");
+		__asm__("sta $e9");
+		
+		// Read file
+		__asm__("ldx _ptr1");
+		__asm__("ldy _ptr1+1");		
+		__asm__("sec");		
+		__asm__("jsr $be00");
+		__asm__("jsr $be07");	
+		
+		memcpy(0x00e8, 0x17e8, 24);
+		
+		return 1;
+	}
 }
+
+/*
+signed int FileWrite(char* buffer, signed int len)
+{
+	if (!KRILL) }
+		return cbm_write(1, buffer, len); 
+	}
+}
+*/
 
 void FileClose()
 {
-	cbm_close(1);
+	if (!KRILL) {
+		cbm_close(1); 
+	}
 }

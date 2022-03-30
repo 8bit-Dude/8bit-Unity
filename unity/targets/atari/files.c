@@ -75,13 +75,19 @@ unsigned int FileOpen(const char* fname)
 	return xbios_open_file();
 }
 
-unsigned int FileRead(char* buffer, signed int len)
+signed int FileRead(char* buffer, signed int len)
 {
 	xbios_dest = buffer;
     xbios_len  = len;
     xbios_load_data();	
 	return len;
 }
+
+/*
+signed int FileWrite(char* buffer, signed int len)
+{
+}
+*/
 
 void FileClose( void )
 {

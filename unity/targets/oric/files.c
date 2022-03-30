@@ -46,20 +46,23 @@ unsigned int FileOpen(const char* fname)
 	return 1;
 }
 
-unsigned int FileRead(char* buffer, signed int len)
+signed int FileRead(char* buffer, signed int len)
 {
     sed_dest = (void*)buffer;
     sed_loadfile();
     return sed_size;
 }
 
-void FileWrite(char* buffer, signed int len) 
+/*
+signed int FileWrite(char* buffer, signed int len) 
 {
     sed_dest = (void*)buffer;
     sed_end = (void*)((unsigned int)sed_dest+len);
-    sed_savefile();  	
+    sed_savefile(); 
+	return 1;
     //return sed_err;
 }
+*/
 
 void FileClose( void )
 {
