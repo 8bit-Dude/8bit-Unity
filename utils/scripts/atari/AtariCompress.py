@@ -33,7 +33,7 @@ sfxFile = rawFile+".zx0"
 
 # Sub-processes
 if "nt" == os.name:
-    zx0 = "utils/scripts/zx0.exe "
+    zx0 = "utils\scripts\zx0.exe "
 else:
     zx0 = "wine utils/scripts/zx0.exe "
     
