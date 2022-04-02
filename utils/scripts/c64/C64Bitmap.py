@@ -39,7 +39,7 @@ output = sys.argv[3]
 if "nt" == os.name:
     ex31 = "utils/scripts/exomizer-3.1.0.exe"
 else:
-    ex31 = "wine utils\scripts\exomizer-3.1.0.exe"
+    ex31 = "wine utils/scripts/exomizer-3.1.0.exe"
 
 def packInt(value):
     return ''.join([chr(value%256), chr(value/256)])

@@ -38,7 +38,7 @@ output = sys.argv[4]
 if "nt" == os.name:
     ex31 = "utils/scripts/exomizer-3.1.0.exe"
 else:
-    ex31 = "wine utils\scripts\exomizer-3.1.0.exe"
+    ex31 = "wine utils/scripts/exomizer-3.1.0.exe"
 
 try:
     ##############################
