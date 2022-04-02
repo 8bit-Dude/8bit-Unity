@@ -38,6 +38,7 @@
   #pragma rodata-name("BANK0")
   #pragma code-name("BANK0")
   extern unsigned char* fileData;
+  unsigned char musicPlaying;
 #endif
 
 #ifdef __CBM__
@@ -142,6 +143,7 @@ void PlayMusic()
 	lynx_snd_continue();
 #elif defined __NES__	
 	music_play(0);
+	musicPlaying = 1;
 #endif	
 }
 
@@ -162,8 +164,11 @@ void StopMusic()
 		StopMocking();
 #elif defined __LYNX__	
 	lynx_snd_stop();
-#elif defined __NES__	
-	music_stop();
+#elif defined __NES__
+	if (musicPlaying) {
+		music_stop();
+		musicPlaying = 0;
+	}
 #endif	
 }
 
