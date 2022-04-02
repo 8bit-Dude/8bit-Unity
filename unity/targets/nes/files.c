@@ -69,7 +69,7 @@ unsigned int FileOpen(const char* filename)
 	return 0;
 }
 
-unsigned int FileRead(char* buffer, signed int len)
+signed int FileRead(char* buffer, signed int len)
 {
 	// Check remaining size
 	if (len == -1 || len > fileSize - consummed)

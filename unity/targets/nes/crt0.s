@@ -107,7 +107,7 @@ _tck_per_sec:       .res 1
     .byte $4e,$45,$53,$1a
 	.byte <NES_PRG_BANKS
 	.byte <NES_CHR_BANKS
-	.byte <NES_MIRRORING|(<NES_MAPPER<<4)
+	.byte <NES_MIRRORING|(<NES_MAPPER<<4)|$02 ; Battery backed
 	.byte <NES_MAPPER&$f0
 	.byte 1 ;8k of PRG RAM
 	.res 7,0

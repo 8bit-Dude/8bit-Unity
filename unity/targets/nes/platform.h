@@ -86,10 +86,10 @@
 #define SPR_YELLOW	0x38
 
 // Text printing colors (uses palettes 1-3)
-#define BLACK  0
-#define WHITE  0
-#define GREY   0
-#define YELLOW 0
+#define BLACK  3
+#define WHITE  3
+#define GREY   3
+#define YELLOW 3
 #define BLUE   1
 #define CYAN   1
 #define PURPLE 1
@@ -97,9 +97,9 @@
 #define BROWN  2
 #define ORANGE 2
 #define PINK   2
-#define GREEN  3
-#define LGREEN 3
-#define DGREEN 3
+#define GREEN  0
+#define LGREEN 0
+#define DGREEN 0
 
 // Workaround for missing chardefs
 #undef CH_DEL
