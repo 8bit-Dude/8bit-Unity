@@ -55,9 +55,9 @@ void LoadNavigation(char *filename)
 	// Read nav file contents
 	if (FileOpen(filename)) {
 	#if defined __LYNX__	// Trick: terrain points to SHAREDRAM location  where file is stored
-		FileRead(lineupX, 114);
+		FileRead((char*)lineupX, 114);
 	#else
-		FileRead(lineupX, 850);
+		FileRead((char*)lineupX, 850);
 	#endif
 		FileClose();
 	}

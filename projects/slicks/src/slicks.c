@@ -29,11 +29,10 @@
 										 SPR_VOID, SPR_GREEN,  SPR_CYAN, SPR_GREY, 
 										 SPR_VOID, SPR_YELLOW, SPR_CYAN, SPR_GREY }; // 4 palettes of 3 colors (1st color is unused)
   const unsigned char inkColors[] = { BLUE, RED, GREEN, YELLOW, WHITE };			 // P1, P2, P3, P4	
-  extern unsigned char palBG[16];
 #endif
 
 // Build Information
-const char* buildInfo = "BUILD: 2022/03/31";
+const char* buildInfo = "BUILD: 2022/04/02";
 
 // List of available maps
 unsigned char mapNum  = 10;
@@ -48,7 +47,7 @@ extern unsigned char gameMap, gameMode, gameStep;
 // See interface.c
 extern unsigned int bestLapTime[];
 
-#if defined __LYNX__
+#if defined(__LYNX__)
   void NextMusic(unsigned char blank) {}
 #endif
 
@@ -95,7 +94,6 @@ int main (void)
 	RecolorSprite(1, 0, 1); // Use Palette 1
 	RecolorSprite(2, 0, 2); // Use Palette 2
 	RecolorSprite(3, 0, 3); // Use Palette 3
-	palBG[15] = 0x37;	// Change White to Yellow
 #endif   
 
 	// Load High-Scores

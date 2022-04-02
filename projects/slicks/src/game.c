@@ -169,7 +169,7 @@ void GameReset()
 	inkColor = WHITE; 
 	if (gameStep == STEP_WARMUP) {
 	#if defined __NES__
-		PrintBuffer(" WARMUP: SELEC=MENU, START=RACE ");   
+		PrintBuffer("  WARMUP: SEL=MENU, START=RACE  ");   
 	#else	
         if (gameMode == MODE_ONLINE) {
 		#if defined __CBM__
@@ -964,7 +964,7 @@ char GameLoop()
 		
 		// Update Network
 		if (gameMode == MODE_ONLINE) {
-		#if defined __LYNX__
+		#if defined(__LYNX__) || defined(__NES__)
 			if (pauseEvt) {
 				j = pauseEvt;
 				pauseEvt = 0;
