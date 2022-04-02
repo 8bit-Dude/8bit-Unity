@@ -39,12 +39,24 @@ img1 = Image.open(input)
 colors = max(list(img1.getdata()))
 print "Bitmap size: {%i,%i}; Number of colors: %i" % (img1.size[0], img1.size[1], colors)
 
+#################################
+# Redistribute colors
+pixels = img1.load() # create the pixel map
+for i in range(img1.size[0]): # for every pixel:
+    for j in range(img1.size[1]):
+        if int(i/2+j)%2:
+        #if (i+j)%3:
+            pixels[i,j] %= 4
+        else:
+            pixels[i,j] /= 4        
+
 #######################################
 # Create palette from RGB data
-rgb = img1.getpalette()
-pal = [ ]
-for i in range(4):
-    pal.append(GetPaletteIndex(rgb[i*3:i*3+3], pal))
+#rgb = img1.getpalette()
+#pal = [ ]
+#for i in range(4):
+#    pal.append(GetPaletteIndex(rgb[i*3:i*3+3], pal))
+pal = [0x0f, 0x17, 0x21, 0x2A]
 palette = ''.join( [chr(p) for p in pal] )
 
 #######################################
