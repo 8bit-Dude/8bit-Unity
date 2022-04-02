@@ -27,11 +27,16 @@ extern unsigned char clName[MAX_PLAYERS][5];
 extern unsigned char clIndex, clUser[5], clPass[13];
 extern char networkReady, chatBuffer[20], udpBuffer[28];
 
+#if defined __NES__
+ #pragma bss-name(push, "XRAM")
+#endif
+
 // List of best lap times
-unsigned int bestLapTime[] = { LAPMAX, LAPMAX, LAPMAX, LAPMAX, LAPMAX, LAPMAX, 
-							   LAPMAX, LAPMAX, LAPMAX, LAPMAX, LAPMAX, LAPMAX,
-							   LAPMAX, LAPMAX, LAPMAX, LAPMAX, LAPMAX, LAPMAX,
-							   LAPMAX, LAPMAX, LAPMAX, LAPMAX };
+unsigned int bestLapTime[22];
+							   
+#if defined __NES__
+ #pragma bss-name(pop)
+#endif
 
 // List of controller types
 #if defined __LYNX__
@@ -432,6 +437,11 @@ void PrintTimedOut()
     sleep(3);
 }
 
+#ifdef __NES__
+  #pragma rodata-name("BANK0")
+  #pragma code-name("BANK0")
+#endif
+
 // Sub-function for Animating Sprites in Main Menu
 void SpriteAnimation(unsigned char index, unsigned char frame)
 {
@@ -462,14 +472,9 @@ void SpriteAnimation(unsigned char index, unsigned char frame)
 #endif
 }
 
-#ifdef __NES__
-  #pragma rodata-name("BANK0")
-  #pragma code-name("BANK0")
-#endif
-
 void PrintBestLap(unsigned int ticks, unsigned char tckPerSec) 
 {	
-	unsigned int d; 
+	unsigned int d;
 	
 	// Print second	
 	d = ticks/tckPerSec;
@@ -517,11 +522,11 @@ void PrintScores()
 	
 	// Play the background music
 	StopSFX();
-#if defined(__LYNX__)
+#if defined(__LYNX__) || defined(__NES__)
 	StopMusic();
 	LoadMusic("speednik.mus");
 	PlayMusic();
-#elif defined(__APPLE2__) || defined(__ATARIXL__) || defined(__C64__) || defined(__NES__)
+#elif defined(__APPLE2__) || defined(__ATARIXL__) || defined(__C64__)
 	PlayMusic();
 #endif	
 				
@@ -761,7 +766,6 @@ unsigned char MenuLogin(unsigned char serverIndex)
 	PrintBlanks(MENU_WID, MENU_HEI-2);
 	
 #if defined(__LYNX__) 
-	ReadEEPROM();
 	SetKeyboardOverlay(11,60);
 #elif defined(__NES__)
 	SetKeyboardOverlay(1,1);
@@ -1153,7 +1157,6 @@ void GameMenu()
 				// Display page contents
 			#if defined(__LYNX__) || defined(__NES__) 
 				if (lastchar == KB_U) {
-					ReadEEPROM();
 					curPage = cursorRow - MENU_ROW - 1;
 			#else
 				if (lastchar == KB_I) {

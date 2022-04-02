@@ -266,11 +266,13 @@ void PrintLap(unsigned char i);
 void GameMenu(void);
 
 // See consoles.c
-#if defined(__LYNX__) || defined(__NES__)
-  unsigned char CheckEEPROM(void);
+#if defined(__LYNX__)
   void ResetEEPROM(void);
   void ReadEEPROM(void);
   void WriteEEPROM(void); 
+  unsigned char CheckEEPROM(void);
+#endif  
+#if defined(__LYNX__) || defined(__NES__)
   void CursorControl(void);
   void CursorFlicker(void);
   unsigned char MenuPause(void);
@@ -300,7 +302,7 @@ unsigned char NetworkUpdate(void);
 void BleepSFX(unsigned char pitch);
 void BumpSFX(void);
 void EngineSFX(unsigned char index, unsigned int rpm);
-#if defined(__LYNX__) || defined(__CBM__)
+#if defined(__CBM__) || defined(__LYNX__) || defined(__NES__)
   void JumpSFX(unsigned char index);
   void ScreechSFX(unsigned char index);
 #endif

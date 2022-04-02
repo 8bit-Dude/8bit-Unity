@@ -31,14 +31,15 @@ Ramp ramps[MAX_RAMPS];
 
 /////////////////////////////////////////////////////////
 
+#if defined __NES__
+ #pragma bss-name(pop) 
+#endif
+
 // Vehicle variables
 Vehicle cars[MAX_PLAYERS];
 signed char *vWay;
 Waypoint *way;
 
-#if defined __NES__
- #pragma bss-name(pop) 
-#endif
 
 // See game.c
 extern Vehicle *iCar;
@@ -199,6 +200,11 @@ char CheckRamps(void)
     }
     return 0;
 }
+
+#ifdef __NES__
+  #pragma rodata-name("BANK0")
+  #pragma code-name("BANK0")
+#endif
 
 // Reset cars to line-up positions 
 void ResetLineUp()

@@ -43,28 +43,11 @@ extern Vehicle cars[MAX_PLAYERS];
 extern unsigned char clIndex, clUser[];
 extern char chatBuffer[20];
 
-///////// EEPROM Functions //////////////
-const char eepromID[] = "SS";
-
-unsigned char CheckEEPROM(void)
-{
 #if defined(__LYNX__)		
-	// Check EEPROM ID
-	unsigned char i = 0;
-	while (i < 2) {
-		if (eepromID[i] != (unsigned char)lynx_eeprom_read(i)) {
-			ResetEEPROM();
-			return 0;
-		}
-		i++;
-	}
-#endif	
-	return 1;
-}
+  ///////// EEPROM Functions //////////////
+  const char eepromID[] = "SS";
 
-void ResetEEPROM(void)
-{
-#if defined(__LYNX__)	
+  void ResetEEPROM(void) {
 	// Write ID and Blanks to EEPROM
 	unsigned char i = 0;
 	while (i < 2) {	
@@ -79,12 +62,22 @@ void ResetEEPROM(void)
 		lynx_eeprom_write(i++, 52);
 		lynx_eeprom_write(i++, 23);		
 	}
-#endif	
-}
+  }
+  
+  unsigned char CheckEEPROM(void) {
+	// Check EEPROM ID
+	unsigned char i = 0;
+	while (i < 2) {
+		if (eepromID[i] != (unsigned char)lynx_eeprom_read(i)) {
+			ResetEEPROM();
+			return 0;
+		}
+		i++;
+	}
+	return 1;
+  }    
 
-void ReadEEPROM(void)
-{
-#if defined(__LYNX__)	
+  void ReadEEPROM(void) {
 	unsigned int time;
 	unsigned char i=2, j=0;
 	
@@ -105,12 +98,9 @@ void ReadEEPROM(void)
 			time = LAPMAX;		
 		bestLapTime[j++] = time;
 	}
-#endif
-}
+  }
 
-void WriteEEPROM(void)
-{	
-#if defined(__LYNX__)	
+  void WriteEEPROM(void) {	
 	unsigned int time;
 	unsigned char i=2, j=0;
 
@@ -125,20 +115,21 @@ void WriteEEPROM(void)
 		lynx_eeprom_write(i++, (unsigned char)(time%256));
 		lynx_eeprom_write(i++, (unsigned char)(time/256));
 	}	
+  }
 #endif
-}
+
+unsigned char gamePaused = 0;
+clock_t cursorClock;
 
 #if defined __NES__
  #pragma bss-name(push, "XRAM")
 #endif
 
-unsigned char gamePaused = 0;
 const unsigned char *pauseLabel[] = { "resume", "race!", "next!", "quit", "bye!", "congrats", "hang on", "hello!", "nice", "so close", "thanks!", "yes" };
 const unsigned char pauseAction[] = { KB_PAUSE, KB_START, KB_NEXT, KB_QUIT, 4, 5, 6, 7, 8, 9, 10, 11 };
 unsigned char cursorJoy, cursorKey, cursorBut2, cursorPressed;
 unsigned char cursorFlick, cursorCol = MENU_COL, cursorRow = MENU_ROW+2;
 unsigned char cursorTop = MENU_ROW+2, cursorHeight = MENU_HEI-2;
-clock_t cursorClock;
 
 #if defined __NES__
  #pragma bss-name(pop) 

@@ -1,11 +1,6 @@
 
 #include "definitions.h"
 
-#ifdef __NES__
-  #pragma rodata-name("BANK0")
-  #pragma code-name("BANK0")
-#endif
-
 // Navigation mask
 #define TERRAIN_ROAD 0	
 #define TERRAIN_DIRT 1
@@ -48,6 +43,10 @@ extern unsigned char clName[MAX_PLAYERS][5];
 extern unsigned char svMap, svStep; 
 extern char chatBuffer[20];
 
+#if defined __NES__
+ #pragma bss-name(push, "XRAM")
+#endif
+
 // Game data
 unsigned char gameMap = 0;
 unsigned char gameMode = MODE_LOCAL;
@@ -56,20 +55,20 @@ unsigned char gameLineUp[4] = { 0, 1, 2, 3 };
 
 // Lap information
 unsigned char lapIndex = 0;
-unsigned char lapGoal;
+unsigned char lapGoal = 0;
 
 // Physics parameters
 int tck4, accRate, decRate, jmpTCK;
-#if defined __ORIC__
-  char rotRate = 2;
-#else
-  char rotRate = 3;
-#endif
 #define VELMIN   200
 #define VELDRIFT 450
 #define VELRAMP  800
 const int velMax[4] = { 390, 460, 530, 600 };
 const char rotMax[4] = { 4, 5, 6, 2 };
+#if defined __ORIC__
+  char rotRate = 2;
+#else
+  char rotRate = 3;
+#endif
 
 // Car properties and position (shared with navigation.c)
 Vehicle *iCar, *jCar;	
@@ -79,11 +78,9 @@ int iX, iY;
 const signed char cos[16] = {16,14,11,6,0,-6,-11,-14,-16,-14,-11,-6,0,6,11,14};
 const signed char sin[16] = {0,6,11,14,16,14,11,6,0,-6,-11,-14,-16,-14,-11,-6};
 
-// Clock management
-clock_t gameClock;
-clock_t lapClock[MAX_PLAYERS];
-unsigned int lapBest[MAX_PLAYERS];
-unsigned long gameFrame;
+#if defined __NES__
+ #pragma bss-name(pop) 
+#endif
 
 // Pause menu
 #if defined(__LYNX__) || defined(__NES__)
@@ -92,6 +89,17 @@ unsigned long gameFrame;
   extern unsigned char pauseEvt;
   extern unsigned char gamePaused;
   unsigned char LockBackButton = 0;
+#endif
+
+// Clock management
+clock_t gameClock;
+clock_t lapClock[MAX_PLAYERS];
+unsigned int lapBest[MAX_PLAYERS];
+unsigned long gameFrame;
+
+#ifdef __NES__
+  #pragma rodata-name("BANK0")
+  #pragma code-name("BANK0")
 #endif
 
 unsigned char PlayerAvailable(unsigned char i)
@@ -785,14 +793,14 @@ char GameLoop()
 			}		
 			
 			// Update sound
-		#if defined(__LYNX__) || defined(__CBM__)
+		#if defined(__CBM__) || defined(__LYNX__) || defined(__NES__)
 			if (iJmp)	
 				JumpSFX(i);
 			else
 			if (iVel < VELDRIFT || deltaAngle < 25)
 		#endif
 				EngineSFX(i, iVel);
-		#if defined(__LYNX__) || defined(__CBM__)
+		#if defined(__CBM__) || defined(__LYNX__) || defined(__NES__)
 			else
 				ScreechSFX(i);					
 		#endif

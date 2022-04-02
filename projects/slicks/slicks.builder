@@ -147,7 +147,7 @@
             "crunchAssets": "Yes", 
             "musicMemory": "$4000", 
             "chunkMemory": "$0000", 
-            "assetFilter": ".msk", 
+            "assetFilter": "*", 
             "network8bitHub": true, 
             "networkRRNet": true, 
             "networkUltimate": true, 
@@ -182,7 +182,8 @@
             "musicMemory": "$0800", 
             "chunkMemory": "$0000", 
             "sharedMemory": "$0352", 
-            "assetFilter": ".msk"
+            "assetFilter": "*", 
+            "virtualKeyboard": true
         }, 
         "NES": {
             "bitmapTiles": "192", 

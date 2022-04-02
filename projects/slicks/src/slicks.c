@@ -29,10 +29,11 @@
 										 SPR_VOID, SPR_GREEN,  SPR_CYAN, SPR_GREY, 
 										 SPR_VOID, SPR_YELLOW, SPR_CYAN, SPR_GREY }; // 4 palettes of 3 colors (1st color is unused)
   const unsigned char inkColors[] = { BLUE, RED, GREEN, YELLOW, WHITE };			 // P1, P2, P3, P4	
+  extern unsigned char palBG[16];
 #endif
 
 // Build Information
-const char* buildInfo = "BUILD: 2022/03/15";
+const char* buildInfo = "BUILD: 2022/03/31";
 
 // List of available maps
 unsigned char mapNum  = 10;
@@ -41,8 +42,11 @@ const char *mapList[] = {"arizona","arto","cramp","freeway","gta","island","mtca
 // List of lap goals
 unsigned char lapNumber[] = { 5, 10, 20, 50 };
 
-// Game state
+// See game.c
 extern unsigned char gameMap, gameMode, gameStep;
+
+// See interface.c
+extern unsigned int bestLapTime[];
 
 #if defined __LYNX__
   void NextMusic(unsigned char blank) {}
@@ -50,7 +54,7 @@ extern unsigned char gameMap, gameMode, gameStep;
 
 int main (void) 
 {
-	unsigned char carryon;
+	unsigned char carryon = 0;
 	clock_t bannerClock;
 
 	// Reset screen
@@ -91,7 +95,27 @@ int main (void)
 	RecolorSprite(1, 0, 1); // Use Palette 1
 	RecolorSprite(2, 0, 2); // Use Palette 2
 	RecolorSprite(3, 0, 3); // Use Palette 3
+	palBG[15] = 0x37;	// Change White to Yellow
 #endif   
+
+	// Load High-Scores
+#if defined(__LYNX__) 
+	ReadEEPROM();
+#else
+	// Detect uninitialized time
+	while (carryon < 10) {
+		if (!bestLapTime[carryon])
+			bestLapTime[carryon] = LAPMAX;	
+		carryon++;
+	}
+	//if (FileOpen("laps.dat")) {
+	//	FileRead(bestLapTime, 20);
+	//} else {	
+	//  cbm_open(1, 8, 4, "LAPS.DAT,S,W");
+	//  FileWrite(bestLapTime, 20);
+	//}
+	//FileClose();
+#endif
 
 	// Main Loop
 	InitJoy();
@@ -117,9 +141,6 @@ int main (void)
 
 			// Run game
 			InitSFX();
-		#ifdef __LYNX__
-			NextMusic(0);
-		#endif	
 			ShowBitmap();
 			carryon = GameLoop();
 			DisableSprite(-1);
