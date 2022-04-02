@@ -37,9 +37,9 @@ output = sys.argv[4]
 
 # Sub-processes
 if "nt" == os.name:
-    ex31 = "utils/scripts/exomizer-3.1.0.exe"
+    ex31 = "utils\scripts\exomizer-3.1.0.exe"
 else:
-    ex31 = "wine utils\scripts\exomizer-3.1.0.exe"
+    ex31 = "wine utils/scripts/exomizer-3.1.0.exe"
 
 try:
     ###################
@@ -93,10 +93,10 @@ try:
         f.write(''.join(main)); 
         f.close()
         
-        # Compress data
+        # Crunch raw data
         if resolution == 'double':
-            subprocess.call([ex31, "mem", "-lnone", output.replace('.img','.aux'), "-B", "-o", output.replace('.img','.aux.sfx')])
-        subprocess.call([ex31, "mem", "-lnone", output.replace('.img','.main'), "-B", "-o", output.replace('.img','.main.sfx')])
+            subprocess.call(ex31 + " mem -lnone " + output.replace('.img','.aux') + " -B -o " + output.replace('.img','.aux.sfx'), shell=True)
+        subprocess.call(ex31 + " mem -lnone " + output.replace('.img','.main') + " -B -o " + output.replace('.img','.main.sfx'), shell=True)
         
         # Read back compressed data
         if resolution == 'double':
