@@ -110,7 +110,7 @@ int DemoGfx(void)
 	while (!kbhit () || cgetc () != nextKey) {	
 	#if defined(__LYNX__) || defined(__NES__)
 		UpdateDisplay(); // Manually refresh Display
-	#endif		
+	#endif
 	}
 	
     // Done
