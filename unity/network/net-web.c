@@ -103,7 +103,10 @@ unsigned char* RecvWEB(unsigned int timeOut)
 	// Wait until data is received from Hub
 	clock_t timer = clock()+timeOut;
 	while (!RecvHub(HUB_WEB_RECV)) {
-		if (clock() > timer) return 0;
+		if (clock() >= timer) return 0;
+	#if defined __APPLE2__
+		wait(1); 
+	#endif		
 	}
 	return hubBuf; 
 #elif defined __FUJINET__	

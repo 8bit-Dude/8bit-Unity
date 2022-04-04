@@ -76,7 +76,10 @@ unsigned char* ReadURL(unsigned char size, unsigned int timeOut)
 	clock_t timer = clock()+timeOut;
 	SendHub(HUB_URL_READ, &size, 1);
 	while (!RecvHub(HUB_URL_READ)) {
-		if (clock() > timer) return 0;
+		if (clock() >= timer) return 0;
+	#if defined __APPLE2__
+		wait(1); 
+	#endif			
 	}
 	return hubBuf; 
 	
@@ -85,7 +88,7 @@ unsigned char* ReadURL(unsigned char size, unsigned int timeOut)
 	unsigned char len;
 	clock_t timer = clock()+timeOut;
 	while (!fujiReady) {
-		if (clock() > timer) return 0;
+		if (clock() >= timer) return 0;
 	}
 	len = FujiRead(0x71);	  // Get data
 	FujiClose(0x71);  // Immediately close connection

@@ -84,6 +84,9 @@ unsigned char EasyHost(unsigned char protocol, unsigned char slots, unsigned int
 		// Check time-out
 		if (clock() >= easyTimer)
 			return EASY_TIMEOUT;
+	#if defined __APPLE2__
+		wait(1); 
+	#endif		
 	}
 }
 
@@ -135,6 +138,9 @@ unsigned char EasyJoin(unsigned char protocol, unsigned int *ID, unsigned int *P
 		// Check time-out
 		if (clock() >= easyTimer)
 			return EASY_TIMEOUT;
+	#if defined __APPLE2__
+		wait(1); 
+	#endif			
 	}
 }
 

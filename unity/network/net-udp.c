@@ -142,18 +142,20 @@ void SendUDP(unsigned char* buffer, unsigned char length)
 
 unsigned char* RecvUDP(unsigned int timeOut)
 {	
+	// Keep trying until timeout expires...
 	clock_t timer = clock()+timeOut;
 #if defined __HUB__
-	// Wait until data is received from Hub
 	while (!RecvHub(HUB_UDP_RECV)) {
-		if (clock() > timer) return 0;
+		if (clock() >= timer) return 0;
+	#if defined __APPLE2__
+		wait(1); 
+	#endif		
 	}	
 	return hubBuf; 
 	
 #elif defined __FUJINET__	
-	// Wait until timeout expires...
 	while (!fujiReady) {
-		if (clock() > timer) return 0;
+		if (clock() >= timer) return 0;
 	}
 	if (FujiRead(0x71)) {
 		return fujiBuffer;
@@ -162,27 +164,23 @@ unsigned char* RecvUDP(unsigned int timeOut)
 	}
 
 #elif defined __ULTIMATE__
-	int udpLen = -1;
-	while (udpLen == -1) {
-		if (clock() > timer) return 0;
-		udpLen = uii_socketread(udpSocket, 255);
+	while (uii_socketread(udpSocket, 255) < 1) {
+		if (clock() >= timer) return 0;
 	}
 	return &uii_data[2];
 	
 #elif defined __IP65__
-	// Process IP65 until receiving packet
-	while (!udp_len) {
-		if (clock() > timer) return 0;
-		ip65_process();
-	#if defined __APPLE2__
-		if (timeOut) { 
+	if (!udp_len) {		
+		while (1) {
+			ip65_process();
+			if (udp_len) break;
+			if (clock() >= timer) return 0;
+		#if defined __APPLE2__
 			wait(1); 
-		} else { 
-			if (!udp_len) return 0;
+		#endif
 		}
-	#endif
 	}
 	udp_len = 0;
-	return udp_buffer;	
+	return udp_buffer;		
 #endif
 }

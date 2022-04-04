@@ -42,11 +42,13 @@
 unsigned char GetLocalIP(unsigned char* ip)
 {
 #if defined __HUB__
-	// Check if data was received from Hub
-	clock_t timer = clock();
+	// Wait until data is received from Hub
+	clock_t timer = clock()+20;
 	while (!RecvHub(HUB_SYS_IP)) {
-		// Check time-out
-		if ((clock() - timer) >= 20) return 0;
+		if (clock() >= timer) return 0;
+	#if defined __APPLE2__
+		wait(1); 
+	#endif			
 	}
 
 	// Save IP address

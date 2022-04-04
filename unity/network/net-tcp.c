@@ -121,17 +121,20 @@ void SendTCP(unsigned char* buffer, unsigned char length)
 
 unsigned char* RecvTCP(unsigned int timeOut)
 {	
-	// Wait until timeout expires...
+	// Keep trying until timeout expires...
 	clock_t timer = clock()+timeOut;
 #if defined __HUB__
 	while (!RecvHub(HUB_TCP_RECV)) {
-		if (clock() > timer) return 0;
+		if (clock() >= timer) return 0;
+	#if defined __APPLE2__
+		wait(1); 
+	#endif			
 	}
 	return hubBuf; 
 
 #elif defined __FUJINET__
 	while (!fujiReady) {
-		if (clock() > timer) return 0;
+		if (clock() >= timer) return 0;
 	}
 	if (FujiRead(0x71))
 		return fujiBuffer;
@@ -139,24 +142,21 @@ unsigned char* RecvTCP(unsigned int timeOut)
 		return 0;
 	
 #elif defined __ULTIMATE__
-	int tcpLen = -1;
-	while (tcpLen == -1) {
-		if (clock() > timer) return 0;
-		tcpLen = uii_socketread(tcpSocket, 255);
+	while (uii_socketread(tcpSocket, 255) < 1) {
+		if (clock() >= timer) return 0;
 	}
 	return &uii_data[2];
 	
 #elif defined __IP65__
-	while (!tcpLen) {
-		if (clock() > timer) return 0;
-		ip65_process();
-	#if defined __APPLE2__
-		if (timeOut) { 
+	if (!tcpLen) {		
+		while (1) {
+			ip65_process();
+			if (tcpLen) break;
+			if (clock() >= timer) return 0;
+		#if defined __APPLE2__
 			wait(1); 
-		} else { 
-			if (!tcpLen) return 0;
+		#endif
 		}
-	#endif
 	}
 	tcpLen = 0;
 	return tcpBuffer;	
