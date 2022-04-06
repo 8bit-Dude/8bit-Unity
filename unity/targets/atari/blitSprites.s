@@ -28,8 +28,8 @@
 
 	.export _BlitSprites
 	
-	.export _sprRows, _sprPads, _sprDLIs, _sprBank, _sprDrawn
-	.export _sprX, _sprY, _sprLine, _sprOff, _sprDst, _sprSrc, _sprColor	
+	.export _sprRows, _sprPads, _sprBank, _sprDrawn
+	.export _sprX, _sprY, _sprBegDLI, _sprEndDLI, _sprLead, _sprDst, _sprSrc, _sprColor	
 	
 	.import _posPM0, _colPM0	; See DLI.s
 
@@ -38,30 +38,30 @@
 ; Sprite parameters
 _sprRows:   .byte 0
 _sprPads:   .res  1
-_sprDLIs:   .res  1
+_sprDrawn:  .res 16
+_sprColor:  .res 16
 _sprX:      .res 16
 _sprY:      .res 16
-_sprBck:    .res 32
 _sprDst:    .res 32
 _sprSrc:    .res 32
-_sprOff:    .res 16
-_sprLine:   .res 16
-_sprColor:  .res 16
+_sprLead:   .res 16
+_sprBegDLI: .res 16
+_sprEndDLI: .res 16
+_sprBegOLD: .byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+_sprEndOLD: .byte 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
 _sprBank:	.byte 0,0,0,0
 _sprFirst:	.byte 0,4,8,12
 _sprLast:	.byte 4,8,12,16
-_sprDrawn:  .byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 
 	.segment	"BSS"			
 
 ; Working variables
-_bank:  .res 1
-_ind8:  .res 1
-_ind16: .res 1
-_ldli:  .res 1
-_first: .res 1
-_lead:  .res 1
-_body:  .res 1
+_bank:   .res 1
+_slot:   .res 1
+_first:  .res 1
+_begdli: .res 1
+_lead:   .res 1
+_body:   .res 1
 	
 	.segment	"CODE"		
 	
@@ -96,95 +96,51 @@ bankDone:
 	tay
 	
 loopSlots:
-	; Decrement and save 8 bit index of slot
+	; Decrement slot
 	dey
-	sty _ind8
 
 	; Check if slot enabled
 	lda _sprDrawn,y	
 	beq skipSlot
-	
-	; Set position/color registers (in case DLI gets disabled...)
-	;tya
-	;sec
-	;sbc _first
-	;tax
-	;lda _sprX,y			; Sprite Position
-	;sta $d000,x
-	;lda _sprColor,y	 	; Sprite Color	
-	;sta $02c0,x
-	
-	; Get amount of lead-zeroes
-	lda _sprOff,y	 
-	sta _lead	
-	
-	; Get amount of sprite-rows
-	clc
-	adc _sprRows	 
-	sta _body
-	
-	; Get first (X-register) and last DLI Line
-	lda _sprLine,y
-	sta _ldli
-	clc
-	adc _sprDLIs
+	sty _slot
+		
+	; Reset old DLI lines
+	lda _sprBegOLD,y
+	sta _begdli
+	lda _sprEndOLD,y
 	tax
+	lda #0	
+loopDLI1:
+	dex
+	sta _posPM0,x
+	cpx _begdli	
+	bne loopDLI1		
 	
-	; Set DLI lines
-loopPosition:
+	; Set new DLI lines
+	lda _sprBegDLI,y
+	sta _sprBegOLD,y
+	sta _begdli
+	lda _sprEndDLI,y
+	sta _sprEndOLD,y
+	tax
+loopDLI2:
 	dex
 	lda _sprX,y			; Sprite Position
 	sta _posPM0,x
 	lda _sprColor,y	 	; Sprite Color
 	sta _colPM0,x
-	cpx _ldli	
-	bne loopPosition	
+	cpx _begdli	
+	bne loopDLI2	
 	
-	; Arithmetic shift left to multiply index by 2 (16 bit addressing)
-	tya
-	asl				
-	tay
-	
-	; Reset if sprite moved, then copy
-	lda _sprBck,y
-	cmp _sprDst,y
-	beq skipReset
-	jsr resetSprite
-skipReset:
+	; Copy sprite data
 	jsr copySprite
 
-skipSlot:
 	; Next slot
-	ldy _ind8
+	ldy _slot
+skipSlot:
 	cpy _first
 	bne loopSlots
 	
-	rts
-	
-; ---------------------------------------------------------------
-; Sprite reset routine (fills previous PMG memory with 0s)
-; ---------------------------------------------------------------	
-	
-resetSprite:
-
-	; Prepare addresses
-	sty _ind16
-	sta loopReset+2
-	lda _sprDst,y
-	sta _sprBck,y	
-	iny
-	lda _sprDst,y
-	sta loopReset+3	 	
-	
-	; Reset PMG ram at old location
-	lda #0
-	ldy _sprPads
-loopReset:
-	dey
-	sta $0000,y
-	bne loopReset
-	ldy _ind16
-
 	rts
 
 ; ---------------------------------------------------------------
@@ -193,7 +149,21 @@ loopReset:
 	
 copySprite:
 
-	; Prepare ZP addresses for copy
+	; Get amount of lead-zeroes
+	lda _sprLead,y	 
+	sta _lead	
+	
+	; Get amount of sprite-rows
+	clc
+	adc _sprRows	 
+	sta _body
+
+	; Arithmetic shift left to multiply index by 2 (16 bit addressing)
+	tya
+	asl				
+	tay
+
+	; Prepare addresses for copy
 	lda _sprDst,y	; Copy low-byte of address
 	sta  $e8	 
 	lda _sprSrc,y
@@ -213,7 +183,7 @@ loopLead:
 	sta ($e8),y
 	iny
 	cpy _lead
-	bcc loopLead
+	bne loopLead
 skipLead:
 
 	; Copy frame data
@@ -222,9 +192,9 @@ loopBody:
 	sta ($e8),y
 	iny
 	cpy _body
-	bcc loopBody
+	bne loopBody
 	
-	; Set trail-zeros	
+	; Set trail-zeros
 	lda #0
 loopTrail:	
 	sta ($e8),y

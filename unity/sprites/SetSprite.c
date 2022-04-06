@@ -229,7 +229,7 @@
 #endif
 
 #if defined __ATARI__
-  unsigned char ss_dli, ss_line, ss_slot, ss_DLI, ss_pos, ss_off;
+  unsigned char ss_dli, ss_lin, ss_pmg, ss_pos, ss_off;
   unsigned int ss_src, ss_dst;
 #endif
 	
@@ -300,21 +300,24 @@ void SetSprite(unsigned char index, unsigned int frame)
 	else
 		ss_pos = 0;
 	ss_dli = ss_pos>>3;
-	ss_DLI = ss_dli*8;
-	ss_off = ss_pos-ss_DLI+1;
-	ss_slot = index&3;
+	ss_lin = ss_dli*8;
+	ss_off = ss_pos-ss_lin+1;
+	ss_pmg = index&3;
 
 	// Prepare new data for VBI handler
 	ss_src  = &sprData[frame*SPRITEHEIGHT]-ss_off;
-	ss_dst  = (PMGRAM+33)+(ss_slot*0x100)+ss_DLI;  // 32 = 4 black rows at top of screen + 1 line	
-	ss_line = ss_slot*25+ss_dli;
+	ss_dst  = (PMGRAM+32)+(ss_pmg*0x100)+ss_lin;  // 32 = 4 black rows at top of screen + 1 line	
+	
+	// Prepare dli data
+	ss_dli += ss_pmg*25;
 	
 	// Send data to VBI handler	
 	sprDrawn[index] = 0;
-	sprLine[index] = ss_line;
+	sprBegDLI[index] = ss_dli;
+	sprEndDLI[index] = ss_dli+sprDLIs;
 	sprSrc[index] = ss_src;	
 	sprDst[index] = ss_dst;
-	sprOff[index] = ss_off;
+	sprLead[index] = ss_off;
 	sprX[index] = spriteX;
 	sprY[index] = spriteY;
 	sprDrawn[index] = 1;

@@ -49,7 +49,7 @@
 	unsigned char  sprRows[SPRITE_NUM];  	// Sprite dimensions used in algorithms
 	
 #elif defined __ATARI__	
-	unsigned char *sprData, sprYOffset, sprCollision[SPRITE_NUM], sprCushion = 2;
+	unsigned char *sprData, sprYOffset, sprCollision[SPRITE_NUM], sprDLIs, sprCushion = 2;
 	unsigned char sprMask[] = { 1, 2, 4, 8, 1, 2, 4, 8, 1, 2, 4, 8, 1, 2, 4, 8 };	
 
 #elif defined __CBM__
@@ -140,7 +140,7 @@ void LoadSprites(unsigned char* filename, const unsigned char *spriteColors)
 	// Reset Sprite Mask, Frames, Colors and Rows
 	memcpy(sprColor, spriteColors, SPRITE_NUM);
 	sprRows = SPRITEHEIGHT;
-	sprDLIs = (SPRITEHEIGHT+15)>>3;
+	sprDLIs = (SPRITEHEIGHT+8)>>3;
 	sprPads = sprDLIs*8+1;
 	sprYOffset = (SPRITEHEIGHT/2u)+2;
 

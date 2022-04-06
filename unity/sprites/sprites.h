@@ -33,7 +33,7 @@
 	#define BANK_NUM   3	// 3 banks of 4 single color sprites (or 2 multicolor sprites)
 	extern unsigned char sprRows, sprPads, sprDLIs, sprBank[BANK_NUM];
 	extern unsigned char sprDrawn[SPRITE_NUM], sprX[SPRITE_NUM], sprY[SPRITE_NUM];
-	extern unsigned char sprLine[SPRITE_NUM], sprOff[SPRITE_NUM], sprColor[SPRITE_NUM];
+	extern unsigned char sprBegDLI[SPRITE_NUM], sprEndDLI[SPRITE_NUM], sprLead[SPRITE_NUM], sprColor[SPRITE_NUM];
 	extern unsigned int  sprSrc[SPRITE_NUM], sprDst[SPRITE_NUM];
 	extern unsigned char *sprData, sprYOffset;
 #elif defined __LYNX__
