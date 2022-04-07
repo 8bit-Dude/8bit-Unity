@@ -53,8 +53,9 @@ void EnableSprite(signed char index)
 	}
 
 #elif defined __ATARI__
-	// Set sprite bank
+	// Set sprite bank and collider
 	sprBank[index/4u] |= sprMask[index];
+	sprCollide[index] = collideEnabled;
 
 #elif defined __CBM__
 	// Set sprite bits

@@ -49,8 +49,10 @@
 	unsigned char  sprRows[SPRITE_NUM];  	// Sprite dimensions used in algorithms
 	
 #elif defined __ATARI__	
-	unsigned char *sprData, sprYOffset, sprCollision[SPRITE_NUM], sprDLIs, sprCushion = 2;
+	unsigned char *sprData, sprYOffset, sprDLIs, sprCushion = 2;
 	unsigned char sprMask[] = { 1, 2, 4, 8, 1, 2, 4, 8, 1, 2, 4, 8, 1, 2, 4, 8 };	
+	unsigned char sprCollision[SPRITE_NUM];
+	unsigned char cushionLow, cushionHigh;
 
 #elif defined __CBM__
 	void DoubleHeightSprite(unsigned char index, unsigned char onoff) {
@@ -77,6 +79,7 @@
 										{ BPP_4 | TYPE_NONCOLL, REHV | LITERAL, 0, 0, 0, 0, 0, 0x0100, 0x0100, { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef } },
 										{ BPP_4 | TYPE_NONCOLL, REHV | LITERAL, 0, 0, 0, 0, 0, 0x0100, 0x0100, { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef } },
 										{ BPP_4 | TYPE_NONCOLL, REHV | LITERAL, 0, 0, 0, 0, 0, 0x0100, 0x0100, { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef } } };
+	unsigned char cushionLow, cushionHigh;
 	SCB_REHV_PAL *scb;
 	
 #elif defined __NES__
@@ -91,6 +94,7 @@
 									   0,0,0,0, 8,0,0,0, 0,8,0,0, 8,8,0,0, 128 };
 	unsigned char sprX[SPRITE_NUM], sprY[SPRITE_NUM];	// Screen coordinates
 	unsigned char sprDrawn[SPRITE_NUM], sprCollision[SPRITE_NUM], sprCushion = 2; // Enable and Collision status	
+	unsigned char cushionLow, cushionHigh;
  #pragma bss-name(pop)
 	
 #elif defined __ORIC__	
@@ -140,8 +144,11 @@ void LoadSprites(unsigned char* filename, const unsigned char *spriteColors)
 	// Reset Sprite Mask, Frames, Colors and Rows
 	memcpy(sprColor, spriteColors, SPRITE_NUM);
 	sprRows = SPRITEHEIGHT;
-	sprDLIs = (SPRITEHEIGHT+8)>>3;
-	sprPads = sprDLIs*8+1;
+	if (!(SPRITEHEIGHT%8))
+		sprDLIs = (SPRITEHEIGHT+8)>>3;
+	else
+		sprDLIs = (SPRITEHEIGHT+16)>>3;
+	sprPads = sprDLIs*8+2;
 	sprYOffset = (SPRITEHEIGHT/2u)+2;
 
 	// Clear all PMG memory
@@ -156,7 +163,8 @@ void LoadSprites(unsigned char* filename, const unsigned char *spriteColors)
 	POKE(559, PEEK(559) | (16+8+2));
 	
 	// Setup sprites DLI/VBI
-	StartDLI(); StartVBI(); spriteVBI = 1;
+	StartDLI(); StartVBI(); 
+	spriteVBI = 1;
 	
 #elif defined(__CBM__)
 	// TODO: sprite sheets larger than $700 can be loaded by exomizer, 
@@ -189,5 +197,14 @@ void LoadSprites(unsigned char* filename, const unsigned char *spriteColors)
 	// Assign frame info and sprite colors
 	memset(sprRows, SPRITEHEIGHT, SPRITE_NUM);
 	sprCOLOR = spriteColors;	
+#endif
+
+	// Apply sprite collision cushion
+#if defined(__NES__)
+	cushionLow = SPRITEHEIGHT/2-sprCushion;
+	cushionHigh = 256 - cushionLow;
+#elif (defined __ATARI__) || (defined __LYNX__)
+	cushionLow = SPRITEHEIGHT-sprCushion;
+	cushionHigh = 256 - cushionLow;
 #endif
 }

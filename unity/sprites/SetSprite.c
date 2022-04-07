@@ -102,22 +102,34 @@
   }
 #else
   unsigned char sc_dX, sc_dY;
+ #if (defined __ATARI__) || (defined __LYNX__) || (defined __NES__)
+  extern unsigned char cushionLow, cushionHigh;
+ #endif		
  #if (defined __APPLE2__) || (defined __ORIC__)
   unsigned char sc_x1, sc_x2, sc_y1, sc_y2, sc_rows;
   unsigned int sc_bgPtr1, sc_bgPtr2;
- #elif (defined __ATARI__) || (defined __LYNX__) || (defined __NES__)
-  unsigned char sc_cushion;
+ #elif (defined __ATARI__) 
+  unsigned char collideEnabled = 1;
+  unsigned char sprCollide[SPRITE_NUM];
  #endif		
   void SpriteCollisions(unsigned char index) {
 	unsigned char i;
-	// Check for collisions
-  #if (defined __ORIC__)
+	
+	// Reset collision state
+  #if defined(__ATARI__)
+	if (!sprCollide[index]) return;
+  #elif defined(__ORIC__)
 	sprOverlap[index] = 0;
   #endif	
 	sprCollision[index] = 0;
+	
 	for (i=0; i<SPRITE_NUM; i++) {
 		// Should this sprite be checked?
-		if (i == index || !sprDrawn[i]) { continue; }
+	#if defined __ATARI__
+		if (i == index || !sprCollide[i]) continue;
+	#else
+		if (i == index || !sprDrawn[i]) continue;
+	#endif
 		
 		// Check Y distance
 	#if defined __APPLE2__
@@ -203,24 +215,20 @@
 			}
 		}
 	#elif (defined __ATARI__) || (defined __LYNX__) || (defined __NES__)
-	  #if defined(__NES__)
-		sc_cushion = SPRITEHEIGHT/2-sprCushion;
-	  #else
-		sc_cushion = SPRITEHEIGHT-sprCushion;
-	  #endif
 		sc_dY = sprY[i] - spriteY;
-		if (sc_dY < sc_cushion || sc_dY>(256-sc_cushion)) {
-		  #if defined(__NES__)
-			sc_cushion = SPRITEWIDTH/2-sprCushion;
-		  #else
-			sc_cushion = SPRITEWIDTH-sprCushion;
-		  #endif
+		if (sc_dY < cushionLow || sc_dY > cushionHigh) {
+
 			sc_dX = sprX[i] - spriteX;
-			if (sc_dX < sc_cushion || sc_dX>(256-sc_cushion)) {
+			if (sc_dX < cushionLow || sc_dX > cushionHigh) {
 				
 				// Apply collision
+			#if (defined __ATARI__)
+				sprCollision[index] |= 1 << i&7;
+				sprCollision[i] |= 1 << index&7;				
+			#else
 				sprCollision[index] |= 1 << i;
 				sprCollision[i] |= 1 << index;
+			#endif	
 			}				
 		}
 	#endif					

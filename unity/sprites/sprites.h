@@ -36,6 +36,8 @@
 	extern unsigned char sprBegDLI[SPRITE_NUM], sprEndDLI[SPRITE_NUM], sprLead[SPRITE_NUM], sprColor[SPRITE_NUM];
 	extern unsigned int  sprSrc[SPRITE_NUM], sprDst[SPRITE_NUM];
 	extern unsigned char *sprData, sprYOffset;
+	extern unsigned char collideEnabled;
+	extern unsigned char sprCollide[];	
 #elif defined __LYNX__
 	#define FRAMESIZE  (SPRITEHEIGHT*((SPRITEWIDTH+(SPRITEWIDTH&1))/2+1)+1)	
 	extern unsigned char spriteData; 

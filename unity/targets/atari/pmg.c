@@ -30,7 +30,9 @@
  
 void EnableMultiColorSprite(unsigned char index) {
 	EnableSprite(index++);
+	collideEnabled = 0;
 	EnableSprite(index);
+	collideEnabled = 1;
 }
 
 void DisableMultiColorSprite(unsigned char index) {

@@ -49,6 +49,8 @@
 		sprBG[index] = 0;
 	}
   }
+#elif (defined __ATARI__)
+  extern unsigned char posPM0[];	
 #endif
 
 void DisableSprite(signed char index)
@@ -61,8 +63,9 @@ void DisableSprite(signed char index)
 	  #elif defined __ATARI__
 		// Was sprite drawn?
 		if (sprDrawn[index]) {
-			// Clear PMG memory and slot
-			bzero(sprDst[index], sprPads);
+			// Clear sprite DLI and slot
+			bzero(&posPM0[sprBegDLI[index]], sprDLIs);
+			sprCollide[index] = 0;
 			sprDrawn[index] = 0;
 		}
 		sprBank[index/4u] &= ~sprMask[index];
@@ -83,10 +86,11 @@ void DisableSprite(signed char index)
 		// Reset sprite register
 		POKE(53269, 0);
 	  #elif defined __ATARI__
-		// Clear sprite slots, banks and PMG memory
+		// Clear sprite DLIs, banks and PMG memory
+		bzero(sprCollide, SPRITE_NUM);
 		bzero(sprDrawn, SPRITE_NUM);
 		bzero(sprBank, BANK_NUM);
-		bzero(PMGRAM,0x400);
+		bzero(posPM0, 100);
 	  #elif defined __LYNX__
 		// Clear sprite slots
 		bzero(sprDrawn, SPRITE_NUM);
