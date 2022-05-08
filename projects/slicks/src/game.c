@@ -43,6 +43,9 @@ extern unsigned char clName[MAX_PLAYERS][5];
 extern unsigned char svMap, svStep; 
 extern char chatBuffer[20];
 
+// See sfx.c
+extern unsigned char sfx[4];
+
 #if defined __NES__
  #pragma bss-name(push, "XRAM")
 #endif
@@ -64,7 +67,7 @@ int tck4, accRate, decRate, jmpTCK;
 #define VELRAMP  800
 const int velMax[4] = { 390, 460, 530, 600 };
 const char rotMax[4] = { 4, 5, 6, 2 };
-#if defined __ORIC__
+#if defined(__APPLE2__) || defined(__ORIC__)
   char rotRate = 2;
 #else
   char rotRate = 3;
@@ -122,7 +125,7 @@ void GameReset()
 	txtY = LAPS_ROW; txtX = SLOT_COL1 + SLOT_OFFST;
     for (i=0; i<MAX_PLAYERS; ++i) {        
         // Reset SFX
-        EngineSFX(i, 0);
+        sfx[i] = 0;
 		
 		// Reset Lap count
 		PrintStr("  ");
@@ -349,7 +352,7 @@ unsigned char GameRace()
 #ifndef __APPLE2__
     sleep(1);
 #else
-	wait(30);
+	wait(60);
 #endif	
 
     // Orange light	
@@ -376,7 +379,7 @@ unsigned char GameRace()
 #ifndef __APPLE2__
     sleep(1);
 #else
-	wait(30);
+	wait(60);
 #endif	
 
     // Green light
@@ -414,7 +417,7 @@ unsigned char GameRace()
 	#ifndef __APPLE2__
 		sleep(1);
 	#else
-		wait(30);
+		wait(60);
 	#endif	
 	}
 	
@@ -431,17 +434,17 @@ unsigned char GameRace()
 		DisableSprite(i);
 	}
 
-	// Reset game clock
-	gameClock = clock();
-#if defined __APPLE2__
-	clk += 1;
-#endif	
-
 	// Set Max　Timer value
 	if (gameMode == MODE_LOCAL)
 		maxTime = LAPMAX;
 	else
 		maxTime = 9999;
+
+	// Refresh Game Clock
+	gameClock = clock();
+#if defined __APPLE2__
+	clk++;
+#endif	
 
 	// Set Lap Timers
 	for (i=0; i<MAX_PLAYERS; ++i) {
@@ -511,7 +514,7 @@ char GameLoop()
 	gameFrame = 0;
 	gameClock = clock();
 #if defined __APPLE2__
-	clk += 1;
+	clk++;
 #endif				
 	
     // Main loop of Application
@@ -527,9 +530,7 @@ char GameLoop()
 		for (i=0; i<MAX_PLAYERS; ++i) {
 			// Player available?
 			if (!PlayerAvailable(i)) { continue; }
-		#if defined __APPLE2__	// Regulate clock approximately...
-			if (!(gameFrame%3)) { clk += 2; } else { clk += 1; }
-		#endif
+
 			// Get player parameters
 			iCtrl = controlIndex[i];
 			iCar = &cars[i];
@@ -539,7 +540,12 @@ char GameLoop()
 			iAng2 = iCar->ang2;
 			iVel = iCar->vel;
 			iJmp = 0;	
-			
+
+			// Regulate Apple clock approximately...
+		#if defined __APPLE2__	
+			if (gameStep > STEP_WARMUP && iCtrl != NET_CONTROL) clk += 3; else clk += 2;
+		#endif			
+		
 			// Get customized physics parameters
 			if (iCtrl > 3) {
 				iVelMax = velMax[3];
@@ -598,10 +604,10 @@ char GameLoop()
 						iJoy = 255-JOY_BTN1*GetButton(iCtrl-4);
 						res = GetPaddle(iCtrl-4);
 						if (res > 159) { 
-							iAng2 -= ((res-127)/33u)*ticks;
+							iAng2 -= (ticks*(res-127))/64u;
 							iJoy -= JOY_RIGHT;
 						} else if (res < 93) {
-							iAng2 += ((127-res)/33u)*ticks;
+							iAng2 += (ticks*(127-res))/64u;
 							iJoy -= JOY_LEFT;
 						}
 					}
@@ -779,13 +785,16 @@ char GameLoop()
 					#endif			
 							// Check neither are flying
 							jCar = &cars[j];
-							if (iJmp || (clock()-jCar->jmp) < jmpTCK) { continue; }
+							if (iJmp || (clock()-jCar->jmp) < jmpTCK) {
+								continue; 
+							}
 							// Apply impulse to other car, and reduce own velocity
 							if ( (iCos*(jCar->x - iX) - iSin*(jCar->y - iY)) > 0) {
 								if (iVel > VELMIN) { iVel = VELMIN; }
 								jCar->impx = iCos/2;
 								jCar->impy = -iSin/2;		
 								BumpSFX();
+								break;
 							} 
 						}
 					}

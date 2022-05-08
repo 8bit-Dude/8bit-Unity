@@ -72,15 +72,6 @@ void LoadNavigation(char *filename)
 #endif
 }
 
-// Get terrain type
-unsigned char GetTerrain(unsigned int x, unsigned int y) 
-{
-	unsigned char tX, tY;
-	tX = x/40u;		
-	tY = y/32u-2;
-	return (terrain[tY*16+tX/4u] >> ((tX%4)*2)) & 3;
-}
-
 // Functions to check navigation around cylinders
 signed char v1[2], v2[2], dist[2], cross[2];
 
@@ -130,16 +121,26 @@ char CheckWaypoint(void)
 	return 0;
 }
 
-void GetWaypoint(void)
-{
-	// Prepare waypoint variables
-	way = &ways[iCar->way/2u];
-	vWay = way->v[iCar->way&1];
-}
-
 #ifdef __ATARIXL__
   #pragma code-name("SHADOW_RAM")
 #endif
+
+// Reset cars to line-up positions 
+void ResetLineUp()
+{
+	unsigned char i,j;
+	Vehicle *car;
+	for (i=0; i<MAX_PLAYERS; ++i) {
+		j = gameLineUp[i];
+		car = &cars[i];
+		car->x = lineupX[j]; 
+		car->y = lineupY[j];
+		car->ang1 = lineupAng[j];
+		car->ang2 = lineupAng[j];
+		bzero(&car->vel, 4);		
+        car->lap = -1;
+	}
+}
 
 const signed char tan[19] = {91,30,17,11,8,6,4,2,1,-1,-2,-4,-6,-8,-11,-17,-30,-91,-128};
 
@@ -192,10 +193,10 @@ char CheckRamps(void)
     unsigned char i;
 	for (i=0; i<numRamps; ++i) {
         ramp = &ramps[i];
-        if (iX < ramp->x[0] && iX < ramp->x[1]) { continue; }
-        if (iX > ramp->x[0] && iX > ramp->x[1]) { continue; }
-        if (iY < ramp->y[0] && iY < ramp->y[1]) { continue; }
-        if (iY > ramp->y[0] && iY > ramp->y[1]) { continue; }
+        if (iX < ramp->x[0]) { continue; }
+        if (iX > ramp->x[1]) { continue; }
+        if (iY < ramp->y[0]) { continue; }
+        if (iY > ramp->y[1]) { continue; }
         return 1;
     }
     return 0;
@@ -206,19 +207,18 @@ char CheckRamps(void)
   #pragma code-name("BANK0")
 #endif
 
-// Reset cars to line-up positions 
-void ResetLineUp()
+void GetWaypoint(void)
 {
-	unsigned char i,j;
-	Vehicle *car;
-	for (i=0; i<MAX_PLAYERS; ++i) {
-		j = gameLineUp[i];
-		car = &cars[i];
-		car->x = lineupX[j]; 
-		car->y = lineupY[j];
-		car->ang1 = lineupAng[j];
-		car->ang2 = lineupAng[j];
-		bzero(&car->vel, 4);		
-        car->lap = -1;
-	}
+	// Prepare waypoint variables
+	way = &ways[iCar->way/2u];
+	vWay = way->v[iCar->way&1];
+}
+
+// Get terrain type
+unsigned char GetTerrain(unsigned int x, unsigned int y) 
+{
+	unsigned char tX, tY;
+	tX = x/40u;		
+	tY = y/32u-2;
+	return (terrain[tY*16+tX/4u] >> ((tX%4)*2)) & 3;
 }

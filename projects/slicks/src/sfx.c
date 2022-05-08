@@ -2,7 +2,7 @@
 #include "definitions.h"
 
 // SFX channel definitions
-#if defined(__LYNX__) || defined(__NES__)
+#if defined(__ATARIXL__) || defined(__LYNX__) || defined(__NES__)
 	#define CHAN_BLEEP 1
 	#define CHAN_BUMP  1
 #else
@@ -12,10 +12,10 @@
 
 // SFX variations
 #if defined(__ATARI__)
-	#define PITCH_BUMP    16
-	#define VOLUME_BLEEP  60
-	#define VOLUME_BUMP   60
-	#define VOLUME_ENGINE 60
+	#define PITCH_BUMP     48
+	#define VOLUME_BLEEP   96
+	#define VOLUME_BUMP    96
+	#define VOLUME_ENGINE  64
 #elif defined(__NES__)
 	#define PITCH_BUMP 	    32
 	#define VOLUME_BLEEP   192

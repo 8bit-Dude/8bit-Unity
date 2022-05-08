@@ -362,11 +362,12 @@ void MenuSFX()
 void PrintLap(unsigned char i)
 {
 	// Set cursor	
-	if (cars[i].lap > 0) { 
+	signed char lap = cars[i].lap;
+	if (lap > 0) { 
 		txtY = LAPS_ROW;
 		txtX = (SLOT_COL1+SLOT_OFFST) + SLOT_WIDTH*i; 
 		inkColor = inkColors[i]; 
-		PrintNum(cars[i].lap);
+		PrintNum(lap);
 	}
 }
 
@@ -393,38 +394,36 @@ void PrintRace()
 // Sub-function of GameMenu()
 void MenuMap()
 {
-	// Clear previous
-	txtX = MENU_COL+7; txtY = MENU_ROW+7;
-	PrintBlanks(MENU_WID-7, 1);
-	
-	// Print Characters
+	// Print header
 	inkColor = INK_HIGHLT; paperColor = PAPER_HIGHLT;
-	txtX = MENU_COL+2; PrintChr('m');
+	txtY = MENU_ROW+7; txtX = MENU_COL+2; PrintChr('m');
 	inkColor = WHITE; paperColor = BLACK;	
 	txtX++; PrintStr("AP:");
+	
+	// Print selection
 	txtX = MENU_COL+7; 
 #if defined __ORIC__
 	SetAttributes(inkColor);
 #endif	
+	PrintBlanks(MENU_WID-7, 1); // Clear previous
 	PrintStr(mapList[gameMap]);	
 }
 
 // Sub-function of GameMenu()
 void MenuLaps()
 {
-	// Clear previous
-	txtX = MENU_COL+7; txtY = MENU_ROW+9;
-	PrintStr("  ");
-	
-	// Print Characters
+	// Print header
 	inkColor = INK_HIGHLT; paperColor = PAPER_HIGHLT;
-	txtX = MENU_COL+2; PrintChr('l');
+	txtY = MENU_ROW+9; txtX = MENU_COL+2; PrintChr('l');
 	inkColor = WHITE; paperColor = BLACK;
 	txtX++; PrintStr("AP:");
+	
+	// Print selection
 	txtX = MENU_COL+7; 
 #if defined __ORIC__
 	SetAttributes(inkColor);
 #endif		
+	PrintStr("  "); // Clear previous
 	PrintNum(lapNumber[lapIndex]);
 }
 
@@ -522,11 +521,11 @@ void PrintScores()
 	
 	// Play the background music
 	StopSFX();
-#if defined(__LYNX__) || defined(__NES__)
+#if defined(__ATARIXL__) || defined(__LYNX__) || defined(__NES__)
 	StopMusic();
 	LoadMusic("speednik.mus");
 	PlayMusic();
-#elif defined(__APPLE2__) || defined(__ATARIXL__) || defined(__C64__)
+#elif defined(__APPLE2__) || defined(__C64__)
 	PlayMusic();
 #endif	
 				
@@ -828,13 +827,9 @@ unsigned char MenuLogin(unsigned char serverIndex)
 
 // Sub-function of GameMenu()
 void MenuPlayer(unsigned char i)
-{	
-	// Clear previous
-	txtY = MENU_ROW+2+i; txtX = MENU_COL+6; 
-	PrintBlanks(MENU_WID-6, 1);
-	
-	// Print Characters
-	txtX = MENU_COL+2; 
+{		
+	// Print header
+	txtY = MENU_ROW+2+i; txtX = MENU_COL+2; 
 #if defined(__NES__) || defined __SHR__
 	inkColor = WHITE;
 #else
@@ -850,10 +845,13 @@ void MenuPlayer(unsigned char i)
 	txtX = MENU_COL+3;  PrintNum(i+1);
 	inkColor = WHITE; paperColor = BLACK;
 	txtX = MENU_COL+4;  PrintChr(':');
+	
+	// Print Selection
 	txtX = MENU_COL+6; 
 #if defined __ORIC__
 	SetAttributes(inkColor);
 #endif
+	PrintBlanks(MENU_WID-6, 1); // Clear previous
 	PrintStr(controlList[controlIndex[i]]);	
 }
 

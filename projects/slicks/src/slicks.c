@@ -32,7 +32,7 @@
 #endif
 
 // Build Information
-const char* buildInfo = "BUILD: 2022/04/02";
+const char* buildInfo = "BUILD: 2022/05/07";
 
 // List of available maps
 unsigned char mapNum  = 10;
@@ -84,12 +84,14 @@ int main (void)
 	HideBitmap();	
 	
 	// Setup sprites
+#if defined(__ATARI__) || defined(__LYNX__)
+	sprCushion = 6;	
+#endif   
 	LoadSprites("sprites.dat", spriteColors);
 #if defined __LYNX__
 	RecolorSprite(1, 0, 0x08); // BLUE -> ORANGE
 	RecolorSprite(2, 0, 0x05); // BLUE -> GREEN
 	RecolorSprite(3, 0, 0x09); // BLUE -> YELLOW
-	sprCushion = 6;	
 #elif defined __NES__
 	RecolorSprite(1, 0, 1); // Use Palette 1
 	RecolorSprite(2, 0, 2); // Use Palette 2
