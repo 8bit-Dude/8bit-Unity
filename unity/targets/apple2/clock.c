@@ -44,8 +44,8 @@ clock_t clk;
 // Wait for X clock ticks
 void wait(unsigned char ticks)
 {
-	unsigned int i = 0;
-	while (i<45*ticks) { i++; }
+	unsigned int i = 0, t = 264*ticks;
+	while (i<t) { i++; }
 	clk += ticks;		
 }
 

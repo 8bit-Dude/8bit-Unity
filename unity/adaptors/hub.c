@@ -196,7 +196,9 @@ unsigned char SendHub(unsigned char cmd, unsigned char* buffer, unsigned char le
 	}
 	
 	SendError:
-  #if defined(__ORIC__)
+  #if defined(__APPLE2__)
+	clk += (1+len/16u);
+  #elif defined(__ORIC__)
 	ClosePort();
 	__asm__("cli");		// Resume interrupts	
   #endif
@@ -280,7 +282,9 @@ unsigned char RecvHub(unsigned char cmd)
 	}
 
 	RecvError:
-  #if defined(__ORIC__)
+  #if defined(__APPLE2__)
+	clk += (1+hubLen/16u);	
+  #elif defined(__ORIC__)
 	ClosePort();
 	__asm__("cli");		// Resume interrupts	
   #endif  	

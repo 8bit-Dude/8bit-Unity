@@ -60,8 +60,8 @@ void InitBitmap()
 	POKE(559, (16+8+2));
 
 	// Setup DLI/VBI
-	StartDLI(); StartVBI();	
   #ifdef __ATARIXL__
+	StartDLI(); StartVBI();	
 	doubleBuffer = 1;
   #endif
   

@@ -58,9 +58,9 @@ void ScrollCharmap(unsigned char x, unsigned char y)
 	unsigned char tmp2;
 	x = 2*(x/2u)+1;
   #if defined(__DHR__)
-	clk += 16;
+	clk += 44;
   #else
-	clk += 8;  
+	clk += 24;  
   #endif	
 #endif
 

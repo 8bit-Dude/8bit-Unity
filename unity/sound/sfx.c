@@ -46,7 +46,7 @@
   #pragma code-name("BANK0")
 #endif
 	
-#if defined __APPLE2__			  //  Period  
+#if defined __APPLE2__			   //  Period  
 	unsigned char sfxData[6][1] = { {	 64  	},		// SFX_BLEEP
 								    {    16 	},		// SFX_BUMP
 								    {     0 	},		// SFX_ENGINE
@@ -108,13 +108,19 @@
 		}
 	}
 	
-#elif defined __ATARI__			//  Period  Control (7,6,5,4:noise/3,2,1,0:volume)
-	unsigned char sfxData[6][2] = { {   24,	   	160		},		// SFX_BLEEP	0b10100000	1010		
-								    {    8,	   	224		},		// SFX_BUMP		0b11100000	1000	
-								    {  255,    	192		},		// SFX_ENGINE	0b11000000	0111	
-								    {    2,    	224		},		// SFX_GUN		0b11100000	1000
-								    {    4,    	128		},		// SFX_INJURY	0b10000000	1000
-								    {  255,	   	128	   	} };	// SFX_SCREECH	0b10000000	0111	
+#elif defined __ATARI__			//  Period  Control (Bits 7,6,5)		Low Freq.			Mid Freq.		High Freq.
+								//						  0,0,0		Geiger Counter   Raging Fire   Rushing Air   Steam
+								//						  0,X,1		Machine Gun   Engine Idle   Electric Motor   Power Transformer
+								//						  0,1,0		  Calm Fire      Laboring Engine     Engine with a "miss"
+								//						  1,0,0		Building Collapsing   Radio Interference   Waterfall
+								//						  1,X,1								Pure Tones
+								//						  1,1,0		   Airplane      Lawn Mower      Electric Razor
+	unsigned char sfxData[6][2] = { {   24,	   	160		},		// SFX_BLEEP				
+								    {    8,	   	192		},		// SFX_BUMP				
+								    {  255,    	160		},		// SFX_ENGINE			
+								    {    2,    	224		},		// SFX_GUN			
+								    {    4,    	128		},		// SFX_INJURY		
+								    {  255,	   	192	   	} };	// SFX_SCREECH			
 	
 	void SetupSFX(); // VBI for SFX samples	(see Atari/POKEY.s)
 	extern unsigned char sampleTimer[4];
@@ -128,11 +134,7 @@
 		// Set DLI data (for period control)
 		sampleTimer[channel] = data[0];
 		sampleFreq[channel] = ~pitch;
-		sampleCtrl[channel] = data[1] | volume/16;
-		
-		// Start sound
-		POKE(0xD200+2*channel, ~pitch);
-		POKE(0xD201+2*channel, sampleCtrl[channel]);		
+		sampleCtrl[channel] = data[1] | volume/16u;	
 	}
 	
 #elif defined __CBM__			  //  Attack/Decay  Sustain/Release  Ctrl Attack  Ctrl Release  Pitch Mult.

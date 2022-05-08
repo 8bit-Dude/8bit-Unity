@@ -40,7 +40,7 @@
 #elif defined __FUJINET__	
   // Nothing
 #elif defined __ULTIMATE__
-  unsigned char udpSocket;  
+  unsigned char udp_socket;  
 #elif defined __IP65__
   #define EncodeIP(a,b,c,d) (a+b*256+c*65536+d*16777216)
   unsigned long udp_send_ip;
@@ -90,7 +90,7 @@ void OpenUDP(unsigned char* svIP, unsigned int svPort, unsigned int clPort)
 #elif defined __ULTIMATE__
 	unsigned char host[17];
 	sprintf(host, "%i.%i.%i.%i", svIP[0], svIP[1], svIP[2], svIP[3]);
-	udpSocket = uii_socketopen(host, svPort, NET_CMD_UDP_SOCKET_CONNECT);
+	udp_socket = uii_socketopen(host, svPort, NET_CMD_UDP_SOCKET_CONNECT);
 	  
 #elif defined __IP65__
 	// Set-up UDP params and listener
@@ -104,6 +104,7 @@ void OpenUDP(unsigned char* svIP, unsigned int svPort, unsigned int clPort)
 		SendUDP(dummy, 1);
 		RecvUDP(TCK_PER_SEC);
 	}
+	udp_len = 0;
 #endif
 }
 
@@ -116,7 +117,7 @@ void CloseUDP()
 	FujiClose(0x71);
 	
 #elif defined __ULTIMATE__
-	uii_socketclose(udpSocket);	
+	uii_socketclose(udp_socket);	
 	
 #elif defined __IP65__
 	udp_remove_listener(udp_recv_port);
@@ -133,7 +134,7 @@ void SendUDP(unsigned char* buffer, unsigned char length)
 	FujiWrite(0x71, length);
 	
 #elif defined __ULTIMATE__
-	uii_socketwrite(udpSocket, buffer, length);	
+	uii_socketwrite(udp_socket, buffer, length);	
 	
 #elif defined __IP65__
 	udp_send(buffer, length, udp_send_ip, udp_send_port, udp_recv_port);
@@ -144,11 +145,11 @@ unsigned char* RecvUDP(unsigned int timeOut)
 {	
 	// Keep trying until timeout expires...
 	clock_t timer = clock()+timeOut;
-#if defined __HUB__
+#if defined __HUB__	
 	while (!RecvHub(HUB_UDP_RECV)) {
 		if (clock() >= timer) return 0;
 	#if defined __APPLE2__
-		wait(1); 
+		clk += 6; 
 	#endif		
 	}	
 	return hubBuf; 
@@ -164,7 +165,7 @@ unsigned char* RecvUDP(unsigned int timeOut)
 	}
 
 #elif defined __ULTIMATE__
-	while (uii_socketread(udpSocket, 255) < 1) {
+	while (uii_socketread(udp_socket, 255) < 1) {
 		if (clock() >= timer) return 0;
 	}
 	return &uii_data[2];

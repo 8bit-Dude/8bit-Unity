@@ -74,11 +74,11 @@ unsigned char* ReadURL(unsigned char size, unsigned int timeOut)
 #if defined __HUB__
 	// Wait until data is received from Hub
 	clock_t timer = clock()+timeOut;
-	SendHub(HUB_URL_READ, &size, 1);
+	SendHub(HUB_URL_READ, &size, 1);	
 	while (!RecvHub(HUB_URL_READ)) {
 		if (clock() >= timer) return 0;
 	#if defined __APPLE2__
-		wait(1); 
+		clk += 6; 
 	#endif			
 	}
 	return hubBuf; 

@@ -64,9 +64,9 @@ void DrawCharmap(unsigned char x, unsigned char y)
 #if defined(__APPLE2__)
 	x = 2*(x/2u)+1;
   #if defined(__DHR__)
-	clk += 20;
+	clk += 52;
   #else
-	clk += 10;  
+	clk += 26;  
   #endif
 #endif
 

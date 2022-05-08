@@ -40,13 +40,13 @@
 #elif defined __FUJINET__
   // Nothing
 #elif defined __ULTIMATE__
-  unsigned char tcpSocket;
+  unsigned char tcp_socket;
 #elif defined __IP65__
   #define EncodeIP(a,b,c,d) (a+b*256+c*65536+d*16777216)
-  unsigned char* tcpBuffer, tcpLen;
+  unsigned char* tcp_buffer, tcp_len;
   void __fastcall__ PacketTCP(const unsigned char* buffer, int len) { 
-	tcpBuffer = (unsigned char*)buffer;
-	tcpLen = len;	
+	tcp_buffer = (unsigned char*)buffer;
+	tcp_len = len;	
   }
 #endif
 
@@ -78,11 +78,12 @@ void OpenTCP(unsigned char* svIP, unsigned int svPort)
 #elif defined __ULTIMATE__
 	unsigned char host[17];
 	sprintf(host, "%i.%i.%i.%i", svIP[0], svIP[1], svIP[2], svIP[3]);
-	tcpSocket = uii_socketopen(host, svPort, NET_CMD_TCP_SOCKET_CONNECT);
+	tcp_socket = uii_socketopen(host, svPort, NET_CMD_TCP_SOCKET_CONNECT);
 	
 #elif defined __IP65__
 	unsigned long host = EncodeIP(svIP[0], svIP[1], svIP[2], svIP[3]);
 	tcp_connect(host, svPort, PacketTCP);
+	tcp_len = 0;
 #endif
 }
 
@@ -95,7 +96,7 @@ void CloseTCP()
 	FujiClose(0x71);
 	
 #elif defined __ULTIMATE__
-	uii_socketclose(tcpSocket);
+	uii_socketclose(tcp_socket);
 	
 #elif defined __IP65__
 	tcp_close();
@@ -112,7 +113,7 @@ void SendTCP(unsigned char* buffer, unsigned char length)
 	FujiWrite(0x71, length);
 	
 #elif defined __ULTIMATE__
-	uii_socketwrite(tcpSocket, buffer, length);
+	uii_socketwrite(tcp_socket, buffer, length);
 	
 #elif defined __IP65__
 	tcp_send(buffer, length);
@@ -127,7 +128,7 @@ unsigned char* RecvTCP(unsigned int timeOut)
 	while (!RecvHub(HUB_TCP_RECV)) {
 		if (clock() >= timer) return 0;
 	#if defined __APPLE2__
-		wait(1); 
+		clk += 6; 
 	#endif			
 	}
 	return hubBuf; 
@@ -142,23 +143,23 @@ unsigned char* RecvTCP(unsigned int timeOut)
 		return 0;
 	
 #elif defined __ULTIMATE__
-	while (uii_socketread(tcpSocket, 255) < 1) {
+	while (uii_socketread(tcp_socket, 255) < 1) {
 		if (clock() >= timer) return 0;
 	}
 	return &uii_data[2];
 	
 #elif defined __IP65__
-	if (!tcpLen) {		
+	if (!tcp_len) {		
 		while (1) {
 			ip65_process();
-			if (tcpLen) break;
+			if (tcp_len) break;
 			if (clock() >= timer) return 0;
 		#if defined __APPLE2__
 			wait(1); 
 		#endif
 		}
 	}
-	tcpLen = 0;
-	return tcpBuffer;	
+	tcp_len = 0;
+	return tcp_buffer;	
 #endif
 }

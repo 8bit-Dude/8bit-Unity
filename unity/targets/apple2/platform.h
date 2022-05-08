@@ -122,7 +122,7 @@ void UpdateSpeaker(void);
 void StopMocking(void);
 
 // Workaround for missing clock (see CLOCK.c)
-#define TCK_PER_SEC	64u
+#define TCK_PER_SEC	128u
 void wait(unsigned char ticks);
 clock_t clock(void);
 unsigned sleep(unsigned seconds);
