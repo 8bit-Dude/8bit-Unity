@@ -32,7 +32,7 @@
 #endif
 
 // Build Information
-const char* buildInfo = "BUILD: 2022/05/07";
+const char* buildInfo = "BUILD: 2022/05/08";
 
 // List of available maps
 unsigned char mapNum  = 10;
@@ -66,25 +66,29 @@ int main (void)
 	// Show banner
 	InitBitmap();
     LoadBitmap("promo.img");
-  #if defined(__NES__) || defined(__ORIC__)	
-   #if defined(__NES__)
+#if defined(__NES__) || defined(__ORIC__)	
+  #if defined(__NES__)
 	txtX = 0; inkColor = WHITE;
-   #else
+  #else
 	txtX = 0; inkColor = AIC;
-   #endif
+  #endif
 	txtY = 0; PrintStr("Full version at 8bit-slicks.com");
 	txtY = 1; PrintStr(" + Access 4 player servers");
 	txtY = 2; PrintStr(" + Improved sprites");
+  #if defined(__ORIC__)	
 	txtY = 3; PrintStr(" + 12 new maps");	
   #endif
-	ShowBitmap();	
+#endif
+	ShowBitmap();
 	bannerClock = clock()+10*TCK_PER_SEC;
     while (clock()<bannerClock)
 		if (kbhit()) { cgetc(); break; }
 	HideBitmap();	
 	
 	// Setup sprites
-#if defined(__ATARI__) || defined(__LYNX__)
+#if defined(__ATARI__)
+	sprCushion = 5;	
+#elif defined(__LYNX__)
 	sprCushion = 6;	
 #endif   
 	LoadSprites("sprites.dat", spriteColors);

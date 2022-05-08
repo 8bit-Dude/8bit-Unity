@@ -141,7 +141,7 @@
 
 // Lap time definitions
 #if defined __APPLE2__
-  #define LAPMAX  5940
+  #define LAPMAX 12798
 #elif defined __ATARI__
   #define LAPMAX  6039
 #elif defined __CBM__
