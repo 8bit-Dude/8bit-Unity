@@ -1655,10 +1655,11 @@ class Application:
                 fp.write(Copy('utils/scripts/lynx/keyboard.spr', buildFolder + '/lynx/keyboard.dat'))
             fp.write('\n')
                                 
-            # Copy Chipper sfx and music data
-            fp.write(Copy('unity/targets/lynx/chipper.s', buildFolder + '/lynx/soundbs.mac'))    
+            # Transcribe Music data
+            fp.write(Copy('unity/targets/lynx/chipper.s', buildFolder + '/lynx/soundbs.mac'))
             for i in range(len(music)):
-                fp.write(py27 + ' utils/scripts/lynx/LynxChipper.py ' + music[i] + ' ' + buildFolder + '/lynx/music' + str(i).zfill(2) + '.asm _musData' + str(i).zfill(2) + ' MUS' + str(i) + 'DATA \n')
+                fb = FileBase(music[i], '.asm')
+                fp.write(py27 + ' utils/scripts/lynx/LynxChipper.py ' + music[i] + ' ' + buildFolder + '/lynx/' + fb + '.asm _musData' + str(i).zfill(2) + ' MUS' + str(i) + 'DATA \n')
             fp.write('\n')
 
             # Copy Shared files
@@ -1667,186 +1668,56 @@ class Application:
                     fp.write(Copy(item, buildFolder + '/lynx/' + FileBase(item, '')))
                 fp.write('\n')
 
-            fp.write('echo ---------------- LINK ASSETS ----------------  \n\n')
+            fp.write('echo ---------------- LINK ASSETS ----------------\n\n')
 
-            fp.write(CD(buildFolder + '/lynx'))
-                
-            # Figure out number of files
-            fp.write('set /a FILENUM=' + str(len(bitmaps)+len(charmaps)+len(charset)+len(chunks)+len(music)+len(sharedLynx)) + '\n')
-            fp.write('\n')
-            
             # Make list of asset files
-            filelist = ''
+            bmpList = '"'
             for item in bitmaps:
-                fb = FileBase(item, '.png')
-                filelist += fb + '.img,'
+                bmpList += FileBase(item, '.png') + '.img,'
+            if len(bmpList) > 1: bmpList = bmpList[:-1]
+            bmpList += '"'    
+
+            mapList = '"'
             for item in charmaps:
-                fb = FileBase(item, '')
-                filelist += fb + ','
+                mapList += FileBase(item, '') + ','
+            if len(mapList) > 1: mapList = mapList[:-1]
+            mapList += '"'    
+
+            chrList = '"'    
             for item in charset:
-                fb = FileBase(item, '.png')
-                filelist += fb + '.chr,'
-            for i in range(len(music)):
-                filelist += 'music' + str(i).zfill(2) + '.asm,'
+                chrList += FileBase(item, '.png') + '.chr,'
+            if len(chrList) > 1: chrList = chrList[:-1]
+            chrList += '"'    
+
+            musList = '"'    
+            for item in music:
+                musList += FileBase(item, '.asm') + '.asm,'
+            if len(musList) > 1: musList = musList[:-1]
+            musList += '"'    
+
+            shrList = '"'
             for item in sharedLynx:
-                fb = FileBase(item, '')
-                filelist += fb + ','
+                shrList += FileBase(item, '') + ','
+            if len(shrList) > 1: shrList = shrList[:-1]
+            shrList += '"'    
+
+            chkList = '"'    
             for item in chunks:
-                fb = FileBase(item, '.txt')
-                filelist += fb + '.chk,'
+                chkList += FileBase(item, '.txt') + '.chk,'
+            if len(chkList) > 1: chkList = chkList[:-1]
+            chkList += '"'    
+            
+            if len(sprites) > 0:
+                sprList = '"' + FileBase(sprites[0], '') + '.dat"'
+            else:
+                sprList = '""'
                 
-            # Get size of files   
-            fp.write('set FILESIZES=\n')
-            fp.write('for %%I in (' + filelist[0:-1] + ') do set FILESIZES=!FILESIZES!%%~zI,\n')
-            fp.write('\n')
-
-            # Generate assembly file with list of read-only data
-            fp.write('@echo .global _fileNum  >> data.asm\n')
-            fp.write('@echo .global _fileSizes >> data.asm\n')
-            fp.write('@echo .global _fileNames >> data.asm\n')
-            fp.write('@echo .global _spriteData >> data.asm\n')
-            if self.checkbutton_LynxVirtualKeyboard.get():
-                fp.write('@echo .global _cursorData >> data.asm\n')
-                fp.write('@echo .global _keybrdData >> data.asm\n')
-            fp.write('@echo ; >> data.asm\n')
-            
-            # Num and sizes of files
-            fp.write('@echo .segment "RODATA" >> data.asm\n')
-            fp.write('@echo _fileNum: .byte %FILENUM% >> data.asm\n')  
-
-            # List of file names and data
-            if len(bitmaps) > 0 or len(charmaps) > 0 or len(charset) > 0 or len(music) > 0 or len(sharedLynx) > 0 or len(chunks) > 0:
-                # Declare all Bitmap, Shared and Chunk files
-                fp.write('@echo _fileSizes: .word %FILESIZES:~0,-1% >> data.asm\n')
-                fp.write('@echo _fileNames: .addr ')
-                counter = 0
-                for i in range(len(bitmaps)):
-                    if counter > 0:
-                        fp.write(',')
-                    fp.write('_bmpName' + str(i).zfill(2))
-                    counter += 1
-                for i in range(len(charmaps)):
-                    if counter > 0:
-                        fp.write(',')
-                    fp.write('_mapName' + str(i).zfill(2))
-                    counter += 1
-                for i in range(len(charset)):
-                    if counter > 0:
-                        fp.write(',')
-                    fp.write('_chrName' + str(i).zfill(2))
-                    counter += 1
-                for i in range(len(music)):
-                    if counter > 0:
-                        fp.write(',')
-                    fp.write('_musName' + str(i).zfill(2))
-                    counter += 1
-                for i in range(len(sharedLynx)):
-                    if counter > 0:
-                        fp.write(',')
-                    fp.write('_shrName' + str(i).zfill(2))
-                    counter += 1
-                for i in range(len(chunks)):
-                    if counter > 0:
-                        fp.write(',')
-                    fp.write('_chkName' + str(i).zfill(2))
-                    counter += 1
-                fp.write(' >> data.asm\n')
-
-
-                # Write list of Bitmaps
-                for i in range(len(bitmaps)):
-                    fb = FileBase(bitmaps[i], '.png')
-                    fp.write('@echo _bmpName' + str(i).zfill(2) + ': .byte "' + fb + '.img",0 >> data.asm\n')
-
-                # Write list of Charmaps/Tilesets
-                for i in range(len(charmaps)):
-                    fb = FileBase(charmaps[i], '')
-                    fp.write('@echo _mapName' + str(i).zfill(2) + ': .byte "' + fb + '",0 >> data.asm\n')
-
-                # Write list of Charsets
-                for i in range(len(charset)):
-                    fb = FileBase(charset[i], '.png')
-                    fp.write('@echo _chrName' + str(i).zfill(2) + ': .byte "' + fb + '.chr",0 >> data.asm\n')
-
-                # Write list of Musics
-                for i in range(len(music)):
-                    fb = FileBase(music[i], '.asm')
-                    fp.write('@echo _musName' + str(i).zfill(2) + ': .byte "' + fb + '.mus",0 >> data.asm\n')
-                    
-                # Write list of Shared
-                for i in range(len(sharedLynx)):
-                    fb = FileBase(sharedLynx[i], '')
-                    fp.write('@echo _shrName' + str(i).zfill(2) + ': .byte "' + fb + '",0 >> data.asm\n')
-
-                # Write list of Chunks
-                for i in range(len(chunks)):
-                    fb = FileBase(chunks[i], '.txt')
-                    fp.write('@echo _chkName' + str(i).zfill(2) + ': .byte "' + fb + '.chk",0 >> data.asm\n')
-                    
-                # Link list of bitmaps
-                fp.write('@echo ; >> data.asm\n')
-                for i in range(len(bitmaps)):
-                    fb = FileBase(bitmaps[i], '.png')
-                    fp.write('@echo .segment "BMP' + str(i) + 'DATA" >> data.asm\n')
-                    fp.write('@echo _bmpData' + str(i).zfill(2) + ': .incbin "' + fb + '.img" >> data.asm\n')                    
-
-                # Link list of charmaps
-                for i in range(len(charmaps)):
-                    fb = FileBase(charmaps[i], '')
-                    fp.write('@echo .segment "BMP' + str(len(bitmaps)+i) + 'DATA" >> data.asm\n')
-                    fp.write('@echo _mapData' + str(i).zfill(2) + ': .incbin "' + fb +'" >> data.asm\n')
-
-                # Link list of charsets
-                for i in range(len(charset)):
-                    fb = FileBase(charset[i], '.png')
-                    fp.write('@echo .segment "BMP' + str(len(bitmaps)+len(charmaps)+i) + 'DATA" >> data.asm\n')
-                    fp.write('@echo _chrData' + str(i).zfill(2) + ': .incbin "' + fb + '.chr" >> data.asm\n')                    
-
-                # Link list of musics
-                for i in range(len(music)):
-                    fp.write('@echo .segment "MUS' + str(i) + 'DATA" >> data.asm\n')
-                    fp.write('@echo .import _musData' + str(i).zfill(2) + ' >> data.asm\n')
-                    
-                # Link list of shared
-                for i in range(len(sharedLynx)):
-                    fb = FileBase(sharedLynx[i], '')
-                    fp.write('@echo .segment "SHR' + str(i) + 'DATA" >> data.asm\n')
-                    fp.write('@echo _shrData' + str(i).zfill(2) + ': .incbin "' + fb + '" >> data.asm\n')
-
-                # Link list of chunks
-                for i in range(len(chunks)):
-                    fb = FileBase(chunks[i], '.txt')
-                    fp.write('@echo .segment "CHK' + str(i) + 'DATA" >> data.asm\n')
-                    fp.write('@echo _chkData' + str(i).zfill(2) + ': .incbin "' + fb + '.chk" >> data.asm\n')                    
-                                                            
-            else:
-                fp.write('@echo _fileSizes: .word 0 >> data.asm\n')
-                fp.write('@echo _fileNames: .addr _dummyName >> data.asm\n')
-                fp.write('@echo _dummyName: .byte 0 >> data.asm\n')
-            fp.write('@echo ; >> data.asm\n')
-            
-            # Sprite Data 
-            fp.write('@echo .segment "RODATA" >> data.asm\n')                
-            if len(sprites) > 0:            
-                fp.write('@echo _spriteData: .incbin "' + FileBase(sprites[0], '') + '.dat" >> data.asm\n')                    
-            else:
-                fp.write('@echo _spriteData: .byte 0 >> data.asm\n')
-
-            # Keyboard Data
-            if self.checkbutton_LynxVirtualKeyboard.get():
-                fp.write('@echo _cursorData: .incbin "cursor.dat" >> data.asm\n')             
-                fp.write('@echo _keybrdData: .incbin "keyboard.dat" >> data.asm\n')                                                 
-            
-            # Done, return to base folder
-            fp.write('\n')
-            fp.write('cd ..\n')
-            fp.write('cd ..\n')
-            fp.write('\n')
-
-            # Generate config and directory Files
+            # Generate data, config and directory Files
+            fp.write(py27 + ' utils/scripts/lynx/LynxData.py ' + buildFolder + '/lynx/data.asm ' + str(int(self.checkbutton_LynxVirtualKeyboard.get())) + ' ' + bmpList + ' ' + mapList + ' ' + chrList + ' ' + musList + ' ' + shrList + ' ' + chkList + ' ' + sprList + '\n')
             fp.write(py27 + ' utils/scripts/lynx/LynxConfig.py unity/targets/lynx/lynx.cfg ' + buildFolder + '/lynx/lynx.cfg ' + self.entry_LynxMusicMemory.get() + ' ' + self.entry_LynxSharedMemory.get() + ' ' + chunkSize + ' ' + str(len(bitmaps)+len(charmaps)+len(charset)) + ' ' + str(len(music)) + ' ' + str(len(sharedLynx)) + ' ' + str(len(chunks)) + '\n')
             fp.write(py27 + ' utils/scripts/lynx/LynxDirectory.py unity/targets/lynx/directory.s ' + buildFolder + '/lynx/directory.asm ' + str(len(bitmaps)+len(charmaps)+len(charset)) + ' ' + str(len(music)) + ' ' + str(len(sharedLynx)) + ' ' + str(len(chunks)) + '\n')
-                        
+            fp.write('\n')
+            
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
             cTarget = [ 'adaptors/hub.c', 'graphics/pixel.c', 'targets/lynx/cgetc.c', 'targets/lynx/display.c', 'targets/lynx/files.c', 'targets/lynx/keyboard.c', 'targets/lynx/screen.c', 'targets/lynx/text.c' ]
@@ -1864,9 +1735,10 @@ class Application:
             comp = cl65 + ' -o ' + buildFolder + '/' + diskname.lower() + '-lynx.lnx -m ' + buildFolder + '/[maps]/' + diskname.lower() + '-lynx-hub.map -Cl -O -t lynx' + symbols + ' -C ' + buildFolder + '/lynx/lynx.cfg -I unity '
             for item in code:
                 comp += (item + ' ')
-            for i in range(len(music)):
-                comp += buildFolder + '/lynx/music' + str(i).zfill(2) + '.asm '
+            for item in music:
+                comp += buildFolder + '/lynx/' + FileBase(item, '.asm') + '.asm '
             fp.write(comp + 'unity/targets/lynx/sfx.s ' + buildFolder + '/lynx/directory.asm ' + buildFolder + '/lynx/data.asm ' + library + '\n')
+            fp.write('\n')
                         
             fp.write('echo --------------- LYNX ROM READY --------------- \n\n')
             
