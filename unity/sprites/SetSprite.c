@@ -314,7 +314,7 @@ void SetSprite(unsigned char index, unsigned int frame)
 
 	// Prepare new data for VBI handler
 	ss_src  = &sprData[frame*SPRITEHEIGHT]-ss_off;
-	ss_dst  = (PMGRAM+32)+(ss_pmg*0x100)+ss_lin;  // 32 = 4 black rows at top of screen + 1 line	
+	ss_dst  = (PMGRAM+33)+(ss_pmg*0x100)+ss_lin;  // 32 = 4 black rows at top of screen + 1 line	
 	
 	// Prepare dli data
 	ss_dli += ss_pmg*25;

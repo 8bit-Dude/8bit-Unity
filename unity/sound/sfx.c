@@ -223,6 +223,7 @@
 		} else {
 			pitch /= 8u; 
 		}
+		pitch++;
 		
 		// Set channel pitch (MUSIC Channel, Octave, Note, Volume)
 		channel += 1;
