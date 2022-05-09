@@ -51,7 +51,7 @@ unsigned char LoadChunks(unsigned char *chunks[], char *filename)
 	// Read data from file
 	if (FileOpen(filename)) {
 	#if defined __DHR__	
-		FileRead(&offset, 2);
+		FileRead((unsigned char*)&offset, 2);
 		FileRead(chunkPtr, offset);	// Load AUX data 
 		MainToAux(chunkPtr, offset);	
 		FileRead(chunkPtr, offset);	// Load MAIN data 
