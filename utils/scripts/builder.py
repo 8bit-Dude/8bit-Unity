@@ -1461,7 +1461,6 @@ class Application:
                 # Network settings
                 if network == '8bit-Hub': 
                     cTarget.append('adaptors/hub.c')
-                    cTarget.append('adaptors/joystick.c')
                     sTarget.append('targets/c64/CIA.s')
                     symbols += ' -D __HUB__ '            
                     executable = 'hub'
@@ -1880,7 +1879,7 @@ class Application:
             
             fp.write('echo --------------- COMPILE PROGRAM ---------------\n\n')
 
-            cTarget = [ 'adaptors/hub.c', 'adaptors/joystick.c', 'graphics/pixel.c', 'targets/nes/cgetc.c', 'targets/nes/conio.c', 'targets/nes/display.c', 'targets/nes/files.c', 'targets/nes/keyboard.c', 'targets/nes/memory.c', 'targets/nes/text.c' ]
+            cTarget = [ 'adaptors/hub.c', 'graphics/pixel.c', 'targets/nes/cgetc.c', 'targets/nes/conio.c', 'targets/nes/display.c', 'targets/nes/files.c', 'targets/nes/keyboard.c', 'targets/nes/memory.c', 'targets/nes/text.c' ]
             sTarget = [ 'targets/nes/blitCharmap.s', 'targets/nes/crt0.s', 'targets/nes/expansion.s', 'targets/nes/joypad.s' ]
             symbols = ' -D __HUB__ -D CHUNKSIZE='  + chunkSize.replace('$','0x') + ' -D SPRITEFRAMES=' + self.entry_NESSpriteFrames.get() + ' -D SPRITEWIDTH=' + self.entry_NESSpriteWidth.get() + ' -D SPRITEHEIGHT=' + self.entry_NESSpriteHeight.get()
 
