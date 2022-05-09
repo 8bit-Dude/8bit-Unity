@@ -138,16 +138,21 @@ def BuildUnityLibrary(self, fp, target, symbols, cList, sList, filepath):
         symbols += ' -D __TILE_4X4__'      
 
     # Compile .c files
+    fp.write('set SYMBOLS=-Cl -O ' + target + ' ' + symbols + ' -I unity\n')
     for file in cList:
-        fp.write(cc65 + ' -Cl -O ' + target + ' ' + symbols + ' -I unity unity/' + file + '\n')
-        fp.write(ca65 + ' ' + target + ' ' + symbols + ' unity/' + file[0:-2] + '.s\n')
-
+        fp.write(cc65 + ' %SYMBOLS% unity/' + file + '\n')
+    fp.write('\n')
+    
     # Compile .s files
+    fp.write('set SYMBOLS=' + target + ' ' + symbols + '\n')
+    for file in cList:
+        fp.write(ca65 + ' %SYMBOLS% unity/' + file[0:-2] + '.s\n')
     for file in sList:            
-        fp.write(ca65 + ' ' + target + ' ' + symbols + ' unity/' + file + '\n')
+        fp.write(ca65 + ' %SYMBOLS% unity/' + file + '\n')
+    fp.write('\n')
     
     # Package into .lib
-    fp.write('\n' + ar65 + ' r ' + filepath)
+    fp.write(ar65 + ' r ' + filepath)
     for file in cList:
         fp.write(' unity/' + file[0:-2] + '.o')
     for file in sList:            
