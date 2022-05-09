@@ -120,9 +120,11 @@ void __fastcall__ SetVramChar(unsigned char chr)
 void __fastcall__ SetVramColor(unsigned char forcePush) 
 {
 	// Compute attribute cell mask
-	unsigned char mask = 0b11111111;
-	if (vram_attr_vert<2) mask &= 0b00001111; else mask &= 0b11110000;
-	if (vram_attr_horz<2) mask &= 0b00110011; else mask &= 0b11001100;	
+	unsigned char mask = 0xff;	// 0b11111111
+	if (vram_attr_vert<2) mask &= 0x0f; // 0b00001111
+					 else mask &= 0xf0; // 0b11110000
+	if (vram_attr_horz<2) mask &= 0x33; // 0b00110011
+					 else mask &= 0xcc; // 0b11001100
 	
 	// Update attribute data (shadow)
 	vram_attr[vram_attr_index] = (vram_attr[vram_attr_index] & ~mask) | (vram_attr_color & mask);

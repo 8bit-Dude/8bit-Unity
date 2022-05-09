@@ -167,7 +167,11 @@ void PrintChr(char chr)
 	}
 
 	// Update clock (slow function)
-	clk += 1;
+  #if defined __DHR__ 	
+	clk += 3;
+  #else
+	clk += 3;
+  #endif
 	
   #elif defined __ATARI__	
   #ifndef __ATARIXL__	
@@ -294,7 +298,7 @@ void PrintStr(const char *buffer)
 	unsigned char chr, *src;
 	
 	// Write chars to VRAM buffer
-	src = buffer;
+	src = (unsigned char*)buffer;
 	SetVramName();
 	while (*src) {
 		// Handle Lower/Upper Case
@@ -307,7 +311,7 @@ void PrintStr(const char *buffer)
 	}
 
 	// Write attributes to VRAM buffer
-	src = buffer;
+	src = (unsigned char*)buffer;
 	SetVramAttr();
 	while (*src) {
 		src++;

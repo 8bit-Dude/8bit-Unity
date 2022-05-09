@@ -295,13 +295,13 @@
 		}
 	}
 
-#elif defined __NES__			  		   //  Pulse       Ramp       Length  
-	const unsigned char sfxData[6][3] = { { 0b10010000, 0b00000000, 0b11111000 },	// SFX_BLEEP
-									      { 0b10010000, 0b00000000, 0b11111000 },	// SFX_BUMP
-										  { 0b11010000, 0b00000000, 0b11111000 },	// SFX_ENGINE
-										  { 0b10010000, 0b00000000, 0b11111000 },	// SFX_INJURY
-										  { 0b10010000, 0b00000000, 0b11111000 },	// SFX_GUN
-										  { 0b10010000, 0b00000000, 0b11111000 } };	// SFX_SCREECH	
+#elif defined __NES__			  		// Pulse  Ramp  Length  
+	const unsigned char sfxData[6][3] = { { 0x90, 0x00, 0xf8 },		// SFX_BLEEP   (0b10010000, 0b00000000, 0b11111000)
+									      { 0x90, 0x00, 0xf8 },		// SFX_BUMP    (0b10010000, 0b00000000, 0b11111000)
+										  { 0xd0, 0x00, 0xf8 },		// SFX_ENGINE  (0b11010000, 0b00000000, 0b11111000)
+										  { 0x90, 0x00, 0xf8 },		// SFX_INJURY  (0b10010000, 0b00000000, 0b11111000)
+										  { 0x90, 0x00, 0xf8 },		// SFX_GUN     (0b10010000, 0b00000000, 0b11111000)
+										  { 0x90, 0x00, 0xf8 } };	// SFX_SCREECH (0b10010000, 0b00000000, 0b11111000)
 	
 	// Pulse Ctrl:  DDLLC VVVV
 	// D: Duty cycle of the pulse wave 00 = 12.5% 01 = 25% 10 = 50% 11 = 75%
