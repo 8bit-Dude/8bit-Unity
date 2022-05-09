@@ -325,7 +325,7 @@
 	// Centralized SFX function
 	void PlaySFX(unsigned char index, unsigned char pitch, unsigned char volume, unsigned char channel)
 	{
-		unsigned char *data = sfxData[index];
+		unsigned char *data = (unsigned char*)sfxData[index];
 		unsigned int addr = 0x4000 + (channel&1)*4;
 		unsigned char pulse = data[0] | (volume/16u);
 		POKE(addr++, pulse);		// Pulse   
