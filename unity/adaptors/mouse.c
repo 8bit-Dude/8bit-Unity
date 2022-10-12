@@ -28,6 +28,7 @@
 
 #ifdef __HUB__
   #include "hub.h"
+  unsigned char mouseInit = 0;
 #endif
 
 #ifdef __APPLE2__
@@ -59,6 +60,15 @@ unsigned char* GetMouse(void)
     unsigned char step, joy;
 	mouseState[2] = 255;
 #if defined __HUB__
+	// Check if hub was initialized?
+	if (hubState[0] == COM_ERR_OFFLINE) {
+		if (!mouseInit) {
+			mouseInit = 1;
+			InitHub();
+		}
+		return mouseState;
+	}
+	
 	// Get mouse state from Hub
 	RecvHub(HUB_SYS_STATE);
 	if (hubState[5] != 255) {
