@@ -4,6 +4,8 @@
 // See scene.c
 extern Item items[MAX_ITEM];
 extern unsigned char strings[];
+extern unsigned int unitX, unitY;
+extern unsigned char music;
 
 // Print label in lower-left panel
 void PrintInteract(unsigned char item, unsigned int label)
@@ -88,6 +90,9 @@ void DrawPointer(unsigned int x, unsigned int y, unsigned char pressed)
 // Draw player unit
 void DrawUnit(unsigned int x, unsigned int y, unsigned char frame) 
 {
+	// Check that unit is enabled
+	if (!unitX && !unitY) return;
+	
 #if (defined __CBM__) 
 	LocateSprite(x, y-20);
 #elif (defined __ATARI__)
@@ -128,8 +133,12 @@ void SplashScreen(void)
 #endif
 	PrintStr(" TECH DEMO  "); txtY++;
 	PrintStr("BY 8BIT-DUDE"); txtY++;
-	PrintStr(" 2022/01/20 ");
+	PrintStr(" 2022/10/12 ");
+	
+	// Play title music
+	LoadMusic("goblin.mus");	
 	PlayMusic();
+	music = 1;
 
 	// Wait until key is pressed
 	while (!kbhit()) {	

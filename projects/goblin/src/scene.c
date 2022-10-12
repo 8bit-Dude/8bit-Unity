@@ -11,7 +11,9 @@
   #pragma bss-name(push, "XRAM")  
 #endif
 
-// DO NOT CHANGE ORDER: This data is loaded sequentially from file
+// DO NOT CHANGE ORDER: This data is loaded sequentially from file!!!!!
+unsigned char music;
+unsigned int startx[MAX_PLAYERS], starty[MAX_PLAYERS];
 unsigned char num_polygon, num_interacts, num_triggers, num_modifiers, num_paths;
 signed int polygonX[MAX_POLYGON];
 signed int polygonY[MAX_POLYGON];
@@ -47,7 +49,8 @@ void LoadScene(unsigned char* scene)
 	// Disable sprites/bitmap/music
 	DisableSprite(-1);
 	HideBitmap();
-	StopMusic();	
+	if (music)
+		StopMusic();	
 	
 	// Prepare filename
 	l = strlen(scene);
@@ -69,7 +72,7 @@ void LoadScene(unsigned char* scene)
 	// Load navigation
 	memcpy(&fname[l], ".nav\0", 5);
 	if (FileOpen(fname)) {
-		FileRead(&num_polygon, -1);
+		FileRead(&music, -1);
 		FileClose();
 	}
 	
@@ -83,16 +86,27 @@ void LoadScene(unsigned char* scene)
 	txtX = 0; PrintBlanks(TXT_COLS, 2);	
 #endif	
 
-	// Enable sprites/bitmap/music
-	EnableSprite(0);  // Mouse cursor
-	EnableSprite(1);  // Unit #1
-#if defined(__ATARI__) || defined(__CBM__ )
-	EnableSprite(2);  // Unit #1 (extra color)
-	EnableSprite(3);  // Unit #1 (extra color)
-	EnableSprite(4);  // Unit #1 (extra color)
-#endif	
+	// Update player position
+	goalX = unitX = startx[0]; 
+	goalY = unitY = starty[0];
+
+	// Music & bitmap
+ 	if (music) {
+		LoadMusic(&strings[music]);
+		PlayMusic();
+	}
 	ShowBitmap();
-	PlayMusic();
+	
+	// Enable sprites
+	EnableSprite(0);  // Mouse cursor
+	if (unitX || unitY) {
+		EnableSprite(1);  // Unit #1
+	#if defined(__ATARI__) || defined(__CBM__ )
+		EnableSprite(2);  // Unit #1 (extra color)
+		EnableSprite(3);  // Unit #1 (extra color)
+		EnableSprite(4);  // Unit #1 (extra color)
+	#endif	
+	}	
 }
 
 // Draw chunk to screen
@@ -118,7 +132,7 @@ void Wait(unsigned char ticks)
 #endif
 	while (clock()<animClock+ticks) { 
 	#if defined(__APPLE2__)
-		wait(1); clk += 1;  // Manually update clock on Apple 2
+		wait(1); clk += 2;  // Manually update clock on Apple 2
 	#endif
 	}
 }
@@ -154,10 +168,12 @@ unsigned char *ProcessInteract(unsigned char target, unsigned char item)
 	Interact* interact = &interacts[target];
 	
 	// Check if we are close enough?
-	deltaX = interact->x; deltaX = ABS(deltaX-unitX); 
-	deltaY = interact->y; deltaY = ABS(deltaY-unitY);
-	if (deltaX > 30 || deltaY > 25) return 0;
-
+	if (unitX || unitY) {
+		deltaX = interact->x; deltaX = ABS(deltaX-unitX); 
+		deltaY = interact->y; deltaY = ABS(deltaY-unitY);
+		if (deltaX > 30 || deltaY > 25) return 0;
+	}
+	
 	// Update frame (if any)
 	if (interact->frame != 255) {
 		waitFrame = interact->frame;
@@ -252,11 +268,15 @@ unsigned char *ProcessInteract(unsigned char target, unsigned char item)
 					i += path->speed;
 					Wait(10);
 				}
-				unitX = path->x; unitY = path->y;
+				if (unitX || unitY) {
+					unitX = path->x; 
+					unitY = path->y;
+				}
 				if (path->next == 255) break;
 				path = &paths[path->next];
 			}
-			goalX = path->x; goalY = path->y;
+			goalX = unitX; 
+			goalY = unitY;
 		} else {
 			if (interact->chk != 255 || interact->answer)
 				Wait(120);	

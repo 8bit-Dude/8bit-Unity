@@ -1,3 +1,8 @@
+# Scene Settings: BG Music, Start position of players (0 means disabled)
+MUSIC: "goblin.mus"
+STARTX: 180; 0; 0; 0
+STARTY: 130; 0; 0; 0
+
 # Definitions (WARNING: use same values for ALL scene files and inside definitions.h)
 #define MAX_POLYGON  25
 #define MAX_CHUNK     6

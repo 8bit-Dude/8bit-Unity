@@ -7,6 +7,9 @@
 #define PICKABLE  2
 #define LOADSCENE 4
 
+// Scene settings
+#define MAX_PLAYERS   4
+
 // Scene navigation data (loaded from file)
 #define MAX_POLYGON  25
 #define MAX_CHUNK     6

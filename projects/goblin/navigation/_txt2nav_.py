@@ -52,9 +52,11 @@ for scene in scenes:
     f1 = io.open(scene+'.txt', 'r')
     
     # Initialize lists
+    music = 0
+    startx = [0,0,0,0]
+    starty = [0,0,0,0]
     definitions = {}
     polygon = []
-    #chunks = []
     interacts = []
     triggers = []
     modifiers = []
@@ -69,12 +71,32 @@ for scene in scenes:
         if '#define' in line:
             define = line.split()
             definitions[define[1]] = int(define[2])
+            continue
+            
+        if 'STARTX:' in line:
+            flags = line[7:-1].split(';')
+            for i in range (0,len(flags)):
+                startx[i] = int(flags[i])   
+            continue
+
+        if 'STARTY:' in line:
+            flags = line[7:-1].split(';')
+            for i in range (0,len(flags)):
+                starty[i] = int(flags[i])   
+            continue
+                
+        if 'MUSIC:' in line:
+            string = line[6:-1].split('"')[1]
+            if len(string):
+                music = append(string + '\0')
+            continue
         
         if 'X:' in line or 'Y:' in line:
             coords = line[2:-1].split(';')
             for i in range (0,len(coords)):
                 coords[i] = int(coords[i])
             polygon.append(coords)
+            continue
             
         if 'I:' in line:
             # Fetch interact
@@ -99,6 +121,7 @@ for scene in scenes:
                 string = re.findall(r'"([^"]*)"', interact[i])
                 interact[i] = append(string[0] + '\0')
             interacts.append(interact)                
+            continue
                 
         if 'T:' in line:
             # Fetch trigger
@@ -113,6 +136,7 @@ for scene in scenes:
                 string = re.findall(r'"([^"]*)"', trigger[i])
                 trigger[i] = append(string[0] + '\0')
             triggers.append(trigger)
+            continue
 
         if 'M:' in line:
             # Fetch modifier
@@ -135,6 +159,7 @@ for scene in scenes:
                 string = re.findall(r'"([^"]*)"', modifier[i])
                 modifier[i] = append(string[0] + '\0')
             modifiers.append(modifier)
+            continue
                 
         if 'P:' in line:
             # Fetch path
@@ -151,6 +176,13 @@ for scene in scenes:
 	# Write binary nav file
     f2 = io.open(scene+'.nav', 'wb')
 
+    # Scene settings
+    f2.write(struct.pack('B', music))
+    for i in range(4):
+        f2.write(struct.pack('H', startx[i]))
+    for i in range(4):
+        f2.write(struct.pack('H', starty[i]))
+    
     # Number of available items
     f2.write(struct.pack('B', len(polygon[0])))
     f2.write(struct.pack('B', len(interacts)))
@@ -239,6 +271,10 @@ for scene in scenes:
                 f2.write(chr(10))
     f2.close()
 
+    print "<< SETTINGS >>"
+    print "Music:", strings[music][0]
+    for i in range(4):
+        print "Player", str(i), ":", startx[i], starty[i]
     print "<< TRIGGERS >>"
     for trigger in triggers:
         print trigger

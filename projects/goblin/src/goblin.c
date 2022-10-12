@@ -34,10 +34,10 @@ extern signed int polygonY[];
 extern Interact interacts[MAX_INTERACT];
 
 // Game state variables
-unsigned char *mouse, mouseL = 0, mouseAction = 0, intersect;
+unsigned char *mouse, mouseL = 0, mouseAction = 0, intersect = 0;
 unsigned int mouseX = 160, mouseY = 100, clickX = 160, clickY = 100;
-unsigned int goalX = 180, goalY = 130, unitX = 180, unitY = 130;	
-unsigned char sceneSearch, sceneIndex = 255, sceneInteract = 255, sceneItem = 255;
+unsigned int goalX = 0, goalY = 0, unitX = 0, unitY = 0;	
+unsigned char sceneSearch = 0, sceneIndex = 255, sceneInteract = 255, sceneItem = 255;
 unsigned char unitFrame = frameWaitLeft, waitFrame = frameWaitLeft;
 
 void GameLoop(void)
@@ -51,7 +51,7 @@ void GameLoop(void)
 
 	while (1) {
 	#if defined __APPLE2__
-		clk += 1;  // Manually update clock on Apple 2
+		clk += 2;  // Manually update clock on Apple 2
 	#endif		
 		// Get mouse state
 		mouse = GetMouse();
@@ -106,15 +106,21 @@ void GameLoop(void)
 				}
 			
 				// Compute goal coordinates
-				intersect = IntersectSegmentPolygon(unitX, unitY, clickX, clickY, num_polygon, polygonX, polygonY, &interX, &interY);
-				if (intersect && (unitX != interX || unitY != interY)) { 	// Check that we are not stuck on a polygon segment
-					goalX = interX;
-					goalY = interY;
+				if (!unitX && !unitY) {
+					// Unit is disabled: DO NOTHING!				
 				} else {
-					// Move directly to mouse cursor (if in allowed area, and not crossing other parts of polygon)
-					if (intersect < 2 && PointInsidePolygon(clickX, clickY, num_polygon, polygonX, polygonY)) {
-						goalX = clickX;
-						goalY = clickY;
+					// Check intersection with polygon
+					intersect = IntersectSegmentPolygon(unitX, unitY, clickX, clickY, num_polygon, polygonX, polygonY, &interX, &interY);
+					if (intersect && (unitX != interX || unitY != interY)) { 	// Check that we are not stuck on a polygon segment
+						// Move to intersection point
+						goalX = interX;
+						goalY = interY;
+					} else {
+						// Move directly to mouse cursor (if in allowed area, and not crossing other parts of polygon)
+						if (intersect < 2 && PointInsidePolygon(clickX, clickY, num_polygon, polygonX, polygonY)) {
+							goalX = clickX;
+							goalY = clickY;
+						}
 					}
 				}
 				
@@ -132,8 +138,8 @@ void GameLoop(void)
 				// Move in steps of 3 max.
 				unitX += SIGN(deltaX) * MIN(ABS(deltaX), unitStep); 
 				unitY += SIGN(deltaY) * MIN(ABS(deltaY), unitStep);
-				if (unitX > 320) unitX = 0;
-				if (unitY > 200) unitY = 0;
+				if (unitX > 320) unitX = 1;
+				if (unitY > 200) unitY = 1;
 				
 				// Update frame number
 				if (deltaX > 0) {
@@ -149,10 +155,8 @@ void GameLoop(void)
 				// Process trigger (if any) and set wait frame
 				if (sceneInteract != 255) {
 					scene = ProcessInteract(sceneInteract, sceneItem);
-					if (scene) {
-						unitX = 320-unitX; goalX = unitX; goalY = unitY;						
+					if (scene)
 						LoadScene(scene);
-					}
 					sceneInteract = 255;
 					sceneItem = 255;
 				}
@@ -187,9 +191,6 @@ int main(void)
 	DoubleHeightSprite(3, 1);
 	DoubleHeightSprite(4, 1);
 #endif
-
-	// Load music
-	LoadMusic("goblin.mus");
 	
 	// Show splash screen
 	SplashScreen();
