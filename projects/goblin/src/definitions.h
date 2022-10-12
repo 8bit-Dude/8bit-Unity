@@ -20,7 +20,11 @@
 
 // Inventory management
 #define MAX_ITEM 	  2
-#define INVENTORY_Y 180
+#if defined __LYNX__
+	#define INVENTORY_Y 174
+#else
+	#define INVENTORY_Y 180
+#endif
 
 // Text colors
 #if defined __NES__	
@@ -119,7 +123,7 @@ typedef struct {
 } Item;
 
 // See interface.c
-void PrintInteract(unsigned char item, unsigned int label);
+void PrintInteract(unsigned char item, unsigned char interact);
 void PrintMessage(unsigned int message);
 void PrintInventory(void);
 void DrawPointer(unsigned int x, unsigned int y, unsigned char pressed);

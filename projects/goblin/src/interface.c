@@ -3,24 +3,30 @@
 
 // See scene.c
 extern Item items[MAX_ITEM];
+extern Interact interacts[MAX_INTERACT]; 
 extern unsigned char strings[];
 extern unsigned int unitX, unitY;
 extern unsigned char music;
 
 // Print label in lower-left panel
-void PrintInteract(unsigned char item, unsigned int label)
+void PrintInteract(unsigned char item, unsigned char interact)
 {
 	unsigned char *iLabel;
 	inkColor = INK_DEFAULT;
+	
+	// Reset panel
 	txtX = 0; txtY = TXT_ROWS-2;
+	PrintBlanks(MSG_WIDTH, 2);
+
+	// Show labels of current item and interact
 	if (item != 255) {
 		iLabel = &strings[items[item].label];
 		PrintStr("use"); txtX += 4; 
 		PrintStr(iLabel); txtX += 1+strlen(iLabel); 
 		PrintStr("on"); txtX += 3; 
 	} 
-	if (label) {
-		PrintStr(&strings[label]);
+	if (interact != 255) {
+		PrintStr(&strings[interacts[interact].label]);
 	}
 }
 

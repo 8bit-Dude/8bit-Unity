@@ -32,7 +32,7 @@ STARTY: 130; 0; 0; 0
 # Boundary Polygon (see MAX_POLYGON)
 # Player can only move inside the area defined by this polygon
 X:   0;  53; 120; 138;  65;   0;  0; 32; 180; 270; 282; 251; 232; 210; 229; 320; 320;   0;   0
-Y: 138; 162; 169; 144; 138; 107; 99; 95;  78; 102; 120; 137; 124; 143; 168; 116; 180; 180; 138
+Y: 138; 162; 169; 144; 138; 107; 99; 95;  78; 102; 120; 137; 124; 143; 166; 116; 182; 182; 138
 
 # Interacts (see MAX_INTERACT) 
 # When the mouse is clicked within the element area, the player moves to the specified coordinates and the chunks/path/question/answer are shown. 

@@ -106,7 +106,7 @@ void LoadScene(unsigned char* scene)
 		EnableSprite(3);  // Unit #1 (extra color)
 		EnableSprite(4);  // Unit #1 (extra color)
 	#endif	
-	}	
+	}
 }
 
 // Draw chunk to screen
@@ -141,14 +141,15 @@ void Wait(unsigned char ticks)
 unsigned char SearchScene(unsigned int searchX, unsigned int searchY) 
 {
 	unsigned char i;
-	signed int deltaX, deltaY;
+	signed int deltaX, deltaY, radius;
 	Interact* interact;
 	for (i=0; i<MAX_INTERACT; i++) {
 		interact = &interacts[i];
 		if (!interact->flags) continue;
-		deltaX = searchX - interact->x;
-		deltaY = searchY - interact->y;
-		if ( (deltaX * deltaX + deltaY * deltaY) < (interact->r * interact->r) ) {
+		deltaX = (searchX - interact->x)/2;
+		deltaY = (searchY - interact->y)/2;
+		radius = interact->r/2;
+		if ( (deltaX * deltaX + deltaY * deltaY) < (radius * radius) ) {
 			return i;
 		}
 	}
@@ -164,7 +165,6 @@ unsigned char *ProcessInteract(unsigned char target, unsigned char item)
 	Interact *modified;
 	unsigned char i, j, d;
 	signed int deltaX, deltaY;
-	unsigned int targetLabel, itemLabel;
 	Interact* interact = &interacts[target];
 	
 	// Check if we are close enough?
@@ -278,7 +278,7 @@ unsigned char *ProcessInteract(unsigned char target, unsigned char item)
 			goalX = unitX; 
 			goalY = unitY;
 		} else {
-			if (interact->chk != 255 || interact->answer)
+			if (interact->bcg != 255 || interact->answer)
 				Wait(120);	
 		}
 		

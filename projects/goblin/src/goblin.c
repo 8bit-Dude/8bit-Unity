@@ -68,15 +68,14 @@ void GameLoop(void)
 		
 		// Search scene
 		if (!(mouse[2] & MOU_MOTION)) {
-			sceneSearch = SearchScene(mouseX-4, mouseY-4);			
+			if (mouseY <= INVENTORY_Y) {
+				sceneSearch = SearchScene(mouseX-4, mouseY-4);	
+			} else {
+				sceneSearch = 255;
+			}
 			if (sceneSearch != sceneIndex) {
 				sceneIndex = sceneSearch;
-				if (sceneIndex == 255) {
-					txtX = 0; txtY = TXT_ROWS-2;
-					PrintBlanks(TXT_COLS-8, 1);
-				} else {
-					PrintInteract(sceneItem, interacts[sceneIndex].label);
-				}
+				PrintInteract(sceneItem, sceneIndex);
 			}
 		}
 		
@@ -89,20 +88,23 @@ void GameLoop(void)
 			// Is mouse cursor in inventory area?
 			if (mouseY > INVENTORY_Y) {
 				sceneItem = SelectItem(mouseX, mouseY);
-				if (sceneItem != 255) {
-					PrintInteract(sceneItem, 0);
-				} else {
-					txtX = 0; txtY = TXT_ROWS-2;
-					PrintBlanks(TXT_COLS-8, 2);
-				}
+				PrintInteract(sceneItem, 255);
+				
 			} else {
+				// Save current interact index
+				sceneInteract = sceneIndex;
+				
 				// Get click coordinates
-				if (sceneIndex == 255) {
+				if (sceneInteract == 255) {
 					clickX = mouseX;
 					clickY = mouseY;
+					if (sceneItem != 255) {
+						sceneItem = 255;
+						PrintInteract(sceneItem, sceneIndex);
+					}
 				} else { 
-					clickX = interacts[sceneIndex].cx;
-					clickY = interacts[sceneIndex].cy;
+					clickX = interacts[sceneInteract].cx;
+					clickY = interacts[sceneInteract].cy;
 				}
 			
 				// Compute goal coordinates
@@ -123,9 +125,6 @@ void GameLoop(void)
 						}
 					}
 				}
-				
-				// Save index, for interaction when we reach position
-				sceneInteract = sceneIndex;
 			}
 		}
 				
