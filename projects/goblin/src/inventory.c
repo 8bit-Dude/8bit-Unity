@@ -12,13 +12,16 @@
 #endif
 
 // Current inventory
-extern unsigned int gameItems[MAX_ITEM];
+extern unsigned char strings[];
+extern unsigned char gameItems[MAX_ITEM*LEN_ITEM];
 extern unsigned char itemLast, itemOffset;
 
 // Manage inventory
 void PushItem(unsigned int label)
 {
-	gameItems[itemLast++] = label;
+	memcpy(&gameItems[(itemLast++)*LEN_ITEM], &strings[label], LEN_ITEM);
+	if (itemLast > 2)
+		itemOffset = itemLast-2;
 	PrintInventory();
 }
 
@@ -26,10 +29,12 @@ void PopItem(unsigned char index)
 {
 	// Shift down all items above index
 	while (index<(itemLast-1)) {
-		gameItems[index] = gameItems[index+1];
+		memcpy(&gameItems[index*LEN_ITEM], &gameItems[(index+1)*LEN_ITEM], LEN_ITEM);
 		index++;
 	}
-	gameItems[index] = 0; itemLast--;
+	gameItems[index*LEN_ITEM] = 0; itemLast--;
+	if (itemOffset >= itemLast)
+		itemOffset--;
 	PrintInventory();
 }
 

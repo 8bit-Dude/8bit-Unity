@@ -14,8 +14,7 @@
 // Game state: Actions consist of tuplets (Scene ID, Action ID (lower 6bits) + Type (higher 2bits))
 unsigned char actionLast, itemLast, itemOffset;
 unsigned char gameActions[0x100];
-unsigned int  gameItems[MAX_ITEM];
-unsigned char gameLabels[0x100];
+unsigned char gameItems[MAX_ITEM*LEN_ITEM];
 unsigned char gameScene[8];
 
 // DO NOT CHANGE ORDER: This data is loaded sequentially from file!!!!!
@@ -43,9 +42,6 @@ unsigned char *chunkBckg[MAX_CHUNK];
 extern unsigned char waitFrame;
 extern unsigned int unitX, unitY;
 extern unsigned int goalX, goalY;
-
-// See inventory.c
-extern unsigned int gameItems[MAX_ITEM];
 	  
 // Draw chunk to screen
 void DrawChunk(unsigned char id)
@@ -168,8 +164,9 @@ unsigned char *ProcessInteract(unsigned char target, unsigned char item)
 		// Find associated trigger (if any)
 		for (i=0; i<num_triggers; i++) {
 			trigger = &triggers[i];
-			if (gameItems[item] == trigger->item && interact->label == trigger->label) {
-				
+			if ( interact->label == trigger->label && 
+			    !strcmp(&gameItems[item*LEN_ITEM], &strings[trigger->item]) ) 
+			{	
 				// Check if modifier is triggered?
 				modifID = trigger->modifier;
 				if (modifID != 255) {
@@ -302,7 +299,7 @@ void LoadScene(unsigned char* scene)
 			a = gameActions[i+1];
 			if (a & 64) {
 				// Pickable item
-				Interact* interact = &interacts[a-64];
+				interact = &interacts[a-64];
 				if (interact->chk != 255)
 					DrawChunk(interact->chk);
 				interact->flags = DISABLED;				

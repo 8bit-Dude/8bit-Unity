@@ -20,6 +20,7 @@
 
 // Inventory management
 #define MAX_ITEM 	  8
+#define LEN_ITEM	  9
 #if defined __LYNX__
 	#define INVENTORY_Y 174
 #else

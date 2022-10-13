@@ -3,7 +3,7 @@
 
 // See scene.c
 extern Interact interacts[MAX_INTERACT]; 
-extern unsigned int gameItems[MAX_ITEM];
+extern unsigned char gameItems[MAX_ITEM*LEN_ITEM];
 extern unsigned char strings[];
 extern unsigned int unitX, unitY;
 extern unsigned char music;
@@ -20,7 +20,7 @@ void PrintInteract(unsigned char item, unsigned char interact)
 
 	// Show labels of current item and interact
 	if (item != 255) {
-		iLabel = &strings[gameItems[item]];
+		iLabel = &gameItems[item*LEN_ITEM];
 		PrintStr("use"); txtX += 4; 
 		PrintStr(iLabel); txtX += 1+strlen(iLabel); 
 		PrintStr("on"); txtX += 3; 
@@ -73,8 +73,7 @@ void PrintInventory(void)
 	txtY = TXT_ROWS-2;
 	PrintBlanks(7, 2);
 	for (i=0; i<2; i++) {
-		if (gameItems[i+itemOffset])
-			PrintStr(&strings[gameItems[i+itemOffset]]);
+		PrintStr(&gameItems[(i+itemOffset)*LEN_ITEM]);
 		txtY++;
 	}
 	
