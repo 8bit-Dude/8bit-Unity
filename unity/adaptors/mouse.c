@@ -61,19 +61,16 @@ unsigned char* GetMouse(void)
 	mouseState[2] = 255;
 #if defined __HUB__
 	// Check if hub was initialized?
-	if (hubState[0] == COM_ERR_OFFLINE) {
-		if (!mouseInit) {
-			mouseInit = 1;
-			InitHub();
-		}
-		return mouseState;
+	if (!mouseInit) {
+		if (hubState[0] != COM_ERR_OFFLINE || InitHub())
+			RecvHub(HUB_SYS_STATE);
+		mouseInit = 1;
 	}
 	
-	// Get mouse state from Hub
-	RecvHub(HUB_SYS_STATE);
+	// Is mouse connected to hub?
 	if (hubState[5] != 255) {
-		// Check that last packet was clean
-		if (hubState[0] == COM_ERR_OK) {
+		// Get system state
+		if (RecvHub(HUB_SYS_STATE)) {	// Was the packet clean?
 			if ((mouseState[0]-hubState[5]) || (mouseState[1]-hubState[6])) 
 				mouseState[2] &= ~MOU_MOTION;
 			mouseState[0] = hubState[5];
