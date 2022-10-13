@@ -1,4 +1,5 @@
-# Scene Settings: BG Music, Start position of players (0 means disabled)
+# Scene Settings: Scene ID, BG Music, Start position of players (0 means disabled)
+ID: 1
 MUSIC: "goblin.mus"
 STARTX: 180; 0; 0; 0
 STARTY: 130; 0; 0; 0
@@ -53,7 +54,7 @@ T: "Bottle";  "Notable";     0;   255;  255;  "Just what I need in this heat!\nW
 T: "Bottle";  "Old Men";   255;	    1;    1;  "We are not thirsty...\n...We are hungry!!"
 T: "Flower";  "Notable";   255;	  255;  255;  "No, thank you..."	
 T: "Flower";  "Old Men";   255;	    1;    1;  "No, thank you..."
-T: "Sausage"; "Old Men"; 	 1;	    1;    1;  "Thank you kind sir!\nGo right, to the fountain."
+T: "Sausage"; "Old Men";   255;	    1;    1;  "Thank you kind sir!\nGo right, to the fountain."
 
 # Modifiers (see MAX_MODIFIER) 
 # This interact gets updated with new parameters

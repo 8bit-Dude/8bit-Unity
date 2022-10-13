@@ -19,7 +19,7 @@
 #define MAX_PATH      6
 
 // Inventory management
-#define MAX_ITEM 	  2
+#define MAX_ITEM 	  8
 #if defined __LYNX__
 	#define INVENTORY_Y 174
 #else
@@ -115,12 +115,6 @@ typedef struct {
 	unsigned int  x, y;						// Coordinates of trajectory
 	unsigned char speed, frame, next;		// Path speed, frame, and ID of next path
 } Path;
-  
-// Player inventory
-typedef struct {
-	unsigned char col, row;
-	unsigned int  label;
-} Item;
 
 // See interface.c
 void PrintInteract(unsigned char item, unsigned char interact);

@@ -2,8 +2,8 @@
 #include "definitions.h"
 
 // See scene.c
-extern Item items[MAX_ITEM];
 extern Interact interacts[MAX_INTERACT]; 
+extern unsigned int gameItems[MAX_ITEM];
 extern unsigned char strings[];
 extern unsigned int unitX, unitY;
 extern unsigned char music;
@@ -20,7 +20,7 @@ void PrintInteract(unsigned char item, unsigned char interact)
 
 	// Show labels of current item and interact
 	if (item != 255) {
-		iLabel = &strings[items[item].label];
+		iLabel = &strings[gameItems[item]];
 		PrintStr("use"); txtX += 4; 
 		PrintStr(iLabel); txtX += 1+strlen(iLabel); 
 		PrintStr("on"); txtX += 3; 
@@ -60,22 +60,29 @@ void PrintMessage(unsigned int message)
 #endif	
 }
 
+extern unsigned char itemOffset;
+
 // Print inventory in lower-right panel
 void PrintInventory(void)
 {
-	unsigned char i=0;
-	Item* item;
-	
+	unsigned char i;
 	inkColor = INK_INVENTORY;
-	while (i<MAX_ITEM) {
-		item = &items[i];
-		txtX = item->col; txtY = item->row;
-		if (item->label)
-			PrintStr(&strings[item->label]);
-		else
-			PrintStr("       ");
-		i++;
+		
+	// Print Items
+	txtX = TXT_COLS-8; 
+	txtY = TXT_ROWS-2;
+	PrintBlanks(7, 2);
+	for (i=0; i<2; i++) {
+		if (gameItems[i+itemOffset])
+			PrintStr(&strings[gameItems[i+itemOffset]]);
+		txtY++;
 	}
+	
+	// Print Buttons
+	txtX = TXT_COLS-1; 
+	txtY = TXT_ROWS-2;
+	PrintChr(CHR_ARROW_UP); txtY++;
+	PrintChr(CHR_ARROW_DOWN);
 	inkColor = INK_DEFAULT;
 }
 

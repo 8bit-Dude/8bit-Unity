@@ -52,6 +52,7 @@ for scene in scenes:
     f1 = io.open(scene+'.txt', 'r')
     
     # Initialize lists
+    sid = 0
     music = 0
     startx = [0,0,0,0]
     starty = [0,0,0,0]
@@ -72,6 +73,16 @@ for scene in scenes:
             define = line.split()
             definitions[define[1]] = int(define[2])
             continue
+
+        if 'ID:' in line:
+            sid = int(line[3:-1])
+            continue
+            
+        if 'MUSIC:' in line:
+            string = line[6:-1].split('"')[1]
+            if len(string):
+                music = append(string + '\0')
+            continue
             
         if 'STARTX:' in line:
             flags = line[7:-1].split(';')
@@ -84,13 +95,7 @@ for scene in scenes:
             for i in range (0,len(flags)):
                 starty[i] = int(flags[i])   
             continue
-                
-        if 'MUSIC:' in line:
-            string = line[6:-1].split('"')[1]
-            if len(string):
-                music = append(string + '\0')
-            continue
-        
+                        
         if 'X:' in line or 'Y:' in line:
             coords = line[2:-1].split(';')
             for i in range (0,len(coords)):
@@ -177,6 +182,7 @@ for scene in scenes:
     f2 = io.open(scene+'.nav', 'wb')
 
     # Scene settings
+    f2.write(struct.pack('B', sid))
     f2.write(struct.pack('B', music))
     for i in range(4):
         f2.write(struct.pack('H', startx[i]))
@@ -272,7 +278,7 @@ for scene in scenes:
     f2.close()
 
     print "<< SETTINGS >>"
-    print "Music:", strings[music][0]
+    print "ID:", str(sid), "/ Music:", strings[music][0]
     for i in range(4):
         print "Player", str(i), ":", startx[i], starty[i]
     print "<< TRIGGERS >>"

@@ -11,8 +11,15 @@
   #pragma bss-name(push, "XRAM")  
 #endif
 
+// Game state: Actions consist of tuplets (Scene ID, Action ID (lower 6bits) + Type (higher 2bits))
+unsigned char actionLast, itemLast, itemOffset;
+unsigned char gameActions[0x100];
+unsigned int  gameItems[MAX_ITEM];
+unsigned char gameLabels[0x100];
+unsigned char gameScene[8];
+
 // DO NOT CHANGE ORDER: This data is loaded sequentially from file!!!!!
-unsigned char music;
+unsigned char sceneID, music;
 unsigned int startx[MAX_PLAYERS], starty[MAX_PLAYERS];
 unsigned char num_polygon, num_interacts, num_triggers, num_modifiers, num_paths;
 signed int polygonX[MAX_POLYGON];
@@ -38,77 +45,8 @@ extern unsigned int unitX, unitY;
 extern unsigned int goalX, goalY;
 
 // See inventory.c
-extern Item items[MAX_ITEM];
+extern unsigned int gameItems[MAX_ITEM];
 	  
-// Initialize scene animations
-void LoadScene(unsigned char* scene)
-{	
-	unsigned char fname[13];
-	unsigned char i, l, *coords;
-
-	// Disable sprites/bitmap/music
-	DisableSprite(-1);
-	HideBitmap();
-	if (music)
-		StopMusic();	
-	
-	// Prepare filename
-	l = strlen(scene);
-	memcpy(fname, scene, l);
-	
-	// Load bitmap
-	memcpy(&fname[l], ".img\0", 5);
-	LoadBitmap(fname);
-	
-	// Load chunks/backgrounds
-	FreeChunk(0);
-	memcpy(&fname[l], ".chk\0", 5);
-	num_chunks = LoadChunks(chunkData, fname);
-	for (i=0; i<num_chunks; i++) {
-		coords = chunkData[i]; 
-		chunkBckg[i] = GetChunk(coords[0], coords[1], coords[2], coords[3]);
-	}
-	
-	// Load navigation
-	memcpy(&fname[l], ".nav\0", 5);
-	if (FileOpen(fname)) {
-		FileRead(&music, -1);
-		FileClose();
-	}
-	
-	// Assign ink/paper colors
-	paperColor = PAPER_DEFAULT;
-	inkColor = INK_DEFAULT;
-#if defined(__ORIC__)
-	txtY = TXT_ROWS-2;
-	SetAttributes(paperColor); txtY++;
-	SetAttributes(paperColor); txtY--;
-	txtX = 0; PrintBlanks(TXT_COLS, 2);	
-#endif	
-
-	// Update player position
-	goalX = unitX = startx[0]; 
-	goalY = unitY = starty[0];
-
-	// Music & bitmap
- 	if (music) {
-		LoadMusic(&strings[music]);
-		PlayMusic();
-	}
-	ShowBitmap();
-	
-	// Enable sprites
-	EnableSprite(0);  // Mouse cursor
-	if (unitX || unitY) {
-		EnableSprite(1);  // Unit #1
-	#if defined(__ATARI__) || defined(__CBM__ )
-		EnableSprite(2);  // Unit #1 (extra color)
-		EnableSprite(3);  // Unit #1 (extra color)
-		EnableSprite(4);  // Unit #1 (extra color)
-	#endif	
-	}
-}
-
 // Draw chunk to screen
 void DrawChunk(unsigned char id)
 {
@@ -156,15 +94,59 @@ unsigned char SearchScene(unsigned int searchX, unsigned int searchY)
 	return 255;
 }
 
+// Process modifier to interactable
+void ProcessModifier(unsigned char index)
+{
+	unsigned char i;
+	Interact *modified;
+	Modifier *modifier = &modifiers[index];
+	for (i=0; i<num_interacts; i++) {
+		modified = &interacts[i];
+		if (modifier->label == modified->label) {
+			modified->flags    = modifier->flags;
+			modified->chk      = modifier->chk;
+			modified->bcg      = modifier->bcg;
+			modified->path     = modifier->path;
+			modified->question = modifier->question;
+			modified->answer   = modifier->answer;
+			break;
+		}
+	}	
+}
+
+// Process player path
+void ProcessPath(unsigned char index)
+{
+	unsigned char d, i;
+	signed int deltaX, deltaY;
+	Path *path = &paths[index];
+	while (1) {
+		deltaX = path->x - unitX;
+		deltaY = path->y - unitY;
+		d = ABS(deltaX) + ABS(deltaY);
+		i = path->speed;
+		while (i < d) {
+			DrawUnit(unitX+(deltaX*i)/d, unitY+(deltaY*i)/d, path->frame);
+			i += path->speed;
+			Wait(10);
+		}
+		if (unitX || unitY) {
+			unitX = path->x; 
+			unitY = path->y;
+		}
+		if (path->next == 255) break;
+		path = &paths[path->next];
+	}
+	goalX = unitX; 
+	goalY = unitY;	
+}
+
 // Process interactable object
 unsigned char *ProcessInteract(unsigned char target, unsigned char item)
 {
-	Path *path;
-	Trigger *trigger;
-	Modifier *modifier;
-	Interact *modified;
-	unsigned char i, j, d;
+	unsigned char i, modifID;
 	signed int deltaX, deltaY;
+	Trigger *trigger;
 	Interact* interact = &interacts[target];
 	
 	// Check if we are close enough?
@@ -186,24 +168,15 @@ unsigned char *ProcessInteract(unsigned char target, unsigned char item)
 		// Find associated trigger (if any)
 		for (i=0; i<num_triggers; i++) {
 			trigger = &triggers[i];
-			if (items[item].label == trigger->item && interact->label == trigger->label) {
+			if (gameItems[item] == trigger->item && interact->label == trigger->label) {
 				
 				// Check if modifier is triggered?
-				if (trigger->modifier != 255) {
-					modifier = &modifiers[trigger->modifier];
-					for (j=0; j<num_interacts; j++) {
-						modified = &interacts[j];
-						if (modifier->label == modified->label) {
-							modified->flags    = modifier->flags;
-							modified->chk      = modifier->chk;
-							modified->bcg      = modifier->bcg;
-							modified->path     = modifier->path;
-							modified->question = modifier->question;
-							modified->answer   = modifier->answer;
-							break;
-						}
-					}
+				modifID = trigger->modifier;
+				if (modifID != 255) {
 					PopItem(item);					
+					ProcessModifier(modifID);
+					gameActions[actionLast++] = sceneID;
+					gameActions[actionLast++] = modifID;				
 				}
 		
 				// Display chunk (if any)
@@ -257,26 +230,7 @@ unsigned char *ProcessInteract(unsigned char target, unsigned char item)
 		
 		// Process path (if any)
 		if (interact->path != 255) {
-			path = &paths[interact->path];
-			while (1) {
-				deltaX = path->x - unitX;
-				deltaY = path->y - unitY;
-				d = ABS(deltaX) + ABS(deltaY);
-				i = path->speed;
-				while (i < d) {
-					DrawUnit(unitX+(deltaX*i)/d, unitY+(deltaY*i)/d, path->frame);
-					i += path->speed;
-					Wait(10);
-				}
-				if (unitX || unitY) {
-					unitX = path->x; 
-					unitY = path->y;
-				}
-				if (path->next == 255) break;
-				path = &paths[path->next];
-			}
-			goalX = unitX; 
-			goalY = unitY;
+			ProcessPath(interact->path);
 		} else {
 			if (interact->bcg != 255 || interact->answer)
 				Wait(120);	
@@ -290,6 +244,8 @@ unsigned char *ProcessInteract(unsigned char target, unsigned char item)
 		if (interact->flags & PICKABLE) {
 			PushItem(interact->label);
 			interact->flags = DISABLED;
+			gameActions[actionLast++] = sceneID;
+			gameActions[actionLast++] = target + 64;				
 		}	
 	}
 		
@@ -300,4 +256,95 @@ unsigned char *ProcessInteract(unsigned char target, unsigned char item)
 #endif	
 	inkColor = INK_DEFAULT;
 	return 0;
+}
+
+// Load and initialize scene state
+void LoadScene(unsigned char* scene)
+{	
+	unsigned char fname[13];
+	unsigned char a, i, l, *coords;
+	Interact* interact;
+
+	// Disable sprites/bitmap/music
+	DisableSprite(-1);
+	HideBitmap();
+	if (music)
+		StopMusic();	
+	
+	// Prepare filename
+	l = strlen(scene);
+	memcpy(fname, scene, l);
+	memcpy(gameScene, scene, l);
+	
+	// Load bitmap
+	memcpy(&fname[l], ".img\0", 5);
+	LoadBitmap(fname);
+	
+	// Load chunks/backgrounds
+	FreeChunk(0);
+	memcpy(&fname[l], ".chk\0", 5);
+	num_chunks = LoadChunks(chunkData, fname);
+	for (i=0; i<num_chunks; i++) {
+		coords = chunkData[i]; 
+		chunkBckg[i] = GetChunk(coords[0], coords[1], coords[2], coords[3]);
+	}
+	
+	// Load navigation
+	memcpy(&fname[l], ".nav\0", 5);
+	if (FileOpen(fname)) {
+		FileRead(&sceneID, -1);
+		FileClose();
+	}
+	
+	// Update game state
+	for (i=0; i<actionLast; i+=2) {
+		if (gameActions[i] == sceneID) {
+			a = gameActions[i+1];
+			if (a & 64) {
+				// Pickable item
+				Interact* interact = &interacts[a-64];
+				if (interact->chk != 255)
+					DrawChunk(interact->chk);
+				interact->flags = DISABLED;				
+			} else {
+				// Modifier
+				ProcessModifier(a);
+			}
+		}
+	}
+	
+	// Assign ink/paper colors
+	paperColor = PAPER_DEFAULT;
+	inkColor = INK_DEFAULT;
+#if defined(__ORIC__)
+	txtY = TXT_ROWS-2;
+	SetAttributes(paperColor); txtY++;
+	SetAttributes(paperColor); txtY--;
+	txtX = 0; PrintBlanks(TXT_COLS, 2);	
+#endif
+
+	// Display inventory
+	PrintInventory();
+
+	// Update player position
+	goalX = unitX = startx[0]; 
+	goalY = unitY = starty[0];
+
+	// Enable music & bitmap
+ 	if (music) {
+		LoadMusic(&strings[music]);
+		PlayMusic();
+	}
+	ShowBitmap();
+	
+	// Enable sprites
+	EnableSprite(0);  // Mouse cursor
+	if (unitX || unitY) {
+		EnableSprite(1);  // Unit #1
+	#if defined(__ATARI__) || defined(__CBM__ )
+		EnableSprite(2);  // Unit #1 (extra color)
+		EnableSprite(3);  // Unit #1 (extra color)
+		EnableSprite(4);  // Unit #1 (extra color)
+	#endif	
+	}
 }
