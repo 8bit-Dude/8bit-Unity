@@ -25,6 +25,47 @@
 										   SPR_VOID, SPR_VOID, SPR_VOID, SPR_VOID }; // 4 palettes of 3 colors (1st color is unused)
 #endif
 
+// Fast tables for cos/sin/tan
+const signed char cos[16] = {16,14,11,6,0,-6,-11,-14,-16,-14,-11,-6,0,6,11,14};
+const signed char sin[16] = {0,6,11,14,16,14,11,6,0,-6,-11,-14,-16,-14,-11,-6};
+const signed char tan[19] = {91,30,17,11,8,6,4,2,1,-1,-2,-4,-6,-8,-11,-17,-30,-91,-128};
+
+// Fast atan2fast routine with 36 x 10 degs increments
+unsigned char atan2fast(signed int dY, signed int dX)
+{
+	unsigned char j = 0;
+	signed char tn;
+	
+	if (dY == 0) {
+		 // Select value directly (Cannot divide by 0)
+		if (dX >= 0)
+			return 0;
+		else
+			return 8;
+	} else {
+		// Use simple division and check range
+		dX = (8*dX)/dY;
+		if (dX < -128)
+			tn = -128;
+		else 
+		if (dX > 127)
+			tn = 127;
+		else
+			tn = dX;
+			
+		// Check against reference table
+		while (tn < tan[j])
+			j++;
+		
+		// Compute angle
+		dX = j*10;
+		if (dY < 0)
+			dX += 180;
+		return (dX/23u);
+	}	
+}
+
+
 // Accessible polygon in scene
 extern unsigned char num_polygon;
 extern signed int polygonX[];
@@ -34,17 +75,17 @@ extern signed int polygonY[];
 extern Interact interacts[MAX_INTERACT];
 
 // Game state variables
-unsigned char *mouse, mouseL = 0, mouseAction = 0, intersect = 0;
+unsigned int unitX = 0, unitY = 0, wayX[16], wayY[16];	
 unsigned int mouseX = 160, mouseY = 100, clickX = 160, clickY = 100;
-unsigned int goalX = 0, goalY = 0, unitX = 0, unitY = 0;	
+unsigned char numWay, *mouse, mouseL = 0, mouseAction = 0;
 unsigned char sceneSearch = 0, sceneIndex = 255, sceneInteract = 255, sceneItem = 255;
 unsigned char unitFrame = frameWaitLeft, waitFrame = frameWaitLeft;
 
 void GameLoop(void)
 {
-	signed int interX, interY, deltaX, deltaY;
 	clock_t gameClock = clock();
-	unsigned char* scene;
+	unsigned char angle, i, j, interI[4], interN, *scene;
+	signed int deltaX, deltaY, interX[4], interY[4], interD[4], tmp;
 	
 	// Load first scene
 	LoadScene("scene01");
@@ -110,19 +151,69 @@ void GameLoop(void)
 				// Compute goal coordinates
 				if (!unitX && !unitY) {
 					// Unit is disabled: DO NOTHING!				
-				} else {
-					// Check intersection with polygon
-					intersect = IntersectSegmentPolygon(unitX, unitY, clickX, clickY, num_polygon, polygonX, polygonY, &interX, &interY);
-					if (intersect && (unitX != interX || unitY != interY)) { 	// Check that we are not stuck on a polygon segment
-						// Move to intersection point
-						goalX = interX;
-						goalY = interY;
-					} else {
-						// Move directly to mouse cursor (if in allowed area, and not crossing other parts of polygon)
-						if (intersect < 2 && PointInsidePolygon(clickX, clickY, num_polygon, polygonX, polygonY)) {
-							goalX = clickX;
-							goalY = clickY;
+				} else {					
+					// Check intersections with polygon
+					numWay = 0;
+					interN = IntersectSegmentPolygon(unitX, unitY, clickX, clickY, num_polygon, polygonX, polygonY, interI, interX, interY);
+					if (interN) {
+						// Compute distance to unit
+						for (i=0; i<interN; i++) {
+							interD[i] = abs(unitX - interX[i]) + abs(unitY - interY[i]); 
 						}
+						
+						// Sort intersections by distance
+						for (i=0; i<interN; ++i) { 
+							for (j=i+1; j<interN; ++j) { 
+								if (interD[i] > interD[j]) {
+									tmp = interI[i];  interI[i] = interI[j]; interI[j] = tmp;
+									tmp = interX[i];  interX[i] = interX[j]; interX[j] = tmp;
+									tmp = interY[i];  interY[i] = interY[j]; interY[j] = tmp;
+									tmp = interD[i];  interD[i] = interD[j]; interD[j] = tmp;
+								}
+							}				
+						}						
+						
+						// Add waypoints						
+						tmp = 1;
+						for (i=0; i<interN; i++) {
+							
+							// Move around the polygon edge
+							if (!tmp) {
+								j = interI[i-1];
+								if (interI[i] > interI[i-1]) {
+									while (j<interI[i]) {
+										wayX[numWay] = polygonX[j];
+										wayY[numWay] = polygonY[j];
+										numWay++; j++; 
+										if (numWay > 13)
+											break;
+									} 
+								} else {
+									while (j>interI[i]) {
+										wayX[numWay] = polygonX[j-1];
+										wayY[numWay] = polygonY[j-1];
+										numWay++; j--; 
+										if (numWay > 13)
+											break;
+									} 											
+								}
+							}
+							tmp = !tmp;
+							
+							// Move to intersection point
+							wayX[numWay] = interX[i];
+							wayY[numWay] = interY[i];
+							numWay++; 
+							if (numWay > 14)
+								break;
+						}
+					}	
+
+					// Then move to mouse cursor (if in allowed area)
+					if (PointInsidePolygon(clickX, clickY, num_polygon, polygonX, polygonY)) {
+						wayX[numWay] = clickX;
+						wayY[numWay] = clickY;
+						numWay++;	
 					}
 				}
 			}
@@ -131,14 +222,28 @@ void GameLoop(void)
 		// Process unit motion
 		if (clock()>gameClock+unitTicks) {
 			gameClock = clock();
-			deltaX = goalX - unitX;
-			deltaY = goalY - unitY;
-			if (deltaX || deltaY) {
+			
+			if (numWay) {			
 				// Move in steps of 3 max.
-				unitX += SIGN(deltaX) * MIN(ABS(deltaX), unitStep); 
-				unitY += SIGN(deltaY) * MIN(ABS(deltaY), unitStep);
-				if (unitX > 320) unitX = 1;
-				if (unitY > 200) unitY = 1;
+				deltaX = wayX[0] - unitX;
+				deltaY = wayY[0] - unitY;
+				if (unitStep >= abs(deltaX) && unitStep >= abs(deltaY)) {
+					// Home-in on waypoint
+					unitX = wayX[0];
+					unitY = wayY[0];				
+					numWay--;
+					
+					// Shift down remaining waypoints
+					if (numWay) {
+						memcpy(&wayX[0], &wayX[1], 15);
+						memcpy(&wayY[0], &wayY[1], 15);						
+					}					
+				} else {
+					// Move along vector
+					angle = atan2fast(deltaY, deltaX);
+					unitX += (unitStep*cos[angle])/16;
+					unitY += (unitStep*sin[angle])/16;
+				}
 				
 				// Update frame number
 				if (deltaX > 0) {

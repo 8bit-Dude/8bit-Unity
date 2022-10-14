@@ -39,9 +39,8 @@ unsigned char *chunkBckg[MAX_CHUNK];
 #endif
 	  
 // See goblin.c	  
-extern unsigned char waitFrame;
+extern unsigned char numWay, waitFrame;
 extern unsigned int unitX, unitY;
-extern unsigned int goalX, goalY;
 	  
 // Draw chunk to screen
 void DrawChunk(unsigned char id)
@@ -119,7 +118,7 @@ void ProcessPath(unsigned char index)
 	while (1) {
 		deltaX = path->x - unitX;
 		deltaY = path->y - unitY;
-		d = ABS(deltaX) + ABS(deltaY);
+		d = abs(deltaX) + abs(deltaY);
 		i = path->speed;
 		while (i < d) {
 			DrawUnit(unitX+(deltaX*i)/d, unitY+(deltaY*i)/d, path->frame);
@@ -133,8 +132,6 @@ void ProcessPath(unsigned char index)
 		if (path->next == 255) break;
 		path = &paths[path->next];
 	}
-	goalX = unitX; 
-	goalY = unitY;	
 }
 
 // Process interactable object
@@ -147,8 +144,8 @@ unsigned char *ProcessInteract(unsigned char target, unsigned char item)
 	
 	// Check if we are close enough?
 	if (unitX || unitY) {
-		deltaX = interact->x; deltaX = ABS(deltaX-unitX); 
-		deltaY = interact->y; deltaY = ABS(deltaY-unitY);
+		deltaX = interact->x; deltaX = abs(deltaX-unitX); 
+		deltaY = interact->y; deltaY = abs(deltaY-unitY);
 		if (deltaX > 30 || deltaY > 25) return 0;
 	}
 	
@@ -324,8 +321,9 @@ void LoadScene(unsigned char* scene)
 	PrintInventory();
 
 	// Update player position
-	goalX = unitX = startx[0]; 
-	goalY = unitY = starty[0];
+	unitX = startx[0]; 
+	unitY = starty[0];
+	numWay = 0;
 
 	// Enable music & bitmap
  	if (music) {
