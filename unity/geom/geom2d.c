@@ -58,42 +58,34 @@ unsigned char IntersectSegments(signed int seg1X1, signed int seg1Y1, signed int
     return 1;
 }
 
-// Find intersection point with polygon that is nearest to first point of segment
+// Find intersection points with polygon
 unsigned char IntersectSegmentPolygon(signed int segX1, signed int segY1, signed int segX2, signed int segY2, 
-									  unsigned char vN, signed int *vX, signed int *vY, signed int *intX, signed int *intY)
+									  unsigned char polyN, signed int *polyX, signed int *polyY, 
+									  unsigned char *intI, signed int *intX, signed int *intY)
 {
 	unsigned char i, count = 0;
 	signed int tmpX, tmpY; 
-	signed long deltaX, deltaY, tmpD, dist = 999999999;
-	
-	for (i=1; i<vN; i++) {
-		if (IntersectSegments(segX1, segY1, segX2, segY2, vX[i-1], vY[i-1], vX[i], vY[i], &tmpX, &tmpY)) {
-			// Now compute distance to first point
+	for (i=1; i<polyN; i++) {
+		if (IntersectSegments(segX1, segY1, segX2, segY2, polyX[i-1], polyY[i-1], polyX[i], polyY[i], &tmpX, &tmpY)) {
+			intI[count] = i;
+			intX[count] = tmpX;
+			intY[count] = tmpY;
 			count += 1;
-			deltaX = segX1 - tmpX; 
-			deltaY = segY1 - tmpY; 
-			tmpD = deltaX * deltaX + deltaY * deltaY;
-			if (tmpD < dist) {
-				*intX = tmpX;
-				*intY = tmpY;
-				dist = tmpD;
-			}
 		}
 	}
 	return count;
 }
 
-
-unsigned char PointInsidePolygon(signed int pX, signed int pY, unsigned char vN, signed int *vX, signed int *vY)
+unsigned char PointInsidePolygon(signed int pX, signed int pY, unsigned char polyN, signed int *polyX, signed int *polyY)
 {
 	unsigned char i, j, inside = 0;
 	signed long casting;
-	for (i = 0, j = vN-1; i < vN; j = i++) {
-		if ((vY[i]>pY) != (vY[j]>pY)) {
-			casting  = vX[j]-vX[i];
-			casting *= pY-vY[i];
-			casting /= vY[j]-vY[i];
-			if (pX < vX[i]+casting) inside = !inside;
+	for (i = 0, j = polyN-1; i < polyN; j = i++) {
+		if ((polyY[i]>pY) != (polyY[j]>pY)) {
+			casting  = polyX[j]-polyX[i];
+			casting *= pY-polyY[i];
+			casting /= polyY[j]-polyY[i];
+			if (pX < polyX[i]+casting) inside = !inside;
 		}
 	}
 	return inside;
