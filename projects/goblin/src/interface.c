@@ -109,6 +109,8 @@ void DrawUnit(unsigned int x, unsigned int y, unsigned char frame)
 	LocateSprite(x, y-20);
 #elif (defined __ATARI__)
 	LocateSprite(x, y-16);
+#elif (defined __LYNX__)
+	LocateSprite(x, y-14);
 #else
 	LocateSprite(x, y-10);
 #endif

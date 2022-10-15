@@ -11,12 +11,12 @@
 #define MAX_PLAYERS   4
 
 // Scene navigation data (loaded from file)
-#define MAX_POLYGON  25
-#define MAX_CHUNK     6
-#define MAX_INTERACT  7
-#define MAX_TRIGGER   5
-#define MAX_MODIFIER  2
-#define MAX_PATH      6
+#define MAX_POLYGON  64
+#define MAX_CHUNK     8
+#define MAX_INTERACT  8
+#define MAX_TRIGGER   8
+#define MAX_MODIFIER  4
+#define MAX_PATH      8
 
 // Inventory management
 #define MAX_ITEM 	  8

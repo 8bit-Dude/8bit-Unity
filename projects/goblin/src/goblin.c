@@ -81,6 +81,20 @@ unsigned char numWay, *mouse, mouseL = 0, mouseAction = 0;
 unsigned char sceneSearch = 0, sceneIndex = 255, sceneInteract = 255, sceneItem = 255;
 unsigned char unitFrame = frameWaitLeft, waitFrame = frameWaitLeft;
 
+void ProcessWaypoint(void)
+{
+	// Home-in on waypoint
+	unitX = wayX[0];
+	unitY = wayY[0];				
+	numWay--;
+	
+	// Shift down remaining waypoints
+	if (numWay) {
+		memcpy(&wayX[0], &wayX[1], 15);
+		memcpy(&wayY[0], &wayY[1], 15);						
+	}	
+}					
+
 void GameLoop(void)
 {
 	clock_t gameClock = clock();
@@ -228,21 +242,17 @@ void GameLoop(void)
 				deltaX = wayX[0] - unitX;
 				deltaY = wayY[0] - unitY;
 				if (unitStep >= abs(deltaX) && unitStep >= abs(deltaY)) {
-					// Home-in on waypoint
-					unitX = wayX[0];
-					unitY = wayY[0];				
-					numWay--;
+					ProcessWaypoint();
 					
-					// Shift down remaining waypoints
-					if (numWay) {
-						memcpy(&wayX[0], &wayX[1], 15);
-						memcpy(&wayY[0], &wayY[1], 15);						
-					}					
 				} else {
 					// Move along vector
 					angle = atan2fast(deltaY, deltaX);
 					unitX += (unitStep*cos[angle])/16;
 					unitY += (unitStep*sin[angle])/16;
+					
+					// Check that nothing went wrong...
+					if (unitX > 320 || unitY > INVENTORY_Y)
+						ProcessWaypoint();
 				}
 				
 				// Update frame number
