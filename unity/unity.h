@@ -223,8 +223,9 @@ unsigned char IntersectSegments(signed int seg1X1, signed int seg1Y1, signed int
 							    signed int seg2X1, signed int seg2Y1, signed int seg2X2, signed int seg2Y2,
 								signed int *intX,  signed int *intY);
 unsigned char IntersectSegmentPolygon(signed int segX1, signed int segY1, signed int segX2, signed int segY2, 
-									  unsigned char vN, signed int *vX, signed int *vY, signed int *intX, signed int *intY);								
-unsigned char PointInsidePolygon(signed int pX, signed int pY, unsigned char vN, signed int *vX, signed int *vY);
+									  unsigned char polyN, signed int *polyX, signed int *polyY, 
+									  unsigned char *intI, signed int *intX, signed int *intY);								
+unsigned char PointInsidePolygon(signed int pX, signed int pY, unsigned char polyN, signed int *polyX, signed int *polyY);
 
 // Math functions
 #define MIN(a,b) (a>b ? b : a)

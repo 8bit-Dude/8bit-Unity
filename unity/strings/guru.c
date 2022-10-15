@@ -39,11 +39,12 @@
   #pragma code-name("BANK0")
 #endif
 
-void GuruMeditation(unsigned char* souce)
+void GuruMeditation(unsigned char* souce, unsigned int overflow)
 {
 	ClearBitmap();
 	paperColor = BLACK; inkColor = RED; txtY = TXT_ROWS/2;
-	txtX = TXT_COLS/2-13;  PrintStr("Buffer Overflow in");
+	txtX = TXT_COLS/2-13; PrintNum(overflow);
+	txtX = TXT_COLS/2-9; PrintStr("b overflow in");
 	txtX = TXT_COLS/2+6; PrintStr(souce);
 	while (1);
 }

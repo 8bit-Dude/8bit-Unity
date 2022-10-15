@@ -53,13 +53,13 @@
 extern unsigned char chunkBuf[CHUNKSIZE];
 extern unsigned char *chunkPtr;
 
-void GuruMeditation(unsigned char* souce);
+GuruMeditation(unsigned char* souce, unsigned int overflow);
 
 void CheckMemory(void)
 {
 	// Check memory usage
 	if ((unsigned int)chunkPtr > (unsigned int)(chunkBuf+CHUNKSIZE))
-		GuruMeditation("Chunks");
+		GuruMeditation("Chunks", chunkPtr-(chunkBuf+CHUNKSIZE));
 }
 
 void FreeChunk(unsigned char* chunk)
