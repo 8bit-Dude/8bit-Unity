@@ -5,12 +5,12 @@ STARTX: 180; 0; 0; 0
 STARTY: 130; 0; 0; 0
 
 # Definitions (WARNING: use same values for ALL scene files and inside definitions.h)
-#define MAX_POLYGON  25
-#define MAX_CHUNK     6
-#define MAX_INTERACT  7
-#define MAX_TRIGGER   5
-#define MAX_MODIFIER  2
-#define MAX_PATH      6
+#define MAX_POLYGON  64
+#define MAX_CHUNK     8
+#define MAX_INTERACT  8
+#define MAX_TRIGGER   8
+#define MAX_MODIFIER  4
+#define MAX_PATH      8
 
 // Interacts flags
 #define DISABLED  0
@@ -32,34 +32,36 @@ STARTY: 130; 0; 0; 0
 
 # Boundary Polygon (see MAX_POLYGON)
 # Player can only move inside the area defined by this polygon
-X:   1;  53; 120; 138;  65;   1;  1; 32; 180; 270; 282; 251; 232; 210; 229; 319; 319;   1;   1
-Y: 138; 162; 169; 144; 138; 107; 99; 95;  78; 102; 120; 137; 124; 143; 166; 116; 182; 182; 138
+X:   0;  53; 120; 134;  62;  18;  40;  25;   0;  0; 36;  48; 136; 106; 132; 161; 180; 270; 275; 246; 230; 210; 229; 289; 307; 319; 319;   0;   0
+Y: 138; 162; 169; 150; 145; 129; 125; 111; 109; 99; 95; 101;  85;  64;  61;  81;  78; 102; 121; 135; 127; 143; 166; 132; 112; 112; 182; 182; 138
 
 # Interacts (see MAX_INTERACT) 
 # When the mouse is clicked within the element area, the player moves to the specified coordinates and the chunks/path/question/answer are shown. 
 #    Label          Click Area    Move To    Flags   	Chunks   Frame  Path      					    Question     									    Answer					         
 #                   X    Y    R   TX   TY			   CHK   BGG
-I: "Notable";      55;  81;  15;  90;  93;  ACTIVE;   255;  255;    2;  255;  "Dear sir, you look powerful.\nPlease help me with my quest?"; "Go away, I am busy!"
-I: "Old Men";     222;  66;  15; 194;  86;  ACTIVE;     1;    1;    8;  255;  "Hey villagers, do you know\nthe house of lord Tazaar?"; 	  	 "We are hungry!! But the\nnotable keeps all the food."
-I: "Bottle";      260;  70;   7; 240;  94; PICKABLE;    2;  255;    8;  255;  ""; 														  	 ""
-I: "Flower";      230; 134;  10; 208; 141; PICKABLE;  255;  255;    8;  255;  ""; 														  	 ""
-I: "Sausage";      69;  60;   7;  94;  93;  ACTIVE;     0;    0;    2;    0;  ""; 														  	 "Hey, don't touch that!"
-I: "Switch";       32;  77;   5;  18; 101;  ACTIVE;     4;    4;    8;    2;  ""; 														  	 ""							    
-I: "To Fountain"; 310; 160;  30; 300; 170; LOADSCENE; 255;  255;    8;  255;  "scene02"; 												     ""
+I: "Notable";      54;  82;  14;  90;  95;  ACTIVE;   255;  255;    2;  255;  "Dear sir, you look powerful.\nPlease help me with my quest?"; "Go away, I am busy!"
+I: "Old Men";     222;  68;  15; 194;  86;  ACTIVE;     1;    1;    8;  255;  "Hey villagers, do you know\nthe house of lord Tazaar?"; 	  	 "Go right to the fountain."
+I: "Bottle";      260;  71;   8; 240;  94; PICKABLE;    2;  255;    8;  255;  ""; 														  	 ""
+I: "Flower";      230; 136;  10; 208; 141; PICKABLE;  255;  255;    8;  255;  ""; 														  	 ""
+I: "Sausage";      69;  61;   8;  94;  94;  ACTIVE;     0;    0;    2;    0;  ""; 														  	 "Hey, don't touch that!"
+I: "Switch";       31;  79;   6;  18; 101;  ACTIVE;     4;    4;    8;    2;  ""; 														  	 "Boing! Boing!"							    
+I: "To Fountain"; 310; 160;  30; 310; 170; LOADSCENE; 255;  255;    8;  255;  "scene02"; 												     ""
+I: "To Hill";     111;  53;  15; 117;  65; LOADSCENE; 255;  255;    2;  255;  "scene03"; 												     ""
 
 # Triggers (see MAX_TRIGGER)
 # When the specified item is given to the target, the modifier is triggered
 #    Item	    Target   Modifier CHK   BGG   							Answer
-T: "Bottle";  "Notable";     0;   255;  255;  "Just what I need in this heat!\nWould you like some sausage?"	
-T: "Bottle";  "Old Men";   255;	    1;    1;  "We are not thirsty...\n...We are hungry!!"
-T: "Flower";  "Notable";   255;	  255;  255;  "No, thank you..."	
+T: "Bottle";  "Old Men";   255;	    1;    1;  "No, thank you..."
+T: "Bottle";  "Notable";   255;	  255;  255;  "No, thank you..."	
+T: "Flower";  "Notable";     0;   255;  255;  "How beautiful!!\nWould you like some sausage?"	
 T: "Flower";  "Old Men";   255;	    1;    1;  "No, thank you..."
-T: "Sausage"; "Old Men";   255;	    1;    1;  "Thank you kind sir!\nGo right, to the fountain."
+T: "Sausage"; "Old Men";   255;	    1;    1;  "No, thank you..."
+T: "Sausage"; "Notable";   255;	    1;    1;  "No, thank you..."
 
 # Modifiers (see MAX_MODIFIER) 
 # This interact gets updated with new parameters
-#   Interact         Flags    CHK   BCG   Path   		     Question   			 		           Answer
-M: "Sausage";      PICKABLE;    3;  255;  255;  "These old men look hungry...";  ""
+#   Interact         Flags    CHK   BCG   Path   		     Question   			 	  Answer
+M: "Sausage";      PICKABLE;    3;  255;  255;  "This sausage is very hard...";  			""
 
 # Paths (see MAX_PATH)
 # Series of player animation paths (255 terminates a series)

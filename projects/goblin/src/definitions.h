@@ -8,7 +8,8 @@
 #define LOADSCENE 4
 
 // Scene settings
-#define MAX_PLAYERS   4
+#define MAX_PLAYERS    4
+#define MAX_WAYPOINTS 24
 
 // Scene navigation data (loaded from file)
 #define MAX_POLYGON  64

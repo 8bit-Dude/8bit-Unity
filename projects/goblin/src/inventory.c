@@ -28,12 +28,9 @@ void PushItem(unsigned int label)
 void PopItem(unsigned char index)
 {
 	// Shift down all items above index
-	while (index<(itemLast-1)) {
-		memcpy(&gameItems[index*LEN_ITEM], &gameItems[(index+1)*LEN_ITEM], LEN_ITEM);
-		index++;
-	}
-	gameItems[index*LEN_ITEM] = 0; itemLast--;
-	if (itemOffset >= itemLast)
+	memcpy(&gameItems[index*LEN_ITEM], &gameItems[(index+1)*LEN_ITEM], (MAX_ITEM-1-index)*LEN_ITEM);
+	gameItems[(MAX_ITEM-1)*LEN_ITEM] = 0; itemLast--;
+	if (itemOffset && itemOffset >= itemLast)
 		itemOffset--;
 	PrintInventory();
 }

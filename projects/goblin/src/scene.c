@@ -141,14 +141,7 @@ unsigned char *ProcessInteract(unsigned char target, unsigned char item)
 	signed int deltaX, deltaY;
 	Trigger *trigger;
 	Interact* interact = &interacts[target];
-	
-	// Check if we are close enough?
-	if (unitX || unitY) {
-		deltaX = interact->x; deltaX = abs(deltaX-unitX); 
-		deltaY = interact->y; deltaY = abs(deltaY-unitY);
-		if (deltaX > 30 || deltaY > 25) return 0;
-	}
-	
+		
 	// Update frame (if any)
 	if (interact->frame != 255) {
 		waitFrame = interact->frame;
@@ -167,10 +160,10 @@ unsigned char *ProcessInteract(unsigned char target, unsigned char item)
 				// Check if modifier is triggered?
 				modifID = trigger->modifier;
 				if (modifID != 255) {
-					PopItem(item);					
 					ProcessModifier(modifID);
 					gameActions[actionLast++] = sceneID;
 					gameActions[actionLast++] = modifID;				
+					PopItem(item);					
 				}
 		
 				// Display chunk (if any)

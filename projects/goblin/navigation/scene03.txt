@@ -1,0 +1,66 @@
+# Scene Settings: Scene ID, BG Music, Start position of players (0 means disabled)
+ID: 3
+MUSIC: "goblin.mus"
+STARTX: 310; 0; 0; 0
+STARTY: 176; 0; 0; 0
+
+# Definitions (WARNING: use same values for ALL scene files and inside definitions.h)
+#define MAX_POLYGON  64
+#define MAX_CHUNK     8
+#define MAX_INTERACT  8
+#define MAX_TRIGGER   8
+#define MAX_MODIFIER  4
+#define MAX_PATH      8
+
+// Interacts flags
+#define DISABLED  0
+#define ACTIVE    1
+#define PICKABLE  2
+#define LOADSCENE 4
+
+# Chunks (just as memo)
+0: Egg
+1: Dog1
+2: Giant1
+3: Dog2
+4: Giant2
+
+# Animation Frames (just as memo)
+2: Idle Left
+8: Idle Right
+14: Surprised
+
+# Boundary Polygon (see MAX_POLYGON)
+# Player can only move inside the area defined by this polygon
+X: 319; 165;  37;  59;  98; 116; 103;  63;  59; 166;  74; 187; 247; 271; 258; 246; 246; 288; 291; 308; 319
+Y: 182; 182; 125; 122;  83;  83;  61;  52;  39;  65; 127; 160; 173; 165; 155; 158; 142; 146; 158; 153; 153
+
+# Interacts (see MAX_INTERACT) 
+# When the mouse is clicked within the element area, the player moves to the specified coordinates and the chunks/path/question/answer are shown. 
+#    Label          Click Area    Move To    Flags   	Chunks   Frame  Path      				Question     						Answer					         
+#                   X    Y    R   TX   TY			   CHK   BGG
+I: "Chicken";     238; 137;  12; 252; 150;  ACTIVE;    255;  255;  2;   255;  		"This chicken needs convincing!"; 	  ""
+I: "Egg";         238; 170;   8; 248; 178; DISABLED;   255;  255;  2;   255;  		""; 	  							  ""
+I: "Dog";          50; 106;  14;  68; 122;  ACTIVE;      1;    1;  2;   255;  		"This dog is scary..."; 	  		  ""
+I: "Fire";         93;  69;   8; 114;  68;  ACTIVE;    255;  255;  2;   255;  		"I could cook something here"; 	  	  ""
+I: "Giant";        36;  43;  20;  90;  57; DISABLED;   255;  255;  2;   255;  		""; 	  				  			  ""
+I: "Ending";  	   40;  10;  20;  65;  50; DISABLED;   255;  255;  2;   255;  		""; 	  							  ""
+I: "To Village";  310; 160;  30; 310; 170; LOADSCENE;  255;  255;  8;   255;  		"scene01"; 							  ""
+
+# Triggers (see MAX_TRIGGER)
+# When the specified item is given to the target, the modifier is triggered
+#    Item	     Target    Modifier CHK   BGG   				  Answer
+T: "Sausage";  "Chicken";     0;     0;   255;           "Cluck! Cluck! Cluck!"
+T: "Egg";      "Fire";        1;     2;   255;           "Breakfast is served!"
+T: "Bottle";   "Giant";       2;     4;    4;            "Thank you my lad!"
+
+# Modifiers (see MAX_MODIFIER) 
+# This interact gets updated with new parameters
+#   Interact     Flags      CHK   BCG   Path   		       Question   			  Answer
+M:   "Egg";     PICKABLE;   255;   0;   255;     "Where can I cook this?";  	""
+M:   "Giant";    ACTIVE;    255; 255;   255;     "Excuse me sir?";  			"I am thirsty my lad..."
+M:   "Ending";   ACTIVE;    255; 255;   255;     "This is the end of demo!";    ""
+
+# Paths (see MAX_PATH)
+# Series of player animation paths (255 terminates a series)
+#	 X1   Y1  Speed Frame Next Path	

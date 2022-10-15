@@ -72,10 +72,11 @@ extern signed int polygonX[];
 extern signed int polygonY[];
 
 // See scene.c
-extern Interact interacts[MAX_INTERACT];
+extern unsigned char itemLast, gameItems[], strings[];
+extern Interact interacts[];
 
 // Game state variables
-unsigned int unitX = 0, unitY = 0, wayX[16], wayY[16];	
+unsigned int unitX = 0, unitY = 0, wayX[MAX_WAYPOINTS], wayY[MAX_WAYPOINTS];	
 unsigned int mouseX = 160, mouseY = 100, clickX = 160, clickY = 100;
 unsigned char numWay, *mouse, mouseL = 0, mouseAction = 0;
 unsigned char sceneSearch = 0, sceneIndex = 255, sceneInteract = 255, sceneItem = 255;
@@ -90,8 +91,8 @@ void ProcessWaypoint(void)
 	
 	// Shift down remaining waypoints
 	if (numWay) {
-		memcpy(&wayX[0], &wayX[1], 15);
-		memcpy(&wayY[0], &wayY[1], 15);						
+		memcpy(&wayX[0], &wayX[1], MAX_WAYPOINTS-1);
+		memcpy(&wayY[0], &wayY[1], MAX_WAYPOINTS-1);						
 	}	
 }					
 
@@ -101,9 +102,6 @@ void GameLoop(void)
 	unsigned char angle, i, j, interI[4], interN, *scene;
 	signed int deltaX, deltaY, interX[4], interY[4], interD[4], tmp;
 	
-	// Load first scene
-	LoadScene("scene01");
-
 	while (1) {
 	#if defined __APPLE2__
 		clk += 2;  // Manually update clock on Apple 2
@@ -139,6 +137,10 @@ void GameLoop(void)
 	 		// Record action
 			mouseAction = 1;
 			PlaySFX(SFX_BUMP, 32, 120, 2);
+			
+			// Reset navigation
+			sceneInteract = 255;
+			numWay = 0;
 					
 			// Is mouse cursor in inventory area?
 			if (mouseY > INVENTORY_Y) {
@@ -167,7 +169,6 @@ void GameLoop(void)
 					// Unit is disabled: DO NOTHING!				
 				} else {					
 					// Check intersections with polygon
-					numWay = 0;
 					interN = IntersectSegmentPolygon(unitX, unitY, clickX, clickY, num_polygon, polygonX, polygonY, interI, interX, interY);
 					if (interN) {
 						// Compute distance to unit
@@ -199,7 +200,7 @@ void GameLoop(void)
 										wayX[numWay] = polygonX[j];
 										wayY[numWay] = polygonY[j];
 										numWay++; j++; 
-										if (numWay > 13)
+										if (numWay > (MAX_WAYPOINTS-2))
 											break;
 									} 
 								} else {
@@ -207,7 +208,7 @@ void GameLoop(void)
 										wayX[numWay] = polygonX[j-1];
 										wayY[numWay] = polygonY[j-1];
 										numWay++; j--; 
-										if (numWay > 13)
+										if (numWay > (MAX_WAYPOINTS-2))
 											break;
 									} 											
 								}
@@ -218,7 +219,7 @@ void GameLoop(void)
 							wayX[numWay] = interX[i];
 							wayY[numWay] = interY[i];
 							numWay++; 
-							if (numWay > 14)
+							if (numWay > (MAX_WAYPOINTS-1))
 								break;
 						}
 					}	
@@ -308,8 +309,18 @@ int main(void)
 	
 	// Show splash screen
 	SplashScreen();
+
+	// Load first scene
+	LoadScene("scene01");
 	
-	// Run game loop
+	//// HACK FOR TESTING SCENES ////
+/* 	itemLast = 2;
+	strcpy(&gameItems[0], "Sausage");
+	strcpy(&gameItems[9], "Bottle");
+	LoadScene("scene03"); */
+	//// HACK FOR TESTING SCENES ////
+	
+	// Game loop	
 	GameLoop();
 	
 	// Black-out screen and clear key

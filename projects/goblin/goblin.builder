@@ -11,7 +11,8 @@
         ], 
         "shared": [
             "projects/goblin/navigation/scene01.nav", 
-            "projects/goblin/navigation/scene02.nav"
+            "projects/goblin/navigation/scene02.nav", 
+            "projects/goblin/navigation/scene03.nav"
         ], 
         "charmap": [], 
         "tilesize": "None"
@@ -24,7 +25,8 @@
             "bitmapDHR": [
                 "projects/goblin/bitmaps/banner-apple.png", 
                 "projects/goblin/bitmaps/scene01-apple.png", 
-                "projects/goblin/bitmaps/scene02-apple.png"
+                "projects/goblin/bitmaps/scene02-apple.png", 
+                "projects/goblin/bitmaps/scene03-apple.png"
             ], 
             "bitmapSHR": [], 
             "charsetDHR": [], 
@@ -55,7 +57,8 @@
             "bitmap": [
                 "projects/goblin/bitmaps/banner-atari.png", 
                 "projects/goblin/bitmaps/scene01-atari.png", 
-                "projects/goblin/bitmaps/scene02-atari.png"
+                "projects/goblin/bitmaps/scene02-atari.png", 
+                "projects/goblin/bitmaps/scene03-atari.png"
             ], 
             "charset": [], 
             "sprites": [
@@ -66,7 +69,8 @@
             ], 
             "chunks": [
                 "projects/goblin/chunks/scene01-atari.txt", 
-                "projects/goblin/chunks/scene02-atari.txt"
+                "projects/goblin/chunks/scene02-atari.txt", 
+                "projects/goblin/chunks/scene03-atari.txt"
             ], 
             "diskSize": "180KB", 
             "crunchAssets": "No", 
@@ -84,7 +88,8 @@
             "bitmap": [
                 "projects/goblin/bitmaps/banner-c64.png", 
                 "projects/goblin/bitmaps/scene01-c64.png", 
-                "projects/goblin/bitmaps/scene02-c64.png"
+                "projects/goblin/bitmaps/scene02-c64.png", 
+                "projects/goblin/bitmaps/scene03-c64.png"
             ], 
             "charset": [], 
             "charsetColors": " ", 
@@ -113,7 +118,8 @@
             "bitmap": [
                 "projects/goblin/bitmaps/banner-lynx.png", 
                 "projects/goblin/bitmaps/scene01-lynx.png", 
-                "projects/goblin/bitmaps/scene02-lynx.png"
+                "projects/goblin/bitmaps/scene02-lynx.png", 
+                "projects/goblin/bitmaps/scene03-lynx.png"
             ], 
             "charset": [], 
             "sprites": [
@@ -124,11 +130,12 @@
             ], 
             "chunks": [
                 "projects/goblin/chunks/scene01-lynx.txt", 
-                "projects/goblin/chunks/scene02-lynx.txt"
+                "projects/goblin/chunks/scene02-lynx.txt", 
+                "projects/goblin/chunks/scene03-lynx.txt"
             ], 
             "musicMemory": "$0800", 
-            "chunkMemory": "$0500", 
-            "sharedMemory": "$0400", 
+            "chunkMemory": "$0600", 
+            "sharedMemory": "$0600", 
             "virtualKeyboard": false
         }, 
         "NES": {
@@ -139,7 +146,8 @@
             "bitmap": [
                 "projects/goblin/bitmaps/banner-nes.png", 
                 "projects/goblin/bitmaps/scene01-nes.png", 
-                "projects/goblin/bitmaps/scene02-nes.png"
+                "projects/goblin/bitmaps/scene02-nes.png", 
+                "projects/goblin/bitmaps/scene03-nes.png"
             ], 
             "charset": [], 
             "sprites": [
@@ -164,7 +172,8 @@
             "bitmap": [
                 "projects/goblin/bitmaps/banner-oric.png", 
                 "projects/goblin/bitmaps/scene01-oric.png", 
-                "projects/goblin/bitmaps/scene02-oric.png"
+                "projects/goblin/bitmaps/scene02-oric.png", 
+                "projects/goblin/bitmaps/scene03-oric.png"
             ], 
             "charset": [], 
             "sprites": [

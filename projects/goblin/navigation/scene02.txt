@@ -5,12 +5,12 @@ STARTX: 20; 0; 0; 0
 STARTY: 170; 0; 0; 0
 
 # Definitions (WARNING: use same values for ALL scene files and inside definitions.h)
-#define MAX_POLYGON  25
-#define MAX_CHUNK     6
-#define MAX_INTERACT  7
-#define MAX_TRIGGER   5
-#define MAX_MODIFIER  2
-#define MAX_PATH      6
+#define MAX_POLYGON  64
+#define MAX_CHUNK     8
+#define MAX_INTERACT  8
+#define MAX_TRIGGER   8
+#define MAX_MODIFIER  4
+#define MAX_PATH      8
 
 // Interacts flags
 #define DISABLED  0
@@ -37,11 +37,11 @@ Y: 180; 180; 145; 166; 179; 170; 152; 150; 144; 144; 160; 160; 155; 131; 116; 12
 # Interactive elements can have the following flags: DISABLED, ACTIVE, PICKABLE.
 # When the mouse is clicked within the element area, the player moves to the specified coordinates and the chunks/path/question/answer are shown. 
 #    Label       Click Area    Move To    Flags   	Chunks   Frame  Path      					    Question     							Answer					         
-#                X    Y    R   TX   TY			   CHK   BGG
-I: "Ball";      225; 167; 10; 209; 166;  PICKABLE;  0;   255;    8;   255;  					 	 "Nice Ball";                  				""
-I: "Fountain";  266; 135; 10; 278; 146;  ACTIVE;    1;     1;    2;   255;  						 "May I...";                  				""
-I: "Ladder";    286;  51; 20; 270; 110;  ACTIVE;  255;  255;     8;   255;  			   "I wish I could climb there";                  	    ""
-I: "To Square";  10; 170; 20;  10; 170; LOADSCENE; 255;  255;    2;   255;  						 "scene01"; 							    ""
+#                 X    Y    R   TX   TY			   CHK   BGG
+I: "Ball";       225; 167; 10; 209; 166;  PICKABLE;   0;  255;  8;   255;  					 	 "Nice Ball";                  				""
+I: "Fountain";   266; 135; 10; 278; 146;  ACTIVE;     1;    1;  2;   255;  						 "May I...";                  				""
+I: "Ladder";     286;  51; 20; 270; 110;  ACTIVE;   255;  255;  8;   255;  			   "I wish I could climb there";                  	    ""
+I: "To Village";  10; 170; 20;  10; 170; LOADSCENE; 255;  255;  2;   255;  						 "scene01"; 							    ""
 
 # Triggers (see MAX_TRIGGER)
 # When the specified item is given to the target, the modifier is triggered
