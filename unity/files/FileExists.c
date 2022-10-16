@@ -35,7 +35,7 @@ unsigned char FileExists(const char* fname)
 	
 	DirList();
 	while (i<fileNum) {
-		if (!strcmp(fname, fileNames[i]))
+		if (!stricmp(fname, fileNames[i]))
 			return 1;
 		i++;
 	}
