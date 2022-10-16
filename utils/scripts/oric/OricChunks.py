@@ -12,7 +12,6 @@ def FileBase(filepath, suffix):
 chunkfile = sys.argv[1]
 outfolder = sys.argv[2]
 dithering = sys.argv[3]
-imgFile = chunkfile[0:-4] + ".png"
 
 # Sub-processes
 if "nt" == os.name:
@@ -32,7 +31,7 @@ for line in lines:
     # Parse source image
     if line[0] == '"':
         path = os.path.dirname(chunkfile)
-        imgfile = path + '/' + line.split('"')[1]
+        imgFile = path + '/' + line.split('"')[1]
         
         # Add black band on left-side
         padFile = outfolder + FileBase(imgFile, "")
