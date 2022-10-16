@@ -63,11 +63,6 @@ void GameInit(void)
 void GameLoop(void)
 {	
 	clock_t playerClock, actorClock;	
-
-	// Restart music playback
-#if (defined __ATARI__) || (defined __LYNX__)
-	PlayMusic();
-#endif	
 	
 	while (1) {
 		// Platform specific
