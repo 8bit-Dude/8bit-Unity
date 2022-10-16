@@ -95,7 +95,11 @@ int main (void)
 	
 	//////////////////////////////
 	// Show connection status
+  #if defined(__NES__)
+	sprintf(buffer, "ID:%u / PASS:%u / SLOT:%i/%i", ID, PASS, easySlot, NUM_SLOTS-1);
+  #else  
 	sprintf(buffer, "Session ID:%u / PASS:%u / SLOT:%i/%i", ID, PASS, easySlot, NUM_SLOTS-1);
+  #endif
 	clrscr(); gotoxy(0,0); cprintf(buffer);
 	
 	//////////////////////////////
