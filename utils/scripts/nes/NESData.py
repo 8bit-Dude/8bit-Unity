@@ -41,7 +41,7 @@ chrList = chrList.split(',') if len(chrList) else []
 musList = musList.split(',') if len(musList) else []
 shrList = shrList.split(',') if len(shrList) else []
 chkList = chkList.split(',') if len(chkList) else []
-fileNum = str(len(bmpList) + len(chrList) + len(mapList) + len(shrList) + len(chkList) + len(musList))
+fileNum = len(bmpList) + len(chrList) + len(mapList) + len(shrList) + len(chkList) + len(musList)
 
 with open(output, "wt") as fp:            
     # Generate assembly file with list of read-only data
@@ -54,7 +54,7 @@ with open(output, "wt") as fp:
             
     # Num and sizes of files
     fp.write('.segment "RODATA"\n')
-    fp.write('_fileNum: .byte ' + fileNum + '\n')  
+    fp.write('_fileNum: .byte ' + str(fileNum) + '\n')  
 
     # List of file names and data
     if fileNum > 0:
