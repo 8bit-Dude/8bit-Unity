@@ -45,6 +45,7 @@ void DirList(void)
 {
 	unsigned char i=0, j;
 	FILE* fp;
+	fileNum = 0;
 	
 	// Open directory file, and parse it
 	fp = fopen("$", "rb");

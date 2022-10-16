@@ -34,14 +34,14 @@
 
 #include "unity.h" 
 
-#define KRILL 0
+//#define KRILL 1
  
 char *ptr1, *ptr2;
  
 unsigned int FileOpen(const char* fname)
 {
 	// Force lower case
- 	ptr1 = (char*)fname;
+	ptr1 = (char*)fname;
 	while (*ptr1 != 0) {
 		if (*ptr1 > 192) 
 			*ptr1 -= 128;
@@ -50,44 +50,39 @@ unsigned int FileOpen(const char* fname)
 		ptr1++;
 	}
 	
-	// Use either Kernal or Krill
-	if (!KRILL) {
-		return !cbm_open(1, 8, 8, fname);
-		//if (!cbm_open(1, 8, 8, fname))
-		//	return cbm_read(1, 0xbefe, 2); 
-		//else
-		//	return 0;
-	} else {
-		ptr1 = (char*)fname;
-		return 1;
-	}
+#if defined(KRILL)			
+	ptr1 = (char*)fname;
+	return 1;
+#else
+	return !cbm_open(1, 8, 8, fname);
+#endif	
 }
 
 signed int FileRead(char* buffer, signed int len)
 {
 	// Use either Kernal or Krill
-	if (!KRILL) {
-		return cbm_read(1, buffer, len); 
-	} else {
-		memcpy(0x17e8, 0x00e8, 24);
-		
-		ptr2 = (char*)buffer;
-		__asm__("lda _ptr2");
-		__asm__("sta $e8");			
-		__asm__("lda _ptr2+1");
-		__asm__("sta $e9");
-		
-		// Read file
-		__asm__("ldx _ptr1");
-		__asm__("ldy _ptr1+1");		
-		__asm__("sec");		
-		__asm__("jsr $be00");
-		__asm__("jsr $be07");	
-		
-		memcpy(0x00e8, 0x17e8, 24);
-		
-		return 1;
-	}
+#if defined(KRILL)			
+	memcpy(0x17e8, 0x00e8, 24);
+	
+	ptr2 = (char*)buffer;
+	__asm__("lda _ptr2");
+	__asm__("sta $e8");			
+	__asm__("lda _ptr2+1");
+	__asm__("sta $e9");
+	
+	// Read file
+	__asm__("ldx _ptr1");
+	__asm__("ldy _ptr1+1");		
+	__asm__("sec");		
+	__asm__("jsr $be00");
+	__asm__("jsr $be07");	
+	
+	memcpy(0x00e8, 0x17e8, 24);
+	
+	return 1;
+#else
+	return cbm_read(1, buffer, len); 
+#endif
 }
 
 /*
@@ -101,7 +96,8 @@ signed int FileWrite(char* buffer, signed int len)
 
 void FileClose()
 {
-	if (!KRILL) {
-		cbm_close(1); 
-	}
+#if defined(KRILL)			
+#else
+	cbm_close(1); 
+#endif
 }
