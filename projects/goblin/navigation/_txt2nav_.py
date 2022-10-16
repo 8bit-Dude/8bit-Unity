@@ -291,6 +291,9 @@ for scene in scenes:
     print "ID:", str(sid), "/ Music:", strings[music][0]
     for i in range(4):
         print "Player", str(i), ":", startx[i], starty[i]
+    print "<< INTERACTS >>"
+    for interact in interacts:
+        print interact
     print "<< TRIGGERS >>"
     for trigger in triggers:
         print trigger

@@ -136,21 +136,20 @@ void DrawUnit(unsigned int x, unsigned int y, unsigned char frame)
 // Menu Screen
 void MainMenu(void)
 {
-	unsigned char textLen, i=0;
+	unsigned char l, i=0;
 
 	// Show banner
 	if (FileExists("menu.img"))
 		LoadBitmap("menu.img");
 	else
 		ClearBitmap();
-	ShowBitmap();
 	
 	// Show credit/build
 	if (FileExists("menu.txt")) {
 		// Load file
 		FileOpen("menu.txt");
-		textLen = FileRead(textBuffer, 64);
-		textBuffer[textLen] = 0;
+		l = FileRead(textBuffer, 64);
+		textBuffer[l] = 0;
 		FileClose();
 		
 		// Display data
@@ -181,6 +180,9 @@ void MainMenu(void)
 		PlayMusic();
 		music = 1;
 	}
+
+	// All loaded-up!
+	ShowBitmap();
 	
 	// Wait until key is pressed
 	while (!kbhit()) {	
