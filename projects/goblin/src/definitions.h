@@ -69,8 +69,8 @@
 
 // Motion parameters
 #if defined __APPLE2__
-  #define unitStep  5
-  #define unitTicks 3
+  #define unitStep  4
+  #define unitTicks 4
 #elif defined __C64__
   #define unitStep  5
   #define unitTicks 4

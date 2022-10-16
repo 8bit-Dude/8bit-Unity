@@ -1,6 +1,6 @@
 # Scene Settings: Scene ID, BG Music, Start position of players (0 means disabled)
 ID: 2
-MUSIC: "goblin.mus"
+MUSIC: "menu.mus"
 STARTX: 20; 0; 0; 0
 STARTY: 170; 0; 0; 0
 
