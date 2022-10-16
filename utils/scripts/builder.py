@@ -78,7 +78,7 @@ cCore = [ 'adaptors/joystick.c', 'adaptors/mouse.c', 'geom/geom2d.c', 'math/dot.
           'bitmap/InitBitmap.c', 'bitmap/ShowBitmap.c', 'bitmap/HideBitmap.c', 'bitmap/ClearBitmap.c',  'bitmap/LoadBitmap.c',
           'charmap/InitCharmap.c','charmap/ShowCharmap.c','charmap/HideCharmap.c', 'charmap/ClearCharmap.c', 'charmap/LoadCharmap.c', 'charmap/LoadCharset.c', 'charmap/LoadTileset.c', 
           'charmap/PrintCharmap.c', 'charmap/DrawCharmap.c', 'charmap/ScrollCharmap.c', 'charmap/DecodeTiles.c', 'charmap/GetFlag.c', 'charmap/GetTile.c', 'charmap/SetTile.c', 'charmap/FreeCharmap.c',
-          'chunks/LoadChunks.c', 'chunks/GetChunk.c', 'chunks/SetChunk.c', 'chunks/FreeChunk.c',
+          'chunks/LoadChunks.c', 'chunks/GetChunk.c', 'chunks/SetChunk.c', 'chunks/FreeChunk.c', 'files/FileExists.c',
           'graphics/logos.c', 'graphics/menu.c', 'graphics/parallax.c', 'graphics/scaling.c', 'graphics/widgets.c', 
           'network/net-base.c', 'network/net-easy.c', 'network/net-ip.c', 'network/net-tcp.c', 'network/net-udp.c', 'network/net-url.c', 'network/net-web.c', 
           'sprites/LoadSprites.c', 'sprites/EnableSprite.c', 'sprites/DisableSprite.c', 'sprites/LocateSprite.c','sprites/SetSprite.c', 'sprites/CropSprite.c', 'sprites/RecolorSprite.c', 'sprites/ScaleSprite.c', 
