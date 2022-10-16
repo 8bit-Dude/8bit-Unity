@@ -10,6 +10,7 @@
             "projects/goblin/src/scene.c"
         ], 
         "shared": [
+            "projects/goblin/menu.txt", 
             "projects/goblin/navigation/ending.nav", 
             "projects/goblin/navigation/scene01.nav", 
             "projects/goblin/navigation/scene02.nav", 
@@ -24,7 +25,7 @@
             "spriteWidth": "7", 
             "spriteHeight": "24", 
             "bitmapDHR": [
-                "projects/goblin/bitmaps/banner-apple.png", 
+                "projects/goblin/bitmaps/menu-apple.png", 
                 "projects/goblin/bitmaps/ending-apple.png", 
                 "projects/goblin/bitmaps/scene01-apple.png", 
                 "projects/goblin/bitmaps/scene02-apple.png", 
@@ -38,7 +39,7 @@
             ], 
             "spritesSHR": [], 
             "music": [
-                "projects/goblin/music/goblin-apple.m"
+                "projects/goblin/music/menu-apple.m"
             ], 
             "chunks": [
                 "projects/goblin/chunks/scene01-apple.txt", 
@@ -58,7 +59,7 @@
             "spriteWidth": "8", 
             "spriteHeight": "26", 
             "bitmap": [
-                "projects/goblin/bitmaps/banner-atari.png", 
+                "projects/goblin/bitmaps/menu-atari.png", 
                 "projects/goblin/bitmaps/ending-atari.png", 
                 "projects/goblin/bitmaps/scene01-atari.png", 
                 "projects/goblin/bitmaps/scene02-atari.png", 
@@ -69,7 +70,7 @@
                 "projects/goblin/sprites/sprites-atari.png"
             ], 
             "music": [
-                "projects/goblin/music/goblin-atari.rmt"
+                "projects/goblin/music/menu-atari.rmt"
             ], 
             "chunks": [
                 "projects/goblin/chunks/scene01-atari.txt", 
@@ -90,7 +91,7 @@
             "spriteWidth": "12", 
             "spriteHeight": "21", 
             "bitmap": [
-                "projects/goblin/bitmaps/banner-c64.png", 
+                "projects/goblin/bitmaps/menu-c64.png", 
                 "projects/goblin/bitmaps/ending-c64.png", 
                 "projects/goblin/bitmaps/scene01-c64.png", 
                 "projects/goblin/bitmaps/scene02-c64.png", 
@@ -102,7 +103,7 @@
                 "projects/goblin/sprites/sprites-c64.png"
             ], 
             "music": [
-                "projects/goblin/music/goblin-c64.sid"
+                "projects/goblin/music/menu-c64.sid"
             ], 
             "chunks": [
                 "projects/goblin/chunks/scene01-c64.txt", 
@@ -122,7 +123,7 @@
             "spriteWidth": "9", 
             "spriteHeight": "13", 
             "bitmap": [
-                "projects/goblin/bitmaps/banner-lynx.png", 
+                "projects/goblin/bitmaps/menu-lynx.png", 
                 "projects/goblin/bitmaps/ending-lynx.png", 
                 "projects/goblin/bitmaps/scene01-lynx.png", 
                 "projects/goblin/bitmaps/scene02-lynx.png", 
@@ -133,7 +134,7 @@
                 "projects/goblin/sprites/sprites-lynx.png"
             ], 
             "music": [
-                "projects/goblin/music/goblin-lynx.asm"
+                "projects/goblin/music/menu-lynx.asm"
             ], 
             "chunks": [
                 "projects/goblin/chunks/scene01-lynx.txt", 
@@ -151,7 +152,7 @@
             "spriteWidth": "16", 
             "spriteHeight": "16", 
             "bitmap": [
-                "projects/goblin/bitmaps/banner-nes.png", 
+                "projects/goblin/bitmaps/menu-nes.png", 
                 "projects/goblin/bitmaps/ending-nes.png", 
                 "projects/goblin/bitmaps/scene01-nes.png", 
                 "projects/goblin/bitmaps/scene02-nes.png", 
@@ -162,7 +163,7 @@
                 "projects/goblin/sprites/sprites-nes.png"
             ], 
             "music": [
-                "projects/goblin/music/goblin-nes.txt"
+                "projects/goblin/music/menu-nes.txt"
             ], 
             "chunks": [
                 "projects/goblin/chunks/scene01-nes.txt", 
@@ -178,7 +179,7 @@
             "dithering": "0.2", 
             "leadColors": " ", 
             "bitmap": [
-                "projects/goblin/bitmaps/banner-oric.png", 
+                "projects/goblin/bitmaps/menu-oric.png", 
                 "projects/goblin/bitmaps/ending-oric.png", 
                 "projects/goblin/bitmaps/scene01-oric.png", 
                 "projects/goblin/bitmaps/scene02-oric.png", 
@@ -189,7 +190,7 @@
                 "projects/goblin/sprites/sprites-oric.png"
             ], 
             "music": [
-                "projects/goblin/music/goblin-oric.ym"
+                "projects/goblin/music/menu-oric.ym"
             ], 
             "chunks": [
                 "projects/goblin/chunks/scene01-oric.txt", 

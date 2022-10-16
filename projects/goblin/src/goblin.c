@@ -313,7 +313,7 @@ int main(void)
 #endif
 	
 	// Show splash screen
-	SplashScreen();
+	MainMenu();
 
 	// Load first scene
 	LoadScene("scene01");

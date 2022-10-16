@@ -127,33 +127,61 @@ void DrawUnit(unsigned int x, unsigned int y, unsigned char frame)
 #endif
 }
 
-// Introduction Screen
-void SplashScreen(void)
+#if (defined __LYNX__)
+	unsigned char* textBuffer = SHAREDRAM;
+#else
+	unsigned char textBuffer[64];
+#endif
+
+// Menu Screen
+void MainMenu(void)
 {
-	// Load and show banner
-	LoadBitmap("banner.img");
+	unsigned char textLen, i=0;
+
+	// Show banner
+	if (FileExists("menu.img"))
+		LoadBitmap("menu.img");
+	else
+		ClearBitmap();
 	ShowBitmap();
 	
 	// Show credit/build
-	txtX = TXT_COLS-12; txtY = TXT_ROWS-4;
-#if defined(__ORIC__)
-	inkColor = AIC;
-#elif defined(__NES__)
-	inkColor = INK_DEFAULT; 
-#else		
-	pixelX = 0; pixelY = 0;
-	paperColor = GetPixel(); 
-	inkColor = INK_DEFAULT; 
-#endif
-	PrintStr(" TECH DEMO  "); txtY++;
-	PrintStr("BY 8BIT-DUDE"); txtY++;
-	PrintStr(" 2022/10/12 ");
-	
-	// Play title music
-	LoadMusic("goblin.mus");	
-	PlayMusic();
-	music = 1;
+	if (FileExists("menu.txt")) {
+		// Load file
+		FileOpen("menu.txt");
+		textLen = FileRead(textBuffer, 64);
+		textBuffer[textLen] = 0;
+		FileClose();
+		
+		// Display data
+		txtX = TXT_COLS-12; txtY = TXT_ROWS-4;
+	#if defined(__ORIC__)
+		inkColor = AIC;
+	#elif defined(__NES__)
+		inkColor = INK_DEFAULT; 
+	#else		
+		pixelX = 0; pixelY = 0;
+		paperColor = GetPixel(); 
+		inkColor = INK_DEFAULT; 
+	#endif
+		while (textBuffer[i]) {
+			if (textBuffer[i] == 10) {
+				txtX = TXT_COLS-12; txtY++;
+		    } else
+			if (textBuffer[i] != 13) {	
+				PrintChr(textBuffer[i]); txtX++;
+			}
+			i++;
+		}
+	}
 
+	// Play title music
+	if (FileExists("menu.mus")) {
+		LoadMusic("menu.mus");	
+		PlayMusic();
+		music = 1;
+	}
+	
 	// Wait until key is pressed
 	while (!kbhit()) {	
 	#if defined __APPLE2__

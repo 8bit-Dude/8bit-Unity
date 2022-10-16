@@ -306,28 +306,30 @@ for scene in scenes:
         
 	#############################
 	# Write image for debugging
-    im = Image.open("../bitmaps/" + scene + ".png")
-    draw = ImageDraw.Draw(im)
-    
-    # Draw motion polygon
-    for i in range(0,len(polygon[0])):
-        if i < (len(polygon[0])-1):
-            draw.line([(polygon[0][i],polygon[1][i]),(polygon[0][i+1],polygon[1][i+1])], (0,255,0))
-        else:
-            draw.line([(polygon[0][i],polygon[1][i]),(polygon[0][0],polygon[1][0])], (0,255,0))
+    try:
+        im = Image.open("../bitmaps/" + scene + ".png")
+        draw = ImageDraw.Draw(im)
+        
+        # Draw motion polygon
+        for i in range(0,len(polygon[0])):
+            if i < (len(polygon[0])-1):
+                draw.line([(polygon[0][i],polygon[1][i]),(polygon[0][i+1],polygon[1][i+1])], (0,255,0))
+            else:
+                draw.line([(polygon[0][i],polygon[1][i]),(polygon[0][0],polygon[1][0])], (0,255,0))
+                
+        # Draw interacts
+        for interact in interacts:
+            # Area of interact
+            draw.arc([interact[1]-interact[3], interact[2]-interact[3], interact[1]+interact[3], interact[2]+interact[3]], 0, 360, (0,0,255)) 
             
-    # Draw interacts
-    for interact in interacts:
-        # Area of interact
-        draw.arc([interact[1]-interact[3], interact[2]-interact[3], interact[1]+interact[3], interact[2]+interact[3]], 0, 360, (0,0,255)) 
-        
-        # Move target
-        draw.line([(interact[4]-3,interact[5]-3),(interact[4]+3,interact[5]+3)], (0,0,255))
-        draw.line([(interact[4]+3,interact[5]-3),(interact[4]-3,interact[5]+3)], (0,0,255))
+            # Move target
+            draw.line([(interact[4]-3,interact[5]-3),(interact[4]+3,interact[5]+3)], (0,0,255))
+            draw.line([(interact[4]+3,interact[5]-3),(interact[4]-3,interact[5]+3)], (0,0,255))
 
-    # Draw paths
-    for path in paths:
-        draw.arc([path[0]-5, path[1]-5, path[0]+5, path[1]+5], 0, 360, (255,0,0))
-        
-    im.save(scene + ".png", "PNG")   
-    
+        # Draw paths
+        for path in paths:
+            draw.arc([path[0]-5, path[1]-5, path[0]+5, path[1]+5], 0, 360, (255,0,0))
+            
+        im.save(scene + ".png", "PNG")   
+    except:
+        pass

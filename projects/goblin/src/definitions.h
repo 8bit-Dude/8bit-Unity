@@ -124,7 +124,7 @@ void PrintMessage(unsigned int message);
 void PrintInventory(void);
 void DrawPointer(unsigned int x, unsigned int y, unsigned char pressed);
 void DrawUnit(unsigned int x, unsigned int y, unsigned char frame);
-void SplashScreen(void);
+void MainMenu(void);
 
 // See inventory.c
 void PushItem(unsigned int label);
