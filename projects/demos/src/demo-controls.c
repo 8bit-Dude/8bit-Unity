@@ -72,7 +72,9 @@ int DemoControls(void)
 			if (joy & JOY_BTN2)  state[10] = 'B';
 			gotoxy (19, 6+2*i); cprintf(state);
 		}
-	#if defined(__LYNX__) || defined(__NES__)
+	#if defined(__APPLE2__)
+		clk += 1;  // Manually update clock on Apple 2
+	#elif defined(__LYNX__) || defined(__NES__)
 		UpdateDisplay(); // Manually refresh Display
 	#endif
 	}

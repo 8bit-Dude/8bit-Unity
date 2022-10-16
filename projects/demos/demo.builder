@@ -51,7 +51,6 @@
             "crunchAssets": "No", 
             "musicMemory": "auto", 
             "chunkMemory": "$0400", 
-            "assetFilter": "*", 
             "network8bitHub": true, 
             "networkUthernet": true, 
             "networkProtocols": "TCP/UDP"
@@ -78,7 +77,6 @@
             "crunchAssets": "No", 
             "musicMemory": "$0800", 
             "chunkMemory": "$0900", 
-            "assetFilter": "*", 
             "network8bitHub": true, 
             "networkDragonCart": true, 
             "networkFujinet": true, 
@@ -106,7 +104,6 @@
             "crunchAssets": "No", 
             "musicMemory": "$4000", 
             "chunkMemory": "$0800", 
-            "assetFilter": "*", 
             "network8bitHub": true, 
             "networkRRNet": true, 
             "networkUltimate": true, 
@@ -133,7 +130,7 @@
             "musicMemory": "$0800", 
             "chunkMemory": "$0400", 
             "sharedMemory": "$0000", 
-            "assetFilter": "*"
+            "virtualKeyboard": true
         }, 
         "NES": {
             "bitmapTiles": "160", 
@@ -155,8 +152,7 @@
             ], 
             "chunks": [], 
             "musicMemory": "$4000", 
-            "chunkMemory": "$0200", 
-            "assetFilter": "*"
+            "chunkMemory": "$0200"
         }, 
         "Oric": {
             "spriteFrames": "16", 
@@ -179,8 +175,7 @@
             ], 
             "chunks": [], 
             "musicMemory": "auto", 
-            "chunkMemory": "$0500", 
-            "assetFilter": "*"
+            "chunkMemory": "$0500"
         }
     }
 }

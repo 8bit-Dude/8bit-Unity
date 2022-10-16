@@ -37,9 +37,9 @@ int DemoHello(void)
 	helloCol = (xSize - strlen(helloMsg))/2;
 	versionCol = (xSize - strlen(versionMsg))/2;
 	nextCol  = (xSize - strlen(nextMsg))/2;
-    gotoxy(helloCol, ySize/2-2);   cprintf(helloMsg);
+    gotoxy(helloCol, ySize/2-2); cprintf(helloMsg);
     gotoxy(versionCol, ySize/2); cprintf(versionMsg);
-    gotoxy(nextCol,  ySize/2+2);   cprintf(nextMsg);
+    gotoxy(nextCol,  ySize/2+2); cprintf(nextMsg);
 	
 	// Play music until keyboard is pressed
 	LoadMusic("demo.mus");
