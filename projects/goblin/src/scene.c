@@ -134,6 +134,38 @@ void ProcessPath(unsigned char index)
 	}
 }
 
+// Record game actions
+void RecordAction(unsigned char index)
+{
+	gameActions[actionLast++] = sceneID;
+	gameActions[actionLast++] = index;	
+}
+
+// Replay game actions
+void ReplayActions(void)
+{
+	unsigned char a, i;
+	Interact* interact;
+		
+	for (i=0; i<actionLast; i+=2) {
+		if (gameActions[i] == sceneID) {
+			a = gameActions[i+1];
+			if (a & 128) {
+				// Chunk
+				DrawChunk(a-128);
+			} else
+			if (a & 64) {
+				// Picked item
+				interact = &interacts[a-64];
+				interact->flags = DISABLED;				
+			} else {
+				// Modifier
+				ProcessModifier(a);
+			}
+		}
+	}	
+}
+
 // Process interactable object
 unsigned char *ProcessInteract(unsigned char target, unsigned char item)
 {
@@ -176,16 +208,19 @@ unsigned char *ProcessInteract(unsigned char target, unsigned char item)
 				if (trigger->convert)
 					ConvertItem(item, trigger->convert);
 				else
-					PopItem(item);					
+					PopItem(item);
 				
 				// Check if modifier is triggered?
 				modifID = trigger->modifier;
 				if (modifID != 255) {
 					ProcessModifier(modifID);
-					gameActions[actionLast++] = sceneID;
-					gameActions[actionLast++] = modifID;				
+					RecordAction(modifID);
 				}
-		
+				
+				// Was chunk applied permanently?
+				if (trigger->chk != 255 && trigger->bcg == 255)
+					RecordAction(trigger->chk + 128);
+
 				break;
 			}
 		}
@@ -236,9 +271,12 @@ unsigned char *ProcessInteract(unsigned char target, unsigned char item)
 		if (interact->flags & PICKABLE) {
 			PushItem(interact->label);
 			interact->flags = DISABLED;
-			gameActions[actionLast++] = sceneID;
-			gameActions[actionLast++] = target + 64;				
+			RecordAction(target + 64);				
 		}	
+		
+		// Was chunk applied permanently?
+		if (interact->chk != 255 && interact->bcg == 255)
+			RecordAction(interact->chk + 128);					
 	}
 		
 	// Clean-up
@@ -254,8 +292,7 @@ unsigned char *ProcessInteract(unsigned char target, unsigned char item)
 void LoadScene(unsigned char* scene)
 {	
 	unsigned char fname[13];
-	unsigned char a, i, l, *coords;
-	Interact* interact;
+	unsigned char i, l, *coords;
 
 	// Disable sprites/bitmap/music
 	DisableSprite(-1);
@@ -294,22 +331,8 @@ void LoadScene(unsigned char* scene)
 	
 	// Check if game ended?
 	if (sceneID) {
-		// Update game state
-		for (i=0; i<actionLast; i+=2) {
-			if (gameActions[i] == sceneID) {
-				a = gameActions[i+1];
-				if (a & 64) {
-					// Pickable item
-					interact = &interacts[a-64];
-					if (interact->chk != 255)
-						DrawChunk(interact->chk);
-					interact->flags = DISABLED;				
-				} else {
-					// Modifier
-					ProcessModifier(a);
-				}
-			}
-		}
+		// Refresh game state
+		ReplayActions();
 		
 		// Assign ink/paper colors
 		paperColor = PAPER_DEFAULT;
