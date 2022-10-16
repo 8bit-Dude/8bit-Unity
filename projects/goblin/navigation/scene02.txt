@@ -44,14 +44,16 @@ I: "Ladder";     286;  51; 20; 270; 110;  ACTIVE;   255;  255;  8;   255;  			  
 I: "To Village";  10; 170; 20;  10; 170; LOADSCENE; 255;  255;  2;   255;  						 "scene01"; 							    ""
 
 # Triggers (see MAX_TRIGGER)
-# When the specified item is given to the target, the modifier is triggered
-#    Item	   Target   Modifier CHK   BGG   							Answer
-T:  "Ball";  "Ladder";     0;     2;   255;                   "Let's throw the ball"	
+# When the item is applied to the target: it is converted or used-up and/or the modifier is applied to the target
+#    Item	   Target     Convert   Modifier CHK   BGG   	 		Answer
+T:  "Bottle"; "Fountain"; "Water";   255;     1;    1;      "Let's top it up!"
+T:  "Water";  "Fountain"; "Water";   255;    255;  255;     "It's already full..."
+T:  "Ball";   "Ladder";      "";       0;     2;   255;     "Nice shot!!!"	
 
 # Modifiers (see MAX_MODIFIER) 
 # This interact gets updated with new parameters
-#   Interact      Flags    CHK   BCG   Path   		     Question   			 		           Answer
-M: "Ladder";     ACTIVE;  255;   255;  255;  "I will try to climb later";  ""
+#   Interact      Flags     CHK   BCG   Path   		   Question   			      Answer
+M: "Ladder";     ACTIVE;    255;  255;  255;  "I will try to climb later";  ""
 
 # Paths (see MAX_PATH)
 # Series of player animation paths (255 terminates a series)

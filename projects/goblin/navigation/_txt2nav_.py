@@ -57,7 +57,7 @@ for scene in scenes:
     startx = [0,0,0,0]
     starty = [0,0,0,0]
     definitions = {}
-    polygon = []
+    polygon = [[],[]]
     interacts = []
     triggers = []
     modifiers = []
@@ -100,7 +100,10 @@ for scene in scenes:
             coords = line[2:-1].split(';')
             for i in range (0,len(coords)):
                 coords[i] = int(coords[i])
-            polygon.append(coords)
+            if 'X:' in line:
+                polygon[0] = coords
+            if 'Y:' in line:
+                polygon[1] = coords
             continue
             
         if 'I:' in line:
@@ -133,11 +136,11 @@ for scene in scenes:
             trigger = line[2:-1].split(';')
             
             # Decode modifier/chunks
-            for i in [2,3,4]:
+            for i in [3,4,5]:
                 trigger[i] = int(trigger[i])
 
             # Clean strings
-            for i in [0,1,5]:
+            for i in [0,1,2,6]:
                 string = re.findall(r'"([^"]*)"', trigger[i])
                 trigger[i] = append(string[0] + '\0')
             triggers.append(trigger)
@@ -153,6 +156,8 @@ for scene in scenes:
                 flags |= ACTIVE
             if "PICKABLE" in modifier[1]:
                 flags |= PICKABLE
+            if "LOADSCENE" in modifier[1]:
+                flags |= LOADSCENE                
             modifier[1] = flags                
             
             # Decode Chunks/Path
@@ -201,12 +206,12 @@ for scene in scenes:
         if i<len(polygon[0]):
             f2.write(struct.pack('h', polygon[0][i])) # X
         else:
-            f2.write('  ')
+            f2.write(struct.pack('H', 0))
     for i in range(definitions['MAX_POLYGON']):
         if i<len(polygon[1]):
             f2.write(struct.pack('h', polygon[1][i])) # Y
         else:
-            f2.write('  ')
+            f2.write(struct.pack('H', 0))
                         
     # Interacts
     for i in range(definitions['MAX_INTERACT']):
@@ -226,7 +231,8 @@ for scene in scenes:
             f2.write(struct.pack('H', interact[11])) # Question
             f2.write(struct.pack('H', interact[12])) # Answer
         else:
-            f2.write('                     ')
+            for i in range(21):
+                f2.write(struct.pack('B', 0))
     
     # Triggers
     for i in range(definitions['MAX_TRIGGER']):
@@ -234,12 +240,14 @@ for scene in scenes:
             trigger = triggers[i]
             f2.write(struct.pack('H', trigger[0]))   # Item
             f2.write(struct.pack('H', trigger[1]))   # Target
-            f2.write(struct.pack('B', trigger[2]))   # Modifier
-            f2.write(struct.pack('B', trigger[3]))   # CHK
-            f2.write(struct.pack('B', trigger[4]))   # BCG
-            f2.write(struct.pack('H', trigger[5]))   # Answer
+            f2.write(struct.pack('H', trigger[2]))   # convert
+            f2.write(struct.pack('B', trigger[3]))   # Modifier
+            f2.write(struct.pack('B', trigger[4]))   # CHK
+            f2.write(struct.pack('B', trigger[5]))   # BCG
+            f2.write(struct.pack('H', trigger[6]))   # Answer
         else:
-            f2.write('         ')
+            for i in range(11):
+                f2.write(struct.pack('B', 0))
 
     # Modifiers
     for i in range(definitions['MAX_MODIFIER']):
@@ -253,7 +261,8 @@ for scene in scenes:
             f2.write(struct.pack('H', modifier[5]))  # Question
             f2.write(struct.pack('H', modifier[6]))  # Answer
         else:
-            f2.write('          ')
+            for i in range(10):
+                f2.write(struct.pack('B', 0))
             
     # Paths
     for i in range(definitions['MAX_PATH']):
@@ -265,7 +274,8 @@ for scene in scenes:
             f2.write(struct.pack('B', path[3]))   # Frame   
             f2.write(struct.pack('B', path[4]))   # Next Path  
         else:
-            f2.write('       ')
+            for i in range(7):
+                f2.write(struct.pack('B', 0))
         
     # Text
     for string in strings:

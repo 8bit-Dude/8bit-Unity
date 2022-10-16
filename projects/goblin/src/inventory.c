@@ -35,6 +35,13 @@ void PopItem(unsigned char index)
 	PrintInventory();
 }
 
+void ConvertItem(unsigned char index, unsigned int label)
+{
+	// Convert the name of this item
+	memcpy(&gameItems[index*LEN_ITEM], &strings[label], LEN_ITEM);
+	PrintInventory();
+}
+
 unsigned char SelectItem(unsigned int x, unsigned int y)
 {
 	unsigned char i=0;

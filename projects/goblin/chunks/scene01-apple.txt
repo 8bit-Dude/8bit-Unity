@@ -5,7 +5,7 @@
 #
 #							X/W						Y/H
 #	Apple//e		0 to 140 in steps of 7	| 0 to 192 in steps of 1
-#	Atari XL/XE		0 to 160 in steps of 4	| 0 to 200 in steps of 1
+#	Atari XL/XE		0 to 160 in steps of 4	| 0 to 200 in steps of 2
 #	C64				0 to 160 in steps of 4	| 0 to 200 in steps of 8
 #	Atari Lynx		0 to 160 in steps of 2	| 0 to 102 in steps of 1
 #	NES/Famicom		0 to  32 in steps of 1	| 0 to  24 in steps of 1

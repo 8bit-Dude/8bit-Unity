@@ -40,7 +40,7 @@ unsigned char *chunkBckg[MAX_CHUNK];
 	  
 // See goblin.c	  
 extern unsigned char numWay, waitFrame;
-extern unsigned int unitX, unitY;
+extern unsigned int mouseX, mouseY, unitX, unitY;
 	  
 // Draw chunk to screen
 void DrawChunk(unsigned char id)
@@ -76,7 +76,7 @@ unsigned char SearchScene(unsigned int searchX, unsigned int searchY)
 	unsigned char i;
 	signed int deltaX, deltaY, radius;
 	Interact* interact;
-	for (i=0; i<MAX_INTERACT; i++) {
+	for (i=0; i<num_interacts; i++) {
 		interact = &interacts[i];
 		if (!interact->flags) continue;
 		deltaX = (searchX - interact->x)/2;
@@ -157,15 +157,6 @@ unsigned char *ProcessInteract(unsigned char target, unsigned char item)
 			if ( interact->label == trigger->label && 
 			    !strcmp(&gameItems[item*LEN_ITEM], &strings[trigger->item]) ) 
 			{	
-				// Check if modifier is triggered?
-				modifID = trigger->modifier;
-				if (modifID != 255) {
-					ProcessModifier(modifID);
-					gameActions[actionLast++] = sceneID;
-					gameActions[actionLast++] = modifID;				
-					PopItem(item);					
-				}
-		
 				// Display chunk (if any)
 				if (trigger->chk != 255)
 					DrawChunk(trigger->chk);
@@ -180,7 +171,21 @@ unsigned char *ProcessInteract(unsigned char target, unsigned char item)
 				// Restore background (if any)
 				if (trigger->bcg != 255)
 					DrawBackg(trigger->bcg);
+							
+				// Check if item is converted?
+				if (trigger->convert)
+					ConvertItem(item, trigger->convert);
+				else
+					PopItem(item);					
 				
+				// Check if modifier is triggered?
+				modifID = trigger->modifier;
+				if (modifID != 255) {
+					ProcessModifier(modifID);
+					gameActions[actionLast++] = sceneID;
+					gameActions[actionLast++] = modifID;				
+				}
+		
 				break;
 			}
 		}
@@ -283,41 +288,43 @@ void LoadScene(unsigned char* scene)
 		FileClose();
 	}
 	
-	// Update game state
-	for (i=0; i<actionLast; i+=2) {
-		if (gameActions[i] == sceneID) {
-			a = gameActions[i+1];
-			if (a & 64) {
-				// Pickable item
-				interact = &interacts[a-64];
-				if (interact->chk != 255)
-					DrawChunk(interact->chk);
-				interact->flags = DISABLED;				
-			} else {
-				// Modifier
-				ProcessModifier(a);
+	// Reset mouse/player position
+	unitX = startx[0]; unitY = starty[0];
+	numWay = 0;	
+	
+	// Check if game ended?
+	if (sceneID) {
+		// Update game state
+		for (i=0; i<actionLast; i+=2) {
+			if (gameActions[i] == sceneID) {
+				a = gameActions[i+1];
+				if (a & 64) {
+					// Pickable item
+					interact = &interacts[a-64];
+					if (interact->chk != 255)
+						DrawChunk(interact->chk);
+					interact->flags = DISABLED;				
+				} else {
+					// Modifier
+					ProcessModifier(a);
+				}
 			}
 		}
+		
+		// Assign ink/paper colors
+		paperColor = PAPER_DEFAULT;
+		inkColor = INK_DEFAULT;
+	#if defined(__ORIC__)
+		txtY = TXT_ROWS-2;
+		SetAttributes(paperColor); txtY++;
+		SetAttributes(paperColor); txtY--;
+		txtX = 0; PrintBlanks(TXT_COLS, 2);	
+	#endif
+
+		// Display inventory
+		PrintInventory();
 	}
 	
-	// Assign ink/paper colors
-	paperColor = PAPER_DEFAULT;
-	inkColor = INK_DEFAULT;
-#if defined(__ORIC__)
-	txtY = TXT_ROWS-2;
-	SetAttributes(paperColor); txtY++;
-	SetAttributes(paperColor); txtY--;
-	txtX = 0; PrintBlanks(TXT_COLS, 2);	
-#endif
-
-	// Display inventory
-	PrintInventory();
-
-	// Update player position
-	unitX = startx[0]; 
-	unitY = starty[0];
-	numWay = 0;
-
 	// Enable music & bitmap
  	if (music) {
 		LoadMusic(&strings[music]);

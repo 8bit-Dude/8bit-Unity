@@ -39,8 +39,8 @@
 #elif defined __ATARI__		
 	#define MSG_WIDTH	  TXT_COLS-8
 	#define INK_DEFAULT		BLACK
-	#define INK_GOBLIN		GREEN
-	#define INK_INTERACT	BLUE
+	#define INK_GOBLIN		BLACK
+	#define INK_INTERACT	BLACK
 	#define INK_INVENTORY	BLACK	
 	#define PAPER_DEFAULT   RED
 #elif defined __LYNX__
@@ -100,7 +100,7 @@ typedef struct {
 
 // Action Triggers 
 typedef struct {
-	unsigned int  item, label;				// Source and target of trigger (Strings)
+	unsigned int  item, label, convert;		// Source and target of trigger (Strings)
 	unsigned char modifier, chk, bcg;		// Modifier IDs
 	unsigned int  answer;					// Strings
 } Trigger;
@@ -129,6 +129,7 @@ void SplashScreen(void);
 // See inventory.c
 void PushItem(unsigned int label);
 void PopItem(unsigned char index);
+void ConvertItem(unsigned char index, unsigned int label);
 unsigned char SelectItem(unsigned int x, unsigned int y);
 
 // See scene.c

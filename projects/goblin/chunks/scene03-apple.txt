@@ -5,15 +5,20 @@
 #
 #							X/W						Y/H
 #	Apple//e		0 to 140 in steps of 7	| 0 to 192 in steps of 1
-#	Atari XL/XE		0 to 160 in steps of 4	| 0 to 200 in steps of 1
+#	Atari XL/XE		0 to 160 in steps of 4	| 0 to 200 in steps of 2
 #	C64				0 to 160 in steps of 4	| 0 to 200 in steps of 8
 #	Atari Lynx		0 to 160 in steps of 2	| 0 to 102 in steps of 1
 #	NES/Famicom		0 to  32 in steps of 1	| 0 to  24 in steps of 1
 #	Oric 1/Atmos	0 to 234 in steps of 6	| 0 to 200 in steps of 2
 #
 
-"scene03a-atari.png"	# Source image
+"scene03a-apple.png"	# Source image
 
-[116,167,  4, 10]	# Egg
-[ 24, 82,  8, 20]	# Dog
-[ 12, 20,  8,  8]	# Giant
+[ 98,161,  7,  9]	# Egg
+[ 21, 80,  7, 20]	# Dog 1
+[ 14, 18, 35, 53]	# Giant 1
+
+"scene03b-apple.png"	# Source image
+
+[ 21, 80,  7, 20]	# Dog 2
+[ 14, 12, 21, 28]	# Giant 2

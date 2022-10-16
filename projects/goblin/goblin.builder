@@ -10,6 +10,7 @@
             "projects/goblin/src/scene.c"
         ], 
         "shared": [
+            "projects/goblin/navigation/ending.nav", 
             "projects/goblin/navigation/scene01.nav", 
             "projects/goblin/navigation/scene02.nav", 
             "projects/goblin/navigation/scene03.nav"
@@ -24,6 +25,7 @@
             "spriteHeight": "24", 
             "bitmapDHR": [
                 "projects/goblin/bitmaps/banner-apple.png", 
+                "projects/goblin/bitmaps/ending-apple.png", 
                 "projects/goblin/bitmaps/scene01-apple.png", 
                 "projects/goblin/bitmaps/scene02-apple.png", 
                 "projects/goblin/bitmaps/scene03-apple.png"
@@ -40,12 +42,13 @@
             ], 
             "chunks": [
                 "projects/goblin/chunks/scene01-apple.txt", 
-                "projects/goblin/chunks/scene02-apple.txt"
+                "projects/goblin/chunks/scene02-apple.txt", 
+                "projects/goblin/chunks/scene03-apple.txt"
             ], 
             "diskSize": "140KB", 
             "crunchAssets": "No", 
             "musicMemory": "auto", 
-            "chunkMemory": "$0500", 
+            "chunkMemory": "$0800", 
             "network8bitHub": false, 
             "networkUthernet": false, 
             "networkProtocols": "TCP/UDP"
@@ -56,6 +59,7 @@
             "spriteHeight": "26", 
             "bitmap": [
                 "projects/goblin/bitmaps/banner-atari.png", 
+                "projects/goblin/bitmaps/ending-atari.png", 
                 "projects/goblin/bitmaps/scene01-atari.png", 
                 "projects/goblin/bitmaps/scene02-atari.png", 
                 "projects/goblin/bitmaps/scene03-atari.png"
@@ -75,7 +79,7 @@
             "diskSize": "180KB", 
             "crunchAssets": "No", 
             "musicMemory": "$0800", 
-            "chunkMemory": "$0900", 
+            "chunkMemory": "$0C00", 
             "network8bitHub": false, 
             "networkDragonCart": false, 
             "networkFujinet": false, 
@@ -87,6 +91,7 @@
             "spriteHeight": "21", 
             "bitmap": [
                 "projects/goblin/bitmaps/banner-c64.png", 
+                "projects/goblin/bitmaps/ending-c64.png", 
                 "projects/goblin/bitmaps/scene01-c64.png", 
                 "projects/goblin/bitmaps/scene02-c64.png", 
                 "projects/goblin/bitmaps/scene03-c64.png"
@@ -101,11 +106,12 @@
             ], 
             "chunks": [
                 "projects/goblin/chunks/scene01-c64.txt", 
-                "projects/goblin/chunks/scene02-c64.txt"
+                "projects/goblin/chunks/scene02-c64.txt", 
+                "projects/goblin/chunks/scene03-c64.txt"
             ], 
             "crunchAssets": "No", 
             "musicMemory": "$4000", 
-            "chunkMemory": "$0800", 
+            "chunkMemory": "$1000", 
             "network8bitHub": false, 
             "networkRRNet": false, 
             "networkUltimate": false, 
@@ -117,6 +123,7 @@
             "spriteHeight": "13", 
             "bitmap": [
                 "projects/goblin/bitmaps/banner-lynx.png", 
+                "projects/goblin/bitmaps/ending-lynx.png", 
                 "projects/goblin/bitmaps/scene01-lynx.png", 
                 "projects/goblin/bitmaps/scene02-lynx.png", 
                 "projects/goblin/bitmaps/scene03-lynx.png"
@@ -145,6 +152,7 @@
             "spriteHeight": "16", 
             "bitmap": [
                 "projects/goblin/bitmaps/banner-nes.png", 
+                "projects/goblin/bitmaps/ending-nes.png", 
                 "projects/goblin/bitmaps/scene01-nes.png", 
                 "projects/goblin/bitmaps/scene02-nes.png", 
                 "projects/goblin/bitmaps/scene03-nes.png"
@@ -171,6 +179,7 @@
             "leadColors": " ", 
             "bitmap": [
                 "projects/goblin/bitmaps/banner-oric.png", 
+                "projects/goblin/bitmaps/ending-oric.png", 
                 "projects/goblin/bitmaps/scene01-oric.png", 
                 "projects/goblin/bitmaps/scene02-oric.png", 
                 "projects/goblin/bitmaps/scene03-oric.png"
@@ -184,10 +193,11 @@
             ], 
             "chunks": [
                 "projects/goblin/chunks/scene01-oric.txt", 
-                "projects/goblin/chunks/scene02-oric.txt"
+                "projects/goblin/chunks/scene02-oric.txt", 
+                "projects/goblin/chunks/scene03-oric.txt"
             ], 
             "musicMemory": "auto", 
-            "chunkMemory": "$0600"
+            "chunkMemory": "$0800"
         }
     }
 }

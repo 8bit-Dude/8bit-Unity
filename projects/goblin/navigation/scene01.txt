@@ -42,26 +42,23 @@ Y: 138; 162; 169; 150; 145; 129; 125; 111; 109; 99; 95; 101;  85;  64;  61;  81;
 I: "Notable";      54;  82;  14;  90;  95;  ACTIVE;   255;  255;    2;  255;  "Dear sir, you look powerful.\nPlease help me with my quest?"; "Go away, I am busy!"
 I: "Old Men";     222;  68;  15; 194;  86;  ACTIVE;     1;    1;    8;  255;  "Hey villagers, do you know\nthe house of lord Tazaar?"; 	  	 "Go right to the fountain."
 I: "Bottle";      260;  71;   8; 240;  94; PICKABLE;    2;  255;    8;  255;  ""; 														  	 ""
-I: "Flower";      230; 136;  10; 208; 141; PICKABLE;  255;  255;    8;  255;  ""; 														  	 ""
+I: "Flower";      230; 136;  10; 208; 141;  ACTIVE;   255;  255;    8;  255;  "It looks dry..."; 														  	 ""
 I: "Sausage";      69;  61;   8;  94;  94;  ACTIVE;     0;    0;    2;    0;  ""; 														  	 "Hey, don't touch that!"
 I: "Switch";       31;  79;   6;  18; 101;  ACTIVE;     4;    4;    8;    2;  ""; 														  	 "Boing! Boing!"							    
 I: "To Fountain"; 310; 160;  30; 310; 170; LOADSCENE; 255;  255;    8;  255;  "scene02"; 												     ""
 I: "To Hill";     111;  53;  15; 117;  65; LOADSCENE; 255;  255;    2;  255;  "scene03"; 												     ""
 
 # Triggers (see MAX_TRIGGER)
-# When the specified item is given to the target, the modifier is triggered
-#    Item	    Target   Modifier CHK   BGG   							Answer
-T: "Bottle";  "Old Men";   255;	    1;    1;  "No, thank you..."
-T: "Bottle";  "Notable";   255;	  255;  255;  "No, thank you..."	
-T: "Flower";  "Notable";     0;   255;  255;  "How beautiful!!\nWould you like some sausage?"	
-T: "Flower";  "Old Men";   255;	    1;    1;  "No, thank you..."
-T: "Sausage"; "Old Men";   255;	    1;    1;  "No, thank you..."
-T: "Sausage"; "Notable";   255;	    1;    1;  "No, thank you..."
+# When the item is applied to the target: it is converted or used-up and/or the modifier is applied to the target
+#    Item	   Target    Convert  Modifier  CHK   BGG   	  Answer
+T: "Water";   "Flower";  "Bottle"; 	  0;    255;  255;  "That should help..."
+T: "Flower";  "Notable";   "";   	  1;    255;  255;  "How beautiful!!\nWould you like some sausage?"	
 
 # Modifiers (see MAX_MODIFIER) 
 # This interact gets updated with new parameters
-#   Interact         Flags    CHK   BCG   Path   		     Question   			 	  Answer
-M: "Sausage";      PICKABLE;    3;  255;  255;  "This sausage is very hard...";  			""
+#   Interact         Flags     CHK   BCG   Path   		   Question   			      Answer
+M: "Flower";       PICKABLE;   255;  255;  255;  "It looks much better now!";  			""
+M: "Sausage";      PICKABLE;    3;   255;  255;  "This sausage is very hard...";  	    ""
 
 # Paths (see MAX_PATH)
 # Series of player animation paths (255 terminates a series)

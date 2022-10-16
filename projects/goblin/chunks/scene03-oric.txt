@@ -12,8 +12,13 @@
 #	Oric 1/Atmos	0 to 234 in steps of 6	| 0 to 200 in steps of 2
 #
 
-"scene02-c64.png"	# Source image
+"scene03a-oric.png"	# Source image
 
-[104,144, 24, 32]	# Ball animation 1
-[116,120,  8, 24]	# Fountain animation 1
-[136, 48, 12, 48]	# Ladder animation
+[168,168,  8,  8]	# Egg
+[ 36, 84,  8, 18]	# Dog 1
+[ 18, 18, 60, 54]	# Giant 1
+
+"scene03b-oric.png"	# Source image
+
+[ 36, 84,  8, 18]	# Dog 2
+[ 18, 12, 30, 36]	# Giant 2

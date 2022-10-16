@@ -68,16 +68,14 @@ unsigned char atan2fast(signed int dY, signed int dX)
 
 // Accessible polygon in scene
 extern unsigned char num_polygon;
-extern signed int polygonX[];
-extern signed int polygonY[];
+extern signed int polygonX[], polygonY[];
 
 // See scene.c
-extern unsigned char itemLast, gameItems[], strings[];
+extern unsigned char sceneID, itemLast, gameItems[], strings[];
 extern Interact interacts[];
 
 // Game state variables
-unsigned int unitX = 0, unitY = 0, wayX[MAX_WAYPOINTS], wayY[MAX_WAYPOINTS];	
-unsigned int mouseX = 160, mouseY = 100, clickX = 160, clickY = 100;
+unsigned int mouseX, mouseY, unitX, unitY, wayX[MAX_WAYPOINTS], wayY[MAX_WAYPOINTS];
 unsigned char numWay, *mouse, mouseL = 0, mouseAction = 0;
 unsigned char sceneSearch = 0, sceneIndex = 255, sceneInteract = 255, sceneItem = 255;
 unsigned char unitFrame = frameWaitLeft, waitFrame = frameWaitLeft;
@@ -101,11 +99,16 @@ void GameLoop(void)
 	clock_t gameClock = clock();
 	unsigned char angle, i, j, interI[4], interN, *scene;
 	signed int deltaX, deltaY, interX[4], interY[4], interD[4], tmp;
+	unsigned int clickX, clickY;
 	
 	while (1) {
 	#if defined __APPLE2__
 		clk += 2;  // Manually update clock on Apple 2
-	#endif		
+	#endif
+		// Did we reach the ending?	
+		if (!sceneID)
+			continue;
+		
 		// Get mouse state
 		mouse = GetMouse();
 		if (!(mouse[2] & MOU_LEFT)) {
@@ -272,6 +275,8 @@ void GameLoop(void)
 					scene = ProcessInteract(sceneInteract, sceneItem);
 					if (scene)
 						LoadScene(scene);
+					if (!sceneID)
+						continue;
 					sceneInteract = 255;
 					sceneItem = 255;
 				}
@@ -316,7 +321,7 @@ int main(void)
 	//// HACK FOR TESTING SCENES ////
 /* 	itemLast = 2;
 	strcpy(&gameItems[0], "Sausage");
-	strcpy(&gameItems[9], "Bottle");
+	strcpy(&gameItems[9], "Water");
 	LoadScene("scene03"); */
 	//// HACK FOR TESTING SCENES ////
 	

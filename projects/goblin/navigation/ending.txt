@@ -1,0 +1,43 @@
+# Scene Settings: Scene ID, BG Music, Start position of players (0 means disabled)
+ID: 0
+MUSIC: ""
+STARTX: 0; 0; 0; 0
+STARTY: 0; 0; 0; 0
+
+# Definitions (WARNING: use same values for ALL scene files and inside definitions.h)
+#define MAX_POLYGON  64
+#define MAX_CHUNK     8
+#define MAX_INTERACT  8
+#define MAX_TRIGGER   8
+#define MAX_MODIFIER  4
+#define MAX_PATH      8
+
+// Interacts flags
+#define DISABLED  0
+#define ACTIVE    1
+#define PICKABLE  2
+#define LOADSCENE 4
+
+# Chunks (just as memo)
+
+# Animation Frames (just as memo)
+
+# Boundary Polygon (see MAX_POLYGON)
+# Player can only move inside the area defined by this polygon
+
+# Interacts (see MAX_INTERACT) 
+# When the mouse is clicked within the element area, the player moves to the specified coordinates and the chunks/path/question/answer are shown. 
+#    Label          Click Area    Move To    Flags   	Chunks   Frame  Path      					    Question     									    Answer					         
+#                   X    Y    R   TX   TY			   CHK   BGG
+
+# Triggers (see MAX_TRIGGER)
+# When the item is applied to the target: it is converted or used-up and/or the modifier is applied to the target
+#    Item	   Target    Convert  Modifier  CHK   BGG   	  Answer
+
+# Modifiers (see MAX_MODIFIER) 
+# This interact gets updated with new parameters
+#   Interact         Flags     CHK   BCG   Path   		   Question   			      Answer
+
+# Paths (see MAX_PATH)
+# Series of player animation paths (255 terminates a series)
+#	 X1   Y1  Speed Frame Next Path	
