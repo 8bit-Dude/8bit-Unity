@@ -28,6 +28,9 @@ void PrintInteract(unsigned char item, unsigned char interact)
 	if (interact != 255) {
 		PrintStr(&strings[interacts[interact].label]);
 	}
+#if defined(__LYNX__) || defined(__NES__)
+	UpdateDisplay(); // Refresh Lynx screen
+#endif	
 }
 
 // Print message in lower-left panel
@@ -83,6 +86,9 @@ void PrintInventory(void)
 	PrintChr(CHR_ARROW_UP); txtY++;
 	PrintChr(CHR_ARROW_DOWN);
 	inkColor = INK_DEFAULT;
+#if defined(__LYNX__) || defined(__NES__)
+	UpdateDisplay(); // Refresh Lynx screen
+#endif	
 }
 
 // Draw mouse pointer

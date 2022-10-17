@@ -14,6 +14,7 @@
 // Scene navigation data (loaded from file)
 #define MAX_POLYGON  64
 #define MAX_CHUNK     8
+#define MAX_ANIMATION 4
 #define MAX_INTERACT  8
 #define MAX_TRIGGER   8
 #define MAX_MODIFIER  4
@@ -90,6 +91,11 @@
 #define frameWalkRightBeg 9
 #define frameWalkRightEnd 13
 
+// Animations
+typedef struct {
+	unsigned char frames[4], ticks[4], counter, state;  // Chunk IDS, period, counter
+} Animation;
+
 // Interact Objects 
 typedef struct {
 	unsigned int label;							// Identifier
@@ -98,7 +104,7 @@ typedef struct {
 	unsigned int question, answer;				// Strings
 } Interact;
 
-// Action Triggers 
+// Item Triggers 
 typedef struct {
 	unsigned int  item, label, convert;		// Source and target of trigger (Strings)
 	unsigned char modifier, chk, bcg;		// Modifier IDs
@@ -134,9 +140,4 @@ unsigned char SelectItem(unsigned int x, unsigned int y);
 
 // See scene.c
 void LoadScene(unsigned char* scene);
-void PushItem(unsigned int label);
-void PopItem(unsigned char index);
-unsigned char SelectItem(unsigned int x, unsigned int y);
-unsigned char SearchScene(unsigned int searchX, unsigned int searchY);
-unsigned char *ProcessInteract(unsigned char index, unsigned char item);
-void Wait(unsigned char ticks);
+void PlayScene(void);

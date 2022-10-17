@@ -49,7 +49,7 @@
             "diskSize": "140KB", 
             "crunchAssets": "No", 
             "musicMemory": "auto", 
-            "chunkMemory": "$0800", 
+            "chunkMemory": "$2000", 
             "network8bitHub": false, 
             "networkUthernet": false, 
             "networkProtocols": "TCP/UDP"
@@ -80,7 +80,7 @@
             "diskSize": "180KB", 
             "crunchAssets": "No", 
             "musicMemory": "$0800", 
-            "chunkMemory": "$0C00", 
+            "chunkMemory": "$2000", 
             "network8bitHub": false, 
             "networkDragonCart": false, 
             "networkFujinet": false, 
@@ -112,7 +112,7 @@
             ], 
             "crunchAssets": "No", 
             "musicMemory": "$4000", 
-            "chunkMemory": "$1000", 
+            "chunkMemory": "$2000", 
             "network8bitHub": false, 
             "networkRRNet": false, 
             "networkUltimate": false, 
@@ -142,7 +142,7 @@
                 "projects/goblin/chunks/scene03-lynx.txt"
             ], 
             "musicMemory": "$0800", 
-            "chunkMemory": "$0600", 
+            "chunkMemory": "$2000", 
             "sharedMemory": "$0600", 
             "virtualKeyboard": false
         }, 
@@ -170,7 +170,7 @@
                 "projects/goblin/chunks/scene02-nes.txt"
             ], 
             "musicMemory": "$4000", 
-            "chunkMemory": "$0200"
+            "chunkMemory": "$0400"
         }, 
         "Oric": {
             "spriteFrames": "15", 
@@ -198,7 +198,7 @@
                 "projects/goblin/chunks/scene03-oric.txt"
             ], 
             "musicMemory": "auto", 
-            "chunkMemory": "$0800"
+            "chunkMemory": "$1800"
         }
     }
 }

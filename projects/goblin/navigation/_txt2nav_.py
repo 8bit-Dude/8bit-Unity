@@ -56,8 +56,9 @@ for scene in scenes:
     music = 0
     startx = [0,0,0,0]
     starty = [0,0,0,0]
-    definitions = {}
+    definitions = {'MAX_POLYGON':64, 'MAX_CHUNK':8, 'MAX_ANIMATION':4, 'MAX_INTERACT':8, 'MAX_TRIGGER':8, 'MAX_MODIFIER':4, 'MAX_PATH':8}
     polygon = [[],[]]
+    animations = []
     interacts = []
     triggers = []
     modifiers = []
@@ -105,6 +106,16 @@ for scene in scenes:
             if 'Y:' in line:
                 polygon[1] = coords
             continue
+            
+        if 'A:' in line:
+            # Fetch animation
+            animation = line[2:-1].split(';')
+            
+            # Decode animation
+            for i in [0,1,2,3,4,5,6,7]:
+                animation[i] = int(animation[i])
+            animations.append(animation)                 
+            continue            
             
         if 'I:' in line:
             # Fetch interact
@@ -196,6 +207,7 @@ for scene in scenes:
     
     # Number of available items
     f2.write(struct.pack('B', len(polygon[0])))
+    f2.write(struct.pack('B', len(animations)))
     f2.write(struct.pack('B', len(interacts)))
     f2.write(struct.pack('B', len(triggers)))
     f2.write(struct.pack('B', len(modifiers)))
@@ -212,7 +224,25 @@ for scene in scenes:
             f2.write(struct.pack('h', polygon[1][i])) # Y
         else:
             f2.write(struct.pack('H', 0))
-                        
+
+    # Animations
+    for i in range(definitions['MAX_ANIMATION']):
+        if i<len(animations):
+            animation = animations[i]
+            f2.write(struct.pack('B', animation[0]))  # Chunk 1
+            f2.write(struct.pack('B', animation[1]))  # Chunk 2
+            f2.write(struct.pack('B', animation[2]))  # Chunk 3
+            f2.write(struct.pack('B', animation[3]))  # BGG
+            f2.write(struct.pack('B', animation[4]))  # Time 1
+            f2.write(struct.pack('B', animation[5]))  # Time 2
+            f2.write(struct.pack('B', animation[6]))  # Time 3
+            f2.write(struct.pack('B', animation[7]))  # Time BGG
+            f2.write(struct.pack('B', 0))
+            f2.write(struct.pack('B', 0))
+        else:
+            for i in range(10):
+                f2.write(struct.pack('B', 0))
+                
     # Interacts
     for i in range(definitions['MAX_INTERACT']):
         if i<len(interacts):
@@ -291,6 +321,9 @@ for scene in scenes:
     print "ID:", str(sid), "/ Music:", strings[music][0]
     for i in range(4):
         print "Player", str(i), ":", startx[i], starty[i]
+    print "<< ANIMATIONS >>"
+    for animation in animations:
+        print animation
     print "<< INTERACTS >>"
     for interact in interacts:
         print interact

@@ -7,6 +7,7 @@ STARTY: 0; 0; 0; 0
 # Definitions (WARNING: use same values for ALL scene files and inside definitions.h)
 #define MAX_POLYGON  64
 #define MAX_CHUNK     8
+#define MAX_ANIMATION 4
 #define MAX_INTERACT  8
 #define MAX_TRIGGER   8
 #define MAX_MODIFIER  4
@@ -24,6 +25,10 @@ STARTY: 0; 0; 0; 0
 
 # Boundary Polygon (see MAX_POLYGON)
 # Player can only move inside the area defined by this polygon
+
+# Animated Chunks (see MAX_ANIMATION)
+# Frames alternate between CHK1 -> CHK2 -> CHK3 -> BGG, with the specified display time for each frame (60 ticks = sec)
+    CHK1 CHK2 CHK3 BGG TIME1 TIME2 TIME3 TIMEBGG 
 
 # Interacts (see MAX_INTERACT) 
 # When the mouse is clicked within the element area, the player moves to the specified coordinates and the chunks/path/question/answer are shown. 

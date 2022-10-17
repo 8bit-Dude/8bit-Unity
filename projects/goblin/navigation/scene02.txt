@@ -7,6 +7,7 @@ STARTY: 170; 0; 0; 0
 # Definitions (WARNING: use same values for ALL scene files and inside definitions.h)
 #define MAX_POLYGON  64
 #define MAX_CHUNK     8
+#define MAX_ANIMATION 4
 #define MAX_INTERACT  8
 #define MAX_TRIGGER   8
 #define MAX_MODIFIER  4
@@ -32,6 +33,10 @@ STARTY: 170; 0; 0; 0
 # Player can only move inside the area defined by this polygon
 X:   0;  80; 160; 186; 242; 290; 270; 300; 280; 206; 248; 218; 194; 188; 258; 292; 320;   0;   0;  56; 106;  88;   0;   0
 Y: 180; 180; 145; 166; 179; 170; 152; 150; 144; 144; 160; 160; 155; 131; 116; 128; 105; 105; 113; 115; 134; 150; 159; 180
+
+# Animated Chunks (see MAX_ANIMATION)
+# Frames alternate between CHK1 -> CHK2 -> CHK3 -> BGG, with the specified display time for each frame (60 ticks = sec)
+    CHK1 CHK2 CHK3 BGG TIME1 TIME2 TIME3 TIMEBGG 
 
 # Interacts (see MAX_INTERACT) 
 # Interactive elements can have the following flags: DISABLED, ACTIVE, PICKABLE.
