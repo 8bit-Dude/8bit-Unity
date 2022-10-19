@@ -35,7 +35,7 @@
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
-                      <object class="tk.Listbox" id="Listbox_Code">
+                      <object class="tk.DragDropListbox" id="Listbox_Code">
                         <property name="height">5</property>
                         <property name="width">78</property>
                         <layout>
@@ -86,7 +86,7 @@
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
-                      <object class="tk.Listbox" id="Listbox_Charmap">
+                      <object class="tk.DragDropListbox" id="Listbox_Charmap">
                         <property name="height">5</property>
                         <property name="width">78</property>
                         <layout>
@@ -165,7 +165,7 @@
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
-                      <object class="tk.Listbox" id="Listbox_Shared">
+                      <object class="tk.DragDropListbox" id="Listbox_Shared">
                         <property name="height">5</property>
                         <property name="width">78</property>
                         <layout>
@@ -234,7 +234,7 @@
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
-                      <object class="tk.Listbox" id="Listbox_AppleBitmapDHR">
+                      <object class="tk.DragDropListbox" id="Listbox_AppleBitmapDHR">
                         <property name="height">6</property>
                         <property name="width">38</property>
                         <layout>
@@ -287,7 +287,7 @@
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
-                      <object class="tk.Listbox" id="Listbox_AppleBitmapSHR">
+                      <object class="tk.DragDropListbox" id="Listbox_AppleBitmapSHR">
                         <property name="height">6</property>
                         <property name="width">38</property>
                         <layout>
@@ -340,7 +340,7 @@
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
-                      <object class="tk.Listbox" id="Listbox_AppleCharsetDHR">
+                      <object class="tk.DragDropListbox" id="Listbox_AppleCharsetDHR">
                         <property name="height">1</property>
                         <property name="width">38</property>
                         <layout>
@@ -380,7 +380,7 @@
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
-                      <object class="tk.Listbox" id="Listbox_AppleCharsetSHR">
+                      <object class="tk.DragDropListbox" id="Listbox_AppleCharsetSHR">
                         <property name="height">1</property>
                         <property name="width">38</property>
                         <layout>
@@ -419,7 +419,7 @@
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
-                      <object class="tk.Listbox" id="Listbox_AppleSpritesDHR">
+                      <object class="tk.DragDropListbox" id="Listbox_AppleSpritesDHR">
                         <property name="height">1</property>
                         <property name="width">38</property>
                         <layout>
@@ -459,7 +459,7 @@
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
-                      <object class="tk.Listbox" id="Listbox_AppleSpritesSHR">
+                      <object class="tk.DragDropListbox" id="Listbox_AppleSpritesSHR">
                         <property name="height">1</property>
                         <property name="width">38</property>
                         <layout>
@@ -592,7 +592,7 @@
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
-                      <object class="tk.Listbox" id="Listbox_AppleChunks">
+                      <object class="tk.DragDropListbox" id="Listbox_AppleChunks">
                         <property name="height">3</property>
                         <property name="width">38</property>
                         <layout>
@@ -647,7 +647,7 @@
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
-                      <object class="tk.Listbox" id="Listbox_AppleMusic">
+                      <object class="tk.DragDropListbox" id="Listbox_AppleMusic">
                         <property name="height">3</property>
                         <property name="width">38</property>
                         <layout>
@@ -894,7 +894,7 @@
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
-                      <object class="tk.Listbox" id="Listbox_AtariBitmap">
+                      <object class="tk.DragDropListbox" id="Listbox_AtariBitmap">
                         <property name="height">6</property>
                         <property name="width">78</property>
                         <layout>
@@ -947,7 +947,7 @@
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
-                      <object class="tk.Listbox" id="Listbox_AtariCharset">
+                      <object class="tk.DragDropListbox" id="Listbox_AtariCharset">
                         <property name="height">1</property>
                         <property name="width">78</property>
                         <layout>
@@ -986,7 +986,7 @@
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
-                      <object class="tk.Listbox" id="Listbox_AtariSprites">
+                      <object class="tk.DragDropListbox" id="Listbox_AtariSprites">
                         <property name="height">1</property>
                         <property name="width">78</property>
                         <layout>
@@ -1108,7 +1108,7 @@
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
-                      <object class="tk.Listbox" id="Listbox_AtariChunks">
+                      <object class="tk.DragDropListbox" id="Listbox_AtariChunks">
                         <property name="height">3</property>
                         <property name="width">38</property>
                         <layout>
@@ -1163,7 +1163,7 @@
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
-                      <object class="tk.Listbox" id="Listbox_AtariMusic">
+                      <object class="tk.DragDropListbox" id="Listbox_AtariMusic">
                         <property name="height">3</property>
                         <property name="width">38</property>
                         <layout>
@@ -1422,7 +1422,7 @@
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
-                      <object class="tk.Listbox" id="Listbox_C64Bitmap">
+                      <object class="tk.DragDropListbox" id="Listbox_C64Bitmap">
                         <property name="height">6</property>
                         <property name="width">78</property>
                         <layout>
@@ -1475,7 +1475,7 @@
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
-                      <object class="tk.Listbox" id="Listbox_C64Charset">
+                      <object class="tk.DragDropListbox" id="Listbox_C64Charset">
                         <property name="height">1</property>
                         <property name="width">78</property>
                         <layout>
@@ -1541,7 +1541,7 @@
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
-                      <object class="tk.Listbox" id="Listbox_C64Sprites">
+                      <object class="tk.DragDropListbox" id="Listbox_C64Sprites">
                         <property name="height">1</property>
                         <property name="width">78</property>
                         <layout>
@@ -1664,7 +1664,7 @@
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
-                      <object class="tk.Listbox" id="Listbox_C64Chunks">
+                      <object class="tk.DragDropListbox" id="Listbox_C64Chunks">
                         <property name="height">3</property>
                         <property name="width">38</property>
                         <layout>
@@ -1719,7 +1719,7 @@
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
-                      <object class="tk.Listbox" id="Listbox_C64Music">
+                      <object class="tk.DragDropListbox" id="Listbox_C64Music">
                         <property name="height">3</property>
                         <property name="width">38</property>
                         <layout>
@@ -1951,7 +1951,7 @@
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
-                      <object class="tk.Listbox" id="Listbox_LynxBitmap">
+                      <object class="tk.DragDropListbox" id="Listbox_LynxBitmap">
                         <property name="height">6</property>
                         <property name="width">78</property>
                         <layout>
@@ -2004,7 +2004,7 @@
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
-                      <object class="tk.Listbox" id="Listbox_LynxCharset">
+                      <object class="tk.DragDropListbox" id="Listbox_LynxCharset">
                         <property name="height">1</property>
                         <property name="width">78</property>
                         <layout>
@@ -2043,7 +2043,7 @@
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
-                      <object class="tk.Listbox" id="Listbox_LynxSprites">
+                      <object class="tk.DragDropListbox" id="Listbox_LynxSprites">
                         <property name="height">1</property>
                         <property name="width">78</property>
                         <layout>
@@ -2164,7 +2164,7 @@
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
-                      <object class="tk.Listbox" id="Listbox_LynxChunks">
+                      <object class="tk.DragDropListbox" id="Listbox_LynxChunks">
                         <property name="height">3</property>
                         <property name="width">38</property>
                         <layout>
@@ -2219,7 +2219,7 @@
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
-                      <object class="tk.Listbox" id="Listbox_LynxMusic">
+                      <object class="tk.DragDropListbox" id="Listbox_LynxMusic">
                         <property name="height">3</property>
                         <property name="width">38</property>
                         <layout>
@@ -2394,7 +2394,7 @@
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
-                      <object class="tk.Listbox" id="Listbox_NESBitmap">
+                      <object class="tk.DragDropListbox" id="Listbox_NESBitmap">
                         <property name="height">6</property>
                         <property name="width">78</property>
                         <layout>
@@ -2474,7 +2474,7 @@
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
-                      <object class="tk.Listbox" id="Listbox_NESCharset">
+                      <object class="tk.DragDropListbox" id="Listbox_NESCharset">
                         <property name="height">1</property>
                         <property name="width">78</property>
                         <layout>
@@ -2513,7 +2513,7 @@
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
-                      <object class="tk.Listbox" id="Listbox_NESSprites">
+                      <object class="tk.DragDropListbox" id="Listbox_NESSprites">
                         <property name="height">1</property>
                         <property name="width">78</property>
                         <layout>
@@ -2634,7 +2634,7 @@
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
-                      <object class="tk.Listbox" id="Listbox_NESChunks">
+                      <object class="tk.DragDropListbox" id="Listbox_NESChunks">
                         <property name="height">3</property>
                         <property name="width">38</property>
                         <layout>
@@ -2689,7 +2689,7 @@
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
-                      <object class="tk.Listbox" id="Listbox_NESMusic">
+                      <object class="tk.DragDropListbox" id="Listbox_NESMusic">
                         <property name="height">3</property>
                         <property name="width">38</property>
                         <layout>
@@ -2825,7 +2825,7 @@
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
-                      <object class="tk.Listbox" id="Listbox_OricBitmap">
+                      <object class="tk.DragDropListbox" id="Listbox_OricBitmap">
                         <property name="height">6</property>
                         <property name="width">78</property>
                         <layout>
@@ -2932,7 +2932,7 @@
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
-                      <object class="tk.Listbox" id="Listbox_OricCharset">
+                      <object class="tk.DragDropListbox" id="Listbox_OricCharset">
                         <property name="height">1</property>
                         <property name="width">78</property>
                         <layout>
@@ -2971,7 +2971,7 @@
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
-                      <object class="tk.Listbox" id="Listbox_OricSprites">
+                      <object class="tk.DragDropListbox" id="Listbox_OricSprites">
                         <property name="height">1</property>
                         <property name="width">78</property>
                         <layout>
@@ -3093,7 +3093,7 @@
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
-                      <object class="tk.Listbox" id="Listbox_OricChunks">
+                      <object class="tk.DragDropListbox" id="Listbox_OricChunks">
                         <property name="height">3</property>
                         <property name="width">38</property>
                         <layout>
@@ -3148,7 +3148,7 @@
                       <property name="sticky">nw</property>
                     </layout>
                     <child>
-                      <object class="tk.Listbox" id="Listbox_OricMusic">
+                      <object class="tk.DragDropListbox" id="Listbox_OricMusic">
                         <property name="height">3</property>
                         <property name="width">38</property>
                         <layout>

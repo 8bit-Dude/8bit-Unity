@@ -119,13 +119,15 @@ def Emulate(path, executable, disk):
     
 def Str2Bool(v):
     return v.lower() in ("yes", "true", "1")
-
+    
 def FileBase(filepath, suffix):
     # Return asset file base
     name = os.path.basename(filepath).lower().replace(suffix, '')
     name = name.split("-")
     return name[0]
     
+    
+# Unity Library Builder    
 def BuildUnityLibrary(self, fp, target, symbols, cList, sList, filepath):
     # Add shared symbols
     if self.combobox_TileSize.get() == 'None':
@@ -720,7 +722,7 @@ class Application:
             self.listbox_Code.insert(END, filename)
 
     def CodeRem(self):
-        self.listbox_Code.delete(0, ACTIVE)
+        self.listbox_Code.delete(ACTIVE)
                 
     def CharmapAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Character Map", filetypes = (("Charmap/Tileset files","*.map;*.tls"),)) 
@@ -729,7 +731,7 @@ class Application:
             self.listbox_Charmap.insert(END, filename)
 
     def CharmapRem(self):
-        self.listbox_Charmap.delete(0, ACTIVE)
+        self.listbox_Charmap.delete(ACTIVE)
             
     def SharedAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Asset File", filetypes = (("All files","*.*"),)) 
@@ -738,7 +740,7 @@ class Application:
             self.listbox_Shared.insert(END, filename)
 
     def SharedRem(self):
-        self.listbox_Shared.delete(0, ACTIVE)
+        self.listbox_Shared.delete(ACTIVE)
         
     def AppleBitmapDHRAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Bitmap", filetypes = (("PNG files","*.png"),)) 
@@ -747,7 +749,7 @@ class Application:
             self.listbox_AppleBitmapDHR.insert(END, filename)
 
     def AppleBitmapDHRRem(self):
-        self.listbox_AppleBitmapDHR.delete(0, ACTIVE)
+        self.listbox_AppleBitmapDHR.delete(ACTIVE)
 
     def AppleBitmapSHRAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Bitmap", filetypes = (("PNG files","*.png"),)) 
@@ -756,7 +758,7 @@ class Application:
             self.listbox_AppleBitmapSHR.insert(END, filename)
 
     def AppleBitmapSHRRem(self):
-        self.listbox_AppleBitmapSHR.delete(0, ACTIVE)
+        self.listbox_AppleBitmapSHR.delete(ACTIVE)
 
     def AppleCharsetDHRSel(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Character Set", filetypes = (("PNG files","*.png"),)) 
@@ -793,7 +795,7 @@ class Application:
             self.listbox_AppleChunks.insert(END, filename)          
 
     def AppleChunksRem(self):
-        self.listbox_AppleChunks.delete(0, ACTIVE)
+        self.listbox_AppleChunks.delete(ACTIVE)
 
     def AppleMusicAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Music Track", filetypes = (("DUET M files","*.m"),)) 
@@ -802,7 +804,7 @@ class Application:
             self.listbox_AppleMusic.insert(END, filename)
 
     def AppleMusicRem(self):
-        self.listbox_AppleMusic.delete(0, ACTIVE)
+        self.listbox_AppleMusic.delete(ACTIVE)
             
     def AtariBitmapAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Bitmap", filetypes = (("PNG files","*.png"),)) 
@@ -811,7 +813,7 @@ class Application:
             self.listbox_AtariBitmap.insert(END, filename)
 
     def AtariBitmapRem(self):
-        self.listbox_AtariBitmap.delete(0, ACTIVE)
+        self.listbox_AtariBitmap.delete(ACTIVE)
 
     def AtariCharsetSel(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Character Set", filetypes = (("PNG files","*.png"),)) 
@@ -834,7 +836,7 @@ class Application:
             self.listbox_AtariChunks.insert(END, filename)          
 
     def AtariChunksRem(self):
-        self.listbox_AtariChunks.delete(0, ACTIVE)
+        self.listbox_AtariChunks.delete(ACTIVE)
 
     def AtariMusicAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Music Track", filetypes = (("RMT files","*.rmt"),)) 
@@ -843,7 +845,7 @@ class Application:
             self.listbox_AtariMusic.insert(END, filename)
 
     def AtariMusicRem(self):
-        self.listbox_AtariMusic.delete(0, ACTIVE)
+        self.listbox_AtariMusic.delete(ACTIVE)
     
     def C64BitmapAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Bitmap", filetypes = (("PNG files","*.png"),)) 
@@ -852,7 +854,7 @@ class Application:
             self.listbox_C64Bitmap.insert(END, filename)
 
     def C64BitmapRem(self):
-        self.listbox_C64Bitmap.delete(0, ACTIVE)
+        self.listbox_C64Bitmap.delete(ACTIVE)
 
     def C64CharsetSel(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Character Set", filetypes = (("PNG files","*.png"),)) 
@@ -875,7 +877,7 @@ class Application:
             self.listbox_C64Chunks.insert(END, filename)          
 
     def C64ChunksRem(self):
-        self.listbox_C64Chunks.delete(0, ACTIVE)        
+        self.listbox_C64Chunks.delete(ACTIVE)        
         
     def C64MusicAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Music Track", filetypes = (("SID files","*.sid"),)) 
@@ -884,7 +886,7 @@ class Application:
             self.listbox_C64Music.insert(END, filename)
 
     def C64MusicRem(self):
-        self.listbox_C64Music.delete(0, ACTIVE)        
+        self.listbox_C64Music.delete(ACTIVE)        
         
     def LynxBitmapAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Bitmap", filetypes = (("PNG files","*.png"),)) 
@@ -893,7 +895,7 @@ class Application:
             self.listbox_LynxBitmap.insert(END, filename)
 
     def LynxBitmapRem(self):
-        self.listbox_LynxBitmap.delete(0, ACTIVE)
+        self.listbox_LynxBitmap.delete(ACTIVE)
         
     def LynxCharsetSel(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Character Set", filetypes = (("PNG files","*.png"),)) 
@@ -916,7 +918,7 @@ class Application:
             self.listbox_LynxChunks.insert(END, filename)          
 
     def LynxChunksRem(self):
-        self.listbox_LynxChunks.delete(0, ACTIVE)
+        self.listbox_LynxChunks.delete(ACTIVE)
                  
     def LynxMusicAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Music Track", filetypes = (("Chipper files","*.asm"),)) 
@@ -925,7 +927,7 @@ class Application:
             self.listbox_LynxMusic.insert(END, filename)
 
     def LynxMusicRem(self):
-        self.listbox_LynxMusic.delete(0, ACTIVE) 
+        self.listbox_LynxMusic.delete(ACTIVE) 
         
     def NESBitmapAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Bitmap", filetypes = (("PNG files","*.png"),)) 
@@ -934,7 +936,7 @@ class Application:
             self.listbox_NESBitmap.insert(END, filename)
 
     def NESBitmapRem(self):
-        self.listbox_NESBitmap.delete(0, ACTIVE)
+        self.listbox_NESBitmap.delete(ACTIVE)
         
     def NESCharsetSel(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Character Set", filetypes = (("PNG files","*.png"),)) 
@@ -957,7 +959,7 @@ class Application:
             self.listbox_NESChunks.insert(END, filename)          
 
     def NESChunksRem(self):
-        self.listbox_NESChunks.delete(0, ACTIVE)         
+        self.listbox_NESChunks.delete(ACTIVE)         
         
     def NESMusicAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Music Track", filetypes = (("TXT files","*.txt"),)) 
@@ -966,7 +968,7 @@ class Application:
             self.listbox_NESMusic.insert(END, filename)
 
     def NESMusicRem(self):
-        self.listbox_NESMusic.delete(0, ACTIVE)         
+        self.listbox_NESMusic.delete(ACTIVE)         
 
     def OricBitmapAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Bitmap", filetypes = (("PNG files","*.png"),)) 
@@ -975,7 +977,7 @@ class Application:
             self.listbox_OricBitmap.insert(END, filename)
 
     def OricBitmapRem(self):
-        self.listbox_OricBitmap.delete(0, ACTIVE)
+        self.listbox_OricBitmap.delete(ACTIVE)
         
     def OricCharsetSel(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Character Set", filetypes = (("PNG files","*.png"),)) 
@@ -998,7 +1000,7 @@ class Application:
             self.listbox_OricChunks.insert(END, filename)          
 
     def OricChunksRem(self):
-        self.listbox_OricChunks.delete(0, ACTIVE)          
+        self.listbox_OricChunks.delete(ACTIVE)          
         
     def OricMusicAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Music Track", filetypes = (("YM files","*.ym"),)) 
@@ -1007,7 +1009,7 @@ class Application:
             self.listbox_OricMusic.insert(END, filename)
 
     def OricMusicRem(self):
-        self.listbox_OricMusic.delete(0, ACTIVE) 
+        self.listbox_OricMusic.delete(ACTIVE) 
 
     def GenerateScripts(self):
     	# Get shared parameters
