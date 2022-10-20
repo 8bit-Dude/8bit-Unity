@@ -6,7 +6,6 @@ extern Interact interacts[MAX_INTERACT];
 extern unsigned char gameItems[MAX_ITEM*LEN_ITEM];
 extern unsigned char strings[];
 extern unsigned int unitX, unitY;
-extern unsigned char music;
 
 // Print label in lower-left panel
 void PrintInteract(unsigned char item, unsigned char interact)
@@ -133,11 +132,31 @@ void DrawUnit(unsigned int x, unsigned int y, unsigned char frame)
 #endif
 }
 
+// Swap Disk
+void PrintSwapDisk(unsigned char *fname)
+{
+	ClearBitmap();
+	inkColor = WHITE; paperColor = BLACK;
+	txtY = 8; 
+	txtX = 6; PrintStr("File not found:");
+	txtX = 22; PrintStr(fname);
+	txtY = 10;
+	txtX = 7; PrintStr("Swap disk and press a key");
+	ShowBitmap();
+	cgetc();
+	HideBitmap();
+}
+
 #if (defined __LYNX__)
 	unsigned char* textBuffer = SHAREDRAM;
 #else
 	unsigned char textBuffer[64];
 #endif
+
+extern unsigned char currmusic[13];
+unsigned char menumusic[] = "menu.mus";
+unsigned char menuimage[] = "menu.img";
+unsigned char menutext[] = "menu.txt";
 
 // Menu Screen
 void MainMenu(void)
@@ -145,15 +164,15 @@ void MainMenu(void)
 	unsigned char l, i=0;
 
 	// Show banner
-	if (FileExists("menu.img"))
-		LoadBitmap("menu.img");
+	if (FileExists(menuimage))
+		LoadBitmap(menuimage);
 	else
 		ClearBitmap();
 	
 	// Show credit/build
-	if (FileExists("menu.txt")) {
+	if (FileExists(menutext)) {
 		// Load file
-		FileOpen("menu.txt");
+		FileOpen(menutext);
 		l = FileRead(textBuffer, 64);
 		textBuffer[l] = 0;
 		FileClose();
@@ -181,23 +200,21 @@ void MainMenu(void)
 	}
 
 	// Play title music
-	if (FileExists("menu.mus")) {
-		LoadMusic("menu.mus");	
+	if (FileExists(menumusic)) {
+		strcpy(currmusic, menumusic);
+		LoadMusic(menumusic);	
 		PlayMusic();
-		music = 1;
 	}
 
 	// All loaded-up!
 	ShowBitmap();
 	
 	// Wait until key is pressed
-	while (!kbhit()) {	
-	#if defined __APPLE2__
+#if defined __APPLE2__
+	while (!kbhit())	
 		UpdateMusic();
-	#elif defined __LYNX__
-		UpdateDisplay(); // Refresh Lynx screen
-	#endif
-	}	
+#endif
+	cgetc();
 	
 	// Stop splash music
 	StopMusic();	

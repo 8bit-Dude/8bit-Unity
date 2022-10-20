@@ -13,7 +13,7 @@
 
 // Game state: Position of unit and mouse
 unsigned int mouseX, mouseY, unitX, unitY, wayX[MAX_WAYPOINTS], wayY[MAX_WAYPOINTS];
-unsigned char numWay, *mouse, mouseL = 0, mouseAction = 0;
+unsigned char numWay, *mouse, mouseL = 0, mouseAction = 0, currmusic[13];
 unsigned char unitFrame = frameWaitLeft, waitFrame = frameWaitLeft;		
 
 // Game state: Actions consist of tuplets (Scene ID, Action ID (lower 6bits) + Type (higher 2bits))
@@ -571,41 +571,51 @@ void PlayScene(void)
 	}	
 }
 
+unsigned char CompareNames(const char* fname1, const char* fname2);
+
 // Load and initialize scene state
 void LoadScene(unsigned char* scene)
 {	
 	unsigned char fname[13];
 	unsigned char i, l, *coords;
 
-	// Disable sprites/bitmap/music
+	// Disable music/sprites/bitmap
+	if (currmusic[0])
+		StopMusic();	
 	DisableSprite(-1);
 	HideBitmap();
-	if (music)
-		StopMusic();	
 	
 	// Prepare filename
 	l = strlen(scene);
 	memcpy(fname, scene, l);
 	memcpy(gameScene, scene, l);
+
+	// Load chunks
+	FreeChunk(0);
+	memcpy(&fname[l], ".chk\0", 5);
+	while (!FileExists(fname))
+		PrintSwapDisk(fname);
+	num_chunks = LoadChunks(chunkData, fname);
 	
 	// Load bitmap
 	memcpy(&fname[l], ".img\0", 5);
+	while (!FileExists(fname))
+		PrintSwapDisk(fname);
 	LoadBitmap(fname);
-	
-	// Load chunks/backgrounds
-	FreeChunk(0);
-	memcpy(&fname[l], ".chk\0", 5);
-	num_chunks = LoadChunks(chunkData, fname);
-	for (i=0; i<num_chunks; i++) {
-		coords = chunkData[i]; 
-		chunkBckg[i] = GetChunk(coords[0], coords[1], coords[2], coords[3]);
-	}
 	
 	// Load navigation
 	memcpy(&fname[l], ".nav\0", 5);
+	while (!FileExists(fname))
+		PrintSwapDisk(fname);
 	if (FileOpen(fname)) {
 		FileRead(&sceneID, -1);
 		FileClose();
+	}
+
+	// Backup Chunks BCG
+	for (i=0; i<num_chunks; i++) {
+		coords = chunkData[i]; 
+		chunkBckg[i] = GetChunk(coords[0], coords[1], coords[2], coords[3]);
 	}
 	
 	// Reset mouse/player position
@@ -633,8 +643,16 @@ void LoadScene(unsigned char* scene)
 	
 	// Enable music & bitmap
  	if (music) {
-		LoadMusic(&strings[music]);
+		ShowBitmap();
+		if (CompareNames(&strings[music], currmusic)) {
+			strcpy(currmusic, &strings[music]);
+			while (!FileExists(currmusic))
+				PrintSwapDisk(currmusic);
+			LoadMusic(currmusic);
+		}
 		PlayMusic();
+	} else {
+		currmusic[0] = 0;
 	}
 	ShowBitmap();
 	

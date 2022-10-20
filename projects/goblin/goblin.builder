@@ -47,7 +47,7 @@
                 "projects/goblin/chunks/scene03-apple.txt"
             ], 
             "diskSize": "140KB", 
-            "crunchAssets": "No", 
+            "crunchAssets": "Yes", 
             "musicMemory": "auto", 
             "chunkMemory": "$2000", 
             "network8bitHub": false, 
@@ -78,7 +78,7 @@
                 "projects/goblin/chunks/scene03-atari.txt"
             ], 
             "diskSize": "180KB", 
-            "crunchAssets": "No", 
+            "crunchAssets": "Yes", 
             "musicMemory": "$0800", 
             "chunkMemory": "$2000", 
             "network8bitHub": false, 
@@ -110,7 +110,7 @@
                 "projects/goblin/chunks/scene02-c64.txt", 
                 "projects/goblin/chunks/scene03-c64.txt"
             ], 
-            "crunchAssets": "No", 
+            "crunchAssets": "Yes", 
             "musicMemory": "$4000", 
             "chunkMemory": "$2000", 
             "network8bitHub": false, 
