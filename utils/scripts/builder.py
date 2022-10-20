@@ -1584,7 +1584,7 @@ class Application:
             fp.write('\necho --------------- BUILD DISK --------------- \n\n')
 
             # Call file packager script
-            fp.write(py27 + ' utils/scripts/C64/C64Disk.py ' + buildFolder + ' ' + diskname + ' ' + ' '.join(files) + '\n\n')
+            fp.write(py27 + ' utils/scripts/c64/C64Disk.py ' + buildFolder + ' ' + diskname + ' ' + ' '.join(files) + '\n\n')
 
             fp.write('echo --------------- C64 DISK READY --------------- \n\n')
             
