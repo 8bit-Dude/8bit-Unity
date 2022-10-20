@@ -28,14 +28,33 @@
 
 extern unsigned char  fileNum;     
 extern unsigned char* fileNames[24];
+
+unsigned char CompareNames(const char* fname1, const char* fname2)
+{
+	unsigned char i = 0, c1, c2;
+
+	while (1) {
+		c1 = fname1[i];
+		c2 = fname2[i];
+		if (!c1 && !c2) return 0;
+		if (c1 > 0xC0) c1 -= 0x80; 
+		if (c2 > 0xC0) c2 -= 0x80; 
+		if (c1 > 0x60) c1 -= 0x20; 
+		if (c2 > 0x60) c2 -= 0x20; 
+		if (c1 != c2) break;
+		i++;
+	}
+	return i;
+}
  
 unsigned char FileExists(const char* fname)
 {
-	unsigned char i=0;
+	unsigned char i = 0, j, c1, c2, *dname;
 	
 	DirList();
+	i = 0;
 	while (i<fileNum) {
-		if (!stricmp(fname, fileNames[i]))
+		if (!CompareNames(fname, fileNames[i]))
 			return 1;
 		i++;
 	}
