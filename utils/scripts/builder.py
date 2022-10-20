@@ -26,6 +26,7 @@
 
 from Tkinter import *
 import tkMessageBox as messagebox
+import DragDropListbox as DragDropListbox
 from tkFileDialog import askopenfilename, asksaveasfilename
 from PIL import Image, ImageTk
 import os, pickle, pygubu, sys, collections, json, codecs
