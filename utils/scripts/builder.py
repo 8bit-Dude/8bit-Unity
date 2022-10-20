@@ -106,15 +106,24 @@ def Remove(filename):
         return 'rm ' + filename + '\n'
         
 def Emulate(path, executable, disk):
+    disk = '..\\..\\..\\' + buildFolder + '\\' + disk
     cmd = 'echo Ready to start Emulation...\n\n'
     if "nt" == os.name:
         cmd += 'pause\n\n'
         cmd += CD(path)
-        cmd += executable + ' "..\\..\\..\\' + buildFolder + '\\' + disk  + '"\n\n'
+        cmd += 'if exist "' + disk + '" (\n'
+        cmd += '  ' + executable + ' "' + disk + '"\n'
+        cmd += ') else (\n'
+        cmd += '  ' + executable + ' "' + disk[0:-4] + '-d1' + disk[-4:len(disk)] + '"\n'
+        cmd += ')\n'
     else:
         cmd += 'read -p "Press ENTER to continue..."\n\n'
         cmd += CD(path)
-        cmd += 'wine ' + executable + ' "..\\..\\..\\' + buildFolder + '\\' + disk  + '"\n\n'
+        cmd += 'if [ ! -a "' + disk + '" ]; then \n'
+        cmd += '  wine ' + executable + ' "' + disk + '"\n'
+        cmd += 'else\n'                    
+        cmd += '  wine ' + executable + ' "' + disk[0:-4] + '-d1' + disk[-4:len(disk)] + '"\n'
+        cmd += 'fi\n'                    
     return cmd
     
 def Str2Bool(v):
@@ -1422,6 +1431,7 @@ class Application:
             networkOptions.append('Ultimate')
         if len(networkOptions) == 0:
             networkOptions.append('No-Net')                    
+        files = []
             
         with open('../../' + buildFolder+'/'+diskname+"-c64"+sext, "wb") as fp:
             # Info
@@ -1431,6 +1441,8 @@ class Application:
             fp.write('mkdir [maps]\n')            
             fp.write('cd ..\n\n')            
             fp.write(Remove('build/c64/*.*'))
+            for suffix in ["", "-d1", "-d2", "-d3", "-d4", "-d5", "-d6", "-d7", "-d8", "-d9"]:
+                fp.write(Remove('build/' + diskname + '-c64' + suffix + '.d64'))
             
             fp.write('\necho --------------- COMPILE PROGRAM ---------------\n\n')
             
@@ -1462,7 +1474,7 @@ class Application:
                 if network == 'No-Net': 
                     sTarget.append('targets/c64/joystick.s')
                     executable = 'nonet'
-                    
+                                        
                 # Graphic settings
                 if self.combobox_C64CrunchAssets.get() == 'Yes':
                     symbols += ' -D __DECRUNCH__ '
@@ -1471,6 +1483,11 @@ class Application:
                 library = 'unity/unity-c64' + '-' + executable + '.lib'
                 BuildUnityLibrary(self, fp, '-t c64', symbols, cCore+cTarget, sCore+sTarget, library)
 
+                # Only 1 network setting?
+                if len(networkOptions) == 1:
+                    executable = 'loader'
+                files.append(executable + '.prg')
+                    
                 # Compile Program                        
                 symbols += ' -Wl -D,CHUNKSIZE=' + addr + chunkSize
                 comp = cl65 + ' -o ' + buildFolder + '/c64/' + executable + '.bin -m ' + buildFolder + '/[maps]/' + diskname.lower() + '-c64-' + executable + '.map -Cl -O -t c64 -C unity/targets/c64/c64.cfg ' + symbols + ' -I unity '
@@ -1495,6 +1512,7 @@ class Application:
             # Include loader program?
             if len(networkOptions) > 1:   
                 # Compile Loader
+                files.append('loader.prg')
                 symbols = '-Cl -O -t c64 '
                 if '8bit-Hub' in networkOptions:
                     symbols += '-D __HUB__ '
@@ -1515,84 +1533,57 @@ class Application:
             
             # Bitmaps
             for item in bitmaps:
+                fb = FileBase(item, '.png')
                 if self.combobox_C64CrunchAssets.get() == 'Yes':
-                    fp.write(py27 + ' utils/scripts/c64/C64Bitmap.py crunch ' + item + ' ' + buildFolder + '/c64/' + FileBase(item, '.png') + '.img\n')
+                    fp.write(py27 + ' utils/scripts/c64/C64Bitmap.py crunch ' + item + ' ' + buildFolder + '/c64/' + fb + '.img\n')
                 else:
-                    fp.write(py27 + ' utils/scripts/c64/C64Bitmap.py raw ' + item + ' ' + buildFolder + '/c64/' + FileBase(item, '.png') + '.img\n')
+                    fp.write(py27 + ' utils/scripts/c64/C64Bitmap.py raw ' + item + ' ' + buildFolder + '/c64/' + fb + '.img\n')
+                files.append(fb + '.img')
 
             # Charmaps/Tilesets
             for item in charmaps:
-                fp.write(Copy(item, buildFolder + '/c64/' + FileBase(item, '')))
+                fb = FileBase(item, '')
+                fp.write(Copy(item, buildFolder + '/c64/' + fb))
+                files.append(fb)
                     
             # Charsets 
             for item in charset:
                 fb = FileBase(item, '.png')
                 fp.write(py27 + ' utils/scripts/c64/C64Charset.py ' + item + ' ' + buildFolder + '/c64/' + fb + '.chr' + ' ' + self.entry_C64CharsetColors.get() + '\n')
-                                
+                files.append(fb + '.chr')                        
+            
             # Chunks
             for item in chunks:
+                fb = FileBase(item, 'txt')
                 fp.write(py27 + ' utils/scripts/ProcessChunks.py c64 ' + item + ' ' + buildFolder + '/c64/\n\n')
-                
+                files.append(fb + '.chk')
+            
             # Music
             for item in music:
                 fb = FileBase(item, '.sid')
-                fp.write(sidr + ' -v -z 30-ff -p 08 ' + item + ' ' + buildFolder + '/c64/' + fb + '.sid\n')
+                fp.write(sidr + ' -v -z 30-ff -p 08 ' + item + ' ' + buildFolder + '/c64/' + fb + '.mus\n')
                 if "nt" == os.name:
-                    fp.write('if not exist ' + buildFolder + '/c64/' + fb + '.sid (\n')
+                    fp.write('if not exist ' + buildFolder + '/c64/' + fb + '.mus (\n')
                     fp.write('    ' + 'echo Relocation impossible, using the original file instead...\n')
-                    fp.write('    ' + Copy(item, buildFolder + '/c64/' + fb + '.sid') + ')')
+                    fp.write('    ' + Copy(item, buildFolder + '/c64/' + fb + '.mus') + ')')
                 else:
-                    fp.write('if [ ! -a ' + buildFolder + '/c64/' + fb + '.sid ]; then \n')
+                    fp.write('if [ ! -a ' + buildFolder + '/c64/' + fb + '.mus ]; then \n')
                     fp.write('    ' + 'echo Relocation impossible, using the original file instead...\n')
-                    fp.write('    ' + Copy(item, buildFolder + '/c64/' + fb + '.sid'))
+                    fp.write('    ' + Copy(item, buildFolder + '/c64/' + fb + '.mus'))
                     fp.write('fi')                
                 fp.write('\n')
-
+                files.append(fb + '.mus')           
+            
             # Shared Data
             for item in shared:
-                fp.write(Copy(item, buildFolder + '/c64/' + FileBase(item, '')))
-
+                fb = FileBase(item, '')
+                fp.write(Copy(item, buildFolder + '/c64/' + fb))
+                files.append(fb)
+                
             fp.write('\necho --------------- BUILD DISK --------------- \n\n')
 
-            # Disk builder
-            fp.write(cl15 + ' -format loader,666 d64 ' + buildFolder + '/' + diskname + '-c64.d64 -attach ' + buildFolder + '/' + diskname + '-c64.d64 ')
-            
-            # Add executables
-            if len(networkOptions) > 1:                                    
-                fp.write('-write ' + buildFolder + '/c64/loader.prg loader.prg ')
-                for network in networkOptions:
-                    if network == '8bit-Hub': 
-                        executable = 'hub'
-                    if network == 'RR-Net': 
-                        executable = 'rrnet'     
-                    if network == 'Ultimate': 
-                        executable = 'ultimate'     
-                    if network == 'No-Net': 
-                        executable = 'none'                        
-                    fp.write('-write ' + buildFolder + '/c64/' + executable + '.prg ' + executable + '.prg ')
-            else:
-                fp.write('-write ' + buildFolder + '/c64/' + executable + '.prg loader.prg ')
-
-            # Add assets
-            for item in bitmaps:
-                fb = FileBase(item, '.png')
-                fp.write('-write ' + buildFolder + '/c64/' + fb + '.img ' + fb + '.img ')
-            for item in charset:
-                fb = FileBase(item, '.png')            
-                fp.write('-write ' + buildFolder + '/c64/' + fb + '.chr ' + fb + '.chr ')                           
-            for item in charmaps:
-                fb = FileBase(item, '')
-                fp.write('-write ' + buildFolder + '/c64/' + fb + ' ' + fb + ' ')
-            for item in chunks:
-                fb = FileBase(item, '.txt')
-                fp.write('-write ' + buildFolder + '/c64/' + fb + '.chk ' + fb + '.chk ')
-            for item in music:
-                fb = FileBase(item, '.sid')
-                fp.write('-write ' + buildFolder + '/c64/' + fb + '.sid ' + fb + '.mus ')              
-            for item in shared:
-                fb = FileBase(item, '')
-                fp.write('-write ' + buildFolder + '/c64/' + fb + ' ' + FileBase(item, '') + ' ')                
-            fp.write('\n\n')
+            # Call file packager script
+            fp.write(py27 + ' utils/scripts/C64/C64Disk.py ' + buildFolder + ' ' + diskname + ' ' + ' '.join(files) + '\n\n')
 
             fp.write('echo --------------- C64 DISK READY --------------- \n\n')
             
