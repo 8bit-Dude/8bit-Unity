@@ -45,11 +45,11 @@ void CheckMemory(void);
 
 unsigned char LoadChunks(unsigned char *chunks[], char *filename) 
 {
-	unsigned char i, n;
+	unsigned char i, n=0;
 	unsigned int offset;
 
-	// Read data from file
 	if (FileOpen(filename)) {
+		// Read data from file
 	#if defined __DHR__	
 		FileRead((unsigned char*)&offset, 2);
 		FileRead(chunkPtr, offset);	// Load AUX data 
@@ -59,17 +59,18 @@ unsigned char LoadChunks(unsigned char *chunks[], char *filename)
 		FileRead(chunkPtr, -1);		
 	#endif
 		FileClose();
-	}
 
-	// Create pointers to individual chunks
-	n = chunkPtr[0]; 
-	chunkPtr += 1;
-	for (i=0; i<n; i++) {
-		chunks[i] = chunkPtr;
-		chunkPtr += *(unsigned int*)&chunkPtr[4];
+		// Create pointers to individual chunks
+		n = chunkPtr[0]; 
+		chunkPtr += 1;
+		for (i=0; i<n; i++) {
+			chunks[i] = chunkPtr;
+			chunkPtr += *(unsigned int*)&chunkPtr[4];
+		}
+		
+		// Detect buffer overflow
+		CheckMemory();
 	}
 	
-	// Detect buffer overflow
-	CheckMemory();
-	return n;
+	return n;	
 }

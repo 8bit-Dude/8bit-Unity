@@ -27,11 +27,11 @@
 #include "unity.h"
 
 extern unsigned char  fileNum;     
-extern unsigned char* fileNames[24];
+extern unsigned char* fileNames[];
 
 unsigned char CompareNames(const char* fname1, const char* fname2)
 {
-	unsigned char i = 0, c1, c2;
+	unsigned char i=0, c1, c2;
 
 	while (1) {
 		c1 = fname1[i];
@@ -49,10 +49,9 @@ unsigned char CompareNames(const char* fname1, const char* fname2)
  
 unsigned char FileExists(const char* fname)
 {
-	unsigned char i = 0, j, c1, c2, *dname;
+	unsigned char i=0;
 	
 	DirList();
-	i = 0;
 	while (i<fileNum) {
 		if (!CompareNames(fname, fileNames[i]))
 			return 1;
