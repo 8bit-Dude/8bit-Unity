@@ -72,11 +72,31 @@ while 1:
     # Add files until full
     cumblocks = 0
     while i < len(files):
-        cumblocks += blocks[i]
+        j = 0
+        filecommand = ""
+        fileprefix = os.path.splitext(files[i])[0]
+        
+        # Find all files with same prefix
+        while 1:
+            if (i+j) == len(files):
+                break
+                
+            if fileprefix != os.path.splitext(files[i+j])[0]:
+                break
+            
+            cumblocks += blocks[i+j]
+            if cumblocks > 664:
+                break     
+
+            filecommand += '-write ' + buildFolder + '/c64/' + files[i+j] + ' ' + files[i+j] + ' '                
+            j += 1
+        
         if cumblocks > 664:
             break
-        command += '-write ' + buildFolder + '/c64/' + files[i] + ' ' + files[i] + ' '
-        i += 1
+            
+        command += filecommand
+        i += j
+            
 
     # Execute Command
     subprocess.call(command, shell=True)
