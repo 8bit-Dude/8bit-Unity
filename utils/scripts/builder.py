@@ -1072,6 +1072,7 @@ class Application:
                 # Info
                 fp.write('echo off\n\n')
                 fp.write('mkdir apple\n')            
+                fp.write('mkdir [libs]\n')            
                 fp.write('mkdir [maps]\n')            
                 fp.write('cd ..\n\n')
                 fp.write(Remove('build/apple/*.*'))
@@ -1104,7 +1105,7 @@ class Application:
                         symbols += ' -D __DECRUNCH__'   
 
                     # Compile Unity library
-                    library = 'unity/unity-apple' + target + '-' + executable.lower() + '.lib'
+                    library = buildFolder + '/[libs]/unity-apple' + target + '-' + executable.lower() + '.lib'
                     BuildUnityLibrary(self, fp, '-t apple2', symbols, cCore+cTarget, sCore+sTarget, library)
 
                     # Compile Program
@@ -1254,6 +1255,7 @@ class Application:
                 # Info
                 fp.write('echo off\n\n')
                 fp.write('mkdir atari\n')            
+                fp.write('mkdir [libs]\n')            
                 fp.write('mkdir [maps]\n')            
                 fp.write('cd ..\n\n')
                 fp.write(Remove('build/atari/*.*'))
@@ -1288,7 +1290,7 @@ class Application:
                         symbols += ' -D __DECRUNCH__'  
                         
                     # Compile Unity library
-                    library = 'unity/unity-atari' + target + '-' + executable[0:-4] + '.lib'
+                    library = buildFolder + '/[libs]/unity-atari' + target + '-' + executable[0:-4] + '.lib'
                     if target == '48k':
                         BuildUnityLibrary(self, fp, ' -t atari', symbols, cCore+cTarget, sCore+sTarget, library)
                         symbols += ' -Cl -O -t atari ' 
@@ -1439,6 +1441,7 @@ class Application:
             fp.write('echo off\n\n')
             fp.write('setlocal enableextensions enabledelayedexpansion\n\n')
             fp.write('mkdir c64\n')            
+            fp.write('mkdir [libs]\n')            
             fp.write('mkdir [maps]\n')            
             fp.write('cd ..\n\n')            
             fp.write(Remove('build/c64/*.*'))
@@ -1481,7 +1484,7 @@ class Application:
                     symbols += ' -D __DECRUNCH__ '
                                     
                 # Compile Unity library
-                library = 'unity/unity-c64' + '-' + executable + '.lib'
+                library = buildFolder + '/[libs]/unity-c64' + '-' + executable + '.lib'
                 BuildUnityLibrary(self, fp, '-t c64', symbols, cCore+cTarget, sCore+sTarget, library)
 
                 # Only 1 network setting?
@@ -1606,6 +1609,7 @@ class Application:
             fp.write('echo off\n\n')
             fp.write('setlocal enableextensions enabledelayedexpansion\n\n')
             fp.write('mkdir lynx\n')           
+            fp.write('mkdir [libs]\n')            
             fp.write('mkdir [maps]\n')            
             fp.write('cd ..\n\n')            
             fp.write(Remove(buildFolder + '/lynx/*.*'))
@@ -1723,7 +1727,7 @@ class Application:
                 symbols += ' -D __KEYBOARD__'
 
             # Build Unity Library
-            library = 'unity/unity-lynx-hub.lib'
+            library = buildFolder + '/[libs]/unity-lynx-hub.lib'
             BuildUnityLibrary(self, fp, '-t lynx --cpu 65SC02', symbols, cCore+cTarget, sCore+sTarget, library)
                                      
             # Compile Program 
@@ -1758,6 +1762,7 @@ class Application:
             fp.write('echo off\n\n')
             fp.write('setlocal enableextensions enabledelayedexpansion\n\n')
             fp.write('mkdir nes\n')            
+            fp.write('mkdir [libs]\n')            
             fp.write('mkdir [maps]\n')            
             fp.write('cd ..\n\n') 
             fp.write(Remove(buildFolder + '/nes/*.*'))            
@@ -1860,7 +1865,7 @@ class Application:
             symbols = ' -D __HUB__ -D CHUNKSIZE='  + chunkSize.replace('$','0x') + ' -D SPRITEFRAMES=' + self.entry_NESSpriteFrames.get() + ' -D SPRITEWIDTH=' + self.entry_NESSpriteWidth.get() + ' -D SPRITEHEIGHT=' + self.entry_NESSpriteHeight.get()
 
             # Build Unity Library
-            library = 'unity/unity-nes-hub.lib'
+            library = buildFolder + '/[libs]/unity-nes-hub.lib'
             BuildUnityLibrary(self, fp, '-t nes', symbols, cCore+cTarget, sCore+sTarget, library)
 
             # Compile Program
@@ -1891,6 +1896,7 @@ class Application:
             fp.write('echo off\n\n')
             fp.write('setlocal enableextensions enabledelayedexpansion\n\n')
             fp.write('mkdir oric\n')            
+            fp.write('mkdir [libs]\n')            
             fp.write('mkdir [maps]\n')            
             fp.write('cd ..\n\n')            
             fp.write(Remove(buildFolder + '/oric/*.*'))
@@ -1902,7 +1908,7 @@ class Application:
             symbols = ' -D __HUB__ -D CHUNKSIZE='  + chunkSize.replace('$','0x') + ' -D SPRITEFRAMES=' + self.entry_OricSpriteFrames.get() + ' -D SPRITEWIDTH=' + self.entry_OricSpriteWidth.get() + ' -D SPRITEHEIGHT=' + self.entry_OricSpriteHeight.get()
     
             # Build Unity Library
-            library = 'unity/unity-oric48k-hub.lib'
+            library = buildFolder + '/[libs]/unity-oric48k-hub.lib'
             BuildUnityLibrary(self, fp, '-t atmos', symbols, cCore+cTarget, sCore+sTarget, library)
 
             # Compile Program
