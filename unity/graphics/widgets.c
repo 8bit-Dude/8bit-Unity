@@ -88,10 +88,14 @@ callback* CheckCallbacks(unsigned char col, unsigned char row)
 {
 	callback *call = callHead;
 	unsigned int val, max;
+	unsigned char inkBckup, paperBckup;
 		
 	// Check coordinates overlaps callback?
 	while (call) {
 		if (call->colBeg<=col && col<call->colEnd && call->rowBeg<=row && row<call->rowEnd) {
+			// Backup current ink/paper
+			inkBckup = inkColor; paperBckup = paperColor;
+	
 			// Trigger click action (if any)
 			switch (call->type) {
 			case CALLTYPE_INPUT:	
@@ -161,6 +165,9 @@ callback* CheckCallbacks(unsigned char col, unsigned char row)
 				break;
 				
 			}
+			
+			// Restore current ink/paper
+			inkColor = inkBckup; paperColor = paperBckup;			
 			return call;
 		}
 		call = (callback*)call->next;
@@ -280,7 +287,7 @@ callback* Input(unsigned char col, unsigned char row, unsigned char width, unsig
 		
 	// Clear Field Area
 	txtX = col; txtY = row;
-	InputStr(width, buffer, len, 0);
+	InputStr(width, buffer, len, 1);
 
 	// Register Callback
 	call = PushCallback(col, row, width, height, CALLTYPE_INPUT);

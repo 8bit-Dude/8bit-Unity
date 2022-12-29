@@ -55,7 +55,7 @@ unsigned char InputStr(unsigned char width, char *buffer, unsigned char len, uns
 		offset = width;
 		
 	// Was a new key received?
-	if (!key) {
+	if (key<2) {
 		// Initialize input field
 		PrintBlanks(width+1, 1);
 		i = curlen-offset; 
@@ -126,7 +126,8 @@ unsigned char InputStr(unsigned char width, char *buffer, unsigned char len, uns
 	}
 
 	// Show cursor
-	PrintChr(95);
+	if (key != 1) 
+		PrintChr(95);
 	txtX = bckX;
 	return 0;
 }
