@@ -344,6 +344,7 @@ callback* ScrollBar(unsigned char col, unsigned char row, unsigned char height, 
 callback* PushCallback(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char type);
 callback* CheckCallbacks(unsigned char col, unsigned char row);
 void PopCallback(callback* call);
+unsigned char SliderPos(callback* call);
 unsigned char ProcessInput(void);
 void ClearCallbacks(void);
 

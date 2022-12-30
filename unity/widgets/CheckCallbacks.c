@@ -46,8 +46,10 @@ callback* CheckCallbacks(unsigned char col, unsigned char row)
 			case CALLTYPE_INPUT:	
 				inputCall = call;
 				inputWidth = call->colEnd - call->colBeg;
-			#if defined __LYNX__ 
+			#if defined(__LYNX__) || defined(__NES__) 
+			  #if defined(__LYNX__)
 				SetKeyboardOverlay(54,70);
+			  #endif
 				ShowKeyboardOverlay();
 			#endif		
 				break;
@@ -57,7 +59,7 @@ callback* CheckCallbacks(unsigned char col, unsigned char row)
 				if (callList) {	
 					txtX = callList->colBeg;
 					txtY = callList->rowBeg;
-			#if defined __NES__
+			#if defined(__NES__)
 					txtX--; PrintChr(CHR_LINE_VERT);
 			#else				
 					inkColor = callList->ink;
@@ -67,7 +69,7 @@ callback* CheckCallbacks(unsigned char col, unsigned char row)
 				}
 				txtX = call->colBeg;
 				txtY = call->rowBeg;
-			#if defined __NES__
+			#if defined(__NES__)
 				txtX--; PrintChr(CHR_SLIDER_VERT);
 			#else				
 				inkColor = call->paper;

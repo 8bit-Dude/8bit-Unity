@@ -39,7 +39,7 @@ unsigned char ProcessInput()
 		txtX = inputCall->colBeg; txtY = inputCall->rowBeg;
 		if (InputStr(inputWidth, inputCall->buffer, inputCall->value, cgetc())) {
 			inputCall = 0;
-		#if defined __LYNX__
+		#if defined(__LYNX__) || defined(__NES__)
 			HideKeyboardOverlay();	
 		#endif	
 			return 0;		

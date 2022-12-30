@@ -34,6 +34,14 @@
   #pragma code-name("SHADOW_RAM")
 #endif
 
+#ifdef __NES__
+  #pragma rodata-name("BANK0")
+  #pragma code-name("BANK0")
+  #pragma bss-name(push, "XRAM")
+    unsigned char pixelMap[768];
+  #pragma bss-name(pop)	
+#endif
+
 // Apple specific variables & functions
 #ifdef __APPLE2__
   extern unsigned char xHires, yHires, xptr, yptr, *bgPtr;
@@ -295,6 +303,27 @@ void SetPixel(unsigned char color)
 	// Set color in COLORAM
 	offset = (pixelY/8u)*40u+(pixelX/4u);
 	POKE(COLORRAM+offset, color);
+
+#elif defined __NES__
+	// Set screen & map coordinates
+	unsigned char *p;
+	txtX = pixelX/2u; txtY = pixelY/2u;
+	p = pixelMap[txtY*32+txtX];
+	
+	// Encode pixel data
+	if (pixelY%2) {
+		if (pixelX%2)
+			p |= 0b10011000;
+		else
+			p |= 0b10010100;		
+	} else {
+		if (pixelX%2)
+			p |= 0b10010010;
+		else
+			p |= 0b10010001;
+	}
+	SetVramName();	
+	SetVramChar(p);
 		
 #elif defined __ORIC__
 	unsigned int offset;

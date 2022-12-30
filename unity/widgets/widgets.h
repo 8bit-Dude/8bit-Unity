@@ -35,6 +35,9 @@
 #endif
 
 #if (defined __NES__)
+  #pragma rodata-name("BANK0")
+  #pragma code-name("BANK0")  
+  extern unsigned char widgetBuf[WIDGETRAM];	
   extern unsigned char* widgetPtr;
 #endif
 

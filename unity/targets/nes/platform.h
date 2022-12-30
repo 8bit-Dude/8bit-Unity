@@ -42,11 +42,11 @@
 #define CHARMAPRAM  0x1000	// Stores charmap data
 #define CHARFLAGRAM 0x0084	// Stores charflag+palette data
 #define DECODERAM   0x0400	// Decoded char data
-#define WIDGETRAM   0x0300	// Stores callback data
+#define WIDGETRAM   0x0200	// Stores callback data
 
 // Character Mode
-#define TXT_COLS 32
-#define TXT_ROWS 24
+#define TXT_COLS 	32
+#define TXT_ROWS 	24
 #define FONT_WIDTH  1
 #define FONT_HEIGHT 1
 

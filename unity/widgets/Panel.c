@@ -43,37 +43,47 @@ void Border(unsigned char x1, unsigned char x2, unsigned char y1, unsigned char 
 	}
 	PrintChr(CHR_CORNER_BR); 	
 }	
-#else
+#endif
+
 void Line(unsigned char x1, unsigned char x2, unsigned char y1, unsigned char y2) 
 {
 	if (x1 == x2) {
 		pixelX = x1;
-		for (pixelY=y1; pixelY<y2; pixelY++)
+		for (pixelY=y1; pixelY<y2; pixelY++) {
+		  #if defined __NES__	
+			txtX = pixelX; txtY = pixelY;
+			PrintChr(CHR_LINE_VERT);
+		  #else
 			SetPixel(inkColor); 
+		  #endif
+		}
 	} else {
 		pixelY = y1;
-		for (pixelX=x1; pixelX<x2; pixelX++)
+		for (pixelX=x1; pixelX<x2; pixelX++) {
+		  #if defined __NES__			
+			txtX = pixelX; txtY = pixelY;
+			PrintChr(CHR_LINE_HORZ);
+		  #else
 			SetPixel(inkColor); 
+		  #endif
+		}
 	}
 }
-#endif
 
 void Panel(unsigned char col, unsigned char row, unsigned char width, unsigned char height, unsigned char* title)
 {
 	unsigned char xC, xCW, yR, yRH;
 	unsigned char ink, paper;
 		
-#if defined __NES__
-	// Create border
-	Border(col-1, col+width, row, row+height);
-	
-	// Reset cursor
-	txtX = col; txtY = row;
-#else	
 	// Clear area
 	txtX = col; txtY = row;
 	PrintBlanks(width, height);
 	
+#if defined __NES__
+	// Create border
+	Border(col-1, col+width, row, row+height);
+	txtX = col; txtY = row;
+#else	
 	// Create border
 	xC = ColToX(col); xCW = ColToX(col+width);
 	yR = RowToY(row); yRH = RowToY(row+height); 
