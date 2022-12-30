@@ -154,15 +154,25 @@ void PrintBlanks(unsigned char width, unsigned char height)
 	if (autoRefresh) { UpdateDisplay(); }
 
 #elif defined __NES__
-	unsigned char j, c = 0, bckY = txtY;
-	if (paperColor != BLACK)
-		c = 175;
+	unsigned char j, ink, chr = 0, bckY = txtY;
+	if (paperColor != BLACK) {
+		ink = inkColor; chr = 175;
+		inkColor = paperColor;
+	}
 	while (i<height) {
+		if (paperColor != BLACK) {
+			SetVramAttr();
+			for (j=0;j<width; j++)
+				SetVramColor(1);
+		}
 		SetVramName();
 		for (j=0;j<width; j++)
-			SetVramChar(c);
+			SetVramChar(chr);
 		txtY++; i++;
 	}
+	if (paperColor != BLACK) {
+		inkColor = ink;
+	}		
 	txtY = bckY;
 	if (autoRefresh) { UpdateDisplay(); }
 #endif

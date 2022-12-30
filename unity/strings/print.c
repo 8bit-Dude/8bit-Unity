@@ -84,13 +84,13 @@ void PrintChr(char chr)
 	else
 		chr += 160;
 
-	// Write char to VRAM buffer
-	SetVramName();
-	SetVramChar(chr);
-
 	// Write attribute to VRAM buffer
 	SetVramAttr();
 	SetVramColor(1);
+	
+	// Write char to VRAM buffer
+	SetVramName();
+	SetVramChar(chr);
 	
 #else	
 	// Declare variables

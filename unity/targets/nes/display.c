@@ -86,6 +86,7 @@ void __fastcall__ SetVramName(void)
 
 void __fastcall__ SetVramAttr(void) 
 {
+	unsigned char color = (inkColor&3);
 	unsigned char y = txtY+3;
 	
 	// Set VRAM address in Attribute Table
@@ -93,7 +94,7 @@ void __fastcall__ SetVramAttr(void)
 	SetVramAddr();
 	
 	// Prepare attribute variables
-	vram_attr_color = (inkColor << 6) | (inkColor << 4) | (inkColor << 2) | inkColor;
+	vram_attr_color = (color << 6) | (color << 4) | (color << 2) | color;
 	vram_attr_index = 8*(y/4u) + txtX/4u;
 	vram_attr_vert = (y%4);
 	vram_attr_horz = (txtX%4); 

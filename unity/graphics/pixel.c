@@ -322,8 +322,14 @@ void SetPixel(unsigned char color)
 		else
 			p |= 0b10010001;
 	}
-	SetVramName();	
+	
+	// Write char to VRAM buffer
+	SetVramName();
 	SetVramChar(p);
+
+	// Write attribute to VRAM buffer
+	SetVramAttr();
+	SetVramColor(1);
 		
 #elif defined __ORIC__
 	unsigned int offset;
