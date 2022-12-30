@@ -18,8 +18,23 @@ fix8 norms[MAXFACE][3];
 unsigned char pxls[MAXVERT][2];
 
 // Screen properties
-static int screenW = 128;
-static int screenH = 102;
+#if defined (__APPLE2__)
+  #define SCREENY 8u
+  #define SCREENW 105u
+  #define SCREENH 184u
+#elif defined (__ATARI__) || defined(__CBM__)
+  #define SCREENY 8u
+  #define SCREENW 120u
+  #define SCREENH 192u
+#elif defined(__LYNX__)
+  #define SCREENY 6u
+  #define SCREENW 120u
+  #define SCREENH 96u
+#elif defined (__ORIC__)
+  #define SCREENY 8u
+  #define SCREENW 174u
+  #define SCREENH 192u
+#endif
 fix8 canvasW = Fix8(2);
 fix8 canvasH = Fix8(2);
 
@@ -164,13 +179,13 @@ void Rasterize(unsigned char index)
 	for (i=beg; i<end; ++i) {
 		// Project point to screen
 		M43multV3(worldToCamera, trans[i], camPt);
-		x = imul16x16r32(screenW, (canvasW/2u - imul16x16r32(256,camPt[0])/camPt[2])) / canvasW;
-		y = screenH - imul16x16r32(screenH, (canvasH/2 - imul16x16r32(256,camPt[1])/camPt[2])) / canvasH;
-		if (x<0 || x>=screenW || y<0 || y>=screenW) {
+		x = imul16x16r32(SCREENW, (canvasW/2u - imul16x16r32(256,camPt[0])/camPt[2])) / canvasW;
+		y = SCREENH - imul16x16r32(SCREENH, (canvasH/2 - imul16x16r32(256,camPt[1])/camPt[2])) / canvasH;
+		if (x<0 || x>=SCREENW || y<0 || y>=SCREENW) {
 			pxls[i][0] = 255;
 		} else {
 			pxls[i][0] = x;
-			pxls[i][1] = y;
+			pxls[i][1] = y+SCREENY;
 		}
 	}
 }
@@ -204,6 +219,11 @@ void RenderAll(void)
 {
 	unsigned int i, beg, end;
 	unsigned char m, *v;
+	
+	// Clear Canvas
+	txtX = 0; txtY = 1;
+	inkColor = WHITE; paperColor = BLACK;
+	PrintBlanks(TXT_COLS-10, TXT_ROWS-1);
 
 	// Loop through meshes
 	for (m=0; m<nMesh; m++) {

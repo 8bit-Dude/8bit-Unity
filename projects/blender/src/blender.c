@@ -1,28 +1,16 @@
 
 #include "definitions.h"
 
-callback *callAdd, *callRem, *callEdit, *callTmp, **callPrim[5], *callOK;
 callback *callRL, *callRR, *callRU, *callRD, *callZM, *callZP;
-
-void ResetCalls(void)
-{
-	unsigned char i;
-	ClearCallbacks();
-	for (i=0; i<5; i++) callPrim[i] = 0;
-	callAdd = 0; callRem = 0; callEdit = 0; callOK = 0;
-	callRL = 0; callRR = 0; callRU = 0; callRD = 0; callZM = 0; callZP = 0; 
-}
+callback *callAdd, *callRem, *callEdit, *callTmp, **callPrim[5], *callOK;
 
 unsigned char up[] = { CHR_ARROW_UP,    0 };
 unsigned char dn[] = { CHR_ARROW_DOWN,  0 };
 unsigned char lf[] = { CHR_ARROW_LEFT,  0 };
 unsigned char rg[] = { CHR_ARROW_RIGHT, 0 };
 
-void DrawGUI(void)
+void InitGUI(void)
 {
-	// Reset Callbacks
-	ResetCalls();
-
 	// Set GUI Style
 	paperColor = BLACK; 
 	inkColor = WHITE;
@@ -47,19 +35,19 @@ void DrawGUI(void)
 	callAdd  = Button(TXT_COLS-8, 10, 3, 1, "ADD");
 	callRem  = Button(TXT_COLS-4, 10, 3, 1, "REM");
 	callEdit = Button(TXT_COLS-6, 12, 4, 1, "EDIT");
-	
-	// Show Mesh List
-	ListBox(TXT_COLS-8, 0, 7, 9, "Meshes", names, nMesh);
-	if (nMesh) callTmp = CheckCallbacks(33, iMesh+1);	//	Select current mesh	
-	
+		
 	// Show Memory Stats
 	txtX = TXT_COLS-9;
-	txtY = TXT_ROWS-2; PrintStr("V:  0/256");
-	txtY = TXT_ROWS-1; PrintStr("F:  0/256");
+	txtY = TXT_ROWS-2; PrintStr("V:   /256");
+	txtY = TXT_ROWS-1; PrintStr("F:   /256");
 }
 
 void UpdateGUI(void)
 {
+	// Show Mesh List and Highlight Current Mesh
+	ListBox(TXT_COLS-8, 0, 7, 9, "Meshes", names, nMesh);
+	if (nMesh) callTmp = CheckCallbacks(33, iMesh+1);
+	
 	// Update Memory Stats
 	if (nVert > 99) {
 		txtX = TXT_COLS-7;
@@ -85,10 +73,7 @@ void UpdateGUI(void)
 void PrimitivePanel(void)
 {
 	unsigned char i;
-	
-	// Reset Callbacks
-	ResetCalls();
-	
+
 	// Panel
 	paperColor = BLACK; inkColor = WHITE;
 	Panel(6, 5, 20, 5, "");
@@ -105,9 +90,6 @@ unsigned char trsfStr[9][4] = { "0", "0", "0", "0", "0", "0", "10", "10", "10" }
 void TransformPanel(void)
 {
 	unsigned char i,j;
-
-	// Reset Callbacks
-	ResetCalls();
 	
 	// Panel
 	paperColor = BLACK; inkColor = WHITE;
@@ -160,16 +142,50 @@ void DecodeTransform(void)
 	}
 }
 
+extern callback* callHead;
+
+void ResetCalls(void)
+{
+	unsigned char delete = 0;
+	
+	// Clear callbacks added after "Edit"
+	callback *this = callHead, *next;	
+	while (this) {
+		next = this->next;
+		if (delete)
+			free(this);
+		if (this == callEdit) {
+			this->next = 0;
+			delete = 1;
+		}
+		this = next;
+	}	
+}
+
 void ProcessCallback(callback* call)
 {
-	unsigned char i, update = 0, redraw = 0;
+	unsigned char i, refresh = 0;
 	
-	// Check Primitive Buttons
-	for (i=0; i<5; i++) {
-		if (call == callPrim[i]) {
-			primitive = i;
-			TransformPanel();
-			return;		
+	// Check Panel Buttons
+	if (call == callOK) { 
+		ResetCalls();
+		DecodeTransform();
+		if (primitive != 255) {
+			Push(primitive);
+			primitive = 255;
+		}
+		Transform(iMesh);
+		Rasterize(iMesh);		
+		RenderAll();
+		UpdateGUI();
+	} else {
+		for (i=0; i<5; i++) {
+			if (call == callPrim[i]) {
+				ResetCalls();
+				primitive = i;
+				TransformPanel();
+				return;		
+			}
 		}
 	}
 	
@@ -182,66 +198,47 @@ void ProcessCallback(callback* call)
 		EncodeTransform();
 		TransformPanel();
 	} else 
-	if (call == callOK) { 	
-		DecodeTransform();
-		if (primitive != 255) {
-			Push(primitive);
-			primitive = 255;
-		}
-		Transform(iMesh);
-		Rasterize(iMesh);		
-		redraw = 1;
-	} else
 	if (call == callRem) {
 		if (!nMesh) return;
-		Pop(); redraw = 1;
+		Pop(); 		
+		RenderAll();		
+		UpdateGUI();
 	} else
 	if (call == callRL) {
-		camRotZ += 20; update = 1;
+		camRotZ += 20; refresh = 1;
 		camRotZ %= 360;
 	} else 
 	if (call == callRR) {
-		camRotZ -= 20; update = 1;
+		camRotZ -= 20; refresh = 1;
 		camRotZ %= 360;
 	} else
 	if (call == callRU) {
-		camRotX += 20; update = 1;
+		camRotX += 20; refresh = 1;
 		camRotX %= 360;
 	} else 
 	if (call == callRD) {
-		camRotX -= 20; update = 1;
+		camRotX -= 20; refresh = 1;
 		camRotX %= 360;
 	} else
 	if (call == callZM) {
-		camZoom *= 2u; update = 1;
+		camZoom = camZoom*3/2u; refresh = 1;
 	} else 
 	if (call == callZP) {
-		camZoom /= 2u; update = 1;
+		camZoom = camZoom*2/3u; refresh = 1;
 	} 
 
 	// Update scene?
-	if (update) {
+	if (refresh) {
 		UpdateCamera();	
 		RasterizeAll();
-		redraw = 1;
-	}
-
-	// Redraw scene?
-	if (redraw) {
-		ClearBitmap();
 		RenderAll();
-		DrawGUI(); 
-		UpdateGUI();
-	}		
+	}
 }
 
 int main(void) 
 {
 	callback *call;
 	unsigned char mouseLock = 0;	
-
-	// Init systems
-	InitMouse();	
 
 	// Init Screen
 	InitBitmap();
@@ -250,7 +247,11 @@ int main(void)
 		
 	// Prepare camera
 	UpdateCamera();
-	DrawGUI();
+
+	// Init systems
+	InitMouse();	
+	InitGUI();
+	UpdateGUI();	
 	
 	while (1) {		
 		// Update Input Box (if active)
