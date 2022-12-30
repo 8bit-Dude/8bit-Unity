@@ -27,7 +27,7 @@ extern unsigned char* mouse;
 // See primitives.c
 void Push(unsigned char prim);
 void Pop(void);
-extern char** namePrim[];
+extern const char** namePrim[];
 
 // See scene.c
 void UpdateCamera(void);

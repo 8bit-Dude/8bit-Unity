@@ -1,6 +1,12 @@
 
 #include "definitions.h"
 
+#if (defined __NES__)
+  #pragma rodata-name("BANK0")
+  #pragma code-name("BANK0")  	
+  #pragma bss-name(push, "XRAM")
+#endif
+
 // Mesh list properties
 unsigned char nMesh, iMesh, nFace, nVert;
 unsigned char names[MAXMESH][8], nVerts[MAXMESH], nFaces[MAXMESH];
@@ -17,6 +23,10 @@ fix8 norms[MAXFACE][3];
 // Rasterized mesh data
 unsigned char pxls[MAXVERT][2];
 
+#if (defined __NES__)
+ #pragma bss-name(pop)
+#endif
+
 // Screen properties
 #if defined (__APPLE2__)
   #define SCREENY 8u
@@ -30,6 +40,10 @@ unsigned char pxls[MAXVERT][2];
   #define SCREENY 6u
   #define SCREENW 120u
   #define SCREENH 96u
+#elif defined (__NES__)
+  #define SCREENY 1u
+  #define SCREENW 46u
+  #define SCREENH 46u
 #elif defined (__ORIC__)
   #define SCREENY 8u
   #define SCREENW 174u

@@ -16,11 +16,17 @@ void InitGUI(void)
 	inkColor = WHITE;
 
 	// Title and Frame
+  #if defined(__NES__)	
+	txtX = 0; txtY = 0; 
+	PrintStr("--8bit-Blender--");
+	Line((TXT_COLS-10)*FONT_WIDTH, (TXT_COLS-10)*FONT_WIDTH, 5*FONT_HEIGHT, (TXT_ROWS)*FONT_HEIGHT);   
+  #else
 	txtX = 8; txtY = 0; 
 	PrintStr("8bit-Blender");
 	Line(0*FONT_WIDTH, 8*FONT_WIDTH, 3, 3); 
 	Line(20*FONT_WIDTH, (TXT_COLS-17)*FONT_WIDTH, 3, 3);
-	Line((TXT_COLS-10)*FONT_WIDTH+1, (TXT_COLS-10)*FONT_WIDTH+1, 5*FONT_HEIGHT, (TXT_ROWS)*FONT_HEIGHT-1); 
+	Line((TXT_COLS-10)*FONT_WIDTH+1, (TXT_COLS-10)*FONT_WIDTH+1, 5*FONT_HEIGHT, (TXT_ROWS)*FONT_HEIGHT); 
+  #endif
 		
 	// Show Transform Buttons
 	txtX = TXT_COLS-15, txtY = 0; PrintChr('-');
@@ -76,7 +82,7 @@ void PrimitivePanel(void)
 
 	// Panel
 	paperColor = BLACK; inkColor = WHITE;
-	Panel(6, 5, 20, 5, "");
+	Panel(6, 5, 20, 5, " ");
 	
 	// Buttons
  	for (i=0; i<3; i++) {
@@ -93,7 +99,7 @@ void TransformPanel(void)
 	
 	// Panel
 	paperColor = BLACK; inkColor = WHITE;
-	Panel(6, 5, 20, 5, "");	
+	Panel(6, 5, 20, 5, " ");	
 	
 	// Labels
 	txtX = 7; txtY = 6;
