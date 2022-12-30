@@ -39,6 +39,8 @@
 // Charmap Mode
 #define CMP_COLS 40
 #define CMP_ROWS 25	
+#define FONT_WIDTH  4
+#define FONT_HEIGHT 6
 
 // Bitmap Mode (Default)
 #define BMP_COLS 160

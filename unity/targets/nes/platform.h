@@ -47,6 +47,8 @@
 // Character Mode
 #define TXT_COLS 32
 #define TXT_ROWS 24
+#define FONT_WIDTH  1
+#define FONT_HEIGHT 1
 
 // Charmap Mode
 #define CMP_COLS   32
