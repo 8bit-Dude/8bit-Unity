@@ -31,7 +31,7 @@
             "diskSize": "140KB", 
             "crunchAssets": "No", 
             "musicMemory": "auto", 
-            "chunkMemory": "$0400", 
+            "chunkMemory": "$0000", 
             "network8bitHub": false, 
             "networkUthernet": false, 
             "networkProtocols": "TCP/UDP"
@@ -50,7 +50,7 @@
             "diskSize": "90KB", 
             "crunchAssets": "No", 
             "musicMemory": "$0800", 
-            "chunkMemory": "$0400", 
+            "chunkMemory": "$0000", 
             "network8bitHub": false, 
             "networkDragonCart": false, 
             "networkFujinet": false, 
@@ -70,7 +70,7 @@
             "chunks": [], 
             "crunchAssets": "No", 
             "musicMemory": "$4000", 
-            "chunkMemory": "$0200", 
+            "chunkMemory": "$0000", 
             "network8bitHub": false, 
             "networkRRNet": false, 
             "networkUltimate": false, 
@@ -87,9 +87,9 @@
             ], 
             "music": [], 
             "chunks": [], 
-            "musicMemory": "$0C00", 
-            "chunkMemory": "$0400", 
-            "sharedMemory": "$0400", 
+            "musicMemory": "$0000", 
+            "chunkMemory": "$0000", 
+            "sharedMemory": "$0000", 
             "virtualKeyboard": true
         }, 
         "NES": {
@@ -105,7 +105,7 @@
             "music": [], 
             "chunks": [], 
             "musicMemory": "$4000", 
-            "chunkMemory": "$0200"
+            "chunkMemory": "$0000"
         }, 
         "Oric": {
             "spriteFrames": "2", 
@@ -121,7 +121,7 @@
             "music": [], 
             "chunks": [], 
             "musicMemory": "auto", 
-            "chunkMemory": "$0400"
+            "chunkMemory": "$0000"
         }
     }
 }

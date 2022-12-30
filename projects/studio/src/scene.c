@@ -2,7 +2,7 @@
 #include "definitions.h"
 
 // Mesh list properties
-unsigned char meshNum, meshCur, cFaces, cVerts;
+unsigned char nMesh, iMesh, nFace, nVert;
 unsigned char names[MAXMESH][8], nVerts[MAXMESH], nFaces[MAXMESH];
 fix8 trsf[MAXMESH][9];
 
@@ -18,13 +18,13 @@ fix8 norms[MAXFACE][3];
 unsigned char pxls[MAXVERT][2];
 
 // Screen properties
-static int screenW = 110;
-static int screenH = 95;
+static int screenW = 128;
+static int screenH = 102;
 fix8 canvasW = Fix8(2);
 fix8 canvasH = Fix8(2);
 
 // Camera properties
-fix8 camRotX = 40, camRotZ = 160, camZoom = 256;
+fix8 camRotX = 60, camRotZ = 140, camZoom = 128;
 fix8 camVec[3] = {0,0,256};
 fix8 worldToCamera[12] = { 256,     0,     0,
 							 0,   256,     0,
@@ -150,6 +150,7 @@ void Transform(unsigned char index)
 void Rasterize(unsigned char index) 
 {
 	unsigned int i, beg, end;
+	signed int x, y;
 	fix8 camPt[3];
 	
 	// Compute vertex range
@@ -163,9 +164,14 @@ void Rasterize(unsigned char index)
 	for (i=beg; i<end; ++i) {
 		// Project point to screen
 		M43multV3(worldToCamera, trans[i], camPt);
-		pxls[i][0] = imul16x16r32(screenW, (canvasW/2u - imul16x16r32(256,camPt[0])/camPt[2])) / canvasW;
-		pxls[i][1] = screenH - imul16x16r32(screenH, (canvasH/2 - imul16x16r32(256,camPt[1])/camPt[2])) / canvasH;
-		
+		x = imul16x16r32(screenW, (canvasW/2u - imul16x16r32(256,camPt[0])/camPt[2])) / canvasW;
+		y = screenH - imul16x16r32(screenH, (canvasH/2 - imul16x16r32(256,camPt[1])/camPt[2])) / canvasH;
+		if (x<0 || x>=screenW || y<0 || y>=screenW) {
+			pxls[i][0] = 255;
+		} else {
+			pxls[i][0] = x;
+			pxls[i][1] = y;
+		}
 	}
 }
 
@@ -174,7 +180,7 @@ void RasterizeAll(void)
 	unsigned char m;
 
 	// Loop through meshes
-	for (m=0; m<meshNum; m++) {
+	for (m=0; m<nMesh; m++) {
 		Rasterize(m);
 	}	
 }
@@ -200,7 +206,7 @@ void RenderAll(void)
 	unsigned char m, *v;
 
 	// Loop through meshes
-	for (m=0; m<meshNum; m++) {
+	for (m=0; m<nMesh; m++) {
 		// Compute face range
 		if (m > 0)
 			beg = nFaces[m-1];
@@ -210,12 +216,16 @@ void RenderAll(void)
 		
 		// Do Draw?
 		for (i=beg; i<end; ++i) {
+			// Check all pixels are within screen
+			v = faces[i];
+			if (pxls[v[0]][0] == 255 || pxls[v[0]][0] == 255 || pxls[v[0]][0] == 255)
+				continue;
+			
 			// Check normals against camera vector
 			if (V3dotV3(norms[i], camVec) <= -16)
 				continue;
 						
 			// Draw the triangle sides
-			v = faces[i];
 			DrawLine(pxls[v[0]], pxls[v[1]]);
 			DrawLine(pxls[v[1]], pxls[v[2]]);
 			DrawLine(pxls[v[2]], pxls[v[0]]);

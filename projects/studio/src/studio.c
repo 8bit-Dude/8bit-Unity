@@ -1,15 +1,15 @@
 
 #include "definitions.h"
 
-callback *callAdd, *callRem, *callEdit, *callTmp, *callOK;
-callback *callBox, *callCon, *callCyl, *callSph, *callTor;
+callback *callAdd, *callRem, *callEdit, *callTmp, **callPrim[5], *callOK;
 callback *callRL, *callRR, *callRU, *callRD, *callZM, *callZP;
 
 void ResetCalls(void)
 {
+	unsigned char i;
 	ClearCallbacks();
+	for (i=0; i<5; i++) callPrim[i] = 0;
 	callAdd = 0; callRem = 0; callEdit = 0; callOK = 0;
-	callBox = 0; callCon = 0; callCyl = 0; callSph = 0; callTor = 0;
 	callRL = 0; callRR = 0; callRU = 0; callRD = 0; callZM = 0; callZP = 0; 
 }
 
@@ -26,39 +26,78 @@ void DrawGUI(void)
 	// Set GUI Style
 	paperColor = BLACK; 
 	inkColor = WHITE;
-	
-	// Show Mesh List
-	ListBox(TXT_COLS-8, 0, 7, 9, "Meshes", names, meshNum);
-	if (meshNum) callTmp = CheckCallbacks(33, meshCur+1);	//	Select current mesh
 
+	// Title and Frame
+	txtX = 8; txtY = 0; 
+	PrintStr("8bit-Blender");
+	Line(0*FONT_WIDTH, 8*FONT_WIDTH, 3, 3); 
+	Line(20*FONT_WIDTH, (TXT_COLS-17)*FONT_WIDTH, 3, 3);
+	Line((TXT_COLS-10)*FONT_WIDTH+1, (TXT_COLS-10)*FONT_WIDTH+1, 5*FONT_HEIGHT, (TXT_ROWS)*FONT_HEIGHT-1); 
+		
+	// Show Transform Buttons
+	txtX = TXT_COLS-15, txtY = 0; PrintChr('-');
+	callRL = Button(TXT_COLS-16, 0, 1, 1, lf);
+	callRR = Button(TXT_COLS-14, 0, 1, 1, rg);
+	callRU = Button(TXT_COLS-10, 2, 1, 1, up);
+	callRD = Button(TXT_COLS-10, 3, 1, 1, dn);
+	callZM = Button(TXT_COLS-11, 0, 1, 1, "-");
+	callZP = Button(TXT_COLS-10, 0, 1, 1, "+");
+	
 	// Show Command Buttons
 	callAdd  = Button(TXT_COLS-8, 10, 3, 1, "ADD");
 	callRem  = Button(TXT_COLS-4, 10, 3, 1, "REM");
 	callEdit = Button(TXT_COLS-6, 12, 4, 1, "EDIT");
 	
-	// Show Transform Buttons
-	txtX = TXT_COLS-13, txtY = 0; PrintChr('-');
-	callRL = Button(TXT_COLS-14, 0, 1, 1, lf);
-	callRR = Button(TXT_COLS-12, 0, 1, 1, rg);
-	callRU = Button(TXT_COLS-10,  2, 1, 1, up);
-	callRD = Button(TXT_COLS-10,  3, 1, 1, dn);
-	callZM = Button(TXT_COLS-11, 1, 1, 1, "-");
-	callZP = Button(TXT_COLS-10, 0, 1, 1, "+");
+	// Show Mesh List
+	ListBox(TXT_COLS-8, 0, 7, 9, "Meshes", names, nMesh);
+	if (nMesh) callTmp = CheckCallbacks(33, iMesh+1);	//	Select current mesh	
+	
+	// Show Memory Stats
+	txtX = TXT_COLS-9;
+	txtY = TXT_ROWS-2; PrintStr("V:  0/256");
+	txtY = TXT_ROWS-1; PrintStr("F:  0/256");
+}
+
+void UpdateGUI(void)
+{
+	// Update Memory Stats
+	if (nVert > 99) {
+		txtX = TXT_COLS-7;
+	} else 
+	if (nVert > 9) {
+		txtX = TXT_COLS-6;
+	} else {
+		txtX = TXT_COLS-5;
+	}	
+	txtY = TXT_ROWS-2; PrintNum(nVert);
+
+	if (nFace > 99) {
+		txtX = TXT_COLS-7;
+	} else 
+	if (nFace > 9) {
+		txtX = TXT_COLS-6;
+	} else {
+		txtX = TXT_COLS-5;
+	}	
+	txtY = TXT_ROWS-1; PrintNum(nFace);	
 }
 
 void PrimitivePanel(void)
 {
+	unsigned char i;
+	
 	// Reset Callbacks
 	ResetCalls();
 	
 	// Panel
 	paperColor = BLACK; inkColor = WHITE;
-	Panel(10, 4, 20, 6, "");
-	callBox = Button(12, 6, 8, 1, "  BOX   ");
-	callCon = Button(12, 7, 8, 1, "  CONE  ");
-	callCyl = Button(12, 8, 8, 1, "CYLINDER");
-	callSph = Button(21, 6, 8, 1, " SPHERE ");
-	callTor = Button(21, 7, 8, 1, " TORUS  ");
+	Panel(6, 5, 20, 5, "");
+	
+	// Buttons
+ 	for (i=0; i<3; i++) {
+		callPrim[i+0] = Button(8, 6+i, 8, 1, namePrim[i+0]);
+		if (i<2) callPrim[i+3] = Button(17, 6+i, 8, 1, namePrim[i+3]);
+	}
 }
 
 unsigned char trsfStr[9][4] = { "0", "0", "0", "0", "0", "0", "10", "10", "10" };
@@ -72,10 +111,10 @@ void TransformPanel(void)
 	
 	// Panel
 	paperColor = BLACK; inkColor = WHITE;
-	Panel(10, 4, 20, 6, "");	
+	Panel(6, 5, 20, 5, "");	
 	
 	// Labels
-	txtX = 11; txtY = 5;
+	txtX = 7; txtY = 6;
 	PrintStr("Pos:"); txtY += 1;
 	PrintStr("Rot:"); txtY += 1;
 	PrintStr("Dim:"); txtY += 1;
@@ -84,13 +123,13 @@ void TransformPanel(void)
 	paperColor = WHITE; inkColor = BLACK;
 	for (i=0; i<3; i++) {
 		for (j=0; j<3; j++) {
-			callTmp = Input(16+5*j, 5+i, 3, 1, trsfStr[i*3+j], 3);
+			callTmp = Input(12+5*j, 6+i, 3, 1, trsfStr[i*3+j], 3);
 		}
 	}
 	
 	// Controls
 	paperColor = BLACK; inkColor = WHITE;	
-	callOK = Button(19, 9, 7, 1, " OK");	
+	callOK = Button(15, 9, 7, 1, " OK");	
 }
 
 void EncodeTransform(void)
@@ -98,22 +137,22 @@ void EncodeTransform(void)
 	unsigned char i;
 	fix8 val;	
 	for (i=0; i<9; i++) {
-		val = trsf[meshCur][i];
+		val = trsf[iMesh][i];
 		if (i<3 || i>5) val /= 256u;	
 		sprintf(trsfStr[i], "%d", val); 
 	}
 }
 
-unsigned char primitive;
+unsigned char primitive = 255;
 
 void DecodeTransform(void)
 {
 	unsigned char i, m;
 	fix8 val;
-	if (primitive)
-		m = meshNum;
+	if (primitive != 255)
+		m = nMesh;
 	else
-		m = meshCur;
+		m = iMesh;
 	for (i=0; i<9; i++) {
 		sscanf(trsfStr[i], "%d", &val); 
 		if (i<3 || i>5) val *= 256u;	
@@ -123,48 +162,38 @@ void DecodeTransform(void)
 
 void ProcessCallback(callback* call)
 {
-	unsigned char update = 0, redraw = 0;
+	unsigned char i, update = 0, redraw = 0;
 	
+	// Check Primitive Buttons
+	for (i=0; i<5; i++) {
+		if (call == callPrim[i]) {
+			primitive = i;
+			TransformPanel();
+			return;		
+		}
+	}
+	
+	// Check Interface Buttons
 	if (call == callAdd) {
 		PrimitivePanel();
 	} else
-	if (call == callBox) {
-		primitive = PRIM_BOX;
-		TransformPanel();
-	} else 
-	if (call == callCon) {
-		primitive = PRIM_CON;
-		TransformPanel();
-	} else 
-	if (call == callCyl) {
-		primitive = PRIM_CYL;
-		TransformPanel();
-	} else 
-	if (call == callSph) {
-		primitive = PRIM_SPH;
-		TransformPanel();
-	} else 
-	if (call == callTor) {
-		primitive = PRIM_TOR;
-		TransformPanel();
-	} else
 	if (call == callEdit) {
-		if (!meshNum) return;
+		if (!nMesh) return;
 		EncodeTransform();
 		TransformPanel();
 	} else 
 	if (call == callOK) { 	
 		DecodeTransform();
-		if (primitive) {
+		if (primitive != 255) {
 			Push(primitive);
-			primitive = 0;
+			primitive = 255;
 		}
-		Transform(meshCur);
-		Rasterize(meshCur);		
+		Transform(iMesh);
+		Rasterize(iMesh);		
 		redraw = 1;
 	} else
 	if (call == callRem) {
-		if (!meshNum) return;
+		if (!nMesh) return;
 		Pop(); redraw = 1;
 	} else
 	if (call == callRL) {
@@ -202,6 +231,7 @@ void ProcessCallback(callback* call)
 		ClearBitmap();
 		RenderAll();
 		DrawGUI(); 
+		UpdateGUI();
 	}		
 }
 
@@ -239,7 +269,7 @@ int main(void)
 					call = CheckCallbacks((mouse[0]*TXT_COLS)/160u, (mouse[1]*TXT_ROWS)/200u);
 					if (call) {
 						if (call->type == CALLTYPE_LISTBOX) {
-							meshCur = call->value;
+							iMesh = call->value;
 						} else
 						if (call->type != CALLTYPE_INPUT) {
 							ProcessCallback(call);					
