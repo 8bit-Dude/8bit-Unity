@@ -46,10 +46,7 @@ callback* CheckCallbacks(unsigned char col, unsigned char row)
 			case CALLTYPE_INPUT:	
 				inputCall = call;
 				inputWidth = call->colEnd - call->colBeg;
-			#if defined(__LYNX__) || defined(__NES__) 
-			  #if defined(__LYNX__)
-				SetKeyboardOverlay(54,70);
-			  #endif
+			#if defined(__LYNX__) || defined(__NES__) 	
 				ShowKeyboardOverlay();
 			#endif		
 				break;
