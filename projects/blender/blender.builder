@@ -2,12 +2,12 @@
     "format": "8bit-Unity Project", 
     "formatVersion": 2, 
     "general": {
-        "disk": "studio", 
+        "disk": "blender", 
         "code": [
-            "projects/studio/src/studio.c", 
-            "projects/studio/src/mouse.c", 
-            "projects/studio/src/primitives.c", 
-            "projects/studio/src/scene.c"
+            "projects/blender/src/blender.c", 
+            "projects/blender/src/mouse.c", 
+            "projects/blender/src/primitives.c", 
+            "projects/blender/src/scene.c"
         ], 
         "shared": [], 
         "charmap": [], 
@@ -23,7 +23,7 @@
             "charsetDHR": [], 
             "charsetSHR": [], 
             "spritesDHR": [
-                "projects/studio/sprites/sprites-apple.png"
+                "projects/blender/sprites/sprites-apple.png"
             ], 
             "spritesSHR": [], 
             "music": [], 
@@ -43,7 +43,7 @@
             "bitmap": [], 
             "charset": [], 
             "sprites": [
-                "projects/studio/sprites/sprites-atari.png"
+                "projects/blender/sprites/sprites-atari.png"
             ], 
             "music": [], 
             "chunks": [], 
@@ -64,7 +64,7 @@
             "charset": [], 
             "charsetColors": " ", 
             "sprites": [
-                "projects/studio/sprites/sprites-c64.png"
+                "projects/blender/sprites/sprites-c64.png"
             ], 
             "music": [], 
             "chunks": [], 
@@ -83,7 +83,7 @@
             "bitmap": [], 
             "charset": [], 
             "sprites": [
-                "projects/studio/sprites/sprites-lynx.png"
+                "projects/blender/sprites/sprites-lynx.png"
             ], 
             "music": [], 
             "chunks": [], 
@@ -100,7 +100,7 @@
             "bitmap": [], 
             "charset": [], 
             "sprites": [
-                "projects/studio/sprites/sprites-nes.png"
+                "projects/blender/sprites/sprites-nes.png"
             ], 
             "music": [], 
             "chunks": [], 
@@ -116,7 +116,7 @@
             "bitmap": [], 
             "charset": [], 
             "sprites": [
-                "projects/studio/sprites/sprites-oric.png"
+                "projects/blender/sprites/sprites-oric.png"
             ], 
             "music": [], 
             "chunks": [], 
