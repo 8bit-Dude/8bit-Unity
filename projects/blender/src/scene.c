@@ -1,18 +1,18 @@
 
 #include "definitions.h"
 
+// Mesh list properties
+unsigned char nMesh, iMesh, nFace, nVert;
+unsigned char names[MAXMESH][8], nVerts[MAXMESH], nFaces[MAXMESH];
+
 #if (defined __NES__)
   #pragma rodata-name("BANK0")
   #pragma code-name("BANK0")  	
   #pragma bss-name(push, "XRAM")
 #endif
 
-// Mesh list properties
-unsigned char nMesh, iMesh, nFace, nVert;
-unsigned char names[MAXMESH][8], nVerts[MAXMESH], nFaces[MAXMESH];
-fix8 trsf[MAXMESH][9];
-
 // Raw mesh data
+fix8 trsf[MAXMESH][9];
 unsigned char faces[MAXFACE][3]; 
 fix8 verts[MAXVERT][3];
 

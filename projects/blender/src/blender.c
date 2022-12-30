@@ -46,6 +46,13 @@ void InitGUI(void)
 	txtX = TXT_COLS-9;
 	txtY = TXT_ROWS-2; PrintStr("V:   /256");
 	txtY = TXT_ROWS-1; PrintStr("F:   /256");
+	
+	// Set Keyboard Overlay Position
+  #if defined(__LYNX__)		
+	SetKeyboardOverlay(36,66);
+  #elif defined(__NES__)	
+	SetKeyboardOverlay(7,12);
+  #endif  
 }
 
 void UpdateGUI(void)

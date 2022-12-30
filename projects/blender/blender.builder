@@ -105,7 +105,7 @@
             "music": [], 
             "chunks": [], 
             "musicMemory": "$4000", 
-            "chunkMemory": "$0000"
+            "chunkMemory": "$0100"
         }, 
         "Oric": {
             "spriteFrames": "2", 
