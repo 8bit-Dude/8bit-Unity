@@ -80,10 +80,11 @@ cCore = [ 'adaptors/joystick.c', 'adaptors/mouse.c', 'geom/geom2d.c', 'math/dot.
           'charmap/InitCharmap.c','charmap/ShowCharmap.c','charmap/HideCharmap.c', 'charmap/ClearCharmap.c', 'charmap/LoadCharmap.c', 'charmap/LoadCharset.c', 'charmap/LoadTileset.c', 
           'charmap/PrintCharmap.c', 'charmap/DrawCharmap.c', 'charmap/ScrollCharmap.c', 'charmap/DecodeTiles.c', 'charmap/GetFlag.c', 'charmap/GetTile.c', 'charmap/SetTile.c', 'charmap/FreeCharmap.c',
           'chunks/LoadChunks.c', 'chunks/GetChunk.c', 'chunks/SetChunk.c', 'chunks/FreeChunk.c', 'files/FileExists.c',
-          'graphics/logos.c', 'graphics/menu.c', 'graphics/parallax.c', 'graphics/scaling.c', 'graphics/widgets.c', 
+          'graphics/logos.c', 'graphics/menu.c', 'graphics/parallax.c', 'graphics/scaling.c', 
           'network/net-base.c', 'network/net-easy.c', 'network/net-ip.c', 'network/net-tcp.c', 'network/net-udp.c', 'network/net-url.c', 'network/net-web.c', 
           'sprites/LoadSprites.c', 'sprites/EnableSprite.c', 'sprites/DisableSprite.c', 'sprites/LocateSprite.c','sprites/SetSprite.c', 'sprites/CropSprite.c', 'sprites/RecolorSprite.c', 'sprites/ScaleSprite.c', 
-          'strings/blanks.c', 'strings/copy.c', 'strings/cursor.c', 'strings/guru.c', 'strings/input.c', 'strings/number.c',  'strings/print.c' ]
+          'strings/blanks.c', 'strings/copy.c', 'strings/cursor.c', 'strings/guru.c', 'strings/input.c', 'strings/number.c',  'strings/print.c',
+          'widgets/Button.c', 'widgets/CheckCallbacks.c', 'widgets/ClearCallbacks.c', 'widgets/Icon.c', 'widgets/Input.c', 'widgets/ListBox.c', 'widgets/Panel.c', 'widgets/PopCallback.c', 'widgets/ProcessInput.c', 'widgets/PushCallback.c', 'widgets/ScrollBar.c', 'widgets/SliderPos.c' ]
 
 sCore = [ 'math/atan2.s', 'charmap/DecodeTiles2x2.s' ]
 
