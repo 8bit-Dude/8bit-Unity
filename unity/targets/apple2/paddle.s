@@ -27,10 +27,21 @@
 	.include  "apple2.inc"
 	
 	.export _GetPaddle
+	.export _GetPaddles
 	.export _GetButton
 	
+	.export _paddleX, _paddleY
+
 PREAD = $FB1E   ; Read paddle in X, return AD conv. value in Y
 
+; Zeropage addresses	
+_countX = $e3
+	
+	.segment	"BSS"	
+	
+_paddleX: .res 1	
+_paddleY: .res 1	
+	
 	.segment	"CODE"		; DO NOT RELOCATE TO OTHER SEGMENTS!!! (app crashes)
 
 ; ---------------------------------------------------------------
@@ -49,6 +60,63 @@ PREAD = $FB1E   ; Read paddle in X, return AD conv. value in Y
 	bit     $C080           ; Switch in LC bank 2 for R/O
 	rts
 .endproc	
+
+; ---------------------------------------------------------------
+; unsigned char __near__ _GetPaddles (unsigned char)
+; ---------------------------------------------------------------	
+.proc _GetPaddles: near
+	asl						  ;select paddle 0 or 2
+	tax
+	ldy     #$00
+	sty     _countX
+	bit     PTRIG             ;reset counters
+BothLoop:	
+	lda 	PADDL0,x	
+	bpl 	Paddle0Done
+	lda 	PADDL1,x	
+	bpl 	Paddle1Done
+	inc		_countX
+	iny
+	bpl     BothLoop
+	dec		_countX
+	dey
+Done:
+	jmp     Next4
+Paddle1Loop:
+	nop
+	nop
+	nop
+Paddle0Done:	
+	lda 	PADDL1,x
+	bpl     Done
+	jmp     Next2
+Next2:
+	nop
+	iny
+	bpl     Paddle1Loop
+	dey
+	jmp     Next4
+Paddle0Loop:
+	lda 	PADDL0,x		
+	bpl     Done
+	nop
+	nop
+	nop
+Paddle1Done:
+	inc		_countX
+	nop
+	bpl     Paddle0Loop
+	dec		_countX
+	jmp     Next4
+Next4:
+	lda		_countX
+	asl
+	sta 	_paddleX
+	tya
+	asl
+	sta 	_paddleY
+	rts
+.endproc
 
 ; ---------------------------------------------------------------
 ; unsigned char __near__ _GetButton (unsigned char)

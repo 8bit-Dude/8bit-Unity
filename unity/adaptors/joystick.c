@@ -67,7 +67,26 @@ void InitJoy(void)
 
 unsigned char GetJoy(unsigned char joy)
 {
-#if defined(__ATARIXL__)
+#if defined(__APPLE2__)
+	unsigned char state = 255;
+	GetPaddles(joy);
+	if (paddleX > 159) { 
+		state &= ~JOY_RIGHT;
+	} else if (paddleX < 93) {
+		state &= ~JOY_LEFT;
+	}	
+	if (paddleY > 159) { 
+		state &= ~JOY_DOWN;
+	} else if (paddleY < 93) {
+		state &= ~JOY_UP;
+	}		
+	if (GetButton(2*joy))
+		state &= ~JOY_BTN1;
+	if (GetButton(2*joy+1))
+		state &= ~JOY_BTN2;	
+	return state;
+	
+#elif defined(__ATARIXL__)
   #if defined(__HUB__)
 	if (joy>1) {
 		if (joyAdaptor) {

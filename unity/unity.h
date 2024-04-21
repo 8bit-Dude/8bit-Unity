@@ -215,8 +215,10 @@ void InitJoy(void);
 unsigned char GetJoy(unsigned char);
 unsigned char* GetMouse(void);
 #if defined __APPLE2__
-  unsigned char GetPaddle(unsigned char);
   unsigned char GetButton(unsigned char);
+  unsigned char GetPaddle(unsigned char);	// Fast reading of paddle 0, 1, 2 or 3 (Note: cannot read another paddle for 3 msec)
+  void GetPaddles(unsigned char);			// Normal reading of both paddles in joystick 0 or 1
+  extern unsigned char paddleX, paddleY;	// Paddle values received from GetPaddles()
 #endif
 
 // 2D geometry functions
