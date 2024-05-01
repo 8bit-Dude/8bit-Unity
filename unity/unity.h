@@ -267,7 +267,7 @@ void PlaySFX(unsigned char index, unsigned char pitch, unsigned char volume, uns
 
 // Sprite handling functions
 void LoadSprites(unsigned char* filename, const unsigned char *spriteColors);
-void EnableSprite(signed char index);
+void EnableSprite(unsigned char index);
 void DisableSprite(signed char index);
 void LocateSprite(unsigned int x, unsigned int y);
 void SetSprite(unsigned char index, unsigned int frame);
@@ -302,11 +302,9 @@ void RecolorSprite(unsigned char index, unsigned char offset, unsigned char colo
   unsigned char COLLISIONS(unsigned char i);
   #define COLLIDING(collisions,i) (collisions & (1<<i)) 
 #elif defined(__ATARI__)
-  extern unsigned char sprCollision[SPRITE_NUM];
   #define COLLISIONS(i) (sprCollision[i])
   #define COLLIDING(collisions,i) (collisions & (1<<i&7)) 
 #else
-  extern unsigned char sprCollision[SPRITE_NUM];
   #define COLLISIONS(i) (sprCollision[i])
   #define COLLIDING(collisions,i) (collisions & (1<<i)) 
 #endif

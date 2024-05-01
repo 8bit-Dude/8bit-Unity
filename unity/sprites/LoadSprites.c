@@ -42,8 +42,6 @@
 // Platform specific parameters
 #if defined __APPLE2__
 	unsigned char *sprData;					// Pointer to sprite data (allocated dynamically)
-	unsigned char  sprX[SPRITE_NUM], sprY[SPRITE_NUM];	 // Screen coordinates
-	unsigned char  sprDrawn[SPRITE_NUM], sprCollision[SPRITE_NUM]; // Draw/Collision status
 	unsigned char  sprHiresX[SPRITE_NUM];  	// Byte offset within Hires line
 	unsigned char *sprBG[SPRITE_NUM];  		// Sprite background
 	unsigned char  sprRows[SPRITE_NUM];  	// Sprite dimensions used in algorithms
@@ -51,7 +49,6 @@
 #elif defined __ATARI__	
 	unsigned char *sprData, sprYOffset, sprDLIs, sprCushion = 2;
 	unsigned char sprMask[] = { 1, 2, 4, 8, 1, 2, 4, 8, 1, 2, 4, 8, 1, 2, 4, 8 };	
-	unsigned char sprCollision[SPRITE_NUM];
 	unsigned char cushionLow, cushionHigh;
 
 #elif defined __CBM__
@@ -69,8 +66,6 @@
 	}	
 	
 #elif defined __LYNX__
-	unsigned char sprX[SPRITE_NUM], sprY[SPRITE_NUM];	// Screen coordinates
-	unsigned char sprDrawn[SPRITE_NUM], sprCollision[SPRITE_NUM], sprCushion = 2; // Enable and Collision status
 	SCB_REHV_PAL sprSCB[SPRITE_NUM] = { { BPP_4 | TYPE_NONCOLL, REHV | LITERAL, 0, 0, 0, 0, 0, 0x0100, 0x0100, { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef } },
 									    { BPP_4 | TYPE_NONCOLL, REHV | LITERAL, 0, 0, 0, 0, 0, 0x0100, 0x0100, { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef } },
 										{ BPP_4 | TYPE_NONCOLL, REHV | LITERAL, 0, 0, 0, 0, 0, 0x0100, 0x0100, { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef } },
@@ -79,7 +74,7 @@
 										{ BPP_4 | TYPE_NONCOLL, REHV | LITERAL, 0, 0, 0, 0, 0, 0x0100, 0x0100, { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef } },
 										{ BPP_4 | TYPE_NONCOLL, REHV | LITERAL, 0, 0, 0, 0, 0, 0x0100, 0x0100, { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef } },
 										{ BPP_4 | TYPE_NONCOLL, REHV | LITERAL, 0, 0, 0, 0, 0, 0x0100, 0x0100, { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef } } };
-	unsigned char cushionLow, cushionHigh;
+	unsigned char cushionLow, cushionHigh, sprCushion = 2;
 	SCB_REHV_PAL *scb;
 	
 #elif defined __NES__
@@ -92,15 +87,11 @@
 									   0,0,0,0, 8,0,0,0, 0,8,0,0, 8,8,0,0, 128,
 									   0,0,0,0, 8,0,0,0, 0,8,0,0, 8,8,0,0, 128,
 									   0,0,0,0, 8,0,0,0, 0,8,0,0, 8,8,0,0, 128 };
-	unsigned char sprX[SPRITE_NUM], sprY[SPRITE_NUM];	// Screen coordinates
-	unsigned char sprDrawn[SPRITE_NUM], sprCollision[SPRITE_NUM], sprCushion = 2; // Enable and Collision status	
-	unsigned char cushionLow, cushionHigh;
+	unsigned char cushionLow, cushionHigh, sprCushion = 2;
  #pragma bss-name(pop)
 	
 #elif defined __ORIC__	
-	unsigned char sprX[SPRITE_NUM], sprY[SPRITE_NUM], sprOverlap[SPRITE_NUM]; // Screen coordinates, Overlap flag
-	unsigned char sprDrawn[SPRITE_NUM], sprCollision[SPRITE_NUM]; // Enable Flag, Collision status
-	unsigned char sprRows[SPRITE_NUM], *sprBG[SPRITE_NUM]; // Height of Sprite (rows), Pointer to background backup
+	unsigned char sprOverlap[SPRITE_NUM], sprRows[SPRITE_NUM], *sprBG[SPRITE_NUM]; // Overlap flag, Height of Sprite (rows), Pointer to background backup
 	unsigned int  scrAddr[SPRITE_NUM], sprCOLOR;  // Screen address, Color vector
 	unsigned char* sprMULTICOLOR[SPRITE_NUM];
 	void MultiColorSprite(unsigned char index, unsigned char* multiColorDef) {

@@ -39,6 +39,15 @@
   #pragma code-name("BANK0")
 #endif
 
+// Sprite properties
+unsigned char sprDrawn[SPRITE_NUM], sprFlags[SPRITE_NUM], sprFrame[SPRITE_NUM];
+#if defined(__CBM__)
+  unsigned char sprCollision, sprY[SPRITE_NUM];
+  unsigned int  sprX[SPRITE_NUM];	 
+#else 
+  unsigned char sprCollision[SPRITE_NUM], sprX[SPRITE_NUM], sprY[SPRITE_NUM];
+#endif
+
 // Apple II specific background redrawing function
 #if defined __APPLE2__
   unsigned char xHires, yHires, xptr, yptr, *bgPtr;
@@ -296,10 +305,7 @@ void SetSprite(unsigned char index, unsigned int frame)
 	SpriteCollisions(index);	
 	
 	// Save sprite information
-	sprHiresX[index] = xHires;
-	sprX[index] = spriteX;
-	sprY[index] = spriteY;
-	sprDrawn[index] = 1;	
+	sprHiresX[index] = xHires;	
 	
 #elif defined __ATARI__
 	// Compute vertical position and slot
@@ -326,12 +332,49 @@ void SetSprite(unsigned char index, unsigned int frame)
 	sprSrc[index] = ss_src;	
 	sprDst[index] = ss_dst;
 	sprLead[index] = ss_off;
-	sprX[index] = spriteX;
-	sprY[index] = spriteY;
 	sprDrawn[index] = 1;
 	
 	// Check collisions with other sprites
 	SpriteCollisions(index);	
+	
+#elif defined __CBM__
+	// Tell VIC where to find the frame
+	POKE(SPRITEPTR+index, SPRITELOC+frame);
+
+	// Set X/Y Coordinates
+	POKE(53249+2*index, spriteY+39);
+	if (spriteX < 244) {
+		POKE(53248+2*index, spriteX+12);
+		POKE(53264, PEEK(53264) & ~(1 << index));
+	} else {
+		POKE(53248+2*index, spriteX-244);
+		POKE(53264, PEEK(53264) |  (1 << index));
+	}
+	
+#elif defined __LYNX__
+	// Set sprite data for Suzy
+	scb = &sprSCB[index];
+	scb->data = &spriteData+FRAMESIZE*frame;
+	scb->hpos = spriteX-SPRITEHEIGHT/2u;
+	scb->vpos = spriteY-SPRITEWIDTH/2u;
+	
+	// Check collisions with other sprites
+	SpriteCollisions(index);
+	
+#elif defined __NES__
+	unsigned char base, *metaSprite;
+	metaSprite = &metaSprites[index*17];
+	base = frame*4;
+	metaSprite[ 2] = base++;
+	metaSprite[ 6] = base++;
+	metaSprite[10] = base++;
+	metaSprite[14] = base;
+	oam_set(index<<4);
+	oam_meta_spr(spriteX-8, spriteY-8, metaSprite);
+	//oam_spr(spriteX, spriteY, frame, 0);
+	
+	// Check collisions with other sprites
+	SpriteCollisions(index);		
 
 #elif defined __ORIC__
 	unsigned char i, inkMUL, inkVAL, backup = 1;
@@ -408,57 +451,11 @@ void SetSprite(unsigned char index, unsigned int frame)
 	POKE(0xb6, 2);					// Offset between source lines
 	POKE(0xb7, 40); 				// Offset between target lines
 	BlitSprite();
-		
-	// Save sprite information
-	sprX[index] = spriteX;
-	sprY[index] = spriteY;
-	sprDrawn[index] = 1;
-	
-#elif defined __CBM__
-	// Tell VIC where to find the frame
-	POKE(SPRITEPTR+index, SPRITELOC+frame);
-
-	// Set X/Y Coordinates
-	POKE(53249+2*index, spriteY+39);
-	if (spriteX < 244) {
-		POKE(53248+2*index, spriteX+12);
-		POKE(53264, PEEK(53264) & ~(1 << index));
-	} else {
-		POKE(53248+2*index, spriteX-244);
-		POKE(53264, PEEK(53264) |  (1 << index));
-	}
-#elif defined __LYNX__
-	// Set sprite data for Suzy
-	scb = &sprSCB[index];
-	scb->data = &spriteData+FRAMESIZE*frame;
-	scb->hpos = spriteX-SPRITEHEIGHT/2u;
-	scb->vpos = spriteY-SPRITEWIDTH/2u;
-	
-	// Check collisions with other sprites
-	SpriteCollisions(index);
-
-	// Save sprite information
-	sprX[index] = spriteX;
-	sprY[index] = spriteY;
-	sprDrawn[index] = 1;
-#elif defined __NES__
-	unsigned char base, *metaSprite;
-	metaSprite = &metaSprites[index*17];
-	base = frame*4;
-	metaSprite[ 2] = base++;
-	metaSprite[ 6] = base++;
-	metaSprite[10] = base++;
-	metaSprite[14] = base;
-	oam_set(index<<4);
-	oam_meta_spr(spriteX-8, spriteY-8, metaSprite);
-	//oam_spr(spriteX, spriteY, frame, 0);
-	
-	// Check collisions with other sprites
-	SpriteCollisions(index);	
-	
-	// Save sprite information
-	sprX[index] = spriteX;
-	sprY[index] = spriteY;	
-	sprDrawn[index] = 1;
 #endif
+
+	// Save sprite information
+	sprX[index] = spriteX;
+	sprY[index] = spriteY;
+	sprFrame[index] = frame;	
+	sprDrawn[index] = 1;
 }

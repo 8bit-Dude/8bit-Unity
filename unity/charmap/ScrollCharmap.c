@@ -39,16 +39,75 @@
   #pragma code-name("BANK0")
 #endif
 
+// Scroll step size
+signed char stepX, stepY;
+
 #if (defined __APPLE2__) || (defined __ORIC__)
-  void HideSprites(void);
+  void RestoreSprBG(unsigned char index);
 #endif
 
-void ScrollCharmap(unsigned char x, unsigned char y)
+void ShiftSprites(void) 
 {
+	unsigned char i;
+#if (defined __APPLE2__) || (defined __ORIC__)
+	unsigned char nX, nY;
+#endif
+	for (i=0; i<SPRITE_NUM; i++)
+		if (sprDrawn[i]) {
+			if (!(sprFlags[i] & SPR_SCROLL)) {
+		#if (defined __APPLE2__) || (defined __ORIC__)
+				RestoreSprBG(i);
+				sprDrawn[i] = 0;
+		#endif
+			} else {
+		#if (defined __APPLE2__) || (defined __ORIC__)
+				nY = sprY[i] - stepY*8;
+				if (nY < screenRow1*8 || nY >= screenRow2*8) {	
+					RestoreSprBG(i);
+					sprDrawn[i] = 0;
+					continue;
+				} else {
+					sprY[i] = nY;
+				}
+			#if (defined __APPLE2__)
+				nX = sprHiresX[i] - stepX;
+			#else
+				nX = sprX[i] - stepX;
+			#endif	
+				if (nX < screenCol1 || nX >= screenCol2) {
+					RestoreSprBG(i);
+					sprDrawn[i] = 0;
+					continue;
+				} else {
+			#if (defined __APPLE2__)
+					sprHiresX[i] = nX;
+					sprX[i] = (sprHiresX[i]*7)/2u;
+			#else
+					sprX[i] = nX;
+			#endif	
+				}
+		#else
+				spriteX = sprX[i] - stepX*4;
+			#if (defined __LYNX__)
+				spriteY = sprY[i] - stepY*4;
+			#else
+				spriteY = sprY[i] - stepY*8;
+			#endif
+				SetSprite(i, sprFrame[i]);
+		#endif
+		}
+	}
+}
+
+void ScrollCharmap(unsigned char x, unsigned char y)
+{	
 #if defined(__NES__) || defined(__ATARI__)
+	// Compute step to shift sprites
+	stepX = x - worldX; 
+	stepY = y - worldY;
+	ShiftSprites();
 	DrawCharmap(x, y);
 #else
-	signed char stepX, stepY;
 	unsigned int src, srcOff, dstOff;
 	unsigned int cpyDst = 0, cpySrc = 0;
 	unsigned char tmp1;
@@ -94,11 +153,9 @@ void ScrollCharmap(unsigned char x, unsigned char y)
 		}
 		scrollCols -= ABS(stepX)*CHAR_WIDTH;
 	}
-
-	// Hide soft sprites
-#if defined(__APPLE2__) || defined(__ORIC__)
-	HideSprites();
-#endif
+	
+	// Shift position of soft sprites
+	ShiftSprites();
 	
 	// Scroll screen area
 	scrollRows = (screenHeight-ABS(stepY))*CHAR_HEIGHT;
@@ -116,6 +173,17 @@ void ScrollCharmap(unsigned char x, unsigned char y)
   #endif
 #endif  
 	Scroll();
+	
+	// Restore non-scrollable sprites
+#if (defined __APPLE2__) || (defined __ORIC__)
+	for (tmp1=0; tmp1<SPRITE_NUM; tmp1++)
+		if (sprDrawn[tmp1] && !(sprFlags[tmp1] & SPR_SCROLL)) {
+			spriteX = sprX[tmp1];
+			spriteY = sprY[tmp1];
+			SetSprite(tmp1, sprFrame[tmp1]);
+		}
+#endif
+		
 		
 	// Blit new area on Top/Bottom
 	if (stepY) {

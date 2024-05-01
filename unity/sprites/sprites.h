@@ -23,6 +23,11 @@
  *   used to endorse or promote products derived from this software without
  *   specific prior written permission.
  */
+ 
+// Sprite Flags
+#define SPR_SCROLL     1 
+#define SPR_COLLISION  2 
+#define SPR_MULTICOLOR 4 
 
 // Platform specific definitions
 #if defined __APPLE2__
@@ -31,8 +36,7 @@
 	extern unsigned char *sprData, *sprBG[SPRITE_NUM], sprRows[SPRITE_NUM], sprHiresX[SPRITE_NUM];
 #elif defined __ATARI__	
 	#define BANK_NUM   3	// 3 banks of 4 single color sprites (or 2 multicolor sprites)
-	extern unsigned char sprRows, sprPads, sprDLIs, sprBank[BANK_NUM];
-	extern unsigned char sprDrawn[SPRITE_NUM], sprX[SPRITE_NUM], sprY[SPRITE_NUM];
+	extern unsigned char sprRows, sprPads, sprDLIs, sprBank[BANK_NUM], sprMask[SPRITE_NUM];
 	extern unsigned char sprBegDLI[SPRITE_NUM], sprEndDLI[SPRITE_NUM], sprLead[SPRITE_NUM], sprColor[SPRITE_NUM];
 	extern unsigned int  sprSrc[SPRITE_NUM], sprDst[SPRITE_NUM];
 	extern unsigned char *sprData, sprYOffset;
@@ -55,10 +59,10 @@
 #endif
 
 // Sprite status
+extern unsigned char sprDrawn[SPRITE_NUM], sprFlags[SPRITE_NUM], sprFrame[SPRITE_NUM], sprScroll;
 #if defined(__CBM__)
-  extern unsigned char sprCollision;
+  extern unsigned char sprCollision, sprY[SPRITE_NUM];
+  extern unsigned int  sprX[SPRITE_NUM];
 #else 
-  extern unsigned char sprCollision[SPRITE_NUM];
+  extern unsigned char sprCollision[SPRITE_NUM], sprX[SPRITE_NUM], sprY[SPRITE_NUM];
 #endif
-extern unsigned char sprMask[SPRITE_NUM], sprDrawn[SPRITE_NUM];
-extern unsigned char sprX[SPRITE_NUM], sprY[SPRITE_NUM], sprColor[SPRITE_NUM];

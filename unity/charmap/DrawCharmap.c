@@ -39,20 +39,6 @@
   #pragma code-name("BANK0")
 #endif
 
-// Helper function for soft sprites
-#if (defined __APPLE2__) || (defined __ORIC__)
-  extern unsigned char sprDrawn[];
-  void RestoreSprBG(unsigned char index);
-  void HideSprites(void) {
-	unsigned char i;
-	for (i=0; i<SPRITE_NUM; i++)
-		if (sprDrawn[i]) {			
-			RestoreSprBG(i);
-			sprDrawn[i] = 0;
-		}
-  }
-#endif
-
 void DrawCharmap(unsigned char x, unsigned char y)
 {
 #ifdef __NES__
@@ -68,11 +54,6 @@ void DrawCharmap(unsigned char x, unsigned char y)
   #else
 	clk += 26;  
   #endif
-#endif
-
-	// Hide soft sprites
-#if defined(__APPLE2__) || defined(__ORIC__)
-	HideSprites();
 #endif
 
 	// Save new coordinates (for scrolling)

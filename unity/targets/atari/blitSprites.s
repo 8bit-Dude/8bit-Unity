@@ -28,20 +28,17 @@
 
 	.export _BlitSprites
 	
-	.export _sprRows, _sprPads, _sprBank, _sprDrawn
-	.export _sprX, _sprY, _sprBegDLI, _sprEndDLI, _sprLead, _sprDst, _sprSrc, _sprColor	
+	.export _sprRows, _sprPads, _sprBank
+	.export _sprBegDLI, _sprEndDLI, _sprLead, _sprDst, _sprSrc, _sprColor	
 	
-	.import _posPM0, _colPM0	; See DLI.s
+	.import _sprDrawn, _sprX, _sprY, _posPM0, _colPM0	; See DLI.s
 
 	.segment	"DATA"		
 	
 ; Sprite parameters
 _sprRows:   .byte 0
 _sprPads:   .res  1
-_sprDrawn:  .res 16
 _sprColor:  .res 16
-_sprX:      .res 16
-_sprY:      .res 16
 _sprDst:    .res 32
 _sprSrc:    .res 32
 _sprLead:   .res 16

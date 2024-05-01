@@ -172,10 +172,7 @@ unsigned char GetPixel()
 	unsigned int addr;
 	unsigned char i, pX, pY, xO, yO, occlusion = 0;
 	unsigned char byte1, byte2, shift, color = 0;
-	extern unsigned char sprDrawn[SPRITE_NUM];
 	extern unsigned char* sprBG[SPRITE_NUM];
-	extern unsigned char sprX[SPRITE_NUM];
-	extern unsigned char sprY[SPRITE_NUM];
 
 	// Scale to block coordinates (6x2)
 	pX = pixelX/3u+1; pY = pixelY*2;

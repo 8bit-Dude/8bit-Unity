@@ -39,7 +39,10 @@
   #pragma code-name("BANK0")
 #endif
 
-void EnableSprite(signed char index)
+// Scroll sprites: 0 = no, 1 = yes
+unsigned char sprScroll = 1;
+
+void EnableSprite(unsigned char index)
 {	
 #if (defined __APPLE2__) || (defined __ORIC__)
 	// Allocate memory for background
@@ -49,7 +52,6 @@ void EnableSprite(signed char index)
 	  #else
 		sprBG[index] = (unsigned char*)malloc(4*SPRITEHEIGHT);	// 4 bytes per line (2 atrributes + 12 pixels)
 	  #endif
-		sprDrawn[index] = 0;
 	}
 
 #elif defined __ATARI__
@@ -61,4 +63,9 @@ void EnableSprite(signed char index)
 	// Set sprite bits
 	POKE(53269, PEEK(53269) |  (1 << index));
 #endif
+
+	// Set scroll state
+	if (sprScroll) {
+		sprFlags[index] = SPR_SCROLL;
+	}
 }
