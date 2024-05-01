@@ -6,7 +6,7 @@ Actor actors[ACTOR_NUM];
 Actor* selActor;
 
 // Animation frame toggle
-unsigned char toggleActor;
+unsigned char toggleActor, toggleTime;
 
 // Variables for position checks, etc...
 unsigned char i, j, slot;
@@ -93,10 +93,24 @@ void DisplayActors()
 		selActor->scrY = (selActor->mapY-mapY+screenRow1)*SCALE_Y;			
 		
 		// Assign sprite slot
-		RecolorSprite(slot, 0, selActor->color); 
 		LocateSprite(selActor->scrX, selActor->scrY);
+	#if defined __ATARI__
+		if (selActor->key < KEY_WEAPON) {
+			RecolorSprite(slot, 0, 0x24); 
+			RecolorSprite(slot+1, 0, selActor->color); 
+			SetMultiColorSprite(slot, selActor->frame);
+			EnableMultiColorSprite(slot);
+			slot += 2;
+		} else {
+			RecolorSprite(slot, 0, selActor->color); 
+			SetSprite(slot, selActor->frame);	
+			EnableSprite(slot++);		
+		}
+	#else
+		RecolorSprite(slot, 0, selActor->color); 
 		SetSprite(slot, selActor->frame);	
 		EnableSprite(slot++);		
+	#endif	
 	}
 	
 	// Reset unused sprite slots		
@@ -107,6 +121,7 @@ void DisplayActors()
 void ProcessActors()
 {
 	unsigned char collision;
+	toggleTime ^= 1; if (!toggleTime) return;
 	toggleActor ^= 1;
 
 	// Process Actor Movements and Attacks

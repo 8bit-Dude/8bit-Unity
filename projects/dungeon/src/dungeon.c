@@ -36,6 +36,7 @@ void GameInit(void)
 		
 	// Setup sprites
 	LoadSprites("sprites.dat", spriteColors);
+	sprScroll = 0;	// Disable auto-scroll
 #if defined __ATARI__
 	EnableMultiColorSprite(SPRITE_PLAYER);
 #elif defined __ORIC__
@@ -44,6 +45,7 @@ void GameInit(void)
 #else
 	EnableSprite(SPRITE_PLAYER);
 #endif
+	sprScroll = 1; // Re-enable auto-scroll
 
 	// Show stats
 #if (defined __ORIC__)

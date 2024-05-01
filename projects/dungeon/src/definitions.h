@@ -3,7 +3,11 @@
 
 // Screen cropping around charmap
 #if defined (__APPLE2__) || defined(__ORIC__)
-	#define CROP_X  4	// Crop more for platforms that run in HIRES
+  #if defined (__APPLE2__) && defined (__DHR__)
+	#define CROP_X  8	// Crop more for platforms that run in HIRES
+  #else
+	#define CROP_X  4	
+  #endif
 	#define CROP_Y  3
 #else
 	#define CROP_X  2
@@ -23,7 +27,7 @@
 #if defined __ATARI__	
 	#define SPRITE_PLAYER   0		// Occupies 2 slots!
 	#define SPRITE_WEAPON   2
-	#define SPRITE_ACTOR    3
+	#define SPRITE_ACTOR    4
 	#define COLOR_GOLD 	   0xec
 	#define COLOR_POTION   0x34
 	#define COLOR_ARMOR    0x12
@@ -54,13 +58,13 @@
 
 // Animation Key Frames
 #define KEY_PLAYER     0
-#define KEY_WEAPON     8
-#define KEY_GOLD      12
-#define KEY_POTION    13
-#define KEY_ARMOR     14
-#define KEY_KEY       15
-#define KEY_SKELETON  16
-#define KEY_GOBLIN    24
+#define KEY_SKELETON   8
+#define KEY_GOBLIN    16
+#define KEY_WEAPON    24
+#define KEY_GOLD      28
+#define KEY_POTION    29
+#define KEY_ARMOR     30
+#define KEY_KEY       31
 
 // Animation Stance Frames
 #define STANCE_RIGHT   0

@@ -95,7 +95,6 @@ void ProcessPlayer()
 		if (mapX != mapXPRV || mapY != mapYPRV) {
 	#endif
 			ScrollCharmap(mapX, mapY);
-			DisplayActors();
 		}
 	}					
 	
@@ -135,13 +134,13 @@ void ProcessWeapon()
 	// Locate weapon
 	switch (direction) {
 	case 0:
-		weaponX = scrX-12; weaponY = scrY; weaponFrame = 8; break;
+		weaponX = scrX-12; weaponY = scrY; weaponFrame = KEY_WEAPON; break;
 	case 2:
-		weaponX = scrX+12; weaponY = scrY; weaponFrame = 9; break;
+		weaponX = scrX+12; weaponY = scrY; weaponFrame = KEY_WEAPON+1; break;
 	case 4:
-		weaponX = scrX; weaponY = scrY-14; weaponFrame = 10; break;
+		weaponX = scrX; weaponY = scrY-14; weaponFrame = KEY_WEAPON+2; break;
 	case 6:
-		weaponX = scrX; weaponY = scrY+14; weaponFrame = 11; break;
+		weaponX = scrX; weaponY = scrY+14; weaponFrame = KEY_WEAPON+3; break;
 	}
 	
 	// Process attack
