@@ -1,7 +1,9 @@
+try:
+    import tkinter as Tkinter
+except ImportError:
+    import Tkinter as Tkinter
 
-import Tkinter as Tkinter
-
-from pygubu import BuilderObject, register_widget
+from pygubu.api.v1 import BuilderObject, register_widget
 
 class DragDropListbox(Tkinter.Listbox):
     """ A Tkinter listbox with drag'n'drop reordering of entries. """
@@ -44,5 +46,4 @@ class TKDragDropListbox(BuilderObject):
     command_properties = ('xscrollcommand', 'yscrollcommand')
 
 register_widget('tk.DragDropListbox', TKDragDropListbox,
-                'DragDropListbox', ('Control & Display', 'tk'))            
-            
+                'DragDropListbox', ('Control & Display', 'tk'))

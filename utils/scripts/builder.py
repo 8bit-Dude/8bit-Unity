@@ -24,12 +24,31 @@
  *   specific prior written permission.
 """
 
-from Tkinter import *
-import tkMessageBox as messagebox
-import DragDropListbox as DragDropListbox
-from tkFileDialog import askopenfilename, asksaveasfilename
+from __future__ import print_function
+try:
+    from tkinter import *
+    from tkinter import messagebox
+    from tkinter.filedialog import askopenfilename as _orig_askopenfilename, asksaveasfilename as _orig_asksaveasfilename
+except ImportError:
+    from Tkinter import *
+    import tkMessageBox as messagebox
+    from tkFileDialog import askopenfilename as _orig_askopenfilename, asksaveasfilename as _orig_asksaveasfilename
 from PIL import Image, ImageTk
 import os, pickle, pygubu, sys, collections, json, codecs
+import DragDropListbox
+
+# Wrap file dialog functions to handle tuple return values
+def askopenfilename(*args, **kwargs):
+    result = _orig_askopenfilename(*args, **kwargs)
+    if isinstance(result, (list, tuple)):
+        return result[0] if result else ''
+    return result
+
+def asksaveasfilename(*args, **kwargs):
+    result = _orig_asksaveasfilename(*args, **kwargs)
+    if isinstance(result, (list, tuple)):
+        return result[0] if result else ''
+    return result
 
 # Script extension    
 if "nt" == os.name:
@@ -223,7 +242,10 @@ while i<len(sys.argv):
         useGUI = Str2Bool(sys.argv[i+1])
     i += 1
 
-print "projectFile: ", projectFile, " buildFolder: ", buildFolder, " callEmu: ", callEmu, " useGUI: ", useGUI
+print("projectFile:", projectFile,
+      "buildFolder:", buildFolder,
+      "callEmu:", callEmu,
+      "useGUI:", useGUI)
 
 class Application:
 
@@ -470,8 +492,8 @@ class Application:
         
     def FileLoad(self, filename=''):
         if filename == '':
-            filename = askopenfilename(initialdir = "../../", title = "Load Builder Project", filetypes = PROJECT_FILE_FORMATS) 
-        if filename is not '':
+            filename = askopenfilename(initialdir = "../../", title = "Load Builder Project", filetypes = PROJECT_FILE_FORMATS)
+        if filename != '':
             # Reset UI
             for l in self.listboxes:
                 l.delete(0, END)
@@ -497,7 +519,7 @@ class Application:
             # Unpickle data
             with open(filename, "r") as fp:
                 # Version number
-                print "File version: " + str(pickle.load(fp))
+                print("File version: " + str(pickle.load(fp)))
                 data = pickle.load(fp)
                                 
                 # Entry boxes
@@ -591,7 +613,10 @@ class Application:
                     elif kind == 'listbox':
                         child = list(component.get(0, END))
                     elif kind == 'checkbutton':
-                        child = component.get()
+                        if component.get():
+                            child = True
+                        else:
+                            child = False
                     elif kind == 'combobox':
                         child = component.get()
                 else:
@@ -728,7 +753,7 @@ class Application:
 
     def CodeAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Code File", filetypes = (("C files","*.c"),)) 
-        if filename is not '':
+        if filename != '':
             filename = filename.replace(self.cwd, '')
             self.listbox_Code.insert(END, filename)
 
@@ -737,7 +762,7 @@ class Application:
                 
     def CharmapAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Character Map", filetypes = (("Charmap/Tileset files","*.map;*.tls"),)) 
-        if filename is not '':
+        if filename != '':
             filename = filename.replace(self.cwd, '')
             self.listbox_Charmap.insert(END, filename)
 
@@ -746,7 +771,7 @@ class Application:
             
     def SharedAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Asset File", filetypes = (("All files","*.*"),)) 
-        if filename is not '':
+        if filename != '':
             filename = filename.replace(self.cwd, '')
             self.listbox_Shared.insert(END, filename)
 
@@ -755,7 +780,7 @@ class Application:
         
     def AppleBitmapDHRAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Bitmap", filetypes = (("PNG files","*.png"),)) 
-        if filename is not '':
+        if filename != '':
             filename = filename.replace(self.cwd, '')
             self.listbox_AppleBitmapDHR.insert(END, filename)
 
@@ -764,7 +789,7 @@ class Application:
 
     def AppleBitmapSHRAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Bitmap", filetypes = (("PNG files","*.png"),)) 
-        if filename is not '':
+        if filename != '':
             filename = filename.replace(self.cwd, '')
             self.listbox_AppleBitmapSHR.insert(END, filename)
 
@@ -773,35 +798,35 @@ class Application:
 
     def AppleCharsetDHRSel(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Character Set", filetypes = (("PNG files","*.png"),)) 
-        if filename is not '':
+        if filename != '':
             filename = filename.replace(self.cwd, '')
             self.listbox_AppleCharsetDHR.delete(0, END)
             self.listbox_AppleCharsetDHR.insert(END, filename)
 
     def AppleCharsetSHRSel(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Character Set", filetypes = (("PNG files","*.png"),)) 
-        if filename is not '':
+        if filename != '':
             filename = filename.replace(self.cwd, '')
             self.listbox_AppleCharsetSHR.delete(0, END)
             self.listbox_AppleCharsetSHR.insert(END, filename)
             
     def AppleSpritesDHRSel(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Sprite Sheet", filetypes = (("PNG files","*.png"),)) 
-        if filename is not '':
+        if filename != '':
             filename = filename.replace(self.cwd, '')
             self.listbox_AppleSpritesDHR.delete(0, END)
             self.listbox_AppleSpritesDHR.insert(END, filename)
 
     def AppleSpritesSHRSel(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Sprite Sheet", filetypes = (("PNG files","*.png"),)) 
-        if filename is not '':
+        if filename != '':
             filename = filename.replace(self.cwd, '')
             self.listbox_AppleSpritesSHR.delete(0, END)
             self.listbox_AppleSpritesSHR.insert(END, filename)
             
     def AppleChunksAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Chunks Definition", filetypes = (("Text files","*.txt"),)) 
-        if filename is not '':
+        if filename != '':
             filename = filename.replace(self.cwd, '')
             self.listbox_AppleChunks.insert(END, filename)          
 
@@ -810,7 +835,7 @@ class Application:
 
     def AppleMusicAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Music Track", filetypes = (("DUET M files","*.m"),)) 
-        if filename is not '':
+        if filename != '':
             filename = filename.replace(self.cwd, '')
             self.listbox_AppleMusic.insert(END, filename)
 
@@ -819,7 +844,7 @@ class Application:
             
     def AtariBitmapAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Bitmap", filetypes = (("PNG files","*.png"),)) 
-        if filename is not '':
+        if filename != '':
             filename = filename.replace(self.cwd, '')
             self.listbox_AtariBitmap.insert(END, filename)
 
@@ -828,21 +853,21 @@ class Application:
 
     def AtariCharsetSel(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Character Set", filetypes = (("PNG files","*.png"),)) 
-        if filename is not '':
+        if filename != '':
             filename = filename.replace(self.cwd, '')
             self.listbox_AtariCharset.delete(0, END)
             self.listbox_AtariCharset.insert(END, filename)
             
     def AtariSpritesSel(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Sprite Sheet", filetypes = (("PNG files","*.png"),)) 
-        if filename is not '':
+        if filename != '':
             filename = filename.replace(self.cwd, '')
             self.listbox_AtariSprites.delete(0, END)
             self.listbox_AtariSprites.insert(END, filename)
 
     def AtariChunksAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Chunks Definition", filetypes = (("Text files","*.txt"),)) 
-        if filename is not '':
+        if filename != '':
             filename = filename.replace(self.cwd, '')
             self.listbox_AtariChunks.insert(END, filename)          
 
@@ -851,7 +876,7 @@ class Application:
 
     def AtariMusicAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Music Track", filetypes = (("RMT files","*.rmt"),)) 
-        if filename is not '':
+        if filename != '':
             filename = filename.replace(self.cwd, '')
             self.listbox_AtariMusic.insert(END, filename)
 
@@ -860,7 +885,7 @@ class Application:
     
     def C64BitmapAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Bitmap", filetypes = (("PNG files","*.png"),)) 
-        if filename is not '':
+        if filename != '':
             filename = filename.replace(self.cwd, '')
             self.listbox_C64Bitmap.insert(END, filename)
 
@@ -869,21 +894,21 @@ class Application:
 
     def C64CharsetSel(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Character Set", filetypes = (("PNG files","*.png"),)) 
-        if filename is not '':
+        if filename != '':
             filename = filename.replace(self.cwd, '')
             self.listbox_C64Charset.delete(0, END)
             self.listbox_C64Charset.insert(END, filename)
             
     def C64SpritesSel(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Sprite Sheet", filetypes = (("PNG files","*.png"),)) 
-        if filename is not '':
+        if filename != '':
             filename = filename.replace(self.cwd, '')
             self.listbox_C64Sprites.delete(0, END)
             self.listbox_C64Sprites.insert(END, filename)
 
     def C64ChunksAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Chunks Definition", filetypes = (("Text files","*.txt"),)) 
-        if filename is not '':
+        if filename != '':
             filename = filename.replace(self.cwd, '')
             self.listbox_C64Chunks.insert(END, filename)          
 
@@ -892,7 +917,7 @@ class Application:
         
     def C64MusicAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Music Track", filetypes = (("SID files","*.sid"),)) 
-        if filename is not '':
+        if filename != '':
             filename = filename.replace(self.cwd, '')
             self.listbox_C64Music.insert(END, filename)
 
@@ -901,7 +926,7 @@ class Application:
         
     def LynxBitmapAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Bitmap", filetypes = (("PNG files","*.png"),)) 
-        if filename is not '':
+        if filename != '':
             filename = filename.replace(self.cwd, '')
             self.listbox_LynxBitmap.insert(END, filename)
 
@@ -910,21 +935,21 @@ class Application:
         
     def LynxCharsetSel(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Character Set", filetypes = (("PNG files","*.png"),)) 
-        if filename is not '':
+        if filename != '':
             filename = filename.replace(self.cwd, '')
             self.listbox_LynxCharset.delete(0, END)
             self.listbox_LynxCharset.insert(END, filename)        
         
     def LynxSpritesSel(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Sprite Sheet", filetypes = (("PNG files","*.png"),)) 
-        if filename is not '':
+        if filename != '':
             filename = filename.replace(self.cwd, '')
             self.listbox_LynxSprites.delete(0, END)
             self.listbox_LynxSprites.insert(END, filename)
 
     def LynxChunksAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Chunks Definition", filetypes = (("Text files","*.txt"),)) 
-        if filename is not '':
+        if filename != '':
             filename = filename.replace(self.cwd, '')
             self.listbox_LynxChunks.insert(END, filename)          
 
@@ -933,7 +958,7 @@ class Application:
                  
     def LynxMusicAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Music Track", filetypes = (("Chipper files","*.asm"),)) 
-        if filename is not '':
+        if filename != '':
             filename = filename.replace(self.cwd, '')
             self.listbox_LynxMusic.insert(END, filename)
 
@@ -942,7 +967,7 @@ class Application:
         
     def NESBitmapAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Bitmap", filetypes = (("PNG files","*.png"),)) 
-        if filename is not '':
+        if filename != '':
             filename = filename.replace(self.cwd, '')
             self.listbox_NESBitmap.insert(END, filename)
 
@@ -951,21 +976,21 @@ class Application:
         
     def NESCharsetSel(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Character Set", filetypes = (("PNG files","*.png"),)) 
-        if filename is not '':
+        if filename != '':
             filename = filename.replace(self.cwd, '')
             self.listbox_NESCharset.delete(0, END)
             self.listbox_NESCharset.insert(END, filename)        
         
     def NESSpritesSel(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Sprite Sheet", filetypes = (("PNG files","*.png"),)) 
-        if filename is not '':
+        if filename != '':
             filename = filename.replace(self.cwd, '')
             self.listbox_NESSprites.delete(0, END)
             self.listbox_NESSprites.insert(END, filename)
 
     def NESChunksAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Chunks Definition", filetypes = (("Text files","*.txt"),)) 
-        if filename is not '':
+        if filename != '':
             filename = filename.replace(self.cwd, '')
             self.listbox_NESChunks.insert(END, filename)          
 
@@ -974,7 +999,7 @@ class Application:
         
     def NESMusicAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Music Track", filetypes = (("TXT files","*.txt"),)) 
-        if filename is not '':
+        if filename != '':
             filename = filename.replace(self.cwd, '')
             self.listbox_NESMusic.insert(END, filename)
 
@@ -983,7 +1008,7 @@ class Application:
 
     def OricBitmapAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Bitmap", filetypes = (("PNG files","*.png"),)) 
-        if filename is not '':
+        if filename != '':
             filename = filename.replace(self.cwd, '')
             self.listbox_OricBitmap.insert(END, filename)
 
@@ -992,21 +1017,21 @@ class Application:
         
     def OricCharsetSel(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Character Set", filetypes = (("PNG files","*.png"),)) 
-        if filename is not '':
+        if filename != '':
             filename = filename.replace(self.cwd, '')
             self.listbox_OricCharset.delete(0, END)
             self.listbox_OricCharset.insert(END, filename)        
         
     def OricSpritesSel(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Sprite Sheet", filetypes = (("PNG files","*.png"),)) 
-        if filename is not '':
+        if filename != '':
             filename = filename.replace(self.cwd, '')
             self.listbox_OricSprites.delete(0, END)
             self.listbox_OricSprites.insert(END, filename)
 
     def OricChunksAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Chunks Definition", filetypes = (("Text files","*.txt"),)) 
-        if filename is not '':
+        if filename != '':
             filename = filename.replace(self.cwd, '')
             self.listbox_OricChunks.insert(END, filename)          
 
@@ -1015,7 +1040,7 @@ class Application:
         
     def OricMusicAdd(self):
         filename = askopenfilename(initialdir = "../../", title = "Select Music Track", filetypes = (("YM files","*.ym"),)) 
-        if filename is not '':
+        if filename != '':
             filename = filename.replace(self.cwd, '')
             self.listbox_OricMusic.insert(END, filename)
 
